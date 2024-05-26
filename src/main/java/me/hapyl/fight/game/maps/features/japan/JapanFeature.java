@@ -14,6 +14,7 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.spigotutils.module.chat.Gradient;
 import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
@@ -133,7 +134,7 @@ public class JapanFeature extends MapFeature implements Listener {
         }
 
         for (JapanBooster booster : boosters) {
-            if (CFUtils.blockLocationEquals(booster.getLocation(), block.getLocation())) {
+            if (LocationHelper.blockLocationEquals(booster.getLocation(), block.getLocation())) {
                 gamePlayer.startCooldown(Cooldown.JAPAN_BOOSTER);
                 booster.boost(gamePlayer);
                 return;

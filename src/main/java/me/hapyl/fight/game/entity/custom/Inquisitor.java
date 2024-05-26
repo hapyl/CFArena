@@ -6,9 +6,10 @@ import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.NamedGameEntity;
 import me.hapyl.fight.game.entity.overlay.OverlayGameEntityType;
 import me.hapyl.fight.game.entity.overlay.OverlayNamedGameEntity;
+import me.hapyl.fight.game.heroes.PlayerSkinPreview;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -58,7 +59,7 @@ public class Inquisitor extends OverlayGameEntityType {
         @Nullable
         @Override
         public String[] getExtraHologramLines() {
-            return new String[] { Chat.format("&c+%s%% damage", AttributeType.ATTACK.getDecimalFormatted(attributes)) };
+            return new String[] { Chat.format("&c+%s%% damage".formatted(AttributeType.ATTACK.getDecimalFormatted(attributes))) };
         }
 
         @Override
@@ -70,7 +71,7 @@ public class Inquisitor extends OverlayGameEntityType {
             if (attributes.get(AttributeType.ATTACK) >= 6.0d) {
                 forceRemove();
                 getNpc().remove();
-                spawnWorldParticle(Particle.EXPLOSION_LARGE, 1);
+                spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
                 return;
             }
         }

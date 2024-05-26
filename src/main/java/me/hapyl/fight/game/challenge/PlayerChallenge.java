@@ -61,7 +61,7 @@ public class PlayerChallenge implements Described {
             return hasClaimedRewards ? "&a✔" : Color.M_YELLOW.bold() + "CAN CLAIM!";
         }
 
-        return CFUtils.makeStringFractional(current, goal);
+        return Chat.makeStringFractional(current, goal);
     }
 
     public boolean increment() {

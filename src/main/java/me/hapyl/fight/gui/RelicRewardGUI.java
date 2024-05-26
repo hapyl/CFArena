@@ -60,9 +60,6 @@ public class RelicRewardGUI extends StyledGUI {
 
             setItem(slot, relicBuilder.asIcon());
 
-            final List<Relic> relicsByType = relicHunt.byType(type);
-            final List<Relic> foundRelicsByType = relicHunt.getFoundListByType(player, type);
-
             // Tiers
             for (int index = 1; index <= 3; index++) {
                 final int finalIndex = index;
@@ -193,7 +190,9 @@ public class RelicRewardGUI extends StyledGUI {
         exchangeBuilder.addLore();
 
         if (canExchange < CollectibleEntry.PERMANENT_EXCHANGE_RATE) {
-            exchangeBuilder.addLore(Color.ERROR + "Cannot exchange! (%s/%s)", canExchange, CollectibleEntry.PERMANENT_EXCHANGE_RATE);
+            exchangeBuilder.addLore(
+                    Color.ERROR + "Cannot exchange! (%s/%s)".formatted(canExchange, CollectibleEntry.PERMANENT_EXCHANGE_RATE)
+            );
 
             setItem(34, exchangeBuilder.asIcon(), click -> {
                 Notifier.error(player, "Cannot exchange!");

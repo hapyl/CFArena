@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -70,7 +68,7 @@ public class LimboFeature extends VoidFeature implements Listener {
         entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 
         Geometry.drawLine(location, teleportLocation, 0.5,
-                loc -> PlayerLib.spawnParticle(loc, Particle.SMOKE_NORMAL, 3, 0.1d, 0.1d, 0.1d, 0.01f)
+                loc -> PlayerLib.spawnParticle(loc, Particle.SMOKE, 3, 0.1d, 0.1d, 0.1d, 0.01f)
         );
     }
 }

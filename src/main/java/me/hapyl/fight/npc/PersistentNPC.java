@@ -47,7 +47,7 @@ public class PersistentNPC extends HumanNPC {
     }
 
     public void sendMessage(@Nonnull Player player, @Nonnull String message, @Nonnull Object... format) {
-        Chat.sendMessage(player, "&e[NPC] %s&f: %s", getName(), Placeholder.formatAll(message.formatted(format), player, this));
+        Chat.sendMessage(player, "&e[NPC] %s&f: %s".formatted(getName(), Placeholder.formatAll(message.formatted(format), player, this)));
         sound.play(player);
     }
 

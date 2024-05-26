@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -30,10 +29,10 @@ public class ChargedTalent extends Talent {
     }
 
     public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges) {
-        this(name, description, maxCharges, Type.DAMAGE);
+        this(name, description, maxCharges, TalentType.DAMAGE);
     }
 
-    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges, @Nonnull Type type) {
+    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges, @Nonnull TalentType type) {
         super(name, description, type);
 
         this.maxCharges = maxCharges;

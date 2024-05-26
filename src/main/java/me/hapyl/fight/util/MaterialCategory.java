@@ -33,9 +33,7 @@ public enum MaterialCategory {
         boolean match(Material material) {
             return material.isOccluding();
         }
-    },
-
-    ;
+    };
 
     boolean match(Material material) {
         return false;
@@ -57,4 +55,5 @@ public enum MaterialCategory {
 
         return null;
     }
+
 }

@@ -93,10 +93,14 @@ public class TemperInstance {
     }
 
     public final void temper(@Nonnull EntityAttributes attributes, int duration) {
+        temper(attributes, duration, null);
+    }
+
+    public final void temper(@Nonnull EntityAttributes attributes, int duration, @Nullable LivingGameEntity applier) {
         final LivingGameEntity entity = attributes.getEntity();
         final boolean newTemper = !attributes.hasTemper(temper);
 
-        values.forEach((t, v) -> attributes.increaseTemporary(temper, t, v, duration, true));
+        values.forEach((t, v) -> attributes.increaseTemporary(temper, t, v, duration, true, applier));
 
         // Fx
         if (newTemper) {

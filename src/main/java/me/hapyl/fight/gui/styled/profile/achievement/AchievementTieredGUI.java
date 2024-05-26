@@ -110,12 +110,11 @@ public class AchievementTieredGUI extends StyledGUI {
                 }
                 else {
                     builder.addLore("&a&lPROGRESS:");
-                    builder.addLore(
-                            "&c%s&7/&a%s &8%.2f%%",
+                    builder.addLore("&c%s&7/&a%s &8%.2f%%".formatted(
                             completeCount,
                             numericTier,
                             ((float) completeCount / (float) numericTier * (float) 100)
-                    );
+                    ));
                 }
 
                 setItem(tierSlot, builder.asIcon());

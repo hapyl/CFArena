@@ -1,108 +1,105 @@
 package me.hapyl.fight.event;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.Gradient;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolator;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import org.bukkit.ChatColor;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.mojang.brigadier.tree.CommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.tree.RootCommandNode;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.command.CommandProcessor;
+import me.hapyl.spigotutils.module.command.SimpleCommand;
+import me.hapyl.spigotutils.module.reflect.Reflect;
+import net.minecraft.commands.ICompletionProvider;
+import net.minecraft.network.protocol.game.PacketPlayOutCommands;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerCommandSendEvent;
 
-import javax.annotation.Nonnull;
-import java.awt.*;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 // handles server-related events
 public class ServerHandler implements Listener {
 
-    private static final WeekDayGradient[] gradients =
-            {
-                    new WeekDayGradient(new Color(44, 62, 80), new Color(52, 152, 219)),
-                    new WeekDayGradient(new Color(0, 128, 128), new Color(0, 255, 255)),
-                    new WeekDayGradient(new Color(255, 138, 101), new Color(255, 223, 186)),
-                    new WeekDayGradient(new Color(93, 109, 126), new Color(39, 60, 117)),
-                    new WeekDayGradient(new Color(255, 94, 77), new Color(255, 175, 84)),
-                    new WeekDayGradient(new Color(173, 216, 230), new Color(240, 248, 255)),
-                    new WeekDayGradient(new Color(255, 184, 77), new Color(255, 94, 77)),
-            };
+    private final Set<String> forceRemovedCommands = Sets.newHashSet(
+            "tps",
+            "tell", "w", "msg",
+            "me",
+            "teammsg", "tm",
+            "list",
+            "?"
+    );
 
-    private String[] serverMessageOfTheDay;
+    private final Map<Player, Collection<String>> playerCommands = Maps.newHashMap();
 
-    public String centerText(String text) {
-        return centerText(text, 50);
+    @EventHandler()
+    public void handlePlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent ev) {
+        final Player player = ev.getPlayer();
+        final String message = ev.getMessage();
+        final String commandName = message.split(" ")[0];
+
+        if (isValidCommand(player, commandName)) {
+            return;
+        }
+
+        Notifier.error(player, "Unknown or incomplete command! ({})", message);
+        ev.setCancelled(true);
     }
 
-    /**
-     * <a href="https://www.spigotmc.org/threads/center-motds-and-messages.354209/">Author.</a>
-     */
-    public String centerText(String text, int maxLength) {
-        char[] chars = text.toCharArray();
-        boolean isBold = false;
-        double length = 0;
-        ChatColor pholder = null;
+    @EventHandler()
+    public void handlePlayerPlayerCommandSendEvent(PlayerCommandSendEvent ev) {
+        final Player player = ev.getPlayer();
+        final Collection<String> commands = ev.getCommands();
 
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '&' && chars.length != (i + 1) && (pholder = ChatColor.getByChar(chars[i + 1])) != null) {
-                if (pholder != ChatColor.UNDERLINE && pholder != ChatColor.ITALIC
-                        && pholder != ChatColor.STRIKETHROUGH && pholder != ChatColor.MAGIC) {
-                    isBold = (chars[i + 1] == 'l');
-                    length--;
-                    i += isBold ? 1 : 0;
+        final List<String> cfCommands = Lists.newArrayList(commands);
+        cfCommands.removeIf(string -> !string.contains("cfarena:"));
+        cfCommands.replaceAll(string -> string.replace("cfarena:", ""));
+
+        commands.removeIf(command -> {
+            if (command.contains(":")) {
+                return true;
+            }
+
+            // Remove force removed commands unless they belong to CF
+            for (String string : forceRemovedCommands) {
+                if (command.equals(string)) {
+                    // Make sure there is no cf command with the same name
+                    if (cfCommands.contains(command)) {
+                        return false;
+                    }
+
+                    return true;
                 }
             }
-            else {
-                length++;
-                length += (isBold ? (chars[i] != ' ' ? 0.1555555555555556 : 0) : 0);
-            }
-        }
 
-        double spaces = (maxLength - length) / 2;
+            return false;
+        });
 
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < spaces; i++) {
-            builder.append(' ');
-        }
-
-        String copy = builder.toString();
-        builder.append(text).append(copy);
-
-        return Chat.format(builder.toString());
+        playerCommands.put(player, commands);
     }
 
-    @Nonnull
-    public static WeekDayGradient getTodayGradient() {
-        final LocalDate now = LocalDate.now();
-        final DayOfWeek dayOfWeek = now.getDayOfWeek();
-
-        return getGradient(dayOfWeek);
-    }
-
-    @Nonnull
-    public static WeekDayGradient getGradient(DayOfWeek day) {
-        return gradients[day.ordinal()];
-    }
-
-    public enum Target {
-        CHAT(80),
-        MESSAGE_OF_THE_DAY(45);
-
-        private final int length;
-
-        Target(int length) {
-            this.length = length;
-        }
-    }
-
-    public record WeekDayGradient(Color from, Color to, Interpolator interpolator) {
-
-        public WeekDayGradient(Color from, Color to) {
-            this(from, to, Interpolators.QUADRATIC_FAST_TO_SLOW);
+    private boolean isValidCommand(Player player, String command) {
+        // Fallback commands are not valid
+        if (command.contains(":")) {
+            return false;
         }
 
-        @Nonnull
-        public String colorString(@Nonnull String string) {
-            return new Gradient(string).makeBold().rgb(from, to, interpolator);
+        final Collection<String> playerCommands = this.playerCommands.get(player);
+
+        if (playerCommands.contains(command.replaceFirst("/", ""))) {
+            return true;
         }
+
+        return false;
     }
 
 }

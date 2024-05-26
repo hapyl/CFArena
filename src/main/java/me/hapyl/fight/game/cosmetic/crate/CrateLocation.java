@@ -129,10 +129,11 @@ public class CrateLocation extends Location {
 
                 Chat.sendMessage(
                         online,
-                        PREFIX + "%s has gotten %s from %s!",
-                        player.getName(),
-                        cosmetic.getFormatted() + Color.DEFAULT,
-                        crateLoot.getEnumCrate().getCrate().getName()
+                        PREFIX + "%s has gotten %s from %s!".formatted(
+                                player.getName(),
+                                cosmetic.getFormatted() + Color.DEFAULT,
+                                crateLoot.getEnumCrate().getCrate().getName()
+                        )
                 );
             });
         }
@@ -290,7 +291,7 @@ public class CrateLocation extends Location {
             @Override
             public void run() {
                 spawnedItems.forEach(item -> {
-                    PlayerLib.spawnParticle(item.getLocation(), Particle.EXPLOSION_NORMAL, 3);
+                    PlayerLib.spawnParticle(item.getLocation(), Particle.POOF, 3);
 
                     item.remove();
                 });

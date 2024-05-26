@@ -68,7 +68,7 @@ public class RelicHuntGUI extends StyledGUI {
                     .setName(map.getName())
                     .addLore("&8Relics in " + map.getName())
                     .addLore()
-                    .addLore("There are &b%s &drelics&7 in this area.", relicsInMap.size())
+                    .addLore("There are &b%s &drelics&7 in this area.".formatted(relicsInMap.size()))
                     .addLore();
 
             if (foundPercentage == 0) {
@@ -81,12 +81,11 @@ public class RelicHuntGUI extends StyledGUI {
             }
             // Display progress if found any but not all
             else {
-                builder.addLore("&bᴘʀᴏɢʀᴇss %.0f%%", foundPercentage * 100);
+                builder.addLore("&bᴘʀᴏɢʀᴇss %.0f%%".formatted(foundPercentage * 100));
 
                 final int foundBars = (int) (foundPercentage * 20);
                 builder.addLore(
-                        "&a|".repeat(foundBars) + "&c|".repeat(20 - foundBars) + " &7%s/%s",
-                        relicsFoundInMapSize, relicsInMapSize
+                        "&a|".repeat(foundBars) + "&c|".repeat(20 - foundBars) + " &7%s/%s".formatted(relicsFoundInMapSize, relicsInMapSize)
                 );
             }
 
@@ -132,12 +131,12 @@ public class RelicHuntGUI extends StyledGUI {
                     : percentDone >= 0.5 ? Color.YELLOW
                     : Color.RED;
 
-            builder.addLore(
-                    "%s&7/%s %s %s",
-                    color.color(foundSize),
-                    relics.size(),
-                    type.getName(),
-                    CFUtils.checkmark(percentDone >= 1 ? true : null)
+            builder.addLore("%s&7/%s %s %s".formatted(
+                            color.color(foundSize),
+                            relics.size(),
+                            type.getName(),
+                            CFUtils.checkmark(percentDone >= 1 ? true : null)
+                    )
             );
         }
 

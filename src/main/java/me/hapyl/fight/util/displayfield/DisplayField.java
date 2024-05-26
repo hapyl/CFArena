@@ -38,12 +38,6 @@ public @interface DisplayField {
     double scaleFactor() default 1.0d;
 
     /**
-     * Extra line to add as a description. If not present, no extra line will be used.
-     */
-    @Nonnull
-    String extra() default "";
-
-    /**
      * Annotates that this field is a percentage and will be scaled by 100 and appended with "%" without a space.
      *
      * @return is percentage.

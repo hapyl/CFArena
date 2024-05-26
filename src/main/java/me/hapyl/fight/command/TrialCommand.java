@@ -10,12 +10,18 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class TrialCommand extends SimplePlayerCommand {
+
     public TrialCommand(@Nonnull String name) {
         super(name);
     }
 
     @Override
     protected void execute(Player player, String[] args) {
+        if (true) {
+            Notifier.error(player, "Trial is currently disabled, sorry!");
+            return;
+        }
+
         final PlayerProfile profile = PlayerProfile.getProfile(player);
 
         if (Manager.current().isGameInProgress()) {

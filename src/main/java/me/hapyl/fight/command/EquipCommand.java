@@ -35,7 +35,7 @@ public class EquipCommand extends SimplePlayerAdminCommand {
 
         hero.getHero().getEquipment().equip(player);
         PlayerLib.playSound(player, Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.0f);
-        Chat.sendMessage(player, "&aEquipped &e%s&a!", hero.getName());
+        Chat.sendMessage(player, "&aEquipped &e%s&a!".formatted(hero.getName()));
     }
 
     @Nullable

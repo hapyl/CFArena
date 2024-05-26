@@ -71,7 +71,7 @@ public class HeroPlayerItemMaker {
                 builder.addLore(attributes.getLore(AttributeType.SPEED));
 
                 builder.addLore();
-                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
+                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35);
 
                 if (hero instanceof ComplexHero) {
                     builder.addTextBlockLore("""
@@ -126,11 +126,11 @@ public class HeroPlayerItemMaker {
                 final HeroAttributes attributes = hero.getAttributes();
 
                 attributes.forEachMandatoryAndNonDefault((type, value) -> {
-                    builder.addLore(" &7%s: &b%s", type.getName(), type.getFormatted(attributes));
+                    builder.addLore(" &7%s: &b%s".formatted(type.getName(), type.getFormatted(attributes)));
                 });
 
                 builder.addLore();
-                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35, CFUtils.DISAMBIGUATE);
+                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35);
 
                 return builder;
             }

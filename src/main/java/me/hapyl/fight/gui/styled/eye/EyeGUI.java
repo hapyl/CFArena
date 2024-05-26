@@ -64,7 +64,7 @@ public class EyeGUI extends StyledGUI {
             final int streak = rewardEntry.getStreak(type);
 
             builder.addLore();
-            builder.addLore("Current Streak: &b%s %s!", streak, streak == 1 ? "day" : "days");
+            builder.addLore("Current Streak: &b%s %s!".formatted(streak, streak == 1 ? "day" : "days"));
             builder.addLore();
 
             final String lowRankString =

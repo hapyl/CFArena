@@ -1,23 +1,21 @@
 package me.hapyl.fight.github;
 
-import com.google.gson.annotations.SerializedName;
-
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Contributor {
 
-    @SerializedName("login")
-    public final String login;
+    private final String login;
+    private final String name;
 
-    @SerializedName("contributions")
-    public final int contributions;
-
-    private String name;
-
-    public Contributor(String login, int contributions) {
+    public Contributor(@Nonnull String login, @Nullable String name) {
         this.login = login;
-        this.contributions = contributions;
-        this.name = login;
+        this.name = name != null ? name : login;
+    }
+
+    @Nonnull
+    public String getLogin() {
+        return login;
     }
 
     @Nonnull
@@ -25,12 +23,4 @@ public class Contributor {
         return name;
     }
 
-    public void setName(@Nonnull String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return login + "(" + name + ") x " + contributions;
-    }
 }

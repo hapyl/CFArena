@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.profile;
 
-import com.google.common.collect.Queues;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
@@ -14,7 +12,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.task.GameTask;
@@ -24,16 +21,15 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Deque;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -114,10 +110,6 @@ public class PlayerProfile {
     }
     // #render
 
-    public void setOriginalSkin(@Nonnull PlayerSkin originalSkin) {
-        this.originalSkin = originalSkin;
-    }
-
     @Nonnull
     public PlayerSocialConversation getConversation() {
         return conversation;
@@ -186,6 +178,16 @@ public class PlayerProfile {
         return originalSkin;
     }
 
+    public void setOriginalSkin(@Nonnull PlayerSkin originalSkin) {
+        this.originalSkin = originalSkin;
+    }
+
+    public void resetSkin() {
+        if (originalSkin != null) {
+            originalSkin.apply(player);
+        }
+    }
+
     public boolean isBuildMode() {
         return buildMode;
     }
@@ -246,8 +248,7 @@ public class PlayerProfile {
         this.gamePlayer = Manager.current().registerGamePlayer(new GamePlayer(this));
 
         if (Manager.current().getDebug().any()) {
-            final RuntimeException exception = new RuntimeException();
-            createTraceDump(exception);
+            CFUtils.dumpStackTrace();
         }
 
         return gamePlayer;
@@ -355,62 +356,6 @@ public class PlayerProfile {
 
     public void applyOriginalSkin() {
         originalSkin.apply(player);
-    }
-
-    private void createTraceDump(RuntimeException exception) {
-        final StackTraceElement[] stackTrace = exception.getStackTrace();
-        final Deque<String> deque = Queues.newArrayDeque();
-        final String pluginName = Main.getPlugin().getDescription().getName();
-
-        for (int i = stackTrace.length - 1; i >= 0; i--) {
-            final StackTraceElement trace = stackTrace[i];
-            final String classLoaderName = trace.getClassLoaderName();
-
-            if (classLoaderName == null
-                    || !classLoaderName.contains(pluginName + ".jar")
-            ) {
-                continue;
-            }
-
-            String fileName = trace.getFileName();
-
-            if (fileName != null) {
-                fileName = fileName.replace(".java", "");
-            }
-
-            final String methodName = trace.getMethodName();
-            deque.offer(fileName + "." + methodName + ":" + trace.getLineNumber());
-        }
-
-        final StringBuilder builder = new StringBuilder();
-
-        int index = 0;
-        for (String string : deque) {
-            if (index != 0) {
-                builder.append("\n");
-            }
-
-            builder.append(index % 2 == 0 ? ChatColor.BLUE : ChatColor.RED);
-
-            if (index != deque.size() - 1) {
-                builder.append("├─");
-            }
-            else {
-                builder.append("└─");
-            }
-
-            builder.append(string);
-
-            index++;
-        }
-
-        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
-            Chat.sendHoverableMessage(
-                    player,
-                    builder.toString(),
-                    "&c&lDEBUG &e" + deque.pollFirst() + " requested GamePlayer creation! &6&lHOVER"
-            );
-        });
     }
 
     @CheckForNull

@@ -11,6 +11,7 @@ import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
+import me.hapyl.fight.util.collection.RangeTreeMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.math.Tick;
@@ -31,6 +32,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public static final double HEADSHOT_MULTIPLIER = 1.5d;
 
     private final PlayerMap<Integer> playerAmmo;
+
     protected double shift;
     protected double movementError;
 
@@ -94,8 +96,8 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         addDynamicLore(builder, " ᴍᴀx ᴅɪsᴛᴀɴᴄᴇ: &f&l%s", maxDistance, Object::toString);
         addDynamicLore(builder, " ᴅᴀᴍᴀɢᴇ: &f&l%s", damage, Object::toString);
 
-        builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s", maxAmmo);
-        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%s", Tick.round(reloadTime) + "s");
+        builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s".formatted(maxAmmo));
+        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%ss".formatted(Tick.round(reloadTime)));
     }
 
     @Nonnull

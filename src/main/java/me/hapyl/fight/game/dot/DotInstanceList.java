@@ -77,6 +77,6 @@ public class DotInstanceList implements Ticking, Iterable<DotInstance> {
     }
 
     public void clear() {
-        entity.getData().getDotMap().clear();
+        entity.getEntityData().getDotMap().clear();
     }
 }

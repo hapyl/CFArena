@@ -1,24 +1,22 @@
 package me.hapyl.fight.protocol;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketEvent;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
+import me.hapyl.spigotutils.module.event.protocol.PacketReceiveEvent;
+import net.minecraft.network.protocol.game.PacketPlayInSteerVehicle;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
-public class DismountProtocol extends ProtocolListener {
+public class DismountProtocol implements Listener {
 
-    public DismountProtocol() {
-        super(PacketType.Play.Client.STEER_VEHICLE);
-    }
-
-    @Override
-    public void onPacketReceiving(PacketEvent ev) {
+    @EventHandler()
+    public void handlePacketReceiveEvent(PacketReceiveEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
+        final PacketPlayInSteerVehicle packet = ev.getPacket(PacketPlayInSteerVehicle.class);
 
-        if (player == null) {
+        if (player == null || packet == null) {
             return;
         }
 
@@ -30,8 +28,5 @@ public class DismountProtocol extends ProtocolListener {
         }
     }
 
-    @Override
-    public void onPacketSending(PacketEvent packetEvent) {
-    }
 
 }

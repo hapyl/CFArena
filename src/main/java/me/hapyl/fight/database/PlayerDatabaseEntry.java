@@ -65,7 +65,7 @@ public class PlayerDatabaseEntry {
         final Player player = getOnlinePlayer();
 
         if (player != null) {
-            Chat.sendMessage(player, message, format);
+            Chat.sendMessage(player, message.formatted(format));
         }
     }
 

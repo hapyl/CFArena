@@ -3,6 +3,7 @@ package me.hapyl.fight.game.cosmetic;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
@@ -31,7 +32,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     BLOOD(new Cosmetic("Blood", "A classic redstone particles mimicking blood.", Type.KILL, Rarity.COMMON, Material.REDSTONE) {
         @Override
         public void onDisplay(Display display) {
-            display.particle(Particle.BLOCK_CRACK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
+            display.particle(Particle.BLOCK, 20, 0.4d, 0.4d, 0.4d, 0.0f, Bukkit.createBlockData(Material.REDSTONE_BLOCK));
             display.sound(Sound.BLOCK_STONE_BREAK, 0.0f);
         }
     }),
@@ -73,7 +74,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
             final Player player = display.getPlayer();
             final String name = player == null ? "Someones" : player.getName();
 
-            item.setCustomName(Chat.format("&c&l%s's Dookie", name));
+            item.setCustomName(Chat.format("&c&l%s's Dookie".formatted(name)));
             item.setCustomNameVisible(true);
             item.setVelocity(new Vector(0.0d, 0.2d, 0.0d));
 
@@ -260,7 +261,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
 
     static {
         for (Cosmetics enumCosmetic : values()) {
-            if (enumCosmetic.cosmetic instanceof DisabledCosmetic) {
+            if (enumCosmetic.cosmetic instanceof Disabled) {
                 continue;
             }
 
@@ -287,7 +288,7 @@ public enum Cosmetics implements RareItem, BelongsToCollection {
     }
 
     public boolean isValidForCrate() {
-        return !(cosmetic instanceof DisabledCosmetic) && !cosmetic.isExclusive();
+        return !(cosmetic instanceof Disabled) && !cosmetic.isExclusive();
     }
 
     @Nonnull

@@ -33,7 +33,7 @@ public class ExperienceDebugGUI extends PlayerGUI {
 
             builder.addLore();
             builder.addLore("&aTotal Exp Needed:");
-            builder.addLore("%,d", expLevel.getExpRequired());
+            builder.addLore("%,d".formatted(expLevel.getExpRequired()));
 
             setItem(lvl.intValue() - 1, builder.asIcon());
         });

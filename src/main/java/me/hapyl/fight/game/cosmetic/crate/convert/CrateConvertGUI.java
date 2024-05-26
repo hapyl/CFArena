@@ -71,7 +71,7 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
 
         builder.addLore();
         builder.addLore("&aReceive:");
-        builder.addLore(" &8+ %s", convertProduct.formatProduct((long) convertProductAmount));
+        builder.addLore(" &8+ %s".formatted(convertProduct.formatProduct((long) convertProductAmount)));
         builder.addLore();
         builder.addLore(Color.BUTTON + "Click to convert!");
 

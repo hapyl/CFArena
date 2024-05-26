@@ -21,7 +21,7 @@ public class ChangePack extends GamePack {
 
     @Override
     public void onPickup(GamePlayer player) {
-        player.addUltimatePoints(CHARGE_POINTS);
+        player.addEnergy(CHARGE_POINTS);
 
         player.sendTitle("&b※&9&l※&b※", "&a+&l%s".formatted(CHARGE_POINTS), 0, 15, 5);
         player.playWorldSound(Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.5f);

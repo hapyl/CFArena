@@ -21,11 +21,11 @@ public enum Effects implements Described {
     // some being disabled or just useless
     // for the game.
     SPEED(new VanillaEffect("Speed", PotionEffectType.SPEED, EffectType.POSITIVE)),
-    SLOW(new VanillaEffect("Slowness", PotionEffectType.SLOW, EffectType.NEGATIVE)),
-    HASTE(new VanillaEffect("Haste", PotionEffectType.FAST_DIGGING, EffectType.POSITIVE)),
-    MINING_FATIGUE(new VanillaEffect("Mining Fatigue", PotionEffectType.SLOW_DIGGING, EffectType.NEGATIVE)),
-    JUMP_BOOST(new VanillaEffect("Jump Boost", PotionEffectType.JUMP, EffectType.POSITIVE)),
-    NAUSEA(new VanillaEffect("Nausea", PotionEffectType.CONFUSION, EffectType.NEGATIVE)),
+    SLOW(new VanillaEffect("Slowness", PotionEffectType.SLOWNESS, EffectType.NEGATIVE)),
+    HASTE(new VanillaEffect("Haste", PotionEffectType.HASTE, EffectType.POSITIVE)),
+    MINING_FATIGUE(new VanillaEffect("Mining Fatigue", PotionEffectType.MINING_FATIGUE, EffectType.NEGATIVE)),
+    JUMP_BOOST(new VanillaEffect("Jump Boost", PotionEffectType.JUMP_BOOST, EffectType.POSITIVE)),
+    NAUSEA(new VanillaEffect("Nausea", PotionEffectType.NAUSEA, EffectType.NEGATIVE)),
     FIRE_RESISTANCE(new VanillaEffect("Fire Resistance", PotionEffectType.FIRE_RESISTANCE, EffectType.POSITIVE)),
     WATER_BREATHING(new VanillaEffect("Water Breathing", PotionEffectType.WATER_BREATHING, EffectType.POSITIVE)),
     BLINDNESS(new VanillaEffect("Blindness", PotionEffectType.BLINDNESS, EffectType.NEGATIVE) {

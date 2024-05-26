@@ -28,7 +28,7 @@ public class JapanBooster {
     }
 
     public void tick() {
-        PlayerLib.spawnParticle(location, Particle.FIREWORKS_SPARK, 1, 0, 0, 0, 0);
+        PlayerLib.spawnParticle(location, Particle.FIREWORK, 1, 0, 0, 0, 0);
         PlayerLib.spawnParticle(location, Particle.FLAME, 1, 0, 0, 0, 0.025f);
     }
 

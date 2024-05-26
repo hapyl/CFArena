@@ -17,7 +17,7 @@ public class RespawnResistance extends Effect {
                 Negates all damage.
                 """);
 
-        setEffectParticle(new EffectParticle(Particle.CRIT_MAGIC, 5, 0.25d, 0.5d, 0.25d, 0.1f));
+        setEffectParticle(new EffectParticle(Particle.ENCHANTED_HIT, 5, 0.25d, 0.5d, 0.25d, 0.1f));
     }
 
     @Override

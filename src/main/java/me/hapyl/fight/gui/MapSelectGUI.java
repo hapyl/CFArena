@@ -52,8 +52,7 @@ public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
                 builder.addTextBlockLore(
                         feature.getDescription(),
                         "&7&o  ",
-                        ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT,
-                        CFUtils.DISAMBIGUATE
+                        ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT
                 );
             }
         }

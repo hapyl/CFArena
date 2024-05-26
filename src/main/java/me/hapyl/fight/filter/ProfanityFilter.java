@@ -12,6 +12,8 @@ import java.util.Set;
 
 public final class ProfanityFilter {
 
+    public static final String CENSOR_CHAR = "🖤";
+
     private static final Set<String> profanityWords = Sets.newHashSet();
     private static Main plugin;
 
@@ -98,7 +100,7 @@ public final class ProfanityFilter {
             if (isProfane(string)) {
                 final int stringLength = string.length();
 
-                builder.replace(0, stringLength, "*".repeat(Math.min(stringLength, 6)));
+                builder.replace(0, stringLength, CENSOR_CHAR.repeat(Math.min(stringLength, 6)));
             }
 
         }

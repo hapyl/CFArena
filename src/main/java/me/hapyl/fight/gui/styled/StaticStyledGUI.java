@@ -1,5 +1,6 @@
 package me.hapyl.fight.gui.styled;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
@@ -13,6 +14,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 /**
  * Since both {@link StyledGUI} and {@link StyledPageGUI} have to inherit a different class,

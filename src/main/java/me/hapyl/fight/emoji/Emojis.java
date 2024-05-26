@@ -5,6 +5,7 @@ import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,6 +15,7 @@ public enum Emojis {
 
     // Default
     PEACE(":peace:", "&2✌"),
+    CLOWN(":clown:", "&d\uD83E\uDD21"),
 
     // Vip
     SMILE(":)", "&a🙂", PlayerRank.VIP),
@@ -51,7 +53,8 @@ public enum Emojis {
 
     Emojis(String text, String emoji, PlayerRank rank) {
         this.text = text;
-        this.emoji = emoji;
+        // We need to replace the color char to allow non-admins to send colored messages
+        this.emoji = emoji.replace('&', ChatColor.COLOR_CHAR);
         this.rank = rank;
     }
 

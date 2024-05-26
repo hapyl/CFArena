@@ -8,49 +8,54 @@ import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.exception.HandleNotSetException;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.archive.alchemist.Alchemist;
-import me.hapyl.fight.game.heroes.archive.archer.Archer;
-import me.hapyl.fight.game.heroes.archive.archer_tutorial.TutorialArcher;
-import me.hapyl.fight.game.heroes.archive.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.heroes.archive.bounty_hunter.BountyHunter;
-import me.hapyl.fight.game.heroes.archive.dark_mage.DarkMage;
-import me.hapyl.fight.game.heroes.archive.doctor.DrEd;
-import me.hapyl.fight.game.heroes.archive.ender.Ender;
-import me.hapyl.fight.game.heroes.archive.engineer.Engineer;
-import me.hapyl.fight.game.heroes.archive.frostbite.Freazly;
-import me.hapyl.fight.game.heroes.archive.harbinger.Harbinger;
-import me.hapyl.fight.game.heroes.archive.healer.Healer;
-import me.hapyl.fight.game.heroes.archive.heavy_knight.SwordMaster;
-import me.hapyl.fight.game.heroes.archive.hercules.Hercules;
-import me.hapyl.fight.game.heroes.archive.jester.Jester;
-import me.hapyl.fight.game.heroes.archive.juju.JuJu;
-import me.hapyl.fight.game.heroes.archive.km.KillingMachine;
-import me.hapyl.fight.game.heroes.archive.knight.BlastKnight;
-import me.hapyl.fight.game.heroes.archive.librarian.Librarian;
-import me.hapyl.fight.game.heroes.archive.mage.Mage;
-import me.hapyl.fight.game.heroes.archive.moonwalker.Moonwalker;
-import me.hapyl.fight.game.heroes.archive.nightmare.Nightmare;
-import me.hapyl.fight.game.heroes.archive.ninja.Ninja;
-import me.hapyl.fight.game.heroes.archive.orc.Orc;
-import me.hapyl.fight.game.heroes.archive.pytaria.Pytaria;
-import me.hapyl.fight.game.heroes.archive.rogue.Rogue;
-import me.hapyl.fight.game.heroes.archive.ronin.Ronin;
-import me.hapyl.fight.game.heroes.archive.shadow_assassin.ShadowAssassin;
-import me.hapyl.fight.game.heroes.archive.shaman.Shaman;
-import me.hapyl.fight.game.heroes.archive.shark.Shark;
-import me.hapyl.fight.game.heroes.archive.spark.Spark;
-import me.hapyl.fight.game.heroes.archive.swooper.Swooper;
-import me.hapyl.fight.game.heroes.archive.taker.Taker;
-import me.hapyl.fight.game.heroes.archive.tamer.Tamer;
-import me.hapyl.fight.game.heroes.archive.techie.Techie;
-import me.hapyl.fight.game.heroes.archive.troll.Troll;
-import me.hapyl.fight.game.heroes.archive.vampire.Vampire;
-import me.hapyl.fight.game.heroes.archive.vortex.Vortex;
-import me.hapyl.fight.game.heroes.archive.witcher.WitcherClass;
-import me.hapyl.fight.game.heroes.archive.zealot.Zealot;
+import me.hapyl.fight.game.heroes.alchemist.Alchemist;
+import me.hapyl.fight.game.heroes.archer.Archer;
+import me.hapyl.fight.game.heroes.archer_tutorial.TutorialArcher;
+import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
+import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
+import me.hapyl.fight.game.heroes.doctor.DrEd;
+import me.hapyl.fight.game.heroes.ender.Ender;
+import me.hapyl.fight.game.heroes.engineer.Engineer;
+import me.hapyl.fight.game.heroes.frostbite.Freazly;
+import me.hapyl.fight.game.heroes.gunner.Gunner;
+import me.hapyl.fight.game.heroes.harbinger.Harbinger;
+import me.hapyl.fight.game.heroes.healer.Healer;
+import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
+import me.hapyl.fight.game.heroes.hercules.Hercules;
+import me.hapyl.fight.game.heroes.jester.Jester;
+import me.hapyl.fight.game.heroes.juju.JuJu;
+import me.hapyl.fight.game.heroes.km.KillingMachine;
+import me.hapyl.fight.game.heroes.knight.BlastKnight;
+import me.hapyl.fight.game.heroes.librarian.Librarian;
+import me.hapyl.fight.game.heroes.mage.Mage;
+import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
+import me.hapyl.fight.game.heroes.nightmare.Nightmare;
+import me.hapyl.fight.game.heroes.ninja.Ninja;
+import me.hapyl.fight.game.heroes.nyx.Nyx;
+import me.hapyl.fight.game.heroes.orc.Orc;
+import me.hapyl.fight.game.heroes.pytaria.Pytaria;
+import me.hapyl.fight.game.heroes.rogue.Rogue;
+import me.hapyl.fight.game.heroes.ronin.Ronin;
+import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
+import me.hapyl.fight.game.heroes.shaman.Shaman;
+import me.hapyl.fight.game.heroes.shark.Shark;
+import me.hapyl.fight.game.heroes.spark.Spark;
+import me.hapyl.fight.game.heroes.swooper.Swooper;
+import me.hapyl.fight.game.heroes.taker.Taker;
+import me.hapyl.fight.game.heroes.tamer.Tamer;
+import me.hapyl.fight.game.heroes.techie.Techie;
+import me.hapyl.fight.game.heroes.troll.Troll;
+import me.hapyl.fight.game.heroes.vampire.Vampire;
+import me.hapyl.fight.game.heroes.vortex.Vortex;
+import me.hapyl.fight.game.heroes.witcher.WitcherClass;
+import me.hapyl.fight.game.heroes.zealot.Zealot;
+import me.hapyl.fight.game.heroes.aurora.Aurora;
+import me.hapyl.fight.game.heroes.geo.Geo;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.spigotutils.module.util.CollectionUtils;
@@ -113,6 +118,12 @@ public enum Heroes implements Formatted {
     @OnReworkIgnoreForNow JESTER(Jester::new),
     ROGUE(Rogue::new),
 
+    GEO(Geo::new),
+    AURORA(Aurora::new),
+    NYX(Nyx::new),
+
+    GUNNER(Gunner::new),
+
     // *=* Tutorial Hero *=* //
     TUTORIAL_ARCHER(TutorialArcher::new),
 
@@ -159,7 +170,7 @@ public enum Heroes implements Formatted {
     }
 
     public boolean isValidHero() {
-        return !(hero instanceof DisabledHero);
+        return !(hero instanceof Disabled);
     }
 
     /**

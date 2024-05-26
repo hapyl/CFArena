@@ -71,7 +71,7 @@ public class TurbineFeature extends MapFeature {
 
             PlayerLib.spawnParticle(
                     fxLocation,
-                    Particle.EXPLOSION_NORMAL,
+                    Particle.POOF,
                     10,
                     direction.getValue(0, 3.0d, 0.5d),
                     direction.getValue(1, 3.0d, 0.5d),

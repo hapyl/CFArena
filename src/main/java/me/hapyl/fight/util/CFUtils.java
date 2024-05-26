@@ -4,6 +4,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
@@ -15,6 +17,8 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
+import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.spigotutils.module.math.Cuboid;
 import me.hapyl.spigotutils.module.math.Geometry;
 import me.hapyl.spigotutils.module.math.Tick;
 import me.hapyl.spigotutils.module.math.geometry.Quality;
@@ -38,6 +42,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.joml.Matrix4f;
@@ -62,7 +67,6 @@ import java.util.regex.Pattern;
 public class CFUtils {
 
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
-    public static final Object[] DISAMBIGUATE = new Object[] {};
     public static final double ANGLE_IN_RAD = 6.283185307179586d;
 
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
@@ -77,7 +81,7 @@ public class CFUtils {
     private static final Set<Tag<Material>> softSolidTags = Set.of(
             Tag.WOOL_CARPETS, Tag.ALL_SIGNS
     );
-
+    private static final String tickTooLongMessage = "indefinitely";
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
@@ -242,8 +246,6 @@ public class CFUtils {
 
             player.hide(gamePlayer.getPlayer());
         });
-
-        // todo?: Send a packet to keep the player in tab
     }
 
     public static void showPlayer(@Nonnull GamePlayer player) {
@@ -444,8 +446,8 @@ public class CFUtils {
 
         // Fx
         Geometry.drawCircle(location, range, Quality.NORMAL, new WorldParticle(Particle.CRIT));
-        Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANTMENT_TABLE));
-        PlayerLib.spawnParticle(location, Particle.EXPLOSION_HUGE, 1, 1, 0, 1, 0);
+        Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANT));
+        PlayerLib.spawnParticle(location, Particle.EXPLOSION_EMITTER, 1, 1, 0, 1, 0);
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f);
     }
 
@@ -561,8 +563,13 @@ public class CFUtils {
     }
 
     @Nonnull
+    public static String formatTick(int tick) {
+        return tick > 9999 ? tickTooLongMessage : Tick.round(tick) + "s";
+    }
+
+    @Nonnull
     public static String decimalFormatTick(int tick) {
-        return tick > 9999 ? "indefinitely" : Tick.round(tick) + "s";
+        return tick > 9999 ? tickTooLongMessage : decimalFormat(tick / 20d) + "s";
     }
 
     @Nonnull
@@ -1009,64 +1016,6 @@ public class CFUtils {
         return condition ? Math.min(integer + 1, max) : min;
     }
 
-    @Nullable
-    public static UUID getUUIDfromString(@Nullable String string) {
-        if (string == null) {
-            return null;
-        }
-
-        try {
-            return UUID.fromString(string);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    @Nonnull
-    public static <T> String makeStringCommaAnd(@Nonnull Collection<T> collection, @Nonnull Function<T, String> fn) {
-        final StringBuilder builder = new StringBuilder();
-        final int size = collection.size();
-        int index = 0;
-
-        for (T t : collection) {
-            if (size == 1) {
-                return fn.apply(t);
-            }
-
-            if (index == size - 1) {
-                builder.append(" and ");
-            }
-            else if (index != 0) {
-                builder.append(", ");
-            }
-
-            builder.append(fn.apply(t));
-            ++index;
-        }
-
-        return builder.toString();
-    }
-
-    public static String makeStringFractional(int current, int max) {
-        final float percent = (float) current / max;
-        final ChatColor color;
-
-        if (percent >= 1.0f) {
-            color = ChatColor.GREEN;
-        }
-        else if (percent >= 0.75f) {
-            color = ChatColor.GOLD;
-        }
-        else if (percent >= 0.5f) {
-            color = ChatColor.YELLOW;
-        }
-        else {
-            color = ChatColor.RED;
-        }
-
-        return "%s%s&7/&a%s".formatted(color, current, max);
-    }
-
     public static <T> T[] requireVarArgs(@Nullable T[] varArgs) {
         if (varArgs == null || varArgs.length == 0) {
             throw new IllegalArgumentException("VarArgs must not be null nor empty!");
@@ -1087,22 +1036,6 @@ public class CFUtils {
         });
     }
 
-    @Nonnull
-    public static String stNdTh(int i) {
-        if (i >= 11 && i <= 13) {
-            return i + "th";
-        }
-
-        final int lastDigit = i % 10;
-
-        return i + switch (lastDigit) {
-            case 1 -> "st";
-            case 2 -> "nd";
-            case 3 -> "rd";
-            default -> "th";
-        };
-    }
-
     public static void later(@Nonnull Runnable runnable, int delay) {
         new BukkitRunnable() {
             @Override
@@ -1112,41 +1045,153 @@ public class CFUtils {
         }.runTaskLater(Main.getPlugin(), delay);
     }
 
-    @Nonnull
-    public static String reverseString(@Nonnull String input) {
+    public static void dumpStackTrace() {
+        final RuntimeException exception = new RuntimeException();
+        final StackTraceElement[] stackTrace = exception.getStackTrace();
+        final Deque<String> deque = Queues.newArrayDeque();
+        final String pluginName = Main.getPlugin().getDescription().getName();
+
+        for (int i = stackTrace.length - 1; i >= 0; i--) {
+            final StackTraceElement trace = stackTrace[i];
+            final String classLoaderName = trace.getClassLoaderName();
+
+            if (classLoaderName == null
+                    || !classLoaderName.contains(pluginName + ".jar")
+            ) {
+                continue;
+            }
+
+            String fileName = trace.getFileName();
+
+            if (fileName != null) {
+                fileName = fileName.replace(".java", "");
+            }
+
+            final String methodName = trace.getMethodName();
+            deque.offer(fileName + "." + methodName + ":" + trace.getLineNumber());
+        }
+
         final StringBuilder builder = new StringBuilder();
-        final String[] strings = input.split(" ");
 
-        for (int i = strings.length - 1; i >= 0; i--) {
-            if (i != strings.length) {
-                builder.append(" ");
+        int index = 0;
+        for (String string : deque) {
+            if (index != 0) {
+                builder.append("\n");
             }
 
-            final char[] chars = strings[i].toCharArray();
+            builder.append(index % 2 == 0 ? ChatColor.BLUE : ChatColor.RED);
 
-            for (int j = chars.length - 1; j >= 0; j--) {
-                builder.append(chars[j]);
+            if (index != deque.size() - 1) {
+                builder.append("├─");
             }
+            else {
+                builder.append("└─");
+            }
+
+            builder.append(string);
+
+            index++;
         }
 
-        return builder.toString().trim();
+        Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
+            Chat.sendHoverableMessage(
+                    player,
+                    builder.toString(),
+                    "&c&lDEBUG &e" + deque.pollFirst() + "Dumped StackTrace. &6&lHOVER"
+            );
+        });
     }
 
-    public static boolean blockLocationEquals(@Nonnull Location location1, @Nonnull Location location2) {
-        final World world = location1.getWorld();
+    public static String cuboidToString(@Nonnull Cuboid cuboid) {
+        return "[%s, %s, %s, %s, %s, %s]".formatted(
+                cuboid.getMinX(),
+                cuboid.getMinY(),
+                cuboid.getMinZ(),
+                cuboid.getMaxX(),
+                cuboid.getMaxY(),
+                cuboid.getMaxZ()
+        );
+    }
 
-        if (world == null || world != location2.getWorld()) {
-            return false;
+    public static String cuboidToString(@Nonnull BoundingBox cuboid) {
+        return "[%s, %s, %s, %s, %s, %s]".formatted(
+                cuboid.getMinX(),
+                cuboid.getMinY(),
+                cuboid.getMinZ(),
+                cuboid.getMaxX(),
+                cuboid.getMaxY(),
+                cuboid.getMaxZ()
+        );
+    }
+
+    @Nonnull
+    public static String intToStringLower(int i) {
+        return intToString(i).toLowerCase();
+    }
+
+    @Nonnull
+    public static String intToString(int i) {
+        return switch (i) {
+            case 0 -> "Zero";
+            case 1 -> "One";
+            case 2 -> "Two";
+            case 3 -> "Three";
+            case 4 -> "Four";
+            case 5 -> "Five";
+            case 6 -> "Six";
+            case 7 -> "Seven";
+            case 8 -> "Eight";
+            case 9 -> "Nine";
+            case 10 -> "Ten";
+            default -> "" + i;
+        };
+    }
+
+    public static double distance(@Nonnull Location a, @Nonnull Location b) {
+        final World aWorld = a.getWorld();
+        final World bWorld = b.getWorld();
+
+        if (!Objects.equals(aWorld, bWorld)) {
+            return Double.MAX_VALUE;
         }
 
-        final int blockX = location1.getBlockX();
-        final int blockY = location1.getBlockY();
-        final int blockZ = location1.getBlockZ();
-
-        final int blockX2 = location2.getBlockX();
-        final int blockY2 = location2.getBlockY();
-        final int blockZ2 = location2.getBlockZ();
-
-        return blockX == blockX2 && blockY == blockY2 && blockZ == blockZ2;
+        return a.distance(b);
     }
+
+    @Nonnull
+    public static <K, V, R> Set<R> fetchKeySet(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
+        return Helper.fetchFromMap(hashMap, clazz, true);
+    }
+
+    @Nonnull
+    public static <K, V, R> Set<R> fetchValues(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
+        return Helper.fetchFromMap(hashMap, clazz, false);
+    }
+
+    public static void offsetLocation(@Nonnull Location location, double x, double y, double z, @Nonnull Runnable then) {
+        location.add(x, y, z);
+        then.run();
+        location.subtract(x, y, z);
+    }
+
+    public static void offsetLocation(@Nonnull Location location, double y, @Nonnull Runnable runnable) {
+        offsetLocation(location, 0, y, 0, runnable);
+    }
+
+    private static class Helper {
+        private static <K, V, R> Set<R> fetchFromMap(Map<K, V> hashMap, Class<R> clazz, boolean b) {
+            Collection<?> collection = b ? hashMap.keySet() : hashMap.values();
+            Set<R> hashSet = Sets.newHashSet();
+
+            collection.forEach(obj -> {
+                if (clazz.isInstance(obj)) {
+                    hashSet.add(clazz.cast(obj));
+                }
+            });
+
+            return hashSet;
+        }
+    }
+
+
 }

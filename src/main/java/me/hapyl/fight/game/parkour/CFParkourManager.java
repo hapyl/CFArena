@@ -2,8 +2,10 @@ package me.hapyl.fight.game.parkour;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.gui.ParkourLeaderboardGUI;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.spigotutils.Eterna;
 import me.hapyl.spigotutils.EternaPlugin;
-import me.hapyl.spigotutils.module.parkour.ParkourManager;
+import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,10 +19,10 @@ public class CFParkourManager implements Listener {
 
     public CFParkourManager(Main main) {
         main.getServer().getPluginManager().registerEvents(this, main);
-        final ParkourManager parkourManager = EternaPlugin.getPlugin().getParkourManager();
+        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
 
         for (ParkourCourse value : ParkourCourse.values()) {
-            parkourManager.registerParkour(value.getParkour());
+            parkourRegistry.registerParkour(value.getParkour());
         }
     }
 
@@ -43,11 +45,12 @@ public class CFParkourManager implements Listener {
 
         for (ParkourCourse parkour : ParkourCourse.values()) {
             final ParkourLeaderboard leaderboard = parkour.getParkour().getLeaderboard();
+
             if (leaderboard == null) {
                 continue;
             }
 
-            if (leaderboard.getLocation().distance(clickedBlock.getLocation()) < 5.0d) {
+            if (CFUtils.distance(leaderboard.getLocation(), clickedBlock.getLocation()) < 5.0d) {
                 new ParkourLeaderboardGUI(player, parkour);
                 return;
             }

@@ -27,6 +27,9 @@ public enum Named {
     FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
     REFRACTION(ChatColor.BOLD + "⛺", "Refraction", Color.SKY_BLUE),
     WITHER_ROSE(ChatColor.DARK_GRAY + "\uD83C\uDF39", "Wither Rose", Color.WITHERS),
+    MOONLIT_ENERGY(ChatColor.YELLOW + "&e☄", "Moonlit Energy", Color.MOON),
+    ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
+    THE_CHAOS("", "The Chaos", Color.BLUE),
 
     ;
 

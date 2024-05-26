@@ -275,7 +275,7 @@ public class GameEntity {
     }
 
     public void sendMessage(String message, Object... objects) {
-        Chat.sendMessage(entity, message, objects);
+        Chat.sendMessage(entity, message.formatted(objects));
     }
 
     public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
@@ -295,7 +295,7 @@ public class GameEntity {
     }
 
     public void sendActionbar(@Nonnull String text, @Nullable Object... objects) {
-        asPlayer(player -> Chat.sendActionbar(player, text, objects));
+        asPlayer(player -> Chat.sendActionbar(player, text.formatted(objects)));
     }
 
     public void playSound(@Nonnull Sound sound, float pitch) {

@@ -430,7 +430,7 @@ public final class EntityData {
             throw new IllegalStateException("cannot find game entity for " + entity);
         }
 
-        return gameEntity.getData();
+        return gameEntity.getEntityData();
     }
 
     public static void die(@Nonnull LivingEntity livingEntity) {
@@ -449,7 +449,7 @@ public final class EntityData {
         final IGameInstance instance = Manager.current().getCurrentGame();
 
         if (instance instanceof GameInstance) {
-            CF.getEntities(LivingGameEntity.class).forEach(entity -> entity.getData().resetDamage());
+            CF.getEntities(LivingGameEntity.class).forEach(entity -> entity.getEntityData().resetDamage());
         }
     }
 }

@@ -103,7 +103,7 @@ public class SettingsGUI extends StyledGUI {
                             .setName(setting.getName())
                             .addLore("&8This is a button :o")
                             .addLore("")
-                            .addLore(Color.BUTTON + "Click to %s!", isEnabled ? "disable" : "enable")
+                            .addLore(Color.BUTTON + "Click to %s!".formatted(isEnabled ? "disable" : "enable"))
                             .asIcon(), clickAction
             );
 

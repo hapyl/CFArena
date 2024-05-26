@@ -84,7 +84,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             int count = 0;
             for (Cosmetics cosmetics : items) {
                 if (count++ >= MAX_ITEMS_PREVIEW && items.size() > MAX_ITEMS_PREVIEW) {
-                    builder.addLore(" &8...and %s more!", items.size() - MAX_ITEMS_PREVIEW);
+                    builder.addLore(" &8...and %s more!".formatted(items.size() - MAX_ITEMS_PREVIEW));
                     break;
                 }
 
@@ -92,11 +92,10 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                 final String cosmeticName = cosmetics.getCosmetic().getName();
 
                 if (isUnlocked) {
-                    builder.addLore(
-                            "&a✔ &7&m%s&b » %s",
+                    builder.addLore("&a✔ &7&m%s&b » %s".formatted(
                             cosmeticName,
                             rarity.getCompensationString()
-                    );
+                    ));
                 }
                 else {
                     builder.addLore(" ⁃ " + cosmeticName);
@@ -105,7 +104,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
         });
 
         builder.addLore();
-        builder.addLore("&bYou have &l%,d&b crates!", crateCount);
+        builder.addLore("&bYou have &l%,d&b crates!".formatted(crateCount));
 
         builder.addLore();
         builder.addLore(Color.BUTTON + "Click to open!");
@@ -177,19 +176,22 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                 3,
                 StyledTexture.CRATE_CONVERT.toBuilder()
                         .setName("Crate Conversion")
-                        .addTextBlockLore(
+                        .addTextBlockLore("""
+                                Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.
+                                                  
+                                Spend %2$s&7 to convert and craft crates!
                                 """
-                                        Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.
-                                                          
-                                        Spend %2$s&7 to convert and craft crates!
-                                        """,
-                                Currency.COINS.getFormatted(),
-                                dust.getFormatted()
+                                .formatted(
+                                        Currency.COINS.getFormatted(),
+                                        dust.getFormatted()
+                                )
                         )
                         .addLore()
-                        .addLore("You have: %s", dust.format(format -> {
-                            return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
-                        }))
+                        .addLore("You have: %s".formatted(dust.format(
+                                format -> {
+                                    return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
+                                }
+                        )))
                         .addLore()
                         .addLore(Color.BUTTON + "Click to convert!")
                         .asIcon(),
@@ -218,7 +220,8 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         .addLore("Requirements:")
                         .addLore(" &8-&7 &7At least &a%s&7 crates %s".formatted(
                                 CrateLocation.MIN_BULK_OPEN,
-                                CFUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)))
+                                CFUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)
+                        ))
                         .addLore(" &8-&7 %s&7 or higher %s".formatted(
                                 rankToOpenAll.getFormat().prefix(),
                                 CFUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))

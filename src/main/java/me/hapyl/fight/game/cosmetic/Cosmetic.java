@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -95,7 +96,7 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
     public final void onDisplay0(Display display) {
         final Player player = display.getPlayer();
 
-        if (this instanceof DisabledCosmetic) {
+        if (this instanceof Disabled) {
             if (player != null) {
                 Notifier.error(player, "This cosmetic is currently disabled, sorry!");
             }

@@ -36,7 +36,7 @@ public class ParkourDatabase extends AsynchronousDatabase {
                 // If a document has a valid uuid, but has player never played,
                 // it means that it was created in offline mode, delete it.
                 if (!offlinePlayer.hasPlayedBefore()) {
-                    Debug.warn("Removing invalid entry: %s", key);
+                    Debug.warn("Removing invalid entry: %s".formatted(key));
                     invalidKeys.add(key);
                 }
             } catch (IllegalArgumentException ignored) {

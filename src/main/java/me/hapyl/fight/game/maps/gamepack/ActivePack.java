@@ -60,7 +60,7 @@ public class ActivePack extends TickingGameTask {
         // If pack is not spawned, display the time left before spawn
         if (entity == null) {
             if (nextSpawn > 0 && nextSpawn <= SPAWN_THRESHOLD) {
-                platform.setCustomName(ChatColor.AQUA + CFUtils.decimalFormatTick(nextSpawn));
+                platform.setCustomName(ChatColor.AQUA + CFUtils.formatTick(nextSpawn));
                 platform.setCustomNameVisible(true);
             }
             return;

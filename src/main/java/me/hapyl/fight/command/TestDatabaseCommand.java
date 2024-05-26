@@ -26,18 +26,18 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
         if (args.length == 1) {
             final String str = String.valueOf(MongoUtils.get(playerDatabase.getDocument(), path, null));
 
-            Chat.sendMessage(player, "&aValue: &e%s", str);
+            Chat.sendMessage(player, "&aValue: &e%s".formatted(str));
         }
         else {
             final String value = args[1];
 
             if (value.equalsIgnoreCase("null")) {
                 MongoUtils.set(playerDatabase.getDocument(), path, null);
-                Chat.sendMessage(player, "&aRemoved value!", value);
+                Chat.sendMessage(player, "&aRemoved value!");
             }
             else {
                 MongoUtils.set(playerDatabase.getDocument(), path, value);
-                Chat.sendMessage(player, "&aSet value to &e%s&a!", value);
+                Chat.sendMessage(player, "&aSet value to &e%s&a!".formatted(value));
             }
 
 

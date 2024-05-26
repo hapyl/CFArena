@@ -227,7 +227,7 @@ public enum GameMaps implements Selectable {
 
         Manager.current().setCurrentMap(this);
 
-        Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!", player.getName(), getName());
+        Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!".formatted(player.getName(), getName()));
     }
 
     public static List<GameMaps> getPlayableMaps() {

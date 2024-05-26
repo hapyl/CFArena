@@ -39,12 +39,12 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, LeaderboardData data, int index, int page) {
+    public ItemStack asItem(@Nonnull Player player, LeaderboardData data, int index, int page) {
         final ItemBuilder builder = ItemBuilder.of(Material.PLAYER_HEAD)
                 .setName(data.getNameFormatted())
                 .addLore("&8#" + (index + 1))
                 .addLore()
-                .addLore("Completion Time: &f&l%s&fs", leaderboard.formatTime(data))
+                .addLore("Completion Time: &f&l%s&fs".formatted(leaderboard.formatTime(data)))
                 .addLore();
 
         // Apply texture
@@ -63,7 +63,7 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
         if (data.hasStats()) {
             builder.addLore("&e&lStats:");
             for (Stats.Type value : Stats.Type.values()) {
-                builder.addLore(" &7%s &f&l%s", Chat.capitalize(value.name()), data.getStat(value));
+                builder.addLore(" &7%s &f&l%s".formatted(Chat.capitalize(value.name()), data.getStat(value)));
             }
         }
 

@@ -295,22 +295,21 @@ public class GameMap implements GameElement, PlayerElement {
 
         gamePacks.values().forEach(GamePack::onStart);
 
-        // Features \/
-        if (features.isEmpty()) {
-            return;
+        // Features
+        if (!features.isEmpty()) {
+            features.forEach(MapFeature::onStart);
+
+            new GameTask() {
+                private int tick = 0;
+
+                @Override
+                public void run() {
+                    features.forEach(feature -> feature.tick(tick));
+                    ++tick;
+                }
+            }.runTaskTimer(0, 1);
         }
 
-        features.forEach(MapFeature::onStart);
-
-        new GameTask() {
-            private int tick = 0;
-
-            @Override
-            public void run() {
-                features.forEach(feature -> feature.tick(tick));
-                ++tick;
-            }
-        }.runTaskTimer(0, 1);
     }
 
     @Override

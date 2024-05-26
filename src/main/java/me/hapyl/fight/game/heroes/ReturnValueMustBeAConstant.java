@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.game.talents.archive.techie.Talent;
+import me.hapyl.fight.game.talents.Talent;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

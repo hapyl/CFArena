@@ -60,7 +60,7 @@ public enum Deliveries implements Handle<Delivery> {
         PlayerDatabase.getDatabase(player).deliveryEntry.setDelivered(this);
 
         // Fx
-        Chat.sendMessage(player, "&b&lᴅᴇʟɪᴠᴇʀʏ " + Color.SUCCESS + "Successfully claimed %s!", delivery.getName());
+        Chat.sendMessage(player, "&b&lᴅᴇʟɪᴠᴇʀʏ " + Color.SUCCESS + "Successfully claimed %s!".formatted(delivery.getName()));
         PlayerLib.villagerYes(player);
     }
 
@@ -92,7 +92,7 @@ public enum Deliveries implements Handle<Delivery> {
             return;
         }
 
-        Chat.sendMessage(player, "&b&lᴅᴇʟɪᴠᴇʀʏ &aYou have %s unclaimed deliveries!", unclaimedList.size());
+        Chat.sendMessage(player, "&b&lᴅᴇʟɪᴠᴇʀʏ &aYou have %s unclaimed deliveries!".formatted(unclaimedList.size()));
         Chat.sendClickableHoverableMessage(
                 player,
                 LazyEvent.runCommand("/delivery"),

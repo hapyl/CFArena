@@ -1,34 +1,55 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.annotate.SelfCallable;
-import me.hapyl.fight.game.entity.GamePlayer;
+import org.bukkit.entity.Entity;
 
-import javax.annotation.Nonnull;
-
+/**
+ * An interface to indicate a {@link Removable} element, be that {@link Entity} or whatever can be removed.
+ */
 public interface Removable {
+
     /**
-     * The remove method that must be implemented by the removable.
-     * <p>
-     *
-     * <h1>
-     * Plugin must not, and should not call this method within the removable!
-     * The method is handled automatically by the {@link CreationTalent}!
-     * </h1>
-     * <p>
-     * Call {@link CreationTalent#removeCreation(GamePlayer, Creation)} to properly handle the removal of the object!
+     * Removes this {@link Removable}.
      */
-    @SelfCallable(false)
     void remove();
 
     /**
-     * Called whenever this value is removed because the new value with the same type is created.
+     * Useful for maps computations.
+     * Returning true and calling {@link #removeIf()} is a nifty way
+     * to remove this {@link Removable} from a map and call the {@link #remove()} method.
      *
-     * @param player - Player.
+     * @return true if this removable should be removed.
      */
-    default void onReplace(@Nonnull GamePlayer player) {
+    default boolean shouldRemove() {
+        return false;
     }
 
-    default boolean shouldRemove() {
+    /**
+     * Returns true if this {@link Removable} should be removed, also calls {@link #remove()} if returns value is true.
+     * <br>
+     * Can be used in map like so:
+     * <pre>
+     *     map.removeIf(Removable::removeIf);
+     * </pre>
+     * to avoid doing something ugly like:
+     * <pre>
+     *     moonZones.removeIf(removable -> {
+     *             if (removable.shouldRemove()) {
+     *                 removable.remove();
+     *                 return true;
+     *             }
+     *
+     *             return false;
+     *         });
+     * </pre>
+     *
+     * @return true if this element will be removed.
+     */
+    default boolean removeIf() {
+        if (shouldRemove()) {
+            remove();
+            return true;
+        }
+
         return false;
     }
 

@@ -10,13 +10,12 @@ public enum Archetype implements Prefixed {
 
     DAMAGE(Material.BLAZE_POWDER, "&4&l💢&4", "Damage", "Experts in dealing as much damage as possible."),
     RANGE(Material.BOW, "&b&l🎯&b", "Range", "Rangers are dead-eye shooters that can hold distance to strike."),
-    MAGIC(Material.NETHER_STAR, "&5🌟", "Magic", "Experts in any sorts of magic."),
     MOBILITY(Material.RABBIT_FOOT, "&d👣", "Mobility", "Fast and mobile, they zip around the battlefield."),
     STRATEGY(Material.LIGHT, "&e💡", "Strategy", "Strategists rely on their talents, rather than strength to win."),
-    SUPPORT(Material.GOLDEN_APPLE, "&2🍀", "Support", "Provides buffs to self and allies."),
+    SUPPORT(Material.GOLDEN_APPLE, "&2🍀", "Support", "Applies buffs to self and allies and keeps them alive."),
     HEXBANE(
             Material.NETHERITE_SCRAP,
-            new Color("#5C3D2E") + "🕷",
+            Color.HEXBANE + "🕷",
             "Hexbane",
             "Masters of debuffs, they weaken and hinder enemies with eerie precision."
     ),

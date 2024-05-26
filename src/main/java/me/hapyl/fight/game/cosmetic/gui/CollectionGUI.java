@@ -52,7 +52,7 @@ public class CollectionGUI extends StyledGUI {
                             (selected == null ? Color.WARM_GRAY + "None!" : Color.MINT_GREEN + selected.getCosmetic().getName())
                     ))
                     .addLore()
-                    .addLore(Color.BUTTON + "Click to browse %s!", name)
+                    .addLore(Color.BUTTON + "Click to browse %s!".formatted(name))
                     .asIcon(), player -> new CosmeticGUI(player, type));
         }
 

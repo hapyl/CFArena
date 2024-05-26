@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.archive.techie.Talent;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 
@@ -22,10 +21,10 @@ public abstract class InputTalent extends Talent {
     }
 
     public InputTalent(@Nonnull String name, @Nonnull Material material) {
-        this(name, material, Type.DAMAGE);
+        this(name, material, TalentType.DAMAGE);
     }
 
-    public InputTalent(@Nonnull String name, @Nonnull Material material, @Nonnull Type type) {
+    public InputTalent(@Nonnull String name, @Nonnull Material material, @Nonnull TalentType type) {
         super(name, "null", type);
         setItem(material);
 
@@ -34,11 +33,11 @@ public abstract class InputTalent extends Talent {
     }
 
     /**
-     * @deprecated {@link InputTalentData#setType(Type)}
+     * @deprecated {@link InputTalentData#setType(TalentType)}
      */
     @Deprecated
     @Override
-    public Talent setType(@Nonnull Type type) {
+    public Talent setType(@Nonnull TalentType type) {
         return this;
     }
 
@@ -197,7 +196,7 @@ public abstract class InputTalent extends Talent {
         int point = isLeftClick ? leftData.pointGeneration : rightData.pointGeneration;
 
         if (point > 0) {
-            player.addUltimatePoints(point);
+            player.addEnergy(point);
         }
     }
 

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.weapons.range;
 
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,7 +20,10 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 public class WeaponRayCast {
 
     protected final RangeWeapon weapon;
-    protected final GamePlayer player;
+    protected GamePlayer player;
+
+    private Vector vector;
+    private boolean deflected;
 
     public WeaponRayCast(@Nonnull RangeWeapon weapon, @Nonnull GamePlayer player) {
         this.weapon = weapon;
@@ -44,10 +48,12 @@ public class WeaponRayCast {
 
     @OverridingMethodsMustImplementEvents()
     public void cast() {
-        final double maxDistance = getMaxDistance();
+        double maxDistance = getMaxDistance();
         final Location location = player.getEyeLocation();
-        final Vector vector = player.getDirectionWithMovementError(weapon.movementError);
 
+        this.vector = player.getDirectionWithMovementError(weapon.movementError);
+
+        boolean overrideDeflect = false;
         this.onStart();
 
         for (double i = 0; i < maxDistance; i += weapon.getShift()) {
@@ -67,6 +73,14 @@ public class WeaponRayCast {
             if (hitNearbyEntityAndCallOnHit(location)) {
                 this.onStop();
                 return;
+            }
+
+            // Change distance if deflected
+            if (deflected && !overrideDeflect) {
+                maxDistance = maxDistance - i;
+                i = 0.0d;
+                overrideDeflect = true;
+                continue;
             }
 
             // Only display particles after traveled at least one block to not block the vision to much
@@ -124,6 +138,16 @@ public class WeaponRayCast {
 
         if (target == null) {
             return false;
+        }
+
+        // Deflect
+        if (!deflected && target instanceof GamePlayer playerTarget) {
+            if (playerTarget.isDeflecting()) {
+                this.player = playerTarget;
+                this.vector = playerTarget.getDirectionWithMovementError(weapon.movementError);
+                this.deflected = true;
+                return false;
+            }
         }
 
         final boolean isHeadShot = isHeadShot(location, target);

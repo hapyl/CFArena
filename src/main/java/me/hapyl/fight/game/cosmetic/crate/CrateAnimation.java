@@ -62,7 +62,7 @@ public interface CrateAnimation {
                 PlayerLib.playSound(location, sound, 0.5f + tick * 1.5f / range);
             }
 
-            PlayerLib.spawnParticle(location, Particle.FIREWORKS_SPARK, 1, 0.2d, 0.2d, 0.2d, 0.1f);
+            PlayerLib.spawnParticle(location, Particle.FIREWORK, 1, 0.2d, 0.2d, 0.2d, 0.1f);
         }).tick(60, ref -> {
             final Location chestLocation = armorStand.getLocation().add(0.0d, 1.5d, 0.0d);
 
@@ -71,7 +71,7 @@ public interface CrateAnimation {
 
             // Fx
             PlayerLib.spawnParticle(chestLocation, Particle.FLASH, 1);
-            PlayerLib.spawnParticle(chestLocation, Particle.EXPLOSION_NORMAL, 5, 0.1d, 0.1d, 0.1d, 0.05f);
+            PlayerLib.spawnParticle(chestLocation, Particle.POOF, 5, 0.1d, 0.1d, 0.1d, 0.05f);
 
         }).tick(100, ref -> PlayerLib.playSound(armorStand.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.75f));
     };

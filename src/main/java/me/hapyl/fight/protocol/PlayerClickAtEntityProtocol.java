@@ -1,65 +1,64 @@
 package me.hapyl.fight.protocol;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.reflect.protocol.ProtocolListener;
+import me.hapyl.spigotutils.module.event.protocol.PacketReceiveEvent;
+import me.hapyl.spigotutils.module.reflect.packet.wrapped.PacketWrappers;
+import me.hapyl.spigotutils.module.reflect.packet.wrapped.WrappedPacketPlayInUseEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 
-public class PlayerClickAtEntityProtocol extends ProtocolListener {
-    public PlayerClickAtEntityProtocol() {
-        super(PacketType.Play.Client.USE_ENTITY);
-    }
+public class PlayerClickAtEntityProtocol implements Listener {
 
-    @Override
-    public void onPacketReceiving(PacketEvent event) {
-        final Player player = event.getPlayer();
-        final GamePlayer gamePlayer = CF.getPlayer(player);
+    @EventHandler()
+    public void handlePacketReceiveEvent(PacketReceiveEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+        final WrappedPacketPlayInUseEntity packet = ev.getWrappedPacket(PacketWrappers.PACKET_PLAY_IN_USE_ENTITY);
 
-        if (gamePlayer == null) {
+        if (player == null || packet == null) {
             return;
         }
 
-        final PacketContainer packet = event.getPacket();
-        final Integer entityId = packet.getIntegers().read(0);
-        final WrappedEnumEntityUseAction useAction = packet.getEnumEntityUseActions().read(0);
-        final EnumWrappers.EntityUseAction action = useAction.getAction();
+        final WrappedPacketPlayInUseEntity.WrappedAction action = packet.getAction();
+        final WrappedPacketPlayInUseEntity.WrappedHand hand = action.getHand();
 
-        if (action != EnumWrappers.EntityUseAction.ATTACK && action != EnumWrappers.EntityUseAction.INTERACT_AT) {
+        if (hand == WrappedPacketPlayInUseEntity.WrappedHand.OFF_HAND) {
             return;
         }
 
-        final boolean isLeftClick = action == EnumWrappers.EntityUseAction.ATTACK;
+        final WrappedPacketPlayInUseEntity.WrappedActionType type = action.getType();
+
+        if (type != WrappedPacketPlayInUseEntity.WrappedActionType.ATTACK
+                && type != WrappedPacketPlayInUseEntity.WrappedActionType.INTERACT_AT) {
+            return;
+        }
+
+        final boolean isLeftClick = type == WrappedPacketPlayInUseEntity.WrappedActionType.ATTACK;
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                final Entity entity = getEntityById(entityId);
+                final Entity entity = getEntityById(packet.getEntityId());
 
                 if (entity == null) {
                     return;
                 }
 
-                if (new PlayerClickAtEntityEvent(gamePlayer, entity, isLeftClick).callAndCheck()) {
+                if (new PlayerClickAtEntityEvent(player, entity, isLeftClick).callAndCheck()) {
                     return;
                 }
 
-                event.setCancelled(true);
+                ev.setCancelled(true);
             }
         }.runTask(Main.getPlugin());
-
     }
 
     @Nullable
@@ -75,7 +74,4 @@ public class PlayerClickAtEntityProtocol extends ProtocolListener {
         return null;
     }
 
-    @Override
-    public void onPacketSending(PacketEvent event) {
-    }
 }

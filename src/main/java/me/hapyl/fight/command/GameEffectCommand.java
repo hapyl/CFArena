@@ -40,16 +40,16 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
 
             if (ticks <= -1) {
                 if (gamePlayer.hasEffect(type)) {
-                    Chat.sendMessage(player, "&cYou don't have %s effect applied!", type.getEffect().getName());
+                    Chat.sendMessage(player, "&cYou don't have %s effect applied!".formatted(type.getEffect().getName()));
                     return;
                 }
                 gamePlayer.removeEffect(type);
-                Chat.sendMessage(player, "&aStopped %s effect!", type.getEffect().getName());
+                Chat.sendMessage(player, "&aStopped %s effect!".formatted(type.getEffect().getName()));
                 return;
             }
 
             gamePlayer.addEffect(type, ticks);
-            Chat.sendMessage(player, "&aApplied %s effect for %st!", type.getEffect().getName(), ticks);
+            Chat.sendMessage(player, "&aApplied %s effect for %st!".formatted(type.getEffect().getName(), ticks));
 
             return;
         }

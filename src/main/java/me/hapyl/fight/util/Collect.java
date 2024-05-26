@@ -58,7 +58,6 @@ public final class Collect {
      * @param predicate - Predicate if needed.
      * @return a target living entity; or null if none.
      */
-    @ExplicitEntityValidation
     @Nullable
     public static LivingGameEntity targetEntityDot(@Nonnull GamePlayer player, double radius, double dot, @Nullable Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> nearbyEntities = nearbyEntities(player.getLocation(), radius);
@@ -69,7 +68,7 @@ public final class Collect {
 
         for (LivingGameEntity entity : nearbyEntities) {
             // Test Predicate
-            if ((!entity.isValid(player)) || (predicate != null && !predicate.test(entity))) {
+            if (predicate != null && !predicate.test(entity)) {
                 continue;
             }
 
@@ -348,7 +347,7 @@ public final class Collect {
 
                     return livingEntity.isValid() && distance <= (radius * 2);
                 })
-                .forEach(entity -> entities.add(CF.getEntity((LivingEntity) entity)));
+                .forEach(entity -> entities.add(CF.getEntity(entity)));
 
         return entities;
     }

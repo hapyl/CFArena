@@ -5,13 +5,11 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.FormattedEnum;
 import me.hapyl.fight.util.UpsideDownText;
+import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.ChatColor;
-import org.bukkit.util.StringUtil;
-import org.sqlite.util.StringUtils;
 
 import javax.annotation.Nonnull;
 
@@ -95,7 +93,7 @@ public enum Rarity implements RandomDrop, FormattedEnum {
         @Nonnull
         @Override
         public String makeSuffix(@Nonnull String string) {
-            return UpsideDownText.format(CFUtils.reverseString(string));
+            return UpsideDownText.format(Chat.reverseString(string));
         }
 
     };

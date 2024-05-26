@@ -30,6 +30,6 @@ public class HealthPack extends GamePack {
 
     @Override
     public void displayParticle(Location location) {
-        PlayerLib.spawnParticle(LocationHelper.getInFront(location, 0.5d), Particle.FIREWORKS_SPARK, 1);
+        PlayerLib.spawnParticle(LocationHelper.getInFront(location, 0.5d), Particle.FIREWORK, 1);
     }
 }

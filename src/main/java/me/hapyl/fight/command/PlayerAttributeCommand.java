@@ -49,12 +49,12 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
         if (newValue == 0.0d) {
             final double value = attributes.get(type);
 
-            Chat.sendMessage(player, "&aYour %s is %s.", type.getName(), value);
+            Chat.sendMessage(player, "&aYour %s is %s.".formatted(type.getName(), value));
             return;
         }
 
         attributes.add(type, newValue);
-        Chat.sendMessage(player, "&aAdded %s to %s. Current value: %s.", newValue, type.getName(), attributes.get(type));
+        Chat.sendMessage(player, "&aAdded %s to %s. Current value: %s.".formatted(newValue, type.getName(), attributes.get(type)));
     }
 
 }

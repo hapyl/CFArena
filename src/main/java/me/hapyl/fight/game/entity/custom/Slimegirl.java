@@ -2,7 +2,7 @@ package me.hapyl.fight.game.entity.custom;
 
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.overlay.OverlayGameEntityType;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 
 public class Slimegirl extends OverlayGameEntityType {
     public Slimegirl() {

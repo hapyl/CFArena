@@ -7,7 +7,7 @@
     <groupId>me.hapyl</groupId>
     <artifactId>CFArena</artifactId>
     <description>A PvP mini-game plugin.</description>
-    <version>2.12.0-SNAPSHOT</version>
+    <version>2.2.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -44,11 +44,6 @@
     <!--    Repos-->
     <repositories>
         <repository>
-            <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/repository/public/</url>
-        </repository>
-
-        <repository>
             <id>spigotmc-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -62,16 +57,6 @@
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
-
-        <repository>
-            <id>citizens-repo</id>
-            <url>https://maven.citizensnpcs.co/repo</url>
-        </repository>
-
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
     </repositories>
 
     <!--    Dependencies-->
@@ -79,7 +64,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <version>1.20.6-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -105,31 +90,16 @@
         </dependency>
 
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>5.0.0</version>
-            <scope>provided</scope>
+            <groupId>me.hapyl</groupId>
+            <artifactId>eternaapi</artifactId>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.github.hapyl</groupId>
-            <artifactId>EternaAPI</artifactId>
-            <version>2.50.1-SNAPSHOT</version>
-        </dependency>
-
-        <!--         LOCAL REPO FOR TESTING -->
-        <!--        <dependency>-->
-        <!--            <groupId>me.hapyl</groupId>-->
-        <!--            <artifactId>EternaAPI</artifactId>-->
-        <!--            <version>2.50.0-SNAPSHOT</version>-->
-        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.12.12</version>
         </dependency>
-
     </dependencies>
 
 </project>

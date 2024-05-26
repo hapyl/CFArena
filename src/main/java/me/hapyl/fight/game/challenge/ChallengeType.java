@@ -54,7 +54,6 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     // Archetype related bonds, have to be hard codded because bonds are enums
     PLAY_HERO_DAMAGE(new ArchetypeChallenge("Brute Force", Archetype.DAMAGE)),
     PLAY_HERO_RANGE(new ArchetypeChallenge("Bullseye", Archetype.RANGE)),
-    PLAY_HERO_MAGIC(new ArchetypeChallenge("Mage", Archetype.MAGIC)),
     PLAY_HERO_MOBILITY(new ArchetypeChallenge("I'm Fast Boi", Archetype.MOBILITY)),
     PLAY_HERO_STRATEGY(new ArchetypeChallenge("The Thinker", Archetype.STRATEGY)),
     PLAY_HERO_SUPPORT(new ArchetypeChallenge("Support", Archetype.SUPPORT)),
@@ -175,11 +174,10 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
         return PlayerChallenge.of(randomValue);
     }
 
-    public static void progressArchetypeBond(@Nonnull GamePlayer player, @Nonnull Archetype heroArchetype) {
+    public static void progressArchetypeBond(@Nonnull Player player, @Nonnull Archetype heroArchetype) {
         switch (heroArchetype) {
             case DAMAGE -> PLAY_HERO_DAMAGE.progress(player);
             case RANGE -> PLAY_HERO_RANGE.progress(player);
-            case MAGIC -> PLAY_HERO_MAGIC.progress(player);
             case MOBILITY -> PLAY_HERO_MOBILITY.progress(player);
             case STRATEGY -> PLAY_HERO_STRATEGY.progress(player);
             case SUPPORT -> PLAY_HERO_SUPPORT.progress(player);

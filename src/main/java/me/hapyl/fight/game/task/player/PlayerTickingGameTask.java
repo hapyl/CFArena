@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 
 public abstract class PlayerTickingGameTask extends TickingGameTask implements IPlayerTask {
 
-    private final GamePlayer player;
-    private final Enum<?> name;
+    protected final GamePlayer player;
+    protected final Enum<?> name;
 
     public PlayerTickingGameTask(@Nonnull GamePlayer player, @Nullable Enum<?> name) {
         this.player = player;

@@ -93,7 +93,7 @@ public class Deathmatch extends CFGameMode {
         gamePlayer.setState(EntityState.DEAD);
 
         Chat.broadcast("");
-        Chat.broadcast(ChatColor.RED + "%s left the game.", player.getName());
+        Chat.broadcast(ChatColor.RED + "%s left the game.".formatted(player.getName()));
         Chat.broadcast(ChatColor.RED + "They may rejoin and continue playing!");
         Chat.broadcast("");
     }
@@ -119,7 +119,7 @@ public class Deathmatch extends CFGameMode {
             player.setGameMode(GameMode.SPECTATOR);
 
             Chat.broadcast("");
-            Chat.broadcast(ChatColor.GREEN + "%s joined the game!", playerName);
+            Chat.broadcast(ChatColor.GREEN + "%s joined the game!".formatted(playerName));
             Chat.broadcast(ChatColor.GREEN + "They will be playing with you.");
             Chat.broadcast("");
         }
@@ -129,7 +129,7 @@ public class Deathmatch extends CFGameMode {
             profile.setGamePlayer(gamePlayer);
 
             Chat.broadcast("");
-            Chat.broadcast(ChatColor.GREEN + "%s rejoined the game!", playerName);
+            Chat.broadcast(ChatColor.GREEN + "%s rejoined the game!".formatted(playerName));
             Chat.broadcast("");
 
             gamePlayer.respawnIn(60);

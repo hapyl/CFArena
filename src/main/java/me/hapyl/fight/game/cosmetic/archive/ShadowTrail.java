@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.archive;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.cosmetic.DisabledCosmetic;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.contrail.ContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-public class ShadowTrail extends ContrailCosmetic implements DisabledCosmetic {
+public class ShadowTrail extends ContrailCosmetic implements Disabled {
 
     private final Map<Player, Queue<Human>> humans;
 

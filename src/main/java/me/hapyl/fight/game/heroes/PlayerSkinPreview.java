@@ -3,12 +3,11 @@ package me.hapyl.fight.game.heroes;
 import me.hapyl.fight.game.cosmetic.skin.Skin;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
-import me.hapyl.fight.game.playerskin.PlayerSkin;
-import me.hapyl.fight.game.setting.Setting;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
 import org.bukkit.Location;
@@ -27,7 +26,7 @@ public class PlayerSkinPreview extends TickingGameTask {
 
     public final Player player;
     public final Hero hero;
-    public final PlayerSkin skin;
+    public final me.hapyl.spigotutils.module.player.PlayerSkin skin;
     public final Equipment equipment;
 
     protected HumanNPC npc;
@@ -98,7 +97,7 @@ public class PlayerSkinPreview extends TickingGameTask {
             cancel();
 
             // Fx
-            PlayerLib.spawnParticle(player, location.add(0, 1, 0), Particle.EXPLOSION_NORMAL, 20, 0.25d, 1d, 0.25d, 0.025f);
+            PlayerLib.spawnParticle(player, location.add(0, 1, 0), Particle.POOF, 20, 0.25d, 1d, 0.25d, 0.025f);
             return;
         }
 

@@ -29,8 +29,8 @@ public class RelicRunnable implements Runnable {
                 if (relic.hasFound(player)) {
                     player.spawnParticle(Particle.CRIT, location, 3, 0.25d, 0.15d, 0.25d, 0.03f);
                 } else {
-                    player.spawnParticle(Particle.CRIT_MAGIC, location, 2, 0.25d, 0.15d, 0.25d, 0.05f);
-                    player.spawnParticle(Particle.SPELL_WITCH, location, 3, 0.25d, 0.15d, 0.25d, 0.03f);
+                    player.spawnParticle(Particle.ENCHANTED_HIT, location, 2, 0.25d, 0.15d, 0.25d, 0.05f);
+                    player.spawnParticle(Particle.WITCH, location, 3, 0.25d, 0.15d, 0.25d, 0.03f);
                 }
             }
         });

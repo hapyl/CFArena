@@ -30,7 +30,7 @@ public interface Notifier {
      * @param format  - Format.
      */
     static void info(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.DEFAULT + message, colorFormat(Color.DEFAULT, format));
+        send(sender, Color.DEFAULT + message, colorFormat(Color.WHITE, Color.DEFAULT, format));
     }
 
     /**
@@ -41,7 +41,7 @@ public interface Notifier {
      * @param format  - Format.
      */
     static void success(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.SUCCESS_DARKER + "✔ " + Color.SUCCESS + message, colorFormat(Color.SUCCESS, format));
+        send(sender, Color.SUCCESS_DARKER + "✔ " + Color.SUCCESS + message, colorFormat(Color.GREEN, Color.SUCCESS, format));
     }
 
     /**
@@ -52,7 +52,7 @@ public interface Notifier {
      * @param format  - Format.
      */
     static void error(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, Color.ERROR_DARKER + "✘ " + Color.ERROR + message, colorFormat(Color.ERROR, format));
+        send(sender, Color.ERROR_DARKER + "✘ " + Color.ERROR + message, colorFormat(Color.RED, Color.ERROR, format));
     }
 
     /**
@@ -63,7 +63,7 @@ public interface Notifier {
      * @param format  - Format.
      */
     static void warning(@Nonnull CommandSender sender, @Nonnull String message, @Nullable Object... format) {
-        send(sender, "&6[&l❗&6]&e " + message, colorFormat(Color.YELLOW, format));
+        send(sender, "&6[&l❗&6]&e " + message, colorFormat(Color.GOLD, Color.YELLOW, format));
     }
 
     /**
@@ -102,7 +102,7 @@ public interface Notifier {
         effect.play(player);
     }
 
-    private static Object[] colorFormat(Color color, Object... format) {
+    private static Object[] colorFormat(Color formatColor, Color suffixColor, Object... format) {
         if (format == null) {
             return null;
         }
@@ -110,7 +110,7 @@ public interface Notifier {
         final String[] colored = new String[format.length];
 
         for (int i = 0; i < format.length; i++) {
-            colored[i] = String.valueOf(format[i]) + color;
+            colored[i] = formatColor + String.valueOf(format[i]) + suffixColor;
         }
 
         return colored;

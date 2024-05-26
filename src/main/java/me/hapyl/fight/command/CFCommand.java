@@ -18,6 +18,11 @@ public abstract class CFCommand extends SimplePlayerCommand {
         this.rank = rank;
     }
 
+    @Nonnull
+    public PlayerRank getRank() {
+        return rank;
+    }
+
     protected abstract void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank);
 
     @Override

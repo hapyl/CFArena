@@ -45,7 +45,7 @@ public enum Modes implements Selectable {
 
         Manager.current().setCurrentMode(this);
 
-        Chat.broadcast("&6&lMODE! &e%s selected &l%s&e!", player.getName(), getName());
+        Chat.broadcast("&6&lMODE! &e%s selected &l%s&e!".formatted(player.getName(), getName()));
     }
 
     public boolean testWinCondition(@Nonnull GameInstance instance) {

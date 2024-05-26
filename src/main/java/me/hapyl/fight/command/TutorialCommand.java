@@ -1,6 +1,6 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.tutorial.Tutorial;
+import me.hapyl.fight.game.help.HelpGeneral;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ public class TutorialCommand extends SimplePlayerCommand {
 
     @Override
     protected void execute(Player player, String[] strings) {
-        new Tutorial(player);
+        new HelpGeneral(player);
     }
 
 

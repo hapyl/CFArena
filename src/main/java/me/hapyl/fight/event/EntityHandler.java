@@ -2,6 +2,7 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -35,7 +36,6 @@ public class EntityHandler implements Listener {
                 if (gamePlayer == null) {
                     return;
                 }
-
 
                 final GameEntityContactPortalEvent.PortalType portalType = GameEntityContactPortalEvent.PortalType.fromCause(cause);
                 callGameEntityContactPortalEvent(gamePlayer, portalType);

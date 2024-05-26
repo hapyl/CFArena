@@ -3,7 +3,7 @@ main: "me.hapyl.fight.Main"
 version: ${version}
 api-version: "1.20"
 description: ${description}
-depend: [ "EternaAPI", "ProtocolLib" ]
+depend: [ "EternaAPI" ]
 authors: [ "hapyl", "sdimas74", "DiDenPro", "DirtyEl" ]
 website: "hapyl.github.io/classes_fight"
 prefix: "CF"

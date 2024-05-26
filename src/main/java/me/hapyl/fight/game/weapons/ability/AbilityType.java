@@ -27,7 +27,13 @@ public enum AbilityType {
     },
 
     @Deprecated HELD,
-    HOLD_RIGHT_CLICK,
+    HOLD_RIGHT_CLICK {
+        @Nullable
+        @Override
+        public Action[] getClickTypes() {
+            return RIGHT_CLICK.getClickTypes();
+        }
+    },
     BACK_STAB,
     ATTACK,
     ;

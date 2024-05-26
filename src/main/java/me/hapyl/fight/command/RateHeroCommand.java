@@ -97,7 +97,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
         canRate.put(player, heroes);
 
-        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!", heroes.getName());
+        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!".formatted(heroes.getName()));
         Chat.sendCenterMessage(player, "&7Would you like to rate your experience?");
 
         final ComponentBuilder builder = new ComponentBuilder("           ");

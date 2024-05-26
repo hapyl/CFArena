@@ -50,7 +50,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
         switch (args[1].toLowerCase()) {
             case "give" -> {
                 if (achievement.complete(target)) {
-                    Chat.sendMessage(player, "&aSuccessfully gave achievement to %s!", target.getName());
+                    Chat.sendMessage(player, "&aSuccessfully gave achievement to %s!".formatted(target.getName()));
                     return;
                 }
 
@@ -60,27 +60,27 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
             case "revoke" -> {
                 final int completeCount = database.getCompleteCount(achievement);
                 if (completeCount <= 0) {
-                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!", target.getName());
+                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!".formatted(target.getName()));
                     return;
                 }
 
                 database.subtractCompleteCount(achievement);
-                Chat.sendMessage(player, "&aSuccessfully revoked achievement from %s!", target.getName());
+                Chat.sendMessage(player, "&aSuccessfully revoked achievement from %s!".formatted(target.getName()));
             }
 
             case "reset" -> {
                 database.reset(achievement);
-                Chat.sendMessage(player, "&aSuccessfully reset achievement for %s!", target.getName());
+                Chat.sendMessage(player, "&aSuccessfully reset achievement for %s!".formatted( target.getName()));
             }
 
             case "get" -> {
                 final int completeCount = database.getCompleteCount(achievement);
                 if (completeCount <= 0) {
-                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!", target.getName());
+                    Chat.sendMessage(player, "&c%s hasn't completed this achievement yet!".formatted(target.getName()));
                     return;
                 }
 
-                Chat.sendMessage(player, "&a%s has completed this achievement %d times!", target.getName(), completeCount);
+                Chat.sendMessage(player, "&a%s has completed this achievement %d times!".formatted(target.getName(), completeCount));
             }
         }
     }
