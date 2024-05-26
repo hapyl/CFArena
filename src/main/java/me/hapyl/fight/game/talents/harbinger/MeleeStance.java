@@ -129,7 +129,7 @@ public class MeleeStance extends Talent {
         player.setItemAndSnap(HotbarSlots.WEAPON, data.getOriginalWeapon());
 
         // Fx
-        player.sendMessage("&aMelee Stance is on cooldown for &l%s&a!", CFUtils.decimalFormatTick(cooldown));
+        player.sendMessage("&aMelee Stance is on cooldown for &l%s&a!", CFUtils.formatTick(cooldown));
         player.playSound(Sound.ENTITY_ARROW_SHOOT, 0.75f);
         player.sendTitle("&2🏹", "", 5, 15, 5);
     }

@@ -48,7 +48,7 @@ public class DrWitch extends TamerPack {
         }
 
         final int nextPotion = entity.nextPotion;
-        return " &a⚗ " + (nextPotion == 0 ? "&lREADY!" : CFUtils.decimalFormatTick(nextPotion));
+        return " &a⚗ " + (nextPotion == 0 ? "&lREADY!" : CFUtils.formatTick(nextPotion));
     }
 
     public record WitchData(GameTeam team, GamePlayer target, double healing) {

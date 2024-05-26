@@ -186,7 +186,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
         return List.of(
                 "%s".formatted(stealthMode ? "&3&k| &b&l⛺ &3&k|" : ("&8⛺" +
-                        (cdTimeLeft > 0 ? " " + CFUtils.decimalFormatTick(cdTimeLeft) : ""))),
+                        (cdTimeLeft > 0 ? " " + CFUtils.formatTick(cdTimeLeft) : ""))),
                 ultimateShots > 0 ? "&4&l🧨 &c&l" + ultimateShots : ""
         );
     }

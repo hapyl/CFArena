@@ -1,7 +1,6 @@
 package me.hapyl.fight.util.displayfield;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -117,7 +116,7 @@ public final class DisplayFieldSerializer {
             // Integers are always considered as ticks, use short or long for other values
             // Integers are NOT scaled with the scale!
             else if (value instanceof Integer tick) {
-                stringValue = CFUtils.decimalFormatTick(tick);
+                stringValue = CFUtils.formatTick(tick);
             }
             else if (value instanceof Number number) {
                 stringValue = scaleFormat(number.intValue() * scale);

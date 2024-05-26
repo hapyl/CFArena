@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
@@ -13,7 +14,6 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.aurora.AuroraArrowData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.spigotutils.module.annotate.TestedOn;
 import me.hapyl.spigotutils.module.annotate.Version;
@@ -81,7 +81,7 @@ public class CFUtils {
     private static final Set<Tag<Material>> softSolidTags = Set.of(
             Tag.WOOL_CARPETS, Tag.ALL_SIGNS
     );
-
+    private static final String tickTooLongMessage = "indefinitely";
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
 
@@ -563,8 +563,13 @@ public class CFUtils {
     }
 
     @Nonnull
+    public static String formatTick(int tick) {
+        return tick > 9999 ? tickTooLongMessage : Tick.round(tick) + "s";
+    }
+
+    @Nonnull
     public static String decimalFormatTick(int tick) {
-        return tick > 9999 ? "indefinitely" : Tick.round(tick) + "s";
+        return tick > 9999 ? tickTooLongMessage : decimalFormat(tick / 20d) + "s";
     }
 
     @Nonnull
@@ -1146,10 +1151,47 @@ public class CFUtils {
         final World aWorld = a.getWorld();
         final World bWorld = b.getWorld();
 
-        if (Objects.equals(aWorld, bWorld)) {
+        if (!Objects.equals(aWorld, bWorld)) {
             return Double.MAX_VALUE;
         }
 
         return a.distance(b);
     }
+
+    @Nonnull
+    public static <K, V, R> Set<R> fetchKeySet(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
+        return Helper.fetchFromMap(hashMap, clazz, true);
+    }
+
+    @Nonnull
+    public static <K, V, R> Set<R> fetchValues(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
+        return Helper.fetchFromMap(hashMap, clazz, false);
+    }
+
+    public static void offsetLocation(@Nonnull Location location, double x, double y, double z, @Nonnull Runnable then) {
+        location.add(x, y, z);
+        then.run();
+        location.subtract(x, y, z);
+    }
+
+    public static void offsetLocation(@Nonnull Location location, double y, @Nonnull Runnable runnable) {
+        offsetLocation(location, 0, y, 0, runnable);
+    }
+
+    private static class Helper {
+        private static <K, V, R> Set<R> fetchFromMap(Map<K, V> hashMap, Class<R> clazz, boolean b) {
+            Collection<?> collection = b ? hashMap.keySet() : hashMap.values();
+            Set<R> hashSet = Sets.newHashSet();
+
+            collection.forEach(obj -> {
+                if (clazz.isInstance(obj)) {
+                    hashSet.add(clazz.cast(obj));
+                }
+            });
+
+            return hashSet;
+        }
+    }
+
+
 }

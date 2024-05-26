@@ -21,6 +21,7 @@ import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.database.entry.SkinEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
+import me.hapyl.fight.fx.EntityFollowingParticle;
 import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.fx.beam.Quadrant;
@@ -226,6 +227,15 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new DumpHeroData("dumpHeroData"));
 
         // *=* Inner commands *=* //
+
+        registerDebug("particleFollow", (player, args) -> {
+            new EntityFollowingParticle(1, player.getLocation().add(0, 5, 0), player) {
+                @Override
+                public void draw(int tick, @Nonnull Location location) {
+                    PlayerLib.spawnParticle(location, Particle.FLAME, 1);
+                }
+            }.runTaskTimer(0, 2);
+        });
 
         registerDebug("maxChaosStacks", (player, args) -> {
             final NyxData data = Heroes.NYX.getHero(Nyx.class).getPlayerData(player);
@@ -1057,7 +1067,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                Chat.sendMessage(player, "&aLocked '%s' for %s!".formatted(slot.getName(), CFUtils.decimalFormatTick(lock)));
+                Chat.sendMessage(player, "&aLocked '%s' for %s!".formatted(slot.getName(), CFUtils.formatTick(lock)));
             }
         });
 

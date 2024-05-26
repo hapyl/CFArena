@@ -236,8 +236,8 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
                 builder.addLore();
             }
 
-            builder.addLoreIf("&f•&f &7Cooldown: &f&l" + CFUtils.decimalFormatTick(cooldown), cooldown > 0);
-            builder.addLoreIf("&f•&f &7Duration: &f&l" + CFUtils.decimalFormatTick(duration), duration > 0);
+            builder.addLoreIf("&f•&f &7Cooldown: &f&l" + CFUtils.formatTick(cooldown), cooldown > 0);
+            builder.addLoreIf("&f•&f &7Duration: &f&l" + CFUtils.formatTick(duration), duration > 0);
 
             final Action[] clickTypes = type.getClickTypes();
             if (clickTypes != null) {

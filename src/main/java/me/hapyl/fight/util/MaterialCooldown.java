@@ -40,7 +40,7 @@ public interface MaterialCooldown {
 
     @Nonnull
     default String getCooldownFormatted(@Nonnull Player player) {
-        return CFUtils.decimalFormatTick(getCooldown(player));
+        return CFUtils.formatTick(getCooldown(player));
     }
 
     @Nonnull

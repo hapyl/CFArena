@@ -31,7 +31,7 @@ public abstract class AttributeTemper implements Runnable {
 
     @Override
     public String toString() {
-        return duration == -1 ? "indefinitely" : CFUtils.decimalFormatTick(duration);
+        return duration == -1 ? "indefinitely" : CFUtils.formatTick(duration);
     }
 
     protected void cancel() {

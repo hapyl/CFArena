@@ -41,6 +41,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.parkour.Data;
 import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.spigotutils.module.player.PlayerSkin;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -105,6 +106,13 @@ public class PlayerHandler implements Listener {
 
             gameInstance.getMode().onJoin(gameInstance, player);
             ev.setJoinMessage(null);
+
+            // Fix skin
+            final PlayerSkin skin = profile.getHeroHandle().getSkin();
+
+            if (skin != null) {
+                skin.apply(player);
+            }
         }
         else {
             if (!player.hasPlayedBefore()) {
@@ -468,7 +476,7 @@ public class PlayerHandler implements Listener {
                     final double length = velocity.length() * 0.75d;
 
                     // FIXME (hapyl): 027, Mar 27: add dot check
-                    
+
                     final Vector projectileVelocity = gamePlayer.getEyeDirection();
                     projectileVelocity.multiply(length);
 
@@ -989,7 +997,7 @@ public class PlayerHandler implements Listener {
         // cooldown check
         if (talent.hasCd(player)) {
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                player.sendMessage("&cTalent on cooldown for %s.", CFUtils.decimalFormatTick(talent.getCdTimeLeft(player)));
+                player.sendMessage("&cTalent on cooldown for %s.", CFUtils.formatTick(talent.getCdTimeLeft(player)));
             }
             player.snapToWeapon();
             return false;

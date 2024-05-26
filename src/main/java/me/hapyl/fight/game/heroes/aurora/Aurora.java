@@ -226,7 +226,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final LivingGameEntity target = data.target;
 
         if (passiveTalent.hasCd(player)) {
-            return "&6\uD83D\uDC7C &f" + CFUtils.decimalFormatTick(passiveTalent.getCdTimeLeft(player));
+            return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCdTimeLeft(player));
         }
 
         return target != null ? "&6\uD83D\uDC7C &e%s".formatted(target.getName()) : "";

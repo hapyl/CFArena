@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.bloodfiend.candlebane;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -10,15 +9,14 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 
-public class CandlebaneTalent extends TauntTalent<Candlebane> {
+public class CandlebaneTalent extends TauntTalent {
 
     @DisplayField protected final short pillarHeight = 7;
     @DisplayField protected final short pillarClicks = 10;
-    @DisplayField(suffix = "&c❤") protected final double damagePerInterval = 5.0d;
-    @DisplayField protected final int interval = 50;
+    @DisplayField(suffix = "❤") protected final double damagePerInterval = 5.0d;
 
     public CandlebaneTalent() {
-        super("Candlebane Pillar");
+        super("Candlebane Pillar", 10, 50);
 
         setItem(Material.RED_CANDLE);
         setDurationSec(60);
@@ -29,7 +27,7 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
     @Override
     public String getDescription() {
         return """
-                &bTaunted&7 player will suffer &c{damagePerInterval}&7 damage every &b{interval}&7.
+                Periodically deals &cdamage&7.
                 """;
     }
 
@@ -43,19 +41,13 @@ public class CandlebaneTalent extends TauntTalent<Candlebane> {
 
     @Nonnull
     @Override
-    public Candlebane createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location) {
-        return new Candlebane(this, player, target, location);
-    }
-
-    @Override
-    @Nonnull
-    public EnumDamageCause getDamageCause() {
-        return EnumDamageCause.CANDLEBANE;
+    public Candlebane createTaunt(@Nonnull GamePlayer player, @Nonnull Location location) {
+        return new Candlebane(this, player, location);
     }
 
     @Nonnull
     public Collection<Candlebane> getPillars() {
-        return playerTaunt.values();
+        return getTaunts(Candlebane.class);
     }
 
 }

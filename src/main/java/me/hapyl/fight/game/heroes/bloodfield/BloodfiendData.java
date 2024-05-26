@@ -6,16 +6,16 @@ import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Ticking;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -27,8 +27,9 @@ import java.util.Set;
 public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
 
     private final GamePlayer player;
-    private final Map<GamePlayer, BiteData> succulence; // FIXME -> Maybe change this to apply to living entities?
+    private final Map<LivingGameEntity, BiteData> succulence;
     private final BleedEffect bleedEffect;
+
     private ImpelInstance impelInstance;
     private int flightTime;
     private boolean flying;
@@ -50,13 +51,12 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     @Nonnull
-    public ImpelInstance newImpelInstance(Bloodfiend instance, GamePlayer player) {
+    public ImpelInstance newImpelInstance(Bloodfiend instance) {
         if (impelInstance != null) {
             impelInstance.stop();
         }
 
-        impelInstance = new ImpelInstance(instance, player, Sets.newHashSet(succulence.keySet()));
-        return impelInstance;
+        return impelInstance = new ImpelInstance(instance, player, CFUtils.fetchKeySet(succulence, GamePlayer.class));
     }
 
     public void reset() {
@@ -83,18 +83,18 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     @Nonnull
-    public BiteData getBiteData(GamePlayer player) {
-        return succulence.computeIfAbsent(player, fn -> new BiteData(getTalent(), this.player, player));
+    public BiteData getBiteData(LivingGameEntity entity) {
+        return succulence.computeIfAbsent(entity, fn -> new BiteData(getTalent(), this.player, entity));
     }
 
-    public void addSucculence(GamePlayer player) {
+    public void addSucculence(LivingGameEntity entity) {
         final BloodfiendPassive succulence = getTalent();
-        final BiteData biteData = getBiteData(player);
+        final BiteData biteData = getBiteData(entity);
 
         biteData.bite(succulence.biteDuration);
     }
 
-    public void stopSucculence(GamePlayer player) {
+    public void stopSucculence(LivingGameEntity player) {
         final BloodfiendPassive succulence = getTalent();
         final BiteData biteDara = this.succulence.remove(player);
 
@@ -137,7 +137,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
             }
 
             // Fx
-            player.sendSubtitle("&2\uD83D\uDD4A &l" + CFUtils.decimalFormatTick(flightTime), 0, 5, 0);
+            player.sendSubtitle("&2\uD83D\uDD4A &l" + CFUtils.formatTick(flightTime), 0, 5, 0);
         }
     }
 
@@ -152,9 +152,9 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         flightTime = getTalent().flightDuration;
 
         // Fx
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.75f);
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 1.75f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.75f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 1.75f);
 
         if (batCloud != null) {
             batCloud.remove();
@@ -179,8 +179,8 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         // Fx
         final Location location = player.getLocation();
 
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
-        PlayerLib.playSound(location, Sound.ENTITY_BAT_DEATH, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_DEATH, 0.0f);
     }
 
     public void cooldownFlight(boolean respawn) {
@@ -222,11 +222,20 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     @Nonnull
-    public Set<GamePlayer> getSucculencePlayers() {
-        return succulence.keySet();
+    public Set<LivingGameEntity> getSuckedEntities() {
+        return Sets.newHashSet(succulence.keySet());
     }
 
-    public int getSucculencePlayersCount() {
+    public boolean isSuckedEntity(@Nonnull LivingGameEntity entity) {
+        return succulence.containsKey(entity);
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getSucculencePlayers() {
+        return CFUtils.fetchKeySet(succulence, GamePlayer.class);
+    }
+
+    public int getSuckedCount() {
         return succulence.size();
     }
 
@@ -252,17 +261,6 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         return succulence.containsKey(gamePlayer);
     }
 
-    public void addBlood() {
-        final BloodCup bloodCup = Talents.BLOOD_CUP.getTalent(BloodCup.class);
-
-        if (ThreadRandom.nextDouble() > bloodCup.chance || blood >= bloodCup.maxBlood) {
-            return;
-        }
-
-        blood++;
-        bloodCup.updateTexture(this);
-    }
-
     public void clearBlood() {
         blood = 0;
     }
@@ -273,23 +271,6 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
     @Nonnull
     public GamePlayer getPlayer() {
-        return player;
-    }
-
-    @Nullable
-    public GamePlayer getMostRecentBitPlayer() {
-        GamePlayer player = null;
-        long mostRecent = 0;
-
-        for (BiteData data : succulence.values()) {
-            final long lastBite = data.getLastBite();
-
-            if (mostRecent == 0 || lastBite > mostRecent) {
-                mostRecent = lastBite;
-                player = data.getPlayer();
-            }
-        }
-
         return player;
     }
 }

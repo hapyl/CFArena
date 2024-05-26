@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.bloodfiend.chalice;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
@@ -15,17 +14,16 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 
-public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Listener {
+public class BloodChaliceTalent extends TauntTalent {
 
-    @DisplayField(percentage = true) public final double healingPercent = 0.8d;
-    @DisplayField protected final short chaliceHealth = 2;
+    @DisplayField(percentage = true) public final double healingPercent = 0.6d;
 
     public BloodChaliceTalent() {
-        super("Blood Chalice");
+        super("Blood Chalice", 6, -1);
 
         setType(TalentType.SUPPORT);
         setItem(Material.SKELETON_SKULL);
-        setDurationSec(30);
+        setDurationSec(15);
         setCooldownSec(15);
     }
 
@@ -34,7 +32,7 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
     public String getDescription() {
         return """
                 The chalice will convert &c{healingPercent}&7 of damage dealt into healing.
-                &8&o;;Only against taunted player.
+                &8&o;;Only against taunted entities.
                 """;
     }
 
@@ -42,47 +40,14 @@ public class BloodChaliceTalent extends TauntTalent<BloodChalice> implements Lis
     @Override
     public String getHowToRemove() {
         return """
-                Hitting the chalice will cause it to change location and &ccrack&7 a little.
-                &8&o;;Doing so {chaliceHealth} times will cause chalice to break.
+                &4Unremovable.
                 """;
     }
 
-    @Override
-    @Nonnull
-    public EnumDamageCause getDamageCause() {
-        return EnumDamageCause.CHALICE;
-    }
-
     @Nonnull
     @Override
-    public BloodChalice createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location) {
-        return new BloodChalice(this, player, target, location);
-    }
-
-    @EventHandler()
-    public void handleEntityDamageByEntityEvent(EntityDamageEvent ev) {
-        final Entity entity = ev.getEntity();
-
-        if (!(entity instanceof LivingEntity livingEntity)) {
-            return;
-        }
-
-        for (BloodChalice value : playerTaunt.values()) {
-            if (!value.isPart(livingEntity)) {
-                return;
-            }
-
-            final int noDamageTicks = livingEntity.getNoDamageTicks();
-
-            ev.setDamage(0.0d);
-            ev.setCancelled(true);
-
-            if (noDamageTicks > 0) {
-                return;
-            }
-
-            value.crack();
-        }
+    public BloodChalice createTaunt(@Nonnull GamePlayer player, @Nonnull Location location) {
+        return new BloodChalice(this, player, location);
     }
 
 }

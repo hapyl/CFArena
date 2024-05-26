@@ -929,7 +929,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
                     return;
                 }
 
-                sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + CFUtils.decimalFormatTick(tickBeforeRespawn), 0, 25, 0);
+                sendTitle("&e&lʀᴇsᴘᴀᴡɴɪɴɢ", "&b&l" + CFUtils.formatTick(tickBeforeRespawn), 0, 25, 0);
                 if (tickBeforeRespawn % 20 == 0) {
                     playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f - (0.2f * (tickBeforeRespawn / 20f)));
                 }
@@ -1473,7 +1473,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
     @Nonnull
     public String getCooldownFormatted(@Nonnull Material material) {
-        return CFUtils.decimalFormatTick(getCooldown(material));
+        return CFUtils.formatTick(getCooldown(material));
     }
 
     @Nonnull

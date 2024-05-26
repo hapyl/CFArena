@@ -78,7 +78,7 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     @Nonnull
     public String getCooldownTimeLeftFormatted(GamePlayer player) {
-        return CFUtils.decimalFormatTick(getCooldownTimeLeft(player));
+        return CFUtils.formatTick(getCooldownTimeLeft(player));
     }
 
     public void stopCooldown(GamePlayer player) {

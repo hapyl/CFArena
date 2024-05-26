@@ -72,7 +72,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 player.sendMessage(
                         "&4&l※ &cYour ultimate is on cooldown for %s!",
-                        CFUtils.decimalFormatTick(getCdTimeLeft(player))
+                        CFUtils.formatTick(getCdTimeLeft(player))
                 );
                 player.playSound(SoundEffect.ERROR);
             }

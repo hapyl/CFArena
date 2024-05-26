@@ -1,41 +1,47 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
-import me.hapyl.fight.Main;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public abstract class Taunt extends GameTask {
 
-    public final GamePlayer target;
-
     protected final GamePlayer player;
+    protected final Location location;
+    protected final Bloodfiend bloodfiend;
+
+    private final TauntTalent talent;
     private final SwiftTeleportAnimation animation;
 
-    protected Location initialLocation;
+    protected TauntParticle tauntParticle;
 
     private int tick;
     private boolean isAnimation;
+    private double theta;
 
-    public Taunt(GamePlayer player, GamePlayer target, Location location) {
+    public Taunt(TauntTalent talent, GamePlayer player, Location location) {
+        this.talent = talent;
         this.player = player;
-        this.target = target;
-        this.initialLocation = location;
+        this.location = location;
+        this.bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
 
-        animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.initialLocation) {
+        animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.location) {
             @Override
             public void onAnimationStep(Location location) {
                 Taunt.this.onAnimationStep(location);
@@ -45,9 +51,6 @@ public abstract class Taunt extends GameTask {
             public void onAnimationStop() {
                 isAnimation = false;
                 Taunt.this.onAnimationEnd();
-
-                target.sendWarning(getName() + " is taunting you!", 30);
-                player.sendMessage("%s&a is taunting &c%s&a!", getNameWithCharacter(), target.getName());
             }
         };
 
@@ -56,6 +59,11 @@ public abstract class Taunt extends GameTask {
 
         // Fx
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DEATH, 0.0f);
+    }
+
+    @Nonnull
+    public TauntTalent getTalent() {
+        return talent;
     }
 
     public boolean isAnimation() {
@@ -76,28 +84,45 @@ public abstract class Taunt extends GameTask {
     public void remove() {
         animation.cancel();
         cancel();
+
+        talent.startCd(player);
     }
 
     public int getTimeLeft() {
         return tick;
     }
 
-    public abstract void run(int tick);
+    public abstract void tick(int tick);
+
+    public abstract void tick(@Nonnull Collection<LivingGameEntity> entities);
 
     @Override
     public final void run() {
-        // Remove taunt if taunt has died
-        if (target.isDeadOrRespawning()) {
-            remove();
-            player.sendMessage("%s %s &ewas removed because %s has died!", getCharacter(), getName(), target.getName());
+        if (player.isDeadOrRespawning()) {
             return;
         }
 
-        run(tick--);
+        // Tick normally
+        tick(tick--);
+
+        // Tick zone particle if exists
+        if (tauntParticle != null) {
+            for (int i = 0; i < tauntParticle.speed; i++) {
+                tauntParticle.draw();
+            }
+        }
+
+        // Tick SUCKED entities within range
+        final int period = talent.getPeriod();
+        if (period != -1 && tick % period == 0) {
+            final Set<LivingGameEntity> suckedEntities = getSuckedEntitiesWithinRange();
+
+            tick(suckedEntities);
+        }
 
         // Fx
         if (tick % 10 == 0) {
-            target.playSound(initialLocation, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
+            player.playSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.0f);
         }
 
         if (tick <= 0) {
@@ -106,7 +131,19 @@ public abstract class Taunt extends GameTask {
     }
 
     @Nonnull
-    public abstract String getName();
+    public Set<LivingGameEntity> getSuckedEntitiesWithinRange() {
+        final Bloodfiend bloodfiend = getBloodfiend();
+        final BloodfiendData data = bloodfiend.getData(player);
+        final Set<LivingGameEntity> suckedEntities = data.getSuckedEntities();
+
+        suckedEntities.removeIf(entity -> CFUtils.distance(entity.getLocation(), location) > talent.getRadius());
+        return suckedEntities;
+    }
+
+    @Nonnull
+    public String getName() {
+        return talent.getName();
+    }
 
     @Nonnull
     public abstract String getCharacter();
@@ -116,18 +153,14 @@ public abstract class Taunt extends GameTask {
         return getCharacter() + " " + getName();
     }
 
-    @Nonnull
-    public abstract EnumDamageCause getDamageCause();
+    @Override
+    public void onTaskStop() {
+        talent.removeTaunt(player);
+    }
 
     @Nonnull
     public final World getWorld() {
-        final World world = initialLocation.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("unloaded world");
-        }
-
-        return world;
+        return CFUtils.getWorld(location);
     }
 
     @Nonnull
@@ -135,35 +168,56 @@ public abstract class Taunt extends GameTask {
         return Heroes.BLOODFIEND.getHero(Bloodfiend.class);
     }
 
-    protected void asPlayers(@Nonnull Consumer<GamePlayer> consumer) {
-        consumer.accept(player);
-        consumer.accept(target);
-    }
+    public boolean isSuckedEntityAndWithinRange(@Nonnull LivingGameEntity entity) {
+        final BloodfiendData data = getBloodfiend().getData(player);
 
-    // Spawns particle for both players
-    protected void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
-        asPlayers(player -> {
-            player.spawnParticle(location, particle, amount, x, y, z, speed);
-        });
+        return data.isSuckedEntity(entity) && CFUtils.distance(entity.getLocation(), location) <= talent.getRadius();
     }
 
     protected <T extends Entity> T spawnEntity(Entities<T> type, Location location, Consumer<T> consumer) {
-        final Main plugin = Main.getPlugin();
-
-        final T entity = type.spawn(location, self -> {
-            self.setVisibleByDefault(false);
-            consumer.accept(self);
-        });
-
-        player.showEntity(entity);
-        target.showEntity(entity);
-
-        return entity;
+        return type.spawn(location, consumer);
     }
 
     @Nonnull
     public static Location pickRandomLocation(Location location) {
         return CFUtils.findRandomLocationAround(location).subtract(0, 1.35d, 0);
+    }
+
+    protected abstract class TauntParticle {
+
+        private final int speed;
+
+        protected TauntParticle(int speed) {
+            this.speed = speed;
+        }
+
+        public abstract void draw(@Nonnull Location location);
+
+        public void draw() {
+            final TauntTalent talent = getTalent();
+            final double radius = talent.getRadius();
+
+            final double x = Math.sin(theta) * radius;
+            final double y = yOffset() + (Math.sin(Math.toRadians(tick * 20)) * slope());
+            final double z = Math.cos(theta) * radius;
+
+            CFUtils.offsetLocation(location, x, y, z, () -> draw(location));
+            CFUtils.offsetLocation(location, z, y, x, () -> draw(location));
+
+            theta += Math.PI / piIncrement();
+        }
+
+        protected double yOffset() {
+            return 1;
+        }
+
+        protected double slope() {
+            return 1.0d;
+        }
+
+        protected double piIncrement() {
+            return 32;
+        }
     }
 
 

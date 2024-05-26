@@ -176,7 +176,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
         final int duration = pack.getDuration();
 
-        return pack.getName() + " " + pack.getPack().toString(pack) + " &e⌚ " + CFUtils.decimalFormatTick(duration);
+        return pack.getName() + " " + pack.getPack().toString(pack) + " &e⌚ " + CFUtils.formatTick(duration);
     }
 
     private class TamerUltimate extends UltimateTalent {

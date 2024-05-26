@@ -212,9 +212,13 @@ public enum AttributeType implements Described {
         }
     },
 
-    // this is for 1.21 or whatever where you can change player's height HOLY SHIT MOJANG ADDED SOMETHING COOL?
     HEIGHT(
-            new Attribute("Height", "Height doesn't matter. Or does it?")
+            new Attribute("Height", "Height doesn't matter. Or does it?") {
+                @Override
+                public void update(LivingGameEntity entity, double value) {
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_SCALE, value);
+                }
+            }
                     .setChar("\uD83D\uDCCF")
                     .setColor(ChatColor.GREEN), 1.0d
     ) {

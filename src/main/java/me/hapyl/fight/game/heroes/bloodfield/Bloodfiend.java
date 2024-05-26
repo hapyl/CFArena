@@ -3,11 +3,12 @@ package me.hapyl.fight.game.heroes.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.fx.EntityFollowingParticle;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -16,17 +17,15 @@ import me.hapyl.fight.game.heroes.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.bloodfiend.BloodCup;
+import me.hapyl.fight.game.talents.bloodfiend.TentacleParticle;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
-import me.hapyl.fight.game.talents.bloodfiend.candlebane.Candlebane;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
-import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChalice;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.bloodfiend.taunt.Taunt;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -52,7 +51,6 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -64,6 +62,7 @@ import java.util.function.BiConsumer;
 public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
     @DisplayField public final short impelTimes = 3;
+    @DisplayField public final double impelNonPlayerDamage = 50;
     @DisplayField public final int impelDuration = 30;
     @DisplayField public final int impelCd = 10;
     @DisplayField public final double impelDamage = 25d;
@@ -113,10 +112,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
                 &8&o;;While casting, transform into a bat and fly freely.
                                 
-                While impelled, enemies &nmust&7 obey &b&l%s &7of your commands.
+                While impelled, &nplayers &nmust&7 obey &b&l%s &7of your commands.
+                &8&oEntities other than players take %s damage.
                                 
-                If &4failed&7 to obey a command, they will suffer &c%.0f&7 ❤ damage.
-                """, impelTimes, impelDamage);
+                If &4failed&7 to obey a command, they suffer &c%.0f&7 ❤ damage.
+                """.formatted(impelTimes, impelNonPlayerDamage, impelDamage));
 
         setUltimate(ultimate);
     }
@@ -171,21 +171,20 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         entity.addEffect(Effects.IMMOVABLE, 1);
 
         final BloodfiendData data = getData(player);
-        data.addBlood();
 
-        if (!(entity instanceof GamePlayer victim)) {
+        data.addSucculence(entity);
+
+        // Blood Chalice
+        final BloodChaliceTalent chalice = getThirdTalent();
+        final Taunt taunt = chalice.getTaunt(player);
+
+        if (taunt == null) {
             return;
         }
 
-        data.addSucculence(victim);
-
-        // Blood Chalice
-        final BloodChaliceTalent bloodChalice = getThirdTalent();
-        final BloodChalice taunt = bloodChalice.getTaunt(player);
-
-        if (taunt != null && taunt.target.equals(victim)) {
+        if (taunt.isSuckedEntityAndWithinRange(entity)) {
             final double damage = instance.getDamage();
-            final double healing = damage * bloodChalice.healingPercent;
+            final double healing = damage * chalice.healingPercent;
 
             player.heal(healing);
         }
@@ -220,12 +219,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @Override
     public BloodChaliceTalent getThirdTalent() {
         return (BloodChaliceTalent) Talents.BLOOD_CHALICE.getTalent();
-    }
-
-    @Override
-    @StrictTalentPlacement
-    public BloodCup getFourthTalent() {
-        return (BloodCup) Talents.BLOOD_CUP.getTalent();
     }
 
     @Override
@@ -354,51 +347,30 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     @Override
     public List<String> getStrings(@Nonnull GamePlayer player) {
         final BloodfiendData data = getData(player);
-        final int succulencePlayers = data.getSucculencePlayersCount();
+        final int succulencePlayers = data.getSuckedCount();
         final int flightCooldown = data.getFlightCooldown();
 
         final CandlebaneTalent twinClaws = getSecondTalent();
         final BloodChaliceTalent bloodChalice = getThirdTalent();
 
-        final Candlebane pillar = twinClaws.getTaunt(player);
-        final BloodChalice chalice = bloodChalice.getTaunt(player);
+        final Taunt pillar = twinClaws.getTaunt(player);
+        final Taunt chalice = bloodChalice.getTaunt(player);
 
         return List.of(
                 succulencePlayers > 0 ? "&c&l🦇 &f" + succulencePlayers : "",
-                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + CFUtils.decimalFormatTick(flightCooldown) : "",
-                pillar != null ? "&6&lⅡ &f" + CFUtils.decimalFormatTick(pillar.getTimeLeft()) : "",
-                chalice != null ? "&4&l🍷 &f" + CFUtils.decimalFormatTick(chalice.getTimeLeft()) : ""
+                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + CFUtils.formatTick(flightCooldown) : "",
+                pillar != null ? "&6&lⅡ &f" + CFUtils.formatTick(pillar.getTimeLeft()) : "",
+                chalice != null ? "&4&l🍷 &f" + CFUtils.formatTick(chalice.getTimeLeft()) : ""
         );
     }
 
-    public void drawTentacleParticles(Location start, Location end, Drawable draw) {
-        final double distance = start.distance(end);
-        final double step = distance / 30 * 2;
+    @Override
+    public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
+        if (player.isUsingUltimate()) {
+            return false;
+        }
 
-        final Vector vector = end.clone().subtract(start).toVector().normalize().multiply(step);
-        final Location location = start.clone();
-
-        new TickingGameTask() {
-            private double d;
-
-            @Override
-            public void run(int tick) {
-                if (d >= distance) {
-                    cancel();
-                    return;
-                }
-
-                final double y = Math.sin(d / distance * Math.PI * 3) * 0.75d;
-
-                location.add(vector);
-                location.add(0, y, 0);
-
-                draw.draw(location);
-
-                location.subtract(0, y, 0);
-                d += step;
-            }
-        }.runTaskTimer(0, 1);
+        return super.processInvisibilityDamage(player, entity, damage);
     }
 
     private void playSoundAtTick(Location location, Sound sound, final float pitch, float pitchIncrease, int... ticks) {
@@ -447,7 +419,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
             final BloodfiendData data = getData(player);
-            final Set<GamePlayer> succulencePlayers = data.getSucculencePlayers();
+            final Set<LivingGameEntity> suckedEntities = data.getSuckedEntities();
             final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
 
             final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
@@ -457,12 +429,24 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             npc.setSitting(true);
 
             // Draw particles
-            succulencePlayers.forEach(target -> {
-                drawTentacleParticles(location, target.getLocation(), draw -> {
-                    player.spawnWorldParticle(draw, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
-                    player.spawnWorldParticle(draw, Particle.FLAME, 1);
-                    player.spawnWorldParticle(draw, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
-                });
+            suckedEntities.forEach(entity -> {
+                new EntityFollowingParticle(2, location, entity) {
+                    @Override
+                    public void draw(int tick, @Nonnull Location location) {
+                        player.spawnWorldParticle(location, Particle.LAVA, 1, 0.1d, 0.1d, 0.1d, 0.0f);
+                        player.spawnWorldParticle(location, Particle.FLAME, 1);
+                        player.spawnWorldParticle(location, Particle.SMALL_FLAME, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+                    }
+
+                    @Override
+                    public void onHit(@Nonnull Location location) {
+                        if (entity instanceof GamePlayer) {
+                            return;
+                        }
+
+                        entity.damage(impelNonPlayerDamage, player, EnumDamageCause.IMPEL);
+                    }
+                }.runTaskTimer(0, 1);
             });
 
             // Spawn bats
@@ -500,7 +484,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                     playerBat.teleport(player.getLocation());
 
                     // Fx
-                    PlayerLib.spawnParticle(player.getLocation(), Particle.SMOKE, 2, 0.15d, 0.15d, 0.15d, 0.0f);
+                    player.spawnWorldParticle(player.getLocation(), Particle.SMOKE, 2, 0.15d, 0.15d, 0.15d, 0.0f);
                 }
             }.runTaskTimer(0, 1);
 
@@ -514,11 +498,10 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                     0, 2, 3, 5, 6, 9, 10, 12
             );
 
-
             return new UltimateResponse() {
                 @Override
                 public void onCastFinished(@Nonnull GamePlayer player) {
-                    getData(player).newImpelInstance(Bloodfiend.this, player).nextImpel(0);
+                    getData(player).newImpelInstance(Bloodfiend.this).nextImpel(0);
 
                     fxBats.forEach(Bat::remove);
                     fxBats.clear();

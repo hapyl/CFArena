@@ -82,7 +82,7 @@ public class ShadowCloneNPC extends HumanNPC {
 
     @Override
     public String toString() {
-        return "&3\uD83E\uDE9E &b" + CFUtils.decimalFormatTick(lifeTime);
+        return "&3\uD83E\uDE9E &b" + CFUtils.formatTick(lifeTime);
     }
 
     @Override

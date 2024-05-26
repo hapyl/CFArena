@@ -158,8 +158,14 @@ public class Main extends JavaPlugin {
         this.reloadChecker = new ReloadChecker(this);
         this.reloadChecker.check(20);
 
-        // Clear garbage entities
-        GameTask.runLater(CFGarbageCollector::clearInAllWorlds, 20);
+        // Delayed operations
+        GameTask.runLater(() -> {
+            // We have teo re-create profiles in case of /reload
+            Bukkit.getOnlinePlayers().forEach(player -> manager.createProfile(player));
+
+            // Clear old entities, most likely because of /reload
+            CFGarbageCollector.clearInAllWorlds();
+        }, 20);
 
         // Load contributors
         //Contributors.loadContributors();
@@ -177,29 +183,6 @@ public class Main extends JavaPlugin {
         runSafe(() -> {
             for (final Player player : Bukkit.getOnlinePlayers()) {
                 Manager.current().getOrCreateProfile(player).getDatabase().save();
-
-                final int reloadCount = reloadChecker.getReloadCount();
-
-                final boolean isOperator = player.isOp();
-                final StringBuilder builder = new StringBuilder("""
-                        &4&lServer Reloaded!
-                        &cPlease re-connect to avoid bugs.
-                        """);
-
-                // FIXME (hapyl): 008, Mar 8: This technically says restart on server stop
-                if (isOperator) {
-                    builder.append("""
-                                                    
-                            &7&oReloading your server may lead to memory leaks,
-                            &7&o"Zip File Closed" and similar issues.
-                                                
-                            &7&oIf you encounter any, please &nrestart&7&o the server!
-                                                
-                            &8&oThis is your %s server reload!\
-                            """.formatted(Chat.stNdTh(reloadCount + 1)));
-                }
-
-                player.kickPlayer(Chat.color(builder.toString()));
             }
         }, "Player database save.");
 

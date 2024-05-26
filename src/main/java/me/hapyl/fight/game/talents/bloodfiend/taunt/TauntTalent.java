@@ -1,29 +1,37 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
-import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
+import java.util.Set;
 
-public abstract class TauntTalent<T extends Taunt> extends Talent {
+public abstract class TauntTalent extends Talent {
 
-    protected final Map<GamePlayer, T> playerTaunt;
+    protected final PlayerMap<Taunt> playerTaunt;
 
-    public TauntTalent(@Nonnull String name) {
+    @DisplayField(suffix = "blocks") private final double radius;
+    @DisplayField private final int period; // -1 means it's passive
+
+    public TauntTalent(@Nonnull String name, double radius, int period) {
         super(name);
 
-        this.playerTaunt = Maps.newConcurrentMap();
+        this.playerTaunt = PlayerMap.newConcurrentMap();
+        this.radius = radius;
+        this.period = period;
 
-        addNlDescription("Toss a {name} nearby that will taunt the &bmost &brecently &cbitten&7 player for {duration}.");
+        addNlDescription(
+                "Toss a {name} nearby that will taunt &b&nall&c bitten&7 enemies within &6%.0f blocks&7 radius for {duration}."
+                        .formatted(radius)
+        );
         addDescription();
 
         addNlDescription("&a&lWhile Active:");
@@ -33,6 +41,14 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         addNlDescription(getHowToRemove());
     }
 
+    public double getRadius() {
+        return radius;
+    }
+
+    public int getPeriod() {
+        return period;
+    }
+
     @Override
     public final void setDescription(@Nonnull String description, Object... format) {
         addDescription(description, format);
@@ -40,17 +56,11 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final GamePlayer mostRecentBitPlayer = getMostRecentBitPlayer(player);
-
-        if (mostRecentBitPlayer == null) {
-            return Response.error("No one to taunt!");
-        }
-
-        final T taunt = getTaunt(player);
+        final Taunt taunt = playerTaunt.remove(player);
 
         if (taunt != null) {
             taunt.remove();
-            player.sendMessage("&aYour previous %s was removed!", taunt.getName());
+            player.sendMessage("&eYour previous %s&e was removed!", taunt.getName());
         }
 
         final Location playerLocation = player.getLocation();
@@ -60,19 +70,29 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
             return Response.error("Could not find location to place the taunt!");
         }
 
-        playerTaunt.put(player, createTaunt(player, mostRecentBitPlayer, location));
+        playerTaunt.put(player, createTaunt(player, location));
         startCd(player, 100000);
 
         return Response.AWAIT;
     }
 
     @Nullable
-    public T getTaunt(@Nonnull GamePlayer player) {
+    public Taunt getTaunt(@Nonnull GamePlayer player) {
         return playerTaunt.get(player);
     }
 
     @Nonnull
-    public abstract T createTaunt(@Nonnull GamePlayer player, @Nonnull GamePlayer target, @Nonnull Location location);
+    public Set<Taunt> getTaunts() {
+        return Sets.newHashSet(playerTaunt.values());
+    }
+
+    @Nonnull
+    public <T extends Taunt> Set<T> getTaunts(Class<T> as) {
+        return CFUtils.fetchValues(playerTaunt, as);
+    }
+
+    @Nonnull
+    public abstract Taunt createTaunt(@Nonnull GamePlayer player, @Nonnull Location location);
 
     @Nonnull
     public abstract String getDescription();
@@ -80,14 +100,9 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
     @Nonnull
     public abstract String getHowToRemove();
 
-    @Nonnull
-    public EnumDamageCause getDamageCause() {
-        return EnumDamageCause.ENTITY_ATTACK;
-    }
-
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        final T taunt = playerTaunt.remove(player);
+        final Taunt taunt = playerTaunt.remove(player);
 
         if (taunt != null) {
             taunt.remove();
@@ -104,11 +119,4 @@ public abstract class TauntTalent<T extends Taunt> extends Talent {
         playerTaunt.remove(player);
     }
 
-    @Nullable
-    protected GamePlayer getMostRecentBitPlayer(GamePlayer player) {
-        final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
-        final BloodfiendData data = bloodfiend.getData(player);
-
-        return data.getMostRecentBitPlayer();
-    }
 }

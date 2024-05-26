@@ -79,6 +79,6 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
 
     @Nonnull
     public String getTypeString() {
-        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getHealth(), CFUtils.decimalFormatTick(duration));
+        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getHealth(), CFUtils.formatTick(duration));
     }
 }
