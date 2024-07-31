@@ -58,7 +58,7 @@ public class ConstructEntity implements Removable, Ticking {
 
                         @Override
                         public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
-                            lastDamager.sendMessage("Cannot damage allied Construct!");
+                            lastDamager.sendMessage("&cCannot damage allied Construct!");
                         }
                     };
                     entity.setImmune(EnumDamageCause.SUFFOCATION);

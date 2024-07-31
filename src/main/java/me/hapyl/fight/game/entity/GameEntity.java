@@ -278,6 +278,10 @@ public class GameEntity {
         Chat.sendMessage(entity, message.formatted(objects));
     }
 
+    public void sendMessage(@Nonnull MessageType messageType, @Nonnull String message) {
+        asPlayer(player -> messageType.send(player, message));
+    }
+
     public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
         asPlayer(player -> {
             player.sendTitle(
@@ -516,4 +520,6 @@ public class GameEntity {
     public Entry getEntry() {
         return Entry.of(this);
     }
+
+
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.fight.game.attribute.Attribute;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -21,13 +22,13 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
     @Override
     protected void execute(Player player, String[] args) {
         // pa (TYPE) [newValue]
-        final AttributeType type = Validate.getEnumValue(AttributeType.class, args[0]);
+        final AttributeType type = getArgument(args, 0).toEnum(AttributeType.class);
         final double newValue = getArgument(args, 1).toDouble();
 
         final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
 
         if (type == null) {
-            Chat.sendMessage(player, "&4Error! &cInvalid type, try there: " + Arrays.toString(AttributeType.values()));
+            Chat.sendMessage(player, "&4Error! &cInvalid type, try there: " + AttributeType.listNames());
             return;
         }
 
@@ -40,6 +41,7 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
 
         if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
             attributes.reset();
+            gamePlayer.updateAttributes();
 
             Chat.sendMessage(player, "&aReset all attributes to base.");
             return;
@@ -53,8 +55,8 @@ public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        attributes.add(type, newValue);
-        Chat.sendMessage(player, "&aAdded %s to %s. Current value: %s.".formatted(newValue, type.getName(), attributes.get(type)));
+        attributes.set(type, newValue - attributes.getBase(type));
+        Chat.sendMessage(player, "&aSet %s to %s.".formatted(type.getName(), attributes.get(type)));
     }
 
 }

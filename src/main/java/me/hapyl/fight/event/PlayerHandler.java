@@ -8,6 +8,7 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EntityData;
@@ -81,15 +82,14 @@ public class PlayerHandler implements Listener {
 
     public static final double RANGE_KNOCKBACK_RESISTANCE = 0.7d;
     public static final double VELOCITY_MAX_Y = 4.821600093841552d;
+    public static final double ZERO_DAMAGE = 0.00001d;
 
     public final double[] bowScale = { 6.0d, 11.0d };
-
     public final double RANGE_SCALE = 6.28d;
     public final double DAMAGE_LIMIT = Short.MAX_VALUE;
 
     private final Set<EntityDamageEvent.DamageCause> instantDeathCauses
             = Set.of(EntityDamageEvent.DamageCause.VOID);
-
     private final Map<Projectile, DeflectedProjectile> deflectedProjectiles = Maps.newHashMap();
 
     public PlayerHandler() {
@@ -302,7 +302,7 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleDamage0(EntityDamageEvent ev) {
         final Entity entity = ev.getEntity();
-        final EntityDamageEvent.DamageCause cause = ev.getCause();
+        final EntityDamageEvent.DamageCause damageCause = ev.getCause();
 
         Projectile finalProjectile = null;
 
@@ -312,7 +312,7 @@ public class PlayerHandler implements Listener {
         }
 
         // Check instant death
-        if (instantDeathCauses.contains(cause)) {
+        if (instantDeathCauses.contains(damageCause)) {
             EntityData.die(livingEntity);
             return;
         }
@@ -350,13 +350,24 @@ public class PlayerHandler implements Listener {
         // since it is now the 'real' data.
 
         // Reassign cause
-        data.setLastDamageCauseIfNative(cause);
+        data.setLastDamageCauseIfNative(damageCause);
         instance.cause = data.getLastDamageCauseNonNull();
 
         // FIXME:
         // For some reason this was missing?
         // If something breaks after this update, remove this ig
         instance.setLastDamager(data.getLastDamagerAsLiving());
+
+        if (gameEntity instanceof LivingGameEntity livingGameEntity) {
+            final int noDamageTicks = livingGameEntity.getNoDamageTicks();
+            final EnumDamageCause cause = instance.getCause();
+
+            if ((cause != null && !cause.hasFlag(DamageFlag.IGNORES_DAMAGE_TICKS)) && noDamageTicks > 0) {
+                ev.setDamage(0.0d);
+                ev.setCancelled(true);
+                return;
+            }
+        }
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
 
@@ -564,7 +575,7 @@ public class PlayerHandler implements Listener {
         }
 
         // Don't damage anything, only visually
-        ev.setDamage(0.0d);
+        ev.setDamage(ZERO_DAMAGE); // FIXME: 0.0d causes bugs thanks mojang
 
         // Store data in DamageData
         data.setLastDamage(instance.damage);
@@ -899,7 +910,7 @@ public class PlayerHandler implements Listener {
         final EntityDamageEvent.DamageCause cause = ev.getCause();
 
         if (entity.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.SLIME_BLOCK) {
-            ev.setDamage(0.0d);
+            ev.setDamage(ZERO_DAMAGE);
             return;
         }
 

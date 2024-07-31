@@ -24,7 +24,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
     public Nyx(@Nonnull Heroes handle) {
         super(handle, "Nyx");
 
-        setArchetype(Archetype.SUPPORT);
+        setArchetypes(Archetype.SUPPORT);
         setAffiliation(Affiliation.THE_WITHERS);
         setGender(Gender.FEMALE);
 

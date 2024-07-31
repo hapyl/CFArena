@@ -48,7 +48,7 @@ public class Orc extends Hero implements Listener {
                 Half-orc half-dwarf loner.
                 """);
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();

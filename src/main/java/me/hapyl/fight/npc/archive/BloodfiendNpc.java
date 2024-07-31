@@ -25,7 +25,7 @@ public class BloodfiendNpc extends PersistentNPC {
             ));
 
     public BloodfiendNpc() {
-        super(1.5, 57.5, 42.5, 135.0f, 0.0f, "Bloodfiend");
+        super(1.5, 58, 42.5, 135.0f, 0.0f, "Bloodfiend");
 
         final PlayerSkin skin = Heroes.BLOODFIEND.getHero().getSkin();
 

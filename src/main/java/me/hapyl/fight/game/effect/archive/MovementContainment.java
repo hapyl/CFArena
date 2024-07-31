@@ -5,12 +5,10 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EntityMemory;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MemoryKey;
 import me.hapyl.fight.util.Vectors;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 

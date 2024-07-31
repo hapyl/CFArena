@@ -14,7 +14,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Set;
 
 public class Shield {
 
@@ -46,8 +45,7 @@ public class Shield {
             return true;
         }
 
-        if (cause.hasFlag(DamageFlag.PIERCING_DAMAGE)
-                || cause == EnumDamageCause.FALL) {
+        if (cause.hasFlag(DamageFlag.PIERCING_DAMAGE) || cause == EnumDamageCause.FALL) {
             return false;
         }
 

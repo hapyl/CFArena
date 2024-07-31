@@ -62,7 +62,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
                 An extremely well-trained fighter with a gift from the wind.
                 """);
 
-        setArchetype(Archetype.MOBILITY);
+        setArchetypes(Archetype.MOBILITY, Archetype.DAMAGE, Archetype.MELEE);
         setGender(Gender.MALE); // maybe female because it's literally jett
         setItem("1413159cfab50aba283e68c1659d74412392fbcb1f7d663d1bd2a2a6430c2743");
 

@@ -1,7 +1,5 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.util.SmallCaps;
-
 import javax.annotation.Nonnull;
 import java.util.Map;
 
@@ -38,7 +36,7 @@ public final class UpsideDownText {
 
     @Nonnull
     public static String format(@Nonnull String string) {
-        final StringBuilder builder = new StringBuilder();
+        final StrBuilder builder = new StrBuilder();
         final char[] chars = string.toCharArray();
 
         for (char c : chars) {

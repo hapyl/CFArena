@@ -49,6 +49,7 @@ import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -1071,7 +1072,7 @@ public class CFUtils {
             deque.offer(fileName + "." + methodName + ":" + trace.getLineNumber());
         }
 
-        final StringBuilder builder = new StringBuilder();
+        final StrBuilder builder = new StrBuilder();
 
         int index = 0;
         for (String string : deque) {
@@ -1176,6 +1177,113 @@ public class CFUtils {
 
     public static void offsetLocation(@Nonnull Location location, double y, @Nonnull Runnable runnable) {
         offsetLocation(location, 0, y, 0, runnable);
+    }
+
+    @Nonnull
+    public static <T> T returnOrThrow(@Nullable T t, @Nonnull String errorMessage) {
+        if (t != null) {
+            return t;
+        }
+
+        throw new IllegalArgumentException(errorMessage);
+    }
+
+    public static boolean arrayContains(Object[] array, Object containingElement) {
+        if (array == null) {
+            return false;
+        }
+
+        for (Object e : array) {
+            if (Objects.equals(e, containingElement)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @SafeVarargs
+    @Nonnull
+    public static <E extends Enum<E>> List<E> enumSubList(@Nonnull Class<E> clazz, int startIndex, int maxSize, @Nullable E... ignore) {
+        if (startIndex < 0) {
+            throw new IllegalArgumentException("Start index cannot be negative.");
+        }
+
+        final List<E> list = new ArrayList<>();
+        final E[] enumConstants = clazz.getEnumConstants();
+
+        for (int i = 0; i < maxSize; i++) {
+            if (startIndex + i >= enumConstants.length) {
+                return list;
+            }
+
+            final E e = enumConstants[startIndex + i];
+
+            if (arrayContains(ignore, e)) {
+                continue;
+            }
+
+            list.add(e);
+        }
+
+        return list;
+    }
+
+    @Nullable
+    public static <T> Method getMethod(@Nonnull Class<T> clazz, @Nonnull String methodName) {
+        try {
+            return clazz.getMethod(methodName);
+        } catch (Exception e) {
+            try {
+                return clazz.getDeclaredMethod(methodName);
+            } catch (Exception e2) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Combines all the given {@link ChatColor} and prepends them before the name.
+     *
+     * @param name   - Name.
+     * @param colors - Colors.
+     * @return colored string.
+     */
+    @Nonnull
+    public static String combineColors(@Nonnull String name, @Nonnull ChatColor... colors) {
+        if (colors.length == 0) {
+            throw new IllegalArgumentException("There must be at least one color!");
+        }
+
+        final StrBuilder builder = new StrBuilder();
+
+        for (ChatColor color : colors) {
+            builder.append(color);
+        }
+
+        return builder + name;
+    }
+
+    @Nonnull
+    public static <T> T castNullable(@Nullable Object object, @Nonnull Class<T> cast) throws IllegalArgumentException {
+        if (object == null) {
+            throw new IllegalArgumentException("Cannot cast null object.");
+        }
+
+        return cast.cast(object);
+    }
+
+    @Nullable
+    public static Entity getEntityById(int entityId) {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getEntityId() == entityId) {
+                    return entity;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static class Helper {

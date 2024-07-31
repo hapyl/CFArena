@@ -5,7 +5,7 @@ import me.hapyl.spigotutils.module.chat.Chat;
 import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
 
-public class EnumId extends PatternId {
+public final /* don't extend EnumId, use Identified !!! */ class EnumId extends PatternId {
 
     public static final Pattern PATTERN = Pattern.compile("^[A-Z0-9_]+$");
 
@@ -36,6 +36,11 @@ public class EnumId extends PatternId {
         return string
                 .toUpperCase()                       // A-Z
                 .replace(" ", "_"); // _
+    }
+
+    @Nonnull
+    public static EnumId of(@Nonnull String id) {
+        return new EnumId(id);
     }
 
 }

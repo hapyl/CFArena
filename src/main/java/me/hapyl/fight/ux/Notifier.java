@@ -15,6 +15,9 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * <h1>This uses {@link BFormat} as a formatter, <u>not</u> Java formatter!</h1>
+ */
 public interface Notifier {
 
     /**

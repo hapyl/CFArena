@@ -43,7 +43,7 @@ public final class TimeFormat {
         final long minutes = seconds / 60;
         final long hours = minutes / 60;
 
-        final StringBuilder builder = new StringBuilder();
+        final StrBuilder builder = new StrBuilder();
 
         if (Bitmask.isMasked(bitMask, HOURS)) {
             builder.append("%02dh ".formatted(hours));

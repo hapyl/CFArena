@@ -30,6 +30,7 @@ public enum Named {
     MOONLIT_ENERGY(ChatColor.YELLOW + "&e☄", "Moonlit Energy", Color.MOON),
     ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
     THE_CHAOS("", "The Chaos", Color.BLUE),
+    BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
 
     ;
 

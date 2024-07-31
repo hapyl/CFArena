@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.heroes.pytaria;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -41,7 +40,7 @@ public class Pytaria extends Hero {
     public Pytaria(@Nonnull Heroes handle) {
         super(handle, "Pytaria");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);
         setGender(Gender.FEMALE);
 
         setDescription(
@@ -50,10 +49,11 @@ public class Pytaria extends Hero {
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 120.0d);
-        attributes.set(AttributeType.ATTACK, 0.8d);
-        attributes.set(AttributeType.CRIT_CHANCE, 0.2d);
-        attributes.set(AttributeType.CRIT_DAMAGE, 0.5d);
+        attributes.setHealth(120);
+        attributes.setAttack(80);
+        attributes.setCritChance(20);
+        attributes.setCritDamage(50);
+        attributes.setHeight(170);
 
         this.attackScale = maxAttack - attributes.get(AttributeType.ATTACK);
         this.critChanceScale = maxCritChance - attributes.get(AttributeType.CRIT_CHANCE);

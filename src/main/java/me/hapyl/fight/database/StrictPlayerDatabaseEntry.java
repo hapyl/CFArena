@@ -10,6 +10,7 @@ import java.util.function.Function;
 /**
  * A stricter and <b>better</b> impl of {@link PlayerDatabaseEntry}.
  */
+@SuppressWarnings("deprecation") // don't care about deprecation in this impl
 public class StrictPlayerDatabaseEntry extends PlayerDatabaseEntry {
 
     protected final Document root;

@@ -89,7 +89,7 @@ public class StoneCastle extends Talent implements Listener {
             final double splitDamage = damage * damageSplitSelf;
 
             ev.multiplyDamage(damageSplitOther);
-            teammate.damageTick(splitDamage, EnumDamageCause.STONE_CASTLE, 1);
+            teammate.damage(splitDamage, EnumDamageCause.STONE_CASTLE);
             break;
         }
     }

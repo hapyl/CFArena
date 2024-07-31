@@ -49,7 +49,7 @@ public class Ronin extends Hero implements Listener, Disabled {
     public Ronin(@Nonnull Heroes handle) {
         super(handle, "Ronin");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setGender(Gender.MALE);
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
 

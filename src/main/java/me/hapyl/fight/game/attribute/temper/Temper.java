@@ -48,7 +48,7 @@ public enum Temper implements SmallCapsDescriber {
     SOUL_CRY,
     BLADE_BARRAGE,
     YRDED,
-    SHARK,
+    SHARK(false),
     SABOTEUR,
     SPIRITUAL_CLEANSING,
     SLIME_GUNK,

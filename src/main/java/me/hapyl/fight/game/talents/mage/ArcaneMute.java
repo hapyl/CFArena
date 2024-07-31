@@ -51,7 +51,7 @@ public class ArcaneMute extends Talent {
 
     @Nullable
     public LivingGameEntity getTargetEntity(GamePlayer player, double range) {
-        return Collect.targetEntityDot(
+        return Collect.targetEntityRayCast(
                 player,
                 range,
                 0.95,

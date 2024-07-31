@@ -46,7 +46,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
     public DarkMage(@Nonnull Heroes handle) {
         super(handle, "Dark Mage");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
         setAffiliation(Affiliation.THE_WITHERS);
         setGender(Gender.MALE);
 

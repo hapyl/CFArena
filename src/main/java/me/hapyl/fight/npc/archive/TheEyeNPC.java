@@ -10,14 +10,14 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.npc.PersistentNPC;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.util.TickingScheduler;
 import me.hapyl.spigotutils.module.hologram.PlayerHologram;
 import me.hapyl.spigotutils.module.hologram.StringArray;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public class TheEyeNPC extends PersistentNPC implements Ticking {
+public class TheEyeNPC extends PersistentNPC implements TickingScheduler {
 
     private final PlayerHologram holograms;
     private final RelicHunt relicHunt;
@@ -49,7 +49,7 @@ public class TheEyeNPC extends PersistentNPC implements Ticking {
         holograms = new PlayerHologram(getLocation().add(0, 2.25, 0));
         relicHunt = Main.getPlugin().getRelicHunt();
 
-        startTicking(0, 20).setShutdownAction(ShutdownAction.IGNORE);
+        schedule(0, 20).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     @Override

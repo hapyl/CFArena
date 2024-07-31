@@ -6,7 +6,7 @@ import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.artifact.Artifact;
 import me.hapyl.fight.game.artifact.ArtifactRegistry;
 import me.hapyl.fight.game.artifact.Type;
-import me.hapyl.fight.registry.Registry;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 
 import javax.annotation.Nonnull;
@@ -25,7 +25,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     @Nonnull
     public List<Artifact> getOwned() {
-        final ArtifactRegistry registry = Registry.ARTIFACTS;
+        final ArtifactRegistry registry = Registries.ARTIFACTS;
         final List<Artifact> artifacts = Lists.newArrayList();
         final List<String> ownedNames = getInDocument().get("owned", Lists.newArrayList());
 
@@ -42,7 +42,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     public void setOwned(@Nonnull Artifact artifact, boolean owned) {
         fetchDocument(document -> {
-            final String id = artifact.getId();
+            final String id = artifact.getStringId();
             final List<String> ownedList = document.get("owned", Lists.newArrayList());
 
             document.put("owned", CFUtils.computeCollection(ownedList, id, owned));

@@ -17,7 +17,7 @@ public class SquidLaunchCosmetic extends Cosmetic {
     public SquidLaunchCosmetic() {
         super(
                 "Squid Launch",
-                "Launches a squid into the space!__&8&oIs this the a one?",
+                "Launches a squid into the space!__&8&oIs this the one?",
                 Type.KILL,
                 Rarity.RARE,
                 Material.SQUID_SPAWN_EGG

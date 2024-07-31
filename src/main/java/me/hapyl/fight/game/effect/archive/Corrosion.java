@@ -22,7 +22,7 @@ public class Corrosion extends Effect {
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick % damagePeriod == 0) {
-            entity.damageTick(1.0d, EnumDamageCause.CORROSION, damagePeriod);
+            entity.damage(1.0d, EnumDamageCause.CORROSION);
         }
     }
 

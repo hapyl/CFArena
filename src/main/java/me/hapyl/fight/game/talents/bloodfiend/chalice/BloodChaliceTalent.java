@@ -6,11 +6,6 @@ import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 

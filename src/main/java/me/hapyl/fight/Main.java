@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
 import me.hapyl.fight.database.Database;
@@ -27,10 +28,10 @@ import me.hapyl.fight.notifier.Notifier;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.spigotutils.EternaAPI;
-import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.tablist.Tablist;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
@@ -51,11 +52,11 @@ public class Main extends JavaPlugin {
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
     public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic("1.20.6, here I come!", 49, 147, 232, 7, 97, 176)
+            new UpdateTopic(">< generic.scale ><", 49, 147, 232, 7, 97, 176)
     );
 
-    public static final String requireEternaVersion = "3.0.0";
-    public static final String requireMinecraftVersion = "1.20.6";
+    public static final String requireEternaVersion = "4.0.0";
+    public static final String requireMinecraftVersion = "1.21";
 
     private static long start;
     private static Main plugin;
@@ -153,6 +154,12 @@ public class Main extends JavaPlugin {
 
         // Register Commands
         new CommandRegistry(this);
+
+        // Initiate registry
+        Registries.initiate();
+
+        // Instantiate anti cheat
+        AntiCheat.getInstance();
 
         // Check for reload
         this.reloadChecker = new ReloadChecker(this);

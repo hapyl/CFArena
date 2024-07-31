@@ -37,7 +37,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
     public SwordMaster(@Nonnull Heroes handle) {
         super(handle, "Heavy Knight");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.KINGDOM);
         setGender(Gender.MALE);
 

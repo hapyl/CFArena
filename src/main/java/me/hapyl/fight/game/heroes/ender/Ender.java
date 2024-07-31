@@ -26,7 +26,7 @@ public class Ender extends Hero implements Listener {
     public Ender(@Nonnull Heroes handle) {
         super(handle, "Ender");
 
-        setArchetype(Archetype.MOBILITY);
+        setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
         setGender(Gender.UNKNOWN);
 
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
@@ -46,9 +46,7 @@ public class Ender extends Hero implements Listener {
 
         setWeapon(new EnderWeapon());
         setUltimate(new EnderUltimate());
-
     }
-
 
     @EventHandler()
     public void handleTeleportEvent(EnderPearlTeleportEvent ev) {

@@ -1,10 +1,13 @@
 package me.hapyl.fight.util.collection;
 
+import com.google.common.collect.Lists;
 import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * A {@link Set} implementation as a 'cache'.
@@ -25,17 +28,44 @@ public class CacheSet<K> implements Set<K> {
 
     @Override
     public int size() {
-        return checkExpire(Set::size);
+        return checkExpireAnd(Set::size);
     }
 
     @Override
     public boolean isEmpty() {
-        return checkExpire(Set::isEmpty);
+        return checkExpireAnd(Set::isEmpty);
     }
 
     @Override
     public boolean contains(Object o) {
-        return checkExpire(set -> set.contains(new Entry(o)));
+        return checkExpireAnd(set -> set.contains(new Entry(o)));
+    }
+
+    @Nullable
+    public K findFirst(@Nonnull Predicate<K> predicate) {
+        checkExpire();
+
+        for (K k : this) {
+            if (predicate.test(k)) {
+                return k;
+            }
+        }
+
+        return null;
+    }
+
+    @Nonnull
+    public List<K> findAll(@Nonnull Predicate<K> predicate) {
+        checkExpire();
+        List<K> matches = Lists.newArrayList();
+
+        for (K k : this) {
+            if (predicate.test(k)) {
+                matches.add(k);
+            }
+        }
+
+        return matches;
     }
 
     @Nonnull
@@ -43,7 +73,7 @@ public class CacheSet<K> implements Set<K> {
     public List<K> toList() {
         final List<K> list = new ArrayList<>();
 
-        checkExpire(set -> {
+        checkExpireAnd(set -> {
             set.forEach(entry -> list.add((K) entry.value));
             return null;
         });
@@ -148,9 +178,12 @@ public class CacheSet<K> implements Set<K> {
         return builder.append("]").toString();
     }
 
-    private <T> T checkExpire(Function<Set<Entry>, T> fn) {
+    private void checkExpire() {
         set.removeIf(Entry::isExpired);
+    }
 
+    private <T> T checkExpireAnd(Function<Set<Entry>, T> fn) {
+        checkExpire();
         return fn.apply(set);
     }
 

@@ -86,6 +86,26 @@ public class StyledItem implements StyledBuilder {
             "Tired of manually selecting a hero? Try this!"
     );
 
+    public static final StyledItem ICON_TERMS = new StyledItem(
+            Material.BONE_MEAL,
+            "Terminology",
+            "Get information about in game terms."
+    );
+
+    public static final StyledItem ICON_FAIR_MODE = new StyledItem(
+            Material.STRING,
+            "Fair Mode",
+            "To guarantee fair gameplay between players, a &bFair Mode&7 can be used to increase all players &6Mastery Level&7."
+    );
+
+    public static final StyledItem ICON_MASTERY = new StyledItem(
+            Material.GOLDEN_HELMET,
+            "Mastery",
+            """
+                    &6Master&7 a hero by playing and winning!
+                    """
+    );
+
     public final String name;
     public final String description;
     private final Material material;

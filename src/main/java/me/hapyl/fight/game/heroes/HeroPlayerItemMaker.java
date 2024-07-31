@@ -2,10 +2,10 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Named;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -28,19 +28,20 @@ public class HeroPlayerItemMaker {
 
     @Nonnull
     public ItemStack makeItem(@Nonnull Type type, @Nonnull Player player) {
-        final ItemBuilder builder = makeBuilder(type, player);
-        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero.getHandle());
-
-        if (skin != null) {
-            builder.setHeadTextureUrl(skin.getSkin().getEquipment().getHelmetTexture());
-        }
-
-        return builder.asIcon();
+        return makeBuilder(type, player).asIcon();
     }
 
     @Nonnull
     public ItemBuilder makeBuilder(@Nonnull Type type, @Nonnull Player player) {
-        return type.createItem(this, player);
+        final ItemBuilder builder = type.createItem(this, player);
+        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero.getHandle());
+
+        // FIXME: This was in makeItem() instead of makeBuilder(), if any problems occur put it back ig -h
+        if (skin != null) {
+            builder.setHeadTextureUrl(skin.getSkin().getEquipment().getHelmetTexture());
+        }
+
+        return builder;
     }
 
     public enum Type {
@@ -49,14 +50,19 @@ public class HeroPlayerItemMaker {
             @Override
             ItemBuilder createItem(@Nonnull HeroPlayerItemMaker maker, @Nonnull Player player) {
                 final Hero hero = maker.hero;
+                final Heroes enumHero = hero.getHandle();
                 final PlayerRating averageRating = maker.stats.getAverageRating();
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())
                         .setName(hero.toString())
-                        .addLore("&8/hero " + hero.getHandle().name().toLowerCase(Locale.ROOT))
-                        .addLore()
-                        .addLore("&7Archetype: " + hero.getArchetype())
-                        .addLoreIf(
+                        .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
+                        .addLore();
+
+                // Archetypes
+                final ArchetypeList archetypes = hero.getArchetypes();
+                builder.addLore("&7Archetypes: " + archetypes.getSimpleDisplay());
+
+                builder.addLoreIf(
                                 "&7Affiliation: " + hero.getAffiliation(),
                                 hero.getAffiliation() != Affiliation.NOT_SET
                         )
@@ -81,6 +87,18 @@ public class HeroPlayerItemMaker {
                             """);
                 }
 
+                // Mastery
+                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                final MasteryEntry entry = database.masteryEntry;
+                final long exp = entry.getExp(enumHero);
+
+                // Don't display mastery if never played this hero
+                if (exp != 0) {
+                    builder.addLore();
+                    builder.addLore(entry.makeMasteryHeader(enumHero));
+                    builder.addLore(entry.makeProgressBar(enumHero));
+                }
+
                 // Usage
                 builder.addLore().addLore("&eLeft Click to select").addLore("&6Right Click for details");
 
@@ -96,14 +114,21 @@ public class HeroPlayerItemMaker {
                 final HeroStatsCollection stats = maker.stats;
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem());
-                final Archetype archetype = hero.getArchetype();
+                final ArchetypeList archetypes = hero.getArchetypes();
                 final Affiliation affiliation = hero.getAffiliation();
                 final Gender gender = hero.getGender();
                 final Race race = hero.getRace();
 
                 builder.setName(hero.toString());
+                builder.addLore();
 
-                appendLore(builder, "Archetype", archetype, null);
+                // Archetypes
+                builder.addLore("&7Archetypes:");
+                archetypes.forEach(archetype -> {
+                    builder.addLore(" " + archetype.toString());
+                    builder.addSmartLore(archetype.getDescription(), "&r  &7&o");
+                });
+
                 appendLore(builder, "Affiliation", affiliation, Affiliation.NOT_SET);
 
                 // Player rating

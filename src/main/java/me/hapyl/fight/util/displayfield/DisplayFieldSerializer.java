@@ -3,6 +3,7 @@ package me.hapyl.fight.util.displayfield;
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.StringReplacer;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 
 import javax.annotation.Nonnull;
@@ -35,7 +36,7 @@ public final class DisplayFieldSerializer {
         fields.forEach(builder::addLore);
     }
 
-    public static List<String> serialize(@Nonnull DisplayFieldProvider provider,  @Nonnull DisplayFieldFormatter formatter) {
+    public static List<String> serialize(@Nonnull DisplayFieldProvider provider, @Nonnull DisplayFieldFormatter formatter) {
         final List<String> fields = Lists.newArrayList();
 
         for (Field field : provider.getClass().getDeclaredFields()) {
@@ -169,6 +170,32 @@ public final class DisplayFieldSerializer {
         forEachDisplayField(from, (f, df) -> {
             to.getDisplayFieldData().add(new DisplayFieldData(f, df, from));
         });
+    }
+
+    /**
+     * f
+     * Formats the given string with the display fields from the given provider.
+     * <br>
+     * The field must be enclosed between <code>{</code> and <code>}</code> .
+     * <pre><code>
+     *     String string = "This string is {stringInfo}, and it's very {stringStatus}";
+     * </code></pre>
+     *
+     * @param string   - String to format.
+     * @param provider - Provider.
+     * @return the formatted string.
+     */
+    @Nonnull
+    public static String formatString(@Nonnull String string, @Nonnull DisplayFieldProvider provider) {
+        final StringReplacer replacer = new StringReplacer(string);
+
+        forEachDisplayField(provider, (field, df) -> {
+            final String name = field.getName();
+
+            replacer.replace("{" + name + "}", formatField(field, provider, df));
+        });
+
+        return replacer.toString();
     }
 
     private static String scaleFormat(double v) {

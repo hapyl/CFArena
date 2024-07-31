@@ -42,7 +42,7 @@ public class LaserEye extends Talent {
                     ParticleBuilder.redstoneDust(Color.RED, 1).display(move);
                 }
             }, entity -> {
-                entity.damageTick(1.0d, player, EnumDamageCause.LASER, 10);
+                entity.damage(1.0d, player, EnumDamageCause.LASER);
                 PlayerLib.spawnParticle(entity.getLocation(), Particle.LAVA, 2, 0, 0, 0, 0);
             });
 

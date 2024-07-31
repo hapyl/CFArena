@@ -12,4 +12,14 @@ public interface Named {
     @Nonnull
     String getName();
 
+    /**
+     * Gets the name of this object in lower case.
+     *
+     * @return the name of this object in lower case.
+     */
+    @Nonnull
+    default String getNameLowerCase() {
+        return getName().toLowerCase();
+    }
+
 }

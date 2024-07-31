@@ -37,17 +37,20 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     public final Weapon ironFist = new Weapon(Material.IRON_BLOCK)
             .setDamage(8.0d)
             .setName("&6&lIron Fist");
+
     @DisplayField public final double ultimateInWaterDamage = 10;
     @DisplayField public final int ultimateHitCd = 5;
+
     protected final int maxIron = 10;
     protected final int startIron = 2;
+
     private final int ironRechargeRate = 60;
     private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
 
     public Engineer(@Nonnull Heroes handle) {
         super(handle, "Engineer");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.STRATEGY);
         setGender(Gender.MALE); // male? robot, idk
 
         setDescription("""

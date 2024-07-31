@@ -6,14 +6,25 @@ import java.util.Arrays;
 
 public final class HexID {
 
-    public static final HexID NULL = new HexID(true);
-    private static final SecureRandom RANDOM = new SecureRandom();
-    private static final int LENGTH = 8;
-    private static final char[] CHARS = {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            'A', 'B', 'C', 'D', 'E', 'F',
-            'a', 'b', 'c', 'd', 'e', 'f'
-    };
+    public static final HexID NULL;
+
+    private static final SecureRandom RANDOM;
+    private static final int LENGTH;
+    private static final char[] CHARS;
+
+    // man I love static
+    static {
+        RANDOM = new SecureRandom();
+        LENGTH = 8;
+        CHARS = new char[] {
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                'A', 'B', 'C', 'D', 'E', 'F',
+                'a', 'b', 'c', 'd', 'e', 'f'
+        };
+
+        // Make sure to keep this last
+        NULL = new HexID(true);
+    }
 
     private final char[] hex;
 
@@ -35,7 +46,7 @@ public final class HexID {
 
     @Override
     public String toString() {
-        return new String(hex);
+        return "#" + new String(hex);
     }
 
     public boolean equals(@Nonnull String string) {

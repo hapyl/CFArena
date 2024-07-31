@@ -22,7 +22,6 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.TimeFormat;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.tablist.EntryList;
@@ -118,7 +117,7 @@ public class PlayerTablist extends Tablist {
             entryList.append("&b&lLobby:", EntryTexture.AQUA);
             entryList.append(" &7ᴍᴀᴘ: &f" + mapName);
             entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.getCurrentMode().getName());
-            entryList.append(); // Empty line to keep teammates at the same line ¯\_(ツ)_/¯
+            entryList.append(" &7ꜰᴀɪʀ ᴍᴏᴅᴇ: &f" + ChatColor.stripColor(manager.getFairMode().getMastery()));
         }
         else {
             final GamePlayer gamePlayer = CF.getPlayer(player);

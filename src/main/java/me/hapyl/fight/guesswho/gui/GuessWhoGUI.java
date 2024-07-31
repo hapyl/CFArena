@@ -92,7 +92,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
         final Affiliation affiliation = hero.getAffiliation();
 
         // General
-        builder.addLore("Archetype: " + hero.getArchetype());
+        builder.addLore("Archetype: " + hero.getArchetypes());
 
         if (affiliation == Affiliation.NOT_SET) {
             builder.addLore("&mAffiliation");

@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/// fixme: -> REMOVEME
 public class ReplacerData {
 
     private final UUID uuid;

@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.nyx;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -90,7 +89,7 @@ public class NyxPassive extends PassiveTalent {
             return !player.isSelfOrTeammate(entity);
         }).forEach(entity -> {
             entity.setLastDamager(player); // Make the player damager, because I said so
-            entity.damageTick(damage, EnumDamageCause.CHAOS, 0);
+            entity.damage(damage, EnumDamageCause.CHAOS);
         });
 
         createShield(nyx, player);

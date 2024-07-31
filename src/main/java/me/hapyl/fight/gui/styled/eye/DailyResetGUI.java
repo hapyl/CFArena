@@ -139,7 +139,7 @@ public class DailyResetGUI extends StyledGUI {
                             &7&o;;I see you're ready to sacrifice these precious rubies...
                             """)
                     .addLore()
-                    .addLore(Color.ERROR + "This will consumer %s rubies!".formatted(rubyPriceTotal))
+                    .addLore(Color.ERROR + "This will consume %s rubies!".formatted(rubyPriceTotal))
                     .addLore(Color.ERROR + "New bonds will inherit the remaining duration!")
                     .addLore(Color.ERROR + "You can only reset once per day!")
                     .addLore()

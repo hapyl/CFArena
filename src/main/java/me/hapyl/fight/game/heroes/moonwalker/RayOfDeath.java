@@ -10,8 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
-import javax.annotation.Nonnull;
-
 public class RayOfDeath extends PlayerTickingGameTask {
 
     private final GamePlayer player;
@@ -44,7 +42,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
 
     public void onHit(LivingGameEntity entity) {
         entity.setLastDamager(player);
-        entity.damageTick(ability.damage, EnumDamageCause.RAY_OF_DEATH, ability.damagePeriod);
+        entity.damage(ability.damage, EnumDamageCause.RAY_OF_DEATH);
     }
 
     @Override

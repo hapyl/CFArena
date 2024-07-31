@@ -1,10 +1,14 @@
 package me.hapyl.fight.gui.styled;
 
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.ux.Notifier;
+import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import me.hapyl.spigotutils.module.inventory.gui.Action;
 import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
+import me.hapyl.spigotutils.module.inventory.gui.StrictAction;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -62,4 +66,32 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
         StaticStyledGUI.fillRow(this, row, item);
     }
 
+    protected void setItemRanked(int slot, @Nonnull ItemBuilder builder, @Nonnull PlayerRank rank, @Nonnull String actionString, @Nonnull Action action) {
+        final boolean hasRank = rank.isOrHigher(player);
+        final String prefix = rank.getPrefixWithFallback();
+
+        builder.addLore();
+
+        if (hasRank) {
+            builder.addLore(Color.BUTTON + actionString);
+        }
+        else {
+            builder.addLore(
+                    Color.ERROR_DARKER + "You must be %s to use this!".formatted(prefix + Color.ERROR_DARKER)
+            );
+        }
+
+        setItem(slot, builder.asIcon(), new StrictAction() {
+            @Override
+            public void onLeftClick(@Nonnull Player player) {
+                if (!hasRank) {
+                    Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, prefix);
+                    Notifier.sound(player, SoundEffect.ERROR);
+                    return;
+                }
+
+                action.invoke(player);
+            }
+        });
+    }
 }

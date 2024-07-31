@@ -50,6 +50,10 @@ public class Debug {
         PlayerLib.spawnParticle(location, particle, 1);
     }
 
+    public static void uncommentMe(Object reason) {
+        send("&7// UNCOMMENT ME // " + reason);
+    }
+
     private static String now() {
         return DateTimeFormatter.ofPattern("hh:mm:ss").format(LocalTime.now());
     }

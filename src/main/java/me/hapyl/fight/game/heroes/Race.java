@@ -11,6 +11,7 @@ public enum Race implements Named {
     ALIEN("&a👽 &2Alien"),
     CYBERNETIC("&b🤖 &3Cybernetic"),
     VAMPIRE("&4🦇 &cVampire"),
+    SHARK("&b🦈 Shark"),
 
     UNKNOWN("&8❓ Unknown"),
 

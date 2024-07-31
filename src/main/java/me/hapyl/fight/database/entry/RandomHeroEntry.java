@@ -86,7 +86,7 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
         final Set<Heroes> availableHeroes = Sets.newHashSet();
 
         include.forEach(archetype -> {
-            final List<Heroes> heroes = Heroes.byArchetype(archetype);
+            final Set<Heroes> heroes = Heroes.byArchetype(archetype);
             heroes.removeIf(hero -> hero.isLocked(player));
 
             availableHeroes.addAll(heroes);

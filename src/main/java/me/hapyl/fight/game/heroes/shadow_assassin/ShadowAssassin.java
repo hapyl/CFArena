@@ -53,7 +53,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public ShadowAssassin(@Nonnull Heroes handle) {
         super(handle, "Shadow Assassin");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.UNKNOWN);
         setRace(Race.UNKNOWN);
 

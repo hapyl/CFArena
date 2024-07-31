@@ -9,7 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.util.TickingScheduler;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
 import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
@@ -19,7 +19,7 @@ import org.bukkit.scoreboard.Team;
 
 import javax.annotation.Nonnull;
 
-public class CloneNPC extends HumanNPC implements Ticking {
+public class CloneNPC extends HumanNPC implements TickingScheduler {
 
     private final GamePlayer player;
     private final PlayerCloneList cloneList;
@@ -47,8 +47,8 @@ public class CloneNPC extends HumanNPC implements Ticking {
 
     @Nonnull
     @Override
-    public GameTask startTicking() {
-        task = startTicking(20, 5);
+    public GameTask schedule() {
+        task = schedule(20, 5);
         return task;
     }
 
@@ -95,7 +95,7 @@ public class CloneNPC extends HumanNPC implements Ticking {
         // The damage is done without a damager to remove the knockback,
         // and the tick damage is, so when player teleports, they can instantly hit the enemy
         entity.setLastDamager(player);
-        entity.damageTick(damage, EnumDamageCause.SHADOW_CLONE, 1);
+        entity.damage(damage, EnumDamageCause.SHADOW_CLONE);
 
         entity.addEffect(Effects.BLINDNESS, 1, 20);
 

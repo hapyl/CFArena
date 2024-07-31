@@ -50,7 +50,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     public Aurora(@Nonnull Heroes handle) {
         super(handle, "Aurora");
 
-        setArchetype(Archetype.SUPPORT);
+        setArchetypes(Archetype.SUPPORT);
         setGender(Gender.FEMALE);
 
         final HeroAttributes attributes = getAttributes();

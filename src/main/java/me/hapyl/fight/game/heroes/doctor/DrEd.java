@@ -35,7 +35,7 @@ public class DrEd extends Hero implements UIComponent {
     public DrEd(@Nonnull Heroes handle) {
         super(handle, "Dr. Ed");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.STRATEGY, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.MALE);
 
         setDescription("Simply named scientist with not so simple inventions...");

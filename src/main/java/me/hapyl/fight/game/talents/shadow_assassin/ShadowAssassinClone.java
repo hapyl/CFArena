@@ -92,7 +92,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         public Response execute(@Nonnull GamePlayer player) {
             final PlayerCloneList playerClones = getPlayerClones(player);
 
-            playerClones.createClone(player.getLocationAnchored()).startTicking();
+            playerClones.createClone(player.getLocationAnchored()).schedule();
             return Response.OK;
         }
     }

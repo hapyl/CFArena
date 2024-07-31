@@ -6,6 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface PlayerDataHandler<T extends PlayerData> {
 
@@ -40,7 +41,7 @@ public interface PlayerDataHandler<T extends PlayerData> {
      * @param player - Player.
      * @return the data or null.
      */
-    @Nonnull
+    @Nullable
     default T getPlayerDataOrNull(@Nonnull GamePlayer player) {
         return getDataMap().get(player);
     }

@@ -10,6 +10,7 @@ import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public enum AttributeType implements Described {
 
@@ -220,7 +221,11 @@ public enum AttributeType implements Described {
                 }
             }
                     .setChar("\uD83D\uDCCF")
-                    .setColor(ChatColor.GREEN), 1.0d
+                    .setColor(ChatColor.GREEN)
+                    .setToString((t, d) -> {
+                        return "%.0f cb".formatted(t.scaleUp(d));
+                    }),
+            1.0d
     ) {
         @Override
         public double getScale() {
@@ -234,6 +239,29 @@ public enum AttributeType implements Described {
                     .setColor(ChatColor.DARK_AQUA),
             1.0d
     ),
+
+    JUMP_STRENGTH(
+            new Attribute("Jump Strength", "How high you jump.") {
+                @Override
+                public void update(LivingGameEntity entity, double value) {
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_JUMP_STRENGTH, value);
+                }
+            }
+                    .setChar("🐇")
+                    .setColor(ChatColor.AQUA)
+                    .setToString(AttributeType::doubleFormatScaled),
+            0.45
+    ) {
+        @Override
+        public double maxValue() {
+            return 6.5d;
+        }
+
+        @Override
+        public double getScale() {
+            return 222.22222222222223d;
+        }
+    },
 
     ;
 
@@ -257,7 +285,7 @@ public enum AttributeType implements Described {
 
     public boolean isMandatory() {
         return switch (this) {
-            case MAX_HEALTH, ATTACK, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED -> true;
+            case MAX_HEALTH, ATTACK, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, HEIGHT -> true;
             default -> false;
         };
     }
@@ -439,8 +467,9 @@ public enum AttributeType implements Described {
         return "%.0f".formatted(value);
     }
 
+    @Nonnull
     public static String doubleFormatScaled(@Nonnull AttributeType type, double value) {
-        return doubleFormat(type, value * 100);
+        return doubleFormat(type, type.scaleUp(value));
     }
 
     @Nonnull

@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;

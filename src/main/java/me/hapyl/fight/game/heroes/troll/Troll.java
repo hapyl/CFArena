@@ -2,15 +2,14 @@ package me.hapyl.fight.game.heroes.troll;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -33,7 +32,7 @@ public class Troll extends Hero implements Listener {
     public Troll(@Nonnull Heroes handle) {
         super(handle, "Troll");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.STRATEGY, Archetype.MELEE);
         setGender(Gender.UNKNOWN);
 
         setDescription("Not a good fighter... but definitely a good troll!");

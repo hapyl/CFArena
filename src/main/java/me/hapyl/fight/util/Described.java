@@ -22,4 +22,13 @@ public interface Described extends Named {
     @Nonnull
     String getDescription();
 
+    /**
+     * Gets the description of this object in lower case.
+     *
+     * @return the description of this object in lower case.
+     */
+    default String getDescriptionLowerCase() {
+        return getDescription().toLowerCase();
+    }
+
 }

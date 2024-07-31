@@ -33,6 +33,7 @@ import me.hapyl.fight.game.heroes.pytaria.Pytaria;
 import me.hapyl.fight.game.heroes.rogue.Rogue;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.shaman.Shaman;
+import me.hapyl.fight.game.heroes.shark.Shark;
 import me.hapyl.fight.game.heroes.spark.Spark;
 import me.hapyl.fight.game.heroes.swooper.Swooper;
 import me.hapyl.fight.game.heroes.taker.Taker;
@@ -117,6 +118,7 @@ import me.hapyl.fight.game.talents.shaman.ShamanMarkTalent;
 import me.hapyl.fight.game.talents.shaman.SlimeGunkTalent;
 import me.hapyl.fight.game.talents.shaman.TotemImprisonment;
 import me.hapyl.fight.game.talents.shaman.TotemTalent;
+import me.hapyl.fight.game.talents.shark.SharkPassive;
 import me.hapyl.fight.game.talents.shark.SubmergeTalent;
 import me.hapyl.fight.game.talents.shark.Whirlpool;
 import me.hapyl.fight.game.talents.spark.Molotov;
@@ -448,19 +450,12 @@ public enum Talents {
     @Deprecated BLINK(new Blink()),
     SWOOPER_PASSIVE(new SwooperPassive()),
 
-    // Shark
+    /**
+     * {@link Shark}
+     */
     SUBMERGE(new SubmergeTalent()),
     WHIRLPOOL(new Whirlpool()),
-    CLAW_CRITICAL(new PassiveTalent(
-            "Oceanborn/Sturdy Claws", """
-            &b&lOceanborn:
-            While in water, your speed and damage is drastically increased.
-                        
-            &b&lSturdy Claws:
-            Critical hits summons an ancient creature from beneath that deals extra damage and heals you!
-            """,
-            Material.MILK_BUCKET
-    )),
+    SHARK_PASSIVE(new SharkPassive()),
 
     // Librarian
     BLACK_HOLE(new BlackHole()),

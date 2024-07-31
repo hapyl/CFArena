@@ -39,7 +39,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
         this.archetypeSort = new Filter<>(Archetype.class, Archetype.NOT_SET) {
             @Override
             public boolean isKeep(@Nonnull Heroes heroes, @Nonnull Archetype archetype) {
-                return heroes.getHero().getArchetype() == archetype;
+                return heroes.getHero().getArchetypes().contains(archetype);
             }
         };
 

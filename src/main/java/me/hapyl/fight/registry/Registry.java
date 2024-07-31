@@ -1,17 +1,11 @@
 package me.hapyl.fight.registry;
 
-import me.hapyl.fight.fastaccess.FastAccessRegistry;
-import me.hapyl.fight.game.artifact.ArtifactRegistry;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public interface Registry<T extends EnumId> {
-
-    FastAccessRegistry FAST_ACCESS = new FastAccessRegistry();
-    ArtifactRegistry ARTIFACTS = new ArtifactRegistry();
+public interface Registry<T extends Identified> {
 
     /**
      * Gets the element by its {@link EnumId} or null if not registered.
@@ -74,4 +68,5 @@ public interface Registry<T extends EnumId> {
      */
     @Nonnull
     List<T> values();
+
 }

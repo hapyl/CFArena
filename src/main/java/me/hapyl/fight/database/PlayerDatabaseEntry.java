@@ -13,6 +13,10 @@ import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * @deprecated Please prefer {@link StrictPlayerDatabaseEntry}!
+ */
+@Deprecated
 public class PlayerDatabaseEntry {
 
     protected final PlayerDatabase playerDatabase;

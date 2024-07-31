@@ -1,51 +1,60 @@
 package me.hapyl.fight.game.heroes.shark;
 
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.shark.SharkPassive;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.fight.terminology.Terms;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EvokerFangs;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
 
-public class Shark extends Hero implements Listener {
+public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData>, UIComponent, Disabled {
 
-    private final double CRITICAL_AMOUNT = 15.0d;
     private final TemperInstance temperInstance = Temper.SHARK.newInstance("Oceanborn")
             .increase(AttributeType.ATTACK, 1.2d)
             .increase(AttributeType.DEFENSE, 0.5d);
 
+    private final PlayerDataMap<SharkData> playerData = PlayerMap.newDataMap(player -> new SharkData(this, player));
+
+    private final int heartBeatSoundEffectDuration = 40;
+    private final double heartBeatHealthThreshold = 0.25d;
+
     public Shark(@Nonnull Heroes handle) {
         super(handle, "Shark");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
         setGender(Gender.FEMALE);
+        setRace(Race.SHARK);
 
         setDescription("""
-                Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it.
+                A strong warrior from the &3&oDepths of Waters&8&o.
                 """);
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
@@ -65,57 +74,81 @@ public class Shark extends Hero implements Listener {
     }
 
     @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.WATER_BREATHING, -1);
-    }
+    public void onStart() {
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                final Set<GamePlayer> alivePlayers = getAlivePlayers();
 
-    @EventHandler()
-    public void handlePlayerMove(PlayerMoveEvent ev) {
-        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+                alivePlayers.forEach(player -> {
+                    final SharkData data = getPlayerDataOrNull(player);
 
-        if (player == null || !validatePlayer(player) || player.isUsingUltimate()) {
-            return;
-        }
+                    if (data == null) {
+                        return;
+                    }
 
-        setState(player, player.isInWater(), 10);
-    }
+                    final short minStacksForHeartbeat = getPassiveTalent().minStacksForHeartbeat;
+                    final int stacks = data.getBloodThirstStacks();
 
-    public void setState(GamePlayer player, boolean state, int duration) {
-        if (state) {
-            player.setWalkSpeed(0.4f);
-            temperInstance.temper(player, duration);
-        }
-        else {
-            player.setWalkSpeed(0.2f);
-        }
+                    // Update attribute
+                    getPassiveTalent().temper(player, stacks);
+
+                    if (stacks < minStacksForHeartbeat) {
+                        return;
+                    }
+
+                    // Heartbeat
+                    Collect.nearbyEntities(player.getLocation(), 15, entity -> !player.isSelfOrTeammate(entity))
+                            .forEach(entity -> {
+                                final double health = entity.getHealth();
+                                final double maxHealth = entity.getMaxHealth();
+
+                                if (health / maxHealth > heartBeatHealthThreshold) {
+                                    return;
+                                }
+
+                                final Location entityLocation = entity.getMidpointLocation();
+
+                                if (modulo(minStacksForHeartbeat)) {
+                                    player.playSound(entityLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
+                                }
+
+                                player.spawnParticle(
+                                        entityLocation,
+                                        Particle.DUST_COLOR_TRANSITION,
+                                        20,
+                                        0.33d,
+                                        0.33d,
+                                        0.33d,
+                                        new Particle.DustTransition(Color.fromRGB(255, 77, 77), Color.fromRGB(139, 0, 0), 1)
+                                );
+                            });
+                });
+            }
+        }.runTaskTimer(0, 5);
     }
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
-        final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.equals(player)) {
+        if (player == null || !instance.isEntityAttack()) {
             return;
         }
 
-        if (instance.isCrit()) {
-            player.setCooldown(getPassiveTalent().getMaterial(), 20 * 5);
-            performCriticalHit(instance.getEntityAsPlayer(), entity);
-        }
+        final SharkData data = getPlayerData(player);
+        data.addBloodThirstStack();
     }
 
-    public void performCriticalHit(GamePlayer player, LivingGameEntity entity) {
-        final EvokerFangs fangs = Entities.EVOKER_FANGS.spawn(entity.getLocation());
-        fangs.setOwner(player.getPlayer());
+    @Nonnull
+    @Override
+    public PlayerDataMap<SharkData> getDataMap() {
+        return playerData;
+    }
 
-        // Sync for effect only
-        GameTask.runTaskTimerTimes(r -> fangs.teleport(entity.getLocation()), 0, 1, 30);
-
-        // Perform critical hit and heal the player
-        entity.damage(CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
-        entity.addEffect(Effects.BLEED, 60, true);
-        player.heal(CRITICAL_AMOUNT);
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
+        player.addEffect(Effects.WATER_BREATHING, -1);
     }
 
     @Override
@@ -129,52 +162,110 @@ public class Shark extends Hero implements Listener {
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.CLAW_CRITICAL.getTalent();
+    public SharkPassive getPassiveTalent() {
+        return (SharkPassive) Talents.SHARK_PASSIVE.getTalent();
+    }
+
+    @Nonnull
+    @Override
+    public String getString(@Nonnull GamePlayer player) {
+        final SharkData data = getPlayerData(player);
+        final int stacks = data.getBloodThirstStacks();
+
+        return "&4%s &c&l%s".formatted(Named.BLOOD_THIRST.getCharacter(), stacks);
     }
 
     private class SharkUltimate extends UltimateTalent {
+
+        @DisplayField private final short minBloodThirst = 4;
+        @DisplayField private final double damage = 50.0d;
+        @DisplayField private final double radius = 5.0d;
+
+        private final int maxDashTime = 100;
+
         public SharkUltimate() {
-            super("Ocean Madness", 70);
+            super("Ocean Madness", 60);
 
             setDescription("""
-                    Creates a &bShark Aura &7that follow you for {duration} and imitates water.
-                    """);
+                    Gather the water within and leap high in the air.
+                                        
+                    After a short casting time, ride the wave forward rapidly, dealing massive %s upon landing.
+                                        
+                    &8;;If you posses at least {minBloodThirst}, your amazing eyesight will mark hurt enemies.
+                    """.formatted(Terms.PIERCING_DAMAGE));
 
             setItem(Material.WATER_BUCKET);
-            setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f);
-            setDurationSec(6);
-            setCooldownSec(60);
 
+            setDurationSec(3);
+            setCastDuration(20);
         }
 
         @Nonnull
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            setState(player, true, getUltimateDuration());
+            final SharkData data = getPlayerData(player);
+            final int stacks = data.getBloodThirstStacks();
+            final boolean strongAttack = stacks >= minBloodThirst;
 
-            new GameTask() {
-                private int tick = getUltimateDuration();
+            player.setAttributeValue(Attribute.GENERIC_GRAVITY, 0.0d);
+            player.setVelocity(player.getDirection().normalize().setY(0.75d));
 
+            return new UltimateResponse() {
                 @Override
-                public void run() {
-                    if (tick < 0) {
-                        setState(player, false, 0);
-                        this.cancel();
-                        return;
+                public void onCastFinished(@Nonnull GamePlayer player) {
+                    if (strongAttack) {
+                        Collect.nearbyEntities(player.getLocation(), 100, entity -> entity.getHealth() <= damage)
+                                .forEach(entity -> {
+                                    player.spawnParticle(entity.getEyeLocation(), Particle.FLASH, 1, 0, 0, 0, 0);
+                                });
                     }
 
-                    final Location location = player.getLocation();
+                    new PlayerTickingGameTask(player) {
+                        private Vector vector;
 
-                    // Fx
-                    Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.DRIPPING_WATER));
-                    Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.SPLASH));
+                        @Override
+                        public void onTaskStart() {
+                            player.setAttributeValue(Attribute.GENERIC_GRAVITY, BukkitUtils.GRAVITY);
+                            player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 1000);
+                        }
 
-                    --tick;
+                        @Override
+                        public void run(int tick) {
+                            if (player.isOnGround() || tick >= maxDashTime) {
+                                doLand();
+                                return;
+                            }
+
+                            player.setVelocity(getVector());
+                        }
+
+                        private Vector getVector() {
+                            if (vector == null) {
+                                final Vector direction = player.getDirection().normalize();
+
+                                vector = direction.multiply(2.5d);
+                                vector.setY(Math.min(vector.getY(), -0.5d));
+                            }
+
+                            return vector;
+                        }
+
+                        private void doLand() {
+                            cancel();
+
+                            final Location location = player.getLocation();
+
+                            Collect.nearbyEntities(location, radius, entity -> !player.isSelfOrTeammate(entity))
+                                    .forEach(entity -> {
+                                        entity.damage(damage, player, EnumDamageCause.SHARK_BITE);
+                                    });
+
+                            // Fx
+                        }
+
+                    }.runTaskTimer(10, 1);
                 }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+            };
         }
     }
 }

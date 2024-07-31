@@ -5,6 +5,7 @@ import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.registry.EnumId;
+import me.hapyl.fight.registry.Identified;
 import me.hapyl.fight.util.Keyed;
 import me.hapyl.fight.ux.Notifier;
 import org.bukkit.entity.Player;
@@ -17,16 +18,22 @@ import java.util.Queue;
 /**
  * Represents a Dialog system.
  */
-public class Dialog extends EnumId implements Keyed<MetadataKey> {
+public class Dialog implements Identified, Keyed<MetadataKey> {
 
+    private final EnumId id;
     private final Queue<DialogEntry> entries;
     private final MetadataKey key;
 
     public Dialog(@Nonnull String id) {
-        super(id);
-
+        this.id = EnumId.of(id);
         this.entries = new LinkedList<>();
         this.key = new MetadataKey("dialog." + id);
+    }
+
+    @Nonnull
+    @Override
+    public EnumId getId() {
+        return id;
     }
 
     public boolean hasTalked(@Nonnull Player player) {

@@ -33,7 +33,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
         super(handle, "Shaman");
 
         setAffiliation(Affiliation.THE_JUNGLE);
-        setArchetype(Archetype.SUPPORT);
+        setArchetypes(Archetype.SUPPORT);
         setGender(Gender.MALE);
 
         setDescription("""

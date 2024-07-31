@@ -40,7 +40,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
     public Hercules(@Nonnull Heroes handle) {
         super(handle, "Hercules");
 
-        setArchetype(Archetype.MOBILITY);
+        setArchetypes(Archetype.MOBILITY);
         setGender(Gender.MALE);
 
         setDescription(

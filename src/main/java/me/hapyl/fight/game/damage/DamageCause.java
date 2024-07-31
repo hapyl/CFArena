@@ -12,15 +12,19 @@ import java.util.Set;
 public class DamageCause implements Copyable {
 
     public static final DamageCause EMPTY = new DamageCause("null", "null");
+    public static final int DEFAULT_DAMAGE_TICKS = 10;
 
     private final DeathMessage deathMessage;
     private final Set<DamageFlag> flags;
+
     private DamageFormat damageFormat;
+    private int damageTicks;
 
     private DamageCause(@Nonnull DeathMessage message) {
         this.deathMessage = message;
         this.flags = Sets.newHashSet(DamageFlag.CAN_CRIT, DamageFlag.CUSTOM);
         this.damageFormat = DamageFormat.DEFAULT;
+        this.damageTicks = DEFAULT_DAMAGE_TICKS;
     }
 
     private DamageCause(String string, String suffix) {
@@ -39,6 +43,21 @@ public class DamageCause implements Copyable {
 
     public DamageCause setDamageFormat(@Nonnull DamageFormat damageFormat) {
         this.damageFormat = damageFormat;
+        return this;
+    }
+
+    public final int getDamageTicks() {
+        if (hasFlag(DamageFlag.IGNORES_DAMAGE_TICKS)) {
+            // This value should really be 1, not 0,
+            // since 0 is rapid damage, like RAPID damage
+            return 1;
+        }
+
+        return damageTicks;
+    }
+
+    public DamageCause setDamageTicks(final int damageTicks) {
+        this.damageTicks = Math.clamp(damageTicks, 1, 100);
         return this;
     }
 

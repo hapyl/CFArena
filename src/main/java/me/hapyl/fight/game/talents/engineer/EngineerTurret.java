@@ -24,8 +24,8 @@ public class EngineerTurret extends EngineerTalent {
     @DisplayField private final double damage = 3;
     @DisplayField private final double radius = 32;
 
-    @DisplayField private int delayBetweenShots = 15;
-    @DisplayField private int damageIncreasePerLevel = 2;
+    @DisplayField private int delayBetweenShots = 20;
+    @DisplayField private double damageIncreasePerLevel = 1.5d;
 
     // This is the base of the turret (the bottom side)
     // It will be spawned with the main block display.
@@ -44,7 +44,7 @@ public class EngineerTurret extends EngineerTalent {
         setItem(Material.NETHERITE_SCRAP);
 
         setCooldownSec(35);
-        setUpgradeCost(3);
+        setUpgradeCost(4);
 
         // Set the TOP data here, per level.
         // It is up to modeler to make the model properly, so it rotates around itself.
@@ -136,8 +136,7 @@ public class EngineerTurret extends EngineerTalent {
                             return false;
                         }
 
-                        targetEntity.setLastDamager(player);
-                        targetEntity.damage(damage + (getLevel() * damageIncreasePerLevel), EnumDamageCause.SENTRY_SHOT);
+                        targetEntity.damageNoKnockback(damage + (getLevel() * damageIncreasePerLevel), player, EnumDamageCause.SENTRY_SHOT);
                         return true;
                     }
                 }.setIterations(3).runTaskTimer(0, 1);

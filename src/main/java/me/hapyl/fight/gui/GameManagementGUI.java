@@ -1,5 +1,7 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.FairMode;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -31,26 +33,21 @@ public class GameManagementGUI extends StyledGUI {
         setHeader(LobbyItems.GAME_MANAGEMENT.getItem().getItemStack());
 
         // Map Select
-        setItem(
+        setItemRanked(
                 20,
-                StyledItem.ICON_MAP_SELECT.asIconWithLore(
-                        "",
-                        "Current Map: &a" + currentMap.getName(),
-                        "",
-                        Color.BUTTON + "Click to change that!"
-                ), MapSelectGUI::new
+                StyledItem.ICON_MAP_SELECT.toBuilder()
+                        .addLore()
+                        .addLore("Current Map: &a" + currentMap.getName()),
+                PlayerRank.GAME_MANAGER, "Click to change that!", MapSelectGUI::new
         );
 
         // Mode Select
-        setItem(
+        setItemRanked(
                 22,
-                StyledItem.ICON_MODE_SELECT.asIconWithLore(
-                        "",
-                        "Current Mode: &a" + currentMode.getMode().getName(),
-                        "",
-                        Color.BUTTON + "Click to change that!"
-                ),
-                ModeSelectGUI::new
+                StyledItem.ICON_MODE_SELECT.toBuilder()
+                        .addLore()
+                        .addLore("Current Mode: &a" + currentMode.getMode().getName()),
+                PlayerRank.GAME_MANAGER, "Click to change that!", ModeSelectGUI::new
         );
 
         // Team
@@ -64,5 +61,18 @@ public class GameManagementGUI extends StyledGUI {
                 TeamSelectGUI::new
         );
 
+        // Fair Mode
+        final FairMode fairMode = manager.getFairMode();
+
+        setItemRanked(42,
+                StyledItem.ICON_FAIR_MODE
+                        .toBuilder()
+                        .addLore()
+                        .addLore(Color.DEFAULT + "Current Mode")
+                        .addLore(" " + fairMode.getName())
+                        .addLore("  " + fairMode.getDescription()),
+                PlayerRank.GAME_MANAGER, "Click to adjust", FairModeGUI::new
+        );
     }
+
 }

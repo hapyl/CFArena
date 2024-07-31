@@ -38,7 +38,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
     public Taker(@Nonnull Heroes handle) {
         super(handle, "Taker");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.UNKNOWN);
 
         setDescription("""
@@ -245,7 +245,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
                                 Collect.nearbyEntities(hitLocation, 2.0d, living -> living.isValid(player))
                                         .forEach(entity -> {
-                                            entity.damageTick(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH, hitDelay);
+                                            entity.damage(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH);
                                             player.heal(healing);
                                         });
 

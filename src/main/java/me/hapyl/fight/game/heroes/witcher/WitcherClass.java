@@ -9,11 +9,10 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.witcher.Irden;
 import me.hapyl.fight.game.talents.witcher.Kven;
 import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
@@ -36,7 +35,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     public WitcherClass(@Nonnull Heroes handle) {
         super(handle, "The Witcher");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);
         setGender(Gender.MALE);
 
         setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");

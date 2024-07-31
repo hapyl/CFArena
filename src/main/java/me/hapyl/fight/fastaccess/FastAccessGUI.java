@@ -5,7 +5,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
-import me.hapyl.fight.registry.Registry;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Filter;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
@@ -80,6 +80,6 @@ public class FastAccessGUI extends StyledPageGUI<FastAccess> {
     }
 
     private void updateContents() {
-        setContents(filter.filter(Registry.FAST_ACCESS.values(player)));
+        setContents(filter.filter(Registries.FAST_ACCESS.values(player)));
     }
 }

@@ -66,7 +66,7 @@ public class DotInstanceList implements Ticking, Iterable<DotInstance> {
         // Deal damage
         if (damage > 0) {
             entity.setLastDamager(latestInstance.getEntity());
-            entity.damageTick(damage, dot.getCause(), dot.getPeriod());
+            //entity.damage(damage, dot.getCause(), dot.getPeriod());
         }
     }
 

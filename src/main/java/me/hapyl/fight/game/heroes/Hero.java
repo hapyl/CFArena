@@ -19,6 +19,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
+import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -65,18 +66,19 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
     private final Map<Talent, HotbarSlots> talentsMapped;
-
+    private final ArchetypeList archetypes;
     @Nonnull public HeroEventHandler eventHandler;
 
+    protected HeroMastery mastery;
+    @Nonnull protected UltimateTalent ultimate;
+
     private Affiliation affiliation;
-    private Archetype archetype;
     private Gender gender;
     private Race race;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
     private long minimumLevel;
-    private UltimateTalent ultimate;
     private PlayerSkin skin;
     private int rank;
     private String guiTextureUrl = "";
@@ -92,7 +94,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.equipment = new Equipment();
         this.attributes = new HeroAttributes(this);
         this.affiliation = Affiliation.NOT_SET;
-        this.archetype = Archetype.NOT_SET;
+        this.archetypes = new ArchetypeList(this);
         this.minimumLevel = 0;
         this.itemMaker = new HeroPlayerItemMaker(this);
         this.ultimate = UltimateTalent.UNFINISHED_ULTIMATE;
@@ -101,6 +103,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         this.talentsMapped = Maps.newHashMap();
         this.gender = Gender.UNKNOWN;
         this.race = Race.HUMAN; // defaulted to human
+        this.mastery = new HeroMastery(this);
 
         // Map talents
         mapTalent(HotbarSlots.TALENT_1);
@@ -202,12 +205,12 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     }
 
     @Nonnull
-    public Archetype getArchetype() {
-        return archetype;
+    public ArchetypeList getArchetypes() {
+        return archetypes;
     }
 
-    public void setArchetype(@Nonnull Archetype archetype) {
-        this.archetype = archetype;
+    public void setArchetypes(@Nonnull Archetype... archetype) {
+        archetypes.addAll(archetype);
     }
 
     /**
@@ -355,7 +358,7 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         }
 
         final PlayerDatabase database = profile.getDatabase();
-        final Skins skin = database.skinEntry.getSelected(profile.getHero());
+        final Skins skin = database.skinEntry.getSelected(this.getHandle());
 
         if (skin == null) {
             return getItem();
@@ -561,6 +564,15 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
      */
     @Override
     public void onStart() {
+    }
+
+    @Nonnull
+    public HeroMastery getMastery() {
+        return this.mastery;
+    }
+
+    protected void setMastery(@Nonnull HeroMastery mastery) {
+        this.mastery = mastery;
     }
 
     /**

@@ -12,7 +12,9 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
 import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Iterators;
 import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
@@ -192,6 +194,11 @@ public class SwooperData extends PlayerData {
         final Map<EquipmentSlot, ItemStack> map = Maps.newHashMap();
 
         for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot == EquipmentSlot.BODY) {
+                // FIXME: Calling BODY slot on a player throws an exception because exceptions are fun
+                continue;
+            }
+
             map.put(slot, real ? player.getEquipment().getItem(slot) : null);
         }
 

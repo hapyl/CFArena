@@ -2,6 +2,7 @@ package me.hapyl.fight.database.rank;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.spigotutils.module.util.SmallCaps;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -73,6 +74,33 @@ public enum PlayerRank {
         @Override
         public String leaveMessage() {
             return "{player} &6has departed!";
+        }
+    }),
+
+    // Game manager are NOT administrators
+    GAME_MANAGER(99, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.FOREST_GREEN.bold() + "ɢᴍ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.PASTEL_GREEN;
+        }
+
+        @Nullable
+        @Override
+        public String joinMessage() {
+            return PlayerRank.PREMIUM.format.joinMessage();
+        }
+
+        @Nullable
+        @Override
+        public String leaveMessage() {
+            return PlayerRank.PREMIUM.format.leaveMessage();
         }
     }),
 
@@ -202,6 +230,14 @@ public enum PlayerRank {
 
     public int reverseOrdinal() {
         return values().length - ordinal();
+    }
+
+    public boolean isOrHigher(@Nonnull CommandSender player) {
+        return getRank(player).isOrHigher(this);
+    }
+
+    public boolean isOrHigher(@Nonnull GamePlayer player) {
+        return isOrHigher(player.getPlayer());
     }
 
     // static members

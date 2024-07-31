@@ -32,7 +32,7 @@ public class Mage extends Hero implements UIComponent {
     public Mage(@Nonnull Heroes handle) {
         super(handle, "Mage");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.RANGE, Archetype.MOBILITY);
         setGender(Gender.MALE);
 
         setDescription("""

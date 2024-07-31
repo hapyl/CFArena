@@ -56,7 +56,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     public Techie(@Nonnull Heroes handle) {
         super(handle, "Cryptshade");
 
-        setArchetype(Archetype.HEXBANE);
+        setArchetypes(Archetype.HEXBANE);
         setAffiliation(Affiliation.UNKNOWN);
         setGender(Gender.UNKNOWN);
         setRace(Race.CYBERNETIC);

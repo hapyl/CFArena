@@ -31,7 +31,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
         super(handle, "Moonwalker");
 
         setMinimumLevel(3);
-        setArchetype(Archetype.RANGE);
+        setArchetypes(Archetype.RANGE);
         setAffiliation(Affiliation.SPACE);
         setGender(Gender.MALE);
         setRace(Race.ALIEN);

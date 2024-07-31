@@ -8,36 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleRegistry<T extends EnumId> implements Registry<T> {
+public class SimpleRegistry<T extends Identified> implements Registry<T> {
 
-    private final Map<String, T> registered;
-    private boolean isLocked;
+    private final Map<EnumId, T> registered;
 
     public SimpleRegistry() {
-        registered = Maps.newLinkedHashMap(); // Actually, keep the order.
-        isLocked = false;
+        this.registered = Maps.newLinkedHashMap(); // Actually, keep the order.
     }
 
     @Nullable
     @Override
     public T get(@Nonnull EnumId id) {
-        return registered.get(id.getId());
+        return registered.get(id);
     }
 
     @Override
     public boolean register(@Nonnull T t) {
-        if (isLocked) {
-            throw new IllegalStateException("Register in a locked registry.");
-        }
-
         return registered.put(t.getId(), t) == null;
     }
 
     @Override
     public boolean unregister(@Nonnull T t) {
-        if (isLocked) {
-            throw new IllegalStateException("Unregister in a locked registry.");
-        }
         return registered.remove(t.getId()) != null;
     }
 
@@ -46,4 +37,5 @@ public class SimpleRegistry<T extends EnumId> implements Registry<T> {
     public List<T> values() {
         return new ArrayList<>(registered.values());
     }
+
 }

@@ -28,7 +28,7 @@ public class Spark extends Hero implements PlayerElement {
     public Spark(@Nonnull Heroes handle) {
         super(handle, "Spark");
 
-        setArchetype(Archetype.RANGE);
+        setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);
         setGender(Gender.MALE);
 
         setDescription("Strikes with fire! ...literally.");

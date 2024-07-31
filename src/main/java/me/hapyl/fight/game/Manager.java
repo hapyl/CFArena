@@ -15,9 +15,7 @@ import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.GameMaps;
@@ -80,15 +78,20 @@ public final class Manager extends BukkitRunnable {
 
     private final Map<UUID, GameEntity> entities; // This might need optimizing if A LOT of entities since getting players is iterating over the whole map
     private final Map<UUID, PlayerProfile> profiles;
+    private final Map<Attribute, Double> defaultAttributeValues;
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
+
     @Nonnull private GameMaps currentMap;
     @Nonnull private Modes currentMode;
+
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
     private DebugData debugData;
     private Tournament competitive;
     private GuessWho guessWhoGame;
+
+    private FairMode fairMode;
 
     public Manager(Main main) {
         this.main = main;
@@ -96,6 +99,14 @@ public final class Manager extends BukkitRunnable {
         ignoredEntities = Sets.newHashSet();
         entities = Maps.newConcurrentMap();
         profiles = Maps.newConcurrentMap();
+        defaultAttributeValues = Map.of(
+                Attribute.GENERIC_MAX_HEALTH, 20.0d,
+                Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d,
+                Attribute.GENERIC_ATTACK_SPEED, 1_000d, // Keep attack speed 1,000 because I said so
+                Attribute.GENERIC_SCALE, 1.0d,
+                Attribute.GENERIC_STEP_HEIGHT, 0.6d,
+                Attribute.GENERIC_GRAVITY, 0.08d
+        );
 
         // load config data
         currentMap = Main.getPlugin().getConfigEnumValue("current-map", GameMaps.class, GameMaps.ARENA);
@@ -108,6 +119,8 @@ public final class Manager extends BukkitRunnable {
         autoSave = new AutoSync(Tick.fromMinute(10));
 
         debugData = DebugData.EMPTY;
+
+        fairMode = FairMode.UNFAIR;
 
         runTaskTimer(main, 0, 1);
     }
@@ -437,10 +450,10 @@ public final class Manager extends BukkitRunnable {
      * Returns the current GameInstance.
      *
      * @return GameInstance
-     * @deprecated Use {@link #getCurrentGame()} to safely retrieve GameInstance.
+     * @implNote Use {@link #getCurrentGame()} to safely retrieve GameInstance.
      */
     @Nullable
-    @Deprecated
+    //@Deprecated
     public GameInstance getGameInstance() throws RuntimeException {
         return gameInstance;
     }
@@ -713,12 +726,14 @@ public final class Manager extends BukkitRunnable {
             player.removePotionEffect(potionEffect.getType());
         }
 
-        // Make attack speed 1000 YEP
-        final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+        // Reset attributes
+        defaultAttributeValues.forEach((type, value) -> {
+            final AttributeInstance attribute = player.getAttribute(type);
 
-        if (attribute != null) {
-            attribute.setBaseValue(1_000);
-        }
+            if (attribute != null) {
+                attribute.setBaseValue(value);
+            }
+        });
     }
 
     /**
@@ -732,7 +747,7 @@ public final class Manager extends BukkitRunnable {
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
             final Heroes hero = getSelectedLobbyHero(player);
-            final Archetype archetype = hero.getHero().getArchetype();
+            final ArchetypeList archetypes = hero.getHero().getArchetypes();
 
             resetPlayer(player);
 
@@ -745,7 +760,9 @@ public final class Manager extends BukkitRunnable {
             ChallengeType.PLAY_GAMES.progress(player);
 
             // Progress archetype bond
-            ChallengeType.progressArchetypeBond(player, archetype);
+            archetypes.forEach(archetype -> {
+                ChallengeType.progressArchetypeBond(player, archetype);
+            });
 
             // Give lobby items
             LobbyItems.giveAll(player);
@@ -998,6 +1015,23 @@ public final class Manager extends BukkitRunnable {
 
     public void forEachProfile(@Nonnull Consumer<PlayerProfile> consumer) {
         profiles.values().forEach(consumer);
+    }
+
+    @Nonnull
+    public FairMode getFairMode() {
+        return fairMode;
+    }
+
+    public void setFairMode(@Nonnull Player player, @Nonnull FairMode fairMode) {
+        if (this.fairMode == fairMode) {
+            Notifier.error(player, "Already set!");
+            return;
+        }
+
+        this.fairMode = fairMode;
+
+        Notifier.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{} has set fair mode to {}!", player.getName(), fairMode.getName());
+        Notifier.broadcast(fairMode.getDescription());
     }
 
     private void playAnimation() {

@@ -1,5 +1,6 @@
 package me.hapyl.fight;
 
+import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
@@ -510,4 +511,8 @@ public final class CF {
         getCommandProcessor().registerCommand(command);
     }
 
+    @Nonnull
+    public static AntiCheat getAntiCheat() {
+        return AntiCheat.getInstance();
+    }
 }

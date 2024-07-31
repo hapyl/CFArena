@@ -33,7 +33,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
                 A space ranger with a single goal of maintaining order.
                 """);
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.SPACE);
         setGender(Gender.MALE);
         setRace(Race.ALIEN);

@@ -57,7 +57,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     public JuJu(@Nonnull Heroes handle) {
         super(handle, "Juju");
 
-        setArchetype(Archetype.HEXBANE);
+        setArchetypes(Archetype.HEXBANE, Archetype.DAMAGE, Archetype.POWERFUL_ULTIMATE, Archetype.DEFENSE);
         setAffiliation(Affiliation.THE_JUNGLE);
         setGender(Gender.MALE);
 

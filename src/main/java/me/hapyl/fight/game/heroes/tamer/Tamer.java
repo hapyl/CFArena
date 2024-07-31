@@ -53,7 +53,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.SELF_BUFF);
         setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();

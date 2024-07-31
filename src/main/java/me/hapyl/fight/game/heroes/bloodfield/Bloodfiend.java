@@ -6,7 +6,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -21,7 +20,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.bloodfiend.TentacleParticle;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
@@ -34,7 +32,6 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.spigotutils.module.entity.Entities;
 import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.math.geometry.Drawable;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import me.hapyl.spigotutils.module.player.PlayerSkin;
 import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
@@ -59,6 +56,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+/**
+ * todo:
+ *  Candlebane might need a range increase
+ *  Didn't really notify Blood Chalice effect
+ */
 public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
     @DisplayField public final short impelTimes = 3;
@@ -72,7 +74,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public Bloodfiend(@Nonnull Heroes handle) {
         super(handle, "Bloodfiend");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.CHATEAU);
         setGender(Gender.MALE);
         setRace(Race.VAMPIRE);

@@ -61,7 +61,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         super(handle, "Bounty Hunter");
 
         setAffiliation(Affiliation.MERCENARY);
-        setArchetype(Archetype.MOBILITY);
+        setArchetypes(Archetype.MOBILITY);
         setGender(Gender.FEMALE);
 
         setDescription("""

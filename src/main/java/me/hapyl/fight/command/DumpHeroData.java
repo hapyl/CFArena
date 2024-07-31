@@ -19,7 +19,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -109,7 +108,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                 writer.append(hero.getDescription());
 
                 writer.header("Archetype");
-                writer.append(hero.getArchetype().toString());
+                writer.append(hero.getArchetypes().toString());
 
                 final Affiliation affiliation = hero.getAffiliation();
                 final Race race = hero.getRace();

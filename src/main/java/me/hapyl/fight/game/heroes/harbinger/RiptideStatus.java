@@ -78,17 +78,10 @@ public class RiptideStatus extends PlayerData implements Ticking {
         // Mark cooldown
         riptideData.computeIfAbsent(entity, RiptideData::new).markLastHit();
 
-        final int maxTicks = entity.getMaximumNoDamageTicks();
-        entity.setMaximumNoDamageTicks(0);
-
         GameTask.runTaskTimerTimes((task, tick) -> {
             entity.setLastDamager(player);
             entity.damage(RIPTIDE_DAMAGE, EnumDamageCause.RIPTIDE);
             entity.setVelocity(Vectors.random(0.25d, 0.1d));
-
-            if (tick == 0) {
-                entity.setMaximumNoDamageTicks(maxTicks);
-            }
 
             // Fx
             final Location location = entity.getEyeLocation();

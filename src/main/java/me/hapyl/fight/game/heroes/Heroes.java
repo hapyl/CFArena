@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
@@ -63,10 +64,7 @@ import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -133,9 +131,9 @@ public enum Heroes implements Formatted {
 
     private final static List<Heroes> PLAYABLE = Lists.newArrayList();
 
-    private final static Map<Archetype, List<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
-    private final static Map<Gender, List<Heroes>> BY_GENDER = Maps.newHashMap();
-    private final static Map<Race, List<Heroes>> BY_RACE = Maps.newHashMap();
+    private final static Map<Archetype, Set<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
+    private final static Map<Gender, Set<Heroes>> BY_GENDER = Maps.newHashMap();
+    private final static Map<Race, Set<Heroes>> BY_RACE = Maps.newHashMap();
 
     private static GlobalHeroStats globalStats;
 
@@ -146,9 +144,14 @@ public enum Heroes implements Formatted {
             }
 
             // Store archetype for easier grab
-            mapHero(enumHero, Hero::getArchetype, BY_ARCHETYPE);
             mapHero(enumHero, Hero::getGender, BY_GENDER);
             mapHero(enumHero, Hero::getRace, BY_RACE);
+
+            // Map archetype because it's special
+            final ArchetypeList archetypes = enumHero.getHero().getArchetypes();
+            archetypes.forEach(archetype -> {
+                mapHero(enumHero, __ -> archetype, BY_ARCHETYPE);
+            });
 
             // Add playable
             PLAYABLE.add(enumHero);
@@ -322,7 +325,7 @@ public enum Heroes implements Formatted {
 
     @Nonnull
     public String getPrefix() {
-        return hero.getArchetype().getPrefix();
+        return hero.getArchetypes().getFirst().getPrefix();
     }
 
     @Nonnull
@@ -399,17 +402,17 @@ public enum Heroes implements Formatted {
      * @return a copy of heroes with a given archetype.
      */
     @Nonnull
-    public static List<Heroes> byArchetype(@Nonnull Archetype archetype) {
-        return computeListCopy(BY_ARCHETYPE, archetype);
+    public static Set<Heroes> byArchetype(@Nonnull Archetype archetype) {
+        return computeSetCopy(BY_ARCHETYPE, archetype);
     }
 
     @Nonnull
-    public static List<Heroes> byGender(@Nonnull Gender gender) {
-        return computeListCopy(BY_GENDER, gender);
+    public static Set<Heroes> byGender(@Nonnull Gender gender) {
+        return computeSetCopy(BY_GENDER, gender);
     }
 
-    public static List<Heroes> byRace(@Nonnull Race race) {
-        return computeListCopy(BY_RACE, race);
+    public static Set<Heroes> byRace(@Nonnull Race race) {
+        return computeSetCopy(BY_RACE, race);
     }
 
     /**
@@ -430,12 +433,12 @@ public enum Heroes implements Formatted {
         return CollectionUtils.randomElement(playable, DEFAULT_HERO);
     }
 
-    private static <T> void mapHero(Heroes hero, Function<Hero, T> fn, Map<T, List<Heroes>> map) {
-        map.compute(fn.apply(hero.getHero()), Compute.listAdd(hero));
+    private static <T> void mapHero(Heroes hero, Function<Hero, T> fn, Map<T, Set<Heroes>> map) {
+        map.compute(fn.apply(hero.getHero()), Compute.setAdd(hero));
     }
 
-    private static <T> List<Heroes> computeListCopy(Map<T, List<Heroes>> map, T t) {
-        return Lists.newArrayList(map.computeIfAbsent(t, fn -> Lists.newArrayList()));
+    private static <T> Set<Heroes> computeSetCopy(Map<T, Set<Heroes>> map, T t) {
+        return Sets.newHashSet(map.computeIfAbsent(t, fn -> Sets.newHashSet()));
     }
 
 }

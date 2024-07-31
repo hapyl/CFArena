@@ -50,11 +50,11 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     public Alchemist(@Nonnull Heroes handle) {
         super(handle, "Alchemist");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.SELF_SUSTAIN);
         setGender(Gender.FEMALE);
 
         setDescription(
-                "An alchemist who was deceived by the creation of the abyss."
+                "An alchemist who was deceived by the abyss."
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 

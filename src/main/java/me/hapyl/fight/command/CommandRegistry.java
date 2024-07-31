@@ -15,10 +15,7 @@ import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.database.entry.DailyRewardEntry;
-import me.hapyl.fight.database.entry.MetadataEntry;
-import me.hapyl.fight.database.entry.MetadataKey;
-import me.hapyl.fight.database.entry.SkinEntry;
+import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -31,7 +28,10 @@ import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
-import me.hapyl.fight.game.cosmetic.*;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.game.cosmetic.CosmeticCollection;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
@@ -53,6 +53,7 @@ import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
+import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
 import me.hapyl.fight.game.heroes.nyx.Nyx;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
@@ -62,19 +63,20 @@ import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.Season;
 import me.hapyl.fight.game.ui.splash.SplashText;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
@@ -131,7 +133,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
-import org.bukkit.entity.Display;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -159,6 +160,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -225,8 +227,98 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ReplyCommand("reply"));
         register(new GotoCommand("world"));
         register(new DumpHeroData("dumpHeroData"));
+        register(new ArchetypeCommand("archetype"));
+        register(new TermCommand("term", PlayerRank.DEFAULT));
+        register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
+        register("playMasteryLevelUpEffect", (player, args) -> {
+            final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
+            final Heroes hero = Manager.current().getSelectedLobbyHero(player);
+            final int level = entry.getLevel(hero);
+
+            entry.playMasteryLevelUpEffect(hero, Math.max(level - 1, 0), level);
+        });
+
+        register("masteryExp", (player, args) -> HeroMastery.dumpExpMap(player));
+
+        register("giveHideTooltipsItem", (player, args) -> {
+            player.getInventory().addItem(new ItemBuilder(Material.IRON_PICKAXE).asIcon());
+        });
+
+        register("showSeasonalDecoration", (player, args) -> {
+            final Season season = args.get(0).toEnum(Season.class);
+
+            if (season == null) {
+                Notifier.error(player, "Invalid season!");
+                return;
+            }
+
+            player.sendMessage(season.toString());
+        });
+
+        register("nextNotification", (player, args) -> {
+            player.sendMessage(ChatColor.YELLOW + "Triggered next notification!");
+            Main.getPlugin().getNotifier().run();
+        });
+
+        register(new SimplePlayerAdminCommand("invokePlayerMethod") {
+
+            static final Set<String> methodNames;
+
+            static {
+                methodNames = Sets.newHashSet();
+
+                final Class<Player> playerClass = Player.class;
+
+                appendMethodList(playerClass.getMethods());
+                appendMethodList(playerClass.getDeclaredMethods());
+            }
+
+            static void appendMethodList(Method[] methods) {
+                for (Method method : methods) {
+                    if (isValidMethod(method)) {
+                        methodNames.add(method.getName());
+                    }
+                }
+            }
+
+            static boolean isValidMethod(Method method) {
+                return method.getParameterCount() == 0;
+            }
+
+            @Override
+            protected void execute(Player player, String[] strings) {
+                final String methodName = getArgument(strings, 0).toString();
+                final Method method = CFUtils.getMethod(Player.class, methodName);
+
+                if (method == null) {
+                    Chat.sendMessage(player, "&cMethod does not exist!");
+                    return;
+                }
+
+                try {
+                    final Object invoked = method.invoke(player);
+
+                    if (invoked != null) {
+                        Chat.sendMessage(player, "&aInvoked method %s, return value: &e%s".formatted(methodName, invoked.toString()));
+                    }
+                    else {
+                        Chat.sendMessage(player, "&aInvoked method %s, no return value.".formatted(methodName));
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Chat.sendMessage(player, "&4Error! " + e.getMessage());
+                }
+            }
+
+            @Nullable
+            @Override
+            protected List<String> tabComplete(CommandSender sender, String[] args) {
+                return completerSort(Lists.newArrayList(methodNames), args, false);
+            }
+        });
 
         registerDebug("particleFollow", (player, args) -> {
             new EntityFollowingParticle(1, player.getLocation().add(0, 5, 0), player) {

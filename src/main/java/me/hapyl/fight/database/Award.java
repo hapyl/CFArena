@@ -8,11 +8,11 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
+import me.hapyl.fight.util.StrBuilder;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 
 import javax.annotation.Nonnull;
 
@@ -36,6 +36,7 @@ public enum Award {
         this.exp = exp;
     }
 
+    @Nonnull
     public String getReason() {
         return reason;
     }
@@ -57,11 +58,10 @@ public enum Award {
         experience.add(ExperienceEntry.Type.EXP, exp);
 
         final Player player = profile.getPlayer();
+        final StrBuilder builder = new StrBuilder("&a+ ");
 
-        final StringBuilder builder = new StringBuilder("&a+ ");
-
-        appendIf(builder, "%s Coins &8& ".formatted(Currency.COINS.getColor().color(coins)), coins > 0);
-        appendIf(builder, "&9%s Experience".formatted(exp), exp > 0);
+        builder.appendIf("%s Coins &8& ".formatted(Currency.COINS.getColor().color(coins)), coins > 0);
+        builder.appendIf("&9%s Experience".formatted(exp), exp > 0);
 
         builder.append(" &7(%s)".formatted(reason));
 
@@ -78,16 +78,9 @@ public enum Award {
 
         // Progress Stats
         final StatContainer stats = player.getStats();
+
         stats.addValue(StatType.COINS, coins);
         stats.addValue(StatType.EXP, exp);
-    }
-
-    private void appendIf(StringBuilder builder, String message, boolean bool) {
-        if (!bool) {
-            return;
-        }
-
-        builder.append(message);
     }
 
 }

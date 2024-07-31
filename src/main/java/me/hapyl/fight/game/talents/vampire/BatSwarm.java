@@ -63,7 +63,7 @@ public class BatSwarm extends Talent {
                             return;
                         }
 
-                        entity.damageTick(2.0d, player, EnumDamageCause.SWARM, 1);
+                        entity.damage(2.0d, player, EnumDamageCause.SWARM);
                         entity.addEffect(Effects.BLINDNESS, 1, 20);
 
                         bats.remove(bat);

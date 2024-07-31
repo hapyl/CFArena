@@ -70,7 +70,7 @@ public class VortexSlash extends Talent {
                         return;
                     }
 
-                    entity.damageTick(damage, player, EnumDamageCause.SOTS, 0);
+                    entity.damage(damage, player, EnumDamageCause.SOTS);
                 });
 
                 // Fx

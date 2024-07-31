@@ -139,7 +139,7 @@ public class WineryMap extends GameMap {
 
                     if (tick > 0 && tick % frequency == 0) {
                         player.getWorld().strikeLightningEffect(player.getEyeLocation());
-                        player.damageTick(2, EnumDamageCause.LIGHTNING, 1);
+                        player.damage(2, EnumDamageCause.LIGHTNING);
                     }
                 });
             }

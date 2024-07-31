@@ -4,6 +4,8 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MessageType;
+import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -36,12 +38,12 @@ public final class EnderPearlHandler implements Listener {
             return;
         }
 
-        if (!isSafeLocation(location)) {
-            enderPearl.remove();
-            ev.setCancelled(true);
+        enderPearl.remove();
+        ev.setCancelled(true);
 
-            Chat.sendMessage(player, "&cYou cannot travel there using Ender Pearls!");
-            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+        if (!isSafeLocation(location)) {
+            gamePlayer.sendMessage(MessageType.ERROR, "You cannot travel there using Ender Pearls!");
+            gamePlayer.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }
 

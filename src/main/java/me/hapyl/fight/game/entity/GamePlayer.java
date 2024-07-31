@@ -29,17 +29,14 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.TalentQueue;
-import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.IPlayerTask;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
@@ -196,7 +193,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         killStreak = 0;
         combatTag = 0;
-        noCCTicks = 0;
+        noCCTicks.zero();
         sneakTicks = 0;
         talentLock.reset();
 
@@ -225,7 +222,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         player.setArrowsInBody(0);
         player.setGlowing(false);
         player.setWalkSpeed((float) attributes.get(AttributeType.SPEED));
-        player.setMaximumNoDamageTicks(20);
         player.getActivePotionEffects().forEach(effect -> {
             if (effect.getDuration() == PotionEffect.INFINITE_DURATION) {
                 return;
@@ -304,6 +300,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         else {
             stats.markAsWinner();
         }
+
+        // Award mastery exp
+        HeroMastery.awardPlayer(this);
 
         // Reset game player
         getProfile().resetGamePlayer();

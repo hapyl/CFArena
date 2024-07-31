@@ -48,7 +48,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     public Swooper(@Nonnull Heroes handle) {
         super(handle, "Swooper");
 
-        setArchetype(Archetype.RANGE);
+        setArchetypes(Archetype.RANGE, Archetype.DAMAGE);
         setAffiliation(Affiliation.MERCENARY);
         setGender(Gender.MALE);
 

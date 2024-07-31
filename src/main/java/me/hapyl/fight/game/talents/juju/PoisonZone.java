@@ -44,7 +44,7 @@ public class PoisonZone extends Talent {
             public void run(int tick) {
                 Collect.nearbyEntities(location, radius).forEach(living -> {
                     living.setLastDamager(player);
-                    living.damageTick(damagePerTick, EnumDamageCause.POISON_IVY, damageTick);
+                    living.damage(damagePerTick, EnumDamageCause.POISON_IVY);
 
                     final EntityAttributes attributes = living.getAttributes();
                     attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);

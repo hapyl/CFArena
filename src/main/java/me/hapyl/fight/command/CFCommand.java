@@ -1,12 +1,18 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
 import me.hapyl.spigotutils.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class CFCommand extends SimplePlayerCommand {
 
@@ -21,6 +27,15 @@ public abstract class CFCommand extends SimplePlayerCommand {
     @Nonnull
     public PlayerRank getRank() {
         return rank;
+    }
+
+    public <E extends Enum<E>> CFCommand enumCompleter(int index, @Nonnull Class<E> enumClass, @Nullable Archetype... ignore) {
+        final List<E> list = Arrays.asList(enumClass.getEnumConstants());
+
+        list.removeIf(e -> CFUtils.arrayContains(ignore, e));
+        addCompleterValues(index, list);
+
+        return this;
     }
 
     protected abstract void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank);

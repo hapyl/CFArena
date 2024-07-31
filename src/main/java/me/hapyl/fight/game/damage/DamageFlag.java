@@ -11,29 +11,40 @@ public enum DamageFlag {
      * Projectile kills display the distance of the shot.
      */
     PROJECTILE,
+
     /**
      * Is this {@link DamageCause} is custom damage or vanilla damage.
      * <p>
      * This flag is default for custom causes.
      */
     CUSTOM,
+
     /**
      * Can this {@link DamageCause} crit.
      * <p>
      * This flag is default.
      */
     CAN_CRIT,
+
     /**
      * Is this {@link DamageCause} a true damage.
      * <p>
      * True damage is not affected by attributes.
      */
     TRUE_DAMAGE,
+
     /**
      * Is this {@link DamageCause} a piercing damage.
      * <p>
      * Piercing damage ignores shields.
      */
-    PIERCING_DAMAGE;
+    PIERCING_DAMAGE,
+
+    /**
+     * Is this {@link DamageCause} ignores damage ticks.
+     * <br>
+     * This will ignore damage ticks and will not start them.
+     */
+    IGNORES_DAMAGE_TICKS,
 
 }

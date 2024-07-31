@@ -8,7 +8,6 @@ import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.util.Enums;
 import me.hapyl.spigotutils.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -46,6 +45,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final GuessWhoEntry guessWhoEntry;
     public final ChallengeEntry challengeEntry;
     public final SkinEntry skinEntry;
+    public final MasteryEntry masteryEntry;
 
     // *=* Entries End *=* //
 
@@ -92,6 +92,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.guessWhoEntry = load(new GuessWhoEntry(this));
         this.challengeEntry = load(new ChallengeEntry(this));
         this.skinEntry = load(new SkinEntry(this));
+        this.masteryEntry = load(new MasteryEntry(this));
 
         // Call onLoad
         entries.forEach(PlayerDatabaseEntry::onLoad);

@@ -10,15 +10,24 @@ public enum Notification {
 
     READ_PATCH_NOTES(
             Notify.string("&aRead the latest patch notes here:"),
-            Notify.link("&e&lCLICK HERE", "https://hapyl.github.io/classes_fight/patch_notes")
+            Notify.link("&e&lCLICK HERE", "https://github.com/hapyl/CFArena/discussions/categories/patch-notes")
     ),
 
-    HELP_COMMAND("&aLost? See the help screen:", "&e/help"),
+    HELP_COMMAND(
+            "&aLost? See the help screen:",
+            "&e/help"
+    ),
+
     REPORT_BUGS(
             Notify.string("&aFound a bug? Report it here:"),
             Notify.link("&e&lCLICK HERE", "https://github.com/hapyl/CFArena/issues")
     ),
-    //TRIAL("&aTry out the new Trial mode!", "&e/trial &c(it's broken wasn't me (real))"),
+
+    TERM(
+            "&aSeeing some unfamiliar phrase or",
+            "&awonder what &f&nunderlined&a words mean?",
+            "&aUse &e/term (query)&a to learn about a game term."
+    ),
     ;
 
     private final List<Notify> notifies;

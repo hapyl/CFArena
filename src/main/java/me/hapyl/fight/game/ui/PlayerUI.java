@@ -367,9 +367,9 @@ public class PlayerUI extends TickingGameTask {
         }
 
         footer.append("\n");
-        footer.append(Season.WINTER.format(Color.ICY_BLUE, Color.FROSTY_GRAY, Color.ARCTIC_TEAL, Color.SILVER))
-                .append(" ")
-                .append(Season.WINTER.format(Color.SILVER, Color.ARCTIC_TEAL, Color.FROSTY_GRAY, Color.ICY_BLUE));
+
+        // Seasonal decoration
+        footer.append(Season.currentSeason());
 
         return new String[] {
                 """
@@ -382,39 +382,6 @@ public class PlayerUI extends TickingGameTask {
                 ),
                 footer.toString()
         };
-    }
-
-    private enum Season {
-        WINTER("❄");
-
-        private final String string;
-
-        Season(String string) {
-            this.string = string;
-        }
-
-        @Nonnull
-        public String format(@Nonnull Color... colors) {
-            final StringBuilder builder = new StringBuilder();
-            for (Color color : colors) {
-                builder.append(color).append(string);
-            }
-
-            return builder.toString();
-        }
-
-        @Nonnull
-        public String formatBackAndForth(@Nonnull Color... colors) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(format(colors));
-
-            for (int i = colors.length - 1; i >= 0; i--) {
-                builder.append(colors[i]).append(string);
-            }
-
-            return builder.toString();
-        }
-
     }
 
 }

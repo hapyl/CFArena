@@ -40,7 +40,7 @@ public class Vortex extends Hero implements UIComplexComponent {
     public Vortex(@Nonnull Heroes handle) {
         super(handle, "Vortex");
 
-        setArchetype(Archetype.STRATEGY);
+        setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);
         setGender(Gender.MALE);
 
         setDescription("A young boy with the power of speaking to stars...");
@@ -247,7 +247,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                         isHit = true;
 
                         entity.modifyKnockback(1 - knockback, self -> {
-                            self.damageTick(damage, player, EnumDamageCause.SOTS, 2);
+                            self.damage(damage, player, EnumDamageCause.SOTS);
                         });
                     }
 

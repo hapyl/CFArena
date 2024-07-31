@@ -32,7 +32,7 @@ public final class Scripts {
 
     @Nonnull
     public static Script register(@Nonnull Script script) {
-        final String id = script.getId();
+        final String id = script.getStringId();
 
         if (values.containsKey(id)) {
             throw new IllegalArgumentException("Script with id '%s' is already registered!".formatted(id));

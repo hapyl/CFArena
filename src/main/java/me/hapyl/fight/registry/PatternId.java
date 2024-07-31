@@ -5,6 +5,7 @@ import me.hapyl.spigotutils.module.util.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class PatternId {
@@ -49,5 +50,29 @@ public class PatternId {
                 pattern.matcher(id.getOrThrow()).matches(),
                 "Id '%s' in %s does not match the pattern: %s".formatted(id.get(), getClass().getSimpleName(), pattern)
         );
+    }
+
+    @Override
+    public String toString() {
+        return id.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final PatternId other = (PatternId) o;
+        return Objects.equals(id.get(), other.id.get());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id.get());
     }
 }

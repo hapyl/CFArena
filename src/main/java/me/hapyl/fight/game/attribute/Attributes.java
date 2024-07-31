@@ -269,8 +269,40 @@ public class Attributes implements WeakCopy {
         setValueScaled(AttributeType.KNOCKBACK_RESISTANCE, value);
     }
 
+    /**
+     * Sets the {@link AttributeType#EFFECT_RESISTANCE} value for this attribute.
+     *
+     * @param value - New value.
+     */
     public void setEffectResistance(double value) {
         setValueScaled(AttributeType.EFFECT_RESISTANCE, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#HEIGHT} value for this attribute.
+     *
+     * @param value - New height.
+     */
+    public void setHeight(double value) {
+        setValueScaled(AttributeType.HEIGHT, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#ENERGY_RECHARGE} value for this attribute.
+     *
+     * @param value - New height.
+     */
+    public void setEnergyRecharge(double value) {
+        setValueScaled(AttributeType.ENERGY_RECHARGE, value);
+    }
+
+    /**
+     * Sets the {@link AttributeType#JUMP_STRENGTH} value for this attribute.
+     *
+     * @param value - New height.
+     */
+    public void setJumpStrength(double value) {
+        setValueScaled(AttributeType.JUMP_STRENGTH, value);
     }
 
     /**

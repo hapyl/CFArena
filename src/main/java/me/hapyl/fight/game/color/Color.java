@@ -90,6 +90,18 @@ public class Color {
     public static final Color ETHEREAL = new Color("#D3E1FF");
     public static final Color HEXBANE = new Color("#5C3D2E");
     public static final Color VOID = new Color("#3A2A4C");
+    public static final Color FALL_DARK = new Color("#ed6724");
+    public static final Color FALL_LIGHT = new Color("#e89851");
+    public static final Color FALL_RED = new Color("#db4a25");
+    public static final Color FALL_ORANGE = new Color("#f06043");
+    public static final Color SUNSHINE_YELLOW = new Color("#FFD700");
+    public static final Color GOLDENROD = new Color("#DAA520");
+    public static final Color ORANGE = new Color("#FFA500");
+    public static final Color SUNSET = new Color("#f7622a");
+    public static final Color SOFT_PINK = new Color("#FFB6C1");
+    public static final Color PASTEL_GREEN = new Color("#77DD77");
+    public static final Color LAVENDER = new Color("#E6E6FA");
+    public static final Color LIGHT_BLUE = new Color("#ADD8E6");
 
     // *-----------------------------------------------------*
 
@@ -321,7 +333,11 @@ public class Color {
                 hex = hex + "a".repeat(7 - hex.length());
             }
 
-            return ChatColor.of(hex.substring(0, Math.min(hex.length(), 7)));
+            try {
+                return ChatColor.of(hex.substring(0, Math.min(hex.length(), 7)));
+            } catch (Exception e) {
+                return ChatColor.BLACK;
+            }
         }
     }
 

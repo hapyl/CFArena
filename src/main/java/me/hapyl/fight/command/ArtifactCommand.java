@@ -4,7 +4,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.ArtifactEntry;
 import me.hapyl.fight.game.artifact.Artifact;
 import me.hapyl.fight.game.artifact.Type;
-import me.hapyl.fight.registry.Registry;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import org.bukkit.command.CommandSender;
@@ -25,7 +25,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
     public ArtifactCommand(String name) {
         super(name);
 
-        artifactsNames = Registry.ARTIFACTS.values().stream().map(Artifact::getId).toList();
+        artifactsNames = Registries.ARTIFACTS.values().stream().map(artifact -> artifact.getId().toString()).toList();
 
         addCompleterValues(2, "has", "add", "remove", "get");
     }
@@ -72,7 +72,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
         }
 
         final String artifactId = getArgument(args, 2).toString();
-        final Artifact artifact = Registry.ARTIFACTS.get(artifactId);
+        final Artifact artifact = Registries.ARTIFACTS.get(artifactId);
 
         if (artifact == null) {
             Notifier.error(player, "Could not find that artifact!");

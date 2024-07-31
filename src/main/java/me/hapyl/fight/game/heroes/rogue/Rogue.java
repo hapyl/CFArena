@@ -62,7 +62,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
     public Rogue(@Nonnull Heroes handle) {
         super(handle, "Rogue");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.MERCENARY);
         setGender(Gender.MALE);
 
@@ -136,7 +136,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         instance.setCancelled(true);
 
         entity.modifyKnockback(d -> 0.7d, then -> {
-            then.damageTick(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK, attackSpeedTick);
+            then.damage(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK);
         });
     }
 

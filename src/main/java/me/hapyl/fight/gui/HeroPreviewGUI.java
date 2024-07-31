@@ -1,16 +1,19 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
+import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.spigotutils.module.chat.Chat;
 import me.hapyl.spigotutils.module.inventory.ItemBuilder;
@@ -167,6 +170,22 @@ public class HeroPreviewGUI extends StyledGUI {
                 }
         );
 
+        final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
+        final Heroes enumHero = hero.getHandle();
+
+        // Mastery
+        setItem(
+                18,
+                StyledItem.ICON_MASTERY
+                        .toBuilder()
+                        .addLore()
+                        .addLore(entry.makeMasteryHeader(enumHero))
+                        .addLore(entry.makeProgressBar(enumHero))
+                        .addLore()
+                        .addLore(Color.BUTTON + "Click for details")
+                        .asIcon(), player -> new MasteryGUI(player, hero, returnPage)
+        );
+
         // Global stats
         setItem(
                 51,
@@ -176,7 +195,7 @@ public class HeroPreviewGUI extends StyledGUI {
                         .addLore()
                         .addLore(Color.BUTTON + "Click to view!")
                         .asIcon(),
-                player -> new HeroStatisticGUI(player, enumHero, returnPage)
+                player -> new HeroStatisticGUI(player, this.enumHero, returnPage)
         );
     }
 

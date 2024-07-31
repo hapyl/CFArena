@@ -40,7 +40,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     public Nightmare(@Nonnull Heroes handle) {
         super(handle, "Nightmare");
 
-        setArchetype(Archetype.DAMAGE);
+        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
         setGender(Gender.UNKNOWN);
 
         setDescription("A spirit from the worst nightmares, blinds enemies and strikes from behind!");
