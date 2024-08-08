@@ -23,12 +23,12 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.tablist.EntryList;
-import me.hapyl.spigotutils.module.player.tablist.EntryTexture;
-import me.hapyl.spigotutils.module.player.tablist.PingBars;
-import me.hapyl.spigotutils.module.player.tablist.Tablist;
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.tablist.EntryList;
+import me.hapyl.eterna.module.player.tablist.EntryTexture;
+import me.hapyl.eterna.module.player.tablist.PingBars;
+import me.hapyl.eterna.module.player.tablist.Tablist;
+import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

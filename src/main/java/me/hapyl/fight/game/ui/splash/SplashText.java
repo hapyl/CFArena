@@ -2,7 +2,7 @@ package me.hapyl.fight.game.ui.splash;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;

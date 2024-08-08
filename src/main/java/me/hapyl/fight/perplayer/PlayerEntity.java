@@ -2,7 +2,7 @@ package me.hapyl.fight.perplayer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;

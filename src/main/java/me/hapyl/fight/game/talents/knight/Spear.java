@@ -7,7 +7,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

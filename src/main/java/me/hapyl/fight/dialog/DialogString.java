@@ -1,6 +1,6 @@
 package me.hapyl.fight.dialog;
 
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

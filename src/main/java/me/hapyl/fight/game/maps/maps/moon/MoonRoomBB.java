@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps.maps.moon;
 
-import me.hapyl.spigotutils.module.math.Cuboid;
+import me.hapyl.eterna.module.math.Cuboid;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 

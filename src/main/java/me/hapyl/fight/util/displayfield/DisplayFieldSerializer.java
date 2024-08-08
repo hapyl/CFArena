@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.StringReplacer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;

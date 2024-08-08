@@ -1,6 +1,6 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Vibration;
 
 public class BlockVibration extends Vibration {

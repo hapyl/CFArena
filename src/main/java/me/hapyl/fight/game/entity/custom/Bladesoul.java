@@ -4,7 +4,7 @@ import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.GameEntityType;
 import me.hapyl.fight.game.entity.MultiPartLivingGameEntity;
 import me.hapyl.fight.game.entity.NamedGameEntity;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.entity.WitherSkeleton;
 
 import javax.annotation.Nonnull;

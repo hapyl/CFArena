@@ -2,7 +2,7 @@ package me.hapyl.fight.game.achievement;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.spigotutils.module.util.RomanNumber;
+import me.hapyl.eterna.module.util.RomanNumber;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

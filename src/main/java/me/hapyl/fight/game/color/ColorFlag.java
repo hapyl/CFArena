@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.color;
 
-import me.hapyl.spigotutils.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.Gradient;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;

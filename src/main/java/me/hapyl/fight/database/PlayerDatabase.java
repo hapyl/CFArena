@@ -8,7 +8,7 @@ import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

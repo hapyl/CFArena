@@ -9,7 +9,7 @@ import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

@@ -1,6 +1,6 @@
 package me.hapyl.fight.cache;
 
-import me.hapyl.spigotutils.module.player.PlayerSkin;
+import me.hapyl.eterna.module.player.PlayerSkin;
 
 public final class Caches {
 

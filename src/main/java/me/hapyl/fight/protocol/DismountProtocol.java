@@ -4,7 +4,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.spigotutils.module.event.protocol.PacketReceiveEvent;
+import me.hapyl.eterna.module.event.protocol.PacketReceiveEvent;
 import net.minecraft.network.protocol.game.PacketPlayInSteerVehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

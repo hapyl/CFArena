@@ -1,7 +1,7 @@
 package me.hapyl.fight.util.collection;
 
 import com.google.common.collect.Lists;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

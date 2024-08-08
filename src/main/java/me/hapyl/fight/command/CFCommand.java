@@ -5,8 +5,8 @@ import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

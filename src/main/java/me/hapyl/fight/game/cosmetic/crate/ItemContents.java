@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.cosmetic.RareItem;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

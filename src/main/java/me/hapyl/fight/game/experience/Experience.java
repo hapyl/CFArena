@@ -9,11 +9,11 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.reward.*;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.Gradient;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

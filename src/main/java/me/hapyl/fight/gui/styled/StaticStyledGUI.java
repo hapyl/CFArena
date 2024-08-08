@@ -1,10 +1,10 @@
 package me.hapyl.fight.gui.styled;
 
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.Action;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Action;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -69,11 +69,11 @@ public final class StaticStyledGUI {
         gui.setItem(4, item);
     }
 
-    public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.spigotutils.module.inventory.gui.Action action) {
+    public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.eterna.module.inventory.gui.Action action) {
         setPanelItem(gui, index, item, action, ClickType.LEFT);
     }
 
-    public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.spigotutils.module.inventory.gui.Action action, ClickType... clickTypes) {
+    public static <T extends PlayerGUI & Styled> void setPanelItem(T gui, int index, ItemStack item, me.hapyl.eterna.module.inventory.gui.Action action, ClickType... clickTypes) {
         index = gui.getSize() - (9 - index);
 
         gui.setItem(index, item, action, getClickTypes(clickTypes));

@@ -4,7 +4,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.ability.DummyAbility;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 
 public class NinjaWeapon extends Weapon {

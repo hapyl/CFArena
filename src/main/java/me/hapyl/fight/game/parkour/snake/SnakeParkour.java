@@ -2,7 +2,7 @@ package me.hapyl.fight.game.parkour.snake;
 
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 
 public class SnakeParkour extends CFParkour {

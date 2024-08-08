@@ -5,7 +5,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
-import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.eterna.module.util.BFormat;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

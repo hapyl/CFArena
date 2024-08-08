@@ -7,7 +7,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Vectors;
-import me.hapyl.spigotutils.module.reflect.Ticking;
+import me.hapyl.eterna.module.reflect.Ticking;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

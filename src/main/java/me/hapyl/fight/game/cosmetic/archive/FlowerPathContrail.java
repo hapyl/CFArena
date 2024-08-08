@@ -4,7 +4,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.contrail.BlockContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

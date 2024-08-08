@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.entity.ping;
 
-import me.hapyl.spigotutils.module.player.synthesizer.Synthesizer;
+import me.hapyl.eterna.module.player.synthesizer.Synthesizer;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

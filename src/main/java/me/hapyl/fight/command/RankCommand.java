@@ -5,7 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimpleCommand;
+import me.hapyl.eterna.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

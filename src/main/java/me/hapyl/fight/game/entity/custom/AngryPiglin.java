@@ -5,7 +5,7 @@ import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.GameEntityType;
 import me.hapyl.fight.game.entity.NamedGameEntity;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.entity.Piglin;
 
 import javax.annotation.Nonnull;

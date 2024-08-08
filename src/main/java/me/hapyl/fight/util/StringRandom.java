@@ -1,6 +1,6 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 

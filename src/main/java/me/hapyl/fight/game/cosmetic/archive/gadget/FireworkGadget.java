@@ -6,7 +6,7 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.experience.ExperienceColor;
-import me.hapyl.spigotutils.module.util.Enums;
+import me.hapyl.eterna.module.util.Enums;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;

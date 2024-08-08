@@ -8,8 +8,8 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.guesswho.gui.GuessWhoRuleOutGUI;
 import me.hapyl.fight.guesswho.gui.GuessWhoSelectionGUI;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 

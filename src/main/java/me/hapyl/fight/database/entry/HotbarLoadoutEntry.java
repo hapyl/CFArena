@@ -3,7 +3,7 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseArrayEntry;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.spigotutils.module.util.Enums;
+import me.hapyl.eterna.module.util.Enums;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

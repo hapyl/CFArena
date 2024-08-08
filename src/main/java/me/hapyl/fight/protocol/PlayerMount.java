@@ -2,7 +2,7 @@ package me.hapyl.fight.protocol;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 

@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

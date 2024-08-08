@@ -11,7 +11,7 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.particle.ParticleDrawer;
 import me.hapyl.fight.util.particle.ParticleSpellMob;
 import me.hapyl.fight.util.particle.Particles;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Arrow;

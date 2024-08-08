@@ -5,7 +5,7 @@ import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 

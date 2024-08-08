@@ -3,8 +3,8 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.PlayerInvite;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;

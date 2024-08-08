@@ -4,7 +4,7 @@ import me.hapyl.fight.npc.archive.BloodfiendNpc;
 import me.hapyl.fight.npc.archive.MuseumManagerNpc;
 import me.hapyl.fight.npc.archive.SlimeParkourEnjoyer;
 import me.hapyl.fight.npc.archive.TheEyeNPC;
-import me.hapyl.spigotutils.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.reflect.npc.NPCPose;
 
 import javax.annotation.Nonnull;
 

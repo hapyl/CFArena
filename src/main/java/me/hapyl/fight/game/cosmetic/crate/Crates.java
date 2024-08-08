@@ -9,7 +9,7 @@ import me.hapyl.fight.game.cosmetic.WeightedDrop;
 import me.hapyl.fight.game.cosmetic.crate.convert.Product;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.EnumWrapper;
-import me.hapyl.spigotutils.module.util.WeightedCollection;
+import me.hapyl.eterna.module.util.WeightedCollection;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;

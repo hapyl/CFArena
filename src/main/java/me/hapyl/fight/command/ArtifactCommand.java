@@ -6,7 +6,7 @@ import me.hapyl.fight.game.artifact.Artifact;
 import me.hapyl.fight.game.artifact.Type;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

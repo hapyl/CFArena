@@ -14,8 +14,8 @@ import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.maps.gamepack.HealthPack;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.event.Listener;
 

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;

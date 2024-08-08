@@ -4,7 +4,7 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.skin.Skin;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import org.bukkit.Color;
 import org.bukkit.Location;
 

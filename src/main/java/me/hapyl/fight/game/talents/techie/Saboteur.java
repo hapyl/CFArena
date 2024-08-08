@@ -20,7 +20,7 @@ import me.hapyl.fight.game.maps.gamepack.HackedPack;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;

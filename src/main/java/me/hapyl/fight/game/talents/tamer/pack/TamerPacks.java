@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

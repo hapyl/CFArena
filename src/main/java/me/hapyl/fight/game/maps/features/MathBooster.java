@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps.features;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;

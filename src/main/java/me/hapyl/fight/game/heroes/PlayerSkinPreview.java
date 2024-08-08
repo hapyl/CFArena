@@ -6,10 +6,10 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.player.PlayerSkin;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
-import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -26,7 +26,7 @@ public class PlayerSkinPreview extends TickingGameTask {
 
     public final Player player;
     public final Hero hero;
-    public final me.hapyl.spigotutils.module.player.PlayerSkin skin;
+    public final me.hapyl.eterna.module.player.PlayerSkin skin;
     public final Equipment equipment;
 
     protected HumanNPC npc;

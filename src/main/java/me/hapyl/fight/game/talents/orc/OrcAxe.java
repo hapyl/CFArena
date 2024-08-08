@@ -12,7 +12,7 @@ import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

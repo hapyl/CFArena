@@ -3,9 +3,9 @@ package me.hapyl.fight.game.challenge;
 import me.hapyl.fight.database.entry.ChallengeEntry;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.CurrencyReward;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.messagebuilder.HoverEventBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.messagebuilder.HoverEventBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 

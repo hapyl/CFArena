@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.effect.archive.extra;
 
-import me.hapyl.spigotutils.module.util.Holder;
+import me.hapyl.eterna.module.util.Holder;
 import org.bukkit.entity.Player;
 
 // Stores player data before they were affected by lockdown to later restore.

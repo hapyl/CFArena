@@ -16,8 +16,8 @@ import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import me.hapyl.fight.util.collection.NonnullTuple;
 import me.hapyl.fight.util.collection.Tuple;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

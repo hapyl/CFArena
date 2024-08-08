@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.ui;
 
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.hologram.Hologram;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 
 import java.util.Collection;

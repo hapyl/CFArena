@@ -24,7 +24,7 @@ import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

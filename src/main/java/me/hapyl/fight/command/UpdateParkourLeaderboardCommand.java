@@ -2,9 +2,9 @@ package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.command.CommandSender;
 
 public class UpdateParkourLeaderboardCommand extends SimpleAdminCommand {

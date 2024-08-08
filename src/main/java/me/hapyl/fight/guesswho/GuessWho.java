@@ -3,7 +3,7 @@ package me.hapyl.fight.guesswho;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
 

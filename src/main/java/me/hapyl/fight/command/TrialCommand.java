@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

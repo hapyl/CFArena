@@ -2,7 +2,7 @@ package me.hapyl.fight.game.cosmetic.skin.archer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.inventory.meta.trim.TrimMaterial;

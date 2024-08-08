@@ -1,9 +1,9 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

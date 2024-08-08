@@ -10,7 +10,7 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.gui.RelicRewardGUI;
 import me.hapyl.fight.gui.styled.*;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

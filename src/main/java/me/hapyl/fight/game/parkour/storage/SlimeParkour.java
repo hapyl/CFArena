@@ -4,7 +4,7 @@ import com.mongodb.client.model.Updates;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import me.hapyl.fight.util.BoundingBoxCollector;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;

@@ -4,7 +4,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

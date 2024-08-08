@@ -9,7 +9,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

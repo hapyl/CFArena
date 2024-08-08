@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 
 import javax.annotation.Nonnull;
 

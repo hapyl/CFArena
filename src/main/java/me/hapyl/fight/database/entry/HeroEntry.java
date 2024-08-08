@@ -5,7 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 import org.bson.Document;
 
 import java.util.List;

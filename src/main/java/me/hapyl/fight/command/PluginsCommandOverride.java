@@ -2,8 +2,8 @@ package me.hapyl.fight.command;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;

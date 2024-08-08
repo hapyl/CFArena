@@ -14,7 +14,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -37,14 +37,14 @@ public class NyxPassive extends PassiveTalent {
         setDescription("""
                 Whenever Nyx or her ally uses %s or %s talent, and she has a %s stack, Nyx will launch a followup attack towards the closest enemy to the teammate, who triggered this talent.
                 &8;;Nyx won't follow up if there are no living enemies.
-                                
+
                 Upon hit, it deals AoE damage and grants a &9Void Shield&7 to the teammate who triggered this attack.
-                                
+
                 &6Void Shied
                 Whenever the shield is broken or refreshed, heals its target and increases %s.
                 """.formatted(TalentType.DAMAGE, TalentType.IMPAIR, Named.THE_CHAOS, AttributeType.EFFECT_RESISTANCE));
 
-        setCooldownMillis(2500);
+        setCooldownSec(2.5f);
     }
 
     @Override

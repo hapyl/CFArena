@@ -5,7 +5,7 @@ import me.hapyl.fight.database.EnumMappedEntry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.util.Compute;
 
 import javax.annotation.Nonnull;
 import java.util.Map;

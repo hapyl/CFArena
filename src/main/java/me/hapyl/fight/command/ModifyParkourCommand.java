@@ -4,8 +4,8 @@ import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.ParkourDatabase;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
 import org.bson.Document;
 import org.bukkit.command.CommandSender;
 

@@ -18,8 +18,8 @@ import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.*;
 import org.bukkit.util.Vector;
 

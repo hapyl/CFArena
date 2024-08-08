@@ -4,7 +4,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

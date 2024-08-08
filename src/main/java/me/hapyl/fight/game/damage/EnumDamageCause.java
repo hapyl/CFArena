@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.damage;
 
 import me.hapyl.fight.game.DeathMessage;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;

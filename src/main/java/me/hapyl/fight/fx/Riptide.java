@@ -1,7 +1,7 @@
 package me.hapyl.fight.fx;
 
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import org.bukkit.Location;
 
 public class Riptide implements Removable {

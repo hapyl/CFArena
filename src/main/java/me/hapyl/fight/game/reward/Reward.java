@@ -4,9 +4,9 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

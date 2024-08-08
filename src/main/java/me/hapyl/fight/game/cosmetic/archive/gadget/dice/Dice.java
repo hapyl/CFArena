@@ -9,10 +9,10 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.RewardDisplay;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.Validate;
-import me.hapyl.spigotutils.module.util.WeightedCollection;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.util.WeightedCollection;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

@@ -1,6 +1,6 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 public class NoProfileException extends RuntimeException {

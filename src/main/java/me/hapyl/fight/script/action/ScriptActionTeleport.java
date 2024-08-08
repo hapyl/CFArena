@@ -4,7 +4,7 @@ import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.ScriptRunner;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

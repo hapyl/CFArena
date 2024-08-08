@@ -7,7 +7,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

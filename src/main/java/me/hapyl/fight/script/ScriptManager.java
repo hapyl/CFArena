@@ -2,7 +2,7 @@ package me.hapyl.fight.script;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.util.DependencyInjector;
 
 import javax.annotation.Nonnull;
 import java.util.Map;

@@ -7,8 +7,8 @@ import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
 import me.hapyl.fight.util.FormattedEnum;
 import me.hapyl.fight.util.UpsideDownText;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

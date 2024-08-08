@@ -2,7 +2,7 @@ package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.GameElement;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.util.DependencyInjector;
 
 import java.util.concurrent.ConcurrentHashMap;
 

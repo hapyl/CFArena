@@ -13,7 +13,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

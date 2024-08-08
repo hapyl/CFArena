@@ -15,7 +15,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.util.Bitmask;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;

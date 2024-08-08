@@ -9,9 +9,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import me.hapyl.spigotutils.module.util.MapWrap;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.MapWrap;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

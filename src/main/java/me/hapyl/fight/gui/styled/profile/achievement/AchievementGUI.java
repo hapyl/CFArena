@@ -11,8 +11,8 @@ import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.NoProfileException;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;

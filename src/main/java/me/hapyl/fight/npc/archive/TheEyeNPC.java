@@ -11,8 +11,8 @@ import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.npc.PersistentNPC;
 import me.hapyl.fight.util.TickingScheduler;
-import me.hapyl.spigotutils.module.hologram.PlayerHologram;
-import me.hapyl.spigotutils.module.hologram.StringArray;
+import me.hapyl.eterna.module.hologram.PlayerHologram;
+import me.hapyl.eterna.module.hologram.StringArray;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

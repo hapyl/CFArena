@@ -8,8 +8,8 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 

@@ -4,7 +4,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.PigZombie;

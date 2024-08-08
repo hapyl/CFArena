@@ -1,7 +1,7 @@
 package me.hapyl.fight;
 
-import me.hapyl.spigotutils.module.chat.Gradient;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

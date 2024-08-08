@@ -5,7 +5,7 @@ import me.hapyl.fight.game.parkour.storage.SlimeParkour;
 import me.hapyl.fight.npc.NPCSound;
 import me.hapyl.fight.npc.PersistentNPC;
 import me.hapyl.fight.util.StringRandom;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 

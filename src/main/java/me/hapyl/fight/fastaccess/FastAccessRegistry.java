@@ -15,8 +15,8 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.registry.SimpleRegistry;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

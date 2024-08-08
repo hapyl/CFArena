@@ -5,8 +5,8 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.librarian.Librarian;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Numbers;
 
 import javax.annotation.Nonnull;
 

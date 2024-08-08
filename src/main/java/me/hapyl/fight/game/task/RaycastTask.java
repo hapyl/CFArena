@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.task;
 
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 

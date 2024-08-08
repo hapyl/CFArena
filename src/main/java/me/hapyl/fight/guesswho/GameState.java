@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

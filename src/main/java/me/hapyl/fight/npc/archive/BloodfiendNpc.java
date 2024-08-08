@@ -5,7 +5,7 @@ import me.hapyl.fight.dialog.DialogEntry;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.npc.PersistentNPC;
 import me.hapyl.fight.util.StringRandom;
-import me.hapyl.spigotutils.module.player.PlayerSkin;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

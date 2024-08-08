@@ -2,8 +2,8 @@ package me.hapyl.fight.npc.runtime;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

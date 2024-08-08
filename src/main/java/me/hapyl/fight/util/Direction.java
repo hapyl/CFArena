@@ -1,7 +1,7 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.fight.game.maps.features.Turbine;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.EulerAngle;

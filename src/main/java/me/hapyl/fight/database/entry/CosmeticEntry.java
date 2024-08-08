@@ -5,7 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.entity.Player;
 

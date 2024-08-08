@@ -1,6 +1,6 @@
 package me.hapyl.fight.util.particle;
 
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;

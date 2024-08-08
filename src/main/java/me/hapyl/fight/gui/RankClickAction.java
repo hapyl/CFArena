@@ -2,7 +2,7 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.gui.StrictAction;
+import me.hapyl.eterna.module.inventory.gui.StrictAction;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

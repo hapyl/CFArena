@@ -20,6 +20,7 @@ import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.doctor.DrEd;
+import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.heroes.frostbite.Freazly;
@@ -59,8 +60,8 @@ import me.hapyl.fight.game.heroes.aurora.Aurora;
 import me.hapyl.fight.game.heroes.geo.Geo;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -121,6 +122,7 @@ public enum Heroes implements Formatted {
     NYX(Nyx::new),
 
     GUNNER(Gunner::new),
+    ECHO(Echo::new),
 
     // *=* Tutorial Hero *=* //
     TUTORIAL_ARCHER(TutorialArcher::new),
@@ -306,7 +308,7 @@ public enum Heroes implements Formatted {
      * Returns the name of the hero in small caps.
      *
      * @return name of the hero in small caps.
-     * @see me.hapyl.spigotutils.module.util.SmallCaps
+     * @see me.hapyl.eterna.module.util.SmallCaps
      */
     public String getNameSmallCaps() {
         return hero.getNameSmallCaps();

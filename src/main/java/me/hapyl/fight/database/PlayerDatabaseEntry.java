@@ -2,8 +2,8 @@ package me.hapyl.fight.database;
 
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.Enums;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Enums;
 import org.bson.Document;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;

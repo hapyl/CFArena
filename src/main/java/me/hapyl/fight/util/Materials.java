@@ -2,8 +2,8 @@ package me.hapyl.fight.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.spigotutils.module.util.Compute;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 

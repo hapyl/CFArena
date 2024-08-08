@@ -1,7 +1,7 @@
 package me.hapyl.fight.registry;
 
 import me.hapyl.fight.util.Final;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

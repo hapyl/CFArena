@@ -7,7 +7,7 @@ import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Numeric;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bson.Document;
 
 import javax.annotation.Nonnull;

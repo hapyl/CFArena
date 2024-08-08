@@ -9,7 +9,7 @@ import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;

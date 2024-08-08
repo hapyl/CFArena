@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.knight;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.ThrownPotion;

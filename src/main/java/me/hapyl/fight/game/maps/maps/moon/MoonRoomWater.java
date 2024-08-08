@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.maps.moon;
 
-import me.hapyl.spigotutils.module.math.Cuboid;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 
 public class MoonRoomWater extends MoonRoom {

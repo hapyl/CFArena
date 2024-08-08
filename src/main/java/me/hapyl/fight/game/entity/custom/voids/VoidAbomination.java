@@ -4,7 +4,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.event.EventType;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Sound;
 import org.bukkit.entity.Enderman;
 

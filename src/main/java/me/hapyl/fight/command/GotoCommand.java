@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Contact;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;

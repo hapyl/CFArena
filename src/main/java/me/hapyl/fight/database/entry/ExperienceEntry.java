@@ -4,8 +4,8 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bson.Document;
 import org.bukkit.entity.Player;
 

@@ -6,7 +6,7 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallenge;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.util.Enums;
+import me.hapyl.eterna.module.util.Enums;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

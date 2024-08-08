@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.talents.LoreAppender;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;

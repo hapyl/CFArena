@@ -1,6 +1,6 @@
 package me.hapyl.fight.registry;
 
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 
 import javax.annotation.Nonnull;
 import java.util.regex.Pattern;

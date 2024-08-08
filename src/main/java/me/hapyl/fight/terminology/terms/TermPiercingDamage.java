@@ -3,7 +3,7 @@ package me.hapyl.fight.terminology.terms;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.terminology.Term;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 
 public class TermPiercingDamage extends Term {
 

@@ -1,8 +1,8 @@
 package me.hapyl.fight.format.attribute;
 
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.util.TypeConverter;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.TypeConverter;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;

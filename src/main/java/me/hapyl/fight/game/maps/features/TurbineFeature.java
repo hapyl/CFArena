@@ -8,7 +8,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.fight.util.Direction;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;

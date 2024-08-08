@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.skin.archer;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 

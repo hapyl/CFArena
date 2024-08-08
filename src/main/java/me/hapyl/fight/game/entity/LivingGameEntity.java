@@ -28,21 +28,21 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.*;
 import me.hapyl.fight.util.*;
-import me.hapyl.spigotutils.Eterna;
-import me.hapyl.spigotutils.module.ai.AI;
-import me.hapyl.spigotutils.module.ai.MobAI;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.math.geometry.Draw;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.Reflect;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.module.ai.AI;
+import me.hapyl.eterna.module.ai.MobAI;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.math.geometry.Draw;
+import me.hapyl.eterna.module.math.geometry.Quality;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.reflect.Reflect;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.util.SmallCaps;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
@@ -139,7 +139,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     /**
      * Gets the {@link AI} of this entity.
-     * The {@link AI} is a {@link me.hapyl.spigotutils.EternaAPI} module that allows to modify entity's AI easily.
+     * The {@link AI} is a {@link me.hapyl.eterna.EternaAPI} module that allows to modify entity's AI easily.
      *
      * @return this entity's AI.
      * @throws IllegalStateException if entity is a {@link Player} or not supported.

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.util.ChatUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

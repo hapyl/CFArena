@@ -3,8 +3,8 @@ package me.hapyl.fight.game.heroes.vampire;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.vampire.Vampire;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.entity.Player;
 
 public class VampireData {

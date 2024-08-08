@@ -15,6 +15,7 @@ import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.doctor.DrEd;
+import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.heroes.frostbite.Freazly;
@@ -64,6 +65,7 @@ import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.SlowingAura;
 import me.hapyl.fight.game.talents.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.doctor.HarvestBlocks;
+import me.hapyl.fight.game.talents.echo.EchoTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
@@ -148,8 +150,8 @@ import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
-import me.hapyl.spigotutils.module.util.BFormat;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 
@@ -629,6 +631,11 @@ public enum Talents {
      * {@link Nyx}
      */
     NYX_PASSIVE(new NyxPassive()),
+
+    /**
+     * {@link Echo}
+     */
+    ECHO(new EchoTalent()),
 
     // ???,
     SYNTHETIC_SUN(new SyntheticSun()),

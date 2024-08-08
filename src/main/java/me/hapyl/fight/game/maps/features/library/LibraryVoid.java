@@ -8,7 +8,7 @@ import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.maps.features.VoidFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;

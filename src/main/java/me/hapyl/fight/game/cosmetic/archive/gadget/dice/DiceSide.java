@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic.archive.gadget.dice;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.inventory.ItemStack;
 
 public class DiceSide {

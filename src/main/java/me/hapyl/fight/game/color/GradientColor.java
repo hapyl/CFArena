@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.color;
 
-import me.hapyl.spigotutils.module.chat.Gradient;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolator;
-import me.hapyl.spigotutils.module.chat.gradient.Interpolators;
-import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolator;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.util.BFormat;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;

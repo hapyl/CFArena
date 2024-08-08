@@ -5,8 +5,8 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

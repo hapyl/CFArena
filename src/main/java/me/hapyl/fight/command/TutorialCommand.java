@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.help.HelpGeneral;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

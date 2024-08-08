@@ -8,7 +8,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.GameManagementGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

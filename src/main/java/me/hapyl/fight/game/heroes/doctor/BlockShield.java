@@ -2,10 +2,10 @@ package me.hapyl.fight.game.heroes.doctor;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;

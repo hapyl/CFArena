@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumClass;
-import me.hapyl.spigotutils.module.player.PlayerSkin;
+import me.hapyl.eterna.module.player.PlayerSkin;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDate;

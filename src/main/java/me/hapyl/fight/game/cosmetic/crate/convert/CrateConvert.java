@@ -11,8 +11,8 @@ import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.collection.Map2Long;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

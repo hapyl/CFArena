@@ -7,7 +7,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.guesswho.GameResult;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;

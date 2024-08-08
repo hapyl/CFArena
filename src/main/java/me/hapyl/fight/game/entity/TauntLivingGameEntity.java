@@ -2,7 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Villager;

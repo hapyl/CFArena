@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.knight;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.shield.ShieldBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.banner.PatternType;

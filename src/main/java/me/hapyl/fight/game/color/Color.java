@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.color;
 
 import me.hapyl.fight.util.Range;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.BFormat;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.eterna.module.util.Validate;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;

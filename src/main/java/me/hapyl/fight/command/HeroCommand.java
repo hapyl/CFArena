@@ -4,9 +4,9 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.gui.HeroSelectGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

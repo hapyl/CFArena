@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 

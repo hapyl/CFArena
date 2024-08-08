@@ -9,8 +9,8 @@ import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

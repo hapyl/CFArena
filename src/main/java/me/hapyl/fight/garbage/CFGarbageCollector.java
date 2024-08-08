@@ -1,7 +1,7 @@
 package me.hapyl.fight.garbage;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.spigotutils.module.util.Runnables;
+import me.hapyl.eterna.module.util.Runnables;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;

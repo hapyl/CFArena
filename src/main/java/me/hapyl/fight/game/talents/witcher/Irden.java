@@ -11,8 +11,8 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.Quality;
 import org.bukkit.*;
 
 import javax.annotation.Nonnull;

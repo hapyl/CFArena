@@ -31,9 +31,9 @@ import me.hapyl.fight.protocol.*;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.util.strict.StrictValidator;
-import me.hapyl.spigotutils.EternaAPI;
-import me.hapyl.spigotutils.module.player.tablist.Tablist;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.EternaAPI;
+import me.hapyl.eterna.module.player.tablist.Tablist;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Registry;
@@ -55,7 +55,7 @@ public class Main extends JavaPlugin {
             new UpdateTopic(">< generic.scale ><", 49, 147, 232, 7, 97, 176)
     );
 
-    public static final String requireEternaVersion = "4.0.0";
+    public static final String requireEternaVersion = "4.2.0";
     public static final String requireMinecraftVersion = "1.21";
 
     private static long start;

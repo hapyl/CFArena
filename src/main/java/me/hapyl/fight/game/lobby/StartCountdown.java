@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.lobby;
 
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.CenterChat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.LazyEvent;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.chat.CenterChat;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.LazyEvent;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.player.PlayerLib;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;

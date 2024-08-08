@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.archive;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.contrail.ParticleContrailCosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
+import me.hapyl.eterna.module.util.ThreadRandom;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 

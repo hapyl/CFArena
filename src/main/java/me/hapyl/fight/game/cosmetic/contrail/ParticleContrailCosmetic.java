@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.contrail;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 

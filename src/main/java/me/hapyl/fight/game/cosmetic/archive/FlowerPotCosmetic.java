@@ -7,8 +7,8 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 

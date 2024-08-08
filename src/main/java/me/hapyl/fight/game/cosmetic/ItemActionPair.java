@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.spigotutils.module.inventory.gui.Action;
+import me.hapyl.eterna.module.inventory.gui.Action;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;

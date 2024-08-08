@@ -10,7 +10,7 @@ import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.witcher.WitherData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 

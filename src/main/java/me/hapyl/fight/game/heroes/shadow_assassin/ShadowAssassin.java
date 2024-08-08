@@ -24,7 +24,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;

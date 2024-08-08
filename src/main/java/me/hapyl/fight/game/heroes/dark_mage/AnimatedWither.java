@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.dark_mage;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.util.Runnables;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.Runnables;
 import org.bukkit.Location;
 import org.bukkit.entity.Wither;
 import org.bukkit.scheduler.BukkitRunnable;

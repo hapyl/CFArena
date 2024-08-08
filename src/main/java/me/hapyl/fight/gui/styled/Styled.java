@@ -30,7 +30,7 @@ public interface Styled {
         setPanelItem(index, item, null);
     }
 
-    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.spigotutils.module.inventory.gui.Action action, @Nullable ClickType... clickTypes);
+    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.eterna.module.inventory.gui.Action action, @Nullable ClickType... clickTypes);
 
     void fillRow(int row, @Nonnull ItemStack item);
 

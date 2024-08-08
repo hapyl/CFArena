@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

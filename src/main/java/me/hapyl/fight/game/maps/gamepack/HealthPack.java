@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.maps.gamepack;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

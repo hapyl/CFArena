@@ -6,8 +6,8 @@ import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.DisabledCommand;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.eterna.module.command.DisabledCommand;
+import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

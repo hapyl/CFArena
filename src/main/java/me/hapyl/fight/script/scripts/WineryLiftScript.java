@@ -4,7 +4,7 @@ import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.action.ScriptActionBuilder;
 import me.hapyl.fight.util.BlockDataMaker;
 import me.hapyl.fight.util.BlockVibration;
-import me.hapyl.spigotutils.module.math.Cuboid;
+import me.hapyl.eterna.module.math.Cuboid;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

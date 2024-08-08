@@ -3,7 +3,7 @@ package me.hapyl.fight.game.challenge;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 
 import javax.annotation.Nonnull;
 

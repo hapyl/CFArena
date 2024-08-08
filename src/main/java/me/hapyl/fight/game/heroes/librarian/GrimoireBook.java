@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.heroes.librarian;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.RomanNumber;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.RomanNumber;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

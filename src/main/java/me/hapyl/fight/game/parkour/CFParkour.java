@@ -2,9 +2,9 @@ package me.hapyl.fight.game.parkour;
 
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.challenge.ChallengeType;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.parkour.*;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.parkour.*;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;

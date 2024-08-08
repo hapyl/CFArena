@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.achievement;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

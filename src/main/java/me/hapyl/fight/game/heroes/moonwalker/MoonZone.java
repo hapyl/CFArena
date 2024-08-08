@@ -3,11 +3,11 @@ package me.hapyl.fight.game.heroes.moonwalker;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.Ticking;
-import me.hapyl.spigotutils.module.hologram.Hologram;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.Quality;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 

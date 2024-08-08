@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Maps;
-import me.hapyl.spigotutils.module.hologram.Hologram;
-import me.hapyl.spigotutils.module.math.nn.IntInt;
-import me.hapyl.spigotutils.module.parkour.Stats;
-import me.hapyl.spigotutils.module.util.Runnables;
+import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.math.nn.IntInt;
+import me.hapyl.eterna.module.parkour.Stats;
+import me.hapyl.eterna.module.util.Runnables;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

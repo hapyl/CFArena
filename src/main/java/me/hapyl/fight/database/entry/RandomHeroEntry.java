@@ -5,8 +5,8 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import me.hapyl.spigotutils.module.util.Enums;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Enums;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

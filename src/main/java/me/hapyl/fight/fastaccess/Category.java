@@ -1,6 +1,6 @@
 package me.hapyl.fight.fastaccess;
 
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 
 public enum Category {
 

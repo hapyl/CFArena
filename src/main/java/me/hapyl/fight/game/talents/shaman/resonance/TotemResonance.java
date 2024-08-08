@@ -4,8 +4,8 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.Totem;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
-import me.hapyl.spigotutils.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

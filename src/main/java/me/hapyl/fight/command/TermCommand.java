@@ -6,7 +6,7 @@ import me.hapyl.fight.terminology.TermCollectionGUI;
 import me.hapyl.fight.terminology.TermGUI;
 import me.hapyl.fight.terminology.Terms;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

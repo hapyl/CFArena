@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 
 public class BloodfiendPassive extends PassiveTalent {

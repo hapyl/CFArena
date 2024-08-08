@@ -6,7 +6,7 @@ import me.hapyl.fight.game.effect.archive.*;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;

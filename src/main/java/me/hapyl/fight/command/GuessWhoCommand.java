@@ -8,8 +8,8 @@ import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.util.PlayerInvite;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

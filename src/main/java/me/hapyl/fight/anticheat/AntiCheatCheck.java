@@ -1,7 +1,7 @@
 package me.hapyl.fight.anticheat;
 
 import me.hapyl.fight.infraction.HexID;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.entity.Player;
 

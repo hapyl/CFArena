@@ -6,7 +6,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.anticheat.trait.AntiTrait;
 import me.hapyl.fight.anticheat.trait.AntiTraitCPS;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

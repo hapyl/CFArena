@@ -8,8 +8,8 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.util.collection.LinkedValue2IntegerReverseMap;
-import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

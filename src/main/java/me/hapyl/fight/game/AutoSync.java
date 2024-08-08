@@ -2,7 +2,7 @@ package me.hapyl.fight.game;
 
 import me.hapyl.fight.Main;
 import me.hapyl.fight.util.Benchmark;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class AutoSync {

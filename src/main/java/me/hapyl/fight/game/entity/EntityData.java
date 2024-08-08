@@ -11,7 +11,7 @@ import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;

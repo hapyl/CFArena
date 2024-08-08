@@ -3,7 +3,7 @@ package me.hapyl.fight.script.action;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.ScriptRunner;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.math.Cuboid;
+import me.hapyl.eterna.module.math.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;

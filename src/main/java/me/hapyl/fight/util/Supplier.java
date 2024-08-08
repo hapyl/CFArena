@@ -1,6 +1,6 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.util.Action;
+import me.hapyl.eterna.module.util.Action;
 
 public class Supplier<E> {
 

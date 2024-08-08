@@ -5,9 +5,9 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.*;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.Action;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.Action;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 

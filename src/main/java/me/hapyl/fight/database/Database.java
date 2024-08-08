@@ -6,7 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.collection.GlobalConfigCollection;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

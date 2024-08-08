@@ -2,8 +2,8 @@ package me.hapyl.fight.game.cosmetic.archive;
 
 import me.hapyl.fight.game.cosmetic.*;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
-import me.hapyl.spigotutils.module.reflect.npc.NPCAnimation;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.NPCAnimation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

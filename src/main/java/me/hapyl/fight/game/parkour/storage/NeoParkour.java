@@ -2,7 +2,7 @@ package me.hapyl.fight.game.parkour.storage;
 
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.BukkitUtils;
 
 public class NeoParkour extends CFParkour {
     public NeoParkour() {

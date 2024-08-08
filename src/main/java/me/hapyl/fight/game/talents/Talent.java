@@ -19,11 +19,11 @@ import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.fight.util.strict.StrictPackage;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

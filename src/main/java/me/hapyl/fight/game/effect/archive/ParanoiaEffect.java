@@ -4,8 +4,8 @@ import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.ThreadRandom;
 import org.bukkit.*;
 import org.bukkit.potion.PotionEffectType;
 

@@ -4,10 +4,10 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.experience.ExperienceDebugGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

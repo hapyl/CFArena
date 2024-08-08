@@ -5,7 +5,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

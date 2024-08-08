@@ -3,7 +3,7 @@ package me.hapyl.fight.game.parkour;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.spigotutils.module.parkour.Stats;
+import me.hapyl.eterna.module.parkour.Stats;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;

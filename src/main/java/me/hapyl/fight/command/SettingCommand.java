@@ -2,9 +2,9 @@ package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.gui.SettingsGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

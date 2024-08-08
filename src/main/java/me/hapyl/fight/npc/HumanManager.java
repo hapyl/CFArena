@@ -2,8 +2,8 @@ package me.hapyl.fight.npc;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.reflect.npc.Human;
-import me.hapyl.spigotutils.module.util.Runnables;
+import me.hapyl.eterna.module.reflect.npc.Human;
+import me.hapyl.eterna.module.util.Runnables;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

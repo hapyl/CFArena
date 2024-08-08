@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.eterna.module.util.DependencyInjector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

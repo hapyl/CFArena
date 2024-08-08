@@ -6,7 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

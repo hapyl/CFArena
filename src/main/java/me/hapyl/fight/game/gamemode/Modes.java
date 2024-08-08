@@ -4,8 +4,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.gamemode.modes.*;
 import me.hapyl.fight.game.maps.Selectable;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

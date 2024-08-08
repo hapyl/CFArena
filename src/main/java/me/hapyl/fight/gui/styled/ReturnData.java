@@ -1,6 +1,6 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.spigotutils.module.util.Action;
+import me.hapyl.eterna.module.util.Action;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

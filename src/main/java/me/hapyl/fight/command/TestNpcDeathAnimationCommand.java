@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.reflect.npc.Human;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.reflect.npc.Human;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.EntityEffect;
 import org.bukkit.entity.Player;

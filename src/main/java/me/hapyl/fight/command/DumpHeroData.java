@@ -8,9 +8,9 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

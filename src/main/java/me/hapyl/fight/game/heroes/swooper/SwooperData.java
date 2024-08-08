@@ -15,7 +15,7 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Iterators;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;

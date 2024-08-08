@@ -2,7 +2,7 @@ package me.hapyl.fight.game.setting;
 
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.SmallCapsDescriber;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

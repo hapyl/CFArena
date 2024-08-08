@@ -3,7 +3,7 @@ package me.hapyl.fight.guesswho.gui;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

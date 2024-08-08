@@ -3,7 +3,7 @@ package me.hapyl.fight.protocol;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.event.protocol.PacketSendEvent;
+import me.hapyl.eterna.module.event.protocol.PacketSendEvent;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedSoundEffect;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

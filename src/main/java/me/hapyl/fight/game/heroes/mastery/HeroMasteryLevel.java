@@ -4,7 +4,7 @@ import me.hapyl.fight.util.Compile;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 
 import javax.annotation.Nonnull;
 

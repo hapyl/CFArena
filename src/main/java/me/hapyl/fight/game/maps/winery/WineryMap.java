@@ -10,8 +10,8 @@ import me.hapyl.fight.game.maps.features.WinerySteamFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 

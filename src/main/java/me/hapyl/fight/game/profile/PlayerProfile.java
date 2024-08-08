@@ -23,8 +23,8 @@ import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerSkin;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.CheckForNull;

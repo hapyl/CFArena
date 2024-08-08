@@ -20,7 +20,7 @@ import me.hapyl.fight.game.talents.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.math.Tick;
+import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

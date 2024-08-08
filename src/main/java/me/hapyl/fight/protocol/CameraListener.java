@@ -2,8 +2,8 @@ package me.hapyl.fight.protocol;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.event.protocol.PacketSendEvent;
-import me.hapyl.spigotutils.module.reflect.Reflect;
+import me.hapyl.eterna.module.event.protocol.PacketSendEvent;
+import me.hapyl.eterna.module.reflect.Reflect;
 import net.minecraft.network.protocol.game.PacketPlayOutCamera;
 import org.bukkit.GameMode;
 import org.bukkit.World;
