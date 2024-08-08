@@ -7,6 +7,31 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.LazyEvent;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.command.*;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.EventListener;
+import me.hapyl.eterna.module.inventory.gui.GUI;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.math.nn.IntInt;
+import me.hapyl.eterna.module.player.EffectType;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.reflect.DataWatcherType;
+import me.hapyl.eterna.module.reflect.Reflect;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.reflect.npc.Human;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.util.*;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
@@ -37,9 +62,6 @@ import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
 import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.dot.DamageOverTime;
-import me.hapyl.fight.game.dot.DotInstance;
-import me.hapyl.fight.game.dot.DotInstanceList;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -92,32 +114,8 @@ import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.LazyEvent;
-import me.hapyl.eterna.module.chat.gradient.Interpolators;
-import me.hapyl.eterna.module.command.*;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.hologram.Hologram;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.EventListener;
-import me.hapyl.eterna.module.inventory.gui.GUI;
-import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.math.Cuboid;
-import me.hapyl.eterna.module.math.nn.IntInt;
-import me.hapyl.eterna.module.player.EffectType;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.DataWatcherType;
-import me.hapyl.eterna.module.reflect.Reflect;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
-import me.hapyl.eterna.module.reflect.npc.Human;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.NPCPose;
-import me.hapyl.eterna.module.util.*;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
@@ -232,6 +230,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
+        register(new SimplePlayerAdminCommand("testCacheSet") {
+
+            CacheSet<String> set = new CacheSet<>(2000);
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (args.length == 0) {
+                    final HashSet<String> copy = new HashSet<>(set);
+
+                    player.sendMessage("set=" + CollectionUtils.wrapToString(copy));
+                    copy.clear();
+                    return;
+                }
+
+                set.add(args[0]);
+            }
+        });
+
         register("playMasteryLevelUpEffect", (player, args) -> {
             final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
             final Heroes hero = Manager.current().getSelectedLobbyHero(player);
@@ -1426,8 +1442,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final TrimPattern pattern = trim.getPattern();
                     final TrimMaterial material = trim.getMaterial();
 
-                    final String patternKey = pattern.getKey().getKey().toUpperCase();
-                    final String materialKey = material.getKey().getKey().toUpperCase();
+                    final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
+                    final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
 
                     Chat.sendClickableHoverableMessage(
                             player,
@@ -1776,54 +1792,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aSpawned!");
         });
 
-        register(new SimplePlayerAdminCommand("dot") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                final GamePlayer gamePlayer = CF.getPlayer(player);
-
-                if (gamePlayer == null) {
-                    return;
-                }
-
-                if (args.length == 0) {
-                    final Map<DamageOverTime, DotInstanceList> dotMap = gamePlayer.getEntityData().getDotMap();
-
-                    if (dotMap.isEmpty()) {
-                        gamePlayer.sendMessage("&cNo active dots!");
-                        return;
-                    }
-
-                    dotMap.forEach((dots, list) -> {
-                        final int stacks = list.getStacks();
-
-                        gamePlayer.sendMessage("Dot: " + dots.name() + " x" + stacks);
-
-                        int index = 0;
-                        for (DotInstance instance : list) {
-                            gamePlayer.sendMessage("[%s] %s", index++, instance.getTicksLeft());
-                        }
-                    });
-                    return;
-                }
-
-                final DamageOverTime dot = getArgument(args, 0).toEnum(DamageOverTime.class);
-                final int duration = getArgument(args, 1).toInt();
-
-                if (dot == null) {
-                    gamePlayer.sendMessage("&cInvalid dot!");
-                    return;
-                }
-
-                if (duration < 0) {
-                    gamePlayer.sendMessage("&cDuration cannot be negative!");
-                    return;
-                }
-
-                gamePlayer.addDot(dot, gamePlayer, duration);
-                gamePlayer.sendMessage("&aAdded a stack of %s for %s.", dot.name(), duration);
-            }
-        });
-
         register("testHoverText", (player, args) -> {
             final TextComponent text = new TextComponent("Hover me");
 
@@ -2000,7 +1968,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 meta.setTrim(new ArmorTrim(trim == null ? TrimMaterial.QUARTZ : trim.getMaterial(), pattern));
                 item.setItemMeta(meta);
 
-                Chat.sendMessage(player, "&aSet %s pattern.".formatted(pattern.getKey().getKey()));
+                Chat.sendMessage(player, "&aSet %s pattern.".formatted(BukkitUtils.getKey(pattern).getKey()));
             }
         });
 
@@ -2936,11 +2904,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 meta.addAttributeModifier(
                         Attribute.GENERIC_ATTACK_SPEED,
                         new AttributeModifier(
-                                UUID.randomUUID(),
-                                "AttackSpeed",
+                                BukkitUtils.createKey(UUID.randomUUID()),
                                 value,
-                                AttributeModifier.Operation.ADD_NUMBER,
-                                EquipmentSlot.HAND
+                                AttributeModifier.Operation.ADD_NUMBER
                         )
                 );
 

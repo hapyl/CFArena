@@ -214,7 +214,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     }
 
     @Override
-    public UltimateTalent setCooldownSec(int cd) {
+    public UltimateTalent setCooldownSec(float cd) {
         super.setCooldownSec(cd);
         return this;
     }

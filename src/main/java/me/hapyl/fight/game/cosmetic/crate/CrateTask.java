@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.cosmetic.crate;
 
+import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.RangeTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.util.collection.NonnullTuple;
-import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.ChatColor;
@@ -23,7 +22,7 @@ public abstract class CrateTask extends RangeTask {
     protected final CrateLoot loot;
     protected final CrateLocation chest;
 
-    private NonnullTuple<Item, Hologram> display;
+    private Tuple<Item, Hologram> display;
 
     public CrateTask(@Nonnull CrateLoot loot, @Nonnull CrateLocation chest) {
         this.loot = loot;
@@ -43,7 +42,7 @@ public abstract class CrateTask extends RangeTask {
     }
 
     @Nonnull
-    public NonnullTuple<Item, Hologram> display(@Nonnull Location location) {
+    public Tuple<Item, Hologram> display(@Nonnull Location location) {
         removeDisplay();
 
         final Cosmetic cosmetic = loot.getLoot().getCosmetic();
@@ -73,7 +72,7 @@ public abstract class CrateTask extends RangeTask {
         }
 
         chest.broadcastLoot(loot);
-        return display = Tuple.ofNonnull(item, hologram);
+        return display = Tuple.of(item, hologram);
     }
 
     @Override

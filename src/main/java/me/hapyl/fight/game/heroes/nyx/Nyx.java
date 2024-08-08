@@ -1,21 +1,22 @@
 package me.hapyl.fight.game.heroes.nyx;
 
-import me.hapyl.fight.event.custom.TalentUseEvent;
+import me.hapyl.fight.event.custom.AttributeTemperEvent;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, UIComponent, Disabled {
 
@@ -31,49 +32,39 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         setDescription("""
                 &8&o;;Chaos... brings victory...
                 """);
-
     }
 
     @EventHandler()
-    public void handleTalentUse(TalentUseEvent ev) {
-        final GamePlayer player = ev.getPlayer();
-        final Talent talent = ev.getTalent();
+    public void handleAttributeChange(AttributeTemperEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        final Temper temper = ev.getTemper();
+        final LivingGameEntity applier = ev.getApplier();
 
-        final NyxPassive passiveTalent = getPassiveTalent();
-
-        if (!passiveTalent.isValidTalentType(talent.getType())) {
+        if (!(applier instanceof GamePlayer playerApplier) || ev.isBuff()) {
             return;
         }
 
-        GamePlayer nyx;
+        final GamePlayer nyx = getNyx(playerApplier);
 
-        if (validateNyx(player)) {
-            nyx = player;
-        }
-        else {
-            nyx = player.getTeam().getPlayers()
-                    .stream()
-                    .filter(this::validateNyx)
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // No Nyx in the team
+        // No nyx on the team
         if (nyx == null) {
             return;
         }
 
-        // Check for enemies
-        final LivingGameEntity target = Collect.nearestEntityPrioritizePlayers(player.getLocation(), 100, player::isEnemy);
+        getPassiveTalent().execute(nyx, playerApplier, entity);
+    }
 
-        if (target == null) {
-            return;
+    @Nullable
+    private GamePlayer getNyx(@Nonnull GamePlayer player) {
+        if (validatePlayer(player)) {
+            return player;
         }
 
-        final NyxData nyxData = getPlayerData(nyx);
-
-        nyxData.decrementChaosStacks();
-        passiveTalent.execute(nyx, player, target);
+        return player.getTeam().getPlayers()
+                .stream()
+                .filter(this::validateNyx)
+                .findFirst()
+                .orElse(null);
     }
 
     @Nonnull
@@ -84,7 +75,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.TRIPLE_SHOT.getTalent();
+        return Talents.WITHER_IMITATION.getTalent();
     }
 
     @Override

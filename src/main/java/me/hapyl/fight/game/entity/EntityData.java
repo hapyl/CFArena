@@ -1,40 +1,45 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.Important;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.dot.DotInstance;
-import me.hapyl.fight.game.dot.DotInstanceList;
-import me.hapyl.fight.game.dot.DamageOverTime;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.util.collection.CacheSet;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Used to store custom damage, effects, etc.
  */
 public final class EntityData {
 
+    private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
+
     private final Map<Effects, ActiveGameEffect> gameEffects;
-    private final Map<DamageOverTime, DotInstanceList> dotMap;
-    private final Map<Player, Double> damageTaken;
+    private final Map<GamePlayer, Double> damageTaken;
+    private final CacheSet<GamePlayer> assistingPlayers;
 
     private final LivingGameEntity entity;
-    @Important(why = "Notifies the event that the damage is custom, not vanilla.")
-    boolean wasHit;
+
+    @Important(value = "Notifies the event that the damage is custom, not vanilla.") boolean wasHit;
     @Nullable private GameEntity lastDamager;
     @Nullable private EnumDamageCause lastDamageCause;
+
     private double lastDamage;
     private boolean isCrit;
 
@@ -42,12 +47,7 @@ public final class EntityData {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
-        this.dotMap = Maps.newConcurrentMap();
-    }
-
-    @Nonnull
-    public Map<DamageOverTime, DotInstanceList> getDotMap() {
-        return dotMap;
+        this.assistingPlayers = new CacheSet<>(ASSIST_DURATION);
     }
 
     /**
@@ -101,7 +101,7 @@ public final class EntityData {
      *
      * @return damage taken map.
      */
-    public Map<Player, Double> getDamageTaken() {
+    public Map<GamePlayer, Double> getDamageTaken() {
         return damageTaken;
     }
 
@@ -311,14 +311,6 @@ public final class EntityData {
         }
     }
 
-    public void addDot(DamageOverTime dot, int ticks, LivingGameEntity damager) {
-        dotMap.compute(dot, (d, list) -> {
-            (list = list != null ? list : new DotInstanceList(dot, this.entity)).add(new DotInstance(entity, damager, ticks));
-
-            return list;
-        });
-    }
-
     /**
      * Returns true if this entity has the given effect.
      *
@@ -413,6 +405,15 @@ public final class EntityData {
                 ", isCrit=" + isCrit +
                 ", wasHit=" + wasHit +
                 '}';
+    }
+
+    public void addAssistingPlayer(@Nonnull GamePlayer player) {
+        this.assistingPlayers.add(player);
+    }
+
+    @Nonnull
+    public Set<GamePlayer> getAssistingPlayers() {
+        return new HashSet<>(assistingPlayers);
     }
 
     /**

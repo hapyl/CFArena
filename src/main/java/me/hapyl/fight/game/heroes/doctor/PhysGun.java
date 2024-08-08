@@ -91,7 +91,7 @@ public class PhysGun extends Weapon {
         }
 
         @Override
-        public Cooldown setCooldownSec(int cooldownSec) {
+        public Cooldown setCooldownSec(float cooldownSec) {
             return super.setCooldownSec(cooldownSec);
         }
     }

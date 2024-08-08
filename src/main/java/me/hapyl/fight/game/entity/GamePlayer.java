@@ -2,7 +2,17 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.messagebuilder.Format;
+import me.hapyl.eterna.module.chat.messagebuilder.Keybind;
+import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.reflect.Reflect;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -44,17 +54,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.*;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.chat.messagebuilder.Format;
-import me.hapyl.eterna.module.chat.messagebuilder.Keybind;
-import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.Reflect;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -199,7 +198,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         // Actually stop the effects before applying the data
         entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStopIfNotInfinite);
-        entityData.getDotMap().clear(); // if not needed, don't touch, else implement custom hash map
 
         // Reset attributes
         attributes.reset();
@@ -412,16 +410,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         }
 
         // Award assists
-        Set<GamePlayer> assistingPlayers = Sets.newHashSet();
+        final Set<GamePlayer> assistingPlayers = entityData.getAssistingPlayers();
 
         entityData.getDamageTaken().forEach((damager, damage) -> {
-            if (lastDamager.is(damager) || damager == entity) {
-                return;
-            }
-
-            final GamePlayer damagerPlayer = CF.getPlayer(damager);
-
-            if (damagerPlayer == null) {
+            if (lastDamager.equals(damager) || damager == entity) {
                 return;
             }
 
@@ -431,14 +423,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
                 return;
             }
 
-            assistingPlayers.add(damagerPlayer);
+            assistingPlayers.add(damager);
         });
 
-        // Also award for buffs/debuffs
-
-
-        // Award.PLAYER_ASSISTED.award(this);
-        //                damagerStats.addValue(StatType.ASSISTS, 1);
+        // Actually award assisting players, not this player you dumbo
+        assistingPlayers.forEach(assist -> {
+            Award.PLAYER_ASSISTED.award(assist);
+            assist.stats.addValue(StatType.ASSISTS, 1);
+        });
 
         stats.addValue(StatType.DEATHS, 1);
 

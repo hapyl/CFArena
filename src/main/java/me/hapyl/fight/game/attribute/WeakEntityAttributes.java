@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.util.collection.NonnullTuple;
 
 import javax.annotation.Nonnull;
 
@@ -57,7 +57,7 @@ public class WeakEntityAttributes extends EntityAttributes {
 
     @Deprecated(forRemoval = true)
     @Override
-    public NonnullTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
+    public Tuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
         throw makeError("addSilent");
     }
 

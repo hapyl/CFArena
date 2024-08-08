@@ -137,8 +137,8 @@ public abstract class InputTalent extends Talent {
 
     @Deprecated
     @Override
-    public final Talent setCooldownSec(int cd) {
-        return setCooldown(cd * 20);
+    public final Talent setCooldownSec(float cd) {
+        return setCooldown((int) (cd * 20));
     }
 
     @Deprecated

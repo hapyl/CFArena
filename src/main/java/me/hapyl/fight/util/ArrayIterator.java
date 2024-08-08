@@ -1,7 +1,8 @@
 package me.hapyl.fight.util;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.util.collection.Tuple;
+import me.hapyl.eterna.module.util.Tuple;
+import me.hapyl.fight.util.collection.GenericArrayWithExpectedSize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,8 +64,8 @@ public class ArrayIterator<T> implements Iterator<T> {
      * @return the tuple of the two next elements.
      */
     @Nonnull
-    public Tuple<T, T> nextTuple() {
-        return Tuple.of(get(index), get(++index));
+    public GenericArrayWithExpectedSize<T> nextTuple() {
+        return GenericArrayWithExpectedSize.of(get(index), get(++index));
     }
 
     /**

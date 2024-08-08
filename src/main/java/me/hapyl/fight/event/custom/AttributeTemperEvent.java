@@ -7,6 +7,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AttributeTemperEvent extends GameEntityEvent implements Cancellable {
 
@@ -17,15 +18,23 @@ public class AttributeTemperEvent extends GameEntityEvent implements Cancellable
     private final double value;
     private final int duration;
     private final boolean isSilent;
+    @Nullable private final LivingGameEntity applier;
+
     private boolean cancel;
 
-    public AttributeTemperEvent(LivingGameEntity entity, Temper temper, AttributeType type, double value, int duration, boolean isSilent) {
+    public AttributeTemperEvent(@Nonnull LivingGameEntity entity, @Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean isSilent, @Nullable LivingGameEntity applier) {
         super(entity);
         this.temper = temper;
         this.type = type;
         this.value = value;
         this.duration = duration;
         this.isSilent = isSilent;
+        this.applier = applier;
+    }
+
+    @Nullable
+    public LivingGameEntity getApplier() {
+        return applier;
     }
 
     @Nonnull
@@ -50,6 +59,10 @@ public class AttributeTemperEvent extends GameEntityEvent implements Cancellable
         return duration == -1;
     }
 
+    public boolean isBuff() {
+        return type.isBuff(value, -value);
+    }
+
     public boolean isSilent() {
         return isSilent;
     }
@@ -68,6 +81,16 @@ public class AttributeTemperEvent extends GameEntityEvent implements Cancellable
     @Override
     public HandlerList getHandlers() {
         return HANDLER_LIST;
+    }
+
+    @Nonnull
+    public static AttributeTemperEvent createDummyEvent(@Nonnull LivingGameEntity entity, @Nonnull LivingGameEntity applier, boolean isBuff) {
+        return new AttributeTemperEvent(entity, Temper.COMMAND, AttributeType.MAX_HEALTH, 0, 0, true, applier) {
+            @Override
+            public boolean isBuff() {
+                return isBuff;
+            }
+        };
     }
 
     @Nonnull

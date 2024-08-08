@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.annotate.Trigger;
 import me.hapyl.fight.event.custom.AttributeChangeEvent;
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
@@ -14,8 +15,6 @@ import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
-import me.hapyl.fight.util.collection.NonnullTuple;
-import me.hapyl.fight.util.collection.Tuple;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Location;
@@ -119,12 +118,12 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      *                 <b>This delegates to whoever applied the attribute, like a teammate who buffed or an enemy who debuffed!</b>
      */
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent, @Nullable LivingGameEntity applier) {
-        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent).callAndCheck()) {
+        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent, applier).callAndCheck()) {
             return;
         }
 
         final boolean newTemper = !tempers.has(temper, type);
-        final boolean isBuff = type.getDisplayType(value, -value);
+        final boolean isBuff = type.isBuff(value, -value);
 
         tempers.add(temper, type, value, duration, isBuff, applier);
 
@@ -160,11 +159,11 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the new value.
      */
     public double add(@Nonnull AttributeType type, double value) {
-        final NonnullTuple<Double, Double> tuple = addSilent(type, value);
+        final Tuple<Double, Double> tuple = addSilent(type, value);
         final double oldValue = tuple.getA();
         final double newValue = tuple.getB();
 
-        display(type, type.getDisplayType(newValue, oldValue));
+        display(type, type.isBuff(newValue, oldValue));
         return oldValue;
     }
 
@@ -176,14 +175,14 @@ public class EntityAttributes extends Attributes implements PlayerElement {
      * @return the new value.
      */
     @Super
-    public NonnullTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
+    public Tuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
         final double oldBaseValue = get(type);
         final double original = super.get(type);
         final double newValue = original + value;
 
         // Call event
         if (new AttributeChangeEvent(entity, type, original, newValue).callAndCheck()) {
-            return Tuple.ofNonnull(0.d, 0.d);
+            return Tuple.of(0.d, 0.d);
         }
 
         mapped.put(type, newValue);
@@ -195,7 +194,7 @@ public class EntityAttributes extends Attributes implements PlayerElement {
         // Call update
         triggerUpdate(type);
 
-        return Tuple.ofNonnull(original, newValue);
+        return Tuple.of(original, newValue);
     }
 
     /**

@@ -487,8 +487,8 @@ public abstract class Talent extends NonNullItemCreator
 
     @Override
     @ExecuteOrder(before = { "setPoint(int)" })
-    public Talent setCooldownSec(int cd) {
-        return setCooldown(cd * 20);
+    public Talent setCooldownSec(float cd) {
+        return setCooldown((int) (cd * 20));
     }
 
     @Override

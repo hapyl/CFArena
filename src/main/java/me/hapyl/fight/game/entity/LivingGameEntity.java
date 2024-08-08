@@ -1,33 +1,6 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.event.custom.GameDeathEvent;
-import me.hapyl.fight.event.custom.GameEntityHealEvent;
-import me.hapyl.fight.game.EntityState;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.dot.DamageOverTime;
-import me.hapyl.fight.game.dot.DotInstanceList;
-import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
-import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
-import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.team.Entry;
-import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.ui.display.*;
-import me.hapyl.fight.util.*;
 import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.module.ai.AI;
 import me.hapyl.eterna.module.ai.MobAI;
@@ -43,6 +16,32 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.SmallCaps;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.PreprocessingMethod;
+import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.AttributeTemperEvent;
+import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.event.custom.GameEntityHealEvent;
+import me.hapyl.fight.game.EntityState;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.ActiveGameEffect;
+import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
+import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.team.Entry;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.ui.display.*;
+import me.hapyl.fight.util.*;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
@@ -484,10 +483,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return LocationHelper.getToTheRight(getLocation(), v);
     }
 
-    public void setNoDamageTicks(int i) {
-        entity.setNoDamageTicks(i);
-    }
-
     public boolean hasEffectResistanceAndNotify(@Nullable GameEntity damager) {
         final boolean resist = hasEffectResistanceAndNotify();
 
@@ -526,9 +521,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         // Tick effects
         entityData.getGameEffects().values().forEach(ActiveGameEffect::tick);
 
-        // Tick dots
-        entityData.getDotMap().values().forEach(DotInstanceList::tick);
-
         aliveTicks.tick();
         noCCTicks.tick();
         noDamageTicks.tick();
@@ -539,6 +531,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Override
     public int getNoDamageTicks() {
         return noDamageTicks.toInt();
+    }
+
+    public void setNoDamageTicks(int i) {
+        entity.setNoDamageTicks(i);
     }
 
     /**
@@ -770,10 +766,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public Map<Effects, ActiveGameEffect> getActiveEffects() {
         return entityData.getGameEffects();
-    }
-
-    public void addDot(@Nonnull DamageOverTime dot, @Nonnull LivingGameEntity damager, int duration) {
-        entityData.addDot(dot, duration, damager);
     }
 
     public void dieBy(@Nonnull EnumDamageCause cause) {
@@ -1328,6 +1320,20 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public void updateAttributes() {
         attributes.forEach((type, d) -> attributes.triggerUpdate(type));
+    }
+
+    /**
+     * Triggers a dummy {@link AttributeTemperEvent} where {@link AttributeTemperEvent#isBuff()} results in <code>true</code>.
+     */
+    public void triggerBuff(@Nonnull LivingGameEntity applier) {
+        AttributeTemperEvent.createDummyEvent(this, applier, true).call();
+    }
+
+    /**
+     * Triggers a dummy {@link AttributeTemperEvent} where {@link AttributeTemperEvent#isBuff()} results in <code>false</code>.
+     */
+    public void triggerDebuff(@Nonnull LivingGameEntity applier) {
+        AttributeTemperEvent.createDummyEvent(this, applier, false).call();
     }
 
     protected boolean isInvalidForFerocity() {

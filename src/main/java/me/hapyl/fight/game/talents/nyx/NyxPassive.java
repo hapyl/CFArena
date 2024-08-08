@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.nyx;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -10,11 +11,9 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -35,14 +34,13 @@ public class NyxPassive extends PassiveTalent {
         super("nyx passive", Material.BEDROCK);
 
         setDescription("""
-                Whenever Nyx or her ally uses %s or %s talent, and she has a %s stack, Nyx will launch a followup attack towards the closest enemy to the teammate, who triggered this talent.
-                &8;;Nyx won't follow up if there are no living enemies.
+                Whenever Nyx or her ally debuffs an enemy, and she has a %s stack, Nyx will launch a followup attack.
 
-                Upon hit, it deals AoE damage and grants a &9Void Shield&7 to the teammate who triggered this attack.
+                Upon hit, it deals &CAoE damage&7 and grants a &9Void Shield&7 to the teammate who triggered this attack.
 
                 &6Void Shied
                 Whenever the shield is broken or refreshed, heals its target and increases %s.
-                """.formatted(TalentType.DAMAGE, TalentType.IMPAIR, Named.THE_CHAOS, AttributeType.EFFECT_RESISTANCE));
+                """.formatted(Named.THE_CHAOS, AttributeType.EFFECT_RESISTANCE));
 
         setCooldownSec(2.5f);
     }
@@ -52,11 +50,7 @@ public class NyxPassive extends PassiveTalent {
         return true;
     }
 
-    public boolean isValidTalentType(TalentType type) {
-        return type == TalentType.DAMAGE || type == TalentType.IMPAIR;
-    }
-
-    public void createShield(GamePlayer nyx, GamePlayer target) {
+    public void createShield(@Nonnull GamePlayer nyx, @Nonnull GamePlayer target) {
         final double health = nyx.getHealth();
         final double shieldCapacity = health * shieldCapacityScaling;
 
@@ -74,23 +68,27 @@ public class NyxPassive extends PassiveTalent {
         target.setShield(new VoidShield(nyx, target, shieldCapacity));
     }
 
-    public void buff(GamePlayer nyx, GamePlayer player) {
+    public void buff(@Nonnull GamePlayer nyx, @Nonnull GamePlayer player) {
         player.heal(healing, nyx);
 
         final EntityAttributes attributes = player.getAttributes();
         attributes.increaseTemporary(Temper.VOID_SHIELD, AttributeType.EFFECT_RESISTANCE, effectResIncrease, buffDuration);
     }
 
-    public void execute(GamePlayer nyx, GamePlayer player, @Nonnull LivingGameEntity target) {
+    public void execute(@Nonnull GamePlayer nyx, @Nonnull GamePlayer player, @Nonnull LivingGameEntity target) {
         final Location location = target.getLocation();
         final double damage = nyx.scaleHealth(damageScaling);
 
-        Collect.nearbyEntities(location, explosionRadius, entity -> {
-            return !player.isSelfOrTeammate(entity);
-        }).forEach(entity -> {
-            entity.setLastDamager(player); // Make the player damager, because I said so
-            entity.damage(damage, EnumDamageCause.CHAOS);
-        });
+        Collect.nearbyEntities(location, explosionRadius, entity -> !player.isSelfOrTeammate(entity))
+                .forEach(entity -> {
+                    // Add assist to nyx
+                    entity.getEntityData().addAssistingPlayer(nyx);
+
+                    // Make the player who triggered the followup the damager,
+                    // nyx gets the assist if entity dies from this attack
+                    entity.setLastDamager(player);
+                    entity.damage(damage, EnumDamageCause.CHAOS);
+                });
 
         createShield(nyx, player);
 

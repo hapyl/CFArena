@@ -10,7 +10,6 @@ import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public enum AttributeType implements Described {
 
@@ -385,7 +384,7 @@ public enum AttributeType implements Described {
         return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(this, value));
     }
 
-    public boolean getDisplayType(double newValue, double oldValue) {
+    public boolean isBuff(double newValue, double oldValue) {
         return relativity() ? newValue > oldValue : newValue < oldValue;
     }
 

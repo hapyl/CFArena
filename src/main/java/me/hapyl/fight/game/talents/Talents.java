@@ -108,6 +108,7 @@ import me.hapyl.fight.game.talents.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.ninja.NinjaDash;
 import me.hapyl.fight.game.talents.ninja.NinjaSmoke;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
+import me.hapyl.fight.game.talents.nyx.WitherImitation;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
@@ -630,6 +631,7 @@ public enum Talents {
     /**
      * {@link Nyx}
      */
+    WITHER_IMITATION(new WitherImitation()),
     NYX_PASSIVE(new NyxPassive()),
 
     /**
