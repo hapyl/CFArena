@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
-import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
@@ -18,16 +18,20 @@ import org.bukkit.event.Listener;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, UIComponent, Disabled {
+public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, UIComponent {
 
     private final PlayerDataMap<NyxData> nyxDataMap = PlayerMap.newDataMap(NyxData::new);
 
     public Nyx(@Nonnull Heroes handle) {
         super(handle, "Nyx");
 
-        setArchetypes(Archetype.SUPPORT);
+        setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE, Archetype.DEFENSE, Archetype.POWERFUL_ULTIMATE);
         setAffiliation(Affiliation.THE_WITHERS);
         setGender(Gender.FEMALE);
+
+        final Equipment equipment = getEquipment();
+
+        setItem("757240b2e096de5d541b860a06fa29809e08d5952bcf4bb38e19ca12aac09ef2");
 
         setDescription("""
                 &8&o;;Chaos... brings victory...
@@ -52,19 +56,9 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         }
 
         getPassiveTalent().execute(nyx, playerApplier, entity);
-    }
 
-    @Nullable
-    private GamePlayer getNyx(@Nonnull GamePlayer player) {
-        if (validatePlayer(player)) {
-            return player;
-        }
-
-        return player.getTeam().getPlayers()
-                .stream()
-                .filter(this::validateNyx)
-                .findFirst()
-                .orElse(null);
+        // Decrease stack
+        getPlayerData(nyx).decrementChaosStacks();
     }
 
     @Nonnull
@@ -95,6 +89,19 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         final int chaosStacks = data.getChaosStacks();
 
         return "&7&l\uD83E\uDEA8 &7%s".formatted(chaosStacks);
+    }
+
+    @Nullable
+    private GamePlayer getNyx(@Nonnull GamePlayer player) {
+        if (validateNyx(player)) {
+            return player;
+        }
+
+        return player.getTeam().getPlayers()
+                .stream()
+                .filter(this::validateNyx)
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean validateNyx(GamePlayer player) {

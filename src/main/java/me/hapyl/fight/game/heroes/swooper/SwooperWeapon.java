@@ -9,6 +9,7 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.game.weapons.range.WeaponRayCast;
+import me.hapyl.fight.util.Vector3;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -93,8 +94,8 @@ public class SwooperWeapon extends RangeWeapon {
             }
 
             @Override
-            public boolean predicateBlock(@Nonnull Block block) {
-                return strongShot || super.predicateBlock(block);
+            public boolean canPassThrough(@Nonnull Block block, @Nonnull Vector3 vector) {
+                return strongShot || super.canPassThrough(block, vector);
             }
 
             @Override

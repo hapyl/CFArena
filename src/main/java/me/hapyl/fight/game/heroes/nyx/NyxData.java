@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.nyx;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.util.Mth;
@@ -12,6 +13,10 @@ public class NyxData extends PlayerData {
 
     public NyxData(GamePlayer player) {
         super(player);
+
+        Debug.run(() -> {
+            chaosStacks = 999;
+        });
     }
 
     public int getChaosStacks() {
@@ -19,11 +24,11 @@ public class NyxData extends PlayerData {
     }
 
     public void incrementChaosStacks() {
-        chaosStacks = Mth.incMn(chaosStacks, MAX_CHAOS_STACKS);
+        chaosStacks = Mth.incrementMin(chaosStacks, MAX_CHAOS_STACKS);
     }
 
     public void decrementChaosStacks() {
-        chaosStacks = Mth.dcrMx(chaosStacks, 0);
+        chaosStacks = Mth.decrementMax(chaosStacks, 0);
     }
 
     @Override

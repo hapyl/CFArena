@@ -41,7 +41,10 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.display.*;
-import me.hapyl.fight.util.*;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.DirectionalMatrix;
+import me.hapyl.fight.util.Ticking;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
@@ -73,9 +76,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public final EntityRandom random;
 
     protected final EntityData entityData;
-    protected final Tick noCCTicks = new Tick();
-    protected final Tick aliveTicks = new Tick();
-    protected final Tick noDamageTicks = new Tick();
+    protected final EntityTicker ticker;
 
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityCooldown cooldown;
@@ -88,7 +89,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected double health;
     @Nonnull
     protected EntityState state;
-    protected int inWaterTicks;
 
     private AI ai;
     private boolean informImmune = true;
@@ -109,6 +109,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
         this.random = new EntityRandom();
+        this.ticker = new EntityTicker(this);
 
         super.base = false;
 
@@ -133,7 +134,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return the number of ticks this entity has been alive for.
      */
     public int aliveTicks() {
-        return aliveTicks.toInt();
+        return ticker.aliveTicks.toInt();
     }
 
     /**
@@ -373,13 +374,13 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public double scaleHealth(double mul) {
-        return Mth.scale(health, mul);
+        return health * mul;
     }
 
     public double scaleAttribute(@Nonnull AttributeType attributeType, double mul) {
         final double v = attributes.get(attributeType);
 
-        return Mth.scale(v, mul);
+        return v * mul;
     }
 
     @Nonnull
@@ -494,7 +495,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public boolean hasEffectResistanceAndNotify() {
-        if (noCCTicks.toInt() > 0) {
+        if (ticker.noCCTicks.toInt() > 0) {
             return true;
         }
 
@@ -502,7 +503,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         // Resisted effect, cancel and display
         if (resist) {
-            noCCTicks.setInt(20);
+            ticker.noCCTicks.setInt(20);
             new AscendingDisplay(CC_SMALL_CAPS_NAME, 20).display(getLocation());
             return true;
         }
@@ -521,16 +522,13 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         // Tick effects
         entityData.getGameEffects().values().forEach(ActiveGameEffect::tick);
 
-        aliveTicks.tick();
-        noCCTicks.tick();
-        noDamageTicks.tick();
-
-        inWaterTicks = entity.isInWater() ? inWaterTicks + 1 : 0;
+        // Tick
+        ticker.tick();
     }
 
     @Override
     public int getNoDamageTicks() {
-        return noDamageTicks.toInt();
+        return ticker.noDamageTicks.toInt();
     }
 
     public void setNoDamageTicks(int i) {
@@ -543,7 +541,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return the number of ticks this entity has been in water for, 0 if not in water.
      */
     public int getInWaterTicks() {
-        return inWaterTicks;
+        return ticker.inWaterTicks.toInt();
     }
 
     public void clearTitle() {
@@ -858,7 +856,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        noDamageTicks.setInt(cause != null ? cause.getDamageTicks() : DamageCause.DEFAULT_DAMAGE_TICKS);
+        ticker.noDamageTicks.setInt(cause != null ? cause.getDamageTicks() : DamageCause.DEFAULT_DAMAGE_TICKS);
         onDamageTaken(instance);
     }
 

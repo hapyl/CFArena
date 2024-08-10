@@ -2,32 +2,24 @@ package me.hapyl.fight.game.heroes.swooper;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.EntityLocation;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
 import me.hapyl.fight.game.team.Entry;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Iterators;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

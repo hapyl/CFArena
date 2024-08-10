@@ -4,6 +4,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.RaycastTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.game.weapons.range.WeaponRayCast;
+import me.hapyl.fight.util.Vector3;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -40,7 +41,7 @@ public class ProjectileRayCast extends WeaponRayCast {
 
             @Override
             public boolean predicate(@Nonnull Location location) {
-                return predicateBlock(location.getBlock());
+                return canPassThrough(location.getBlock(), Vector3.of(location));
             }
 
             @Override

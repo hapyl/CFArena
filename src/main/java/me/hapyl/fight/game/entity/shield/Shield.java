@@ -8,6 +8,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.util.Ticking;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -15,7 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Shield {
+public class Shield implements Ticking {
 
     protected final GamePlayer player;
     private final double maxCapacity;
@@ -163,6 +164,10 @@ public class Shield {
 
     public void display(double damage, @Nonnull Location location) {
         new AscendingDisplay("&e🛡 &6%.0f".formatted(damage), 20).display(player.getEyeLocation());
+    }
+
+    @Override
+    public void tick() {
     }
 
     private void updateShield() {

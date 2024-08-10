@@ -54,8 +54,25 @@ public class Debug {
         send("&7// UNCOMMENT ME // " + reason);
     }
 
+    public static void mi(Object... objects) {
+        for (Object object : objects) {
+            Debug.info(object);
+        }
+    }
+
     private static String now() {
         return DateTimeFormatter.ofPattern("hh:mm:ss").format(LocalTime.now());
+    }
+
+    public static void run(Runnable r) {
+        if (!Manager.current().isDebug()) {
+            return;
+        }
+
+        final StackTraceElement[] trace = new RuntimeException().getStackTrace();
+
+        send("&b$ " + trace[1]);
+        r.run();
     }
 
     private static void send(String string) {

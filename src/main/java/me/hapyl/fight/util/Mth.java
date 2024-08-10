@@ -5,15 +5,24 @@ public final class Mth {
     private Mth() {
     }
 
-    public static int incMn(int n, int i) {
-        return Math.min(n + 1, i);
+    /**
+     * Increments the given value by one while keeping it in the limit of min.
+     *
+     * @param i   - Integer.
+     * @param min - Min.
+     */
+    public static int incrementMin(final int i, final int min) {
+        return Math.min(i + 1, min);
     }
 
-    public static int dcrMx(int n, int i) {
-        return Math.max(n - 1, i);
+    /**
+     * Decrements the given value by one while keeping it in the limit of max.
+     *
+     * @param i   - Integer.
+     * @param max - Max.
+     */
+    public static int decrementMax(int i, int max) {
+        return Math.max(i - 1, max);
     }
 
-    public static double scale(double v, double i) {
-        return v == 0.0d ? 0.0d : v == 1.0d ? i : v * i;
-    }
 }

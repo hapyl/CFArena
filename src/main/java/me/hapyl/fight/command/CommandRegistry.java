@@ -114,6 +114,7 @@ import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.IOptional;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -230,6 +231,35 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
+        register("testoptional", (player, args) -> {
+            final IOptional<Object> nullOptional = IOptional.of(null);
+            final IOptional<Player> playerOptional = IOptional.of(player);
+
+            nullOptional.ifPresent(__ -> {
+                player.sendMessage("nullOptional ifPresent");
+            }).orElse(() -> {
+                player.sendMessage("nullOptional orElse");
+            }).always(() -> {
+                player.sendMessage("nullOptional always");
+            });
+
+            playerOptional.ifPresent(__ -> {
+                player.sendMessage("playerOptional ifPresent");
+            }).orElse(() -> {
+                player.sendMessage("playerOptional orElse");
+            }).always(() -> {
+                player.sendMessage("playerOptional always");
+            });
+        });
+
+        register("resistcrowncontrol", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        gp.sendMessage("resisted");
+                        gp.hasEffectResistanceAndNotify();
+                    });
+        });
+
         register(new SimplePlayerAdminCommand("testCacheSet") {
 
             CacheSet<String> set = new CacheSet<>(2000);

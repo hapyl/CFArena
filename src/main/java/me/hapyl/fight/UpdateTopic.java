@@ -28,9 +28,9 @@ public class UpdateTopic {
     @Nonnull
     public String getTopic() {
         if (this.colorFrom == null && this.colorTo == null) {
-            return ChatColor.GOLD + ChatColor.BOLD.toString() + topic;
+            return ChatColor.GOLD + topic;
         }
 
-        return new Gradient(topic).makeBold().rgb(colorFrom, colorTo, Interpolators.QUADRATIC_FAST_TO_SLOW);
+        return new Gradient(topic).rgb(colorFrom, colorTo, Interpolators.QUADRATIC_FAST_TO_SLOW);
     }
 }

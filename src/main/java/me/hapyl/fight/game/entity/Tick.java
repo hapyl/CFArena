@@ -3,32 +3,21 @@ package me.hapyl.fight.game.entity;
 import me.hapyl.fight.util.MutableNumericObject;
 import me.hapyl.fight.util.Ticking;
 
-public class Tick implements Ticking, MutableNumericObject {
+import javax.annotation.Nonnull;
 
-    protected final int[] limits;
+public sealed class Tick implements Ticking, MutableNumericObject permits EntityTick {
+
+    protected final TickDirection direction;
+
     protected int tick;
 
-    public Tick() {
-        this(0);
-    }
-
-    public Tick(final int minTick) {
-        this(minTick, Integer.MAX_VALUE);
-    }
-
-    public Tick(final int minTick, final int maxTick) {
-        this.limits = new int[] { minTick, maxTick };
+    public Tick(@Nonnull TickDirection direction) {
+        this.direction = direction;
     }
 
     @Override
     public void tick() {
-        tick = Math.clamp(tick - 1, limits[0], limits[1]);
-    }
-
-    public final void tick(boolean condition) {
-        if (condition) {
-            tick();
-        }
+        tick = Math.max(direction.tick(tick), 0);
     }
 
     @Override
@@ -43,16 +32,11 @@ public class Tick implements Ticking, MutableNumericObject {
 
     @Override
     public void min() {
-        setInt(limits[0]);
+        setInt(direction.defaultValue());
     }
 
     @Override
-    public void max() {
-        setInt(limits[1]);
-    }
-
-    @Override
-    public final String toString() {
+    public String toString() {
         return String.valueOf(tick);
     }
 

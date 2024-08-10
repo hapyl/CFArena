@@ -51,9 +51,7 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = Color.GOLD.bold() +
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
-    public static final VersionInfo versionInfo = new VersionInfo(
-            new UpdateTopic(">< generic.scale ><", 49, 147, 232, 7, 97, 176)
-    );
+    public static final UpdateTopic updateTopic = new UpdateTopic("&d1.21 Awaits!");
 
     public static final String requireEternaVersion = "4.2.0";
     public static final String requireMinecraftVersion = "1.21";

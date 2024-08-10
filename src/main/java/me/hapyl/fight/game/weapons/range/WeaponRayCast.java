@@ -2,15 +2,16 @@ package me.hapyl.fight.game.weapons.range;
 
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Vector3;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -42,8 +43,17 @@ public class WeaponRayCast {
     public void onMove(@Nonnull Location location) {
     }
 
-    public boolean predicateBlock(@Nonnull Block block) {
-        return !block.getType().isOccluding();
+    /**
+     * Returns true if the given {@link Location} can pass through the bounding box of the {@link Block}.
+     *
+     * @param block  - Block.
+     * @param vector - Location.
+     * @return true if shot can pass through, false otherwise.
+     */
+    public boolean canPassThrough(@Nonnull Block block, @Nonnull Vector3 vector) {
+        final BoundingBox boundingBox = block.getBoundingBox();
+
+        return !boundingBox.contains(vector.x(), vector.y(), vector.z());
     }
 
     @OverridingMethodsMustImplementEvents()
@@ -64,7 +74,9 @@ public class WeaponRayCast {
             location.add(x, y, z);
 
             // Check for block predicate
-            if (!predicateBlock(location.getBlock())) {
+            final Block block = location.getBlock();
+
+            if (!canPassThrough(block, Vector3.of(location))) {
                 this.spawnParticleHit(location);
                 break;
             }

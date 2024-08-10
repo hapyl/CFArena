@@ -12,6 +12,8 @@ import java.util.Set;
 public class DamageCause implements Copyable {
 
     public static final DamageCause EMPTY = new DamageCause("null", "null");
+
+    // this is the same as vanilla 20 ticks
     public static final int DEFAULT_DAMAGE_TICKS = 10;
 
     private final DeathMessage deathMessage;

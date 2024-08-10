@@ -11,11 +11,14 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
@@ -92,7 +95,45 @@ public class NyxPassive extends PassiveTalent {
 
         createShield(nyx, player);
 
+        location.add(0, target.getEyeHeight(), 0);
+
         // Fx -- todo
+        new TickingGameTask() {
+
+            private double t = 0;
+
+            @Override
+            public void run(int tick) {
+                for (int i = 0; i < 8; i++) {
+                    next();
+                }
+            }
+
+            private void next() {
+                if (t >= Math.PI * 1.25d) {
+                    cancel();
+                    return;
+                }
+
+                final double x = Math.sin(t) * 1.25d;
+                final double y = Math.tan(Math.cos(t) * 0.5d) * 0.9d;
+                final double z = Math.cos(t * 0.75d) * 0.9d;
+
+                location.add(x, y, z);
+
+                nyx.spawnWorldParticle(location, Particle.WITCH, 1, 0.1, 0.1, 0.1, 0.33f);
+                nyx.spawnWorldParticle(location, Particle.PORTAL, 1);
+
+                location.subtract(x, y, z);
+
+                t += Math.PI / 16;
+            }
+
+        }.runTaskTimer(0, 1);
+
+        // Sfx
+        nyx.playWorldSound(location, Sound.BLOCK_AMETHYST_BLOCK_BREAK, 0.0f);
+        nyx.playWorldSound(location, Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.75f);
     }
 
     private class VoidShield extends Shield {

@@ -99,7 +99,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     private final Map<MoveType, Long> lastMoved;
     public boolean blockDismount;
     public long usedUltimateAt;
-    private int sneakTicks;
     private int deathWishTicks; // TODO (hapyl): 004, Mar 4: <<
     @Nonnull
     private PlayerProfile profile;
@@ -176,11 +175,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         super.tick();
         talentLock.tick();
 
-        sneakTicks = isSneaking() ? sneakTicks + 1 : 0;
+        if (shield != null) {
+            shield.tick();
+        }
     }
 
     public int getSneakTicks() {
-        return sneakTicks;
+        return ticker.sneakTicks.toInt();
     }
 
     /**
@@ -192,9 +193,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
 
         killStreak = 0;
         combatTag = 0;
-        noCCTicks.zero();
-        sneakTicks = 0;
         talentLock.reset();
+
+        ticker.sneakTicks.zero();
+        ticker.noCCTicks.zero();
 
         // Actually stop the effects before applying the data
         entityData.getGameEffects().values().forEach(ActiveGameEffect::forceStopIfNotInfinite);
@@ -1749,9 +1751,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     }
 
     @Nonnull
-    public static Optional<GamePlayer> getPlayerOptional(Player player) {
-        final GamePlayer gamePlayer = getExistingPlayer(player);
-        return gamePlayer == null ? Optional.empty() : Optional.of(gamePlayer);
+    public static OptionalGamePlayer getPlayerOptional(Player player) {
+        return new OptionalGamePlayer(player);
     }
 
 }

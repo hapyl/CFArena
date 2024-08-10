@@ -1,5 +1,9 @@
 package me.hapyl.fight;
 
+import me.hapyl.eterna.module.command.CommandProcessor;
+import me.hapyl.eterna.module.command.SimpleCommand;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -13,10 +17,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.command.CommandProcessor;
-import me.hapyl.eterna.module.command.SimpleCommand;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.reflect.Reflect;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -514,5 +514,10 @@ public final class CF {
     @Nonnull
     public static AntiCheat getAntiCheat() {
         return AntiCheat.getInstance();
+    }
+
+    @Nonnull
+    public static String getMinecraftVersion() {
+        return Bukkit.getMinecraftVersion();
     }
 }
