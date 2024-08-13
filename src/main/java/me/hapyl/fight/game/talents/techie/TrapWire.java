@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -48,8 +49,8 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         trapMap.values().forEach(set -> {
             set.forEach(Tripwire::clearBlocks);
@@ -66,8 +67,8 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onStart(@Nonnull GameInstance instance) {
+        super.onStart(instance);
 
         new GameTask() {
             @Override

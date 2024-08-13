@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.harbinger;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -51,7 +52,7 @@ public class MeleeStance extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         dataMap.clear();
     }
 

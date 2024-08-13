@@ -5,8 +5,8 @@ import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.gui.RelicRewardGUI;
 import me.hapyl.fight.gui.styled.*;
 import me.hapyl.fight.util.CFUtils;
@@ -40,7 +40,7 @@ public class RelicHuntGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final List<GameMaps> mapsWithRelics = relicHunt.getMapsWithRelics();
+        final List<EnumLevel> mapsWithRelics = relicHunt.getMapsWithRelics();
 
         setHeader(StyledTexture.RELIC_HUNT.asIcon());
 
@@ -53,8 +53,8 @@ public class RelicHuntGUI extends StyledGUI {
                 break;
             }
 
-            final GameMaps enumMap = mapsWithRelics.get(i);
-            final GameMap map = enumMap.getMap();
+            final EnumLevel enumMap = mapsWithRelics.get(i);
+            final Level map = enumMap.getLevel();
 
             final List<Relic> relicsInMap = relicHunt.byZone(enumMap);
             final List<Relic> relicsFoundInMap = relicHunt.getFoundListIn(player, enumMap);

@@ -2,8 +2,10 @@ package me.hapyl.fight.game.trial;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -11,14 +13,12 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.trial.objecitive.*;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * This is a repayable trial as a {@link me.hapyl.fight.game.heroes.Heroes#TUTORIAL_ARCHER}.
  */
-public class Trial extends TickingGameTask implements GameElement {
+public class Trial extends TickingGameTask implements Lifecycle {
 
     private static final Heroes enumTrialHero = Heroes.TUTORIAL_ARCHER;
     private static final Hero trialHero = enumTrialHero.getHero();
@@ -87,10 +87,10 @@ public class Trial extends TickingGameTask implements GameElement {
 
     @Override
     public void onStart() {
-        player.teleport(GameMaps.TRAINING_GROUNDS.getMap().getLocation());
+        player.teleport(EnumLevel.TRAINING_GROUNDS.getLevel().getLocation());
 
         player.resetPlayer();
-        player.equipPlayer(trialHero);
+        player.prepare(trialHero);
 
         player.hide();
 
@@ -113,7 +113,7 @@ public class Trial extends TickingGameTask implements GameElement {
         final Player bukkitPlayer = player.getPlayer();
 
         player.getInventory().clear();
-        player.teleport(GameMaps.SPAWN.getMap().getLocation());
+        player.teleport(EnumLevel.SPAWN.getLevel().getLocation());
 
         LobbyItems.giveAll(bukkitPlayer);
 

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
@@ -52,7 +53,7 @@ public class ShockDark extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         shockArrows.forEach(Arrow::remove);
         shockArrows.clear();
     }

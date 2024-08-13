@@ -3,11 +3,12 @@ package me.hapyl.fight.game.maps.maps.moon;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.game.maps.features.Turbine;
 import me.hapyl.fight.game.maps.features.TurbineFeature;
@@ -16,10 +17,11 @@ import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 import java.util.Set;
 
-public class MoonBase extends GameMap {
+public class MoonBase extends Level {
 
     public static final int GATE_EXIT_ROOM = 0;
     public static final int GATE_LIVING_ROOM = 1;
@@ -28,8 +30,8 @@ public class MoonBase extends GameMap {
     // This controls which room is opened.
     private int gate = 0;
 
-    public MoonBase() {
-        super("Moon Station");
+    public MoonBase(@Nonnull EnumLevel handle) {
+        super(handle, "Moon Station");
 
         setDescription("");
         setMaterial(Material.END_STONE_BRICKS);
@@ -90,7 +92,7 @@ public class MoonBase extends GameMap {
         addFeature(turbines);
 
         // Toxic Water
-        addFeature(new MapFeature("Electric Water", """
+        addFeature(new LevelFeature("Electric Water", """
                 In a room within the Moon Base, there is a kind of water that... shocks you!
                 """) {
 
@@ -99,7 +101,7 @@ public class MoonBase extends GameMap {
 
             @Override
             public void tick(int tick) {
-                if (!validateGameAndMap(GameMaps.MOON_BASE)) {
+                if (!validateGameAndMap(EnumLevel.MOON_BASE)) {
                     return;
                 }
 
@@ -119,7 +121,7 @@ public class MoonBase extends GameMap {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         this.gate = new Random().nextInt(0, 3);
 
         rooms.forEach(room -> {
@@ -130,7 +132,7 @@ public class MoonBase extends GameMap {
             }
         });
 
-        super.onStart();
+        super.onStart(instance);
     }
 
 }

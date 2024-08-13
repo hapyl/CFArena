@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.ender;
 
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -60,7 +61,7 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {

@@ -8,7 +8,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.team.Entry;
@@ -61,7 +61,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         }
 
         // Map select
-        for (GameMaps enumMap : GameMaps.getPlayableMaps()) {
+        for (EnumLevel enumMap : EnumLevel.getPlayableMaps()) {
             register(new FastAccess("select_map_" + enumMap.name(), Category.SELECT_MAP) {
                 @Override
                 public void onClick(@Nonnull Player player) {
@@ -71,7 +71,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                 @Nonnull
                 @Override
                 public ItemBuilder create(@Nonnull Player player) {
-                    return new ItemBuilder(enumMap.getMap().getMaterial())
+                    return new ItemBuilder(enumMap.getLevel().getMaterial())
                             .setName("Select " + enumMap.getName())
                             .addLore()
                             .addSmartLore("Changes the current map.", "&8&o")

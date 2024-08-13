@@ -4,11 +4,14 @@ import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.EntityRandom;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,7 +22,7 @@ import javax.annotation.Nonnull;
 public class WitherRosePath extends Talent {
 
     private final DisplayData spike = BlockStudioParser.parse(
-            "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.8125f,0.0000f,0.0000f,-0.3750f,0.0000f,0.8125f,0.0000f,0.0000f,0.0000f,0.0000f,0.8125f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.5625f,0.0000f,0.0000f,-0.3750f,0.0000f,0.6250f,0.0000f,0.8125f,0.0000f,0.0000f,0.5625f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.3750f,0.0000f,0.0000f,-0.3750f,0.0000f,0.4375f,0.0000f,1.4375f,0.0000f,0.0000f,0.3750f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.2500f,0.0000f,0.0000f,-0.3750f,0.0000f,0.3750f,0.0000f,1.8750f,0.0000f,0.0000f,0.2500f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
+            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.8750f,0.0000f,0.0000f,-0.4375f,0.0000f,1.0000f,0.0000f,-0.5625f,0.0000f,0.0000f,0.8750f,-0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.6250f,0.0000f,0.0000f,-0.3125f,0.0000f,0.7500f,0.0000f,0.2500f,0.0000f,0.0000f,0.6250f,-0.3125f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.6875f,0.0000f,0.8750f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.1768f,0.0000f,0.1768f,-0.1875f,0.0000f,0.3750f,0.0000f,1.5625f,-0.1768f,0.0000f,0.1768f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
     @DisplayField
@@ -40,7 +43,7 @@ public class WitherRosePath extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Vector direction = player.getDirection();
+        final Vector direction = player.getDirection().setY(0);
         final Location location = player.getLocation();
 
         new TickingStepGameTask(3) {
@@ -70,11 +73,21 @@ public class WitherRosePath extends Talent {
     }
 
     private void createRose(GamePlayer player, Location location) {
-        location.setYaw(player.random.nextFloat() * 180);
-        location.setYaw(player.random.nextFloat() * 30);
+        final EntityRandom random = player.random;
+
+        location.add(random.nextDouble(), random.nextDouble() * 0.5d, random.nextDouble());
+
+        location.setYaw(random.nextFloat() * 180);
+        location.setPitch(random.nextFloat() * 60);
 
         final DisplayEntity displayEntity = spike.spawn(location, self -> {
         });
+
+        // Damage and debuff
+        Collect.nearbyEntities(location, 1, player::isNotSelfOrTeammate)
+                .forEach(entity -> {
+                    entity.damage(5, player, EnumDamageCause.NYX_SPIKE);
+                });
 
         player.schedule(() -> {
             displayEntity.remove();

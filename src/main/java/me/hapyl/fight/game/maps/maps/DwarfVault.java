@@ -4,8 +4,9 @@ import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Material;
@@ -16,14 +17,14 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class DwarfVault extends GameMap implements Listener {
+public class DwarfVault extends Level implements Listener {
 
     public final BoundingBoxCollector lavaBoundingBox = new BoundingBoxCollector(5973, 24, -36, 6029, 33, 36);
     public final Vector lavaPushVector = new Vector(0.0d, 3.1d, 0.0d);
     public final double lavaDamage = 20.0d;
 
-    public DwarfVault() {
-        super("Dwarfs' Vault");
+    public DwarfVault(@Nonnull EnumLevel handle) {
+        super(handle, "Dwarfs' Vault");
 
         setDescription("");
         setMaterial(Material.RAW_GOLD);
@@ -38,7 +39,7 @@ public class DwarfVault extends GameMap implements Listener {
         addLocation(6000, 75, -49, -180f, 0f);
         addLocation(6011.0, 64, -82.0, 90f, 0f);
 
-        addFeature(new MapFeature("Bouncy Lava", """
+        addFeature(new LevelFeature("Bouncy Lava", """
                 Hot but bouncy lava that allows you to get back to the platform.
                 """) {
             @Override

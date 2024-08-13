@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -175,7 +176,7 @@ public class ArrowShield extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         shieldMap.keySet().forEach(this::removeArrows);
         shieldMap.clear();
     }

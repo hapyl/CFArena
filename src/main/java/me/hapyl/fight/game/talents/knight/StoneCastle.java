@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.knight;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -60,7 +61,7 @@ public class StoneCastle extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         castleMap.forEachAndClear(Castle::remove);
     }
 

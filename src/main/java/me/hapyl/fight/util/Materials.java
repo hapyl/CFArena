@@ -6,8 +6,10 @@ import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,16 @@ public final class Materials {
         if (materials != null) {
             materials.forEach(consumer);
         }
+    }
+
+    public static void setItemCooldowns(int cooldown) {
+        final Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+
+        iterate(MaterialCategory.ITEM, material -> {
+            players.forEach(player -> {
+                player.setCooldown(material, cooldown);
+            });
+        });
     }
 
     public static void setCooldown(@Nonnull Material material, int cd) {

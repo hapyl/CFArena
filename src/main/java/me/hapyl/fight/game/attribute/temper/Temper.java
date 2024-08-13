@@ -66,6 +66,7 @@ public enum Temper implements SmallCapsDescriber {
     AURORA_BUFF_3(false),
     DIVINE_INTERVENTION(false),
     VOID_SHIELD,
+    NYX,
 
     /* Keep semicolon on this line for easier addition. */;
 

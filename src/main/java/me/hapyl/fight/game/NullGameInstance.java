@@ -2,7 +2,7 @@ package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -55,8 +55,8 @@ public class NullGameInstance implements IGameInstance {
 
     @Nonnull
     @Override
-    public GameMaps getEnumMap() {
-        return GameMaps.ARENA;
+    public EnumLevel getEnumMap() {
+        return EnumLevel.ARENA;
     }
 
     @Nonnull

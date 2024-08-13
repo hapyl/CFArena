@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.styled.Size;
@@ -26,7 +26,7 @@ public class GameManagementGUI extends StyledGUI {
     @Override
     public void onUpdate() {
         final Manager manager = Manager.current();
-        final GameMaps currentMap = manager.getCurrentMap();
+        final EnumLevel currentMap = manager.getCurrentMap();
         final Modes currentMode = manager.getCurrentMode();
         final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 

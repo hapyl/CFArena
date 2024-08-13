@@ -3,6 +3,7 @@ package me.hapyl.fight.game.cosmetic;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.util.Formatted;
+import me.hapyl.fight.util.handle.EnumHandle;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;

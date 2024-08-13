@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.eterna.module.entity.Entities;
@@ -20,15 +20,15 @@ public class Booster {
 
     protected static final Map<BlockLocation, Booster> byLocation = new HashMap<>();
 
-    private final GameMaps designatedMap;
+    private final EnumLevel designatedMap;
     private final BlockLocation location;
     private final Vector vector;
 
     public Booster(BlockLocation loc, Vector vec, boolean debug) {
-        this(GameMaps.CLOUDS, loc, vec, debug);
+        this(EnumLevel.CLOUDS, loc, vec, debug);
     }
 
-    public Booster(GameMaps map, BlockLocation loc, Vector vec, boolean debug) {
+    public Booster(EnumLevel map, BlockLocation loc, Vector vec, boolean debug) {
         this.designatedMap = map;
         this.location = loc;
         this.vector = vec;
@@ -37,7 +37,7 @@ public class Booster {
         }
     }
 
-    public Booster(GameMaps map, BlockLocation loc, Vector vec) {
+    public Booster(EnumLevel map, BlockLocation loc, Vector vec) {
         this(map, loc, vec, false);
     }
 
@@ -45,11 +45,11 @@ public class Booster {
         this(new BlockLocation(x, y, z), new Vector(vecX, vecY, vecZ), false);
     }
 
-    public Booster(GameMaps map, int x, int y, int z, double vecX, double vecY, double vecZ) {
+    public Booster(EnumLevel map, int x, int y, int z, double vecX, double vecY, double vecZ) {
         this(map, new BlockLocation(x, y, z), new Vector(vecX, vecY, vecZ), false);
     }
 
-    public GameMaps getDesignatedMap() {
+    public EnumLevel getDesignatedMap() {
         return designatedMap;
     }
 

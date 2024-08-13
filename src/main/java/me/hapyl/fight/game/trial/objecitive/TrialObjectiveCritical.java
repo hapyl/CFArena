@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;

@@ -5,8 +5,8 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -28,9 +28,9 @@ public class LimboFeature extends VoidFeature implements Listener {
     @EventHandler()
     public void handlePortalEvent(GameEntityContactPortalEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final GameMap currentMap = Manager.current().getCurrentMap().getMap();
+        final Level currentMap = Manager.current().getCurrentMap().getLevel();
 
-        if (!validateCurrentMap(GameMaps.LIMBO)) {
+        if (!validateCurrentMap(EnumLevel.LIMBO)) {
             return;
         }
 

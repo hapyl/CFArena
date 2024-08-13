@@ -7,12 +7,12 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.cosmetic.EnumHandle;
+import me.hapyl.fight.game.element.ElementHandler;
+import me.hapyl.fight.game.element.PlayerElementHandler;
+import me.hapyl.fight.util.NullSafeList;
+import me.hapyl.fight.util.handle.EnumHandle;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -51,12 +51,11 @@ import java.util.Set;
  * A hero <b>must</b> contains {@link #getFirstTalent()}, {@link #getSecondTalent()} and {@link #getPassiveTalent()},
  * but may or may not have up to three extra talents if needed.
  *
- * @see GameElement
- * @see PlayerElement
+ * @see ElementHandler
  */
 @AutoRegisteredListener
 @StrictPackage("me.hapyl.fight.game.heroes")
-public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Heroes>, Rankable, DisplayFieldProvider {
+public abstract class Hero implements ElementHandler, PlayerElementHandler, EnumHandle<Heroes>, Rankable, DisplayFieldProvider {
 
     private final Heroes enumHero;
     private final HeroStatsCollection stats;
@@ -559,13 +558,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
     public void onDeath(@Nonnull GamePlayer player) {
     }
 
-    /**
-     * @see GameElement#onStart()
-     */
-    @Override
-    public void onStart() {
-    }
-
     @Nonnull
     public HeroMastery getMastery() {
         return this.mastery;
@@ -573,21 +565,6 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
 
     protected void setMastery(@Nonnull HeroMastery mastery) {
         this.mastery = mastery;
-    }
-
-    /**
-     * @see GameElement#onStop()
-     */
-    @Override
-    public void onStop() {
-    }
-
-    /**
-     * Called whenever player respawns.
-     *
-     * @param player - Player.
-     */
-    public void onRespawn(@Nonnull GamePlayer player) {
     }
 
     @Nonnull
@@ -737,6 +714,11 @@ public abstract class Hero implements GameElement, PlayerElement, EnumHandle<Her
         talents.add(getFifthTalent());
 
         return talents;
+    }
+
+    @Nonnull
+    public NullSafeList<Talent> getNullSafeTalents() {
+        return new NullSafeList<>(getTalents());
     }
 
     /**

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.shadow_assassin;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -86,7 +87,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerData.clear();
     }
 
@@ -131,7 +132,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

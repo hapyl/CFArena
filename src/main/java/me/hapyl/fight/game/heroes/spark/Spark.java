@@ -1,17 +1,15 @@
 package me.hapyl.fight.game.heroes.spark;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -21,7 +19,7 @@ import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
 
-public class Spark extends Hero implements PlayerElement {
+public class Spark extends Hero {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
 

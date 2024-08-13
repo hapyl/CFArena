@@ -7,7 +7,7 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.eterna.module.chat.Chat;
@@ -174,19 +174,19 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final GameMaps map = Validate.getEnumValue(GameMaps.class, args[0]);
+                final EnumLevel map = Validate.getEnumValue(EnumLevel.class, args[0]);
                 if (map == null) {
                     sendMessage(player, "&cInvalid map!");
                     return;
                 }
 
-                player.teleport(map.getMap().getLocation());
+                player.teleport(map.getLevel().getLocation());
                 sendMessage(player, "&aTeleported to %s map!", map.getName());
             }
 
             @Override
             public void createAdditionalArguments() {
-                for (GameMaps value : GameMaps.values()) {
+                for (EnumLevel value : EnumLevel.values()) {
                     addArgument(2, value.name().toLowerCase(Locale.ROOT));
                 }
             }

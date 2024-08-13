@@ -9,12 +9,14 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Final;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
+import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
-import me.hapyl.fight.game.cosmetic.EnumHandle;
+import me.hapyl.fight.game.element.PlayerElementHandler;
+import me.hapyl.fight.util.handle.EnumHandle;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -37,9 +39,7 @@ import java.util.function.Consumer;
  */
 @AutoRegisteredListener
 @StrictPackage("me.hapyl.fight.game.talents")
-public abstract class Talent extends NonNullItemCreator
-        implements GameElement, PlayerElement, DisplayFieldProvider,
-        Nameable, Timed, Cooldown, EnumHandle<Talents>, Comparable<Talent> {
+public abstract class Talent extends NonNullItemCreator implements ElementHandler, PlayerElementHandler, DisplayFieldProvider, Nameable, Timed, Cooldown, EnumHandle<Talents>, Comparable<Talent> {
 
     private final List<String> attributeDescription;
     private final Final<Talents> handle;
@@ -213,14 +213,14 @@ public abstract class Talent extends NonNullItemCreator
      * Called once on game start.
      */
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
     }
 
     /**
      * Called once on game stop.
      */
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
     }
 
     /**

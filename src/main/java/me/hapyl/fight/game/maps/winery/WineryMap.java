@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.maps.winery;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.HiddenMapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.HiddenLevelFeature;
 import me.hapyl.fight.game.maps.features.WinerySteamFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
@@ -15,9 +17,10 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 
-public class WineryMap extends GameMap {
+public class WineryMap extends Level {
 
     private final Material lightningMarkerBlock = Material.CAVE_AIR;
     private final int howlPeriod = Tick.fromMinute(3);
@@ -29,8 +32,8 @@ public class WineryMap extends GameMap {
             new WineryOwl(4956, 76, 47),
     };
 
-    public WineryMap() {
-        super("Winery \"Drunk Cat\"");
+    public WineryMap(@Nonnull EnumLevel handle) {
+        super(handle, "Winery \"Drunk Cat\"");
 
         setDescription("");
         setMaterial(Material.SWEET_BERRIES);
@@ -58,7 +61,7 @@ public class WineryMap extends GameMap {
         setTime(18000);
 
         // Howl
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
             @Override
             public void onStart() {
                 GameTask.runTaskTimer(task -> {
@@ -81,7 +84,7 @@ public class WineryMap extends GameMap {
         addFeature(new WinerySteamFeature());
 
         // Owl Spy Achievement
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
             @Override
             public void tick(int tick) {
                 if (tick % 5 != 0) {
@@ -116,7 +119,7 @@ public class WineryMap extends GameMap {
         });
 
         // Lightning
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
 
             private final double minHeight = 77;
 
@@ -148,8 +151,8 @@ public class WineryMap extends GameMap {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         for (WineryOwl owl : owls) {
             owl.reset();

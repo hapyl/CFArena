@@ -8,10 +8,10 @@ import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
-public class LimboMap extends GameMap {
+public class LimboMap extends Level {
 
-    protected LimboMap() {
-        super("Limbo");
+    protected LimboMap(@Nonnull EnumLevel handle) {
+        super(handle, "Limbo");
 
         setDescription("""
                 A lighthouse.

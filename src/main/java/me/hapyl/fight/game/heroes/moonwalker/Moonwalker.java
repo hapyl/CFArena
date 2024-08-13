@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
 import me.hapyl.fight.game.Disabled;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.talents.moonwalker.MoonPillarTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<MoonwalkerData>, PlayerElement, UIComponent {
+public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<MoonwalkerData>, UIComponent {
 
     private final PlayerDataMap<MoonwalkerData> playerData = PlayerMap.newDataMap(MoonwalkerData::new);
 
@@ -51,7 +51,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {

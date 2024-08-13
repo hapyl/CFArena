@@ -1,13 +1,12 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
-import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -30,7 +29,7 @@ public class MapCommand extends SimplePlayerCommand {
         }
         // Map [MapName]
         if (args.length >= 1) {
-            final GameMaps value = Validate.getEnumValue(GameMaps.class, args[0]);
+            final EnumLevel value = Validate.getEnumValue(EnumLevel.class, args[0]);
             if (value == null) {
                 Notifier.error(player, "Invalid map!");
                 Notifier.sound(player, Sound.ENTITY_VILLAGER_NO, 1.0f);
@@ -46,7 +45,7 @@ public class MapCommand extends SimplePlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
-        return completerSort(CFUtils.collectionToStringList(GameMaps.getPlayableMaps(), GameMaps::name), args);
+        return completerSort(CFUtils.collectionToStringList(EnumLevel.getPlayableMaps(), EnumLevel::name), args);
     }
 
 }

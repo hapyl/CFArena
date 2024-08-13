@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -32,7 +33,7 @@ public class Climb extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         tasks.clear();
     }
 

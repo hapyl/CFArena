@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -57,7 +58,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         clones.values().forEach(PlayerCloneList::disappearAll);
         clones.clear();
     }

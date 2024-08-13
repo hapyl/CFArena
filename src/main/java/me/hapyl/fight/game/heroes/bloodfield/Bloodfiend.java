@@ -6,6 +6,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -124,13 +125,13 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerData.values().forEach(BloodfiendData::reset);
         playerData.clear();
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {
@@ -143,11 +144,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @Override
     public void onPlayersRevealed(@Nonnull GamePlayer player) {
-        getData(player).cooldownFlight(true);
-    }
-
-    @Override
-    public void onRespawn(@Nonnull GamePlayer player) {
         getData(player).cooldownFlight(true);
     }
 

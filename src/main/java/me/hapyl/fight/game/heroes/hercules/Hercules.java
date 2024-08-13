@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.hercules;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -11,9 +11,9 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.*;
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Hercules extends Hero implements Listener, PlayerElement, Disabled {
+public class Hercules extends Hero implements Listener, Disabled {
 
     private final int tridentCooldown = 300;
     private final Map<Player, Trident> fragileTrident = new HashMap<>();
@@ -58,7 +58,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         fragileTrident.values().forEach(Trident::remove);
         fragileTrident.clear();
     }

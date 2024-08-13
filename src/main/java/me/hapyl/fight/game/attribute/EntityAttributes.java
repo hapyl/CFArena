@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.annotate.Trigger;
 import me.hapyl.fight.event.custom.AttributeChangeEvent;
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
-import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperData;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
@@ -15,8 +17,6 @@ import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
 import me.hapyl.fight.trigger.Triggers;
 import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
-import me.hapyl.eterna.module.annotate.Super;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  *
  * @see #get(AttributeType)
  */
-public class EntityAttributes extends Attributes implements PlayerElement {
+public class EntityAttributes extends Attributes implements PlayerElementHandler {
 
     protected final AttributeTemperTable tempers;
 

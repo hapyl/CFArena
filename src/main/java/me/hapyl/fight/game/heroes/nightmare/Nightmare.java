@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.nightmare;
 
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -65,7 +66,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         omenDebuffMap.clear();
     }
 
@@ -76,7 +77,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
 
     // Moved light level test in runnable
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {

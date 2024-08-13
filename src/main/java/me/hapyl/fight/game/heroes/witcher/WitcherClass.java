@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.witcher;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -25,7 +25,7 @@ import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class WitcherClass extends Hero implements ComplexHero, UIComponent, PlayerElement {
+public class WitcherClass extends Hero implements ComplexHero, UIComponent {
 
     private final PlayerMap<Combo> combos = PlayerMap.newMap();
 
@@ -63,7 +63,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent, Play
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         combos.clear();
     }
 

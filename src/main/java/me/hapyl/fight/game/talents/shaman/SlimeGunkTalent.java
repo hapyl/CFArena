@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -58,7 +59,7 @@ public class SlimeGunkTalent extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         snowballMap.forEachAndClear(Snowball::remove);
         gunkMap.forEachAndClear(SlimeGunk::cancel);
     }

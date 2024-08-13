@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.archer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
@@ -97,12 +98,12 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         CFUtils.clearCollection(boomArrows);
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

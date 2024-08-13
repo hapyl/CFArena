@@ -32,13 +32,13 @@ import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.entity.task.PlayerTaskList;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
@@ -53,7 +53,6 @@ import me.hapyl.fight.game.task.player.IPlayerTask;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.MaterialCategory;
@@ -89,7 +88,7 @@ import java.util.function.Function;
  * <p>
  * <b>A single instance should exist per game bases and cleared after the game ends.</b>
  */
-public class GamePlayer extends LivingGameEntity implements Ticking, PlayerElement.Caller {
+public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public static final double HEALING_AT_KILL = 0.3d;
     public static final double ASSIST_DAMAGE_PERCENT = 0.5d;
@@ -731,18 +730,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     public void triggerOnDeath() {
         this.onDeath();
 
-        final IGameInstance currentGame = Manager.current().getCurrentGame();
-        final Hero hero = getHero();
-        final Weapon weapon = hero.getWeapon();
-
         usedUltimateAt = 0L;
         deflecting = false;
 
-        callOnDeath();
-
-        if (hero instanceof PlayerDataHandler<?> handler) {
-            handler.removePlayerData(this);
-        }
+        ElementCaller.CALLER.onDeath(this);
     }
 
     public DeathMessage getRandomDeathMessage() {
@@ -930,16 +921,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         setHealth(this.getMaxHealth());
 
         player.getInventory().clear();
-        equipPlayer(hero);
-
-        hero.onRespawn(this);
+        prepare(hero);
 
         // Add spawn protection
         addEffect(Effects.RESPAWN_RESISTANCE, 60);
 
         // Respawn location
         final IGameInstance gameInstance = Manager.current().getCurrentGame();
-        final Location location = gameInstance.getEnumMap().getMap().getLocation();
+        final Location location = gameInstance.getEnumMap().getLevel().getLocation();
 
         BukkitUtils.mergePitchYaw(entity.getLocation(), location);
         sendTitle("&a&lʀᴇsᴘᴀᴡɴᴇᴅ!", "", 0, 20, 5);
@@ -1281,7 +1270,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return (int) Math.max(cooldown * cdModifier, 0);
     }
 
-    public void equipPlayer(@Nonnull Hero hero) {
+    public final void prepare(@Nonnull Hero hero) {
         final PlayerInventory inventory = getInventory();
         final HotbarLoadout loadout = getProfile().getHotbarLoadout();
 
@@ -1319,7 +1308,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
             }
         }
 
-        callOnStart();
+        ElementCaller.CALLER.onStart(this);
 
         inventory.setItem(weaponSlot, hero.getWeapon().getItem());
         giveTalentItems();
@@ -1640,51 +1629,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return consumer.apply(clazz.cast(skin));
     }
 
-    @Override
-    public void callOnStart() {
-        Manager.current().currentMap().onStart(this);
-
-        final Hero hero = getHero();
-        hero.onStart(this);
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onStart(this);
-    }
-
-    @Override
-    public void callOnStop() {
-        Manager.current().currentMap().onStop(this);
-
-        final Hero hero = getHero();
-        hero.onStop(this);
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onStop(this);
-    }
-
-    @Override
-    public void callOnDeath() {
-        Manager.current().currentMap().onStop(this);
-
-        final Hero hero = getHero();
-        hero.onDeath(this);
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onDeath(this);
-        weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
-
-        attributes.onDeath(this);
-
-        executeTalentsOnDeath();
-    }
-
-    @Override
-    public void callOnPlayersRevealed() {
-        final Hero hero = getHero();
-
-        hero.onPlayersRevealed(this);
-    }
-
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();
@@ -1718,7 +1662,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         item.setAmount(chargedTalent.getMaxCharges());
     }
 
-    private void executeTalentsOnDeath() {
+    public void executeTalentsOnDeath() {
         final Hero hero = getHero();
 
         executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());

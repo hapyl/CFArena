@@ -2,36 +2,29 @@ package me.hapyl.fight.game.maps.features.japan;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
-import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.Vector;
 
 import java.util.Set;
 
-public class JapanFeature extends MapFeature implements Listener {
+public class JapanFeature extends LevelFeature implements Listener {
 
     private final Location[] healingSakuraLocations = {
             BukkitUtils.defLocation(972, 66, -12),
@@ -113,7 +106,7 @@ public class JapanFeature extends MapFeature implements Listener {
         final Action action = ev.getAction();
         final Block block = ev.getClickedBlock();
 
-        if (action != Action.PHYSICAL || !validateCurrentMap(GameMaps.JAPAN)) {
+        if (action != Action.PHYSICAL || !validateCurrentMap(EnumLevel.JAPAN)) {
             return;
         }
 

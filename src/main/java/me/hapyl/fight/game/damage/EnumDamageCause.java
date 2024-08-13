@@ -153,6 +153,7 @@ public enum EnumDamageCause {
     CELESTE_ARROW(DamageCause.nonCrit("was shot", "by")),
     CHAOS(DamageCause.nonCrit("was chaotically killed", "by").setDamageTicks(1)),
     SHARK_BITE(DamageCause.nonCrit("was bitten", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
+    NYX_SPIKE(DamageCause.nonCrit("was pierced to death", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
 
     ;
 

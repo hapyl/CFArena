@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.weapons.range;
 
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -11,11 +13,7 @@ import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
-import me.hapyl.fight.util.collection.RangeTreeMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -26,7 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
+public abstract class RangeWeapon extends Weapon implements UIComponent {
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
     public static final double HEADSHOT_MULTIPLIER = 1.5d;
@@ -74,11 +72,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     }
 
     @Override
-    public final void onStart() {
+    public final void onStart(@Nonnull GameInstance instance) {
     }
 
     @Override
-    public final void onStop() {
+    public final void onStop(@Nonnull GameInstance instance) {
         playerAmmo.clear();
     }
 

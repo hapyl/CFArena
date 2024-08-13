@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.eterna.module.nbt.NBT;
@@ -38,7 +38,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     private final Map<Integer, Relic> byId;
     private final Map<Type, List<Relic>> byType;
-    private final Map<GameMaps, List<Relic>> byZone;
+    private final Map<EnumLevel, List<Relic>> byZone;
 
     private final Map<Integer, Reward> collectorRewards;
     private final Map<Integer, Reward> exchangeReward;
@@ -116,23 +116,23 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         }
     }
 
-    public int countIn(GameMaps map) {
+    public int countIn(EnumLevel map) {
         return byZone.getOrDefault(map, Lists.newArrayList()).size();
     }
 
-    public boolean anyIn(GameMaps map) {
+    public boolean anyIn(EnumLevel map) {
         return countIn(map) > 0;
     }
 
     /**
      * Gets relics in the given zone.
-     * Prefer {@link #countIn(GameMaps)} if you just need the count.
+     * Prefer {@link #countIn(EnumLevel)} if you just need the count.
      *
      * @param map - Zone.
      * @return list of relics in the given zone.
      */
     @Nonnull
-    public List<Relic> byZone(GameMaps map) {
+    public List<Relic> byZone(EnumLevel map) {
         return Lists.newArrayList(byZone.getOrDefault(map, Lists.newArrayList()));
     }
 
@@ -155,7 +155,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return byId.values().stream().filter(relic -> relic.hasFound(player)).toList();
     }
 
-    public List<Relic> getFoundListIn(Player player, GameMaps zone) {
+    public List<Relic> getFoundListIn(Player player, EnumLevel zone) {
         return getFoundList(player).stream().filter(relic -> relic.getZone() == zone).toList();
     }
 
@@ -173,10 +173,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     @Nonnull
-    public List<GameMaps> getMapsWithRelics() {
-        final List<GameMaps> list = Lists.newArrayList();
+    public List<EnumLevel> getMapsWithRelics() {
+        final List<EnumLevel> list = Lists.newArrayList();
 
-        for (GameMaps map : GameMaps.values()) {
+        for (EnumLevel map : EnumLevel.values()) {
             if (!anyIn(map)) {
                 continue;
             }
@@ -212,33 +212,33 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(106, new Relic(Type.SAPPHIRE, -9, 61, 6));
 
         // Arena
-        registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(GameMaps.ARENA));
-        registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(GameMaps.ARENA));
-        registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(GameMaps.ARENA));
-        registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(GameMaps.ARENA));
+        registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(EnumLevel.ARENA));
+        registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(EnumLevel.ARENA));
+        registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(EnumLevel.ARENA));
+        registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(EnumLevel.ARENA));
 
         // Japan - Reversed Ids in 300-399 range
         // Skipping for now, since rebuilding -h
 
         // Greenhouse
-        registerRelic(400, new Relic(Type.EMERALD, 1503, 69, -2).setZone(GameMaps.GREENHOUSE));
-        registerRelic(401, new Relic(Type.EMERALD, 1501, 62, -20).setZone(GameMaps.GREENHOUSE));
+        registerRelic(400, new Relic(Type.EMERALD, 1503, 69, -2).setZone(EnumLevel.GREENHOUSE));
+        registerRelic(401, new Relic(Type.EMERALD, 1501, 62, -20).setZone(EnumLevel.GREENHOUSE));
 
         // Railway (Old)
-        registerRelic(500, new Relic(Type.SAPPHIRE, 2038, 63, 1).setZone(GameMaps.RAILWAY));
-        registerRelic(501, new Relic(Type.SAPPHIRE, 2036, 65, -23).setZone(GameMaps.RAILWAY));
-        registerRelic(502, new Relic(Type.EMERALD, 1991, 66, 17).setZone(GameMaps.RAILWAY));
+        registerRelic(500, new Relic(Type.SAPPHIRE, 2038, 63, 1).setZone(EnumLevel.RAILWAY));
+        registerRelic(501, new Relic(Type.SAPPHIRE, 2036, 65, -23).setZone(EnumLevel.RAILWAY));
+        registerRelic(502, new Relic(Type.EMERALD, 1991, 66, 17).setZone(EnumLevel.RAILWAY));
 
         // Winery
-        registerRelic(600, new Relic(Type.SAPPHIRE, 5031, 62, 16).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 5023, 62, -10).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
+        registerRelic(600, new Relic(Type.SAPPHIRE, 5031, 62, 16).setZone(EnumLevel.WINERY));
+        registerRelic(601, new Relic(Type.DIAMOND, 5023, 62, -10).setZone(EnumLevel.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
 
         // Library
-        registerRelic(700, new Relic(Type.AMETHYST, 3979, 78, -19).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
-        registerRelic(701, new Relic(Type.DIAMOND, 4018, 72, -15).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
+        registerRelic(700, new Relic(Type.AMETHYST, 3979, 78, -19).setZone(EnumLevel.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(701, new Relic(Type.DIAMOND, 4018, 72, -15).setZone(EnumLevel.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
 
         // Limbo
-        registerRelic(800, new Relic(Type.ROSE_QUARTZ, 6509, -1, 106).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(800, new Relic(Type.ROSE_QUARTZ, 6509, -1, 106).setZone(EnumLevel.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {

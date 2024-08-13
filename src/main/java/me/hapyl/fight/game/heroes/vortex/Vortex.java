@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.vortex;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -68,7 +69,7 @@ public class Vortex extends Hero implements UIComplexComponent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         dreamStackMap.values().forEach(DreamStack::cancel);
         dreamStackMap.clear();
     }

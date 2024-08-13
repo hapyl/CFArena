@@ -2,6 +2,8 @@ package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.exception.HandleNotSetException;
 import me.hapyl.fight.game.Named;
@@ -138,7 +140,10 @@ import me.hapyl.fight.game.talents.tamer.MineOBall;
 import me.hapyl.fight.game.talents.tamer.TamingTheEarth;
 import me.hapyl.fight.game.talents.tamer.TamingTheTime;
 import me.hapyl.fight.game.talents.tamer.TamingTheWind;
-import me.hapyl.fight.game.talents.techie.*;
+import me.hapyl.fight.game.talents.techie.CipherLock;
+import me.hapyl.fight.game.talents.techie.Saboteur;
+import me.hapyl.fight.game.talents.techie.TrapCage;
+import me.hapyl.fight.game.talents.techie.TrapWire;
 import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
@@ -151,8 +156,6 @@ import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
-import me.hapyl.eterna.module.util.BFormat;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 
@@ -644,7 +647,7 @@ public enum Talents {
 
     ;
 
-    private final static Map<TalentType, List<Talents>> BY_TYPE;
+    private static final Map<TalentType, List<Talents>> BY_TYPE;
 
     static {
         BY_TYPE = Maps.newHashMap();

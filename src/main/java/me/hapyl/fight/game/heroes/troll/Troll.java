@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.troll;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -76,7 +77,7 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         cobwebs.values().forEach(StickyCobweb::remove);
         cobwebs.clear();
     }

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.techie;
 
 import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -129,7 +130,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

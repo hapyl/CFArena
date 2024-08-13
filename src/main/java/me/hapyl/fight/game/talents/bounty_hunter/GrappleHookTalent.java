@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -116,8 +117,8 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         playerHooks.values().forEach(GrappleHook::remove);
         playerHooks.clear();

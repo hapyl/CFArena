@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.librarian;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -87,7 +88,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         final int grimoireLevelUpDelay = 900; // 40
 
         new GameTask() {

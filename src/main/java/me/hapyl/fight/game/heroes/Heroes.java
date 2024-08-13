@@ -3,6 +3,8 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
@@ -16,6 +18,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.archer_tutorial.TutorialArcher;
+import me.hapyl.fight.game.heroes.aurora.Aurora;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
@@ -24,6 +27,7 @@ import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.heroes.frostbite.Freazly;
+import me.hapyl.fight.game.heroes.geo.Geo;
 import me.hapyl.fight.game.heroes.gunner.Gunner;
 import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.healer.Healer;
@@ -56,16 +60,15 @@ import me.hapyl.fight.game.heroes.vampire.Vampire;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
-import me.hapyl.fight.game.heroes.aurora.Aurora;
-import me.hapyl.fight.game.heroes.geo.Geo;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Formatted;
-import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -129,17 +132,25 @@ public enum Heroes implements Formatted {
 
     ;
 
-    public static final Heroes DEFAULT_HERO = ARCHER;
+    public static final Heroes DEFAULT_HERO;
 
-    private final static List<Heroes> PLAYABLE = Lists.newArrayList();
+    private final static List<Heroes> PLAYABLE;
 
-    private final static Map<Archetype, Set<Heroes>> BY_ARCHETYPE = Maps.newHashMap();
-    private final static Map<Gender, Set<Heroes>> BY_GENDER = Maps.newHashMap();
-    private final static Map<Race, Set<Heroes>> BY_RACE = Maps.newHashMap();
+    private final static Map<Archetype, Set<Heroes>> BY_ARCHETYPE;
+    private final static Map<Gender, Set<Heroes>> BY_GENDER;
+    private final static Map<Race, Set<Heroes>> BY_RACE;
 
     private static GlobalHeroStats globalStats;
 
     static {
+        DEFAULT_HERO = ARCHER;
+
+        PLAYABLE  = Lists.newArrayList();
+
+        BY_ARCHETYPE = Maps.newHashMap();
+        BY_GENDER = Maps.newHashMap();
+        BY_RACE = Maps.newHashMap();
+
         for (Heroes enumHero : values()) {
             if (!enumHero.isValidHero()) {
                 continue;

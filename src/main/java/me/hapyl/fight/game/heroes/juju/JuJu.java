@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -189,7 +190,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         climbing.clear();
 
         playerArrows.values().forEach(GameTask::cancel);
@@ -217,7 +218,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         final Material climbCooldownMaterial = getPassiveTalent().getMaterial();
 
         new GameTask() {

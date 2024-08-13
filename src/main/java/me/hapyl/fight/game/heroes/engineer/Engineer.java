@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.engineer;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -167,7 +168,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

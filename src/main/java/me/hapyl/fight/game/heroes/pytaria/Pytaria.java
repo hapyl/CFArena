@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.pytaria;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -80,7 +81,7 @@ public class Pytaria extends Hero {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.taker;
 
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -64,7 +65,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerBones.values().forEach(SpiritualBones::clearArmorStands);
         playerBones.clear();
     }
@@ -79,7 +80,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
     }
 
     @Override
-    public void onPlayersRevealed() {
+    public void onPlayersRevealed(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

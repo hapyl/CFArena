@@ -1,43 +1,35 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.event.custom.game.GameChangeStateEvent;
-import me.hapyl.fight.event.custom.game.GameEndEvent;
-import me.hapyl.fight.event.custom.game.GameStartEvent;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.WinCosmetic;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.PlayerDataHandler;
-import me.hapyl.fight.game.heroes.TickingHero;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.util.Materials;
+import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -47,7 +39,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
-public class GameInstance extends TickingGameTask implements IGameInstance, GameElement {
+public class GameInstance extends TickingGameTask implements IGameInstance, Lifecycle {
 
     private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
@@ -55,7 +47,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     private final long startedAt;
     //private final Map<UUID, GamePlayer> players;
     //private final Map<LivingEntity, EntityData> entityData;
-    private final GameMaps currentMap;
+    private final EnumLevel currentMap;
     private final CFGameMode mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
@@ -64,7 +56,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     private State gameState;
     private Set<Heroes> activeHeroes;
 
-    public GameInstance(@Nonnull CFGameMode mode, @Nonnull GameMaps map) {
+    public GameInstance(@Nonnull CFGameMode mode, @Nonnull EnumLevel map) {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
 
@@ -83,7 +75,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         runTaskTimer(0, 1);
     }
 
-    public GameInstance(@Nonnull Modes mode, @Nonnull GameMaps map) {
+    public GameInstance(@Nonnull Modes mode, @Nonnull EnumLevel map) {
         this(mode.getMode(), map);
     }
 
@@ -131,7 +123,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     public void executeWinCosmetic() {
         Cosmetics cosmetic = DEFAULT_WIN_COSMETIC;
-        Location location = currentMap.getMap().getLocation();
+        Location location = currentMap.getLevel().getLocation();
         Player winner = null;
 
         // Find winner's cosmetic and location
@@ -212,97 +204,13 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onStart() {
-        mode.onStart(this);
-
-        for (final Heroes enumHero : Heroes.values()) {
-            final Hero hero = enumHero.getHero();
-
-            hero.onStart();
-            hero.getWeapon().onStart();
-
-            // Schedule task
-            if (hero instanceof TickingHero tickingHero) {
-                new TickingGameTask() {
-                    @Override
-                    public void run(int tick) {
-                        tickingHero.tick(tick);
-                    }
-                }.runTaskTimer(1, 1);
-            }
-        }
-
-        for (final Talents enumTalent : Talents.values()) {
-            enumTalent.getTalent().onStart();
-        }
-
-        currentMap.getMap().onStart();
-
-        // Call event
-        new GameStartEvent(this).call();
+        ElementCaller.CALLER.onStart(this);
     }
 
-    // This while onStart() onStop() calls are fucking stupid, why not design using the existing event system
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onStop() {
-        // Generate crates
-        for (final Material material : Material.values()) {
-            if (material.isItem()) {
-                Materials.setCooldown(material, 0);
-            }
-        }
-
-        // call talents onStop and reset cooldowns
-        for (final Talents enumTalent : Talents.values()) {
-            enumTalent.getTalent().onStop();
-        }
-
-        // call heroes onStop
-        for (final Heroes enumHero : Heroes.values()) {
-            final Hero hero = enumHero.getHero();
-
-            hero.onStop();
-
-            if (hero instanceof PlayerDataHandler<?> handler) {
-                handler.resetPlayerData();
-            }
-
-            final Weapon weapon = hero.getWeapon();
-
-            weapon.onStop();
-            weapon.getAbilities().forEach(Ability::clearCooldowns);
-        }
-
-        // call maps onStop
-        currentMap.getMap().onStop();
-
-        CF.getPlayers().forEach(player -> {
-            player.callOnStop();
-
-            if (player.isSpectator()) {
-                return;
-            }
-
-            // Give crates to players
-            Crates.grant(player, Crates.randomCrate());
-        });
-
-        // Call event
-        new GameEndEvent(this).call();
-    }
-
-    @Override
-    @OverridingMethodsMustInvokeSuper
-    public void onPlayersRevealed() {
-        for (final Heroes enumHero : Heroes.values()) {
-            enumHero.getHero().onPlayersRevealed();
-        }
-
-        for (final Talents enumTalent : Talents.values()) {
-            enumTalent.getTalent().onPlayersRevealed();
-        }
-
-        currentMap.getMap().onPlayersRevealed();
+        ElementCaller.CALLER.onStop(this);
     }
 
     @Nonnull
@@ -312,7 +220,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
 
     @Nonnull
     @Override
-    public GameMaps getEnumMap/*prefer adding enum to an enums*/() {
+    public EnumLevel getEnumMap/*prefer adding enum to an enums*/() {
         return currentMap;
     }
 
@@ -342,13 +250,13 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
     public Location getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers() {
         final Set<GamePlayer> players = CF.getPlayers();
 
-        if (players.size() != 0) {
+        if (!players.isEmpty()) {
             for (GamePlayer value : players) {
                 return value.getPlayer().getLocation();
             }
         }
 
-        return currentMap.getMap().getLocation();
+        return currentMap.getLevel().getLocation();
     }
 
     @Override
@@ -401,6 +309,11 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
             Manager.current().stopCurrentGame();
             cancel();
         }
+    }
+
+    @Nonnull
+    public Level currentLevel() {
+        return currentMap.getLevel();
     }
 
     private void createGamePlayers() {

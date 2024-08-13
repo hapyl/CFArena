@@ -3,18 +3,14 @@ package me.hapyl.fight.game.cosmetic.skin;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.SkinEntry;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.event.Listener;
-import org.checkerframework.checker.units.qual.K;
 
-public class SkinEffectManager implements Listener, GameElement {
+public class SkinEffectManager implements Listener, Lifecycle {
 
     public static final long STANDING_STILL_THRESHOLD = 1_000L;
 

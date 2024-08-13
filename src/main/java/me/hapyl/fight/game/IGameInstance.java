@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Player;
 
@@ -98,7 +98,7 @@ public interface IGameInstance {
      * @return This instance map.
      */
     @Nonnull
-    GameMaps getEnumMap();
+    EnumLevel getEnumMap();
 
     /**
      * Returns HEX code of this game instance.

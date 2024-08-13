@@ -5,7 +5,7 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMap;
+import me.hapyl.fight.game.maps.Level;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +21,7 @@ public class GamePackListener implements Listener {
             return;
         }
 
-        final GameMap currentMap = gameInstance.getEnumMap().getMap();
+        final Level currentMap = gameInstance.getEnumMap().getLevel();
         final Player player = ev.getPlayer();
         final GamePlayer gamePlayer = CF.getPlayer(player);
 

@@ -2,10 +2,10 @@ package me.hapyl.fight.game.trial.objecitive;
 
 import me.hapyl.eterna.module.math.Cuboid;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.trial.Trial;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrialObjectivePath extends Cuboid implements GameElement, Ticking {
+public class TrialObjectivePath extends Cuboid implements Lifecycle, Ticking {
 
     private static final BlockData airData = Material.AIR.createBlockData();
 

@@ -22,6 +22,7 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.competetive.Tournament;
 import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
+import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.gamemode.Modes;
@@ -30,8 +31,8 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
@@ -85,7 +86,7 @@ public final class Manager extends BukkitRunnable {
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
 
-    @Nonnull private GameMaps currentMap;
+    @Nonnull private EnumLevel currentMap;
     @Nonnull private Modes currentMode;
 
     private StartCountdown startCountdown;
@@ -112,7 +113,7 @@ public final class Manager extends BukkitRunnable {
         );
 
         // load config data
-        currentMap = Main.getPlugin().getConfigEnumValue("current-map", GameMaps.class, GameMaps.ARENA);
+        currentMap = Main.getPlugin().getConfigEnumValue("current-map", EnumLevel.class, EnumLevel.ARENA);
         currentMode = Main.getPlugin().getConfigEnumValue("current-mode", Modes.class, Modes.FFA);
 
         // init skin effect manager
@@ -433,12 +434,12 @@ public final class Manager extends BukkitRunnable {
             final GameMode gameMode = player.getGameMode();
 
             if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
-                player.teleport(GameMaps.SPAWN.getMap().getLocation());
+                player.teleport(EnumLevel.SPAWN.getLevel().getLocation());
                 LobbyItems.giveAll(player);
             }
         }
         else {
-            player.teleport(gameInstance.getEnumMap().getMap().getLocation());
+            player.teleport(gameInstance.getEnumMap().getLevel().getLocation());
         }
 
         // Notify operators
@@ -470,16 +471,16 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public GameMaps getCurrentMap() {
+    public EnumLevel getCurrentMap() {
         return currentMap;
     }
 
     @Nonnull
-    public GameMap currentMap() {
-        return currentMap.getMap();
+    public Level currentLevel() {
+        return currentMap.getLevel();
     }
 
-    public void setCurrentMap(@Nonnull GameMaps maps) {
+    public void setCurrentMap(@Nonnull EnumLevel maps) {
         currentMap = maps;
 
         // save to config
@@ -517,7 +518,7 @@ public final class Manager extends BukkitRunnable {
 
     public boolean canStartGame(DebugData debug) {
         // Pre-game start checks
-        if ((!currentMap.isPlayable() || !currentMap.getMap().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
+        if ((!currentMap.isPlayable() || !currentMap.getLevel().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
             displayError("Invalid map!");
             return false;
         }
@@ -604,7 +605,7 @@ public final class Manager extends BukkitRunnable {
 
             // Equip and hide players
             if (!gamePlayer.isSpectator()) {
-                gamePlayer.equipPlayer(gamePlayer.getHero());
+                gamePlayer.prepare(gamePlayer.getHero());
                 gamePlayer.hidePlayer();
 
                 // Apply player skin if exists
@@ -616,7 +617,7 @@ public final class Manager extends BukkitRunnable {
             }
 
             // Teleport to the map
-            player.teleport(currentMap.getMap().getLocation());
+            player.teleport(currentMap.getLevel().getLocation());
 
             // Glow teammates right after teleport
             gamePlayer.getTeam().glowTeammates();
@@ -625,7 +626,7 @@ public final class Manager extends BukkitRunnable {
         if (!debug.is(DebugData.Flag.DEBUG)) {
             Chat.broadcast("&a&l➺ &aAll players have been hidden!");
             Chat.broadcast("&a&l➺ &aThey have &e%ss &ato spread before being revealed.".formatted(
-                    BukkitUtils.roundTick(currentMap.getMap().getTimeBeforeReveal())));
+                    BukkitUtils.roundTick(currentMap.getLevel().getTimeBeforeReveal())));
         }
         else {
             this.gameInstance.setTimeLeft(10000000000L);
@@ -635,26 +636,26 @@ public final class Manager extends BukkitRunnable {
         GameTask.runLater(() -> {
             Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
             gameInstance.setGameState(State.IN_GAME);
-            gameInstance.onPlayersRevealed();
+
+            ElementCaller.CALLER.onPlayersRevealed(gameInstance);
 
             if (debug.any()) {
                 Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
                 Chat.broadcast("&c&lDEBUG &fDebugging: " + debug.list());
             }
 
-            CF.getAlivePlayers().forEach(target -> {
-                final World world = target.getWorld();
+            CF.getAlivePlayers().forEach(player -> {
+                final World world = player.getWorld();
 
-                target.callOnPlayersRevealed();
-                target.showPlayer();
+                player.showPlayer();
 
                 if (!debug.is(DebugData.Flag.DEBUG)) {
-                    world.strikeLightningEffect(target.getLocation().add(0, 2, 0));
+                    world.strikeLightningEffect(player.getLocation().add(0, 2, 0));
                 }
             });
 
             playAnimation();
-        }, debug.or(DebugData.Flag.DEBUG) ? 1 : currentMap.getMap().getTimeBeforeReveal());
+        }, debug.or(DebugData.Flag.DEBUG) ? 1 : currentMap.getLevel().getTimeBeforeReveal());
 
     }
 
@@ -729,7 +730,7 @@ public final class Manager extends BukkitRunnable {
         player.setGameMode(GameMode.SURVIVAL);
         player.setWalkSpeed(0.2f);
         player.setWorldBorder(player.getWorld().getWorldBorder());
-        player.teleport(GameMaps.SPAWN.getMap().getLocation());
+        player.teleport(EnumLevel.SPAWN.getLevel().getLocation());
 
         for (PotionEffect potionEffect : player.getActivePotionEffects()) {
             player.removePotionEffect(potionEffect.getType());

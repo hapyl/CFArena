@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -42,7 +43,7 @@ public class MoonwalkerWeapon extends Weapon {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         rayOfDeathMap.forEachAndClear(RayOfDeath::cancel);
     }
 

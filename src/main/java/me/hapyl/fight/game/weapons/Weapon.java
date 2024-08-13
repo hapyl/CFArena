@@ -3,11 +3,14 @@ package me.hapyl.fight.game.weapons;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemFunction;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.NonNullItemCreator;
-import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.element.ElementHandler;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotbarSlots;
@@ -20,8 +23,6 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Copyable;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.ItemFunction;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -30,6 +31,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -37,7 +39,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, GameElement, PlayerElement {
+public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, ElementHandler, PlayerElementHandler {
 
     public static final int DEFAULT_BOW_COOLDOWN = 15;
 
@@ -84,14 +86,6 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
         // FIXME (hapyl): 020, Nov 20: Might break cooldown for weapons that have multiple abilities
         ability.setCooldownMaterial(material);
         this.abilities.put(type, ability);
-    }
-
-    @Override
-    public void onStart() {
-    }
-
-    @Override
-    public void onStop() {
     }
 
     @Nullable
@@ -294,11 +288,10 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
             meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
 
             meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(
-                    UUID.randomUUID(),
-                    "AttackSpeed",
+                    BukkitUtils.createKey(UUID.randomUUID()),
                     0.0d,
                     AttributeModifier.Operation.ADD_NUMBER,
-                    EquipmentSlot.HAND
+                    EquipmentSlotGroup.HAND
             ));
         });
 

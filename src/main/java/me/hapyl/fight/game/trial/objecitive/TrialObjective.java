@@ -2,9 +2,9 @@ package me.hapyl.fight.game.trial.objecitive;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.SingleEventHandler;
 import org.bukkit.event.Event;
 
@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.List;
 
-public class TrialObjective implements GameElement, Described, Ticking, SingleEventHandler {
+public class TrialObjective implements Lifecycle, Described, Ticking, SingleEventHandler {
 
     public final Trial trial;
 

@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.cosmetic;
+package me.hapyl.fight.util.handle;
 
 import javax.annotation.Nonnull;
 
@@ -22,6 +22,8 @@ public interface EnumHandle<E extends Enum<E>> {
      * @param handle - Handle
      * @implNote might or might not throw an error if the handle is already set.
      */
-    void setHandle(@Nonnull E handle);
+    default void setHandle(@Nonnull E handle) {
+        throw new UnsupportedOperationException("setHandle is not supported for " + getClass().getSimpleName());
+    }
 
 }

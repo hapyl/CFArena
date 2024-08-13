@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ender;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
@@ -39,7 +40,7 @@ public class TeleportPearl extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         enderPearls.clear();
     }
 

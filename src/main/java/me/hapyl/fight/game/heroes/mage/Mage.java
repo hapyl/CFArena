@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.mage;
 
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -76,7 +77,7 @@ public class Mage extends Hero implements UIComponent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         soulsCharge.clear();
     }
 

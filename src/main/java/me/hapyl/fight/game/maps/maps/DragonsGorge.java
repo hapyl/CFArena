@@ -4,35 +4,34 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.util.ProgressBarBuilder;
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 
-import java.awt.image.ShortLookupTable;
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DragonsGorge extends GameMap {
+public class DragonsGorge extends Level {
 
     private final ProgressBarBuilder progressBar = new ProgressBarBuilder("❄", ChatColor.AQUA, 15);
 
-    public DragonsGorge() {
-        super("Dragon's Gorge");
+    public DragonsGorge(@Nonnull EnumLevel handle) {
+        super(handle, "Dragon's Gorge");
 
         setDescription("A gorge with a dragon in it. What could go wrong?");
         setMaterial(Material.DARK_OAK_BOAT);
         setSize(Size.SMALL);
         setTicksBeforeReveal(100);
 
-        addFeature(new MapFeature("Sheer Cold", """
+        addFeature(new LevelFeature("Sheer Cold", """
                 This water is so cold! Better keep an eye on your cold-o-meter!
                 """) {
 

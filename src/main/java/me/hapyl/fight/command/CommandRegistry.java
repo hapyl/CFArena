@@ -65,6 +65,7 @@ import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
@@ -234,6 +235,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
+        register("writeCallerLogsToFile", (player, args) -> {
+            final File outputFile = ElementCaller.CALLER.writeLogger();
+
+            if (outputFile == null) {
+                player.sendRichMessage("<red>Cannot write logs because it's empty!");
+                return;
+            }
+
+            player.sendRichMessage("<green>Wrote into " + outputFile.getAbsolutePath());
+        });
+
         register("testMongoSerialize", (player, args) -> {
             if (args.length == 0) {
                 final List<PunishmentReport> reports = AntiCheatCollection.get(player.getUniqueId());
@@ -2701,7 +2713,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 final IntInt i = new IntInt();
 
-                instance.getEnumMap().getMap().getGamePacks().forEach(pack -> {
+                instance.getEnumMap().getLevel().getGamePacks().forEach(pack -> {
                     pack.getActivePacks().forEach(activePack -> {
                         i.increment();
                         activePack.createEntity();
@@ -2720,7 +2732,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            gameInstance.getEnumMap().getMap().getGamePacks().forEach(GamePack::accelerate);
+            gameInstance.getEnumMap().getLevel().getGamePacks().forEach(GamePack::accelerate);
 
             Chat.sendMessage(player, "&aDone!");
         });

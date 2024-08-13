@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -50,7 +51,7 @@ public class TotemTalent extends InputTalent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerTotems.forEachAndClear(list -> {
             list.forEach(Totem::cancel);
             list.clear();

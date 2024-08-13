@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -175,7 +176,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

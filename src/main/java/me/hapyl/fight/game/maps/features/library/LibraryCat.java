@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps.features.library;
 
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.eterna.module.entity.Entities;
@@ -16,7 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
-public class LibraryCat extends MapFeature implements Listener {
+public class LibraryCat extends LevelFeature implements Listener {
 
     private final Location[] catLocations = {
             asLocation(4021, 75, -18),

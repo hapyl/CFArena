@@ -14,7 +14,7 @@ import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.techie.BugType;
 import me.hapyl.fight.game.heroes.techie.Techie;
 import me.hapyl.fight.game.heroes.techie.TechieData;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.gamepack.ActivePack;
 import me.hapyl.fight.game.maps.gamepack.HackedPack;
 import me.hapyl.fight.game.talents.TalentType;
@@ -171,10 +171,10 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
     @Nonnull
     private List<ActivePack> getActivePacks() {
-        final GameMaps currentMap = Manager.current().getCurrentMap();
+        final EnumLevel currentMap = Manager.current().getCurrentMap();
         final List<ActivePack> list = Lists.newArrayList();
 
-        currentMap.getMap().getGamePacks().forEach(gamePack -> list.addAll(gamePack.getActivePacks()));
+        currentMap.getLevel().getGamePacks().forEach(gamePack -> list.addAll(gamePack.getActivePacks()));
         return list;
     }
 

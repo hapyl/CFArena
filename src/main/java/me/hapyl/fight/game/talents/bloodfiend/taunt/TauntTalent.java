@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -110,7 +111,7 @@ public abstract class TauntTalent extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerTaunt.values().forEach(Taunt::remove);
         playerTaunt.clear();
     }

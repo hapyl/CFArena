@@ -2,21 +2,21 @@ package me.hapyl.fight.game.maps;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
 @AutoRegisteredListener
-public abstract class MapFeature implements Described, GameElement, PlayerElement {
+public abstract class LevelFeature implements Described, Lifecycle, PlayerElementHandler {
 
     private final String name;
     private final String description;
 
-    public MapFeature(String name, String description) {
+    public LevelFeature(String name, String description) {
         this.name = name;
         this.description = description;
 
@@ -48,11 +48,11 @@ public abstract class MapFeature implements Described, GameElement, PlayerElemen
     public void tick(int tick) {
     }
 
-    protected final boolean validateCurrentMap(GameMaps maps) {
+    protected final boolean validateCurrentMap(EnumLevel maps) {
         return Manager.current().getCurrentMap() == maps;
     }
 
-    protected final boolean validateGameAndMap(GameMaps map) {
+    protected final boolean validateGameAndMap(EnumLevel map) {
         return validateCurrentMap(map) && Manager.current().isGameInProgress();
     }
 

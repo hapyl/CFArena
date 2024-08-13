@@ -1,8 +1,10 @@
 package me.hapyl.fight.game.heroes.alchemist;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -14,18 +16,15 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.RandomTable;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -40,7 +39,7 @@ import java.util.UUID;
 import static org.bukkit.Sound.ENTITY_WITCH_AMBIENT;
 import static org.bukkit.Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR;
 
-public class Alchemist extends Hero implements UIComponent, PlayerElement {
+public class Alchemist extends Hero implements UIComponent {
 
     private final RandomTable<MadnessEffect> positiveEffects = new RandomTable<>();
     private final RandomTable<MadnessEffect> negativeEffects = new RandomTable<>();
@@ -170,7 +169,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         toxinLevel.clear();
         cauldronEffectMap.clear();
     }
@@ -182,7 +181,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerElement {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

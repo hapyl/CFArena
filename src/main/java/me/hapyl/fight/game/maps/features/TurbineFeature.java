@@ -7,7 +7,7 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TurbineFeature extends MapFeature {
+public class TurbineFeature extends LevelFeature {
 
     private final List<Turbine> turbines;
 

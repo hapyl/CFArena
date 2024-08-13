@@ -5,6 +5,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.EquipmentSlots;
@@ -68,7 +69,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {

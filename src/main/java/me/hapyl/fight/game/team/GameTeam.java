@@ -1,7 +1,11 @@
 package me.hapyl.fight.game.team;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.GameElement;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
@@ -9,12 +13,8 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Described;
+import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.SmallCapsDescriber;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
-import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -32,7 +32,7 @@ import java.util.TreeMap;
  * The players are limited to {@link #maxPlayers}, but the entities are unlimited.
  * The entities will also be cleared upon {@link #onStop()}
  */
-public enum GameTeam implements Described, SmallCapsDescriber, Selectable, GameElement {
+public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifecycle {
 
     RED(ChatColor.RED, Material.RED_BANNER),
     GREEN(ChatColor.GREEN, Material.GREEN_BANNER),

@@ -2,9 +2,9 @@ package me.hapyl.fight.game.maps.gamepack;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-public abstract class GamePack implements GameElement, Listener {
+public abstract class GamePack implements Lifecycle, Listener {
 
     private final List<Location> locations;
     private final Set<ActivePack> activePacks;
@@ -69,8 +69,7 @@ public abstract class GamePack implements GameElement, Listener {
         return null;
     }
 
-    @Override
-    public void onPlayersRevealed() {
+    public void activatePacks() {
         // Activate packs
         activePacks.forEach(activePack -> activePack.next(true));
     }

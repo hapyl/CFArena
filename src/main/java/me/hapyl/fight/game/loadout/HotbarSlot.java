@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.loadout;
 
-import me.hapyl.fight.game.cosmetic.EnumHandle;
+import me.hapyl.fight.util.handle.EnumHandle;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Described;
 import org.bukkit.Material;

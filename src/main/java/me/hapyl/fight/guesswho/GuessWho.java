@@ -1,9 +1,9 @@
 package me.hapyl.fight.guesswho;
 
-import me.hapyl.fight.game.GameElement;
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
 
@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class GuessWho extends GameTask implements GameElement {
+public class GuessWho extends GameTask implements Lifecycle {
 
     private static final int BOARD_SIZE = 28;
 

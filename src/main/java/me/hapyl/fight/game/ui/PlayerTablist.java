@@ -18,7 +18,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
@@ -234,7 +234,7 @@ public class PlayerTablist extends Tablist {
         entryList.append("&b&lRelic Hunt:", EntryTexture.AQUA);
 
         final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
-        final GameMaps currentMap = manager.isGameInProgress() ? manager.getCurrentMap() : GameMaps.SPAWN;
+        final EnumLevel currentMap = manager.isGameInProgress() ? manager.getCurrentMap() : EnumLevel.SPAWN;
 
         final int totalRelics = relicHunt.getTotalRelics();
         final int totalRelicsFound = collectibleEntry.getFoundList().size();

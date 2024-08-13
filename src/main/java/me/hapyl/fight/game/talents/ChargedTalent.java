@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
@@ -55,12 +56,12 @@ public class ChargedTalent extends Talent {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         data.forEach((p, d) -> d.reset());
         data.clear();
     }

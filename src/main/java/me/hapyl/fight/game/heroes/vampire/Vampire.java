@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -262,7 +263,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
     }
 
     @Override
-    public void onPlayersRevealed() {
+    public void onPlayersRevealed(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

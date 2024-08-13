@@ -104,11 +104,6 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         player.setAllowFlight(true);
     }
 
-    @Override
-    public void onRespawn(@Nonnull GamePlayer player) {
-        onPlayersRevealed(player);
-    }
-
     @EventHandler()
     public void handleDoubleJump(PlayerToggleFlightEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());

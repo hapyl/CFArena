@@ -3,19 +3,20 @@ package me.hapyl.fight.game.maps;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.element.ElementHandler;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.maps.gamepack.ChangePack;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.maps.gamepack.HealthPack;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.fight.util.handle.EnumHandle;
 import org.bukkit.*;
 import org.bukkit.event.Listener;
 
@@ -28,13 +29,14 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 @AutoRegisteredListener
-public class GameMap implements GameElement, PlayerElement {
+public class Level implements ElementHandler, PlayerElementHandler, EnumHandle<EnumLevel> {
 
     private final String name;
+    private final EnumLevel handle;
 
     private final List<PredicateLocation> locations;
     private final Map<PackType, GamePack> gamePacks;
-    private final List<MapFeature> features;
+    private final List<LevelFeature> features;
     private final Set<Modes> allowedModes;
 
     private int ticksBeforeReveal;
@@ -46,25 +48,18 @@ public class GameMap implements GameElement, PlayerElement {
 
     private boolean isPlayable;
 
-    protected GameMap(String name) {
-        this(name, Material.BEDROCK, 0);
-    }
-
-    private GameMap(String name, Material material, int ticksBeforeReveal) {
-        this(name, "No Description Provided", material, ticksBeforeReveal);
-    }
-
-    private GameMap(String name, String info, Material material, int ticksBeforeReveal) {
+    protected Level(@Nonnull EnumLevel handle, @Nonnull String name) {
+        this.handle = handle;
         this.name = name;
-        this.material = material;
-        this.description = info;
+        this.material = Material.BEDROCK;
+        this.description = "No description.";
         this.mapTime = 6000;
         this.weatherType = WeatherType.CLEAR;
         this.locations = Lists.newArrayList();
         this.features = Lists.newArrayList();
         this.allowedModes = Sets.newHashSet();
         this.size = Size.SMALL;
-        this.ticksBeforeReveal = ticksBeforeReveal;
+        this.ticksBeforeReveal = 0;
         this.isPlayable = true;
 
         // init game packs
@@ -76,17 +71,11 @@ public class GameMap implements GameElement, PlayerElement {
             CF.registerEvents(listener);
         }
     }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        features.forEach(feature -> feature.onDeath(player));
-    }
-
     public boolean isPlayable() {
         return isPlayable;
     }
 
-    public GameMap setPlayable(boolean playable) {
+    public Level setPlayable(boolean playable) {
         isPlayable = playable;
         return this;
     }
@@ -95,12 +84,12 @@ public class GameMap implements GameElement, PlayerElement {
         return mapTime;
     }
 
-    public GameMap setTime(int time) {
+    public Level setTime(int time) {
         this.mapTime = time;
         return this;
     }
 
-    public GameMap setTime(@Nonnull MinecraftTime time) {
+    public Level setTime(@Nonnull MinecraftTime time) {
         return setTime(time.time);
     }
 
@@ -108,7 +97,7 @@ public class GameMap implements GameElement, PlayerElement {
         return weatherType;
     }
 
-    public GameMap setWeather(WeatherType weather) {
+    public Level setWeather(WeatherType weather) {
         this.weatherType = weather;
         return this;
     }
@@ -117,7 +106,7 @@ public class GameMap implements GameElement, PlayerElement {
         return allowedModes;
     }
 
-    public GameMap addAllowedMode(Modes mode) {
+    public Level addAllowedMode(Modes mode) {
         this.allowedModes.add(mode);
         return this;
     }
@@ -134,22 +123,22 @@ public class GameMap implements GameElement, PlayerElement {
         return material;
     }
 
-    public GameMap setMaterial(Material material) {
+    public Level setMaterial(Material material) {
         this.material = material;
         return this;
     }
 
     @Nonnull
-    public List<MapFeature> getFeatures() {
+    public List<LevelFeature> getFeatures() {
         return features;
     }
 
     @Nonnull
-    public List<MapFeature> getNonHiddenFeatures() {
-        final List<MapFeature> list = Lists.newArrayList();
+    public List<LevelFeature> getNonHiddenFeatures() {
+        final List<LevelFeature> list = Lists.newArrayList();
 
-        for (MapFeature feature : features) {
-            if (feature instanceof HiddenMapFeature) {
+        for (LevelFeature feature : features) {
+            if (feature instanceof HiddenLevelFeature) {
                 continue;
             }
 
@@ -165,8 +154,8 @@ public class GameMap implements GameElement, PlayerElement {
         }
 
         int notHiddenCount = 0;
-        for (MapFeature feature : features) {
-            if (feature instanceof HiddenMapFeature) {
+        for (LevelFeature feature : features) {
+            if (feature instanceof HiddenLevelFeature) {
                 continue;
             }
 
@@ -176,12 +165,12 @@ public class GameMap implements GameElement, PlayerElement {
         return notHiddenCount > 0;
     }
 
-    public GameMap addFeature(MapFeature feature) {
+    public Level addFeature(LevelFeature feature) {
         this.features.add(feature);
         return this;
     }
 
-    public GameMap addFeature(List<MapFeature> feature) {
+    public Level addFeature(List<LevelFeature> feature) {
         this.features.addAll(feature);
         return this;
     }
@@ -190,7 +179,7 @@ public class GameMap implements GameElement, PlayerElement {
         return description;
     }
 
-    public GameMap setDescription(String info) {
+    public Level setDescription(String info) {
         this.description = info;
         return this;
     }
@@ -199,34 +188,34 @@ public class GameMap implements GameElement, PlayerElement {
         return size;
     }
 
-    public GameMap setSize(Size size) {
+    public Level setSize(Size size) {
         this.size = size;
         return this;
     }
 
-    public GameMap addLocation(double x, double y, double z) {
+    public Level addLocation(double x, double y, double z) {
         return addLocation(x, y, z, 0.0f, 0.0f);
     }
 
-    public GameMap addLocation(double x, double y, double z, float yaw, float pitch) {
+    public Level addLocation(double x, double y, double z, float yaw, float pitch) {
         return addLocation(createLocation(x, y, z, yaw, pitch));
     }
 
-    public GameMap addLocation(double x, double y, double z, float yaw, float pitch, Predicate<GameMap> predicate) {
+    public Level addLocation(double x, double y, double z, float yaw, float pitch, Predicate<Level> predicate) {
         this.locations.add(new PredicateLocation(createLocation(x, y, z, yaw, pitch), predicate));
         return this;
     }
 
-    public GameMap addLocation(double x, double y, double z, Predicate<GameMap> predicate) {
+    public Level addLocation(double x, double y, double z, Predicate<Level> predicate) {
         return addLocation(x, y, z, 0.0f, 0.0f, predicate);
     }
 
-    public GameMap addLocation(Location location) {
+    public Level addLocation(Location location) {
         this.locations.add(new PredicateLocation(location));
         return this;
     }
 
-    public GameMap addLocation(Location location, Predicate<GameMap> predicate) {
+    public Level addLocation(Location location, Predicate<Level> predicate) {
         this.locations.add(new PredicateLocation(location, predicate));
         return this;
     }
@@ -239,7 +228,7 @@ public class GameMap implements GameElement, PlayerElement {
         return name;
     }
 
-    public GameMap setTicksBeforeReveal(int tick) {
+    public Level setTicksBeforeReveal(int tick) {
         this.ticksBeforeReveal = tick;
         return this;
     }
@@ -252,7 +241,7 @@ public class GameMap implements GameElement, PlayerElement {
     @Nonnull
     public Location getLocation() {
         if (locations.size() == 1) {
-            return locations.get(0).getLocation();
+            return locations.getFirst().getLocation();
         }
 
         // Inspired by NASA! (real)
@@ -282,7 +271,7 @@ public class GameMap implements GameElement, PlayerElement {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         // Set map time
         final World world = getLocation().getWorld();
 
@@ -295,7 +284,7 @@ public class GameMap implements GameElement, PlayerElement {
 
         // Features
         if (!features.isEmpty()) {
-            features.forEach(MapFeature::onStart);
+            features.forEach(LevelFeature::onStart);
 
             new GameTask() {
                 private int tick = 0;
@@ -312,19 +301,18 @@ public class GameMap implements GameElement, PlayerElement {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         gamePacks.values().forEach(GamePack::onStop);
-        features.forEach(MapFeature::onStop);
+        features.forEach(LevelFeature::onStop);
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onPlayersRevealed() {
-        gamePacks.values().forEach(GamePack::onPlayersRevealed);
-        features.forEach(MapFeature::onPlayersRevealed);
+    public void onPlayersRevealed(@Nonnull GameInstance instance) {
+        gamePacks.values().forEach(GamePack::activatePacks);
     }
 
-    public GameMap addPackLocation(PackType type, double x, double y, double z) {
+    public Level addPackLocation(PackType type, double x, double y, double z) {
         if (!gamePacks.containsKey(type)) {
             throw new IllegalStateException("game pack %s not initiated?".formatted(type.name()));
         }
@@ -337,7 +325,13 @@ public class GameMap implements GameElement, PlayerElement {
         return gamePacks.values();
     }
 
+    @Nonnull
+    @Override
+    public EnumLevel getHandle() {
+        return handle;
+    }
+
     private Location createLocation(double x, double y, double z, float yaw, float pitch) {
-        return new Location(Bukkit.getWorlds().get(0), Math.floor(x) + 0.5d, y, Math.floor(z) + 0.5d, yaw, pitch);
+        return new Location(Bukkit.getWorlds().getFirst(), Math.floor(x) + 0.5d, y, Math.floor(z) + 0.5d, yaw, pitch);
     }
 }

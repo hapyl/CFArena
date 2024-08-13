@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.doctor;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -57,7 +58,7 @@ public class DrEd extends Hero implements UIComponent {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {
@@ -98,11 +99,6 @@ public class DrEd extends Hero implements UIComponent {
     }
 
     @Override
-    public void onRespawn(@Nonnull GamePlayer player) {
-        onStart(player);
-    }
-
-    @Override
     public void onDeath(@Nonnull GamePlayer player) {
         getShield(player).remove();
 
@@ -112,7 +108,7 @@ public class DrEd extends Hero implements UIComponent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerShield.values().forEach(BlockShield::remove);
         playerShield.clear();
     }

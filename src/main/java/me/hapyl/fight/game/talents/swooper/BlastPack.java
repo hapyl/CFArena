@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.swooper;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -38,8 +39,8 @@ public class BlastPack extends ChargedTalent {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         blastPacks.forEachAndClear(BlastPackEntity::cancel);
     }

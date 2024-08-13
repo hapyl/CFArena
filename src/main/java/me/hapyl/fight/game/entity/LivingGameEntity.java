@@ -19,6 +19,7 @@ import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.InverseOf;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
@@ -466,8 +467,18 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return equals(victim) || isTeammate(victim);
     }
 
+    @InverseOf("isSelfOrTeammate")
+    public boolean isNotSelfOrTeammate(@Nullable LivingGameEntity victim) {
+        return !isSelfOrTeammate(victim);
+    }
+
     public boolean isSelfOrTeammateOrHasEffectResistance(@Nullable LivingGameEntity victim) {
         return isSelfOrTeammate(victim) || (victim != null && victim.hasEffectResistanceAndNotify(this));
+    }
+
+    @InverseOf("isSelfOrTeammateOrHasEffectResistance")
+    public boolean isNotSelfOrTeammateOrHasEffectResistance(@Nullable LivingGameEntity victim) {
+        return !isSelfOrTeammateOrHasEffectResistance(victim);
     }
 
     public boolean isInWater() {

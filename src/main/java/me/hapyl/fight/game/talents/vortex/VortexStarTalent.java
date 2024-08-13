@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
@@ -44,7 +45,7 @@ public class VortexStarTalent extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         stars.forEachAndClear(AstralStarList::clear);
     }
 
@@ -58,7 +59,7 @@ public class VortexStarTalent extends Talent {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

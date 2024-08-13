@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -55,7 +56,7 @@ public class DarkCover extends ShadowAssassinTalent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         darkCoverTask.values().forEach(GameTask::cancel);
         darkCoverTask.clear();
     }

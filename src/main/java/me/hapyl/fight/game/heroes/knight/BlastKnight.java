@@ -1,19 +1,18 @@
 package me.hapyl.fight.game.heroes.knight;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.PlayerElement;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.knight.Discharge;
 import me.hapyl.fight.game.talents.knight.StoneCastle;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -30,7 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlastKnight extends Hero implements PlayerElement, UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider {
+public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider {
 
     public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
@@ -127,11 +126,6 @@ public class BlastKnight extends Hero implements PlayerElement, UIComponent, Pla
     @Override
     public void onStart(@Nonnull GamePlayer player) {
         player.setItem(EquipmentSlot.OFF_HAND, shieldItem);
-    }
-
-    @Override
-    public void onRespawn(@Nonnull GamePlayer player) {
-        onStart(player);
     }
 
     @Override

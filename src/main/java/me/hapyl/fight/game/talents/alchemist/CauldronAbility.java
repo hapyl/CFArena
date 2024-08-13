@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.alchemist;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -107,7 +108,7 @@ public class CauldronAbility extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         cauldrons.values().forEach(AlchemicalCauldron::clear);
         cauldrons.clear();
     }

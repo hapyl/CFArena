@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
@@ -7,7 +8,6 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

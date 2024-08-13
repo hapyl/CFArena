@@ -3,7 +3,7 @@ package me.hapyl.fight.game.collectible.relic;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.collectible.BlockFaceInt;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -18,12 +18,12 @@ public class Relic {
     private final Type type;
     private final BlockLocation location;
     private BlockFace blockFace;
-    private GameMaps zone;
+    private EnumLevel zone;
     private int id;
 
     public Relic(Type type, BlockLocation location) {
         this.type = type;
-        this.zone = GameMaps.SPAWN;
+        this.zone = EnumLevel.SPAWN;
         this.location = location;
         this.blockFace = BlockFace.NORTH_WEST;
         this.id = -1;
@@ -41,11 +41,11 @@ public class Relic {
         return location;
     }
 
-    public GameMaps getZone() {
+    public EnumLevel getZone() {
         return zone;
     }
 
-    public Relic setZone(GameMaps zone) {
+    public Relic setZone(EnumLevel zone) {
         this.zone = zone;
         return this;
     }

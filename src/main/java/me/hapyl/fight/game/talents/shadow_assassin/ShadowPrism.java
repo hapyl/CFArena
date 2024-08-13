@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -46,7 +47,7 @@ public class ShadowPrism extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerPrism.clear();
     }
 

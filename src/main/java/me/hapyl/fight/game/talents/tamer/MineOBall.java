@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.tamer;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
@@ -56,7 +57,7 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         tamerPackMap.forEachAndClear(ActiveTamerPack::remove);
     }
 
@@ -66,7 +67,7 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

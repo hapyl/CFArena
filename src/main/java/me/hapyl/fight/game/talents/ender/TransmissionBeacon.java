@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.ender;
 
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -60,7 +61,7 @@ public class TransmissionBeacon extends Talent implements Listener {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {
@@ -150,7 +151,7 @@ public class TransmissionBeacon extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         beaconLocation.values().forEach(Entity::remove);
         beaconLocation.clear();
     }

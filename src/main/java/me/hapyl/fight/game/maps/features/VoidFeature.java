@@ -3,14 +3,14 @@ package me.hapyl.fight.game.maps.features;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class VoidFeature extends MapFeature {
+public class VoidFeature extends LevelFeature {
 
     private final PlayerMap<Integer> voidMap = PlayerMap.newMap();
     private final char[] chars = { 'ᛈ', 'ᚢ', 'ᛋ', 'ᛏ', 'ᛟ', 'ᛏ', 'ᚨ' };

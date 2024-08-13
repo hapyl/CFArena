@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.eterna.module.entity.Entities;
@@ -18,21 +18,21 @@ public class MathBooster {
 
 	private final static Map<BlockLocation, MathBooster> boosterMap = new HashMap<>();
 
-	private final GameMaps map;
+	private final EnumLevel map;
 	private final BlockLocation blockLocation;
 	private final Location startLocation;
 	private final Location endLocation;
 	private final float speed;
 
-	public MathBooster(double x, double y, double z, double x0, double y0, double z0, GameMaps map) {
+	public MathBooster(double x, double y, double z, double x0, double y0, double z0, EnumLevel map) {
 		this(new BlockLocation((int)x, (int)y, (int)z), new Location(Bukkit.getWorlds().get(0), x0, y0, z0), map);
 	}
 
 	public MathBooster(double x, double y, double z, double x0, double y0, double z0) {
-		this(new BlockLocation((int)x, (int)y, (int)z), new Location(Bukkit.getWorlds().get(0), x0, y0, z0), GameMaps.CLOUDS);
+		this(new BlockLocation((int)x, (int)y, (int)z), new Location(Bukkit.getWorlds().get(0), x0, y0, z0), EnumLevel.CLOUDS);
 	}
 
-	public MathBooster(BlockLocation blockLoc, Location end, GameMaps maps) {
+	public MathBooster(BlockLocation blockLoc, Location end, EnumLevel maps) {
 		this.blockLocation = blockLoc;
 		this.startLocation = new Location(end.getWorld(), blockLoc.getX() + 0.5d, blockLoc.getY() + 0.5d, blockLoc.getZ() + 0.5d);
 		this.endLocation = end;
@@ -41,7 +41,7 @@ public class MathBooster {
 		boosterMap.put(blockLoc, this);
 	}
 
-	public GameMaps getDesignatedMap() {
+	public EnumLevel getDesignatedMap() {
 		return this.map;
 	}
 
