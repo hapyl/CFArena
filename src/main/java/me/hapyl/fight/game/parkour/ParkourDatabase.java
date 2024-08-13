@@ -33,7 +33,7 @@ public class ParkourDatabase extends AsynchronousDatabase {
                 final UUID uuid = UUID.fromString(key);
                 final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
 
-                // If a document has a valid uuid, but has player never played,
+                // If a serialize has a valid uuid, but has player never played,
                 // it means that it was created in offline mode, delete it.
                 if (!offlinePlayer.hasPlayedBefore()) {
                     Debug.warn("Removing invalid entry: %s".formatted(key));

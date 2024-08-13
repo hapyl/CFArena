@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
-import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -41,7 +40,6 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
     @EventHandler()
     public void handleAttributeChange(AttributeTemperEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final Temper temper = ev.getTemper();
         final LivingGameEntity applier = ev.getApplier();
 
         if (!(applier instanceof GamePlayer playerApplier) || ev.isBuff()) {
@@ -69,7 +67,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.WITHER_IMITATION.getTalent();
+        return Talents.WITHER_ROSE_PATH.getTalent();
     }
 
     @Override
@@ -105,7 +103,11 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
     }
 
     private boolean validateNyx(GamePlayer player) {
-        return validatePlayer(player) && getPlayerData(player).getChaosStacks() > 0;
+        final NyxPassive passive = getPassiveTalent();
+
+        return validatePlayer(player)
+                && getPlayerData(player).getChaosStacks() > 0
+                && !passive.hasCd(player);
     }
 
 }

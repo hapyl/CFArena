@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;

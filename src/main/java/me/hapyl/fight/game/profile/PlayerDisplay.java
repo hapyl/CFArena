@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Bitmask;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.rank.RankFormatter;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.PrefixCosmetic;
@@ -14,11 +15,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.util.Bitmask;
-import me.hapyl.eterna.module.chat.Chat;
-import net.minecraft.server.MinecraftServer;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -29,8 +26,8 @@ public class PlayerDisplay {
     /**
      * Include player level.
      */
-
     public static final byte LEVEL = 0x1;
+    
     /**
      * Include in game stuff, like a selected hero, status, etc.
      */

@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Bitmask;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

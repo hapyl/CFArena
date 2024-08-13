@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
+import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.RaycastTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.game.weapons.range.WeaponRayCast;
-import me.hapyl.fight.util.Vector3;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

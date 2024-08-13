@@ -32,11 +32,11 @@ public final class MongoUtils {
     }
 
     /**
-     * Retrieves a value from a document using a string.
+     * Retrieves a value from a serialize using a string.
      * <p>
      * String may or may not have segments separated by a dot.
      *
-     * @param root - Root document
+     * @param root - Root serialize
      * @param path - Path to value
      * @param def  - Default value if not found.
      * @param <T>  - Type of value
@@ -63,11 +63,11 @@ public final class MongoUtils {
     }
 
     /**
-     * Sets a value in a document using a string.
+     * Sets a value in a serialize using a string.
      * <p>
      * String may or may doesn't have segments separated by a dot.
      *
-     * @param root  - Root document
+     * @param root  - Root serialize
      * @param path  - Path to value
      * @param value - Value to set
      * @param <T>   - Type of value

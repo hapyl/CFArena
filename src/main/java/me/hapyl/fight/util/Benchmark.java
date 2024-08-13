@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Duration;
+
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 

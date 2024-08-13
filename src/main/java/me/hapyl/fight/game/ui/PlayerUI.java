@@ -304,14 +304,14 @@ public class PlayerUI extends TickingGameTask {
         // Display active effects
         builder.append("\n&e&lᴀᴄᴛɪᴠᴇ ᴇғғᴇᴄᴛs:\n");
         final GamePlayer gp = GamePlayer.getExistingPlayer(this.player);
-        if (gp == null || gp.getActiveEffects().isEmpty()) {
+        if (gp == null || gp.getActiveEffectsView().isEmpty()) {
             builder.append("&8None!");
         }
         else {
             // {Positive}{Name} - {Time}
             final IntInt i = new IntInt(0);
 
-            gp.getActiveEffects().forEach((type, active) -> {
+            gp.getActiveEffectsView().forEach((type, active) -> {
                 final Effect effect = type.getEffect();
 
                 builder.append(effect.getType().getColor());

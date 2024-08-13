@@ -2,13 +2,13 @@ package me.hapyl.fight.fx;
 
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.task.TickingMultiGameTask;
+import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 
-public abstract class EntityFollowingParticle extends TickingMultiGameTask {
+public abstract class EntityFollowingParticle extends TickingStepGameTask {
 
     private static final int MAX_TICK = 600;
     public final Location location;

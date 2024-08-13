@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.fight.game.task.TickingMultiGameTask;
+import me.hapyl.fight.game.task.TickingStepGameTask;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public abstract class TentacleParticle extends TickingMultiGameTask {
+public abstract class TentacleParticle extends TickingStepGameTask {
 
     private final Location location;
     private final Vector vector;

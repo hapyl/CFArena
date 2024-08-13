@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.entity.shield;
 
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.game.Event;
@@ -7,8 +9,6 @@ import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.util.Ticking;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;

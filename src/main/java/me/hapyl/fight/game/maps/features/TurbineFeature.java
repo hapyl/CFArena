@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.util.BoundingBoxCollector;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -22,7 +22,7 @@ public class TurbineFeature extends MapFeature {
 
     private final List<Turbine> turbines;
 
-    @Nonnull private final World world = Bukkit.getWorlds().get(0);
+    @Nonnull private final World world = Bukkit.getWorlds().getFirst();
 
     public TurbineFeature() {
         super(

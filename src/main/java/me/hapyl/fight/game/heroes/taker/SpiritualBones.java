@@ -1,16 +1,15 @@
 package me.hapyl.fight.game.heroes.taker;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.Debug;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.taker.SpiritualBonesPassive;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.Ticking;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

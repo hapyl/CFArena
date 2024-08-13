@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.fight.util.MutableNumericObject;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.eterna.module.util.MutableNumericObject;
+import me.hapyl.eterna.module.util.Ticking;
 
 import javax.annotation.Nonnull;
 

@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.cosmetic;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.SmallCaps;
+import me.hapyl.eterna.module.util.UpsideDownText;
 import me.hapyl.fight.annotate.ExcludeInSort;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
 import me.hapyl.fight.util.FormattedEnum;
-import me.hapyl.fight.util.UpsideDownText;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

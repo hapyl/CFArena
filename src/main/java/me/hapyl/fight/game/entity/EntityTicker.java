@@ -2,8 +2,8 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Wrap;
-import me.hapyl.fight.util.Ticking;
 
 import javax.annotation.Nonnull;
 import java.util.List;

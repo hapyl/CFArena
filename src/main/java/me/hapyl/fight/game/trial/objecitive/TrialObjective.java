@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.SingleEventHandler;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.event.Event;
 
 import javax.annotation.Nonnull;

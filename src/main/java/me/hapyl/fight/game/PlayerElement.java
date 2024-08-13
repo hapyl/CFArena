@@ -7,11 +7,28 @@ import javax.annotation.Nonnull;
 /**
  * Indicates that this class a game element that process player actions.
  * <p>
- * I'M HAVING SO MUCH FUN CALLING EACH PLAYERELEMENT MANUALLY MMMM
+ * Man I was 0.5 years old when I made this... -h
  */
 public interface PlayerElement {
 
+    /**
+     * A caller that must be implemented by {@link GamePlayer}.
+     * <br><br>
+     * Invoking any {@link PlayerElement} methods outside the {@link GamePlayer} should count as a violation.
+     * It is <b>fine</b> however to re-call or call the methods on members, as example:
+     * <pre><code>
+     *   void onDeath(GamePlayer player) {
+     *       this.onStart(player);
+     *   }
+     *
+     *   void onDeath(GamePlayer player) {
+     *       member.onDeath(player);
+     *       anotherPrivateMember(player);
+     *   }
+     * </code></pre>
+     */
     interface Caller {
+
         void callOnStart();
 
         void callOnStop();
@@ -19,6 +36,7 @@ public interface PlayerElement {
         void callOnDeath();
 
         void callOnPlayersRevealed();
+
     }
 
     /**

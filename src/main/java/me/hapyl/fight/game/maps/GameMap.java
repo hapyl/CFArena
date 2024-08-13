@@ -79,9 +79,7 @@ public class GameMap implements GameElement, PlayerElement {
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        for (MapFeature feature : getFeatures()) {
-            feature.onDeath(player);
-        }
+        features.forEach(feature -> feature.onDeath(player));
     }
 
     public boolean isPlayable() {

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.effect.archive;
 
+import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.Effect;
@@ -7,7 +8,6 @@ import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EntityMemory;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MemoryKey;
-import me.hapyl.fight.util.Vectors;
 import org.bukkit.attribute.Attribute;
 
 import javax.annotation.Nonnull;

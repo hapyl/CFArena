@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.util.Range;
+import me.hapyl.eterna.module.annotate.Range;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

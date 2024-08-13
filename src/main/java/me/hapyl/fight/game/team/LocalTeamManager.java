@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.team;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerDisplay;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.ui.UIFormat;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;

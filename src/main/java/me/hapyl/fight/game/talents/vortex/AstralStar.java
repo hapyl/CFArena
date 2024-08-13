@@ -1,5 +1,12 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
@@ -10,13 +17,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.entity.EntityUtils;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;

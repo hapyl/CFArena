@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.weapons.range;
 
+import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Event;
@@ -8,7 +9,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Vector3;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.util.BoundingBox;

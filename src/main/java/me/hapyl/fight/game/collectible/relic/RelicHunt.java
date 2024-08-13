@@ -2,13 +2,13 @@ package me.hapyl.fight.game.collectible.relic;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.util.Range;
 import me.hapyl.eterna.module.nbt.NBT;
 import me.hapyl.eterna.module.util.DependencyInjector;
 import org.bukkit.Bukkit;

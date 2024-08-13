@@ -93,11 +93,12 @@ public class NyxPassive extends PassiveTalent {
                     entity.damage(damage, EnumDamageCause.CHAOS);
                 });
 
+        startCd(nyx);
         createShield(nyx, player);
 
         location.add(0, target.getEyeHeight(), 0);
 
-        // Fx -- todo
+        // Fx
         new TickingGameTask() {
 
             private double t = 0;

@@ -1,10 +1,9 @@
 package me.hapyl.fight.game.profile.data;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.Debug;
+import me.hapyl.eterna.module.util.StringSimilarity;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.util.StringSimilarity;
 
 import javax.annotation.Nonnull;
 import java.util.Map;

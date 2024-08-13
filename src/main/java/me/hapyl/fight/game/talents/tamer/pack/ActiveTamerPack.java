@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.fight.util.Vectors;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

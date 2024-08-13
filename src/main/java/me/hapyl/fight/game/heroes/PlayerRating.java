@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

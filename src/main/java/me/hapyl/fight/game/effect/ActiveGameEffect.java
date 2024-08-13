@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import me.hapyl.fight.util.Ticking;
 
 import javax.annotation.Nonnull;
 

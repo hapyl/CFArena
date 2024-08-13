@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.entity.ping;
 
+import me.hapyl.eterna.module.util.Buffer;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Buffer;
 import me.hapyl.fight.util.Resettable;
 
 import javax.annotation.Nonnull;

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
+import me.hapyl.eterna.module.util.Buffer;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.util.Buffer;
 
 import javax.annotation.Nonnull;
 
@@ -17,7 +17,12 @@ public abstract class BufferedOrder<E> {
     public BufferedOrder(long delay, @Nonnull E... correctOrder) {
         this.delay = delay;
         this.correctOrder = correctOrder;
-        this.buffer = new Buffer<>(correctOrder.length);
+        this.buffer = new Buffer<>(correctOrder.length) {
+            @Override
+            public void unbuffered(@Nonnull E e) {
+
+            }
+        };
     }
 
     public boolean offer(@Nonnull E e) {

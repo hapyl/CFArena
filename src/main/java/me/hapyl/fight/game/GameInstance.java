@@ -277,8 +277,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Game
         currentMap.getMap().onStop();
 
         CF.getPlayers().forEach(player -> {
-            player.getHero().onStop(player);
-            currentMap.getMap().onStop(player);
+            player.callOnStop();
 
             if (player.isSpectator()) {
                 return;

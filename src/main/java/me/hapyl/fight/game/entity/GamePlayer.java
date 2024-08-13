@@ -13,6 +13,7 @@ import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
@@ -53,7 +54,10 @@ import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.*;
+import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.ItemStacks;
+import me.hapyl.fight.util.MaterialCategory;
+import me.hapyl.fight.util.Materials;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -72,7 +76,10 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -103,7 +110,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
     @Nonnull
     private PlayerProfile profile;
     private double energy;
-    private double ultimateModifier;
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
@@ -115,7 +121,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         super(profile.getPlayer());
 
         this.profile = profile;
-        this.ultimateModifier = 1.0d;
         this.talentQueue = new TalentQueue(this);
         this.stats = new StatContainer(this);
         this.lastMoved = Maps.newHashMap();
@@ -545,14 +550,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return team;
     }
 
-    public double getUltimateAccelerationModifier() {
-        return ultimateModifier;
-    }
-
-    public void setUltimateAccelerationModifier(double ultimateModifier) {
-        this.ultimateModifier = ultimateModifier;
-    }
-
     /**
      * Returns formatted string of ultimate status.
      *
@@ -686,10 +683,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final PlayerInventory inventory = getInventory();
         final ItemStack offhandItem = inventory.getItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND);
 
-        if (offhandItem == null) {
-            return;
-        }
-
         inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, null);
         schedule(() -> inventory.setItem(org.bukkit.inventory.EquipmentSlot.OFF_HAND, offhandItem), 3);
     }
@@ -742,20 +735,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         final Hero hero = getHero();
         final Weapon weapon = hero.getWeapon();
 
-        currentGame.getEnumMap().getMap().onDeath(this);
-        hero.onDeath(this);
         usedUltimateAt = 0L;
         deflecting = false;
+
+        callOnDeath();
 
         if (hero instanceof PlayerDataHandler<?> handler) {
             handler.removePlayerData(this);
         }
-
-        attributes.onDeath(this);
-        executeTalentsOnDeath();
-
-        weapon.onDeath(this);
-        weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
     }
 
     public DeathMessage getRandomDeathMessage() {
@@ -1332,10 +1319,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
             }
         }
 
-        Manager.current().getCurrentMap().getMap().onStart(this);
-
-        hero.onStart(this);
-        hero.getWeapon().onStart(this);
+        callOnStart();
 
         inventory.setItem(weaponSlot, hero.getWeapon().getItem());
         giveTalentItems();
@@ -1511,25 +1495,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return getInventory().getHeldItemSlot();
     }
 
-    @Override
-    public void callOnStart() {
-
-    }
-
-    @Override
-    public void callOnStop() {
-
-    }
-
-    @Override
-    public void callOnDeath() {
-
-    }
-
-    @Override
-    public void callOnPlayersRevealed() {
-    }
-
     @Nonnull
     public String formatWinnerName() {
         final StatContainer stats = getStats();
@@ -1675,8 +1640,49 @@ public class GamePlayer extends LivingGameEntity implements Ticking, PlayerEleme
         return consumer.apply(clazz.cast(skin));
     }
 
-    private IllegalArgumentException makeSkinCastError(Skins skin, Class<?> clazz) {
-        return new IllegalArgumentException("Skin '%s' must extend '%'!".formatted(skin.name(), clazz.getSimpleName()));
+    @Override
+    public void callOnStart() {
+        Manager.current().currentMap().onStart(this);
+
+        final Hero hero = getHero();
+        hero.onStart(this);
+
+        final Weapon weapon = hero.getWeapon();
+        weapon.onStart(this);
+    }
+
+    @Override
+    public void callOnStop() {
+        Manager.current().currentMap().onStop(this);
+
+        final Hero hero = getHero();
+        hero.onStop(this);
+
+        final Weapon weapon = hero.getWeapon();
+        weapon.onStop(this);
+    }
+
+    @Override
+    public void callOnDeath() {
+        Manager.current().currentMap().onStop(this);
+
+        final Hero hero = getHero();
+        hero.onDeath(this);
+
+        final Weapon weapon = hero.getWeapon();
+        weapon.onDeath(this);
+        weapon.getAbilities().forEach(ability -> ability.stopCooldown(this));
+
+        attributes.onDeath(this);
+
+        executeTalentsOnDeath();
+    }
+
+    @Override
+    public void callOnPlayersRevealed() {
+        final Hero hero = getHero();
+
+        hero.onPlayersRevealed(this);
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

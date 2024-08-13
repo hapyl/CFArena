@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.GameElement;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.trial.Trial;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.eterna.module.math.Cuboid;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

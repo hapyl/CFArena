@@ -4,9 +4,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.collection.GlobalConfigCollection;
-import me.hapyl.eterna.module.util.DependencyInjector;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * Just using my knowledge of yml files, that's said,
  * I'm not sure if this is the best way to do it.
  * <p>
- * But to document:
+ * But to serialize:
  * {@link Database} is the main class that handles the connection to the database.
  * {@link PlayerDatabaseEntry} is an instance of database value, that handles specific fields.
  */
@@ -29,11 +29,15 @@ public class Database extends DependencyInjector<Main> {
 
     private final FileConfiguration config;
     private final NamedDatabase namedDatabase;
+
     public MongoCollection<Document> friends;
+
     protected MongoCollection<Document> players;
     protected MongoCollection<Document> parkour;
     protected MongoCollection<Document> heroStats;
     protected MongoCollection<Document> global;
+    protected MongoCollection<Document> antiCheat;
+
     private MongoClient client;
     private MongoDatabase database;
     private GlobalConfigCollection globalConfig;
@@ -88,6 +92,7 @@ public class Database extends DependencyInjector<Main> {
             heroStats = database.getCollection("hero_stats");
             friends = database.getCollection("friends");
             global = database.getCollection("global");
+            antiCheat = database.getCollection("anti_cheat");
 
             // load async database
             globalConfig = new GlobalConfigCollection(global);
@@ -124,6 +129,10 @@ public class Database extends DependencyInjector<Main> {
 
     public MongoCollection<Document> getHeroStats() {
         return heroStats;
+    }
+
+    public MongoCollection<Document> getAntiCheat() {
+        return antiCheat;
     }
 
     private void breakConnectionAndDisablePlugin(String message, RuntimeException e) {

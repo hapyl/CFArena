@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.color;
 
-import me.hapyl.fight.util.Range;
+import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.BFormat;

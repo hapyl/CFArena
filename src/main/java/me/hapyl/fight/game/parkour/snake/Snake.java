@@ -2,13 +2,12 @@ package me.hapyl.fight.game.parkour.snake;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.util.Buffer;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Direction;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.entity.packet.PacketEntity;
+import me.hapyl.eterna.module.util.Buffer;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Direction;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -192,7 +191,7 @@ public class Snake extends BukkitRunnable {
                 throw new IllegalStateException("location not initiated");
             }
 
-            final int[] values = direction.getValues();
+            final int[] values = direction.getOffset();
             final Location nextLocation = BukkitUtils.newLocation(last).add(values[0], values[1], values[2]);
 
             snake.locations.add(nextLocation);

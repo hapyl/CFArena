@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.game.maps.MapFeature;
 import me.hapyl.fight.game.maps.winery.Steam;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.eterna.module.math.Tick;
 
 import java.util.Set;
 

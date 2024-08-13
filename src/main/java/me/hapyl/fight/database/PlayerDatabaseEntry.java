@@ -37,7 +37,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Return current document aka root.
+     * Return current serialize aka root.
      *
      * @return - Document
      */
@@ -74,7 +74,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Called right before writing the document into the remote database.
+     * Called right before writing the serialize into the remote database.
      */
     @Event
     public void onSave() {
@@ -106,7 +106,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Gets the value from a document by a given string.
+     * Gets the value from a serialize by a given string.
      * <p>
      * The string can be separated by a dot (.) to access nested documents.
      * </p>
@@ -131,7 +131,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Gets the value from a document by a given string.
+     * Gets the value from a serialize by a given string.
      * <p>
      * The string can be separated by a dot (.) to access nested documents.
      * </p>
@@ -148,7 +148,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Sets the value from a document by a given string.
+     * Sets the value from a serialize by a given string.
      * <p>
      * The string can be separated by a dot (.) to access nested documents.
      * If the string does not exist, it will be created.
@@ -162,7 +162,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Sets the value to a document by a given string.
+     * Sets the value to a serialize by a given string.
      * <p>
      * The string can be separated by a dot (.) to access nested documents.
      * If the string does not exist, it will be created.
@@ -187,7 +187,7 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Returns a a document in this (root) document.
+     * Returns a a serialize in this (root) serialize.
      * <p>
      * <code>getInDocument("string");</code> will return the following:
      * </p>
@@ -199,7 +199,7 @@ public class PlayerDatabaseEntry {
      *     }
      * </pre>
      *
-     * @param path - Path to document.
+     * @param path - Path to serialize.
      * @return - Document
      */
     protected Document getInDocument(String path) {
@@ -211,10 +211,10 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Fetches a document from the root document and puts it in the root document.
+     * Fetches a serialize from the root serialize and puts it in the root serialize.
      *
-     * @param path     - Path to document.
-     * @param consumer - Consumer to accept the document.
+     * @param path     - Path to serialize.
+     * @param consumer - Consumer to accept the serialize.
      */
     protected void fetchDocument(String path, Consumer<Document> consumer) {
         final Document document = getInDocument(path);
@@ -228,11 +228,11 @@ public class PlayerDatabaseEntry {
     }
 
     /**
-     * Fetches a document from the root document and gets the value from it according to the function.
+     * Fetches a serialize from the root serialize and gets the value from it according to the function.
      *
-     * @param path     - Path to document.
-     * @param function - Function to get the value from the document.
-     * @return - Value from the document.
+     * @param path     - Path to serialize.
+     * @param function - Function to get the value from the serialize.
+     * @return - Value from the serialize.
      */
     protected <T> T fetchFromDocument(String path, Function<Document, T> function) {
         final Document document = getInDocument(path);

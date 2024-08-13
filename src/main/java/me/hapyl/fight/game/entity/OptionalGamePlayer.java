@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.entity;
 
+import me.hapyl.eterna.module.util.IOptional;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.util.IOptional;
 import me.hapyl.fight.ux.Notifier;
 import org.bukkit.entity.Player;
 

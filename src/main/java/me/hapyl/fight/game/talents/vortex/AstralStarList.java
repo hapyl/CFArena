@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.vortex;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Ticking;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;

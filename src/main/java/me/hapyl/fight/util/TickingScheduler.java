@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.task.GameTask;
 
 import javax.annotation.Nonnull;

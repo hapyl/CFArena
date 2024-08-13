@@ -26,7 +26,7 @@ public class PlayerInfraction {
             @Nonnull
             @Override
             public HexID getID() {
-                return HexID.NULL;
+                return HexID.empty();
             }
 
             @Override

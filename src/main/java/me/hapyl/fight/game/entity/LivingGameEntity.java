@@ -16,6 +16,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.SmallCaps;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.PreprocessingMethod;
@@ -44,7 +45,7 @@ import me.hapyl.fight.game.ui.display.*;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.util.MapView;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
@@ -60,7 +61,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -762,8 +762,9 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return state == EntityState.ALIVE;
     }
 
-    public Map<Effects, ActiveGameEffect> getActiveEffects() {
-        return entityData.getGameEffects();
+    @Nonnull
+    public MapView<Effects, ActiveGameEffect> getActiveEffectsView() {
+        return MapView.of(entityData.getGameEffects());
     }
 
     public void dieBy(@Nonnull EnumDamageCause cause) {

@@ -2,6 +2,16 @@ package me.hapyl.fight.game;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.parkour.ParkourRegistry;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Runnables;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.command.RateHeroCommand;
@@ -15,9 +25,12 @@ import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ArchetypeList;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
+import me.hapyl.fight.game.maps.GameMap;
 import me.hapyl.fight.game.maps.GameMaps;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
@@ -31,18 +44,8 @@ import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCs;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Ticking;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.Eterna;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.parkour.ParkourRegistry;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.Runnables;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -466,8 +469,14 @@ public final class Manager extends BukkitRunnable {
         return gameInstance == null ? IGameInstance.NULL_GAME_INSTANCE : gameInstance;
     }
 
+    @Nonnull
     public GameMaps getCurrentMap() {
         return currentMap;
+    }
+
+    @Nonnull
+    public GameMap currentMap() {
+        return currentMap.getMap();
     }
 
     public void setCurrentMap(@Nonnull GameMaps maps) {
@@ -636,7 +645,7 @@ public final class Manager extends BukkitRunnable {
             CF.getAlivePlayers().forEach(target -> {
                 final World world = target.getWorld();
 
-                target.getHero().onPlayersRevealed(target);
+                target.callOnPlayersRevealed();
                 target.showPlayer();
 
                 if (!debug.is(DebugData.Flag.DEBUG)) {

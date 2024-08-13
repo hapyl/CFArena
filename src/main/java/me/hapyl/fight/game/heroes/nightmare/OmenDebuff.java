@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.nightmare;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Ticking;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 

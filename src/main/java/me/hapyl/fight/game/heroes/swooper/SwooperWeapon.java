@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.swooper;
 
+import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.game.weapons.range.WeaponRayCast;
-import me.hapyl.fight.util.Vector3;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

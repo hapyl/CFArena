@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.ui.display;
 
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.util.Range;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.ShutdownAction;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.TextDisplay;
@@ -76,7 +75,6 @@ public class StringDisplay {
      * @param tick - Current tick, 0-max;
      * @return the value to set.
      */
-    @Range(max = 256)
     public short opaque(int tick) {
         return (short) (tick * 5);
     }

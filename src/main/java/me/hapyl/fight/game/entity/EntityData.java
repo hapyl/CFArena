@@ -411,6 +411,11 @@ public final class EntityData {
         this.assistingPlayers.add(player);
     }
 
+    /**
+     * Gets a copy of players who has assisted in the last {@link #ASSIST_DURATION}.
+     *
+     * @return a copy of players who has assisted in the last {@link #ASSIST_DURATION}.
+     */
     @Nonnull
     public Set<GamePlayer> getAssistingPlayers() {
         return new HashSet<>(assistingPlayers);

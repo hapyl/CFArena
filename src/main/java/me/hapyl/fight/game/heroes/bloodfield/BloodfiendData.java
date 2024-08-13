@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.bloodfield;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.BleedEffect;
@@ -12,7 +13,6 @@ import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Ticking;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;

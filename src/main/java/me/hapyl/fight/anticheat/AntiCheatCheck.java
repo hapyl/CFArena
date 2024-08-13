@@ -1,7 +1,8 @@
 package me.hapyl.fight.anticheat;
 
-import me.hapyl.fight.infraction.HexID;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.database.collection.AntiCheatCollection;
+import me.hapyl.fight.infraction.HexID;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.entity.Player;
 
@@ -27,7 +28,7 @@ public enum AntiCheatCheck {
     }
 
     public void punish(Player player) {
-        failAction.punish(player);
+        failAction.doPunish(player);
     }
 
     public enum PunishmentType {
@@ -50,7 +51,19 @@ public enum AntiCheatCheck {
             this.message = message;
         }
 
-        public void punish(Player player) {
+        public final void doPunish(Player player) {
+            final PunishmentReport report = new PunishmentReport(
+                    HexID.random(),
+                    player.getUniqueId(),
+                    message,
+                    System.currentTimeMillis()
+            );
+
+            punish(player, report);
+            AntiCheatCollection.post(report);
+        }
+
+        public void punish(Player player, PunishmentReport report) {
             player.kickPlayer(Chat.format("""
                     %s
                                         
@@ -63,18 +76,17 @@ public enum AntiCheatCheck {
                     """.formatted(
                     AntiCheat.PREFIX,
                     message,
-                    generateRandomPunishmentIdThatDoesNothingForNowBecauseWeDontHaveAPunishmentSystemButItWillRecordPunishments()
+                    report.getPunishmentId()
             )));
         }
 
-        private HexID generateRandomPunishmentIdThatDoesNothingForNowBecauseWeDontHaveAPunishmentSystemButItWillRecordPunishments() {
-            return new HexID();
-        }
-
+        @Nonnull
         public static FailAction kick(@Nonnull String message) {
             return new FailAction(PunishmentType.KICK, message);
         }
 
+        @Nonnull
+        @Deprecated
         public static FailAction ban(@Nonnull String message) {
             throw new NotImplementedException();
         }

@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Ticking;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.CollectionUtils;

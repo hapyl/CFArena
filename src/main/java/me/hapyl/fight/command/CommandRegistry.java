@@ -35,10 +35,12 @@ import me.hapyl.eterna.module.util.*;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.anticheat.PunishmentReport;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.collection.AntiCheatCollection;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -108,13 +110,13 @@ import me.hapyl.fight.gui.HeroPreviewGUI;
 import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
+import me.hapyl.fight.infraction.HexID;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.IOptional;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -135,6 +137,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
@@ -231,6 +234,42 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
+        register("testMongoSerialize", (player, args) -> {
+            if (args.length == 0) {
+                final List<PunishmentReport> reports = AntiCheatCollection.get(player.getUniqueId());
+
+                player.sendMessage(CollectionUtils.wrapToString(reports));
+                return;
+            }
+
+            // deserialize
+            final HexID hexId = HexID.fromStringOrEmpty(args.getString(0));
+            final PunishmentReport report = AntiCheatCollection.get(hexId);
+
+            if (report == null) {
+                player.sendRichMessage("<rainbow:2>No such report!");
+                player.sendRichMessage("<rainbow:4>No such report!");
+                player.sendRichMessage("<rainbow:6>No such report!");
+                return;
+            }
+
+            player.sendMessage(report.toString());
+        });
+
+        register("testitemwithdefaultattributes", (player, args) -> {
+            final Material material = args.get(0).toEnum(Material.class);
+            final boolean hideFlags = args.get(0).toBoolean();
+
+            final ItemBuilder builder = new ItemBuilder(material);
+
+            if (hideFlags) {
+                builder.hideFlag(ItemFlag.values());
+            }
+
+            player.getInventory().addItem(builder.toItemStack());
+        });
+
+
         register("testoptional", (player, args) -> {
             final IOptional<Object> nullOptional = IOptional.of(null);
             final IOptional<Player> playerOptional = IOptional.of(player);

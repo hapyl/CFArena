@@ -1,16 +1,16 @@
 package me.hapyl.fight.game.talents.engineer;
 
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;

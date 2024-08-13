@@ -2,12 +2,12 @@ package me.hapyl.fight.game.task;
 
 import me.hapyl.fight.util.ParameterPrecondition;
 
-public abstract class TickingMultiGameTask extends TickingGameTask {
+public abstract class TickingStepGameTask extends TickingGameTask {
 
-    private final int speed;
+    private final int steps;
 
-    protected TickingMultiGameTask(int speed) {
-        this.speed = ParameterPrecondition.of(speed, i -> i >= 1 && i <= 100);
+    protected TickingStepGameTask(int steps) {
+        this.steps = ParameterPrecondition.of(steps, i -> i >= 1 && i <= 100);
     }
 
     /**
@@ -20,17 +20,10 @@ public abstract class TickingMultiGameTask extends TickingGameTask {
 
     @Override
     public final void run(int tick) {
-        if (speed == 1) {
+        for (int i = 0; i < steps; i++) {
             if (tick(tick)) {
                 cancel();
-            }
-        }
-        else {
-            for (int i = 0; i < speed; i++) {
-                if (tick(tick)) {
-                    cancel();
-                    return;
-                }
+                return;
             }
         }
     }

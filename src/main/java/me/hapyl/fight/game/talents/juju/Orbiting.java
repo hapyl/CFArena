@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.juju;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Range;
 import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;

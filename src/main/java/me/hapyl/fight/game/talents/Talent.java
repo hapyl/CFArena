@@ -1,6 +1,12 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Final;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
@@ -14,16 +20,10 @@ import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Condition;
-import me.hapyl.fight.util.Final;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.fight.util.strict.StrictPackage;
-import me.hapyl.eterna.module.annotate.Super;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
