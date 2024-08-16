@@ -98,7 +98,7 @@ public class ExtraCut extends Talent {
 
                 if (hitEntity != null) {
                     final EntityAttributes attributes = hitEntity.getAttributes();
-                    attributes.decreaseTemporary(Temper.THROWING_KNIFE, AttributeType.SPEED, speedDecrease, impairDuration);
+                    attributes.decreaseTemporary(Temper.THROWING_KNIFE, AttributeType.SPEED, speedDecrease, impairDuration, player);
 
                     hitEntity.damage(damage, player, EnumDamageCause.THROWING_KNIFE);
                     cancel();

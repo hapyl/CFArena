@@ -9,6 +9,7 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Final;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
+import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
@@ -126,8 +127,8 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
     }
 
     @Override
-    public Talent setDurationSec(int duration) {
-        return setDuration(duration * 20);
+    public Talent setDurationSec(float duration) {
+        return setDuration((int) (duration * 20));
     }
 
     public int getPoint() {
@@ -336,7 +337,12 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
         else if (this instanceof UltimateTalent ult) {
             final int castDuration = ult.getCastDuration();
 
-            builderAttributes.addLore("Ultimate Cost: &f&l%s ※".formatted(ult.getCost()));
+            builderAttributes.addLore("Ultimate Cost: &f&l%s ※".formatted(ult.getMinCost()));
+
+            if (this instanceof OverchargeUltimateTalent overchargedUltimate) {
+                builderAttributes.addLore("Overcharge Cost: &f&l%s ※".formatted(overchargedUltimate.getCost()));
+            }
+
             builderAttributes.addLore("Cast Duration: &f&l%s".formatted((castDuration == 0 ? "Instant" : Tick.round(castDuration) + "s")));
             builderAttributes.glow();
         }
@@ -380,7 +386,7 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
 
     public abstract Response execute(@Nonnull GamePlayer player);
 
-    @Super
+    @PreprocessingMethod
     @Nonnull
     public final Response execute0(@Nonnull GamePlayer player) {
         final Response precondition = precondition(player);

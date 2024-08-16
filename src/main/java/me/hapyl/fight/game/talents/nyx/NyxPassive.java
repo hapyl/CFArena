@@ -39,7 +39,7 @@ public class NyxPassive extends PassiveTalent {
         setDescription("""
                 Whenever Nyx or her ally debuffs an enemy, and she has a %s stack, Nyx will launch a followup attack.
 
-                Upon hit, it deals &CAoE damage&7 and grants a &9Void Shield&7 to the teammate who triggered this attack.
+                Upon hit, it deals &cAoE damage&7 and grants a &9Void Shield&7 to the teammate who triggered this attack.
 
                 &6Void Shied
                 Whenever the shield is broken or refreshed, heals its target and increases %s.

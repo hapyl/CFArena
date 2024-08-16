@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.eterna.module.util.Validate;
-import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +28,7 @@ public class UIFormat {
     }
 
     @Nonnull
-    public String format(@Nonnull GamePlayer player, @Nonnull ChatColor ultimateColor) {
+    public String format(@Nonnull GamePlayer player, @Nonnull GamePlayer.UltimateColor ultimateColor) {
         String toFormat = format;
 
         toFormat = toFormat.replace("{Health}", player.getHealthFormatted());

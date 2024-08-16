@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -13,7 +13,6 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -85,8 +84,7 @@ public class CipherLock extends TechieTalent {
 
                 entity.playWorldSound(location, Sound.ENTITY_ENDERMAN_HURT, 0.75f);
 
-                final EntityAttributes attributes = entity.getAttributes();
-                temperInstance.temper(attributes, impairDuration);
+                temperInstance.temper(entity, impairDuration, player);
 
                 if (!(entity instanceof GamePlayer hitPlayer)) {
                     return;

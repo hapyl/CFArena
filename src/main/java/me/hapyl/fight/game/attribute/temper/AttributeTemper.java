@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.attribute.temper;
 
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -24,7 +25,7 @@ public abstract class AttributeTemper implements Runnable {
         this.applier = applier;
         this.appliedAt = System.currentTimeMillis();
 
-        if (duration > 0) {
+        if (duration != Constants.INFINITE_DURATION) {
             task = GameTask.runLater(this, duration);
         }
     }

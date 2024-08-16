@@ -8,6 +8,9 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * @see GamePlayer#getPlayerData(Heroes, Class)
+ */
 public interface PlayerDataHandler<T extends PlayerData> {
 
     /**

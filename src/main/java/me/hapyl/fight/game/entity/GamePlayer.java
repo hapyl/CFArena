@@ -3,9 +3,6 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.chat.messagebuilder.Format;
-import me.hapyl.eterna.module.chat.messagebuilder.Keybind;
-import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.Tick;
@@ -39,6 +36,8 @@ import me.hapyl.fight.game.entity.task.PlayerTaskList;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.PlayerData;
+import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
@@ -555,30 +554,39 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      * @return formatted string of ultimate status.
      */
     public String getUltimateString() {
-        return getUltimateString(ChatColor.AQUA);
+        return getUltimateString(UltimateColor.PRIMARY);
     }
 
-    public float getUltimateChargePercent() {
-        final int ultimateCost = getUltimateCost();
-
-        return (float) (energy / ultimateCost);
-    }
-
-    public String getUltimateString(ChatColor readyColor) {
+    public String getUltimateString(@Nonnull UltimateColor color) {
         final UltimateTalent ultimate = getUltimate();
-        final String pointsString = "&b&l%.0f%%".formatted(getUltimateChargePercent() * 100);
+        final double energyPercent = energy / ultimate.getMinCost();
+        final String pointsString = "&b&l%.0f%%".formatted(energyPercent * 100);
 
+        // If currently using ultimate, show IN USE and duration left
         if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
             return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
         }
 
+        // If on cooldown, show percentage appended by cooldown left
         if (ultimate.hasCd(this)) {
             return "&8%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(this)));
         }
+        // Else show CHARGED or OVERCHARGED
+        // This is kinda hardcoded, but I don't care
         else if (isUltimateReady()) {
-            return readyColor + "&lREADY";
+            if (ultimate instanceof OverchargeUltimateTalent && energyPercent >= 1.0d) {
+                // Overcharged
+                if (energyPercent == 2.0d) {
+                    return "&d&k| " + (color.getColor(true) + "&lOVERCHARGED!") + " &d&k|";
+                }
+
+                // Display percentage to overcharged
+                return (color.getColor(false) + "&lCHARGED &b(&d&l%.0f%%&b)").formatted((energyPercent - 1) * 100);
+            }
+
+            return color.getColor(false) + "&lCHARGED";
         }
 
         return pointsString;
@@ -598,7 +606,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public boolean isUltimateReady() {
-        return this.energy >= getHero().getUltimate().getCost();
+        return getUltimate().canUseUltimate(this);
     }
 
     public void updateScoreboardTeams(boolean toLobby) {
@@ -750,31 +758,19 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public void addEnergy(int points) {
-        final Player player = getEntity();
-        final int ultimateCost = this.getUltimateCost();
+        final UltimateTalent ultimate = getUltimate();
+        final int ultimateCost = ultimate.getCost();
+
+        final double energyScaled = points * getAttributes().get(AttributeType.ENERGY_RECHARGE);
 
         // cannot give points if using ultimate or dead
         if (isUsingUltimate() || isDeadOrRespawning() || this.energy >= ultimateCost) {
             return;
         }
 
-        final double energyScaled = points * getAttributes().get(AttributeType.ENERGY_RECHARGE);
-
         this.energy = Numbers.clamp(energy + energyScaled, 0, ultimateCost);
 
-        // show once at broadcast
-        if (this.energy >= ultimateCost) {
-            final MessageBuilder builder = new MessageBuilder();
-
-            builder.append("&b&l※ &bYour ultimate is ready! Press ");
-            builder.append(Keybind.SWAP_HANDS).color(ChatColor.YELLOW).format(Format.BOLD);
-            builder.append("&b to use it!");
-
-            builder.send(player);
-
-            sendTitle("&3※&b&l※&3※", "&a&lULTIMATE READY!", 5, 15, 5);
-            playSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
-        }
+        ultimate.atEnergy(this, this.energy);
     }
 
     /**
@@ -1629,6 +1625,30 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return consumer.apply(clazz.cast(skin));
     }
 
+    /**
+     * Gets a {@link PlayerData} for the given {@link Heroes}.
+     * <br>
+     * This method will compute the data if it's not present.
+     *
+     * @param hero      - Hero.
+     * @param heroClass - Hero class handle.
+     * @return existing player data.
+     */
+    @Nonnull
+    public <D extends PlayerData, H extends Hero & PlayerDataHandler<D>> D getPlayerData(@Nonnull Heroes hero, @Nonnull Class<H> heroClass) {
+        return hero.getHero(heroClass).getPlayerData(this);
+    }
+
+    public void executeTalentsOnDeath() {
+        final Hero hero = getHero();
+
+        executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getThirdTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getFourthTalent());
+        executeOnDeathIfTalentIsNotNull(hero.getFifthTalent());
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();
@@ -1662,16 +1682,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         item.setAmount(chargedTalent.getMaxCharges());
     }
 
-    public void executeTalentsOnDeath() {
-        final Hero hero = getHero();
-
-        executeOnDeathIfTalentIsNotNull(hero.getFirstTalent());
-        executeOnDeathIfTalentIsNotNull(hero.getSecondTalent());
-        executeOnDeathIfTalentIsNotNull(hero.getThirdTalent());
-        executeOnDeathIfTalentIsNotNull(hero.getFourthTalent());
-        executeOnDeathIfTalentIsNotNull(hero.getFifthTalent());
-    }
-
     private void executeOnDeathIfTalentIsNotNull(Talent talent) {
         if (talent != null) {
             talent.onDeath(this);
@@ -1703,6 +1713,22 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Nonnull
     public static OptionalGamePlayer getPlayerOptional(Player player) {
         return new OptionalGamePlayer(player);
+    }
+
+    public enum UltimateColor {
+        PRIMARY(ChatColor.AQUA, ChatColor.LIGHT_PURPLE),
+        SECONDARY(ChatColor.DARK_AQUA, ChatColor.DARK_PURPLE);
+
+        private final ChatColor[] colors;
+
+        UltimateColor(ChatColor charged, ChatColor overcharged) {
+            this.colors = new ChatColor[] { charged, overcharged };
+        }
+
+        @Nonnull
+        public ChatColor getColor(boolean isOvercharged) {
+            return colors[isOvercharged ? 1 : 0];
+        }
     }
 
 }

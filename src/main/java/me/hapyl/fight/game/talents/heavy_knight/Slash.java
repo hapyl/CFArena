@@ -69,7 +69,7 @@ public class Slash extends Talent {
             entity.damageNoKnockback(strongHit ? strongDamage : damage, player);
 
             if (strongHit) {
-                temperInstance.temper(entity, effectDuration);
+                temperInstance.temper(entity, effectDuration, player);
                 entity.playWorldSound(location, Sound.BLOCK_ANVIL_LAND, 2.0f);
             }
 

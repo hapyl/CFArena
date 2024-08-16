@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.orc;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -12,16 +12,14 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -97,8 +95,7 @@ public class Orc extends Hero implements Listener {
     }
 
     public void enterBerserk(GamePlayer player, int duration) {
-        final EntityAttributes attributes = player.getAttributes();
-        berserk.temper(attributes, duration);
+        berserk.temper(player, duration);
 
         // Fx
         new PlayerGameTask(player, Named.BERSERK) {

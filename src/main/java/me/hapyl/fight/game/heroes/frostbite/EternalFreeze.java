@@ -91,7 +91,7 @@ public class EternalFreeze extends TimedGameTask {
     public void onTickEntity(@Nonnull LivingGameEntity entity) {
         final EntityAttributes attributes = entity.getAttributes();
 
-        temper.temper(entity, ultimate.debuffDuration);
+        temper.temper(entity, ultimate.debuffDuration, player);
 
         // Fx
         entity.setFreezeTicks(100);

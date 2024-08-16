@@ -97,7 +97,7 @@ public class IcyShardsPassive extends PassiveTalent {
                             continue;
                         }
 
-                        temperInstance.temper(entity, impairDuration);
+                        temperInstance.temper(entity, impairDuration, player);
                         entity.damage(damage, player, EnumDamageCause.ICICLE);
 
                         hitIcicles.add(index);

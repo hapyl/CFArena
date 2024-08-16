@@ -86,7 +86,7 @@ public class LaserZombie extends TamerPack {
                             Temper.TAMER_LASER,
                             AttributeType.DEFENSE,
                             scaleUltimateEffectiveness(player, laserBaseDefenseReduction),
-                            laserDefenseReductionDuration
+                            laserDefenseReductionDuration, player
                     );
 
                     // Fx

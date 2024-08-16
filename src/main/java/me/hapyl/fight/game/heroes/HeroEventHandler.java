@@ -2,7 +2,6 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.witcher.Akciy;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
@@ -22,6 +21,7 @@ public class HeroEventHandler {
         }
 
         // Check for stun
+        // THIS IS NOT HARDCODED STUN SYSTEM IS JUST IN AXII! -h
         if (Talents.AKCIY.getTalent(Akciy.class).isStunned(player)) {
             player.sendMessage("&4&l※ &cCannot use ultimate while stunned!");
             return;
@@ -34,10 +34,7 @@ public class HeroEventHandler {
             return;
         }
 
-
-        final UltimateTalent ultimate = hero.getUltimate();
-
-        ultimate.execute(player);
+        hero.getUltimate().execute(player);
     }
 
 }

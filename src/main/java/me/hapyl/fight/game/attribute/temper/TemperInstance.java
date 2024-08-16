@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  * <p>
  * <b>This is designed for multiple attribute tempering at once!</b>
  * <p>
- * For single attribute tempering, prefer {@link Temper#temper(LivingGameEntity, AttributeType, double, int)}.
+ * For single attribute tempering, prefer {@link Temper#temper(LivingGameEntity, AttributeType, double, int, LivingGameEntity)}.
  */
 public class TemperInstance {
 
@@ -62,28 +62,6 @@ public class TemperInstance {
         return this;
     }
 
-    /**
-     * Tempers {@link LivingGameEntity} attributes with this instance for the given duration.
-     *
-     * @param entity   - Entity.
-     * @param duration - Duration.
-     */
-    public final void temper(@Nonnull LivingGameEntity entity, int duration) {
-        temper(entity.getAttributes(), duration);
-    }
-
-    /**
-     * Tempers {@link LivingGameEntity} attributes with this instance for indefinite duration.
-     * <p>
-     * <b>Note</b>
-     * Event though {@link Temper} was designed as a duration-based attribute increase, they do support infinite duration.
-     *
-     * @param entity - Entity.
-     */
-    public final void temper(@Nonnull LivingGameEntity entity) {
-        temper(entity, -1);
-    }
-
     public double get(@Nonnull AttributeType type) {
         return values.getOrDefault(type, 0.0d);
     }
@@ -92,12 +70,16 @@ public class TemperInstance {
         return type.scaleDown(get(type));
     }
 
-    public final void temper(@Nonnull EntityAttributes attributes, int duration) {
-        temper(attributes, duration, null);
+    /**
+     * @deprecated prefer providing applier {@link #temper(LivingGameEntity, int, LivingGameEntity)}
+     */
+    @Deprecated
+    public final void temper(@Nonnull LivingGameEntity entity, int duration) {
+        temper(entity, duration, null);
     }
 
-    public final void temper(@Nonnull EntityAttributes attributes, int duration, @Nullable LivingGameEntity applier) {
-        final LivingGameEntity entity = attributes.getEntity();
+    public final void temper(@Nonnull LivingGameEntity entity, int duration, @Nullable LivingGameEntity applier) {
+        final EntityAttributes attributes = entity.getAttributes();
         final boolean newTemper = !attributes.hasTemper(temper);
 
         values.forEach((t, v) -> attributes.increaseTemporary(temper, t, v, duration, true, applier));

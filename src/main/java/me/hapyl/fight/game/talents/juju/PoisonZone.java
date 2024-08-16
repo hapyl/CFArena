@@ -47,7 +47,7 @@ public class PoisonZone extends Talent {
                     living.damage(damagePerTick, EnumDamageCause.POISON_IVY);
 
                     final EntityAttributes attributes = living.getAttributes();
-                    attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
+                    attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration, player);
 
                     living.addEffect(Effects.POISON, 1, defenseReductionDuration);
                 });

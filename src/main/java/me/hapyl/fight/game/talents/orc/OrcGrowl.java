@@ -57,7 +57,7 @@ public class OrcGrowl extends Talent {
                 return;
             }
 
-            temperInstance.temper(entity, debuffDuration);
+            temperInstance.temper(entity, debuffDuration, player);
         });
 
         // Fx

@@ -107,19 +107,19 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
                 pack.hacked = new HackedPack(player) {
                     @Override
-                    public void onPickup(@Nonnull GamePlayer player) {
+                    public void onPickup(@Nonnull GamePlayer target) {
                         // Damage
-                        player.setLastDamager(player);
-                        player.damage(hackedSupplyDamage, EnumDamageCause.HACK);
+                        target.setLastDamager(target);
+                        target.damage(hackedSupplyDamage, EnumDamageCause.HACK);
 
                         // Fx
-                        player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.75f);
-                        player.playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
+                        target.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.75f);
+                        target.playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.75f);
 
-                        player.sendTitle("&bʜᴀᴄᴋᴇᴅ ʙʏ", "&3" + this.player.getName(), 0, 20, 5);
+                        target.sendTitle("&bʜᴀᴄᴋᴇᴅ ʙʏ", "&3" + this.player.getName(), 0, 20, 5);
 
-                        temperInstance.temper(player, impairDuration);
-                        data.bugRandomly(player);
+                        temperInstance.temper(target, impairDuration, player);
+                        data.bugRandomly(target);
                     }
                 };
 

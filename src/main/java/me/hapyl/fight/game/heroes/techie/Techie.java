@@ -231,7 +231,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                             return false;
                         }
 
-                        temperInstance.temper(entity, lockdownTalentLockDuration);
+                        temperInstance.temper(entity, lockdownTalentLockDuration, player);
 
                         if (!(entity instanceof GamePlayer entityPlayer)) {
                             return true;

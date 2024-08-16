@@ -117,7 +117,7 @@ public class Alchemist extends Hero implements UIComponent {
                     public void affect(@Nonnull GamePlayer player, @Nonnull GamePlayer victim) {
                         final EntityAttributes entityAttributes = victim.getAttributes();
 
-                        entityAttributes.decreaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration);
+                        entityAttributes.decreaseTemporary(Temper.ALCHEMIST, AttributeType.ATTACK, 0.5d, duration, player);
                     }
                 })
                 .add(new MadnessEffect("&lis... confusing?", PotionEffectType.NAUSEA, 15, 0));

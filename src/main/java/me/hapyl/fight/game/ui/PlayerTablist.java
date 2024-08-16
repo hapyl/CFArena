@@ -155,7 +155,7 @@ public class PlayerTablist extends Tablist {
                     entryList.append("&8- &a%s &7⁑ &c&l%s  &b%s".formatted(
                             teammate.getName(),
                             teammate.getHealthFormatted(player),
-                            teammate.getUltimateString(ChatColor.AQUA)
+                            teammate.getUltimateString(GamePlayer.UltimateColor.PRIMARY)
                     ));
 
                     toFill--;

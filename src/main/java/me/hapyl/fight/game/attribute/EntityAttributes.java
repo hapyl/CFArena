@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
 import me.hapyl.eterna.module.annotate.Super;
-import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.annotate.Trigger;
 import me.hapyl.fight.event.custom.AttributeChangeEvent;
@@ -61,7 +60,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
      */
     @Override
     public double get(@Nonnull AttributeType type) {
-        return Numbers.clamp(
+        return Math.clamp(
                 getBase(type) + super.get(type) + tempers.get(type),
                 type.minValue(),
                 type.maxValue()
@@ -81,16 +80,13 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
     }
 
     public final int getFerocityStrikes() {
-        double ferocity = get(AttributeType.FEROCITY);
-        int strikes = 0;
+        final double ferocity = get(AttributeType.FEROCITY);
 
-        while (ferocity >= 1) {
-            strikes += 1;
-            ferocity -= 1;
-        }
+        int strikes = (int) ferocity;
+        double remainder = ferocity % 1;
 
-        if (ferocity > 0.0d) {
-            if (random.checkBound(ferocity)) {
+        if (remainder > 0.0d) {
+            if (random.checkBound(remainder)) {
                 strikes++;
             }
         }
@@ -98,12 +94,28 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
         return strikes;
     }
 
+    /**
+     * @deprecated prefer providing applier {@link #increaseTemporary(Temper, AttributeType, double, int, LivingGameEntity)}
+     */
+    @Deprecated
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
         increaseTemporary(temper, type, value, duration, false, null);
     }
 
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
         increaseTemporary(temper, type, value, duration, false, applier);
+    }
+
+    /**
+     * @deprecated prefer providing applier {@link #decreaseTemporary(Temper, AttributeType, double, int, LivingGameEntity)}
+     */
+    @Deprecated
+    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
+        increaseTemporary(temper, type, -value, duration);
+    }
+
+    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
+        increaseTemporary(temper, type, -value, duration, applier);
     }
 
     /**
@@ -117,6 +129,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
      * @param applier  - Who increased the attribute.
      *                 <b>This delegates to whoever applied the attribute, like a teammate who buffed or an enemy who debuffed!</b>
      */
+    @Super
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent, @Nullable LivingGameEntity applier) {
         if (new AttributeTemperEvent(entity, temper, type, value, duration, silent, applier).callAndCheck()) {
             return;
@@ -133,22 +146,6 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
         }
 
         triggerUpdate(type);
-    }
-
-    /**
-     * Decreases an attribute <b>temporary</b>.
-     *
-     * @param temper   - Temper of the decrease.
-     * @param type     - Type of attribute to decrease.
-     * @param value    - Decrease amount.
-     * @param duration - Duration of decrease.
-     */
-    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
-        increaseTemporary(temper, type, -value, duration);
-    }
-
-    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
-        increaseTemporary(temper, type, -value, duration, applier);
     }
 
     /**

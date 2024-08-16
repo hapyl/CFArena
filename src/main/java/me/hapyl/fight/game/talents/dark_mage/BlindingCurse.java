@@ -126,7 +126,7 @@ public class BlindingCurse extends DarkMageTalent {
                     entity.damageNoKnockback(damage, player, EnumDamageCause.DARKNESS_CURSE);
 
                     final EntityAttributes attributes = entity.getAttributes();
-                    attributes.decreaseTemporary(Temper.DARKNESS, AttributeType.SPEED, speedReduction, impairDuration);
+                    attributes.decreaseTemporary(Temper.DARKNESS, AttributeType.SPEED, speedReduction, impairDuration, player);
 
                     // Scary wither in my face, AHHHHH
                     if (entity instanceof GamePlayer playerEntity) {

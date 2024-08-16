@@ -121,7 +121,7 @@ public class PlayerUI extends TickingGameTask {
             updateScoreboard();
 
             if (gamePlayer != null) {
-                sendInGameUI(mod40 < 20 ? ChatColor.AQUA : ChatColor.DARK_AQUA);
+                sendInGameUI(mod40 < 20 ? GamePlayer.UltimateColor.PRIMARY : GamePlayer.UltimateColor.SECONDARY);
             }
         }
 
@@ -191,7 +191,7 @@ public class PlayerUI extends TickingGameTask {
         }
     }
 
-    public void sendInGameUI(@Nonnull ChatColor ultimateColor) {
+    public void sendInGameUI(@Nonnull GamePlayer.UltimateColor ultimateColor) {
         final GamePlayer gamePlayer = profile.getGamePlayer();
         if (gamePlayer == null) {
             return;
@@ -373,7 +373,7 @@ public class PlayerUI extends TickingGameTask {
 
         return new String[] {
                 """
-                                       
+                        
                         %s
                         &8Version %s
                         """.formatted(

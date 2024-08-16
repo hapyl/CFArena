@@ -9,8 +9,8 @@ public interface Timed {
 
     Timed setDuration(int duration);
 
-    default Timed setDurationSec(int durationSec) {
-        return setDuration(durationSec * 20);
+    default Timed setDurationSec(float durationSec) {
+        return setDuration((int) (durationSec * 20));
     }
 
 }

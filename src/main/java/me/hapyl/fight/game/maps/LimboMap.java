@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.maps;
 
-import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.features.LimboFeature;
@@ -34,7 +34,7 @@ public class LimboMap extends Level {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.NIGHT_VISION, 1, Effect.INFINITE_DURATION);
+        player.addEffect(Effects.NIGHT_VISION, 1, Constants.INFINITE_DURATION);
     }
 
 }

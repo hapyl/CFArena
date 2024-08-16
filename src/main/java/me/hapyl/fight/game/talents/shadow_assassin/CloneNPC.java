@@ -101,7 +101,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
 
         // Reduce defense
         final EntityAttributes attributes = entity.getAttributes();
-        attributes.decreaseTemporary(Temper.SHADOW_CLONE, AttributeType.DEFENSE, talent.defenseReduction, talent.defenseReductionDuration);
+        attributes.decreaseTemporary(Temper.SHADOW_CLONE, AttributeType.DEFENSE, talent.defenseReduction, talent.defenseReductionDuration, player);
 
         // Fx
         entity.playHurtSound();

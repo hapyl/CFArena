@@ -3,7 +3,6 @@ package me.hapyl.fight.game.event;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.util.EnumClass;
 import me.hapyl.eterna.module.player.PlayerSkin;
 
 import javax.annotation.Nonnull;
@@ -12,7 +11,7 @@ import java.time.Month;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class ServerEvents implements EnumClass {
+public final class ServerEvents  {
 
     /**
      * April Fools week, from <CODE>Apr 1st</CODE> to <CODE>Apr 7th</CODE> (inclusive).

@@ -34,8 +34,8 @@ public class InputTalentData implements Timed, Cooldown {
         return setCooldown(sec * 20);
     }
 
-    public InputTalentData setDurationSec(int sec) {
-        return setDuration(sec * 20);
+    public InputTalentData setDurationSec(float sec) {
+        return setDuration((int) (sec * 20));
     }
 
     @Nonnull

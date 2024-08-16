@@ -72,9 +72,9 @@ public class Icicles extends Talent {
             entity.damage(damage, player, EnumDamageCause.FREEZE);
             final EntityAttributes attributes = entity.getAttributes();
 
-            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_CHANCE, critChanceReduction, debuffDuration);
-            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_DAMAGE, critDamageReduction, debuffDuration);
-            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.ATTACK, attackReduction, debuffDuration);
+            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_CHANCE, critChanceReduction, debuffDuration, player);
+            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_DAMAGE, critDamageReduction, debuffDuration, player);
+            attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.ATTACK, attackReduction, debuffDuration, player);
 
             entity.addEffect(Effects.SLOW, 1, 20);
         });

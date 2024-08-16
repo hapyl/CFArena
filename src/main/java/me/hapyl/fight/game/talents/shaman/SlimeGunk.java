@@ -57,7 +57,7 @@ public class SlimeGunk extends TickingGameTask {
                 return;
             }
 
-            talent.temperInstance.temper(entity, 5);
+            talent.temperInstance.temper(entity, 5, player);
 
             entity.damageNoKnockback(1, player, EnumDamageCause.POISON);
         });

@@ -77,7 +77,7 @@ public class Irden extends Talent {
                 return;
             }
 
-            temperInstance.temper(entity, impairDuration);
+            temperInstance.temper(entity, impairDuration, player);
 
             entity.addEffect(Effects.VULNERABLE, impairDuration, true);
             entity.addEffect(Effects.IMMOVABLE, impairDuration, true);

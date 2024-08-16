@@ -52,7 +52,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
             Temper.TAMING_THE_TIME.newInstance()
                     .decrease(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
                     .decrease(AttributeType.SPEED, speedIncrease)
-                    .temper(enemy, duration);
+                    .temper(enemy, duration, player);
 
             // Enemy Fx
             enemy.playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);

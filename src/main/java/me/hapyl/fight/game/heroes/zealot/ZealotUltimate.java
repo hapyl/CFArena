@@ -1,5 +1,10 @@
 package me.hapyl.fight.game.heroes.zealot;
 
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -10,11 +15,6 @@ import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -39,11 +39,13 @@ public class ZealotUltimate extends UltimateTalent {
     @DisplayField public final double landingSpeed = Math.PI / 14;
 
     public ZealotUltimate(@Nonnull Zealot hero) {
-        super("Maintain Order", """
-                Command a &egiant sword&7 to &afall down&7 from the &bsky&7.
+        super("Maintain Order", 60);
 
+        setDescription("""
+                Command a &egiant sword&7 to &afall down&7 from the &bsky&7.
+                
                 Upon landing, &4explodes&7 violently, inflicting %s on nearby &cenemies&7 based on your %s stacks.
-                """.formatted(AttributeType.FEROCITY, Named.FEROCIOUS_STRIKE), 60);
+                """.formatted(AttributeType.FEROCITY, Named.FEROCIOUS_STRIKE));
 
         this.hero = hero;
 

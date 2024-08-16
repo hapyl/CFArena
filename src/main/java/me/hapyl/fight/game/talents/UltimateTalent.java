@@ -1,6 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.chat.messagebuilder.Format;
+import me.hapyl.eterna.module.chat.messagebuilder.Keybind;
+import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.game.Response;
@@ -14,7 +18,7 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 
@@ -34,20 +38,14 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
             return UltimateResponse.error("This ultimate is now finished!");
         }
     };
-
+    protected final int cost;
     private final List<DisplayFieldData> dataFields;
-
-    private final int cost;
     private Sound sound;
     private float pitch;
     private int castDuration;
 
-    public UltimateTalent(String name, int pointCost) {
-        this(name, "", pointCost);
-    }
-
-    public UltimateTalent(String name, String info, int pointCost) {
-        super(name, info, TalentType.DAMAGE);
+    public UltimateTalent(@Nonnull String name, int pointCost) {
+        super(name);
 
         this.cost = pointCost;
         this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
@@ -149,8 +147,8 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         return this;
     }
 
-    public UltimateTalent setDurationSec(int duration) {
-        return setDuration(duration * 20);
+    public UltimateTalent setDurationSec(float duration) {
+        return setDuration((int) (duration * 20));
     }
 
     public int getDuration() {
@@ -184,6 +182,16 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     public UltimateTalent setSound(Sound sound) {
         this.sound = sound;
         return this;
+    }
+
+    /**
+     * Gets the minimum cost to use this ultimate.
+     *
+     * @return the minimum cost to use this ultimate.
+     * @see OverchargeUltimateTalent
+     */
+    public int getMinCost() {
+        return cost;
     }
 
     public int getCost() {
@@ -247,6 +255,31 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     @Override
     public String getTalentClassType() {
         return "Ultimate";
+    }
+
+    public boolean canUseUltimate(@Nonnull GamePlayer player) {
+        return player.getEnergy() >= cost;
+    }
+
+    public void atEnergy(@Nonnull GamePlayer player, double energy) {
+        if (energy != cost) {
+            return;
+        }
+
+        sendChargedMessage(player, "charged!");
+
+        player.sendTitle("&3※&b&l※&3※", "&b&lULTIMATE CHARGED!", 5, 15, 5);
+        player.playSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
+    }
+
+    protected void sendChargedMessage(GamePlayer player, String string) {
+        final MessageBuilder builder = new MessageBuilder();
+
+        builder.append("&b&l※ &bYour ultimate has %s&b Press ".formatted(string));
+        builder.append(Keybind.SWAP_HANDS).color(ChatColor.YELLOW).format(Format.BOLD);
+        builder.append("&b to use it!");
+
+        builder.send(player.getPlayer());
     }
 
 }

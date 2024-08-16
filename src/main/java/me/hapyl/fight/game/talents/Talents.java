@@ -109,6 +109,7 @@ import me.hapyl.fight.game.talents.nightmare.Paranoia;
 import me.hapyl.fight.game.talents.nightmare.ShadowShift;
 import me.hapyl.fight.game.talents.ninja.NinjaDash;
 import me.hapyl.fight.game.talents.ninja.NinjaSmoke;
+import me.hapyl.fight.game.talents.nyx.ChaosGround;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
 import me.hapyl.fight.game.talents.nyx.WitherRosePath;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
@@ -635,6 +636,7 @@ public enum Talents {
      * {@link Nyx}
      */
     WITHER_ROSE_PATH(new WitherRosePath()),
+    CHAOS_GROUND(new ChaosGround()),
     NYX_PASSIVE(new NyxPassive()),
 
     /**

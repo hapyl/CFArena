@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.techie;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -49,7 +50,7 @@ public class TechieData extends PlayerData implements Iterable<LivingGameEntity>
         getBugs(entity).add(type);
 
         // Apply temper
-        type.getTemper().temper(entity, -1); // -1 means no duration
+        type.getTemper().temper(entity, Constants.INFINITE_DURATION, player);
     }
 
     @Override

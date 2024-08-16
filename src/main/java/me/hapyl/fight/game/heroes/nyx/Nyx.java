@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -35,6 +35,8 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         setDescription("""
                 &8&o;;Chaos... brings victory...
                 """);
+
+        setUltimate(new NyxUltimate());
     }
 
     @EventHandler()
@@ -72,7 +74,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return Talents.CHAOS_GROUND.getTalent();
     }
 
     @Override
@@ -86,7 +88,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         final NyxData data = getPlayerData(player);
         final int chaosStacks = data.getChaosStacks();
 
-        return "&7&l\uD83E\uDEA8 &7%s".formatted(chaosStacks);
+        return Named.THE_CHAOS.prefix(chaosStacks);
     }
 
     @Nullable
@@ -110,4 +112,25 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                 && !passive.hasCd(player);
     }
 
+    private class NyxUltimate extends OverchargeUltimateTalent {
+        public NyxUltimate() {
+            super("nyx ultimate", 2, 4);
+
+            setDescription("""
+                    Does some very cool stuff and deals big damage.
+                    """);
+
+            setOverchargeDescription("""
+                    Increases the damage by &a+69420%%&7!
+                    """);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateResponse useUltimate(@Nonnull GamePlayer player, @Nonnull ChargeType type) {
+            player.sendMessage("type=" + type.name());
+
+            return UltimateResponse.OK;
+        }
+    }
 }

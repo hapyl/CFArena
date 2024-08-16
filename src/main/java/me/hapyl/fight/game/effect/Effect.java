@@ -15,8 +15,6 @@ import javax.annotation.Nullable;
 @AutoRegisteredListener
 public abstract class Effect implements Described {
 
-    public static final int INFINITE_DURATION = -1;
-
     private final String name;
     private final EffectType type;
 

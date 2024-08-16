@@ -70,8 +70,9 @@ public class Debug {
         }
 
         final StackTraceElement[] trace = new RuntimeException().getStackTrace();
+        final StackTraceElement element = trace[1];
 
-        send("&b$ " + trace[1]);
+        send("&b$ " + element.toString().replace(element.getClassLoaderName() + "//", ""));
         r.run();
     }
 

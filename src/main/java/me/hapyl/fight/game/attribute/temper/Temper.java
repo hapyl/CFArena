@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.attribute.temper;
 
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.SmallCapsDescriber;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Used as a name for a temper.
@@ -66,7 +66,7 @@ public enum Temper implements SmallCapsDescriber {
     AURORA_BUFF_3(false),
     DIVINE_INTERVENTION(false),
     VOID_SHIELD,
-    NYX,
+    NYX(false),
 
     /* Keep semicolon on this line for easier addition. */;
 
@@ -112,11 +112,16 @@ public enum Temper implements SmallCapsDescriber {
         return new TemperInstance(this, null);
     }
 
-    public void temper(LivingGameEntity entity, AttributeType type, double value, int duration) {
-        temper(entity.getAttributes(), type, value, duration);
+    /**
+     * @deprecated prefer providing applier {@link #temper(LivingGameEntity, AttributeType, double, int, LivingGameEntity)}
+     */
+    @Deprecated
+    public void temper(@Nonnull LivingGameEntity entity, @Nonnull AttributeType type, double value, int duration) {
+        temper(entity, type, value, duration, null);
     }
 
-    public void temper(EntityAttributes attributes, AttributeType type, double value, int duration) {
-        attributes.increaseTemporary(this, type, value, duration);
+    public void temper(@Nonnull LivingGameEntity entity, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
+        entity.getAttributes().increaseTemporary(this, type, value, duration, applier);
     }
+
 }

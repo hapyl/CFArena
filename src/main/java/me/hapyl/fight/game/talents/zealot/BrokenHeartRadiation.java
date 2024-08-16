@@ -60,7 +60,7 @@ public class BrokenHeartRadiation extends Talent {
                     return;
                 }
 
-                temperInstance.temper(entity, effectDuration);
+                temperInstance.temper(entity, effectDuration, player);
 
                 entity.damageNoKnockback(beamDamage, player, EnumDamageCause.RADIATION);
             }

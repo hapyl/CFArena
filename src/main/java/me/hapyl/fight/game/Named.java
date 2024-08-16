@@ -29,7 +29,7 @@ public enum Named {
     WITHER_ROSE(ChatColor.DARK_GRAY + "\uD83C\uDF39", "Wither Rose", Color.WITHERS),
     MOONLIT_ENERGY(ChatColor.YELLOW + "&e☄", "Moonlit Energy", Color.MOON),
     ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
-    THE_CHAOS("", "Chaos", Color.BLUE),
+    THE_CHAOS("&5&l\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
     BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
 
     ;
@@ -82,5 +82,15 @@ public enum Named {
     @Nonnull
     public String getCharacterNoColor() {
         return ChatColor.stripColor(character);
+    }
+
+    @Nonnull
+    public String prefix(@Nonnull Object toPrefix) {
+        return this.getCharacter() + " " + toPrefix;
+    }
+
+    @Nonnull
+    public String suffix(@Nonnull Object toSuffix) {
+        return toSuffix + " " + this.getCharacter();
     }
 }

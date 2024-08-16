@@ -86,7 +86,7 @@ public class ArrowShield extends Talent implements Listener {
         final List<LivingGameEntity> livingEntities = Collect.nearbyEntities(location, explosionRadius, lv -> !lv.equals(player));
 
         livingEntities.forEach(entity -> {
-            Temper.POISON_IVY.temper(entity.getAttributes(), AttributeType.DEFENSE, -0.2d, poisonDuration);
+            Temper.POISON_IVY.temper(entity, AttributeType.DEFENSE, -0.2d, poisonDuration, player);
 
             entity.damage(explosionDamage, player, EnumDamageCause.POISON_IVY);
             entity.addEffect(Effects.POISON, poisonStrength, poisonDuration);

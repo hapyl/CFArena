@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -29,7 +30,7 @@ public class ShamanMark extends TickingGameTask {
 
     @Override
     public void onTaskStart() {
-        talent.temperInstance.temper(entity);
+        talent.temperInstance.temper(entity, Constants.INFINITE_DURATION);
 
         // Fx
         entity.playWorldSound(Sound.ENTITY_FROG_HURT, 0.5f);

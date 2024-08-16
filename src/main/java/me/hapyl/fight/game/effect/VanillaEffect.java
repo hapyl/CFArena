@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -17,7 +18,7 @@ public class VanillaEffect extends Effect {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        entity.getEntity().addPotionEffect(new org.bukkit.potion.PotionEffect(effect, INFINITE_DURATION, amplifier, false, false, false));
+        entity.getEntity().addPotionEffect(new org.bukkit.potion.PotionEffect(effect, Constants.INFINITE_DURATION, amplifier, false, false, false));
     }
 
     @Override

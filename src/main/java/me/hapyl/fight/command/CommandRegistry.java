@@ -65,13 +65,13 @@ import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
@@ -235,15 +235,38 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
-        register("writeCallerLogsToFile", (player, args) -> {
-            final File outputFile = ElementCaller.CALLER.writeLogger();
+        register("refHeroRg", (player, args) -> {
+            final Archer archer = HeroRegistry.ARCHER;
+            Heroes.values()
 
-            if (outputFile == null) {
-                player.sendRichMessage("<red>Cannot write logs because it's empty!");
+            player.sendMessage(archer.toString());
+        });
+
+        register("loadClass", (player, args) -> {
+            final String classToLoad = args.getString(0);
+
+            if (classToLoad.isEmpty()) {
+                player.sendRichMessage("<dark_red>Missing class name!");
                 return;
             }
 
-            player.sendRichMessage("<green>Wrote into " + outputFile.getAbsolutePath());
+            player.sendRichMessage("<yellow>Loading class '%s'...".formatted(classToLoad));
+
+            try {
+                final Class<?> clazz = Class.forName(classToLoad);
+
+                player.sendRichMessage("<green>Loaded class '%s'!".formatted(clazz.getName()));
+            } catch (ClassNotFoundException e) {
+                player.sendRichMessage("<dark_red>No such class '%s'!".formatted(classToLoad));
+            }
+        });
+
+        register("testHealthTemper", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
+                        gp.sendMessage("Increase health!");
+                    });
         });
 
         register("testMongoSerialize", (player, args) -> {
@@ -3022,12 +3045,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(Player player, String[] strings) {
                 player.getInventory().addItem(ItemBuilder.of(Material.FEATHER).addTextBlockLore("""
                         This is a text block lore test, and this should be the first paragraph.
-                                                        
+                        
                         &a;;Where this is the second one, and it's also all green!
-                                                        
-                                 
+                        
+                        
                         Two paragraphs, wow!
-                                                        
+                        
                         &c;;And I know your name, %s!
                         """.formatted(player.getName())).asIcon());
             }
