@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.vortex;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -38,8 +39,8 @@ public class Vortex extends Hero implements UIComplexComponent {
     private final int blinkIterations = 3;
     private final double blinkStep = 0.75d;
 
-    public Vortex(@Nonnull Heroes handle) {
-        super(handle, "Vortex");
+    public Vortex(@Nonnull DatabaseKey key) {
+        super(key, "Vortex");
 
         setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);
         setGender(Gender.MALE);

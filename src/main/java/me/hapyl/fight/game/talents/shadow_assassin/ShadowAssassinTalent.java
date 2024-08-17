@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
@@ -38,7 +38,7 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
     @Nonnull
     @Override
     public ShadowAssassin getHero() {
-        return Heroes.SHADOW_ASSASSIN.getHero(ShadowAssassin.class);
+        return HeroRegistry.SHADOW_ASSASSIN;
     }
 
     @Nonnull

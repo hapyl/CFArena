@@ -3,9 +3,9 @@ package me.hapyl.fight.game.talents.archer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -49,7 +49,8 @@ public class TripleShot extends Talent {
         arrowLeft.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetLeft(piSpread)));
         arrowRight.setVelocity(arrowMiddle.getVelocity().add(player.getVectorOffsetRight(piSpread)));
 
-        final double damage = Heroes.ARCHER.getHero().getWeapon().getDamage();
+        final double damage = HeroRegistry.ARCHER.getWeapon().getDamage();
+
         arrowMiddle.setDamage(damage);
         arrowLeft.setDamage(damage / 2);
         arrowRight.setDamage(damage / 2);

@@ -1,13 +1,13 @@
 package me.hapyl.fight.guesswho.gui;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.database.entry.GuessWhoEntry;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.guesswho.GameResult;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class GuessWhoRuleOutGUI extends GuessWhoGUI {
 
-    private final Set<Heroes> ruledOut;
+    private final Set<Hero> ruledOut;
     private final int boardCount;
 
     public GuessWhoRuleOutGUI(GuessWhoPlayer data) {
@@ -38,7 +38,7 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
         super.onUpdate();
 
         // Selected hero
-        final Heroes guessWhoHero = data.getGuessHero();
+        final Hero guessWhoHero = data.getGuessHero();
 
         if (guessWhoHero != null) {
             setPanelItem(2, super.createItem(guessWhoHero)
@@ -97,7 +97,7 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
 
     @Nonnull
     @Override
-    public ItemBuilder createItem(@Nonnull Heroes enumHero) {
+    public ItemBuilder createItem(@Nonnull Hero enumHero) {
         final ItemBuilder builder = super.createItem(enumHero);
 
         if (!data.isMyTurn()) {
@@ -138,7 +138,7 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
     }
 
     @Override
-    public void onClick(@Nonnull Heroes hero) {
+    public void onClick(@Nonnull Hero hero) {
         if (!data.isMyTurn()) {
             data.sendMessage("It's not your turn!");
             data.playSound(Sound.ENTITY_VILLAGER_NO, 1.0f);

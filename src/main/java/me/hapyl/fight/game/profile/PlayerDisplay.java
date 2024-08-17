@@ -14,7 +14,7 @@ import me.hapyl.fight.game.cosmetic.PrefixCosmetic;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -89,9 +89,9 @@ public class PlayerDisplay {
                 builder.append(Color.SPECTATOR.bold()).append("🕶 ");
             }
             else {
-                final Heroes selectedHero = database.heroEntry.getSelectedHero();
+                final Hero selectedHero = database.heroEntry.getSelectedHero();
 
-                builder.append(ChatColor.GOLD).append(selectedHero.getHero().getNameSmallCaps()).append(" ");
+                builder.append(ChatColor.GOLD).append(selectedHero.getNameSmallCaps()).append(" ");
             }
         }
 

@@ -34,7 +34,7 @@ public class HeroPlayerItemMaker {
     @Nonnull
     public ItemBuilder makeBuilder(@Nonnull Type type, @Nonnull Player player) {
         final ItemBuilder builder = type.createItem(this, player);
-        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero.getHandle());
+        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero);
 
         // FIXME: This was in makeItem() instead of makeBuilder(), if any problems occur put it back ig -h
         if (skin != null) {
@@ -50,12 +50,11 @@ public class HeroPlayerItemMaker {
             @Override
             ItemBuilder createItem(@Nonnull HeroPlayerItemMaker maker, @Nonnull Player player) {
                 final Hero hero = maker.hero;
-                final Heroes enumHero = hero.getHandle();
                 final PlayerRating averageRating = maker.stats.getAverageRating();
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())
                         .setName(hero.toString())
-                        .addLore("&8/hero " + enumHero.name().toLowerCase(Locale.ROOT))
+                        .addLore("&8/hero " + hero.getKey().toLowerCase(Locale.ROOT))
                         .addLore();
 
                 // Archetypes
@@ -90,13 +89,13 @@ public class HeroPlayerItemMaker {
                 // Mastery
                 final PlayerDatabase database = PlayerDatabase.getDatabase(player);
                 final MasteryEntry entry = database.masteryEntry;
-                final long exp = entry.getExp(enumHero);
+                final long exp = entry.getExp(hero);
 
                 // Don't display mastery if never played this hero
                 if (exp != 0) {
                     builder.addLore();
-                    builder.addLore(entry.makeMasteryHeader(enumHero));
-                    builder.addLore(entry.makeProgressBar(enumHero));
+                    builder.addLore(entry.makeMasteryHeader(hero));
+                    builder.addLore(entry.makeProgressBar(hero));
                 }
 
                 // Usage

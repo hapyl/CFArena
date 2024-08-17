@@ -3,7 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.heroes.GlobalHeroStats;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talents;
@@ -25,17 +25,17 @@ import javax.annotation.Nullable;
 
 public class HeroStatisticGUI extends StyledGUI {
 
-    private final Heroes heroes;
+    private final Hero hero;
     private final int index;
     private final HeroStatsCollection stats;
     private final GlobalHeroStats globalStats;
 
-    public HeroStatisticGUI(Player player, Heroes heroes, int index) {
+    public HeroStatisticGUI(Player player, Hero heroes, int index) {
         super(player, heroes.getName() + " Statistics", Size.FIVE);
-        this.heroes = heroes;
+        this.hero = heroes;
         this.index = index;
         this.stats = heroes.getStats();
-        this.globalStats = Heroes.getGlobalStats();
+        this.globalStats = HeroRegistry.getGlobalStats();
 
         openInventory();
     }
@@ -43,15 +43,13 @@ public class HeroStatisticGUI extends StyledGUI {
     @Nullable
     @Override
     public ReturnData getReturnData() {
-        return ReturnData.of("Hero Preview - " + heroes.getName(), fn -> new HeroPreviewGUI(player, heroes, index));
+        return ReturnData.of("Hero Preview - " + hero.getName(), fn -> new HeroPreviewGUI(player, hero, index));
     }
 
     @Override
     public void onUpdate() {
-        final Hero hero = heroes.getHero();
-
         setHeader(
-                new ItemBuilder(hero.getItem()).setName(heroes.getName())
+                new ItemBuilder(hero.getItem()).setName(this.hero.getName())
                         .addLore()
                         .addLore("Archetype: " + hero.getArchetypes())
                         .addLore()
@@ -149,10 +147,10 @@ public class HeroStatisticGUI extends StyledGUI {
 
         builder.setAmount(Numbers.clamp(value.intValue(), 1, 64));
         builder.setName(name);
-        builder.addSmartLore(heroes.getName() + " " + lore.replace("{}", "&f&l" + value + "&7"));
+        builder.addSmartLore(hero.getName() + " " + lore.replace("{}", "&f&l" + value + "&7"));
         builder.addLore();
         builder.addSmartLore(
-                "This hero is #%s in %s.".formatted(globalStats.getRating(heroes, statType), Chat.capitalize(statType)),
+                "This hero is #%s in %s.".formatted(globalStats.getRating(hero, statType), Chat.capitalize(statType)),
                 "&8&o"
         );
 

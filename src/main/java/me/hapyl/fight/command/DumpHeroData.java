@@ -26,12 +26,12 @@ public class DumpHeroData extends SimpleAdminCommand {
     public DumpHeroData(String name) {
         super(name);
 
-        addCompleterValues(1, Heroes.values());
+        addCompleterValues(1, HeroRegistry.keys());
     }
 
     @Override
     protected void execute(CommandSender sender, String[] args) {
-        final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+        final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
 
         if (hero == null) {
             Chat.sendMessage(sender, "&cInvalid hero!");
@@ -76,17 +76,17 @@ public class DumpHeroData extends SimpleAdminCommand {
 
     private static class HeroDumper {
 
-        private final Heroes enumHero;
+        private final Hero hero;
         private final boolean stripColor;
         private final File path;
         private final File file;
 
-        public HeroDumper(Heroes enumHero, boolean stripColor) {
-            this.enumHero = enumHero;
+        public HeroDumper(Hero hero, boolean stripColor) {
+            this.hero = hero;
             this.stripColor = stripColor;
 
             path = new File(Main.getPlugin().getDataFolder() + "/hero_dumps/");
-            file = new File(path, enumHero.name() + ".md");
+            file = new File(path, hero.getKey() + ".md");
         }
 
         public File dump() {
@@ -97,8 +97,6 @@ public class DumpHeroData extends SimpleAdminCommand {
             final LocalDate now = LocalDate.now();
 
             try (MdFileWriter writer = new MdFileWriter(this)) {
-                final Hero hero = this.enumHero.getHero();
-
                 writer.comment("Shaman ; v%s ; %s".formatted(CF.getVersionNoSnapshot(), now.toString()));
 
                 writer.header("Name:");

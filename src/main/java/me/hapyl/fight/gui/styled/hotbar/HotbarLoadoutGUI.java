@@ -55,7 +55,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             throw new NoProfileException();
         }
 
-        hero = profile.getHeroHandle();
+        hero = profile.getHero();
         loadout = profile.getHotbarLoadout();
         itemToSlotMap = Maps.newHashMap();
 

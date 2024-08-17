@@ -4,8 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceLowercase;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -109,11 +110,11 @@ public class AchievementRegistry extends DependencyInjector<Main> {
 
     private void registerAll() {
         // Hero progress achievement
-        for (Heroes hero : Heroes.playable()) {
+        for (Hero hero : HeroRegistry.playable()) {
             final String heroName = hero.getName();
 
             register(new TieredAchievement(
-                    "play_hero_" + hero.name(),
+                    "play_hero_" + hero.getKey(),
                     heroName + " Enjoyer",
                     "Play games as %s {} times.".formatted(heroName),
                     10, 50, 100, 250, 500
@@ -124,7 +125,7 @@ public class AchievementRegistry extends DependencyInjector<Main> {
             // Win hero
             register(
                     new TieredAchievement(
-                            "win_hero_" + hero.name(),
+                            "win_hero_" + hero.getKey(),
                             heroName + " Winner",
                             "Win games while playing as %s {} times.".formatted(heroName),
                             5, 25, 50, 100, 250

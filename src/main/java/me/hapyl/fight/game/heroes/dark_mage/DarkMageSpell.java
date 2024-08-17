@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.dark_mage;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.dark_mage.DarkMageTalent;
@@ -88,7 +88,7 @@ public class DarkMageSpell extends PlayerData {
 
     @Nullable
     public DarkMageTalent getTalent() {
-        for (Talent talent : Heroes.DARK_MAGE.getHero().getTalents()) {
+        for (Talent talent : HeroRegistry.DARK_MAGE.getTalents()) {
             if (talent instanceof DarkMageTalent darkMageTalent && darkMageTalent.test(this)) {
                 return darkMageTalent;
             }
@@ -107,7 +107,7 @@ public class DarkMageSpell extends PlayerData {
 
     public void markUsed() {
         lastUsed = System.currentTimeMillis();
-        player.setCooldown(Heroes.DARK_MAGE.getHero().getWeapon().getMaterial(), 1);
+        player.setCooldown(HeroRegistry.DARK_MAGE.getWeapon().getMaterial(), 1);
     }
 
     private String nonnullButton(SpellButton button) {

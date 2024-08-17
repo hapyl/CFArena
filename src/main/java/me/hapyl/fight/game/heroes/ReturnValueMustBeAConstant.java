@@ -10,9 +10,9 @@ import java.lang.annotation.Target;
 /**
  * Annotates that return of this method <b>MUST</b> be a constant.
  * For {@link Talent}s, a <code>enum</code> value should be returned, like:
- * <pre>
- *     return {@link me.hapyl.fight.game.talents.Talents#TRIPLE_SHOT}.getTalent();
- * </pre>
+ * <pre>{@code
+ *  return Talents.TRIPLE_SHOT.getTalent();
+ * }</pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

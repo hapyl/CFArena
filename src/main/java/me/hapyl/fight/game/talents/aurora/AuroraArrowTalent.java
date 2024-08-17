@@ -4,11 +4,10 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.aurora.Aurora;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.aurora.AuroraData;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 
@@ -53,8 +52,7 @@ public abstract class AuroraArrowTalent extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Aurora aurora = Heroes.AURORA.getHero(Aurora.class);
-        final AuroraData data = aurora.getPlayerData(player);
+        final AuroraData data = HeroRegistry.AURORA.getPlayerData(player);
 
         data.setArrow(this);
         startCd(player, 10000);

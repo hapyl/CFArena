@@ -1,6 +1,12 @@
 package me.hapyl.fight.game.ui;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.tablist.EntryList;
+import me.hapyl.eterna.module.player.tablist.EntryTexture;
+import me.hapyl.eterna.module.player.tablist.PingBars;
+import me.hapyl.eterna.module.player.tablist.Tablist;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -17,18 +23,12 @@ import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.tablist.EntryList;
-import me.hapyl.eterna.module.player.tablist.EntryTexture;
-import me.hapyl.eterna.module.player.tablist.PingBars;
-import me.hapyl.eterna.module.player.tablist.Tablist;
-import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -281,7 +281,7 @@ public class PlayerTablist extends Tablist {
 
     private void updateStatistics() {
         final EntryList entryList = new EntryList();
-        final Heroes hero = profile.getHero();
+        final Hero hero = profile.getHero();
         final PlayerDatabase database = profile.getDatabase();
         final StatisticEntry statisticEntry = database.statisticEntry;
 

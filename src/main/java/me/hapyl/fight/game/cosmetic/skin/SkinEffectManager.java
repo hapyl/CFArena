@@ -31,7 +31,7 @@ public class SkinEffectManager implements Listener, Lifecycle {
                     }
 
                     final SkinEntry skinEntry = profile.getDatabase().skinEntry;
-                    final Skins selectedSkin = skinEntry.getSelected(player.getEnumHero());
+                    final Skins selectedSkin = skinEntry.getSelected(player.getHero());
 
                     if (selectedSkin == null) {
                         continue;

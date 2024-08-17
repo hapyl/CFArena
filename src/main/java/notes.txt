@@ -23,11 +23,8 @@
 
 ###############################
 
-- Add funky sort for VIP?
+- Add funky sort for VIP?               // what fucking sort
 - Change head texture to be skin yes
-- Try to fix Swooper blink
-- Buff Techie
-- Add fight thingy so FIGHT
 
 ####################################################################
 

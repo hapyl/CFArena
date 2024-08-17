@@ -1,18 +1,19 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.PlayerRating;
-import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.Rewards;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.ux.Notifier;
 import me.hapyl.eterna.module.chat.CenterChat;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.PlayerRating;
+import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.Rewards;
+import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.ux.Notifier;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -27,7 +28,7 @@ import java.util.UUID;
 
 public class RateHeroCommand extends SimplePlayerCommand {
 
-    private static final Map<Player, Heroes> canRate = Maps.newHashMap();
+    private static final Map<Player, Hero> canRate = Maps.newHashMap();
 
     public RateHeroCommand(String name) {
         super(name);
@@ -37,7 +38,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+        final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
         final int rating = getArgument(args, 1).toInt();
 
         final PlayerRating playerRating = PlayerRating.fromInt(rating);
@@ -55,7 +56,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
         final HeroStatsCollection stats = hero.getStats();
         final UUID uuid = player.getUniqueId();
         final boolean hasRated = stats.hasRated(uuid);
-        final Heroes canRateHero = RateHeroCommand.canRate.get(player);
+        final Hero canRateHero = RateHeroCommand.canRate.get(player);
 
         if (!hasRated) {
             if (canRateHero == null) {
@@ -90,14 +91,14 @@ public class RateHeroCommand extends SimplePlayerCommand {
         PlayerLib.playSound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
     }
 
-    public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Heroes heroes) {
-        if (Settings.SEE_HERO_RATING_MESSAGE.isDisabled(player) || heroes.getStats().hasRated(player.getUniqueId())) {
+    public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Hero hero) {
+        if (Settings.SEE_HERO_RATING_MESSAGE.isDisabled(player) || hero.getStats().hasRated(player.getUniqueId())) {
             return;
         }
 
-        canRate.put(player, heroes);
+        canRate.put(player, hero);
 
-        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!".formatted(heroes.getName()));
+        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!".formatted(hero.getName()));
         Chat.sendCenterMessage(player, "&7Would you like to rate your experience?");
 
         final ComponentBuilder builder = new ComponentBuilder("           ");
@@ -112,7 +113,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
             component.setClickEvent(new ClickEvent(
                     ClickEvent.Action.RUN_COMMAND,
-                    "/ratehero %s %s".formatted(heroes.name(), rating.toInt())
+                    "/ratehero %s %s".formatted(hero.getKey(), rating.toInt())
             ));
 
             builder.append(component).append("  ");

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.orc;
 
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -40,8 +41,8 @@ public class Orc extends Hero implements Listener {
             .decrease(AttributeType.DEFENSE, 0.6d)
             .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
-    public Orc(@Nonnull Heroes handle) {
-        super(handle, "Pakarat Rakab");
+    public Orc(@Nonnull DatabaseKey key) {
+        super(key, "Pakarat Rakab");
 
         setDescription("""
                 Half-orc half-dwarf loner.
@@ -98,7 +99,7 @@ public class Orc extends Hero implements Listener {
         berserk.temper(player, duration);
 
         // Fx
-        new PlayerGameTask(player, Named.BERSERK) {
+        new PlayerGameTask(player, Orc.class) {
             private int tick = 0;
 
             @Override

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.taker.SpiritualBonesPassive;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
@@ -139,7 +139,7 @@ public class SpiritualBones implements Ticking {
     }
 
     private SpiritualBonesPassive talent() {
-        return Heroes.TAKER.getHero(Taker.class).getPassiveTalent();
+        return HeroRegistry.TAKER.getPassiveTalent();
     }
 
 }

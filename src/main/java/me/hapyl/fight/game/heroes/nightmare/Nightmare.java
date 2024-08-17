@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.nightmare;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -38,8 +39,8 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
             .increase(AttributeType.ATTACK, 0.5d)
             .increase(AttributeType.SPEED, 0.05d);
 
-    public Nightmare(@Nonnull Heroes handle) {
-        super(handle, "Nightmare");
+    public Nightmare(@Nonnull DatabaseKey key) {
+        super(key, "Nightmare");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
         setGender(Gender.UNKNOWN);

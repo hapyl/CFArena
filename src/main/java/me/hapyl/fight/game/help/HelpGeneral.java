@@ -1,11 +1,9 @@
 package me.hapyl.fight.game.help;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
-import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,7 +28,7 @@ public class HelpGeneral extends HelpGUI {
         super.onUpdate();
 
         final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
-        final ItemStack heroItem = profile.getSelectedHero().getHero().getItem(player);
+        final ItemStack heroItem = profile.getSelectedHero().getItem(player);
 
         setItem(
                 20,

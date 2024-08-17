@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.engineer;
 
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Blocks;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -46,7 +46,7 @@ public abstract class EngineerTalent extends Talent {
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        final Engineer hero = Heroes.ENGINEER.getHero(Engineer.class);
+        final Engineer hero = HeroRegistry.ENGINEER;
         final Block targetBlock = player.getTargetBlockExact(7);
         final int playerIron = hero.getIron(player);
 

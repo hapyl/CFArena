@@ -3,10 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.Size;
@@ -22,9 +19,9 @@ import org.bukkit.inventory.ItemStack;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class HeroSelectGUI extends StyledPageGUI<Heroes> {
+public class HeroSelectGUI extends StyledPageGUI<Hero> {
 
-    private final Filter<Heroes, Archetype> archetypeSort;
+    private final Filter<Hero, Archetype> archetypeSort;
     private final PlayerProfile profile;
 
     public HeroSelectGUI(Player player) {
@@ -38,8 +35,8 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
 
         this.archetypeSort = new Filter<>(Archetype.class, Archetype.NOT_SET) {
             @Override
-            public boolean isKeep(@Nonnull Heroes heroes, @Nonnull Archetype archetype) {
-                return heroes.getHero().getArchetypes().contains(archetype);
+            public boolean isKeep(@Nonnull Hero heroes, @Nonnull Archetype archetype) {
+                return heroes.getArchetypes().contains(archetype);
             }
         };
 
@@ -118,7 +115,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
 
             // Restore hero
             if (randomHeroEnabled) {
-                final Heroes lastSelectedHero = entry.getLastSelectedHero();
+                final Hero lastSelectedHero = entry.getLastSelectedHero();
                 entry.setLastSelectedHero(null);
 
                 if (lastSelectedHero != null) {
@@ -132,7 +129,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
     }
 
     @Override
-    public void onClick(@Nonnull Player player, @Nonnull Heroes enumHero, int index, int page, @Nonnull ClickType clickType) {
+    public void onClick(@Nonnull Player player, @Nonnull Hero enumHero, int index, int page, @Nonnull ClickType clickType) {
         if (enumHero.isLocked(player)) {
             return;
         }
@@ -150,10 +147,8 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(@Nonnull Player player, Heroes enumHero, int index, int page) {
-        final Hero hero = enumHero.getHero();
-
-        if (enumHero.isLocked(player)) {
+    public ItemStack asItem(@Nonnull Player player, Hero hero, int index, int page) {
+        if (hero.isLocked(player)) {
             return StyledItem.LOCKED_HERO.toBuilder()
                     .addLore("&7Reach level &b%s &7to unlock!".formatted(hero.getMinimumLevel()))
                     .asIcon();
@@ -164,7 +159,7 @@ public class HeroSelectGUI extends StyledPageGUI<Heroes> {
     }
 
     private void updateContents() {
-        setContents(archetypeSort.filter(Heroes.playableRespectLockedFavourites(player)));
+        setContents(archetypeSort.filter(HeroRegistry.playableRespectLockedFavourites(player)));
     }
 
 }

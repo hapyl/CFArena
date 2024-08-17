@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.taker;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.taker.SpiritualBones;
-import me.hapyl.fight.game.heroes.taker.Taker;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -63,7 +62,7 @@ public class FatalReap extends Talent {
             player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
-        final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
+        final SpiritualBones bones = HeroRegistry.TAKER.getBones(player);
 
         // Give bones
         bones.add(hitEntities.size() * spiritualBoneGeneration, true);

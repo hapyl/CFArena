@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -38,10 +38,10 @@ public class ShortyShotgun extends Talent {
 
         setDescription("""
                 Shoot you double barrel to deal &cdamage&7 that &nfalls&7 &noff&7 with &bdistance&7.
-                                
+                
                 If hit &cenemy&7 is &bclose enough&7, they will &cBleed&7 and will be &bVulnerable&7 for &b{bleedDuration}&7.
                 &8;;Additionally, if used while on a Grapple Hook, the damage is increased.
-                               
+                
                 &8;;This talent can be used twice consecutively before reloading.
                 """);
 
@@ -76,7 +76,7 @@ public class ShortyShotgun extends Talent {
     }
 
     private void fixAmount(GamePlayer player) {
-        final ItemStack shotgunItem = player.getItem(Heroes.BOUNTY_HUNTER.getHero().getTalentSlotByHandle(this));
+        final ItemStack shotgunItem = player.getItem(HeroRegistry.BOUNTY_HUNTER.getTalentSlotByHandle(this));
 
         if (shotgunItem == null || shotgunItem.getType() != getMaterial()) {
             return;

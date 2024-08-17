@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.troll;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.achievement.Achievements;
@@ -30,8 +31,8 @@ public class Troll extends Hero implements Listener {
 
     private final PlayerMap<StickyCobweb> cobwebs = PlayerMap.newMap();
 
-    public Troll(@Nonnull Heroes handle) {
-        super(handle, "Troll");
+    public Troll(@Nonnull DatabaseKey key) {
+        super(key, "Troll");
 
         setArchetypes(Archetype.STRATEGY, Archetype.MELEE);
         setGender(Gender.UNKNOWN);

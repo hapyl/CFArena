@@ -5,11 +5,10 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.nightmare.Nightmare;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.nightmare.OmenDebuff;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -54,7 +53,7 @@ public class ShadowShift extends Talent implements Listener {
 
         final Location location = targetLocation.getLocation();
         final LivingGameEntity entity = targetLocation.getEntity();
-        final OmenDebuff debuff = Heroes.NIGHTMARE.getHero(Nightmare.class).getDebuff(player);
+        final OmenDebuff debuff = HeroRegistry.NIGHTMARE.getDebuff(player);
 
         player.teleport(location);
         debuff.setOmen(entity, omenDuration);

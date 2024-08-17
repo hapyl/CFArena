@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.techie;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -54,8 +55,8 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
             .decrease(AttributeType.SPEED, 0.1) // 50%
             .decrease(AttributeType.ATTACK_SPEED, 0.5);
 
-    public Techie(@Nonnull Heroes handle) {
-        super(handle, "Cryptshade");
+    public Techie(@Nonnull DatabaseKey key) {
+        super(key, "Cryptshade");
 
         setArchetypes(Archetype.HEXBANE);
         setAffiliation(Affiliation.UNKNOWN);

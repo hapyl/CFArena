@@ -2,18 +2,18 @@ package me.hapyl.fight.game.heroes.doctor;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -140,7 +140,7 @@ public class ActiveElement {
                 if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
                     entityPoof();
                     PlayerLib.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
-                    ((GravityGun) Heroes.DR_ED.getHero().getWeapon()).setElement(player, null);
+                    ((GravityGun) HeroRegistry.DR_ED.getWeapon()).setElement(player, null);
                     player.sendMessage("&aYour current equipped element has shattered!");
                     cancel();
                     return;

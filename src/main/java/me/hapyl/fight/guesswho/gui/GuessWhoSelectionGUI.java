@@ -1,9 +1,9 @@
 package me.hapyl.fight.guesswho.gui;
 
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ public class GuessWhoSelectionGUI extends GuessWhoGUI {
 
     @Nonnull
     @Override
-    public ItemBuilder createItem(@Nonnull Heroes enumHero) {
+    public ItemBuilder createItem(@Nonnull Hero enumHero) {
         return super.createItem(enumHero).addLore().addLore(Color.BUTTON + "Click to select!");
     }
 
@@ -28,7 +28,7 @@ public class GuessWhoSelectionGUI extends GuessWhoGUI {
     }
 
     @Override
-    public void onClick(@Nonnull Heroes hero) {
+    public void onClick(@Nonnull Hero hero) {
         final Player player = data.getPlayer();
 
         data.setGuessHero(hero);

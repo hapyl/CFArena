@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 public abstract class PlayerTimedGameTask extends TimedGameTask implements IPlayerTask {
 
     private final GamePlayer player;
-    private final Enum<?> name;
+    private final Class<?> name;
 
     public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nonnull Timed timed) {
         this(player, null, timed.getDuration());
@@ -20,15 +20,15 @@ public abstract class PlayerTimedGameTask extends TimedGameTask implements IPlay
         this(player, null, maxTick, 0);
     }
 
-    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Enum<?> name, @Nonnull Timed timed) {
+    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Class<?> name, @Nonnull Timed timed) {
         this(player, name, timed.getDuration());
     }
 
-    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Enum<?> name, int maxTick) {
+    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Class<?> name, int maxTick) {
         this(player, name, maxTick, 0);
     }
 
-    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Enum<?> name, int maxTick, int initialTick) {
+    public PlayerTimedGameTask(@Nonnull GamePlayer player, @Nullable Class<?> name, int maxTick, int initialTick) {
         super(maxTick, initialTick);
 
         this.player = player;
@@ -45,7 +45,7 @@ public abstract class PlayerTimedGameTask extends TimedGameTask implements IPlay
 
     @Nullable
     @Override
-    public Enum<?> getEnum() {
+    public Class<?> getEnum() {
         return name;
     }
 }

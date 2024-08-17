@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.nightmare;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.nightmare.Nightmare;
-import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -39,7 +38,6 @@ public class Paranoia extends Talent {
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-        final Nightmare hero = Heroes.NIGHTMARE.getHero(Nightmare.class);
 
         final ArmorStand stand = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), self -> {
             self.setInvulnerable(true);
@@ -78,7 +76,7 @@ public class Paranoia extends Talent {
                         return;
                     }
 
-                    hero.getDebuff(player).setOmen(target, getDuration());
+                    HeroRegistry.NIGHTMARE.getDebuff(player).setOmen(target, getDuration());
                 });
 
             }

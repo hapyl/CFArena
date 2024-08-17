@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.heroes.juju;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
-import org.bukkit.entity.Player;
 
 public class ArrowData extends GameTask {
-
-    private final JuJu juju = Heroes.JUJU.getHero(JuJu.class);
 
     public final GamePlayer player;
     public final ArrowType type;
@@ -21,6 +18,6 @@ public class ArrowData extends GameTask {
 
     @Override
     public void run() {
-        juju.unequipArrow(player, type);
+        HeroRegistry.JUJU.unequipArrow(player, type);
     }
 }

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.harbinger;
 
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
@@ -134,6 +134,6 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
     @Nonnull
     @Override
     public Harbinger getHero() {
-        return Heroes.HARBINGER.getHero(Harbinger.class);
+        return HeroRegistry.HARBINGER;
     }
 }

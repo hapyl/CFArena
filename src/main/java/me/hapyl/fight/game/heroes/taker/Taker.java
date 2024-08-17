@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.taker;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -36,8 +37,8 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
     private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newConcurrentMap();
 
-    public Taker(@Nonnull Heroes handle) {
-        super(handle, "Taker");
+    public Taker(@Nonnull DatabaseKey key) {
+        super(key, "Taker");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.UNKNOWN);

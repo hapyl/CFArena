@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.dark_mage;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -44,8 +45,8 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 
-    public DarkMage(@Nonnull Heroes handle) {
-        super(handle, "Dark Mage");
+    public DarkMage(@Nonnull DatabaseKey key) {
+        super(key, "Dark Mage");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
         setAffiliation(Affiliation.THE_WITHERS);

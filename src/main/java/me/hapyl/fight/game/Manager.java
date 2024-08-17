@@ -28,11 +28,11 @@ import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.heroes.ArchetypeList;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
-import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
@@ -756,8 +756,8 @@ public final class Manager extends BukkitRunnable {
 
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            final Heroes hero = getSelectedLobbyHero(player);
-            final ArchetypeList archetypes = hero.getHero().getArchetypes();
+            final Hero hero = getSelectedLobbyHero(player);
+            final ArchetypeList archetypes = hero.getArchetypes();
 
             resetPlayer(player);
 
@@ -786,23 +786,23 @@ public final class Manager extends BukkitRunnable {
         }
     }
 
-    public void setSelectedHero(Player player, Heroes heroes) {
-        setSelectedHero(player, heroes, false);
+    public void setSelectedHero(Player player, Hero hero) {
+        setSelectedHero(player, hero, false);
     }
 
-    public void setSelectedHero(Player player, Heroes heroes, boolean force) {
+    public void setSelectedHero(Player player, Hero hero, boolean force) {
         if (Manager.current().isGameInProgress()) {
             Chat.sendMessage(player, "&cUnable to change a hero during the game!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }
 
-        if (heroes.isLocked(player) && !force) {
+        if (hero.isLocked(player) && !force) {
             Chat.sendMessage(player, "&cThis hero is locked!");
             return;
         }
 
-        if (!heroes.isValidHero()) {
+        if (!hero.isValidHero()) {
             if (!player.isOp()) {
                 Chat.sendMessage(player, "&cThis hero is currently disabled. Sorry!");
                 PlayerLib.villagerNo(player);
@@ -820,7 +820,7 @@ public final class Manager extends BukkitRunnable {
             Chat.sendMessage(player, "&4&lYOU HAVE BEEN WARNED");
         }
 
-        if (getSelectedLobbyHero(player) == heroes) {
+        if (getSelectedLobbyHero(player) == hero) {
             Chat.sendMessage(player, "&cAlready selected!");
             PlayerLib.villagerNo(player);
             return;
@@ -828,11 +828,11 @@ public final class Manager extends BukkitRunnable {
 
         final PlayerProfile profile = getOrCreateProfile(player);
 
-        profile.setSelectedHero(heroes);
+        profile.setSelectedHero(hero);
         player.closeInventory();
 
         PlayerLib.villagerYes(player);
-        Notifier.success(player, "Selected %s!".formatted(heroes.getFormatted(Color.SUCCESS)));
+        Notifier.success(player, "Selected %s!".formatted(hero.getFormatted(Color.SUCCESS)));
 
         final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
@@ -849,17 +849,13 @@ public final class Manager extends BukkitRunnable {
      */
     @Nonnull
     public Hero getCurrentHero(GamePlayer player) {
-        return getCurrentEnumHero(player).getHero();
+        return getCurrentEnumHero(player);
     }
 
     @Nonnull
-    public Heroes getCurrentEnumHero(GamePlayer player) {
+    public Hero getCurrentEnumHero(GamePlayer player) {
         if (isPlayerInGame(player)) {
-            if (player == null) {
-                return Heroes.ARCHER;
-            }
-
-            return player.getEnumHero();
+            return player != null ? player.getHero() : HeroRegistry.defaultHero();
         }
 
         return getSelectedLobbyHero(player.getPlayer());
@@ -935,14 +931,14 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public Set<GamePlayer> getAlivePlayers(Heroes enumHero) {
-        return getAlivePlayers(player -> player.getEnumHero() == enumHero);
+    public Set<GamePlayer> getAlivePlayers(Hero hero) {
+        return getAlivePlayers(player -> player.getHero().equals(hero));
     }
 
     @Nonnull
-    public Set<Heroes> getActiveHeroes() {
-        final Set<Heroes> heroes = Sets.newHashSet();
-        getPlayers().forEach(player -> heroes.add(player.getEnumHero()));
+    public Set<Hero> getActiveHeroes() {
+        final Set<Hero> heroes = Sets.newHashSet();
+        getPlayers().forEach(player -> heroes.add(player.getHero()));
 
         return heroes;
     }
@@ -1002,14 +998,10 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public Heroes getSelectedLobbyHero(Player player) {
+    public Hero getSelectedLobbyHero(Player player) {
         final PlayerProfile profile = getProfile(player);
 
-        if (profile == null) {
-            return Heroes.ARCHER;
-        }
-
-        return profile.getSelectedHero();
+        return profile != null ? profile.getSelectedHero() : HeroRegistry.defaultHero();
     }
 
     public boolean isInGameOrTrial(@Nullable Player player) {

@@ -29,7 +29,7 @@ public enum Named {
     WITHER_ROSE(ChatColor.DARK_GRAY + "\uD83C\uDF39", "Wither Rose", Color.WITHERS),
     MOONLIT_ENERGY(ChatColor.YELLOW + "&e☄", "Moonlit Energy", Color.MOON),
     ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
-    THE_CHAOS("&5&l\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
+    THE_CHAOS(ChatColor.BOLD + "\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
     BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
 
     ;

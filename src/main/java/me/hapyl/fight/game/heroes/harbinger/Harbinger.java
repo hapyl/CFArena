@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.harbinger;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -62,8 +63,8 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
     private final PlayerDataMap<RiptideStatus> riptideStatus = PlayerMap.newDataMap(RiptideStatus::new);
     private final Set<Arrow> ultimateArrows = Sets.newHashSet();
 
-    public Harbinger(@Nonnull Heroes handle) {
-        super(handle, "Harbinger");
+    public Harbinger(@Nonnull DatabaseKey key) {
+        super(key, "Harbinger");
 
         setDescription("""
                 She is a harbinger of unknown organization. Nothing else is known.

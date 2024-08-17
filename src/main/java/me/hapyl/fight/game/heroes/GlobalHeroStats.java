@@ -19,7 +19,7 @@ public class GlobalHeroStats {
     public GlobalHeroStats() {
         this.values = Maps.newLinkedHashMap();
 
-        for (Heroes hero : Heroes.values()) {
+        for (Hero hero : HeroRegistry.playable()) {
             final HeroStatsCollection stats = hero.getStats();
 
             for (StatType stat : StatType.values()) {
@@ -42,7 +42,7 @@ public class GlobalHeroStats {
         }
 
         // Assign hero rating
-        final Map<Heroes, Integer> rating = Maps.newLinkedHashMap();
+        final Map<Hero, Integer> rating = Maps.newLinkedHashMap();
         for (List<StatValue> values : values.values()) {
 
             for (StatValue value : values) {
@@ -55,19 +55,19 @@ public class GlobalHeroStats {
         }
 
         int rank = 1;
-        for (Heroes heroes : rating.entrySet()
+        for (Hero hero : rating.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new))
                 .keySet()) {
 
-            heroes.getHero().setRank(rank++);
+            hero.setRank(rank++);
         }
 
         rating.clear();
     }
 
-    public int getRating(@Nonnull Heroes hero, @Nonnull StatType type) {
+    public int getRating(@Nonnull Hero hero, @Nonnull StatType type) {
         for (StatValue value : values.getOrDefault(type, Lists.newArrayList())) {
             if (value.hero == hero) {
                 return value.getRank();

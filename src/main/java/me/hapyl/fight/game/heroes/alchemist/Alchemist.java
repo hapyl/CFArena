@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.alchemist;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -14,7 +14,10 @@ import me.hapyl.fight.game.effect.EffectFlag;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -46,8 +49,8 @@ public class Alchemist extends Hero implements UIComponent {
     private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
     private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
-    public Alchemist(@Nonnull Heroes handle) {
-        super(handle, "Alchemist");
+    public Alchemist(@Nonnull DatabaseKey key) {
+        super(key, "Alchemist");
 
         setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.SELF_SUSTAIN);
         setGender(Gender.FEMALE);
@@ -185,7 +188,7 @@ public class Alchemist extends Hero implements UIComponent {
         new GameTask() {
             @Override
             public void run() {
-                CF.getAlivePlayers(Heroes.ALCHEMIST).forEach(gamePlayer -> {
+                getAlivePlayers().forEach(gamePlayer -> {
                     if (isToxinLevelBetween(gamePlayer, 50, 75)) {
                         gamePlayer.addEffect(Effects.POISON, 2, 20);
                     }

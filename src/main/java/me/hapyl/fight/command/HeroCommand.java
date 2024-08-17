@@ -1,12 +1,12 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.gui.HeroSelectGUI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,7 +29,7 @@ public class HeroCommand extends SimplePlayerCommand {
         }
 
         if (args.length >= 1) {
-            final Heroes hero = Validate.getEnumValue(Heroes.class, args[0]);
+            final Hero hero = HeroRegistry.ofStringOrNull(args[0]);
 
             if (hero == null) {
                 Chat.sendMessage(player, "&cNo such hero as '%s'!".formatted(args[0]));
@@ -47,7 +47,7 @@ public class HeroCommand extends SimplePlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
-        return super.completerSort(super.arrayToList(Heroes.values()), args);
+        return super.completerSort(HeroRegistry.keys(), args);
     }
 
 }

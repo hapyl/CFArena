@@ -14,8 +14,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.EntityRandom;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.nyx.Nyx;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
@@ -51,10 +50,10 @@ public class WitherRosePath extends Talent {
         super("Wither Path");
 
         setDescription("""
-                Launch a path of spikes and wither roses in front of you that travel forward.
-                                
-                Upon hitting an enemy, deals damage and impairs hit enemy %s and %s.
-                &8&o;;For each hit enemy, Nyx gains one %s&8&o stack.
+                Launch a path of &8spikes&7 and &8wither roses&7 in front of you that travel forward.
+                
+                Upon hitting an &cenemy&7, deals &cdamage&7 and &eimpairs&7 hit enemy %s and %s.
+                &8&o;;Gain one %s&8&o stack for each hit enemy.
                 """.formatted(AttributeType.MAX_HEALTH, AttributeType.ENERGY_RECHARGE, Named.THE_CHAOS));
 
         setItem(Material.WITHER_ROSE);
@@ -116,7 +115,7 @@ public class WitherRosePath extends Talent {
                     // Give chaos stack
                     // Only one stack per enemy can be gained
                     if (!hitEntities.contains(entity)) {
-                        player.getPlayerData(Heroes.NYX, Nyx.class).incrementChaosStacks();
+                        player.getPlayerData(HeroRegistry.NYX).incrementChaosStacks();
                         hitEntities.add(entity);
                     }
 

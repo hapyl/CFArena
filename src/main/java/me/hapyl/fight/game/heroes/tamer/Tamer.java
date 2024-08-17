@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.tamer;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -44,8 +45,8 @@ public class Tamer extends Hero implements Listener, UIComponent {
     public final double ultimateMultiplier = 2.0d;
     public final Map<ThrownPotion, DrWitch.WitchData> potionMap = Maps.newHashMap();
 
-    public Tamer(@Nonnull Heroes handle) {
-        super(handle, "Tamer");
+    public Tamer(@Nonnull DatabaseKey key) {
+        super(key, "Tamer");
 
         setDescription("""
                 A former circus pet trainer who gained the ability to tame the elements.

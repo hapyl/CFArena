@@ -3,11 +3,11 @@ package me.hapyl.fight.game.talents.vortex;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -80,7 +80,7 @@ public class StarAligner extends InputTalent {
             return Response.error("Not targeting any astral stars!");
         }
 
-        final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
+        final Vortex hero = HeroRegistry.VORTEX;
         final AstralStarList stars = hero.getFirstTalent().getStars(player);
         final double damage = hero.calculateAstralDamage(player, targetStar.getHealth() * damageHealthMultiplier);
         final Location location = targetStar.getLocation();
@@ -139,7 +139,7 @@ public class StarAligner extends InputTalent {
             return Response.error("Not targeting any astral stars!");
         }
 
-        final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
+        final Vortex hero = HeroRegistry.VORTEX;
 
         hero.performStarBlink(player, targetStar);
         hero.addDreamStack(player);

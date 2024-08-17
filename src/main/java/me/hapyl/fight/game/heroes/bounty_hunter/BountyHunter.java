@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.bounty_hunter;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -57,8 +58,8 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     @DisplayField private final double backstabMaxDistance = 15;
     @DisplayField private final double backstabDamage = 30;
 
-    public BountyHunter(@Nonnull Heroes handle) {
-        super(handle, "Bounty Hunter");
+    public BountyHunter(@Nonnull DatabaseKey key) {
+        super(key, "Bounty Hunter");
 
         setAffiliation(Affiliation.MERCENARY);
         setArchetypes(Archetype.MOBILITY);

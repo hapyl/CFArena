@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.ninja;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -55,8 +56,8 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     private final int doubleJumpCooldown = Tick.fromSecond(5);
 
-    public Ninja(@Nonnull Heroes handle) {
-        super(handle, "Ninja");
+    public Ninja(@Nonnull DatabaseKey key) {
+        super(key, "Ninja");
 
         setDescription("""
                 An extremely well-trained fighter with a gift from the wind.

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.witcher;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -32,8 +33,8 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
     @DisplayField private final double defenseIncrease = 2.0d;
     @DisplayField private final double damageMultiplierPerCombo = 0.1d;
 
-    public WitcherClass(@Nonnull Heroes handle) {
-        super(handle, "The Witcher");
+    public WitcherClass(@Nonnull DatabaseKey key) {
+        super(key, "The Witcher");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);
         setGender(Gender.MALE);
@@ -188,7 +189,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
 
             attributes.increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, defenseIncrease, getUltimateDuration());
 
-            new PlayerTimedGameTask(player, Heroes.WITCHER, getUltimate()) {
+            new PlayerTimedGameTask(player, getClass(), getUltimate()) {
                 @Override
                 public void run(int tick) {
                     irden.affect(player, player.getLocation(), tick);

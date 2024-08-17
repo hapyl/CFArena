@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.talents.taker;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.taker.Taker;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -206,7 +205,7 @@ public class TakerHook {
     }
 
     private DeathSwap talent() {
-        return Heroes.TAKER.getHero(Taker.class).getSecondTalent();
+        return HeroRegistry.TAKER.getSecondTalent();
     }
 
     private void createChain(Location location) {

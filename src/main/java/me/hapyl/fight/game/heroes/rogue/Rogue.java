@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.rogue;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
@@ -59,8 +60,8 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
             .increase(AttributeType.ATTACK, 1.32d)
             .decrease(AttributeType.COOLDOWN_MODIFIER, 0.5d);
 
-    public Rogue(@Nonnull Heroes handle) {
-        super(handle, "Rogue");
+    public Rogue(@Nonnull DatabaseKey key) {
+        super(key, "Rogue");
 
         setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.MERCENARY);

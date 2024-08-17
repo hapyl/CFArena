@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.ender;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -24,8 +25,8 @@ import javax.annotation.Nonnull;
 
 public class Ender extends Hero implements Listener {
 
-    public Ender(@Nonnull Heroes handle) {
-        super(handle, "Ender");
+    public Ender(@Nonnull DatabaseKey key) {
+        super(key, "Ender");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
         setGender(Gender.UNKNOWN);
@@ -66,7 +67,7 @@ public class Ender extends Hero implements Listener {
             @Override
             public void run(int tick) {
                 // Damage players in water
-                Heroes.ENDER.getAlivePlayers().forEach(player -> {
+                HeroRegistry.ENDER.getAlivePlayers().forEach(player -> {
                     if (!player.getPlayer().isInWater()) {
                         return;
                     }

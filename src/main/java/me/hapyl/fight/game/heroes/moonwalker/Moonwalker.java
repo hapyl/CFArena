@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -27,8 +28,8 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
     private final PlayerDataMap<MoonwalkerData> playerData = PlayerMap.newDataMap(MoonwalkerData::new);
 
-    public Moonwalker(@Nonnull Heroes handle) {
-        super(handle, "Moonwalker");
+    public Moonwalker(@Nonnull DatabaseKey key) {
+        super(key, "Moonwalker");
 
         setMinimumLevel(3);
         setArchetypes(Archetype.RANGE);

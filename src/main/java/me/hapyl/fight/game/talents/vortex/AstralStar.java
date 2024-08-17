@@ -15,8 +15,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.Outline;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.vortex.Vortex;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -104,7 +103,7 @@ public class AstralStar implements Ticking {
             return entity;
         });
 
-        Heroes.VORTEX.getHero(Vortex.class).sacrificeHealth(player);
+        HeroRegistry.VORTEX.sacrificeHealth(player);
     }
 
     @Nonnull

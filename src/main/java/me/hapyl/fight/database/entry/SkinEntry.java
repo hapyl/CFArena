@@ -3,7 +3,7 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.StrictPlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,12 +23,12 @@ public class SkinEntry extends StrictPlayerDatabaseEntry {
     }
 
     @Nullable
-    public Skins getSelected(@Nonnull Heroes hero) {
-        return getEnumValue("selected." + hero.name().toLowerCase(), Skins.class);
+    public Skins getSelected(@Nonnull Hero hero) {
+        return getEnumValue("selected." + hero.getKey().toLowerCase(), Skins.class);
     }
 
-    public void setSelected(@Nonnull Heroes hero, @Nullable Skins skin) {
-        setEnumValue("selected." + hero.name().toLowerCase(), skin);
+    public void setSelected(@Nonnull Hero hero, @Nullable Skins skin) {
+        setEnumValue("selected." + hero.getKey().toLowerCase(), skin);
     }
 
 }

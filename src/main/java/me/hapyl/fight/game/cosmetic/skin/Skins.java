@@ -6,7 +6,8 @@ import me.hapyl.fight.game.cosmetic.skin.archer.SkinGreenArcher;
 import me.hapyl.fight.game.cosmetic.skin.archer.SkinRedHood;
 import me.hapyl.fight.game.cosmetic.skin.bk.SkinRoyalKnight;
 import me.hapyl.fight.game.cosmetic.skin.shark.SkinMegalodon;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.shark.Shark;
@@ -26,7 +27,7 @@ public enum Skins {
     /**
      * {@link BlastKnight}
      */
-    ROYAL_KNIGHT(new SkinRoyalKnight(Heroes.BLAST_KNIGHT)),
+    ROYAL_KNIGHT(new SkinRoyalKnight(HeroRegistry.BLAST_KNIGHT)),
 
     /**
      * {@link Shark}
@@ -47,7 +48,7 @@ public enum Skins {
     }
 
     @Nonnull
-    public static List<Skins> byHero(@Nonnull Heroes hero) {
+    public static List<Skins> byHero(@Nonnull Hero hero) {
         final List<Skins> list = Lists.newArrayList();
 
         for (Skins enumSkin : values()) {

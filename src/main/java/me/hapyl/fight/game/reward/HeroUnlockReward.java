@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -8,15 +8,15 @@ import javax.annotation.Nonnull;
 
 public class HeroUnlockReward extends Reward {
 
-    private final Heroes hero;
+    private final Hero hero;
 
-    public HeroUnlockReward(Heroes hero) {
+    public HeroUnlockReward(Hero hero) {
         super();
 
         this.hero = hero;
     }
 
-    public Heroes getHero() {
+    public Hero getHero() {
         return hero;
     }
 

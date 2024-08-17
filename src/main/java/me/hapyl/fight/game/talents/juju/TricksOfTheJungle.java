@@ -2,11 +2,10 @@ package me.hapyl.fight.game.talents.juju;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.juju.ArrowType;
-import me.hapyl.fight.game.heroes.juju.JuJu;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
@@ -35,7 +34,7 @@ public class TricksOfTheJungle extends Talent implements Listener {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        Heroes.JUJU.getHero(JuJu.class).setArrowType(player, ArrowType.ELUSIVE, getDuration());
+        HeroRegistry.JUJU.setArrowType(player, ArrowType.ELUSIVE, getDuration());
 
         return Response.OK;
     }

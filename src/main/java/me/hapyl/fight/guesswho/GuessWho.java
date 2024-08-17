@@ -1,7 +1,8 @@
 package me.hapyl.fight.guesswho;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public class GuessWho extends GameTask implements Lifecycle {
     public final GuessWhoPlayer player1;
     public final GuessWhoPlayer player2;
 
-    private final List<Heroes> board;
+    private final List<Hero> board;
     public GameResult result;
     private PlayerType turn;
     private int round;
@@ -58,7 +59,7 @@ public class GuessWho extends GameTask implements Lifecycle {
     }
 
     @Nonnull
-    public List<Heroes> getBoard() {
+    public List<Hero> getBoard() {
         return board;
     }
 
@@ -188,7 +189,7 @@ public class GuessWho extends GameTask implements Lifecycle {
     }
 
     private void generateBoard() {
-        final List<Heroes> heroes = Heroes.playable();
+        final List<Hero> heroes = HeroRegistry.playable();
 
         Collections.shuffle(heroes);
         heroes.stream().limit(BOARD_SIZE).forEach(this.board::add);

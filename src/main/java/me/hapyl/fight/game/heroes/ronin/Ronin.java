@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.ronin;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -46,8 +47,8 @@ public class Ronin extends Hero implements Listener, Disabled {
      * - Increase speed and attack.
      * - All hits apply bleed.
      */
-    public Ronin(@Nonnull Heroes handle) {
-        super(handle, "Ronin");
+    public Ronin(@Nonnull DatabaseKey key) {
+        super(key, "Ronin");
 
         setArchetypes(Archetype.DAMAGE);
         setGender(Gender.MALE);

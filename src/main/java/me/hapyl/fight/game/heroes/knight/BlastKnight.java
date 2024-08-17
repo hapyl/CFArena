@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -42,8 +43,8 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
     private final PlayerDataMap<BlastKnightData> dataMap = PlayerMap.newDataMap(BlastKnightData::new);
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
-    public BlastKnight(@Nonnull Heroes handle) {
-        super(handle, "Blast Knight");
+    public BlastKnight(@Nonnull DatabaseKey key) {
+        super(key, "Blast Knight");
 
         setArchetypes(Archetype.SUPPORT, Archetype.DEFENSE);
         setAffiliation(Affiliation.KINGDOM);

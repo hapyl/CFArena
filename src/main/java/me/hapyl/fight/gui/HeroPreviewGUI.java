@@ -6,7 +6,6 @@ import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -36,13 +35,13 @@ public class HeroPreviewGUI extends StyledGUI {
             { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
     });
 
-    private final Heroes enumHero;
+    private final Hero hero;
     private final Set<Talent> attributeDisplay;
     private final int returnPage;
 
-    public HeroPreviewGUI(Player player, Heroes enumHero, int returnPage) {
-        super(player, "Hero Preview - " + enumHero.getHero().getName(), Size.FIVE);
-        this.enumHero = enumHero;
+    public HeroPreviewGUI(Player player, Hero hero, int returnPage) {
+        super(player, "Hero Preview - " + hero.getName(), Size.FIVE);
+        this.hero = hero;
         this.attributeDisplay = Sets.newHashSet();
         this.returnPage = returnPage;
 
@@ -57,8 +56,6 @@ public class HeroPreviewGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final Hero hero = enumHero.getHero();
-
         setHeader(hero.getItemMaker().makeItem(HeroPlayerItemMaker.Type.DETAILS, player));
 
         // Fill with panels
@@ -135,12 +132,12 @@ public class HeroPreviewGUI extends StyledGUI {
                         .addLore(Color.BUTTON + "Click to open skin GUI!")
                         .asIcon(),
                 player -> {
-                    new SkinGUI(player, enumHero, returnPage);
+                    new SkinGUI(player, hero, returnPage);
                 }
         );
 
         // Favourite
-        final boolean favourite = enumHero.isFavourite(getPlayer());
+        final boolean favourite = hero.isFavourite(getPlayer());
 
         setItem(
                 35,
@@ -155,7 +152,7 @@ public class HeroPreviewGUI extends StyledGUI {
                         .predicate(favourite, ItemBuilder::glow)
                         .toItemStack(),
                 player -> {
-                    enumHero.setFavourite(player, !favourite);
+                    hero.setFavourite(player, !favourite);
 
                     Chat.sendMessage(
                             player,
@@ -171,7 +168,6 @@ public class HeroPreviewGUI extends StyledGUI {
         );
 
         final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
-        final Heroes enumHero = hero.getHandle();
 
         // Mastery
         setItem(
@@ -179,8 +175,8 @@ public class HeroPreviewGUI extends StyledGUI {
                 StyledItem.ICON_MASTERY
                         .toBuilder()
                         .addLore()
-                        .addLore(entry.makeMasteryHeader(enumHero))
-                        .addLore(entry.makeProgressBar(enumHero))
+                        .addLore(entry.makeMasteryHeader(hero))
+                        .addLore(entry.makeProgressBar(hero))
                         .addLore()
                         .addLore(Color.BUTTON + "Click for details")
                         .asIcon(), player -> new MasteryGUI(player, hero, returnPage)
@@ -195,7 +191,7 @@ public class HeroPreviewGUI extends StyledGUI {
                         .addLore()
                         .addLore(Color.BUTTON + "Click to view!")
                         .asIcon(),
-                player -> new HeroStatisticGUI(player, this.enumHero, returnPage)
+                player -> new HeroStatisticGUI(player, this.hero, returnPage)
         );
     }
 

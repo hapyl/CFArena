@@ -1,6 +1,6 @@
 package me.hapyl.fight.dialog;
 
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.npc.PersistentNPC;
 import org.bukkit.entity.Player;
 
@@ -21,8 +21,8 @@ public abstract class Placeholder<T> {
     public static final Placeholder<Player> PLAYER_NAME
             = of("player", Player.class, Player::getName);
 
-    public static final Placeholder<Heroes> HERO
-            = of("hero", Heroes.class, Heroes::getName);
+    public static final Placeholder<Hero> HERO
+            = of("hero", Hero.class, Hero::getName);
 
     private final String pattern;
     private final Class<T> clazz;

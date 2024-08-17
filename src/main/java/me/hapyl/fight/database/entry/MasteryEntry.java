@@ -1,11 +1,11 @@
 package me.hapyl.fight.database.entry;
 
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.StrictPlayerDatabaseEntry;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.StrictPlayerDatabaseEntry;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -21,23 +21,23 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
         setPath("mastery");
     }
 
-    public final int getLevel(@Nonnull Heroes hero) {
+    public final int getLevel(@Nonnull Hero hero) {
         return HeroMastery.getLevel(getExp(hero));
     }
 
-    public final String getLevelString(@Nonnull Heroes hero) {
+    public final String getLevelString(@Nonnull Hero hero) {
         return HeroMastery.getLevelString(getLevel(hero));
     }
 
-    public final long getExp(@Nonnull Heroes hero) {
-        return getValue("%s.exp".formatted(hero.name()), 0L);
+    public final long getExp(@Nonnull Hero hero) {
+        return getValue("%s.exp".formatted(hero.getKey()), 0L);
     }
 
-    public void addExp(@Nonnull Heroes hero, long expToAdd) {
+    public void addExp(@Nonnull Hero hero, long expToAdd) {
         setExp(hero, getExp(hero) + Math.abs(expToAdd));
     }
 
-    public void setExp(@Nonnull Heroes hero, long newExp) {
+    public void setExp(@Nonnull Hero hero, long newExp) {
         final long currentExp = getExp(hero);
         final int currentLevel = HeroMastery.getLevel(currentExp);
         final int newLevel = HeroMastery.getLevel(newExp);
@@ -47,10 +47,10 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
             playMasteryLevelUpEffect(hero, currentLevel, newLevel);
         }
 
-        setValue("%s.exp".formatted(hero.name()), newExp);
+        setValue("%s.exp".formatted(hero.getKey()), newExp);
     }
 
-    public void playMasteryLevelUpEffect(@Nonnull Heroes hero, int currentLevel, int newLevel) {
+    public void playMasteryLevelUpEffect(@Nonnull Hero hero, int currentLevel, int newLevel) {
         final Player player = getOnlinePlayer();
 
         if (player == null) {
@@ -70,7 +70,7 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
     }
 
     @Nonnull
-    public String makeProgressBar(@Nonnull Heroes hero) {
+    public String makeProgressBar(@Nonnull Hero hero) {
         final int level = getLevel(hero);
 
         final long exp = getExp(hero);
@@ -93,7 +93,7 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
     }
 
     @Nonnull
-    public String makeMasteryHeader(@Nonnull Heroes hero) {
+    public String makeMasteryHeader(@Nonnull Hero hero) {
         return "&6&l\uD83C\uDFC5 MASTERY LEVEL " + getLevelString(hero);
     }
 }

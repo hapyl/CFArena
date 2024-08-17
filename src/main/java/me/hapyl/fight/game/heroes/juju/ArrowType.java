@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.heroes.juju;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.game.talents.juju.PoisonZone;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
 import me.hapyl.fight.util.Described;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.BFormat;
-import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -80,7 +79,7 @@ public enum ArrowType implements Described {
 
         @Override
         public void onShoot(GamePlayer player, Arrow arrow) {
-            final JuJu juju = Heroes.JUJU.getHero(JuJu.class);
+            final JuJu juju = HeroRegistry.JUJU;
 
             juju.unequipArrow(player, this);
             player.setUsingUltimate(false);

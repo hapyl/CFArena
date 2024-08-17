@@ -34,10 +34,10 @@ public class NyxPassive extends PassiveTalent {
     @DisplayField private final int buffDuration = Tick.fromSecond(6);
 
     public NyxPassive() {
-        super("nyx passive", Material.BEDROCK);
+        super("Reverberation", Material.BEDROCK);
 
         setDescription("""
-                Whenever Nyx or her ally debuffs an enemy, and she has a %s stack, Nyx will launch a followup attack.
+                Whenever &a&nNyx&r or her &a&nally&7 &eimpairs&7 an &cenemy&7, and she has a %s stack, Nyx will launch a &6&nfollowup&r &6&nattack&7.
 
                 Upon hit, it deals &cAoE damage&7 and grants a &9Void Shield&7 to the teammate who triggered this attack.
 

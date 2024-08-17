@@ -1,16 +1,16 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.equipment.Slot;
-import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
-import me.hapyl.fight.ux.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.reflect.npc.ItemSlot;
-import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Slot;
+import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
+import me.hapyl.fight.ux.Notifier;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -64,16 +64,16 @@ public class NpcCommand extends SimplePlayerAdminCommand {
                     ItemStack item = player.getInventory().getItemInMainHand();
                     item = item.getType().isAir() ? null : item;
 
-                    final Heroes hero = getArgument(args, 1).toEnum(Heroes.class);
+                    final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 1).toString());
 
                     if (hero != null) {
-                        final Equipment equipment = hero.getHero().getEquipment();
+                        final Equipment equipment = hero.getEquipment();
 
                         npc.setItem(ItemSlot.HEAD, equipment.getItem(Slot.HELMET));
                         npc.setItem(ItemSlot.CHEST, equipment.getItem(Slot.CHESTPLATE));
                         npc.setItem(ItemSlot.LEGS, equipment.getItem(Slot.LEGGINGS));
                         npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
-                        npc.setItem(ItemSlot.MAINHAND, hero.getHero().getWeapon().getItem());
+                        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
 
                         return;
                     }
@@ -120,14 +120,14 @@ public class NpcCommand extends SimplePlayerAdminCommand {
                 }
 
                 case "skin" -> {
-                    final Heroes hero = Enums.byName(Heroes.class, arg1);
+                    final Hero hero = HeroRegistry.ofStringOrNull(arg1);
 
                     if (hero == null) {
                         npc.setSkin(arg1);
                         Notifier.success(player, "Set skin to '%s!".formatted(arg1));
                     }
                     else {
-                        final PlayerSkin heroSkin = hero.getHero().getSkin();
+                        final PlayerSkin heroSkin = hero.getSkin();
 
                         if (heroSkin == null) {
                             Notifier.error(player, "This hero doesn't have a skin!");

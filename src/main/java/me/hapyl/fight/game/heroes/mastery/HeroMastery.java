@@ -121,7 +121,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         // In truth, this method should only while IN the game, hence it takes GamePlayer,
         // meaning GameInstance would have to exist, but just in case it doesn't somehow,
         // the default value will be returned
-        return PlayerDatabase.getDatabase(player.getPlayer()).masteryEntry.getLevel(hero.getHandle());
+        return PlayerDatabase.getDatabase(player.getPlayer()).masteryEntry.getLevel(hero);
     }
 
     /**
@@ -178,7 +178,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
 
         final Hero playerHero = player.getHero();
 
-        player.getDatabase().masteryEntry.addExp(playerHero.getHandle(), earnedExp);
+        player.getDatabase().masteryEntry.addExp(playerHero, earnedExp);
 
         player.sendMessage(PREFIX + "&aEarned %s &6Mastery Exp&a for %s!".formatted(earnedExp, playerHero.getNameSmallCaps()));
     }

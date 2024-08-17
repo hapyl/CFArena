@@ -1,18 +1,18 @@
 package me.hapyl.fight.game.talents.orc;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -74,7 +74,7 @@ public class OrcAxe extends InputTalent {
             @Override
             public void onTaskStop() {
                 axe.remove();
-                Heroes.ORC.getHero().getWeapon().give(player);
+                HeroRegistry.ORC.getWeapon().give(player);
             }
 
             @Override

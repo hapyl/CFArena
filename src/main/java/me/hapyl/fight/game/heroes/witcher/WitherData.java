@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.witcher;
 
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.PlayerData;
+import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Wither;
@@ -56,7 +56,7 @@ public class WitherData extends PlayerData {
             }
 
             private String witherName() {
-                return Heroes.DARK_MAGE.getHero().getUltimate().getName();
+                return HeroRegistry.DARK_MAGE.getUltimate().getName();
             }
         }.startAnimation(400, 800, (float) 400 / duration);
 

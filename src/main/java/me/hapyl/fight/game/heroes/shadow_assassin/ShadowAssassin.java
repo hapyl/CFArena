@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -51,8 +52,8 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private final PlayerMap<ShadowAssassinData> playerData = PlayerMap.newMap();
 
-    public ShadowAssassin(@Nonnull Heroes handle) {
-        super(handle, "Shadow Assassin");
+    public ShadowAssassin(@Nonnull DatabaseKey key) {
+        super(key, "Shadow Assassin");
 
         setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.UNKNOWN);

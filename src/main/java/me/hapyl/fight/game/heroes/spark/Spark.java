@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.spark;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -23,8 +24,8 @@ public class Spark extends Hero {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
 
-    public Spark(@Nonnull Heroes handle) {
-        super(handle, "Spark");
+    public Spark(@Nonnull DatabaseKey key) {
+        super(key, "Spark");
 
         setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);
         setGender(Gender.MALE);

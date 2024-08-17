@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Named;
@@ -10,7 +11,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.techie.BugType;
 import me.hapyl.fight.game.heroes.techie.Techie;
 import me.hapyl.fight.game.heroes.techie.TechieData;
@@ -20,7 +21,6 @@ import me.hapyl.fight.game.maps.gamepack.HackedPack;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -166,7 +166,7 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
     @Nonnull
     @Override
     public Techie getHero() {
-        return Heroes.TECHIE.getHero(Techie.class);
+        return HeroRegistry.TECHIE;
     }
 
     @Nonnull

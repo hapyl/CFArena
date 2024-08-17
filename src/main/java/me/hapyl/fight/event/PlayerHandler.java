@@ -108,7 +108,7 @@ public class PlayerHandler implements Listener {
             ev.setJoinMessage(null);
 
             // Fix skin
-            final PlayerSkin skin = profile.getHeroHandle().getSkin();
+            final PlayerSkin skin = profile.getHero().getSkin();
 
             if (skin != null) {
                 skin.apply(player);

@@ -1,13 +1,13 @@
 package me.hapyl.fight.database.collection;
 
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Numeric;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bson.Document;
 
 import javax.annotation.Nonnull;
@@ -16,16 +16,17 @@ import java.util.UUID;
 
 public class HeroStatsCollection extends AsynchronousDatabase {
 
-    private final Heroes heroes;
+    private final DatabaseKey key;
 
-    public HeroStatsCollection(Heroes heroes) {
-        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", heroes.name()));
+    public HeroStatsCollection(@Nonnull DatabaseKey key) {
+        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
 
-        this.heroes = heroes;
+        this.key = key;
     }
 
-    public Heroes getHeroes() {
-        return heroes;
+    @Nonnull
+    public DatabaseKey getKey() {
+        return key;
     }
 
     public double getStat(StatType statisticType) {

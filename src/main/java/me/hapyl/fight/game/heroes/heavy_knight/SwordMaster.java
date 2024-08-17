@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -34,8 +35,8 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
     private final PlayerDataMap<SwordMasterData> playerData = PlayerMap.newDataMap(player -> new SwordMasterData(this, player));
 
-    public SwordMaster(@Nonnull Heroes handle) {
-        super(handle, "Heavy Knight");
+    public SwordMaster(@Nonnull DatabaseKey key) {
+        super(key, "Heavy Knight");
 
         setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.KINGDOM);
@@ -84,7 +85,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
     }
 
     public static boolean addSuccessfulTalent(@Nonnull GamePlayer player, @Nonnull Talent talent) {
-        return Heroes.SWORD_MASTER.getHero(SwordMaster.class).getPlayerData(player).buffer.offer(talent);
+        return HeroRegistry.SWORD_MASTER.getPlayerData(player).buffer.offer(talent);
     }
 
     private class SwordMasterUltimate extends UltimateTalent {

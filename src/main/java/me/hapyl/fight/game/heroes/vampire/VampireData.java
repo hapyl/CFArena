@@ -1,11 +1,9 @@
 package me.hapyl.fight.game.heroes.vampire;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.vampire.Vampire;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import org.bukkit.entity.Player;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 
 public class VampireData {
 
@@ -35,7 +33,7 @@ public class VampireData {
     }
 
     public void setBlood(int blood) {
-        this.blood = Numbers.clamp(blood, 0, Heroes.VAMPIRE.getHero(Vampire.class).MAX_BLOOD_STACKS);
+        this.blood = Numbers.clamp(blood, 0, HeroRegistry.VAMPIRE.MAX_BLOOD_STACKS);
     }
 
     public void addBlood(int i) {

@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.mage;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.util.Formatted;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -58,7 +58,7 @@ public abstract class MageSpell implements Formatted, Timed {
     }
 
     public final Response execute(@Nonnull GamePlayer player) {
-        final Mage mage = Heroes.MAGE.getHero(Mage.class);
+        final Mage mage = HeroRegistry.MAGE;
 
         player.setUsingUltimate(getDuration());
         useSpell(player);

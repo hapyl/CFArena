@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.TickingHero;
 import me.hapyl.fight.game.maps.Level;
@@ -42,7 +42,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         instance.getMode().onStart(instance);
 
         // Call heroes
-        EnumIterators.ofWrapper(Heroes.class, Heroes::getHero, hero -> {
+        for (Hero hero : HeroRegistry.values()) {
             hero.onStart(instance);
 
             final Weapon weapon = hero.getWeapon();
@@ -57,7 +57,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
                     }
                 }.runTaskTimer(1, 1);
             }
-        });
+        }
 
         // Call level
         instance.currentLevel().onStart(instance);
@@ -77,7 +77,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         Materials.setItemCooldowns(0);
 
         // Call heroes
-        EnumIterators.ofWrapper(Heroes.class, Heroes::getHero, hero -> {
+        for (Hero hero : HeroRegistry.values()) {
             hero.onStop(instance);
 
             // Reset player data if applicable
@@ -90,7 +90,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
 
             weapon.onStop(instance);
             weapon.getAbilities().forEach(Ability::clearCooldowns);
-        });
+        }
 
         // Call level
         instance.currentLevel().onStop(instance);
@@ -119,12 +119,12 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
     @Override
     public void onPlayersRevealed(@Nonnull GameInstance instance) {
         // Call heroes
-        EnumIterators.ofWrapper(Heroes.class, Heroes::getHero, hero -> {
+        for (Hero hero : HeroRegistry.values()) {
             hero.onPlayersRevealed(instance);
 
             final Weapon weapon = hero.getWeapon();
             weapon.onPlayersRevealed(instance);
-        });
+        }
 
         // Call level
         instance.currentLevel().onPlayersRevealed(instance);

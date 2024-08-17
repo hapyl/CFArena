@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.hercules;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
@@ -37,8 +38,8 @@ public class Hercules extends Hero implements Listener, Disabled {
     private final int tridentCooldown = 300;
     private final Map<Player, Trident> fragileTrident = new HashMap<>();
 
-    public Hercules(@Nonnull Heroes handle) {
-        super(handle, "Hercules");
+    public Hercules(@Nonnull DatabaseKey key) {
+        super(key, "Hercules");
 
         setArchetypes(Archetype.MOBILITY);
         setGender(Gender.MALE);

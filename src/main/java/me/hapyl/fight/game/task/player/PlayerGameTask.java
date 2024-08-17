@@ -12,9 +12,9 @@ import javax.annotation.Nullable;
 public abstract class PlayerGameTask extends GameTask implements IPlayerTask {
 
     private final GamePlayer player;
-    private final Enum<?> name;
+    private final Class<?> name;
 
-    public PlayerGameTask(@Nonnull GamePlayer player, @Nullable Enum<?> name) {
+    public PlayerGameTask(@Nonnull GamePlayer player, @Nullable Class<?> name) {
         this.name = name;
         this.player = player;
 
@@ -33,7 +33,7 @@ public abstract class PlayerGameTask extends GameTask implements IPlayerTask {
 
     @Nullable
     @Override
-    public Enum<?> getEnum() {
+    public Class<?> getEnum() {
         return name;
     }
 

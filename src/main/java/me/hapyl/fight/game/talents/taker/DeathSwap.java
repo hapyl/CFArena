@@ -4,11 +4,10 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.taker.SpiritualBones;
-import me.hapyl.fight.game.heroes.taker.Taker;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -66,7 +65,7 @@ public class DeathSwap extends Talent implements Listener {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final SpiritualBones bones = Heroes.TAKER.getHero(Taker.class).getBones(player);
+        final SpiritualBones bones = HeroRegistry.TAKER.getBones(player);
 
         if (!player.isOnGround()) {
             return Response.error("You must be grounded to use this!");

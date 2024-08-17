@@ -6,13 +6,13 @@ import java.util.Objects;
 public class TaskHash {
 
     @Nullable
-    private final Enum<?> hash;
+    private final Class<?> hash;
 
     public TaskHash() {
         this(null);
     }
 
-    public TaskHash(@Nullable Enum<?> hash) {
+    public TaskHash(@Nullable Class<?> hash) {
         this.hash = hash;
     }
 

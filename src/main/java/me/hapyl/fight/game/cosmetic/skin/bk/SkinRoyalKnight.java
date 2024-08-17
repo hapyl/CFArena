@@ -2,8 +2,7 @@ package me.hapyl.fight.game.cosmetic.skin.bk;
 
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.skin.Skin;
-import me.hapyl.fight.game.heroes.Affiliation;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -12,7 +11,7 @@ import javax.annotation.Nonnull;
 
 public class SkinRoyalKnight extends Skin {
 
-    public SkinRoyalKnight(@Nonnull Heroes hero) {
+    public SkinRoyalKnight(@Nonnull Hero hero) {
         super(hero);
 
         setName("Royal Knight");

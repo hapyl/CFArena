@@ -1,15 +1,14 @@
 package me.hapyl.fight.guesswho;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.GuessWhoEntry;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.guesswho.gui.GuessWhoRuleOutGUI;
 import me.hapyl.fight.guesswho.gui.GuessWhoSelectionGUI;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -23,9 +22,9 @@ public class GuessWhoPlayer {
     private final GuessWho game;
     private final Player player;
     private final PlayerType type;
-    private final List<Heroes> board;
+    private final List<Hero> board;
 
-    private Heroes guessHero;
+    private Hero guessHero;
     private boolean winner;
 
     public GuessWhoPlayer(GuessWho game, Player player, PlayerType type) {
@@ -44,11 +43,11 @@ public class GuessWhoPlayer {
     }
 
     @Nullable
-    public Heroes getGuessHero() {
+    public Hero getGuessHero() {
         return guessHero;
     }
 
-    public void setGuessHero(@Nonnull Heroes clicked) {
+    public void setGuessHero(@Nonnull Hero clicked) {
         if (guessHero != null) {
             return;
         }
@@ -91,7 +90,7 @@ public class GuessWhoPlayer {
     }
 
     @Nullable
-    public Heroes getSelectedHero() {
+    public Hero getSelectedHero() {
         return guessHero;
     }
 
@@ -100,7 +99,7 @@ public class GuessWhoPlayer {
         return game;
     }
 
-    public boolean isRuledOut(@Nonnull Heroes enumHero) {
+    public boolean isRuledOut(@Nonnull Hero enumHero) {
         return !board.contains(enumHero);
     }
 
@@ -125,15 +124,15 @@ public class GuessWhoPlayer {
         return board.size() == 1;
     }
 
-    public void ruleOut(@Nonnull Set<Heroes> toRuleOut) {
+    public void ruleOut(@Nonnull Set<Hero> toRuleOut) {
         board.removeAll(toRuleOut);
 
         // Fx
-        sendMessage("Ruled out " + Chat.makeStringCommaAnd(toRuleOut, Heroes::getNameSmallCaps) + "!");
+        sendMessage("Ruled out " + Chat.makeStringCommaAnd(toRuleOut, Hero::getNameSmallCaps) + "!");
         playSound(Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
     }
 
-    public void guess(@Nonnull Heroes hero) {
+    public void guess(@Nonnull Hero hero) {
         final GuessWhoPlayer opponent = getOpponent();
 
         // Fx

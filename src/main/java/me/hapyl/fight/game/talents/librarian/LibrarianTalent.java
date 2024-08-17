@@ -1,12 +1,11 @@
 package me.hapyl.fight.game.talents.librarian;
 
-import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.librarian.Librarian;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 
@@ -25,14 +24,14 @@ public abstract class LibrarianTalent extends Talent {
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        if (Heroes.LIBRARIAN.getHero(Librarian.class).hasICD(player)) {
+        if (HeroRegistry.LIBRARIAN.hasICD(player)) {
             return ERROR; // should never happen
         }
 
         final Response response = executeGrimoire(player);
 
         if (response.isOk()) {
-            Heroes.LIBRARIAN.getHero(Librarian.class).removeSpellItems(player, this);
+            HeroRegistry.LIBRARIAN.removeSpellItems(player, this);
             player.sendMessage("&aUsed %s!", this.getName());
         }
 
@@ -69,6 +68,6 @@ public abstract class LibrarianTalent extends Talent {
     }
 
     public double getCurrentValue(GamePlayer player) {
-        return getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player));
+        return getCurrentValue(HeroRegistry.LIBRARIAN.getGrimoireLevel(player));
     }
 }

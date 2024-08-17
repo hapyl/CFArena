@@ -2,18 +2,25 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.annotate.Super;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
-import me.hapyl.fight.util.NullSafeList;
-import me.hapyl.fight.util.handle.EnumHandle;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -22,16 +29,13 @@ import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Formatted;
+import me.hapyl.fight.util.NullSafeList;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.strict.StrictPackage;
-import me.hapyl.eterna.module.annotate.Super;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -55,9 +59,12 @@ import java.util.Set;
  */
 @AutoRegisteredListener
 @StrictPackage("me.hapyl.fight.game.heroes")
-public abstract class Hero implements ElementHandler, PlayerElementHandler, EnumHandle<Heroes>, Rankable, DisplayFieldProvider {
+public abstract class Hero
+        implements
+        DatabaseKey, ElementHandler, PlayerElementHandler,
+        Rankable, DisplayFieldProvider, Formatted {
 
-    private final Heroes enumHero;
+    private final DatabaseKey key;
     private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
     private final Equipment equipment;
@@ -83,10 +90,10 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
     private String guiTextureUrl = "";
 
     @Super
-    public Hero(@Nonnull Heroes handle, @Nonnull String name) {
-        this.enumHero = handle;
+    public Hero(@Nonnull DatabaseKey key, @Nonnull String name) {
+        this.key = key;
         this.name = name;
-        this.stats = new HeroStatsCollection(handle);
+        this.stats = new HeroStatsCollection(key);
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.RED_BED);
         this.weapon = new Weapon(Material.WOODEN_SWORD);
@@ -119,6 +126,12 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
         }
 
         this.eventHandler = new HeroEventHandler(this);
+    }
+
+    @Nonnull
+    @Override
+    public final String getKey() {
+        return key.getKey();
     }
 
     @Nonnull
@@ -157,18 +170,6 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
     @Nonnull
     public HeroFriendship getFriendship() {
         return friendship;
-    }
-
-    @Nonnull
-    @Override
-    public Heroes getHandle() {
-        return enumHero;
-    }
-
-    @Override
-    @Deprecated
-    public void setHandle(@Nonnull Heroes handle) throws IllegalStateException {
-        throw new IllegalStateException("cannot set handle");
     }
 
     @Nullable
@@ -339,7 +340,7 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
      */
     @Nonnull
     public ItemStack getItem(@Nonnull GamePlayer player) {
-        final Skins skin = player.getSelectedSkin(enumHero);
+        final Skins skin = player.getSelectedSkin(this);
 
         if (skin == null) {
             return getItem();
@@ -357,7 +358,7 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
         }
 
         final PlayerDatabase database = profile.getDatabase();
-        final Skins skin = database.skinEntry.getSelected(this.getHandle());
+        final Skins skin = database.skinEntry.getSelected(this);
 
         if (skin == null) {
             return getItem();
@@ -636,7 +637,9 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
      */
     @Nonnull
     public Set<GamePlayer> getPlayers() {
-        return CF.getPlayers(player -> player.getEnumHero() == enumHero);
+        return CF.getPlayers(player -> {
+            return player.getHero().equals(this);
+        });
     }
 
     /**
@@ -646,7 +649,9 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
      */
     @Nonnull
     public Set<GamePlayer> getAlivePlayers() {
-        return CF.getAlivePlayers(player -> player.getEnumHero() == enumHero && player.isAlive());
+        return CF.getAlivePlayers(player -> {
+            return player.getHero().equals(this) && player.isAlive();
+        });
     }
 
     /**
@@ -656,14 +661,62 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
      * @return true, if there is a game in progress and player is in game, and player's selected hero is the same as the one provided.
      */
     public final boolean validatePlayer(@Nullable GamePlayer player) {
-        final Manager current = Manager.current();
-        return player != null && player.isInGameOrTrial() && current.getCurrentHero(player) == this;
+        return player != null
+                && player.isInGameOrTrial()
+                && player.getHero().equals(this);
     }
 
-    public final boolean validatePlayer(Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
+    public final boolean isSelected(@Nonnull GamePlayer player) {
+        return player.getHero().equals(this);
+    }
 
-        return gamePlayer != null && validatePlayer(gamePlayer);
+    public final boolean validatePlayer(@Nonnull Player player) {
+        return validatePlayer(CF.getPlayer(player));
+    }
+
+    public final boolean isLocked(@Nonnull Player player) {
+        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+
+        final boolean purchased = database.heroEntry.isPurchased(this);
+        final boolean hasLevel = database.experienceEntry.get(ExperienceEntry.Type.LEVEL) >= getMinimumLevel();
+
+        return !purchased && !hasLevel;
+    }
+
+    public final void setFavourite(@Nonnull Player player, boolean isFavourite) {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        if (profile == null) {
+            return;
+        }
+
+        profile.getDatabase().heroEntry.setFavourite(null, isFavourite);
+    }
+
+    @Nonnull
+    @Override
+    public final String getFormatted() {
+        return getFormatted(Color.WHITE);
+    }
+
+    @Nonnull
+    public final String getFormatted(@Nonnull Color color) {
+        return getPrefix() + color + " " + getNameSmallCaps();
+    }
+
+    @Nonnull
+    public final String getPrefix() {
+        return getArchetypes().getFirst().getPrefix();
+    }
+
+    public final boolean isValidHero() {
+        return !(this instanceof Disabled);
+    }
+
+    public final boolean isFavourite(@Nonnull Player player) {
+        final PlayerProfile profile = PlayerProfile.getProfile(player);
+
+        return profile != null && profile.getDatabase().heroEntry.isFavourite(this);
     }
 
     @Nullable
@@ -818,13 +871,13 @@ public abstract class Hero implements ElementHandler, PlayerElementHandler, Enum
             return false;
         }
 
-        final Hero hero = (Hero) object;
-        return enumHero == hero.enumHero;
+        final Hero other = (Hero) object;
+        return Objects.equals(key, other.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(enumHero);
+        return Objects.hashCode(key);
     }
 
     @Override

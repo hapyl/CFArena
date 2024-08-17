@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.cosmetic.skin;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.RubyPurchasable;
 import me.hapyl.fight.game.cosmetic.skin.trait.SkinTrait;
 import me.hapyl.fight.game.cosmetic.skin.trait.SkinTraitType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.util.Described;
 import org.bukkit.Location;
@@ -16,13 +15,12 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public class Skin implements Described, RubyPurchasable, SkinEffectHandler {
 
-    private final Heroes hero;
+    private final Hero hero;
     private final Equipment equipment;
     private final Map<SkinTraitType<?>, SkinTrait> traits = Maps.newHashMap();
 
@@ -32,7 +30,7 @@ public class Skin implements Described, RubyPurchasable, SkinEffectHandler {
     private String description;
     private long price;
 
-    public Skin(@Nonnull Heroes hero) {
+    public Skin(@Nonnull Hero hero) {
         this.hero = hero;
         this.equipment = new Equipment();
         this.rarity = Rarity.COMMON;
@@ -87,7 +85,7 @@ public class Skin implements Described, RubyPurchasable, SkinEffectHandler {
     }
 
     @Nonnull
-    public Heroes getHero() {
+    public Hero getHero() {
         return hero;
     }
 

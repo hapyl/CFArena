@@ -1,20 +1,20 @@
 package me.hapyl.fight.game.talents.knight;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.knight.BlastKnightData;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -131,6 +131,6 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
     @Nonnull
     @Override
     public BlastKnight getHero() {
-        return Heroes.BLAST_KNIGHT.getHero(BlastKnight.class);
+        return HeroRegistry.BLAST_KNIGHT;
     }
 }

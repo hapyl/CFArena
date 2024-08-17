@@ -1,10 +1,11 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -25,7 +26,7 @@ public class MasteryCommand extends CFCommand {
             return;
         }
 
-        final Heroes hero = args.get(1).toEnum(Heroes.class);
+        final Hero hero = HeroRegistry.ofStringOrNull(args.get(1).toString());
         final String argument = args.get(2).toString();
 
         if (hero == null) {

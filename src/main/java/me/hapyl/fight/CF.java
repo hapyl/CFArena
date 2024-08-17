@@ -14,7 +14,7 @@ import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Bukkit;
@@ -278,23 +278,23 @@ public final class CF {
     }
 
     /**
-     * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and have a matching {@link Heroes} selected.
+     * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and have a matching {@link Hero} selected.
      *
      * @param enumHero - Selected hero.
      * @return a copy of living player matching the hero.
      */
     @Nonnull
-    public static Set<GamePlayer> getAlivePlayers(@Nonnull Heroes enumHero) {
+    public static Set<GamePlayer> getAlivePlayers(@Nonnull Hero enumHero) {
         return manager.getAlivePlayers(enumHero);
     }
 
     /**
-     * Gets a copy {@link Heroes} that are being used by at least one existing {@link GamePlayer}.
+     * Gets a copy {@link Hero} that are being used by at least one existing {@link GamePlayer}.
      *
      * @return a copy of active heroes.
      */
     @Nonnull
-    public static Set<Heroes> getActiveHeroes() {
+    public static Set<Hero> getActiveHeroes() {
         return manager.getActiveHeroes();
     }
 

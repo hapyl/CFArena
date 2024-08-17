@@ -70,17 +70,14 @@ import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.archer.Archer;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
-import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
-import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
-import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
-import me.hapyl.fight.game.heroes.nyx.Nyx;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -91,7 +88,6 @@ import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.juju.Orbiting;
@@ -103,7 +99,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.Season;
 import me.hapyl.fight.game.ui.splash.SplashText;
-import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.github.Contributor;
 import me.hapyl.fight.github.Contributors;
@@ -133,7 +128,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -235,13 +229,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
 
         // *=* Inner commands *=* //
-        register("refHeroRg", (player, args) -> {
-            final Archer archer = HeroRegistry.ARCHER;
-            Heroes.values()
-
-            player.sendMessage(archer.toString());
-        });
-
         register("loadClass", (player, args) -> {
             final String classToLoad = args.getString(0);
 
@@ -354,7 +341,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register("playMasteryLevelUpEffect", (player, args) -> {
             final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
-            final Heroes hero = Manager.current().getSelectedLobbyHero(player);
+            final Hero hero = Manager.current().getSelectedLobbyHero(player);
             final int level = entry.getLevel(hero);
 
             entry.playMasteryLevelUpEffect(hero, Math.max(level - 1, 0), level);
@@ -450,7 +437,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         registerDebug("maxChaosStacks", (player, args) -> {
-            final NyxData data = Heroes.NYX.getHero(Nyx.class).getPlayerData(player);
+            final NyxData data = HeroRegistry.NYX.getPlayerData(player);
 
             for (int i = 0; i < NyxData.MAX_CHAOS_STACKS; i++) {
                 data.incrementChaosStacks();
@@ -545,7 +532,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
 
             final String string = args.get(0).toString().toLowerCase();
-            final Heroes hero = args.get(1).toEnum(Heroes.class);
+            final Hero hero = HeroRegistry.ofString(args.get(1).toString());
             final Skins skin = args.get(2).toEnum(Skins.class);
 
             final PlayerDatabase database = PlayerDatabase.getDatabase(player);
@@ -599,16 +586,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Manager.current().goldenGg.add(player);
 
             Chat.sendMessage(player, "&6Done!");
-        });
-
-        register("heroAll", (player, args) -> {
-            Manager.current().forEachProfile(profile -> {
-                final Heroes randomHero = profile.getDatabase().randomHeroEntry.getRandomHero();
-
-                profile.setSelectedHero(randomHero);
-            });
-
-            Notifier.broadcast("&b{} selected a random hero for everyone!", player.getName());
         });
 
         register("resetBonds", (player, args) -> {
@@ -717,81 +694,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
         });
 
-        register("writeDefaultTranslations", (player, args) -> {
-            final File file = new File(getPlugin().getDataFolder() + "/defaultTranslations.yml");
-            final YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
-
-
-            // Talents
-            for (Talents enumTalent : Talents.values()) {
-                final Talent talent = enumTalent.getTalent();
-                final String talentName = enumTalent.name().toLowerCase();
-
-                yaml.set("talent." + talentName + ".name", talent.getName());
-                yaml.set("talent." + talentName + ".description", talent.getDescription());
-            }
-
-            // Heroes
-            for (Heroes enumHero : Heroes.values()) {
-                final Hero hero = enumHero.getHero();
-                final String heroName = enumHero.name().toLowerCase();
-
-                yaml.set("hero." + heroName + ".name", hero.getName());
-                yaml.set("hero." + heroName + ".description", hero.getDescription());
-
-                // Weapon
-                final Weapon weapon = hero.getWeapon();
-
-                yaml.set("hero." + heroName + ".weapon.name", weapon.getName());
-                yaml.set("hero." + heroName + ".weapon.description", weapon.getDescription());
-
-                // Ultimate
-                final UltimateTalent ultimate = hero.getUltimate();
-
-                yaml.set("hero." + heroName + ".ultimate.name", ultimate.getName());
-                yaml.set("hero." + heroName + ".ultimate.description", ultimate.getDescription());
-            }
-
-            // Attributes
-            for (AttributeType enumAttribute : AttributeType.values()) {
-                final String attributeName = enumAttribute.name().toLowerCase();
-                final me.hapyl.fight.game.attribute.Attribute attribute = enumAttribute.attribute;
-
-                yaml.set("attribute." + attributeName, enumAttribute.toString());
-            }
-
-            // Named
-            for (Named named : Named.values()) {
-                yaml.set("named." + named.name().toLowerCase(), named.toString());
-            }
-
-            // Archetype
-            for (Archetype archetype : Archetype.values()) {
-                final String archetypeName = archetype.name().toLowerCase();
-
-                yaml.set("archetype." + archetypeName + ".name", archetype.toString());
-                yaml.set("archetype." + archetypeName + ".description", archetype.getDescription());
-            }
-
-            // Affiliation
-            for (Affiliation affiliation : Affiliation.values()) {
-                final String affiliationName = affiliation.name().toLowerCase();
-
-                yaml.set("affiliation." + affiliationName + ".name", affiliation.toString());
-                yaml.set("affiliation." + affiliationName + ".description", affiliation.getDescription());
-            }
-
-            try {
-                yaml.save(file);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Chat.sendMessage(player, "&cError saving, see console.");
-                return;
-            }
-
-            Chat.sendMessage(player, "Saved into " + file.getPath() + "!");
-        });
-
         register(new SimplePlayerCommand("teammsg") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -860,7 +762,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("calculateGlobalStats", (player, args) -> {
-            Heroes.calculateGlobalStats();
+            HeroRegistry.calculateGlobalStats();
 
             Chat.sendMessage(player, "&aDone!");
         });
@@ -872,7 +774,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("adminRateHero") {
             @Override
             protected void execute(Player player, String[] args) {
-                final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+                final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
                 final PlayerRating rating = PlayerRating.fromInt(getArgument(args, 1).toInt());
 
                 if (hero == null || rating == null) {
@@ -888,7 +790,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("adminCalcAvgHeroRating") {
             @Override
             protected void execute(Player player, String[] args) {
-                final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+                final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
 
                 if (hero == null) {
                     Chat.sendMessage(player, "&cInvalid hero!");
@@ -1032,16 +934,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("ph") {
             @Override
             protected void execute(Player player, String[] args) {
-                final PlayerProfile profile = PlayerProfile.getProfile(player);
-                final Heroes hero = profile.getHero();
-                final Heroes enumHero = getArgument(args, 0).toEnum(Heroes.class, hero);
+                final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
+                final Hero hero = profile.getHero();
+                final Hero exactHero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
 
-                if (enumHero == null) {
-                    Chat.sendMessage(player, "&cInvalid hero!");
+                if (exactHero != null) {
+                    new HeroPreviewGUI(player, exactHero, 1);
                     return;
                 }
 
-                new HeroPreviewGUI(player, enumHero, 1);
+                new HeroPreviewGUI(player, hero, 1);
             }
         });
 
@@ -1053,7 +955,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("spawnMoonwalkerBlob", (player, args) -> {
-            Heroes.MOONWALKER.getHero(Moonwalker.class).getUltimate().createBlob(player.getLocation(), false);
+            HeroRegistry.MOONWALKER.getUltimate().createBlob(player.getLocation(), false);
         });
 
         register("whoami", (player, args) -> {
@@ -1723,7 +1625,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            Heroes.ENGINEER.getHero(Engineer.class).getPlayerData(gamePlayer).setIron(100);
+            HeroRegistry.ENGINEER.getPlayerData(gamePlayer).setIron(100);
             Chat.sendMessage(player, "&aRecharged!");
         });
 
@@ -1734,14 +1636,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final Heroes hero = args.get(0).toEnum(Heroes.class);
+            final Hero hero = HeroRegistry.ofStringOrNull(args.getString(0));
 
             if (hero == null) {
                 Chat.sendMessage(player, "&cInvalid skin!");
                 return;
             }
 
-            final PlayerSkin skin = hero.getHero().getSkin();
+            final PlayerSkin skin = hero.getSkin();
 
             if (skin == null) {
                 Chat.sendMessage(player, "&cThis hero doesn't have a skin!");
@@ -1800,8 +1702,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
-            final BloodfiendData data = bloodfiend.getData(gamePlayer);
+            final BloodfiendData data = HeroRegistry.BLOODFIEND.getData(gamePlayer);
 
             data.addSucculence(gamePlayer);
             Chat.sendMessage(player, "&aDone!");
@@ -2159,7 +2060,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("debugLevelUpConstruct", (player, args) -> {
-            final Construct construct = Heroes.ENGINEER.getHero(Engineer.class).getConstruct(CF.getPlayer(player));
+            final Construct construct = HeroRegistry.ENGINEER.getConstruct(CF.getPlayer(player));
 
             if (construct == null) {
                 Chat.sendMessage(player, "&cNo construct!");

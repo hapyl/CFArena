@@ -2,18 +2,19 @@ package me.hapyl.fight.game.experience;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.reward.*;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.reward.*;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -368,12 +369,12 @@ public class Experience extends DependencyInjector<Main> {
         });
 
         // Hero unlocks
-        for (Heroes value : Heroes.values()) {
-            final long minLevel = value.getHero().getMinimumLevel();
+        for (Hero hero : HeroRegistry.values()) {
+            final long minLevel = hero.getMinimumLevel();
             if (minLevel > 0) {
                 final ExperienceLevel level = experienceLevelMap.get(minLevel);
                 if (level != null) {
-                    level.addReward(new HeroUnlockReward(value));
+                    level.addReward(new HeroUnlockReward(hero));
                 }
             }
         }

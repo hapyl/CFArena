@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -17,7 +17,6 @@ import org.bukkit.entity.Entity;
 import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public abstract class Taunt extends GameTask {
@@ -39,7 +38,7 @@ public abstract class Taunt extends GameTask {
         this.talent = talent;
         this.player = player;
         this.location = location;
-        this.bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+        this.bloodfiend = HeroRegistry.BLOODFIEND;
 
         animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.location) {
             @Override
@@ -165,7 +164,7 @@ public abstract class Taunt extends GameTask {
 
     @Nonnull
     public final Bloodfiend getBloodfiend() {
-        return Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+        return HeroRegistry.BLOODFIEND;
     }
 
     public boolean isSuckedEntityAndWithinRange(@Nonnull LivingGameEntity entity) {

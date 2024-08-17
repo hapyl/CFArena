@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.archer_tutorial;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -7,13 +8,13 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,11 +25,11 @@ import javax.annotation.Nullable;
 
 public class TutorialArcher extends Hero implements Disabled, Listener {
 
-    private final Archer archer = Heroes.ARCHER.getHero(Archer.class);
+    private final Archer archer = HeroRegistry.ARCHER;
     private final double healthThreshold = 25d;
 
-    public TutorialArcher(@Nonnull Heroes handle) {
-        super(handle, "Archer");
+    public TutorialArcher(@Nonnull DatabaseKey key) {
+        super(key, "Archer");
 
         final HeroAttributes attributes = getAttributes();
         attributes.setCooldownModifier(25);

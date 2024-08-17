@@ -10,7 +10,7 @@ import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -32,12 +32,11 @@ import java.util.LinkedList;
 import java.util.Set;
 
 /**
- * This is a repayable trial as a {@link me.hapyl.fight.game.heroes.Heroes#TUTORIAL_ARCHER}.
+ * This is a repayable trial as a {@link HeroRegistry#TUTORIAL_ARCHER}
  */
 public class Trial extends TickingGameTask implements Lifecycle {
 
-    private static final Heroes enumTrialHero = Heroes.TUTORIAL_ARCHER;
-    private static final Hero trialHero = enumTrialHero.getHero();
+    private static final Hero trialHero = HeroRegistry.TUTORIAL_ARCHER;
     private static final ItemStack lockedTalent = new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
             .setName("&cLocked Talent")
             .setSmartLore("Progress the tutorial to unlock this talent!")
@@ -46,7 +45,7 @@ public class Trial extends TickingGameTask implements Lifecycle {
     protected final Set<TrialEntity> entities;
 
     private final PlayerProfile profile;
-    private final Heroes previousHero;
+    private final Hero previousHero;
     private final GamePlayer player;
     private final LinkedList<TrialObjective> objectives;
     private int stage;
@@ -56,7 +55,7 @@ public class Trial extends TickingGameTask implements Lifecycle {
         this.profile = profile;
         this.previousHero = profile.getHero();
 
-        profile.setSelectedHero(enumTrialHero, false);
+        profile.setSelectedHero(trialHero, false);
 
         this.player = profile.createGamePlayer();
 

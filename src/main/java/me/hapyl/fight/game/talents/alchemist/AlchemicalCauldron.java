@@ -1,22 +1,20 @@
 package me.hapyl.fight.game.talents.alchemist;
 
-import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.alchemist.Alchemist;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.geometry.Draw;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Action;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.Nulls;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
@@ -24,8 +22,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
-
-import javax.annotation.Nonnull;
 
 public class AlchemicalCauldron extends TickingGameTask {
 
@@ -105,7 +101,7 @@ public class AlchemicalCauldron extends TickingGameTask {
             Collect.nearbyEntities(location, 4.5d).forEach(entity -> {
                 if (entity.equals(owner)) {
                     entity.sendSubtitle("&cIntoxication Warning!", 0, 20, 0);
-                    ((Alchemist) Heroes.ALCHEMIST.getHero()).addToxin(owner, 8);
+                    HeroRegistry.ALCHEMIST.addToxin(owner, 8);
                 }
                 else {
                     entity.addEffect(Effects.POISON, 5, 20);
@@ -152,7 +148,7 @@ public class AlchemicalCauldron extends TickingGameTask {
 
     public void finish() {
         Talents.CAULDRON.getTalent().startCd(owner);
-        ((Alchemist) Heroes.ALCHEMIST.getHero()).startCauldronBoost(owner);
+        HeroRegistry.ALCHEMIST.startCauldronBoost(owner);
 
         owner.addEffect(Effects.SPEED, 2, 30);
         owner.playSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);

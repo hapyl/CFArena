@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.librarian;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
@@ -55,8 +56,8 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
     private final String grimoireIsMaxGradient = new Gradient("Grimoire Maxed!")
             .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
 
-    public Librarian(@Nonnull Heroes handle) {
-        super(handle, "Librarian of Void");
+    public Librarian(@Nonnull DatabaseKey key) {
+        super(key, "Librarian of Void");
 
         setDescription("""
                 Mislead by the &0void&7, sacrifices were made.
@@ -94,7 +95,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
         new GameTask() {
             @Override
             public void run() {
-                CF.getAlivePlayers(Heroes.LIBRARIAN).forEach(player -> {
+                getAlivePlayers().forEach(player -> {
                     final Player playerPlayer = player.getPlayer();
                     final Grimoire grimoire = grimoireMap.get(player);
 

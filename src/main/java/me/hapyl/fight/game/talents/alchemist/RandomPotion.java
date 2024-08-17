@@ -6,11 +6,11 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.alchemist.CauldronEffect;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -72,7 +72,7 @@ public class RandomPotion extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Alchemist hero = (Alchemist) Heroes.ALCHEMIST.getHero();
+        final Alchemist hero = HeroRegistry.ALCHEMIST;
         final CauldronEffect effect = hero.getEffect(player);
 
         hero.addToxin(player, toxinAccumulation);

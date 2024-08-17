@@ -1,16 +1,16 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
@@ -88,7 +88,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
     @Nonnull
     @Override
     public Bloodfiend getHero() {
-        return Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+        return HeroRegistry.BLOODFIEND;
     }
 
     private String getTexture(int blood) {

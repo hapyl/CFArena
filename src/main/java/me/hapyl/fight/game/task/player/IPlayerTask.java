@@ -18,13 +18,13 @@ public interface IPlayerTask {
     GamePlayer getPlayer();
 
     /**
-     * Gets the enum associated with this task.
-     * Tasks with enums are considered named, and will replace the task with the same enum.
+     * Gets the class associated with this task.
+     * Tasks with class are considered named, and will replace the task with the same class.
      *
      * @return the enum associated with this task.
      */
     @Nullable
-    default Enum<?> getEnum() {
+    default Class<?> getEnum() {
         return null;
     }
 

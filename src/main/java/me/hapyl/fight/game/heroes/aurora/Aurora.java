@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.aurora;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.Disabled;
@@ -48,8 +49,8 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     private final PlayerDataMap<AuroraData> auroraDataMap = PlayerMap.newDataMap(AuroraData::new);
     private final Set<AuroraArrowData> arrowDataSet = Sets.newHashSet();
 
-    public Aurora(@Nonnull Heroes handle) {
-        super(handle, "Aurora");
+    public Aurora(@Nonnull DatabaseKey key) {
+        super(key, "Aurora");
 
         setArchetypes(Archetype.SUPPORT);
         setGender(Gender.FEMALE);

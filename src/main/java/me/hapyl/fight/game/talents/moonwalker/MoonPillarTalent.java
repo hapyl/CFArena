@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
-import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
-import me.hapyl.fight.game.heroes.moonwalker.MoonwalkerData;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.moonwalker.MoonwalkerData;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -52,8 +51,7 @@ public class MoonPillarTalent extends Talent {
             return Response.error("Cannot fit the pillar!");
         }
 
-        final Moonwalker hero = Heroes.MOONWALKER.getHero(Moonwalker.class);
-        final MoonwalkerData data = hero.getPlayerData(player);
+        final MoonwalkerData data = HeroRegistry.MOONWALKER.getPlayerData(player);
 
         data.addZone(new MoonPillarZone(this, player, location, radius, energy));
 

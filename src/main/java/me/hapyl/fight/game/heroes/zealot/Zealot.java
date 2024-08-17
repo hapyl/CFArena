@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.zealot;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -26,8 +27,8 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
     protected final Equipment abilityEquipment;
     private final PlayerDataMap<ZealotData> zealotData = PlayerMap.newDataMap(ZealotData::new);
 
-    public Zealot(@Nonnull Heroes handle) {
-        super(handle, "Zealot");
+    public Zealot(@Nonnull DatabaseKey key) {
+        super(key, "Zealot");
 
         setDescription("""
                 A space ranger with a single goal of maintaining order.

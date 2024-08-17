@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.engineer;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.engineer.Engineer;
-import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.engineer.Engineer;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -36,7 +36,7 @@ public abstract class Construct extends TickingGameTask {
         this.level = 0;
         this.upgradeCost = talent.getUpgradeCost();
         this.talent = talent;
-        this.hero = Heroes.ENGINEER.getHero(Engineer.class);
+        this.hero = HeroRegistry.ENGINEER;
 
         this.entity = new ConstructEntity(player, this);
 

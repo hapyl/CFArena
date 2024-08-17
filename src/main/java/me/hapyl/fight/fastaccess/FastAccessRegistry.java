@@ -1,13 +1,16 @@
 package me.hapyl.fight.fastaccess;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.Settings;
@@ -15,8 +18,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.registry.SimpleRegistry;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -31,30 +32,30 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         byCategory = Maps.newHashMap();
 
         // Hero select
-        for (Heroes enumHero : Heroes.playable()) {
-            register(new FastAccess("select_hero_" + enumHero.name(), Category.SELECT_HERO) {
+        for (Hero hero : HeroRegistry.playable()) {
+            register(new FastAccess("select_hero_" + hero.getKey(), Category.SELECT_HERO) {
                 @Override
                 public void onClick(@Nonnull Player player) {
-                    Manager.current().setSelectedHero(player, enumHero);
+                    Manager.current().setSelectedHero(player, hero);
                 }
 
                 @Override
                 public boolean shouldDisplayTo(@Nonnull Player player) {
-                    return enumHero.isValidHero() && !enumHero.isLocked(player);
+                    return hero.isValidHero() && !hero.isLocked(player);
                 }
 
                 @Nonnull
                 @Override
                 public ItemBuilder create(@Nonnull Player player) {
                     final PlayerProfile profile = PlayerProfile.getProfile(player);
-                    final Heroes currentHero = profile != null ? profile.getHero() : Heroes.ARCHER;
+                    final Hero currentHero = profile != null ? profile.getHero() : HeroRegistry.defaultHero();
 
-                    return new ItemBuilder(enumHero.getHero().getItem(player))
-                            .setName("Select " + enumHero.getName())
+                    return new ItemBuilder(hero.getItem(player))
+                            .setName("Select " + hero.getName())
                             .addLore()
                             .addSmartLore("Changes the current hero of yours.", "&8&o")
                             .addLore()
-                            .addLore("Change the hero to: " + Color.GOLD + enumHero.getNameSmallCaps())
+                            .addLore("Change the hero to: " + Color.GOLD + hero.getNameSmallCaps())
                             .addLore("Current hero: " + Color.GOLD + currentHero.getNameSmallCaps());
                 }
             });

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -72,8 +73,8 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     private final Map<GamePlayer, BloodfiendData> playerData = Maps.newConcurrentMap();
 
-    public Bloodfiend(@Nonnull Heroes handle) {
-        super(handle, "Bloodfiend");
+    public Bloodfiend(@Nonnull DatabaseKey key) {
+        super(key, "Bloodfiend");
 
         setArchetypes(Archetype.DAMAGE);
         setAffiliation(Affiliation.CHATEAU);

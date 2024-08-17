@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.doctor;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -33,8 +34,8 @@ public class DrEd extends Hero implements UIComponent {
     private final PhysGun ultimateWeapon = new PhysGun();
     private final PlayerMap<BlockShield> playerShield;
 
-    public DrEd(@Nonnull Heroes handle) {
-        super(handle, "Dr. Ed");
+    public DrEd(@Nonnull DatabaseKey key) {
+        super(key, "Dr. Ed");
 
         setArchetypes(Archetype.STRATEGY, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.MALE);

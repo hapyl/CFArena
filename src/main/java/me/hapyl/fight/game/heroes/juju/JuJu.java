@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.juju;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -55,8 +56,8 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     private final int climbCooldown = Tick.fromSecond(6);
     private final BlockData climbingBlockData = Material.GRAY_CONCRETE.createBlockData();
 
-    public JuJu(@Nonnull Heroes handle) {
-        super(handle, "Juju");
+    public JuJu(@Nonnull DatabaseKey key) {
+        super(key, "Juju");
 
         setArchetypes(Archetype.HEXBANE, Archetype.DAMAGE, Archetype.POWERFUL_ULTIMATE, Archetype.DEFENSE);
         setAffiliation(Affiliation.THE_JUNGLE);

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.shark;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
@@ -47,8 +48,8 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     private final int heartBeatSoundEffectDuration = 40;
     private final double heartBeatHealthThreshold = 0.25d;
 
-    public Shark(@Nonnull Heroes handle) {
-        super(handle, "Shark");
+    public Shark(@Nonnull DatabaseKey key) {
+        super(key, "Shark");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
         setGender(Gender.FEMALE);

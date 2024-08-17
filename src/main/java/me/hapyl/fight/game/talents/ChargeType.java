@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents;
 
+import javax.annotation.Nonnull;
+
 public enum ChargeType {
 
     /**
@@ -10,6 +12,11 @@ public enum ChargeType {
     /**
      * Ultimate has overcharged.
      */
-    OVERCHARGED
+    OVERCHARGED;
+
+    @Nonnull
+    public <T> T value(@Nonnull T charged, @Nonnull T overcharged) {
+        return this == CHARGED ? charged : overcharged;
+    }
 
 }

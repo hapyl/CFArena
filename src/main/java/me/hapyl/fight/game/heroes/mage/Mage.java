@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.mage;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -30,8 +31,8 @@ public class Mage extends Hero implements UIComponent {
 
     private final PlayerMap<Integer> soulsCharge = PlayerMap.newMap();
 
-    public Mage(@Nonnull Heroes handle) {
-        super(handle, "Mage");
+    public Mage(@Nonnull DatabaseKey key) {
+        super(key, "Mage");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.RANGE, Archetype.MOBILITY);
         setGender(Gender.MALE);

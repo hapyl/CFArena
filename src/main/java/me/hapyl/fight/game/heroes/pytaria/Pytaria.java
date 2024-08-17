@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.pytaria;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -38,8 +39,8 @@ public class Pytaria extends Hero {
     private final double critChanceScale;
     private final double defenseScale;
 
-    public Pytaria(@Nonnull Heroes handle) {
-        super(handle, "Pytaria");
+    public Pytaria(@Nonnull DatabaseKey key) {
+        super(key, "Pytaria");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);
         setGender(Gender.FEMALE);
@@ -85,7 +86,7 @@ public class Pytaria extends Hero {
         new GameTask() {
             @Override
             public void run() {
-                Heroes.PYTARIA.getAlivePlayers().forEach(gamePlayer -> {
+                getAlivePlayers().forEach(gamePlayer -> {
                     recalculateStats(gamePlayer);
                 });
             }

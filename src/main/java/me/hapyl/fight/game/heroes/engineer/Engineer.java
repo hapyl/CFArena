@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.engineer;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -48,8 +49,8 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     private final int ironRechargeRate = 60;
     private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
 
-    public Engineer(@Nonnull Heroes handle) {
-        super(handle, "Engineer");
+    public Engineer(@Nonnull DatabaseKey key) {
+        super(key, "Engineer");
 
         setArchetypes(Archetype.STRATEGY);
         setGender(Gender.MALE); // male? robot, idk

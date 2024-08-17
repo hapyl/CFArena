@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.heroes.km;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.Race;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -21,8 +21,8 @@ public class KillingMachine extends Hero implements Disabled {
 
     private final int weaponCd = 35;
 
-    public KillingMachine(@Nonnull Heroes handle) {
-        super(handle, "War Machine");
+    public KillingMachine(@Nonnull DatabaseKey key) {
+        super(key, "War Machine");
 
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");

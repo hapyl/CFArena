@@ -1,19 +1,18 @@
 package me.hapyl.fight.guesswho.gui;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.heroes.Affiliation;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -50,10 +49,10 @@ public abstract class GuessWhoGUI extends StyledGUI {
         fillRow(5, ItemStacks.BLACK_BAR);
 
         final GuessWho game = data.getGame();
-        final List<Heroes> board = game.getBoard();
+        final List<Hero> board = game.getBoard();
 
         for (int i = 0; i < board.size(); i++) {
-            final Heroes hero = board.get(i);
+            final Hero hero = board.get(i);
             final int slot = heroSlots[i];
 
             setItem(slot, getItem(hero));
@@ -67,12 +66,12 @@ public abstract class GuessWhoGUI extends StyledGUI {
     }
 
     @Nonnull
-    public ItemStack getItem(@Nonnull Heroes heroes) {
+    public ItemStack getItem(@Nonnull Hero heroes) {
         final ItemBuilder builder = createItem(heroes);
 
         if (data.isRuledOut(heroes)) {
             return new ItemBuilder(Material.GRAY_DYE)
-                    .setName(heroes.getHero().getName())
+                    .setName(heroes.getName())
                     .addLore()
                     .addLore("&cRuled out!")
                     .asIcon();
@@ -82,8 +81,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
     }
 
     @Nonnull
-    public ItemBuilder createItem(@Nonnull Heroes enumHero) {
-        final Hero hero = enumHero.getHero();
+    public ItemBuilder createItem(@Nonnull Hero hero) {
         final ItemBuilder builder = ItemBuilder.playerHeadUrl(hero.getTextureUrl());
 
         builder.setName(hero.getName());
@@ -142,7 +140,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
         return builder;
     }
 
-    public abstract void onClick(@Nonnull Heroes hero);
+    public abstract void onClick(@Nonnull Hero hero);
 
     private String intToLiteral(int i) {
         return switch (i) {

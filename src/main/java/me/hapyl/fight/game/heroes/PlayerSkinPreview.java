@@ -35,7 +35,7 @@ public class PlayerSkinPreview extends TickingGameTask {
     public PlayerSkinPreview(@Nonnull Player player, Hero hero, Skin skin) {
         this(
                 player,
-                skin == null ? hero : skin.getHero().getHero(),
+                skin == null ? hero : skin.getHero(),
                 skin == null ? (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
         );
     }

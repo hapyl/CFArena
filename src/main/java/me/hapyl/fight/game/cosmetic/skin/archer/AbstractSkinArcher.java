@@ -1,20 +1,19 @@
 package me.hapyl.fight.game.cosmetic.skin.archer;
 
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.skin.Skin;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.eterna.module.particle.ParticleBuilder;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import org.bukkit.Color;
 import org.bukkit.Location;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class AbstractSkinArcher extends Skin {
 
     public AbstractSkinArcher() {
-        super(Heroes.ARCHER);
+        super(HeroRegistry.ARCHER);
 
         setName("Spring Archer");
         setDescription("""

@@ -35,7 +35,6 @@ import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.entity.task.PlayerTaskList;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -123,10 +122,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.stats = new StatContainer(this);
         this.lastMoved = Maps.newHashMap();
         this.combatTag = 0L;
-        this.attributes = new EntityAttributes(this, profile.getHeroHandle().getAttributes());
+        this.attributes = new EntityAttributes(this, profile.getHero().getAttributes());
         this.taskList = new PlayerTaskList(this);
         this.shield = null;
-        this.talentLock = new TalentLock(this, profile.getHeroHandle());
+        this.talentLock = new TalentLock(this, profile.getHero());
         this.playerPing = new PlayerPing(this);
 
         markLastMoved();
@@ -159,11 +158,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Nullable
     public Skins getSelectedSkin() {
-        return getSelectedSkin(getEnumHero());
+        return getSelectedSkin(profile.getHero());
     }
 
     @Nullable
-    public Skins getSelectedSkin(@Nonnull Heroes hero) {
+    public Skins getSelectedSkin(@Nonnull Hero hero) {
         final PlayerDatabase database = getDatabase();
 
         return database.skinEntry.getSelected(hero);
@@ -279,7 +278,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public void onStop(@Nonnull GameInstance instance) {
-        final Heroes hero = getEnumHero();
+        final Hero hero = getHero();
         final StatContainer stats = getStats();
         final Player player = getEntity();
 
@@ -287,7 +286,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         //resetPlayer(); // maybe don't reset player here actually
 
         // Reset skin if was applied
-        final PlayerSkin skin = hero.getHero().getSkin();
+        final PlayerSkin skin = hero.getSkin();
 
         if (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) && skin != null) {
             profile.resetSkin();
@@ -727,7 +726,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public void setUsingUltimate(int duration) {
         setUsingUltimate(true);
 
-        new PlayerGameTask(this, EntityState.ALIVE) {
+        new PlayerGameTask(this, GamePlayer.class) {
             @Override
             public void run() {
                 setUsingUltimate(false);
@@ -808,7 +807,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Nonnull
     public Hero getHero() {
-        return profile.getHeroHandle();
+        return profile.getHero();
     }
 
     @Nonnull
@@ -821,11 +820,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @Override
     public Player getEntity() {
         return (Player) super.getEntity();
-    }
-
-    @Nonnull
-    public Heroes getEnumHero() {
-        return profile.getHero();
     }
 
     public long getCombatTag() {
@@ -1287,7 +1281,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
                 // Don't select disabled skins
                 if (skinHandle instanceof Disabled) {
-                    getDatabase().skinEntry.setSelected(getEnumHero(), null);
+                    getDatabase().skinEntry.setSelected(getHero(), null);
 
                     sendMessage("");
                     sendMessage("&cYou have a disabled skin selected! We had to change it, sorry!");
@@ -1625,18 +1619,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return consumer.apply(clazz.cast(skin));
     }
 
-    /**
-     * Gets a {@link PlayerData} for the given {@link Heroes}.
-     * <br>
-     * This method will compute the data if it's not present.
-     *
-     * @param hero      - Hero.
-     * @param heroClass - Hero class handle.
-     * @return existing player data.
-     */
     @Nonnull
-    public <D extends PlayerData, H extends Hero & PlayerDataHandler<D>> D getPlayerData(@Nonnull Heroes hero, @Nonnull Class<H> heroClass) {
-        return hero.getHero(heroClass).getPlayerData(this);
+    public <D extends PlayerData, H extends Hero & PlayerDataHandler<D>> D getPlayerData(@Nonnull H hero) {
+        return hero.getPlayerData(this);
     }
 
     public void executeTalentsOnDeath() {

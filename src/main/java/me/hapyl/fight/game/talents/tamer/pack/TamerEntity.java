@@ -1,16 +1,16 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.ai.AI;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.LivingGenericGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.tamer.Tamer;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.ai.AI;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Creature;
@@ -87,7 +87,7 @@ public class TamerEntity<T extends LivingEntity> extends LivingGenericGameEntity
     @Nonnull
     @Override
     public Tamer getHero() {
-        return Heroes.TAMER.getHero(Tamer.class);
+        return HeroRegistry.TAMER;
     }
 
     @Nullable

@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.profile;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
@@ -10,7 +12,6 @@ import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.loadout.HotbarLoadout;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
@@ -23,8 +24,6 @@ import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.entity.Player;
 
 import javax.annotation.CheckForNull;
@@ -59,7 +58,7 @@ public class PlayerProfile {
     @Nullable
     private GamePlayer gamePlayer; // current game player
     private PlayerUI playerUI;     // ui
-    private Heroes selectedHero;   // selected hero
+    private Hero selectedHero;    // selected hero
     private Trial trial;
     private boolean loaded;
     private boolean resourcePack;
@@ -270,15 +269,15 @@ public class PlayerProfile {
     }
 
     @Nonnull
-    public Heroes getSelectedHero() {
+    public Hero getSelectedHero() {
         return selectedHero;
     }
 
-    public void setSelectedHero(@Nonnull Heroes selectedHero) {
+    public void setSelectedHero(@Nonnull Hero selectedHero) {
         setSelectedHero(selectedHero, true);
     }
 
-    public void setSelectedHero(@Nonnull Heroes hero, boolean save) {
+    public void setSelectedHero(@Nonnull Hero hero, boolean save) {
         this.selectedHero = hero;
 
         if (save) {
@@ -316,16 +315,14 @@ public class PlayerProfile {
                 """);
     }
 
+    @Nonnull
     public UUID getUuid() {
         return player.getUniqueId();
     }
 
-    public Heroes getHero() {
+    @Nonnull
+    public Hero getHero() {
         return selectedHero;
-    }
-
-    public Hero getHeroHandle() {
-        return selectedHero.getHero();
     }
 
     @Nonnull

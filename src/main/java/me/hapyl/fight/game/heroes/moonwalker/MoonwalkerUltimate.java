@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
-import me.hapyl.fight.game.Response;
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -53,7 +51,7 @@ public class MoonwalkerUltimate extends UltimateTalent {
     @Nonnull
     @Override
     public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-        final Block targetBlock = Heroes.MOONWALKER.getHero(Moonwalker.class).getTargetBlock(player);
+        final Block targetBlock = HeroRegistry.MOONWALKER.getTargetBlock(player);
 
         if (targetBlock == null) {
             return UltimateResponse.error("Invalid block!");

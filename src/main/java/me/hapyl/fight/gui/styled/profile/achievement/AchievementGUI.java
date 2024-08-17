@@ -1,8 +1,10 @@
 package me.hapyl.fight.gui.styled.profile.achievement;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
@@ -11,8 +13,6 @@ import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.NoProfileException;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -41,7 +41,7 @@ public class AchievementGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final Heroes hero = profile.getHero();
+        final Hero hero = profile.getHero();
 
         setHeader(StyledItem.ICON_ACHIEVEMENTS.asIcon());
 
@@ -49,7 +49,7 @@ public class AchievementGUI extends StyledGUI {
         setItem(22, StyledItem.ICON_ACHIEVEMENTS_TIERED.asButton("view"), AchievementTieredGUI::new);
         setItem(
                 24,
-                new ItemBuilder(hero.getHero().getItem())
+                new ItemBuilder(hero.getItem())
                         .setName("Hero Achievements")
                         .addLore()
                         .addSmartLore("Play as a hero to progress these achievements.")

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -13,8 +14,8 @@ import javax.annotation.Nonnull;
 
 public class Freazly extends Hero {
 
-    public Freazly(@Nonnull Heroes handle) {
-        super(handle, "Frostbite");
+    public Freazly(@Nonnull DatabaseKey key) {
+        super(key, "Frostbite");
 
         setArchetypes(Archetype.HEXBANE, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
         setGender(Gender.UNKNOWN);

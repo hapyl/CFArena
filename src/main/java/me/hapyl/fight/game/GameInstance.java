@@ -17,7 +17,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.gamemode.CFGameMode;
 import me.hapyl.fight.game.gamemode.Modes;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -54,7 +54,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     private long timeLimitInTicks;
     private State gameState;
-    private Set<Heroes> activeHeroes;
+    private Set<Hero> activeHeroes;
 
     public GameInstance(@Nonnull CFGameMode mode, @Nonnull EnumLevel map) {
         this.startedAt = System.currentTimeMillis();
@@ -327,7 +327,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
             final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
             if (entry.isEnabled()) {
-                final Heroes randomHero = entry.getRandomHero();
+                final Hero randomHero = entry.getRandomHero();
 
                 entry.setLastSelectedHero(profile.getHero());
                 profile.setSelectedHero(randomHero);

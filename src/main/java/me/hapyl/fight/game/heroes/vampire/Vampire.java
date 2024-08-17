@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.vampire;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
@@ -69,8 +70,8 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     private final Material BLOOD_MATERIAL = Material.REDSTONE;
 
-    public Vampire(@Nonnull Heroes handle) {
-        super(handle, "Vampire");
+    public Vampire(@Nonnull DatabaseKey key) {
+        super(key, "Vampire");
 
         vampireData = PlayerMap.newMap();
 
@@ -267,7 +268,7 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         new GameTask() {
             @Override
             public void run() {
-                CF.getAlivePlayers(Heroes.VAMPIRE).forEach(player -> {
+                getAlivePlayers().forEach(player -> {
                     if (!Manager.current().isGameInProgress() || player.isUsingUltimate()) {
                         return;
                     }

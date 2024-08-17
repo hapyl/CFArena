@@ -16,7 +16,6 @@ import me.hapyl.fight.game.cosmetic.skin.trait.SkinTrait;
 import me.hapyl.fight.game.cosmetic.skin.trait.SkinTraitType;
 import me.hapyl.fight.game.entity.SoundEffect;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.heroes.PlayerSkinPreview;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.gui.styled.ReturnData;
@@ -35,15 +34,15 @@ import java.util.Map;
 
 public class SkinGUI extends StyledGUI {
 
-    private final Heroes enumHero;
+    private final Hero hero;
     private final int returnPage;
     private final PlayerDatabase database;
     private final SkinEntry skinEntry;
 
-    public SkinGUI(Player player, Heroes enumHero, int returnPage) {
-        super(player, enumHero.getName() + "'s Skins", Size.FIVE);
+    public SkinGUI(Player player, Hero hero, int returnPage) {
+        super(player, hero.getName() + "'s Skins", Size.FIVE);
 
-        this.enumHero = enumHero;
+        this.hero = hero;
         this.returnPage = returnPage;
         this.database = PlayerDatabase.getDatabase(player);
         this.skinEntry = this.database.skinEntry;
@@ -54,7 +53,7 @@ public class SkinGUI extends StyledGUI {
     @Nullable
     @Override
     public ReturnData getReturnData() {
-        return ReturnData.of("Hero Preview", player -> new HeroPreviewGUI(player, enumHero, returnPage));
+        return ReturnData.of("Hero Preview", player -> new HeroPreviewGUI(player, hero, returnPage));
     }
 
     @Override
@@ -71,7 +70,7 @@ public class SkinGUI extends StyledGUI {
         makeItem(component, null);
 
         // Add skins
-        final List<Skins> skins = Skins.byHero(enumHero);
+        final List<Skins> skins = Skins.byHero(hero);
 
         for (Skins enumSkin : skins) {
             makeItem(component, enumSkin);
@@ -82,8 +81,7 @@ public class SkinGUI extends StyledGUI {
 
     private void makeItem(SmartComponent component, @Nullable Skins enumSkin) {
         final CurrencyEntry currencyEntry = database.currencyEntry;
-        final Skins selectedSkin = skinEntry.getSelected(enumHero);
-        final Hero hero = enumHero.getHero();
+        final Skins selectedSkin = skinEntry.getSelected(hero);
 
         ItemBuilder builder;
         final GUIClick click = new GUIClick();
@@ -149,7 +147,7 @@ public class SkinGUI extends StyledGUI {
                     Notifier.success(player, "Selected %s skin!".formatted(enumSkin == null ? "default" : enumSkin.getSkin().getName()));
                     Notifier.sound(player, SoundEffect.SUCCESS);
 
-                    skinEntry.setSelected(enumHero, enumSkin);
+                    skinEntry.setSelected(this.hero, enumSkin);
                     update();
                 });
             }

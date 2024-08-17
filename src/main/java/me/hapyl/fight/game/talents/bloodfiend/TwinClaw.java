@@ -1,11 +1,15 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -14,10 +18,6 @@ import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -92,7 +92,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
         double damage = talent.twinClawDamage;
 
         if (nearestEntity instanceof GamePlayer gamePlayer) {
-            final Bloodfiend bloodfiend = Heroes.BLOODFIEND.getHero(Bloodfiend.class);
+            final Bloodfiend bloodfiend = HeroRegistry.BLOODFIEND;
             final BloodfiendData data = bloodfiend.getData(player);
 
             if (data.isBitten(gamePlayer)) {

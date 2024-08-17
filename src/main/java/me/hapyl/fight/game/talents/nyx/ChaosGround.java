@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.talents.nyx;
 
-import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.nyx.NyxData;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.ShutdownAction;
@@ -26,7 +28,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
 
 public class ChaosGround extends Talent implements Listener {
 
@@ -43,17 +44,15 @@ public class ChaosGround extends Talent implements Listener {
 
     @DisplayField private final double duration = durationRaw / speed;
 
-    private final Set<ChaosDroplet> chaosDroplets = Sets.newHashSet();
-
     public ChaosGround() {
         super("Chaos Expansion");
 
         setDescription("""
                 Start channeling a chaos spell.
                 
-                After a moderate casting time, creates an explosion in large AoE, dealing damage and impairing enemies within.
+                After a short casting time, creates an &4explosion&7 in &clarge AoE&7, dealing &cdamage&7 and &eimpairing&7 enemies within.
                 
-                Also spawn %s chaos droplets, that heal teammates and deals damage to enemies.
+                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and deals damage to enemies.
                 """.formatted(dropletCount));
 
         setItem(Material.CHORUS_FRUIT);
@@ -61,20 +60,12 @@ public class ChaosGround extends Talent implements Listener {
         setCooldownSec(7.5f);
     }
 
-    @Override
-    public void onStop(@Nonnull GamePlayer player) {
-        chaosDroplets.clear();
-    }
-
     @EventHandler
     public void handleItemPickup(EntityPickupItemEvent ev) {
         final LivingEntity entity = ev.getEntity();
         final Item item = ev.getItem();
 
-        final ChaosDroplet droplet = chaosDroplets.stream()
-                .filter(d -> d.item == item)
-                .findFirst()
-                .orElse(null);
+        final ChaosDroplet droplet = null;
 
         if (droplet == null) {
             return;
@@ -84,11 +75,17 @@ public class ChaosGround extends Talent implements Listener {
             ev.setCancelled(true);
             return;
         }
+
+        //chaosDroplets.remove(droplet);
+        droplet.remove();
+
+        Debug.info("droplet=" + droplet);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
+        final NyxData data = player.getPlayerData(HeroRegistry.NYX);
         final EntityList<ArmorStand> orbs = new EntityList<>(orbCount);
 
         new TickingStepGameTask(3) {
