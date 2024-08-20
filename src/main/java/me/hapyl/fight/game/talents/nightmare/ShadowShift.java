@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.nightmare;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -26,12 +27,15 @@ public class ShadowShift extends Talent implements Listener {
     @DisplayField private final int immobilizationDuration = 20;
     @DisplayField private final int omenDuration = 60;
 
-    public ShadowShift() {
-        super("Shadow Shift", """
+    public ShadowShift(@Nonnull DatabaseKey key) {
+        super(key, "Shadow Shift");
+
+        setDescription("""
                 Instantly teleport behind your target entity to scare them from behind, applying &cOmen&7.
-                                        
+                
                 You will lose the ability to move for a short duration.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.LEAD);

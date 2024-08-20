@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -31,14 +32,18 @@ public class TrapWire extends ChargedTalent implements Listener {
     @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
     @DisplayField private final int windupTime = 40;
 
-    public TrapWire() {
-        super("Tripwire", """
+    public TrapWire(@Nonnull DatabaseKey key) {
+        super(key, "Tripwire", 3);
+
+        setDescription("""
                 Place a tripwire between two blocks. Activates upon contact with an opponent and applies &b&lCYber &b&lHack&7.
-                                
+                
                 &e&lPUNCH &7the wire to pick it up.
-                                
+                
                 &c;;This ability can be destroyed!
-                """, 3);
+                """
+        );
+
 
         setItem(Material.STRING);
         setCooldownSec(3);

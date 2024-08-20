@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
@@ -36,8 +37,8 @@ public class DarkCover extends ShadowAssassinTalent {
 
     private final PlayerMap<GameTask> darkCoverTask = PlayerMap.newMap();
 
-    public DarkCover() {
-        super("Dark Cover");
+    public DarkCover(@Nonnull DatabaseKey key) {
+        super(key, "Dark Cover");
 
         setType(TalentType.DAMAGE);
         setItem(Material.NETHERITE_BOOTS);
@@ -159,11 +160,13 @@ public class DarkCover extends ShadowAssassinTalent {
 
             setDescription("""
                     Cloak yourself in darkness and become &ainvisible&7 and &ainvulnerable&7 for a maximum of &b{darkCoverDuration}&7.
-                                        
+                    
                     Dealing damage clears this effect and deals &cAoE damage&7.
-                                        
+                    
                     Also regenerate %s{energyRegen} %s&7 per enemy hit.
-                    """, Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY);
+                    """.formatted(Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY)
+            );
+
             setCooldownSec(12);
         }
 
@@ -190,9 +193,10 @@ public class DarkCover extends ShadowAssassinTalent {
 
             setDescription("""
                     Instantly deal &cAoE damage&7 in front of you and gain %s boost.
-                                        
+                    
                     The damage dealt is &ax{furyDamageMultiplier}&7 of that in &9Stealth&7 mode.
-                    """, AttributeType.ATTACK);
+                    """.formatted(AttributeType.ATTACK)
+            );
             setCooldownSec(18);
         }
 

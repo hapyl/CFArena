@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -8,7 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -33,8 +34,8 @@ public class ShortyShotgun extends Talent {
 
     private final Set<GamePlayer> hasShotFirst = Sets.newHashSet();
 
-    public ShortyShotgun() {
-        super("Shorty");
+    public ShortyShotgun(@Nonnull DatabaseKey key) {
+        super(key, "Shorty");
 
         setDescription("""
                 Shoot you double barrel to deal &cdamage&7 that &nfalls&7 &noff&7 with &bdistance&7.
@@ -43,7 +44,8 @@ public class ShortyShotgun extends Talent {
                 &8;;Additionally, if used while on a Grapple Hook, the damage is increased.
                 
                 &8;;This talent can be used twice consecutively before reloading.
-                """);
+                """
+        );
 
         setItem(Material.CROSSBOW);
         setStartAmount(2);
@@ -93,7 +95,7 @@ public class ShortyShotgun extends Talent {
     private void raycastPellet(GamePlayer player) {
         final Location playerEyeLocation = player.getEyeLocation().subtract(0.0d, 0.2d, 0.0d);
         final Vector direction = playerEyeLocation.getDirection().normalize().add(getRandomVector());
-        final GrappleHookTalent hookTalent = Talents.GRAPPLE.getTalent(GrappleHookTalent.class);
+        final GrappleHookTalent hookTalent = TalentRegistry.GRAPPLE;
 
         for (double d = 0; d < maxDistance; d += 0.25) {
             final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));

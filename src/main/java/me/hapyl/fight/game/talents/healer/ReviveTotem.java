@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.healer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -15,8 +16,13 @@ public class ReviveTotem extends Talent {
 
     private final PlayerMap<ArmorStand> playerCatalysts;
 
-    public ReviveTotem() {
-        super("Revive Catalyst", "Place somewhere hidden for later use to revive yourself.");
+    public ReviveTotem(@Nonnull DatabaseKey key) {
+        super(key, "Revive Catalyst");
+
+        setDescription("""
+                Place somewhere hidden for later use to revive yourself.
+                """
+        );
 
         setItem(Material.TOTEM_OF_UNDYING); // fixme -> this might actually trigger totem, needs testing
 

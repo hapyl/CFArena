@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -24,18 +25,19 @@ public class VortexSlash extends Talent {
     @DisplayField private final double collectDistance = 2.0d;
     @DisplayField private final double shiftDistance = 0.5;
 
-    public VortexSlash() {
-        super("Astral Slash");
+    public VortexSlash(@Nonnull DatabaseKey key) {
+        super(key, "Astral Slash");
 
         setDescription("""
                 Launch an &eastral&7 energy forward &b&nfollows&7 your crosshair.
-                                
+                
                 &8;;The energy will disappear after {maxDuration} or upon contact with a block.
-                                
+                
                 The energy deals &crapid damage&7, and knocks enemies back.
-                                
+                
                 &8;;The cooldown of this ability stars after the energy disappears.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
         setItem(Material.BONE_MEAL);

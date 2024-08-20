@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.alchemist;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
@@ -33,14 +34,16 @@ public class CauldronAbility extends Talent implements Listener {
             .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
             .asIcon();
 
-    public CauldronAbility() {
-        super("Brewing Pot", """
+    public CauldronAbility(@Nonnull DatabaseKey key) {
+        super(key, "Brewing Pot");
+
+        setDescription("""
                 Place a Brewing Cauldron to brew a Magic Potion. Put your Brewing Stick in it and wait!
-                                
+                
                 Once ready, claim you potion and enhance yourself with the following effects:
-                                
+                
                 &a- &7Drinking a potion will grant double effects. &8(5 charges)
-                                
+                
                 &a- &7Hitting an enemy will apply random effect. &8(10 charges)
                 """
         );

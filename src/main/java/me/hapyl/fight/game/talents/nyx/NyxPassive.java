@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.nyx;
 
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -10,7 +11,9 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import me.hapyl.fight.util.Collect;
@@ -33,18 +36,21 @@ public class NyxPassive extends PassiveTalent {
 
     @DisplayField private final int buffDuration = Tick.fromSecond(6);
 
-    public NyxPassive() {
-        super("Reverberation", Material.BEDROCK);
+    public NyxPassive(@Nonnull DatabaseKey key) {
+        super(key, "Reverberation");
 
         setDescription("""
-                Whenever &a&nNyx&r or her &a&nally&7 &eimpairs&7 an &cenemy&7, and she has a %s stack, Nyx will launch a &6&nfollowup&r &6&nattack&7.
-
+                Whenever &a&nNyx&7 or her &a&nally&7 &eimpairs&7 an &cenemy&7, and she has a %s stack, Nyx will launch a &6&nfollowup&r &6&nattack&7.
+                
                 Upon hit, it deals &cAoE damage&7 and grants a &9Void Shield&7 to the teammate who triggered this attack.
-
+                
                 &6Void Shied
                 Whenever the shield is broken or refreshed, heals its target and increases %s.
-                """.formatted(Named.THE_CHAOS, AttributeType.EFFECT_RESISTANCE));
+                """.formatted(Named.THE_CHAOS, AttributeType.EFFECT_RESISTANCE)
+        );
 
+        setType(TalentType.IMPAIR);
+        setItem(Material.SHULKER_SHELL);
         setCooldownSec(2.5f);
     }
 
@@ -121,10 +127,8 @@ public class NyxPassive extends PassiveTalent {
                 final double z = Math.cos(t * 0.75d) * 0.9d;
 
                 location.add(x, y, z);
-
-                nyx.spawnWorldParticle(location, Particle.WITCH, 1, 0.1, 0.1, 0.1, 0.33f);
+                HeroRegistry.NYX.drawParticle(location);
                 nyx.spawnWorldParticle(location, Particle.PORTAL, 1);
-
                 location.subtract(x, y, z);
 
                 t += Math.PI / 16;

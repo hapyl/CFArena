@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.npc.ClickType;
 import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -30,12 +31,15 @@ public class ShroudedStep extends Talent {
     @DisplayField private final double decoyExplosionRadius = 1.5d;
     @DisplayField private final double decoyExplosionDamage = 10.0d;
 
-    public ShroudedStep() {
-        super("Shrouded Step", """
-                While in Dark Cover, deploy a decoy footprints that travel in a straight line.
+    public ShroudedStep(@Nonnull DatabaseKey key) {
+        super(key, "Shrouded Step");
 
+        setDescription("""
+                While in Dark Cover, deploy a decoy footprints that travel in a straight line.
+                
                 Leave Dark Cover to create a decoy that explodes after being hit or after a short duration damaging nearby enemies.
-                """);
+                """
+        );
 
         setCooldown(600);
         setItem(Material.NETHERITE_BOOTS);

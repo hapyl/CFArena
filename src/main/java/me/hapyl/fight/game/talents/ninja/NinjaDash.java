@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ninja;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -14,8 +15,12 @@ public class NinjaDash extends Talent {
 
     @DisplayField private final float magnitude = 1.5f;
 
-    public NinjaDash() {
-        super("Dashing Wind", "Instantly propel yourself into the direction you're looking.");
+    public NinjaDash(@Nonnull DatabaseKey key) {
+        super(key, "Dashing Wind");
+
+        setDescription("""
+                Instantly propel yourself into the direction you're looking.
+                """);
 
         setItem(Material.FEATHER);
         setCooldown(100);

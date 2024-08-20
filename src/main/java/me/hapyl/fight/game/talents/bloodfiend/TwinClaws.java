@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -16,15 +17,16 @@ public class TwinClaws extends Talent implements Listener {
     @DisplayField protected final double twinClawDamage = 10.0d;
     @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 1.5d;
 
-    public TwinClaws() {
-        super("Twin Claws");
+    public TwinClaws(@Nonnull DatabaseKey key) {
+        super(key, "Twin Claws");
 
         setDescription("""
                 Launch two &6giant claws&7. One in front, one behind.
-                                
+                
                 If a &6claw&7 hits an &cenemy&7, it deals &c{twinClawDamage} ❤ &cdamage&7 to them.
                 &8;;Bitten enemies suffer more damage.
-                """);
+                """
+        );
 
         setItem(Material.ACACIA_FENCE);
         setDuration(30);

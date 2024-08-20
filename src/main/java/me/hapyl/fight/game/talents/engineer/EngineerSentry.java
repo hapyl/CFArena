@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.engineer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
@@ -12,8 +13,8 @@ public class EngineerSentry extends EngineerTalent {
 
     private final double radius = 35;
 
-    public EngineerSentry() {
-        super("Spotter", 4);
+    public EngineerSentry(@Nonnull DatabaseKey key) {
+        super(key, "Spotter", 4);
 
         setDescription("""
                 Create a &bSpotter&7 that will &emark&7 all nearby &cenemies&7.

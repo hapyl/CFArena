@@ -1,21 +1,23 @@
 package me.hapyl.fight.game.heroes.mage;
 
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -84,17 +86,17 @@ public class Mage extends Hero implements UIComponent {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.MAGE_TRANSMISSION.getTalent();
+        return TalentRegistry.MAGE_TRANSMISSION;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.ARCANE_MUTE.getTalent();
+        return TalentRegistry.ARCANE_MUTE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SOUL_HARVEST.getTalent();
+        return TalentRegistry.SOUL_HARVEST;
     }
 
     @Override
@@ -105,16 +107,16 @@ public class Mage extends Hero implements UIComponent {
 
     private class MageUltimate extends UltimateTalent {
         public MageUltimate() {
-            super("Magical Trainings", 50);
-
+            super(Mage.this, "Magical Trainings", 50);
 
             setDescription("""
                     Retrieve two ancient spells and use one of them to your advantage!
-                                            
+                    
                     %s
                     %s
                     Only one of the spells can be used at the same time, and you will &nnot&7 gain &b&l※ &7until spell is over.
-                    """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted()));
+                    """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted())
+            );
 
             setItem(Material.WRITABLE_BOOK);
             setType(TalentType.ENHANCE);

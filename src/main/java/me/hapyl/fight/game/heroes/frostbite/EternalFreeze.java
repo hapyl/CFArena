@@ -34,7 +34,7 @@ public class EternalFreeze extends TimedGameTask {
 
     private final GamePlayer player;
     private final Location location;
-    private final FrostbiteUltimate ultimate;
+    private final Freazly.FrostbiteUltimate ultimate;
 
     private final List<ArmorStand> blocks;
     private final double quality = Math.PI / 16;
@@ -43,7 +43,7 @@ public class EternalFreeze extends TimedGameTask {
     private double distance = 1.0d;
     private double theta = 0.0d;
 
-    public EternalFreeze(GamePlayer player, FrostbiteUltimate ultimate) {
+    public EternalFreeze(GamePlayer player, Freazly.FrostbiteUltimate ultimate) {
         super(ultimate.getDuration());
 
         this.player = player;

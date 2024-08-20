@@ -66,7 +66,7 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
     }
 
     public void setLastSelectedHero(@Nullable Hero hero) {
-        setValueInPath("lastSelectedHero", hero != null ? hero.getKey() : null);
+        setValueInPath("lastSelectedHero", hero != null ? hero.getDatabaseKey().key() : null);
     }
 
     @Nonnull

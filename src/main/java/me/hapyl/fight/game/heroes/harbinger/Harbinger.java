@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.heroes.harbinger;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -14,13 +16,12 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.harbinger.StanceData;
 import me.hapyl.fight.game.talents.harbinger.TidalWaveTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -31,8 +32,6 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -188,17 +187,17 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
     @Override
     public MeleeStance getFirstTalent() {
-        return (MeleeStance) Talents.STANCE.getTalent();
+        return TalentRegistry.STANCE;
     }
 
     @Override
     public TidalWaveTalent getSecondTalent() {
-        return (TidalWaveTalent) Talents.TIDAL_WAVE.getTalent();
+        return TalentRegistry.TIDAL_WAVE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.RIPTIDE.getTalent();
+        return TalentRegistry.RIPTIDE;
     }
 
     @Nonnull
@@ -266,19 +265,20 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
     private class HarbingerUltimate extends UltimateTalent {
         public HarbingerUltimate() {
-            super("Crowned Mastery", 70);
+            super(Harbinger.this, "Crowned Mastery", 70);
 
             setDescription("""
                     Gather the surrounding energy to execute a &cfatal strike&7 based on your &ncurrent&7 &nstance&7.
-                                    
+                    
                     &6In Range Stance
                     Shoots a magic arrow in front of you that explodes upon impact, dealing moderate &cAoE damage&7 and applying %1$s.
-                                    
+                    
                     &6In Melee Stance
                     Performs a slash around you that deals significant &cAoE damage&7.
-                                    
+                    
                     If an enemy is affected by %1$s, the damage is &cincreased&7 and the %1$s is removed.
-                    """.formatted(Named.RIPTIDE));
+                    """.formatted(Named.RIPTIDE)
+            );
 
             setItem(Material.DIAMOND);
             setDuration(40);

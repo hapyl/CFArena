@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.mage;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -18,10 +19,12 @@ public class ArcaneMute extends Talent {
 
     @DisplayField private final double maxDistance = 20;
 
-    public ArcaneMute() {
-        super(
-                "Arcane Mute",
-                "Use on a &etargeted&7 player to &bsilence&7 them, &cpreventing&7 them from using &atalents&7 for {duration}."
+    public ArcaneMute(@Nonnull DatabaseKey key) {
+        super(key, "Arcane Mute");
+
+        setDescription("""
+                Use on a &etargeted&7 player to &bsilence&7 them, &cpreventing&7 them from using &atalents&7 for {duration}.
+                """
         );
 
         setType(TalentType.IMPAIR);
@@ -43,8 +46,8 @@ public class ArcaneMute extends Talent {
 
         target.addEffect(Effects.ARCANE_MUTE, getDuration());
 
-        target.sendMessage("&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)", player.getName());
-        player.sendMessage("&aArcane Mute cursed %s.", target.getName());
+        target.sendMessage("&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)".formatted(player.getName()));
+        player.sendMessage("&aArcane Mute cursed %s.".formatted(target.getName()));
 
         return Response.OK;
     }

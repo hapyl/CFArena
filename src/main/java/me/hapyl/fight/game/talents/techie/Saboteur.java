@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -30,7 +30,7 @@ import org.bukkit.entity.ArmorStand;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class Saboteur extends TechieTalent implements HeroReference<Techie> {
+public class Saboteur extends TechieTalent {
 
     @DisplayField private final double hackDistance = 8.0d;
     @DisplayField private final double hackedSupplyDamage = 10;
@@ -42,8 +42,8 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
             .decrease(AttributeType.ATTACK, hackedSupplyAttackReduction)
             .decrease(AttributeType.SPEED, hackedSupplySeedReduction);
 
-    public Saboteur() {
-        super("Saboteur");
+    public Saboteur(@Nonnull DatabaseKey key) {
+        super(key, "Saboteur");
 
         setType(TalentType.IMPAIR);
         setItem(Material.IRON_TRAPDOOR);
@@ -56,14 +56,14 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
     public String getHackDescription() {
         return """
                 hack all &copponents&7 in front of you, &bimplanting&7 a random &f%s&7 onto them.
-                                
+                
                 &6Bugs:
                 %s&7: %s
-                                
+                
                 %s&7: %s
-                                
+                
                 %s&7: %s
-                             
+                
                 This ability can also hack &aSupply Packs&7, rendering them &4unobtainable&7 for &nyou&7 or your &nteammates&7 but &eimpairing&7 and &bimplanting&7 a random &fbug&7 onto an &cenemy&7 when they pick it up.
                 """.formatted(
                 Named.BUG,
@@ -89,7 +89,7 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
 
     @Override
     public void onHack(@Nonnull GamePlayer player) {
-        final Techie hero = getHero();
+        final Techie hero = HeroRegistry.TECHIE;
         final Location location = player.getLocation();
         final TechieData data = hero.getPlayerData(player);
 
@@ -159,14 +159,8 @@ public class Saboteur extends TechieTalent implements HeroReference<Techie> {
                 builder.append(hackedEnemies).append(hackedEnemies == 1 ? " enemy" : " enemies");
             }
 
-            player.sendMessage("&b🕸 &3Hacked %s!", builder.toString());
+            player.sendMessage("&b🕸 &3Hacked %s!".formatted(builder.toString()));
         }
-    }
-
-    @Nonnull
-    @Override
-    public Techie getHero() {
-        return HeroRegistry.TECHIE;
     }
 
     @Nonnull

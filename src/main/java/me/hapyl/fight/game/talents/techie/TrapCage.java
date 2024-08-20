@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -31,14 +32,17 @@ public class TrapCage extends ChargedTalent implements Listener {
 
     private final Map<Player, Set<CyberCage>> cageMap = new HashMap<>();
 
-    public TrapCage() {
-        super("CYber Cage", """
+    public TrapCage(@Nonnull DatabaseKey key) {
+        super(key, "CYber Cage", 3);
+
+        setDescription("""
                 Toss a cage in front of you, masking itself upon landing as a block below it.
-                                
+                
                 Activates upon opponents touch and explodes in small AoE applying &b&lCYber &b&lHack&7.
-                                
+                
                 &e&lSNEAK &7near your cage to pick it up.
-                """, 3);
+                """
+        );
 
         setItem(Material.IRON_TRAPDOOR);
         setCooldownSec(2);

@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.zealot;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -34,7 +34,10 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
             entity.damage(damage, player, EnumDamageCause.SOULS_REBOUND);
 
             // Fx
-            entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!", CFUtils.decimalFormat(damage), player.getName());
+            entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!".formatted(
+                    CFUtils.decimalFormat(damage),
+                    player.getName()
+            ));
             entity.playSound(Sound.ITEM_SHIELD_BREAK, 0.0f);
             entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
             entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.5f);

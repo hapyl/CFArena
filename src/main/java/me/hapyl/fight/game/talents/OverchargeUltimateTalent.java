@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.database.key.DatabaseKeyed;
+import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import org.bukkit.Sound;
@@ -13,8 +15,8 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
 
     private String overchargeDescription = "";
 
-    public OverchargeUltimateTalent(@Nonnull String name, int pointCost, int overchargeCost) {
-        super(name, pointCost);
+    public OverchargeUltimateTalent(@Nonnull DatabaseKeyed key, @Nonnull String name, int pointCost, int overchargeCost) {
+        super(key, name, pointCost);
 
         if (overchargeCost <= pointCost) {
             throw new IllegalArgumentException("Overcharge must be greater than normal cost!");
@@ -46,8 +48,15 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
     @Override
     public final UltimateResponse useUltimate(@Nonnull GamePlayer player) {
         final double energy = player.getEnergy();
+        final boolean isOvercharged = energy >= overchargeCost;
 
-        return useUltimate(player, energy >= overchargeCost ? ChargeType.OVERCHARGED : ChargeType.CHARGED);
+        final UltimateResponse response = useUltimate(player, isOvercharged ? ChargeType.OVERCHARGED : ChargeType.CHARGED);
+
+        if (response.isOk()) {
+            Achievements.OVERCHARGED.complete(player);
+        }
+
+        return response;
     }
 
     @Override
@@ -63,7 +72,7 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
     }
 
     @Override
-    public void atEnergy(@Nonnull GamePlayer player, double energy) {
+    public void atEnergy(@Nonnull GamePlayer player, double previousEnergy, double energy) {
         if (energy == overchargeCost) {
             sendChargedMessage(player, "&d&l&oovercharged");
 
@@ -74,7 +83,7 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
             return;
         }
 
-        super.atEnergy(player, energy);
+        super.atEnergy(player, previousEnergy, energy);
     }
 
 

@@ -2,11 +2,11 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.block.Block;
@@ -125,14 +125,11 @@ public class EntityHandler implements Listener {
             return;
         }
 
-        final LivingEntity bukkitEntity = entity.getEntity();
-        final int portalCooldown = bukkitEntity.getPortalCooldown();
-
-        if (portalCooldown > 0) {
+        if (entity.hasCooldown(Cooldown.PORTAL)) {
             return;
         }
 
-        bukkitEntity.setPortalCooldown(20);
+        entity.startCooldown(Cooldown.PORTAL);
         new GameEntityContactPortalEvent(entity, type).call();
     }
 

@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -84,12 +84,12 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.TRIPLE_SHOT.getTalent();
+        return TalentRegistry.TRIPLE_SHOT;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SHOCK_DARK.getTalent();
+        return TalentRegistry.SHOCK_DARK;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
     private class TutorialArcherUltimate extends UltimateTalent {
 
         public TutorialArcherUltimate() {
-            super("BOOM BOW", 5);
+            super(TutorialArcher.this, "BOOM BOW", 5);
         }
 
         @Nonnull

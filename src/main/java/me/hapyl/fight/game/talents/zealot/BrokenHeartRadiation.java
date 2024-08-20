@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.zealot;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -35,14 +36,15 @@ public class BrokenHeartRadiation extends Talent {
             .decrease(AttributeType.DEFENSE, defenseReduction)
             .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.ELDER_GUARDIAN, 1, 0, 0, 0, 0));
 
-    public BrokenHeartRadiation() {
-        super("Broken Heart Radiation");
+    public BrokenHeartRadiation(@Nonnull DatabaseKey key) {
+        super(key, "Broken Heart Radiation");
 
         setDescription("""
                 Create four radiation beams that spin around you for {duration}.
-                                
+                
                 If a beam touches an enemy, it deals &c{beamDamage} ❤&7 damage and reduces %s by &c{mendingReduction}&7 and %s by &c{defenseReduction}&7 for &b{effectDuration}.
-                """, AttributeType.VITALITY, AttributeType.DEFENSE);
+                """.formatted(AttributeType.VITALITY, AttributeType.DEFENSE)
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.TWISTING_VINES);

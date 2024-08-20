@@ -2,22 +2,26 @@ package me.hapyl.fight.game.talents.nyx;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.fight.game.Debug;
+import me.hapyl.eterna.module.math.geometry.Drawable;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.nyx.ChaosDroplet;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.EntityList;
-import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -25,7 +29,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -44,20 +47,29 @@ public class ChaosGround extends Talent implements Listener {
 
     @DisplayField private final double duration = durationRaw / speed;
 
-    public ChaosGround() {
-        super("Chaos Expansion");
+    // Storing in three different variables for display fields
+    @DisplayField private final double healingFirst = 7.0d;
+    @DisplayField private final double healingSecond = 5.0d;
+    @DisplayField private final double healingThird = 3.0d;
+
+    @DisplayField private final double damage = 15.0d;
+
+    public ChaosGround(@Nonnull DatabaseKey key) {
+        super(key, "Chaos Expansion");
 
         setDescription("""
                 Start channeling a chaos spell.
                 
                 After a short casting time, creates an &4explosion&7 in &clarge AoE&7, dealing &cdamage&7 and &eimpairing&7 enemies within.
                 
-                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and deals damage to enemies.
-                """.formatted(dropletCount));
+                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and &cdeals damage&7 to &cenemies&7.
+                &8&o;;The healing decreases with each droplet.
+                """.formatted(dropletCount)
+        );
 
         setItem(Material.CHORUS_FRUIT);
 
-        setCooldownSec(7.5f);
+        setCooldownSec(15.0f);
     }
 
     @EventHandler
@@ -65,21 +77,75 @@ public class ChaosGround extends Talent implements Listener {
         final LivingEntity entity = ev.getEntity();
         final Item item = ev.getItem();
 
-        final ChaosDroplet droplet = null;
+        final NyxData dataWithDroplet = HeroRegistry.NYX.getDataMap()
+                .values()
+                .stream()
+                .filter(data -> data.getDroplet(item) != null)
+                .findFirst()
+                .orElse(null);
+
+        if (dataWithDroplet == null) {
+            return;
+        }
+
+        final ChaosDroplet droplet = dataWithDroplet.getDroplet(item);
 
         if (droplet == null) {
             return;
         }
 
         if (!(entity instanceof Player player)) {
+            ev.setCancelled(true); // Don't allow non-player entities picking up droplets
+            return;
+        }
+
+        final GamePlayer gamePlayer = CF.getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        // Don't allow picking up if player is full health
+        if (gamePlayer.isFullHealth()) {
             ev.setCancelled(true);
             return;
         }
 
-        //chaosDroplets.remove(droplet);
-        droplet.remove();
+        // Store the current droplet count before removing the droplet
+        final int dropletCount = dataWithDroplet.dropletCount();
 
-        Debug.info("droplet=" + droplet);
+        //chaosDroplets.remove(droplet);
+        dataWithDroplet.removeDroplet(droplet);
+        ev.setCancelled(true);
+
+        // Affecting here because yes
+        final GamePlayer nyx = dataWithDroplet.player;
+        final Location location = droplet.getLocation();
+
+        if (nyx.isSelfOrTeammate(gamePlayer)) {
+            final double healing = getHealing(dropletCount);
+
+            gamePlayer.heal(healing, nyx);
+
+            // Fx
+            gamePlayer.playWorldSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1.75f);
+            gamePlayer.playWorldSound(location, Sound.ITEM_FIRECHARGE_USE, 2.0f);
+        }
+        else {
+            gamePlayer.damage(damage, nyx, EnumDamageCause.CHAOS);
+
+            gamePlayer.spawnWorldParticle(location, Particle.RAID_OMEN, 10, 0.5, 0.25, 0.5, 0.025f);
+            gamePlayer.playWorldSound(Sound.ENTITY_EVOKER_FANGS_ATTACK, 0.75f);
+        }
+    }
+
+    private double getHealing(int dropletCount) {
+        return switch (dropletCount) {
+            case 3 -> healingFirst;
+            case 2 -> healingSecond;
+            case 1 -> healingThird;
+            default -> 0;
+        };
     }
 
     @Override
@@ -88,8 +154,12 @@ public class ChaosGround extends Talent implements Listener {
         final NyxData data = player.getPlayerData(HeroRegistry.NYX);
         final EntityList<ArmorStand> orbs = new EntityList<>(orbCount);
 
+        // Remove previous droplets
+        data.remove();
+
         new TickingStepGameTask(3) {
             private double d = 0.0d;
+            private int lastSfxTick = 0;
 
             @Override
             public boolean tick(int tick) {
@@ -106,6 +176,10 @@ public class ChaosGround extends Talent implements Listener {
                 // Attack
                 if (distance <= attackThreshold) {
                     distance = maxDistance;
+
+                    // Fx
+                    player.playWorldSound(location, Sound.ENTITY_WITHER_SHOOT, 0.75f);
+                    player.playWorldSound(location, Sound.ENTITY_WARDEN_HURT, 0.75f);
                 }
 
                 for (int i = 0; i < orbs.size(); i++) {
@@ -118,10 +192,17 @@ public class ChaosGround extends Talent implements Listener {
                     orbs.getOrSet(i, () -> Entities.ARMOR_STAND.spawn(location, self -> {
                         self.setMarker(true);
                         self.setSmall(true);
-                        self.getEquipment().setHelmet(new ItemStack(Material.CRYING_OBSIDIAN));
+                        self.setInvisible(true);
+                        self.getEquipment().setHelmet(ChaosDroplet.item());
                     })).teleport(location);
 
                     location.subtract(x, y, z);
+                }
+
+                // Fx
+                if (lastSfxTick != tick) {
+                    lastSfxTick = tick;
+                    player.playWorldSound(location, Sound.ENTITY_ENDERMAN_HURT, (float) (0.5f + (1.0f * distance / maxDistance)));
                 }
 
                 d += Math.PI / 16;
@@ -132,18 +213,48 @@ public class ChaosGround extends Talent implements Listener {
                         // Affect
                         Collect.nearbyEntities(location, maxDistance, player::isNotSelfOrTeammate)
                                 .forEach(entity -> {
+                                    entity.damageNoKnockback(damage, player, EnumDamageCause.CHAOS);
 
+                                    if (entity instanceof GamePlayer playerEntity) {
+                                        TalentRegistry.BLINDING_CURSE.scaryWither(playerEntity);
+                                    }
                                 });
 
                         // Spawn droplets
                         for (int i = 0; i < dropletCount; ++i) {
                             // Pick random location
+                            final double x = player.random.nextDoubleBool(maxDistance - 0.5d);
+                            final double z = player.random.nextDoubleBool(maxDistance - 0.5d);
+
+                            location.add(x, 0, z);
+                            data.createDroplet(location);
+                            location.subtract(x, 0, z);
                         }
 
                         // Fx
-                        Geometry.drawSphere(location, maxDistance * 2, maxDistance,
-                                loc -> player.spawnWorldParticle(loc, Particle.CRIT, 1)
-                        );
+                        for (int i = 0; i < orbs.size(); i++) {
+                            final ArmorStand current = orbs.get(i);
+                            final ArmorStand next = orbs.get(i + 1 >= orbs.size() ? 0 : i + 1);
+
+                            // This will never happen, just to shut up the compiler
+                            if (current == null || next == null) {
+                                continue;
+                            }
+
+                            Geometry.drawLine(
+                                    current.getLocation().add(0, 1, 0),
+                                    next.getLocation().add(0, 1, 0),
+                                    0.5d, new Drawable() {
+                                        @Override
+                                        public void draw(@Nonnull Location location) {
+                                            HeroRegistry.NYX.drawParticle(location);
+                                        }
+                                    }
+                            );
+                        }
+
+                        // Fx
+                        player.playWorldSound(location, Sound.ENTITY_WARDEN_DEATH, 0.75f);
 
                         orbs.clear();
                     }, 5).setShutdownAction(ShutdownAction.IGNORE);
@@ -156,26 +267,4 @@ public class ChaosGround extends Talent implements Listener {
         return Response.OK;
     }
 
-    private static class ChaosDroplet implements Removable {
-
-        private final GamePlayer player;
-        private final Item item;
-
-        private ChaosDroplet(GamePlayer player, Location location) {
-            this.player = player;
-            this.item = location.getWorld().dropItem(
-                    location,
-                    new ItemStackRandomizedData(Material.STONE_SWORD),
-                    self -> {
-                        self.setCanMobPickup(false);
-                        self.setCanPlayerPickup(true);
-                    }
-            );
-        }
-
-        @Override
-        public void remove() {
-            this.item.remove();
-        }
-    }
 }

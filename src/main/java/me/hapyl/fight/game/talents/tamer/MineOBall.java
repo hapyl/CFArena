@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.tamer;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,12 +26,15 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
     private final PlayerMap<ActiveTamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
     private final List<DisplayFieldData> displayFieldData = Lists.newArrayList();
 
-    public MineOBall() {
-        super("Mine 'o Ball", """
+    public MineOBall(@Nonnull DatabaseKey key) {
+        super(key, "Mine 'o Ball");
+
+        setDescription("""
                 Summon a random pack of creatures that will aid you in battle.
-                                
+                
                 &6Creatures:
-                """);
+                """
+        );
 
         for (TamerPacks enumPack : TamerPacks.values()) {
             final TamerPack pack = enumPack.getPack();
@@ -105,7 +109,7 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
         tamerPackMap.put(player, tamerPack);
 
         // Fx
-        player.sendMessage("&c\uD83D\uDD34 &eYou just summoned a &6%s&e!", tamerPack.getName());
+        player.sendMessage("&c\uD83D\uDD34 &eYou just summoned a &6%s&e!".formatted(tamerPack.getName()));
 
         return Response.OK;
     }

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.witcher;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -24,10 +25,13 @@ public class Akciy extends Talent implements Listener {
 
     protected final Map<LivingGameEntity, AxiiData> axiiDatamap = Maps.newHashMap();
 
-    public Akciy() {
-        super("Axii", """
+    public Akciy(@Nonnull DatabaseKey key) {
+        super(key, "Axii");
+
+        setDescription("""
                 Stun the &etarget&7 &cenemy for {duration} or until they &nget&7 hit.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.SLIME_BALL);
@@ -65,8 +69,8 @@ public class Akciy extends Talent implements Listener {
 
         stun(target, getDuration());
 
-        target.sendMessage("&c%s stunned you!", player.getName());
-        player.sendMessage("&aStunned %s!", target.getName());
+        target.sendMessage("&c%s stunned you!".formatted(player.getName()));
+        player.sendMessage("&aStunned %s!".formatted(target.getName()));
         return Response.OK;
     }
 

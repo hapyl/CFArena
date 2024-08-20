@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -21,18 +22,19 @@ public class VortexStarTalent extends Talent {
 
     private final PlayerMap<AstralStarList> stars = PlayerMap.newMap();
 
-    public VortexStarTalent() {
-        super("Astral Star");
+    public VortexStarTalent(@Nonnull DatabaseKey key) {
+        super(key, "Astral Star");
 
         setDescription("""
                 &4Sacrifice &c{healthSacrificePerStar} ❤&7 to summon an &eAstral Star&7 at your &ncurrent&7 location.
-                                
+                
                 The &estar&7 inherits the &4sacrificed &c❤&7 and &ncan&7 be destroyed.
-                                
+                
                 &c;;If the star is destroyed, the sacrificed health will &nnot&c be returned!
-                                
+                
                 &8;;Up to {maximumStars} stars can exist simultaneously.
-                """);
+                """
+        );
 
         setType(TalentType.MOVEMENT);
         setItem(Material.NETHER_STAR);

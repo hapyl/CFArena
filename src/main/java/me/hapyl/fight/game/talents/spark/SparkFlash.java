@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.spark;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -27,14 +28,15 @@ public class SparkFlash extends Talent {
     @DisplayField private final int windupTime = 15;
     @DisplayField private final double fireDamage = 2;
 
-    public SparkFlash() {
-        super(
-                "Blinding Curve", """
-                        Throw an energy blast filled with blinding energy that curves up and explodes after a short delay, blinding anyone looking at it.
-                                                
-                        Enemies also receive small fire damage.
-                        &8;;You know, their eyes hurt!
-                        """
+    public SparkFlash(@Nonnull DatabaseKey key) {
+        super(key, "Blinding Curve");
+
+        setDescription("""
+                Throw an energy blast filled with blinding energy that curves up and explodes after a short delay, blinding anyone looking at it.
+                
+                Enemies also receive small fire damage.
+                &8;;You know, their eyes hurt!
+                """
         );
 
         setType(TalentType.IMPAIR);

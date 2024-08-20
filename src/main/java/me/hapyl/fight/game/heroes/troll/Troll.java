@@ -8,11 +8,14 @@ import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -105,12 +108,12 @@ public class Troll extends Hero implements Listener {
             entity.dieBy(EnumDamageCause.TROLL_LAUGH);
 
             entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
-            entity.sendMessage("&a%s had the last laugh!", killer.getName());
+            entity.sendMessage("&a%s had the last laugh!".formatted(killer.getName()));
 
             entity.asPlayer(Achievements.LAUGHING_OUT_LOUD_VICTIM::complete);
 
             // Fx
-            killer.sendMessage("&aYou laughed at %s!", entity.getName());
+            killer.sendMessage("&aYou laughed at %s!".formatted(entity.getName()));
             killer.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
 
             Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
@@ -119,28 +122,29 @@ public class Troll extends Hero implements Listener {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.TROLL_SPIN.getTalent();
+        return TalentRegistry.TROLL_SPIN;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.REPULSOR.getTalent();
+        return TalentRegistry.REPULSOR;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.TROLL_PASSIVE.getTalent();
+        return TalentRegistry.TROLL_PASSIVE;
     }
 
     private class TrollUltimate extends UltimateTalent {
         public TrollUltimate() {
-            super("Sticky Situation", 40);
+            super(Troll.this, "Sticky Situation", 40);
 
             setDescription("""
                     Spawns a batch of cobwebs at your position that is only visible for your opponents.
-                                    
+                    
                     &8;;Only one batch can exist at the same time.
-                    """);
+                    """
+            );
 
             setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f);
             setType(TalentType.IMPAIR);

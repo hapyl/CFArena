@@ -10,10 +10,13 @@ import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
@@ -131,17 +134,17 @@ public class Hercules extends Hero implements Listener, Disabled {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.HERCULES_DASH.getTalent();
+        return TalentRegistry.HERCULES_DASH;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.HERCULES_UPDRAFT.getTalent();
+        return TalentRegistry.HERCULES_UPDRAFT;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.PLUNGE.getTalent();
+        return TalentRegistry.PLUNGE;
     }
 
     private void giveTridentBack(Player player, boolean lessCooldown) {
@@ -227,12 +230,12 @@ public class Hercules extends Hero implements Listener, Disabled {
 
     private class HerculesUltimate extends UltimateTalent {
         public HerculesUltimate() {
-            super("Crush the Ground", 50);
-
+            super(Hercules.this, "Crush the Ground", 50);
 
             setDescription("""
                     Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.
-                    """);
+                    """
+            );
 
             setItem(Material.NETHERITE_HELMET);
             setDurationSec(12);

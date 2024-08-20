@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.Material;
@@ -10,8 +12,8 @@ import javax.annotation.Nonnull;
 
 public class ShadowSwitch extends ShadowAssassinTalent {
 
-    public ShadowSwitch() {
-        super("Shadow Switch");
+    public ShadowSwitch(@Nonnull DatabaseKey key) {
+        super(key, "Shadow Switch");
 
         setType(TalentType.ENHANCE);
         setItem(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
@@ -21,7 +23,7 @@ public class ShadowSwitch extends ShadowAssassinTalent {
     }
 
     private boolean isInDarkCover(GamePlayer player) {
-        return getHero().getSecondTalent().isInDarkCover(player);
+        return HeroRegistry.SHADOW_ASSASSIN.getSecondTalent().isInDarkCover(player);
     }
 
     private class Stealth extends StealthTalent {

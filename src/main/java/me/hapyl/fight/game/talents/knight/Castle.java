@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents.knight;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,7 +18,7 @@ import org.bukkit.util.EulerAngle;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class Castle extends TimedGameTask implements TalentReference<StoneCastle>, Removable {
+public class Castle extends TimedGameTask implements Removable {
 
     private final StoneCastle talent;
     private final GamePlayer player;
@@ -60,12 +59,6 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
 
         armorStands.forEach(ArmorStand::remove);
         armorStands.clear();
-    }
-
-    @Nonnull
-    @Override
-    public StoneCastle getTalent() {
-        return talent;
     }
 
     public boolean isEntityWithin(@Nonnull GameEntity player) {

@@ -7,6 +7,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.TickingScheduler;
@@ -78,7 +79,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
     }
 
     public void attack(@Nonnull LivingGameEntity entity, double damage) {
-        final ShadowAssassinClone talent = cloneList.getTalent();
+        final ShadowAssassinClone talent = TalentRegistry.SHADOW_ASSASSIN_CLONE;
         cloneList.attackingMap.put(this, entity);
 
         // Glow the clone
@@ -127,7 +128,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
                 isAttacking = true;
                 cloneList.createCloneLink(this);
 
-                attack(entity, cloneList.getTalent().cloneDamage);
+                attack(entity, TalentRegistry.SHADOW_ASSASSIN_CLONE.cloneDamage);
 
                 GameTask.runLater(this::disappear, PlayerCloneList.MAX_LINK_TIME);
             }

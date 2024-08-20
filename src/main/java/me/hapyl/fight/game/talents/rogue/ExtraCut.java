@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.rogue;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -36,14 +37,15 @@ public class ExtraCut extends Talent {
     @DisplayField(scaleFactor = 500) private final double speedDecrease = 0.15d;
     @DisplayField private final int impairDuration = Tick.fromSecond(2);
 
-    public ExtraCut() {
-        super("Throwing Knife");
+    public ExtraCut(@Nonnull DatabaseKey key) {
+        super(key, "Throwing Knife");
 
         setDescription("""
                 Equip a &fthrowing knife&7.
-                                
+                
                 After a short &fcasting time&7, throw it forward, &cdamaging&7 the first &cenemy&7 it hits and &eimpairing&7 their &3movement&7.
-                """);
+                """
+        );
 
         setItem(Material.IRON_SWORD);
         setType(TalentType.DAMAGE);

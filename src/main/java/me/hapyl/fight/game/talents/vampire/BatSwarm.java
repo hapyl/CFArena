@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.vampire;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -22,8 +23,13 @@ public class BatSwarm extends Talent {
 
     @DisplayField private final short batCount = 15; // each hit removes 1 bat
 
-    public BatSwarm() {
-        super("Swarm", "Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration.");
+    public BatSwarm(@Nonnull DatabaseKey key) {
+        super(key, "Swarm");
+
+        setDescription("""
+                Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration.
+                """
+        );
 
         setItem(Material.FLINT);
         setDurationSec(5);

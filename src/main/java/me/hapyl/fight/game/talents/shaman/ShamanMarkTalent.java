@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -42,19 +43,19 @@ public class ShamanMarkTalent extends Talent {
 
     private final PlayerMap<ShamanMark> shamanMarkMap = PlayerMap.newMap();
 
-    public ShamanMarkTalent() {
-        super("Shaman's Mark");
+    public ShamanMarkTalent(@Nonnull DatabaseKey key) {
+        super(key, "Shaman's Mark");
 
         setDescription("""
                 Launch a projectile forward that travels up to &b{maxProjectileDistance}&7.
-                                
+                
                 If the projectile hits an &aally&7, it applies the &6Shaman's Mark&7 onto them.
-                                
+                
                 &6Shaman's Mark
                 While active, increases %s, %s and %s.
-                                
+                
                 The mark exists &nindefinitely&7 as long as the &aally&7 is within the &bline of sight&7.
-                                
+                
                 &8;;Only one mark can exist on a single ally at any given time.
                 &8;;Marks from different Shamans don't stack.
                 """.formatted(AttributeType.SPEED, AttributeType.ATTACK, AttributeType.ATTACK_SPEED));

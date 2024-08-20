@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.harbinger;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -8,8 +9,8 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -34,17 +35,18 @@ public class MeleeStance extends Talent {
             .setDescription("A blade forged from pure water.")
             .setDamage(8.0d);
 
-    public MeleeStance() {
-        super("Melee Stance");
+    public MeleeStance(@Nonnull DatabaseKey key) {
+        super(key, "Melee Stance");
 
-        addDescription("""
+        setDescription("""
                 Enter %1$s for maximum of &b{maxDuration}&7 to replace your bow with %2$s!
                 &8;;Also gain a Crit Chance increase while in this stance.
-                                
+                
                 Use again in %1$s to get your bow back.
-                                
+                
                 &8;;The longer you're in Melee Stance, the longer the cooldown of this ability.
-                """, Named.STANCE_MELEE, abilityItem.getName());
+                """.formatted(Named.STANCE_MELEE, abilityItem.getName())
+        );
 
         setType(TalentType.ENHANCE);
         setItem(Material.IRON_INGOT);
@@ -130,7 +132,7 @@ public class MeleeStance extends Talent {
         player.setItemAndSnap(HotbarSlots.WEAPON, data.getOriginalWeapon());
 
         // Fx
-        player.sendMessage("&aMelee Stance is on cooldown for &l%s&a!", CFUtils.formatTick(cooldown));
+        player.sendMessage("&aMelee Stance is on cooldown for &l%s&a!".formatted(CFUtils.formatTick(cooldown)));
         player.playSound(Sound.ENTITY_ARROW_SHOOT, 0.75f);
         player.sendTitle("&2🏹", "", 5, 15, 5);
     }

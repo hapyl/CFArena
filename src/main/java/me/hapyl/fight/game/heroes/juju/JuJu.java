@@ -2,6 +2,8 @@ package me.hapyl.fight.game.heroes.juju;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -12,19 +14,16 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.juju.ArrowShield;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
@@ -333,18 +332,18 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     @Override
     @Nonnull
     public ArrowShield getFirstTalent() {
-        return (ArrowShield) Talents.ARROW_SHIELD.getTalent();
+        return TalentRegistry.ARROW_SHIELD;
     }
 
     @Override
     @Nonnull
     public TricksOfTheJungle getSecondTalent() {
-        return (TricksOfTheJungle) Talents.TRICKS_OF_THE_JUNGLE.getTalent();
+        return TalentRegistry.TRICKS_OF_THE_JUNGLE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.JUJU_PASSIVE.getTalent();
+        return TalentRegistry.JUJU_PASSIVE;
     }
 
     @Nullable
@@ -387,7 +386,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     private class JujuUltimate extends UltimateTalent {
         public JujuUltimate() {
-            super(ArrowType.POISON_IVY.getName(), 60);
+            super(JuJu.this, ArrowType.POISON_IVY.getName(), 60);
 
             setType(TalentType.IMPAIR);
             setItem(Material.SPIDER_EYE);
@@ -396,7 +395,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
             // Keep below duration
             setDescription(ArrowType.POISON_IVY.getTalentDescription(this));
 
-            copyDisplayFieldsFrom(Talents.POISON_ZONE.getTalent());
+            copyDisplayFieldsFrom(TalentRegistry.POISON_ZONE);
         }
 
         @Nonnull

@@ -25,7 +25,7 @@ public class ImpelInstance extends Instance<Bloodfiend> {
             player.sendMessage("&cNo one to impel!");
         }
         else {
-            player.sendMessage("&eImpelled %s enemies!", targets.size());
+            player.sendMessage("&eImpelled %s enemies!".formatted(targets.size()));
         }
     }
 
@@ -56,11 +56,10 @@ public class ImpelInstance extends Instance<Bloodfiend> {
             public void onFail(GamePlayer player) {
                 player.damage(instance.impelDamage, ImpelInstance.this.player, EnumDamageCause.IMPEL);
 
-                player.sendMessage(
-                        "&6&l🦇 &eFailed to obey %s's command! &c-%s &c❤",
+                player.sendMessage("&6&l🦇 &eFailed to obey %s's command! &c-%s &c❤".formatted(
                         ImpelInstance.this.player.getName(),
                         (int) instance.impelDamage
-                );
+                ));
 
                 player.sendSubtitle("&eImpel: &4&lFAILED! &c-%s ❤".formatted((int) instance.impelDamage), 0, 20, 5);
 

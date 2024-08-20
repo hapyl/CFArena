@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -34,12 +35,15 @@ public class Irden extends Talent {
             1
     );
 
-    public Irden() {
-        super("Yrden", """
+    public Irden(@Nonnull DatabaseKey key) {
+        super(key, "Yrden");
+
+        setDescription("""
                 Creates &dYrden&7 aura at your current location.
-                                
+                
                 &cEnemies&7 &ninside&7 the aura are &eimpaired&7 and aren't affected by &3knockback&7.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.POPPED_CHORUS_FRUIT);

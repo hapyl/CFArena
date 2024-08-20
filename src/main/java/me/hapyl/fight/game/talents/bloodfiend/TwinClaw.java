@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -15,7 +14,7 @@ import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.Type;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -24,9 +23,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnull;
-
-public class TwinClaw extends TickingGameTask implements TalentReference<TwinClaws> {
+public class TwinClaw extends TickingGameTask {
 
     private final static DisplayData DISPLAY_DATA = BlockStudioParser.parse(
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[0.6250f,0.0000f,0.0000f,-0.3125f,0.0000f,0.6875f,0.0000f,2.0000f,0.0000f,0.0000f,0.5000f,0.1250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_terracotta\",Properties:{}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.8125f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:terracotta\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.2210f,-0.4419f,2.8750f,0.0000f,0.2210f,0.4419f,-0.1250f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
@@ -88,7 +85,7 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
             return;
         }
 
-        final TwinClaws talent = getTalent();
+        final TwinClaws talent = TalentRegistry.TWIN_CLAWS;
         double damage = talent.twinClawDamage;
 
         if (nearestEntity instanceof GamePlayer gamePlayer) {
@@ -123,11 +120,5 @@ public class TwinClaw extends TickingGameTask implements TalentReference<TwinCla
 
         // Fx
         player.spawnWorldParticle(location, Particle.POOF, 20, 0.5d, 0.6d, 0.5d, 0.1f);
-    }
-
-    @Nonnull
-    @Override
-    public TwinClaws getTalent() {
-        return Talents.TWIN_CLAWS.getTalent(TwinClaws.class);
     }
 }

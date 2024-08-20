@@ -1,26 +1,28 @@
 package me.hapyl.fight.game.heroes.doctor;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -120,17 +122,17 @@ public class DrEd extends Hero implements UIComponent {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.CONFUSION_POTION.getTalent();
+        return TalentRegistry.CONFUSION_POTION;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.HARVEST.getTalent();
+        return TalentRegistry.HARVEST;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.BLOCK_SHIELD.getTalent();
+        return TalentRegistry.BLOCK_SHIELD;
     }
 
     @Nonnull
@@ -151,11 +153,12 @@ public class DrEd extends Hero implements UIComponent {
 
     private class DrEdUltimate extends UltimateTalent {
         public DrEdUltimate() {
-            super("Upgrades People, Upgrades!", 70);
+            super(DrEd.this, "Upgrades People, Upgrades!", 70);
 
             setDescription("""
                     Grants Dr. Ed an upgraded version of &a%s&7 for {duration} that is capable of capturing entities' flesh and energy, allowing manipulating them.
-                    """.formatted(getWeapon().getName()));
+                    """.formatted(getWeapon().getName())
+            );
 
             setType(TalentType.IMPAIR);
             setItem(Material.GOLDEN_HORSE_ARMOR);

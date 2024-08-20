@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shark;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -21,12 +22,13 @@ public class SubmergeTalent extends Talent {
             .decrease(AttributeType.HEIGHT, 1.0)
             .decrease(AttributeType.SPEED, 1.0);
 
-    public SubmergeTalent() {
-        super("Submerge");
+    public SubmergeTalent(@Nonnull DatabaseKey key) {
+        super(key, "Submerge");
 
         setDescription("""
                 Swiftly &bsubmerge&7 underground and &bdash forward&7, revealing a &cfierce &3shark fin&7 that deals &cdamage&7 and &eimpairs&7 hit &cenemies&7.
-                """);
+                """
+        );
 
         setItem(Material.PRISMARINE_SHARD);
         setDuration(20);

@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.ninja;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -10,19 +12,19 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.ninja.NinjaSmoke;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.MaterialCooldown;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -105,11 +107,16 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         player.setAllowFlight(true);
     }
 
+    @Override
+    public void onPlayerRespawned(@Nonnull GamePlayer player) {
+        onPlayersRevealed(player);
+    }
+
     @EventHandler()
     public void handleDoubleJump(PlayerToggleFlightEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (player == null || !validatePlayer(player) || hasCooldown(player)) {
+        if (!validatePlayer(player) || hasCooldown(player)) {
             return;
         }
 
@@ -175,17 +182,17 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.NINJA_DASH.getTalent();
+        return TalentRegistry.NINJA_DASH;
     }
 
     @Override
     public NinjaSmoke getSecondTalent() {
-        return (NinjaSmoke) Talents.NINJA_SMOKE.getTalent();
+        return TalentRegistry.NINJA_SMOKE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.FLEET_FOOT.getTalent();
+        return TalentRegistry.FLEET_FOOT;
     }
 
     @Nonnull
@@ -223,11 +230,12 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     private class NinjaUltimate extends UltimateTalent {
         public NinjaUltimate() {
-            super("Throwing Stars", 70);
+            super(Ninja.this, "Throwing Stars", 70);
 
             setDescription("""
                     Equip &b5&7 dead-accurate &6throwing stars&7 that deal &c%.0f&7 damage upon hitting an enemy.
-                    """.formatted(ultimateDamage));
+                    """.formatted(ultimateDamage)
+            );
 
             setItem(Material.NETHER_STAR);
             setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f);

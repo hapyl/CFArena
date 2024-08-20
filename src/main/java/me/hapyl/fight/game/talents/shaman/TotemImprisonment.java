@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -16,12 +17,13 @@ public class TotemImprisonment extends Talent {
 
     @DisplayField protected final short height = 3;
 
-    public TotemImprisonment() {
-        super("Imprisonment");
+    public TotemImprisonment(@Nonnull DatabaseKey key) {
+        super(key, "Imprisonment");
 
         setDescription("""
                 Imprison the &etarget&7 &cenemy&7 in a stone cage, preventing them from moving.
-                """);
+                """
+        );
 
         setItem(Material.COBBLESTONE_WALL);
         setType(TalentType.IMPAIR);
@@ -40,7 +42,8 @@ public class TotemImprisonment extends Talent {
         }
 
         if (target.hasEffectResistanceAndNotify()) {
-            player.sendMessage(AttributeType.EFFECT_RESISTANCE.getCharacter() + " %s has resisted your %s!".formatted(target.getName(), getName()));
+            player.sendMessage(
+                    AttributeType.EFFECT_RESISTANCE.getCharacter() + " %s has resisted your %s!".formatted(target.getName(), getName()));
             return Response.OK;
         }
 

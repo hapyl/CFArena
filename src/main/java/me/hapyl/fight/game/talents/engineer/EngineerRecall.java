@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.engineer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -16,8 +17,8 @@ public class EngineerRecall extends Talent {
 
     @DisplayField(percentage = true) private final double regainPercent = 0.5d;
 
-    public EngineerRecall() {
-        super("Recall");
+    public EngineerRecall(@Nonnull DatabaseKey key) {
+        super(key, "Recall");
 
         setDescription("""
                 Destroy the &ncurrent&7 Construct and regain {regainPercent} of its total cost.

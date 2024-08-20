@@ -202,8 +202,8 @@ public enum EnumLevel implements Selectable {
 
     private final Level level;
 
-    EnumLevel(@Nonnull String name, @Nonnull EnumHandleFunction.Consumer<EnumLevel, Level> consumer) {
-        this(e -> consumer.apply(new Level(e, name)));
+    EnumLevel(@Nonnull String name, @Nonnull EnumHandleFunction.Handler<EnumLevel, Level> handler) {
+        this(e -> handler.apply(new Level(e, name)));
     }
 
     EnumLevel(@Nonnull EnumHandleFunction<EnumLevel, Level> function) {

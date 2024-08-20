@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
@@ -19,11 +20,12 @@ public class Spear extends Talent {
     @DisplayField private final double radius = 1.5d;
     @DisplayField private final double damage = 4.0d;
 
-    public Spear() {
-        super(
-                "Spear",
-                "A knight without a spear is not a knight! Use your spear to dash forward and damage opponents on the way."
-        );
+    public Spear(@Nonnull DatabaseKey key) {
+        super(key, "Spear");
+
+        setDescription("""
+                A knight without a spear is not a knight! Use your spear to dash forward and damage opponents on the way.
+                """);
 
         setItem(Material.TIPPED_ARROW, builder -> builder.setPotionColor(Color.GRAY));
         setDuration(15);

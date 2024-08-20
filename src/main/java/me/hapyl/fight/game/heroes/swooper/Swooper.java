@@ -10,14 +10,12 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -103,14 +101,14 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
                 data.lastButt = 5;
 
                 entity.setVelocity(vector);
-                Talents.AKCIY.getTalent(Akciy.class).stun(entity, stunDuration);
+                TalentRegistry.AKCIY.stun(entity, stunDuration);
 
                 // Fx
                 entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);
             }
         }
 
-        if (!data.isHighlighted(entity)) {
+        if (!data.isHighlighted(entity) || cause != EnumDamageCause.RIFLE) {
             return;
         }
 
@@ -216,17 +214,17 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.BLAST_PACK.getTalent();
+        return TalentRegistry.BLAST_PACK;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SWOOPER_SMOKE_BOMB.getTalent();
+        return TalentRegistry.SWOOPER_SMOKE_BOMB;
     }
 
     @Override
     public SwooperPassive getPassiveTalent() {
-        return (SwooperPassive) Talents.SWOOPER_PASSIVE.getTalent();
+        return (SwooperPassive) TalentRegistry.SWOOPER_PASSIVE;
     }
 
     @Nonnull
@@ -235,6 +233,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         return playerData;
     }
 
+    @Nonnull
     @Override
     public SwooperUltimate getUltimate() {
         return (SwooperUltimate) super.getUltimate();
@@ -246,15 +245,15 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         @DisplayField public final double ultimateDamageMultiplier = 2.5d;
 
         public SwooperUltimate() {
-            super("Echolocation", 60);
+            super(Swooper.this, "Echolocation", 60);
 
             setDescription("""
                     Instantly cast a &awave&7 outwards that &bscans&7 for enemies.
-                                    
+                    
                     After a short delay, &bhighlight&7 all hit &cenemies&7.
-                                    
+                    
                     Also, gain &4&l🧨 &cOvercharge&7 shots, that have &aincreased &cdamage&7 and can &nshoot&7 &nthrough&7 walls.
-                                    
+                    
                     &8;;Ultimate is considered as active until all Overcharge shots are fired.
                     """);
 

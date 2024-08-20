@@ -4,7 +4,7 @@ import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 
 import javax.annotation.Nonnull;
@@ -19,7 +19,7 @@ public class Echo extends Hero implements Disabled {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.ECHO.getTalent();
+        return TalentRegistry.ECHO;
     }
 
     @Override

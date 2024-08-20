@@ -576,13 +576,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         // This is kinda hardcoded, but I don't care
         else if (isUltimateReady()) {
             if (ultimate instanceof OverchargeUltimateTalent && energyPercent >= 1.0d) {
+                final double percentToOvercharged = energy / ultimate.getCost();
+
                 // Overcharged
-                if (energyPercent == 2.0d) {
+                if (percentToOvercharged == 1.0d) {
                     return "&d&k| " + (color.getColor(true) + "&lOVERCHARGED!") + " &d&k|";
                 }
 
                 // Display percentage to overcharged
-                return (color.getColor(false) + "&lCHARGED &b(&d&l%.0f%%&b)").formatted((energyPercent - 1) * 100);
+                return (color.getColor(false) + "&lCHARGED &b(&d&l%.0f%%&b)").formatted(percentToOvercharged * 100);
             }
 
             return color.getColor(false) + "&lCHARGED";
@@ -767,9 +769,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return;
         }
 
+        final double previousEnergy = this.energy;
         this.energy = Numbers.clamp(energy + energyScaled, 0, ultimateCost);
 
-        ultimate.atEnergy(this, this.energy);
+        ultimate.atEnergy(this, previousEnergy, this.energy);
     }
 
     /**
@@ -925,6 +928,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         entity.teleport(location);
 
         addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
+
+        ElementCaller.CALLER.onPlayerRespawned(this);
     }
 
     public int getUltimateCost() {
@@ -935,8 +940,30 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return energy;
     }
 
+    /**
+     * @param energy - Energy to set.
+     * @see #addEnergy(int)
+     * @see #removeEnergy(double, GamePlayer)
+     * @deprecated Don't directly set energy unless you know what you're doing.
+     */
+    @Deprecated
     public void setEnergy(double energy) {
-        this.energy = energy;
+        this.energy = Math.clamp(energy, 0, getUltimateCost());
+    }
+
+    /**
+     * Removes the given amount of energy from this player.
+     *
+     * @param energyToRemove - Amount of energy to remove.
+     * @param remover        - Player who removed the energy.
+     *                       If present, the player will be added to assisting players.
+     */
+    public void removeEnergy(double energyToRemove, @Nullable GamePlayer remover) {
+        this.energy = Math.max(0, this.energy - energyToRemove);
+
+        if (remover != null) {
+            this.entityData.addAssistingPlayer(remover);
+        }
     }
 
     public boolean compare(GamePlayer gamePlayer) {
@@ -1619,6 +1646,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return consumer.apply(clazz.cast(skin));
     }
 
+    /**
+     * Gets or computes the {@link PlayerData} for the given {@link Hero}.
+     *
+     * @param hero - Hero.
+     * @param <D>  - Data type.
+     * @return player data.
+     */
     @Nonnull
     public <D extends PlayerData, H extends Hero & PlayerDataHandler<D>> D getPlayerData(@Nonnull H hero) {
         return hero.getPlayerData(this);

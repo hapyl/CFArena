@@ -8,13 +8,15 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -122,26 +124,27 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.PARANOIA.getTalent();
+        return TalentRegistry.PARANOIA;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SHADOW_SHIFT.getTalent();
+        return TalentRegistry.SHADOW_SHIFT;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.IN_THE_SHADOWS.getTalent();
+        return TalentRegistry.IN_THE_SHADOWS;
     }
 
     private class NightmareUltimate extends UltimateTalent {
         public NightmareUltimate() {
-            super("Your Worst Nightmare", 55);
+            super(Nightmare.this, "Your Worst Nightmare", 55);
 
             setDescription("""
                     Applies the &4👻 &c&lOmen&7 to all living opponents for {duration}.
-                    """);
+                    """
+            );
 
             setType(TalentType.IMPAIR);
             setItem(Material.BLACK_DYE);
@@ -161,7 +164,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
                 player.sendMessage("&4👻 &cOmen didn't affect anything!");
             }
             else {
-                player.sendMessage("&4👻 &aOmen affected %s enemies!", enemiesSize);
+                player.sendMessage("&4👻 &aOmen affected %s enemies!".formatted(enemiesSize));
             }
 
             enemies.forEach(enemy -> debuff.setOmen(enemy, getUltimateDuration()));

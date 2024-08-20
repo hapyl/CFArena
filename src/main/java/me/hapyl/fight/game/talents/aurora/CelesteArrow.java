@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.aurora;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.particle.ParticleDrawer;
-import me.hapyl.fight.util.particle.ParticleSpellMob;
 import me.hapyl.fight.util.particle.Particles;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.*;
@@ -28,8 +27,8 @@ public class CelesteArrow extends AuroraArrowTalent {
     private final BlockData blockData = Material.GREEN_GLAZED_TERRACOTTA.createBlockData();
     private ParticleDrawer fxParticle;
 
-    public CelesteArrow() {
-        super("Celeste Arrows", ChatColor.GREEN, 4);
+    public CelesteArrow(@Nonnull DatabaseKey key) {
+        super(key, "Celeste Arrows", ChatColor.GREEN, 4);
 
         setDescription("""
                 Equip {name} that &aheal&7 hit &bentities.

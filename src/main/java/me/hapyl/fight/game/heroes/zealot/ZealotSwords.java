@@ -22,13 +22,13 @@ import java.util.function.Consumer;
 public class ZealotSwords extends PlayerGameTask implements Removable, MaterialCooldown {
 
     private final GamePlayer player;
-    private final ZealotUltimate ultimate;
+    private final Zealot.ZealotUltimate ultimate;
     private final Giant[] giants;
 
     private int tick;
     private boolean swing;
 
-    public ZealotSwords(GamePlayer player, ZealotUltimate ultimate) {
+    public ZealotSwords(GamePlayer player, Zealot.ZealotUltimate ultimate) {
         super(player);
 
         this.player = player;

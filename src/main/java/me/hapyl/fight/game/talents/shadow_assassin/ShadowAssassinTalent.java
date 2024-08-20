@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -11,19 +11,19 @@ import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 
-public abstract class ShadowAssassinTalent extends Talent implements HeroReference<ShadowAssassin> {
+public abstract class ShadowAssassinTalent extends Talent {
 
     protected ShadowAssassinModeSpecificTalent stealthTalent;
     protected FuryTalent furyTalent;
 
-    public ShadowAssassinTalent(@Nonnull String name) {
-        super(name);
+    public ShadowAssassinTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+        super(key, name);
     }
 
     public final Response execute(@Nonnull GamePlayer player) {
         final ShadowAssassinData data = getData(player);
         final AssassinMode mode = data.getMode();
-        final ShadowAssassin hero = getHero();
+        final ShadowAssassin hero = HeroRegistry.SHADOW_ASSASSIN;
 
         final Response response = mode == AssassinMode.STEALTH ? stealthTalent.execute1(player, hero) : furyTalent.execute1(player, hero);
 
@@ -36,14 +36,8 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
     }
 
     @Nonnull
-    @Override
-    public ShadowAssassin getHero() {
-        return HeroRegistry.SHADOW_ASSASSIN;
-    }
-
-    @Nonnull
     public ShadowAssassinData getData(GamePlayer player) {
-        return getHero().getData(player);
+        return HeroRegistry.SHADOW_ASSASSIN.getData(player);
     }
 
     protected void setTalents(@Nonnull ShadowAssassinModeSpecificTalent stealthTalent, @Nonnull FuryTalent furyTalent) {
@@ -54,7 +48,7 @@ public abstract class ShadowAssassinTalent extends Talent implements HeroReferen
                 &9&lWhile in Stealth mode:
                 %s
                 &b• Cooldown: &f%s
-                                
+                
                 &c&lWhile in Fury mode:
                 %s
                 &b• Cooldown: &f%s

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -45,18 +46,19 @@ public class Icicles extends Talent {
             new ItemStack(Material.BLUE_ICE)
     };
 
-    public Icicles() {
-        super("Frostfall");
+    public Icicles(@Nonnull DatabaseKey key) {
+        super(key, "Frostfall");
 
         setDescription("""
                 Summon a bunch of icicles at your &etarget&7 enemy.
                 &8;;If there are no target enemies, the icicles will spawn in front of you.
-                                
+                
                 After a short delay, the icicles fall down, dealing &cAoE damage&7 and:
                 └ Decreases %s by &b{critChanceReduction}&7.
                 └ Decreases %s by &b{critDamageReduction}&7.
                 └ Decreases %s by &b{attackReduction}&7.
-                """, AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE, AttributeType.ATTACK);
+                """.formatted(AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE, AttributeType.ATTACK)
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.ICE);

@@ -2,26 +2,28 @@ package me.hapyl.fight.game.heroes.vampire;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.GUI;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.Race;
 import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.GUI;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -132,7 +134,11 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
                     getFirstTalent().stopCd(player);
                     getSecondTalent().stopCd(player);
 
-                    player.sendMessage("&4&l❧ &4Blood Pool refreshed &c%s &4%s &c%s&4!", bloodAtUse, GUI.ARROW_FORWARD, bloodAfterUse);
+                    player.sendMessage("&4&l❧ &4Blood Pool refreshed &c%s &4%s &c%s&4!".formatted(
+                            bloodAtUse,
+                            GUI.ARROW_FORWARD,
+                            bloodAfterUse
+                    ));
 
                     hitEntities.clear();
                     this.cancel();
@@ -160,17 +166,17 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.VAMPIRE_PET.getTalent();
+        return TalentRegistry.VAMPIRE_PET;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.BAT_SWARM.getTalent();
+        return TalentRegistry.BAT_SWARM;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.BLOOD_THIRST.getTalent();
+        return TalentRegistry.BLOOD_THIRST;
     }
 
     @Override
@@ -239,12 +245,11 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Disab
         final int duration = getDuration(data.getBlood());
 
         data.setDamageMultiplier(damageMultiplier, duration);
-        player.sendMessage(
-                "&c&lBLOOD! &a+&l%s &a❤ &7and &4+&l%s%% &4Damage &7for %ss!",
+        player.sendMessage("&c&lBLOOD! &a+&l%s &a❤ &7and &4+&l%s%% &4Damage &7for %ss!".formatted(
                 health,
                 damageMultiplier,
                 BukkitUtils.roundTick(duration)
-        );
+        ));
 
         player.setCooldown(Material.REDSTONE, duration + 80);
         player.heal(health);

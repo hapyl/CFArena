@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.healer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -10,8 +11,8 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 
 public class HealingOrb extends InputTalent {
-    public HealingOrb() {
-        super("Healing Aura");
+    public HealingOrb(@Nonnull DatabaseKey key) {
+        super(key, "Healing Aura");
 
         setItem(Material.NETHER_WART);
 
@@ -28,7 +29,7 @@ public class HealingOrb extends InputTalent {
             return Response.error("No valid target!");
         }
 
-        player.sendMessage("&aHealed %s!", target.getName());
+        player.sendMessage("&aHealed %s!".formatted(target.getName()));
 
         return Response.OK;
     }

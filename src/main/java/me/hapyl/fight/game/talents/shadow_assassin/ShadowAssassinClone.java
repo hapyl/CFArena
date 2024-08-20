@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -38,8 +39,8 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
 
     private final PlayerMap<PlayerCloneList> clones = PlayerMap.newMap();
 
-    public ShadowAssassinClone() {
-        super("Shadow Clone");
+    public ShadowAssassinClone(@Nonnull DatabaseKey key) {
+        super(key, "Shadow Clone");
 
         setType(TalentType.IMPAIR);
         setItem(Material.DRAGON_EGG);

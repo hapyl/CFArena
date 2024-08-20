@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
@@ -15,8 +16,13 @@ public class Aard extends Talent {
 
     @DisplayField private final double radius = 4.0d;
 
-    public Aard() {
-        super("Aard", "Creates a &nsmall explosion&7 in front of you that &bpushes &cenemies&7 away.");
+    public Aard(@Nonnull DatabaseKey key) {
+        super(key, "Aard");
+
+        setDescription("""
+                Creates a &nsmall explosion&7 in front of you that &bpushes &cenemies&7 away.
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.HEART_OF_THE_SEA);

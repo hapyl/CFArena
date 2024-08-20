@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.aurora;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -18,8 +19,8 @@ public abstract class AuroraArrowTalent extends Talent {
     private final int maxArrows;
     private final ChatColor color;
 
-    public AuroraArrowTalent(@Nonnull String name, @Nonnull ChatColor color, int maxArrows) {
-        super(name);
+    public AuroraArrowTalent(@Nonnull DatabaseKey key, @Nonnull String name, @Nonnull ChatColor color, int maxArrows) {
+        super(key, name);
 
         this.maxArrows = maxArrows;
         this.color = color;

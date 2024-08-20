@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.tamer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,12 +20,13 @@ public class TamingTheEarth extends Talent implements TamerTimed {
 
     @DisplayField private final double radius = 5.0d;
 
-    public TamingTheEarth() {
-        super("Taming the Earth");
+    public TamingTheEarth(@Nonnull DatabaseKey key) {
+        super(key, "Taming the Earth");
 
         setDescription("""
                 Lower nearby enemies below the baseboard, &eimpairing&7 their movement.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.PISTON);

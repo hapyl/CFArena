@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,8 +20,13 @@ public class Kven extends Talent {
 
     private final PlayerMap<Integer> shieldCharges = PlayerMap.newMap();
 
-    public Kven() {
-        super("Quen", "Applies &ntwo charges&7 of Quen shield that &8blocks&7 any damage.");
+    public Kven(@Nonnull DatabaseKey key) {
+        super(key, "Quen");
+
+        setDescription("""
+                Applies &ntwo charges&7 of Quen shield that &8blocks&7 any damage.
+                """
+        );
 
         setType(TalentType.DEFENSE);
         setItem(Material.FLOWER_POT);
@@ -41,11 +47,11 @@ public class Kven extends Talent {
         if (getShieldCharge(player) <= 0) {
             shieldCharges.remove(player);
 
-            player.sendMessage("&aYour &l%s &ashield has broke!", getName());
+            player.sendMessage("&aYour &l%s &ashield has broke!".formatted(getName()));
             player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.5f);
         }
         else {
-            player.sendMessage("&aOne of your &l%s &ashields broke!", getName());
+            player.sendMessage("&aOne of your &l%s &ashields broke!".formatted(getName()));
             player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
         }
     }
@@ -89,7 +95,7 @@ public class Kven extends Talent {
         }.runTaskTimer(0, 1);
 
         // Fx
-        player.sendMessage("&a%s Shields have been activated!", getName());
+        player.sendMessage("&a%s Shields have been activated!".formatted(getName()));
         player.playSound(Sound.BLOCK_BELL_RESONATE, 2.0f);
 
         return Response.OK;

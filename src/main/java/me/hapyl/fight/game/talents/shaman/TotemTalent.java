@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,15 +27,16 @@ public class TotemTalent extends InputTalent {
 
     private final PlayerMap<LinkedList<Totem>> playerTotems = PlayerMap.newMap();
 
-    public TotemTalent() {
-        super("Totem");
+    public TotemTalent(@Nonnull DatabaseKey key) {
+        super(key, "Totem");
 
         setDescription("""
                 Equip a &aTotem&7 and prepare to toss it.
-                                
+                
                 After a &aTotem&7 lands, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
                 &8;;There is a small chance for totem to explode violently.
-                """);
+                """
+        );
 
         leftData.setAction("Resonate Discord");
         leftData.setType(TalentType.DAMAGE);

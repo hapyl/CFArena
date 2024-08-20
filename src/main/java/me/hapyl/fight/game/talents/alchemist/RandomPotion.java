@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.alchemist;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -25,12 +26,13 @@ public class RandomPotion extends Talent {
     @DisplayField private final short toxinAccumulation = 12;
     @DisplayField private final int effectDuration = 60;
 
-    public RandomPotion() {
-        super(
-                "Abyssal Bottle", """
-                        A bottle that is capable of creating potions from the &0&lvoid &7itself.
-                        Drink to gain random positive effect.
-                        """
+    public RandomPotion(@Nonnull DatabaseKey key) {
+        super(key, "Abyssal Bottle");
+
+        setDescription("""
+                A bottle that is capable of creating potions from the &0&lvoid &7itself.
+                Drink to gain random positive effect.
+                """
         );
 
         setType(TalentType.ENHANCE);
@@ -86,14 +88,13 @@ public class RandomPotion extends Talent {
             secondEffect.applyEffectsIgnoreFx(player);
 
             // Display Improved
-            player.sendMessage("&e☕ &a&lDouble Potion has %s changes left", effect.getDoublePotion());
-            player.sendMessage(
-                    " &aGained %s &a%s &aand %s &a%s",
+            player.sendMessage("&e☕ &a&lDouble Potion has %s changes left".formatted(effect.getDoublePotion()));
+            player.sendMessage(" &aGained %s &a%s &aand %s &a%s".formatted(
                     firstEffect.getChar(),
                     firstEffect.getName(),
                     secondEffect.getChar(),
                     secondEffect.getName()
-            );
+            ));
 
             player.sendTitle(
                     "&a%s      &a%s".formatted(firstEffect.getChar(), secondEffect.getChar()),

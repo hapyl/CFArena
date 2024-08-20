@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -23,12 +24,15 @@ public class IceCageTalent extends Talent implements Listener {
     protected final PlayerMap<IceCage> iceCageMap = PlayerMap.newMap();
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
 
-    public IceCageTalent() {
-        super("Ice Cage", """
+    public IceCageTalent(@Nonnull DatabaseKey key) {
+        super(key, "Ice Cage");
+
+        setDescription("""
                 Launch a &bsnowball&7 in front of you.
-                                     
+                
                 Upon hitting an entity, immobilize and cage them in ice.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.SNOWBALL);

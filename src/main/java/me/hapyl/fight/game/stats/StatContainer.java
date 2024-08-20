@@ -2,7 +2,7 @@ package me.hapyl.fight.game.stats;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import org.bukkit.entity.Player;
 
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class StatContainer extends NonNullableElementHolder<GamePlayer> {
 
-    private final Map<Talents, Long> abilityUsage;
+    private final Map<Talent, Long> abilityUsage;
     private final Map<StatType, Double> valueMap;
 
     private boolean winner;
@@ -26,7 +26,7 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
         winner = false;
     }
 
-    public void addAbilityUsage(Talents talent) {
+    public void addAbilityUsage(Talent talent) {
         abilityUsage.compute(talent, (a, b) -> b == null ? 1 : b + 1);
     }
 
@@ -51,7 +51,7 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
         return this.getElement().getPlayer();
     }
 
-    public Map<Talents, Long> getUsedAbilities() {
+    public Map<Talent, Long> getUsedAbilities() {
         return abilityUsage;
     }
 

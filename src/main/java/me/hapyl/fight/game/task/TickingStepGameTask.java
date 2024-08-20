@@ -18,6 +18,9 @@ public abstract class TickingStepGameTask extends TickingGameTask {
      */
     public abstract boolean tick(int tick);
 
+    public void onActualTick(int tick) {
+    }
+
     @Override
     public final void run(int tick) {
         for (int i = 0; i < steps; i++) {
@@ -26,6 +29,8 @@ public abstract class TickingStepGameTask extends TickingGameTask {
                 return;
             }
         }
+
+        onActualTick(tick);
     }
 
 }

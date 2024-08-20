@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.shark;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
@@ -14,7 +16,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -26,8 +28,6 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
@@ -155,17 +155,17 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.SUBMERGE.getTalent();
+        return TalentRegistry.SUBMERGE;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.WHIRLPOOL.getTalent();
+        return TalentRegistry.WHIRLPOOL;
     }
 
     @Override
     public SharkPassive getPassiveTalent() {
-        return (SharkPassive) Talents.SHARK_PASSIVE.getTalent();
+        return TalentRegistry.SHARK_PASSIVE;
     }
 
     @Nonnull
@@ -186,15 +186,16 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
         private final int maxDashTime = 100;
 
         public SharkUltimate() {
-            super("Ocean Madness", 60);
+            super(Shark.this, "Ocean Madness", 60);
 
             setDescription("""
                     Gather the water within and leap high in the air.
-                                        
+                    
                     After a short casting time, ride the wave forward rapidly, dealing massive %s upon landing.
-                                        
+                    
                     &8;;If you posses at least {minBloodThirst}, your amazing eyesight will mark hurt enemies.
-                    """.formatted(Terms.PIERCING_DAMAGE));
+                    """.formatted(Terms.PIERCING_DAMAGE)
+            );
 
             setItem(Material.WATER_BUCKET);
 

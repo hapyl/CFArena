@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.tamer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -18,17 +19,19 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
     @DisplayField private final double attackSpeedIncrease = 1.0d;
     @DisplayField private final double speedIncrease = 0.1d;
 
-    public TamingTheTime() {
-        super("Taming the Time");
+    public TamingTheTime(@Nonnull DatabaseKey key) {
+        super(key, "Taming the Time");
 
         setDescription("""
                 Equip concentrated time.
-                """);
+                """
+        );
 
         leftData.setAction("Impair Enemies");
         leftData.setDescription("""
                 Hinder all enemies by &eimpairing&7 their movement, decreasing their %s and %s.
-                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED);
+                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED
+        );
         leftData.setType(TalentType.IMPAIR);
         leftData.setDurationSec(3);
         leftData.setCooldownSec(30);
@@ -36,7 +39,8 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
         rightData.setAction("Accelerate");
         rightData.setDescription("""
                 Enhance yourself by increasing your %s and %s.
-                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED);
+                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED
+        );
         rightData.setType(TalentType.ENHANCE);
         rightData.copyDurationAndCooldownFrom(leftData);
 

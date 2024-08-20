@@ -158,7 +158,7 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     }
 
     private void sendError(GamePlayer player, String error, Object... format) {
-        player.sendMessage(ChatColor.RED + error, format);
+        player.sendMessage(ChatColor.RED + error.formatted(format));
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
     }
 

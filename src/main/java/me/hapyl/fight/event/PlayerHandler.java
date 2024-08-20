@@ -1008,7 +1008,7 @@ public class PlayerHandler implements Listener {
         // cooldown check
         if (talent.hasCd(player)) {
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                player.sendMessage("&cTalent on cooldown for %s.", CFUtils.formatTick(talent.getCdTimeLeft(player)));
+                player.sendMessage("&cTalent on cooldown for %s.".formatted(CFUtils.formatTick(talent.getCdTimeLeft(player))));
             }
             player.snapToWeapon();
             return false;

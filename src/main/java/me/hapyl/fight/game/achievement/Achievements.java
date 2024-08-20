@@ -13,6 +13,7 @@ public enum Achievements {
 
     PLAY_FIRST_GAME("So That's How It Is", "Play your very first game."),
     FIRST_BLOOD("First Blood", "Cause first blood in a game.__&8You or your team."),
+    OVERCHARGED("Overcharged!!!", "Use overcharged ultimate for the first time."),
 
     /////////////////////////
     // TIERED ACHIEVEMENTS //

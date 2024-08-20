@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
@@ -16,17 +16,8 @@ public abstract class InputTalent extends Talent {
     protected final InputTalentData leftData;
     protected final InputTalentData rightData;
 
-    public InputTalent(@Nonnull String name) {
-        this(name, Material.DIAMOND_SWORD);
-    }
-
-    public InputTalent(@Nonnull String name, @Nonnull Material material) {
-        this(name, material, TalentType.DAMAGE);
-    }
-
-    public InputTalent(@Nonnull String name, @Nonnull Material material, @Nonnull TalentType type) {
-        super(name, "null", type);
-        setItem(material);
+    protected InputTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+        super(key, name);
 
         leftData = new InputTalentData(true);
         rightData = new InputTalentData(false);
@@ -56,7 +47,7 @@ public abstract class InputTalent extends Talent {
     @Override
     public void appendLore(@Nonnull ItemBuilder builder) {
         builder.addTextBlockLore("""
-                                
+                
                 &e&lLEFT CLICK&e to %s
                 &8%s
                 %s

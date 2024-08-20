@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.km;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -22,12 +23,14 @@ public class ShellGrande extends Talent {
     private final int explosionDelay = 40;
 
     public ShellGrande() {
-        super("Grenade");
+        super(DatabaseKey.empty(), "Grenade");
+
         setDescription("""
                 Throw a grenade that bounces off walls. Explodes after &b{explosionDelay} &7ane deals AoE damage to nearby opponents.
-                                        
+                
                 &e&lSNEAK &7while throwing to toss closer.
-                """);
+                """
+        );
 
         setItem(Material.FIREWORK_STAR);
         setCooldownSec(11);

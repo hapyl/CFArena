@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -24,29 +25,33 @@ public class StarAligner extends InputTalent {
     @DisplayField private final int implodeDelay = 20;
     @DisplayField private final double damageHealthMultiplier = 2.0d;
 
-    public StarAligner() {
-        super("Astral Vision");
+    public StarAligner(@Nonnull DatabaseKey key) {
+        super(key, "Astral Vision");
 
-        setDescription("Enter astral vision state.");
+        setDescription("""
+                Enter astral vision state.
+                """);
 
         leftData.setAction("Implode");
         leftData.setDescription("""
                 Implode the &a&ntarget&e Astral Star&7, dealing &cAoE damage&7 based on the stars current &chealth&7.
-                                
+                
                 &c;;Imploding a star will &nnot&c return the sacrificed ❤!
-                """);
+                """
+        );
         leftData.setType(TalentType.DAMAGE);
         leftData.setCooldownSec(6);
 
         rightData.setAction("Link");
         rightData.setDescription("""
                 Link with the &a&ntarget&7 &eAstral Star&7, launching yourself towards it.
-                                
+                
                 While &ntraveling&7, leave an &6Astral Trail&7 that rapidly deals damage.
                 &8;;If the star is destroyed while traveling, stop traveling.
-                                
+                
                 Upon reaching the &eAstral Star&7, collect it, regain the &4sacrificed&c ❤&7 and &aheal&7 for its &nremaining&7 health.
-                """);
+                """
+        );
         rightData.setType(TalentType.MOVEMENT);
         rightData.setCooldownSec(1);
 
@@ -149,7 +154,7 @@ public class StarAligner extends InputTalent {
     }
 
     private AstralStar getTargetStar(GamePlayer player) {
-        final AstralStarList stars = Talents.VORTEX_STAR.getTalent(VortexStarTalent.class).getStars(player);
+        final AstralStarList stars = TalentRegistry.VORTEX_STAR.getStars(player);
 
         return stars.getTargetStar();
     }

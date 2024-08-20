@@ -39,7 +39,10 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class Weapon extends NonNullItemCreator implements Described, DisplayFieldProvider, Copyable, ElementHandler, PlayerElementHandler {
+public class Weapon
+        implements
+        Described, DisplayFieldProvider, Copyable,
+        ElementHandler, PlayerElementHandler, NonNullItemCreator {
 
     public static final int DEFAULT_BOW_COOLDOWN = 15;
 
@@ -51,6 +54,7 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
     private String description;
     private String lore;
     private String id;
+    private ItemStack item;
 
     public Weapon(@Nonnull Material material) {
         this(material, "Unnamed weapon.", "No description provided.", 1);
@@ -187,6 +191,16 @@ public class Weapon extends NonNullItemCreator implements Described, DisplayFiel
     public void give(LivingGameEntity entity) {
         final EntityEquipment equipment = entity.getEquipment();
         equipment.setItemInMainHand(getItem());
+    }
+
+    @Nonnull
+    @Override
+    public final ItemStack getItem() {
+        if (item == null) {
+            item = createItem();
+        }
+
+        return item;
     }
 
     @Nonnull

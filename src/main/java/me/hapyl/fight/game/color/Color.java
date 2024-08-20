@@ -99,7 +99,7 @@ public class Color {
     public static final Color ORANGE = new Color("#FFA500");
     public static final Color SUNSET = new Color("#f7622a");
     public static final Color SOFT_PINK = new Color("#FFB6C1");
-    public static final Color PASTEL_GREEN = new Color("#77DD77");
+    public static final Color PASTEL_GREEN = new Color("#77DD77", org.bukkit.ChatColor.GREEN);
     public static final Color LAVENDER = new Color("#E6E6FA");
     public static final Color LIGHT_BLUE = new Color("#ADD8E6");
 

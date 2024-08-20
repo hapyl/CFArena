@@ -3,21 +3,23 @@ package me.hapyl.fight.game.heroes.tamer;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.tamer.MineOBall;
 import me.hapyl.fight.game.talents.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.DrWitch;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
@@ -143,22 +145,22 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
     @Override
     public MineOBall getFirstTalent() {
-        return (MineOBall) Talents.MINE_O_BALL.getTalent();
+        return TalentRegistry.MINE_O_BALL;
     }
 
     @Override
     public TamingTheWind getSecondTalent() {
-        return (TamingTheWind) Talents.TAMING_THE_WIND.getTalent();
+        return TalentRegistry.TAMING_THE_WIND;
     }
 
     @Override
     public Talent getThirdTalent() {
-        return Talents.TAMING_THE_EARTH.getTalent();
+        return TalentRegistry.TAMING_THE_EARTH;
     }
 
     @Override
     public Talent getFourthTalent() {
-        return Talents.TAMING_THE_TIME.getTalent();
+        return TalentRegistry.TAMING_THE_TIME;
     }
 
     @Override
@@ -182,7 +184,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
     private class TamerUltimate extends UltimateTalent {
         public TamerUltimate() {
-            super("Improve! Overcome!", 50);
+            super(Tamer.this, "Improve! Overcome!", 50);
 
             setDescription("""
                     Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.

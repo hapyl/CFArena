@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.swooper;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -27,16 +28,17 @@ public class SmokeBomb extends Talent {
 
     private final double radiusScaled = (radius * radius) / 8.0d;
 
-    public SmokeBomb() {
-        super("Smoke Bomb");
+    public SmokeBomb(@Nonnull DatabaseKey key) {
+        super(key, "Smoke Bomb");
 
         setDescription("""
                 Throw a smoke bomb in front of you.
-                                
+                
                 Upon &nlanding&7, create a &8smoke field&7 that &8blinds&7 and &b&nhighlights&7 &cenemies&7.
-                                
+                
                 &8;;Also gain a small speed increase.
-                """);
+                """
+        );
 
         setType(TalentType.SUPPORT);
         setItem(Material.ENDERMITE_SPAWN_EGG);

@@ -10,10 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.talents.witcher.Irden;
 import me.hapyl.fight.game.talents.witcher.Kven;
 import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
@@ -126,33 +123,33 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.AARD.getTalent();
+        return TalentRegistry.AARD;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.IGNY.getTalent();
+        return TalentRegistry.IGNY;
     }
 
     @Override
     @Nonnull
     public Kven getThirdTalent() {
-        return (Kven) Talents.KVEN.getTalent();
+        return TalentRegistry.KVEN;
     }
 
     @Override
     public Talent getFourthTalent() {
-        return Talents.AKCIY.getTalent();
+        return TalentRegistry.AKCIY;
     }
 
     @Override
     public Talent getFifthTalent() {
-        return Talents.IRDEN.getTalent();
+        return TalentRegistry.IRDEN;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.COMBO_SYSTEM.getTalent();
+        return TalentRegistry.COMBO_SYSTEM;
     }
 
     @Override
@@ -163,14 +160,14 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
 
     private class WitcherUltimate extends UltimateTalent {
         public WitcherUltimate() {
-            super("All the Trainings", 80);
+            super(WitcherClass.this, "All the Trainings", 80);
 
             setDescription("""
                     Remember all your trainings and unleash them at once.
-                                            
+                    
                     Gaining a %1$s increase and the %2$s aura that follows you for {duration}.
                     &8;;After the duration ends, %3$s and %2$s start their cooldown.
-                    """.formatted(AttributeType.DEFENSE, Talents.IRDEN.getName(), Talents.KVEN.getName()));
+                    """.formatted(AttributeType.DEFENSE, TalentRegistry.IRDEN.getName(), TalentRegistry.KVEN.getName()));
 
             setType(TalentType.ENHANCE);
             setItem(Material.DRAGON_BREATH);
@@ -181,8 +178,8 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
             final EntityAttributes attributes = player.getAttributes();
-            final Kven kven = Talents.KVEN.getTalent(Kven.class);
-            final Irden irden = Talents.IRDEN.getTalent(Irden.class);
+            final Kven kven = TalentRegistry.KVEN;
+            final Irden irden = TalentRegistry.IRDEN;
 
             kven.startCd(player, 10000);
             irden.startCd(player, 10000);

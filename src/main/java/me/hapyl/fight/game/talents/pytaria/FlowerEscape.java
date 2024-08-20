@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.pytaria;
 import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -29,14 +30,17 @@ public class FlowerEscape extends Talent {
     @DisplayField private final double flowerDamage = 5.0d;
     @DisplayField private final int pulsePeriod = 20;
 
-    public FlowerEscape() {
-        super("Flower Escape", """
+    public FlowerEscape(@Nonnull DatabaseKey key) {
+        super(key, "Flower Escape");
+
+        setDescription("""
                 Throw a deadly flower at your current location and dash backwards.
-                                
+                
                 The flower will continuously pulse and deal damage to nearby players.
-                                        
+                
                 After the duration is over, it will explode dealing &bdouble&7 the damage.
-                """);
+                """
+        );
 
         setItem(Material.RED_TULIP);
         setCooldownSec(12);

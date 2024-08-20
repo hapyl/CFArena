@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.nightmare;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -18,15 +19,15 @@ import javax.annotation.Nonnull;
 
 public class Paranoia extends Talent {
 
-    public Paranoia() {
-        super(
-                "Paranoia",
+    public Paranoia(@Nonnull DatabaseKey key) {
+        super(key, "Paranoia");
+
+        setDescription("""
+                Launch a cloud of darkness in front of you that travels forward, applying &cOmen&7 to whoever it touches for {duration}.
+                
+                &4👻 &c&lOmen:
+                Enemies take more damage and suffer &e&lParanoia&7.
                 """
-                        Launch a cloud of darkness in front of you that travels forward, applying &cOmen&7 to whoever it touches for {duration}.
-                                                
-                        &4👻 &c&lOmen:
-                        Enemies take more damage and suffer &e&lParanoia&7.
-                        """
         );
 
         setType(TalentType.IMPAIR);

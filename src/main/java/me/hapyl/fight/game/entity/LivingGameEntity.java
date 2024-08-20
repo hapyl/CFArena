@@ -1346,6 +1346,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         AttributeTemperEvent.createDummyEvent(this, applier, false).call();
     }
 
+    public boolean isFullHealth() {
+        return getHealth() >= getMaxHealth();
+    }
+
     protected boolean isInvalidForFerocity() {
         return isDeadOrRespawning();
     }

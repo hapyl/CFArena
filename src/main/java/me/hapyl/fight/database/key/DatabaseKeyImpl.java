@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public final class DatabaseKeyImpl implements DatabaseKey {
 
+    @Nullable static DatabaseKey EMPTY;
+
     private final String key;
 
     DatabaseKeyImpl(@Nonnull String key) {
@@ -14,7 +16,14 @@ public final class DatabaseKeyImpl implements DatabaseKey {
 
     @Nonnull
     @Override
-    public String getKey() {
+    public String key() {
+        return key;
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public String toString() {
         return key;
     }
 
@@ -36,4 +45,5 @@ public final class DatabaseKeyImpl implements DatabaseKey {
     public int hashCode() {
         return Objects.hashCode(key);
     }
+
 }

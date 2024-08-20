@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.librarian;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -13,8 +14,8 @@ public abstract class LibrarianTalent extends Talent {
 
     protected Response ERROR = new Response(null, Response.Type.ERROR);
 
-    public LibrarianTalent(String name) {
-        super(name);
+    public LibrarianTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+        super(key, name);
 
         setAutoAdd(false);
         setAltUsage("You must use your grimoire to cast this spell!");
@@ -32,7 +33,7 @@ public abstract class LibrarianTalent extends Talent {
 
         if (response.isOk()) {
             HeroRegistry.LIBRARIAN.removeSpellItems(player, this);
-            player.sendMessage("&aUsed %s!", this.getName());
+            player.sendMessage("&aUsed %s!".formatted(this.getName()));
         }
 
         return response;

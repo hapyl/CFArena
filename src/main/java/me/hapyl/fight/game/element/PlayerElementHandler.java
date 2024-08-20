@@ -19,6 +19,10 @@ public interface PlayerElementHandler extends StrictPlayerElementHandler {
     }
 
     @Override
+    default void onPlayerRespawned(@Nonnull GamePlayer player) {
+    }
+
+    @Override
     default void onDeath(@Nonnull GamePlayer player) {
     }
 

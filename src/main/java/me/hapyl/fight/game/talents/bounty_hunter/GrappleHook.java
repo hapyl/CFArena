@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.bounty_hunter;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -134,7 +134,7 @@ public class GrappleHook extends GameTask {
                     return;
                 }
 
-                if (distance >= (talent().maxDistance * speed)) {
+                if (distance >= (TalentRegistry.GRAPPLE.maxDistance * speed)) {
                     remove();
 
                     // Fx
@@ -195,7 +195,7 @@ public class GrappleHook extends GameTask {
                     retractHook();
 
                     // Fx
-                    player.sendMessage("&6\uD83E\uDE9D &aYou hooked &e%s&a!", hookedEntity.getName());
+                    player.sendMessage("&6\uD83E\uDE9D &aYou hooked &e%s&a!".formatted(hookedEntity.getName()));
                     return true;
                 }
 
@@ -287,10 +287,6 @@ public class GrappleHook extends GameTask {
 
             EntityUtils.setCollision(self, EntityUtils.Collision.DENY);
         });
-    }
-
-    private GrappleHookTalent talent() {
-        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
     }
 
 }

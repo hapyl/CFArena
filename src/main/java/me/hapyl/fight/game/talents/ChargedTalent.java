@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
@@ -25,16 +26,8 @@ public class ChargedTalent extends Talent {
     private int rechargeTime;
     private Material noChargedMaterial;
 
-    public ChargedTalent(@Nonnull String name, int maxCharges) {
-        this(name, "", maxCharges);
-    }
-
-    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges) {
-        this(name, description, maxCharges, TalentType.DAMAGE);
-    }
-
-    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges, @Nonnull TalentType type) {
-        super(name, description, type);
+    public ChargedTalent(@Nonnull DatabaseKey key, @Nonnull String name, int maxCharges) {
+        super(key, name);
 
         this.maxCharges = maxCharges;
         this.data = PlayerMap.newMap();

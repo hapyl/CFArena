@@ -6,7 +6,7 @@ import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Numeric;
 import org.bson.Document;
 
@@ -19,7 +19,7 @@ public class HeroStatsCollection extends AsynchronousDatabase {
     private final DatabaseKey key;
 
     public HeroStatsCollection(@Nonnull DatabaseKey key) {
-        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
+        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.key()));
 
         this.key = key;
     }
@@ -29,28 +29,28 @@ public class HeroStatsCollection extends AsynchronousDatabase {
         return key;
     }
 
-    public double getStat(StatType statisticType) {
+    public double getStat(@Nonnull StatType statisticType) {
         return read(statisticType.name(), 0d);
     }
 
-    public void setStat(StatType statisticType, double value) {
+    public void setStat(@Nonnull StatType statisticType, double value) {
         write(statisticType.name(), value);
     }
 
-    public void addStat(StatType statisticType, double value) {
+    public void addStat(@Nonnull StatType statisticType, double value) {
         setStat(statisticType, getStat(statisticType) + value);
     }
 
-    public long getAbilityUsage(Talents talent) {
-        return read("ability_used." + talent.name(), 0L);
+    public long getAbilityUsage(@Nonnull Talent talent) {
+        return read("ability_used." + talent.getDatabaseKey().key(), 0L);
     }
 
-    public void addAbilityUsage(Talents talents, long value) {
-        setAbilityUsage(talents, getAbilityUsage(talents) + value);
+    public void addAbilityUsage(@Nonnull Talent talent, long value) {
+        setAbilityUsage(talent, getAbilityUsage(talent) + value);
     }
 
-    public void setAbilityUsage(Talents talent, long value) {
-        write("ability_used." + talent.name(), value);
+    public void setAbilityUsage(@Nonnull Talent talent, long value) {
+        write("ability_used." + talent.getDatabaseKey().key(), value);
     }
 
     @Nullable

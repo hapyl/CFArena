@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
@@ -39,14 +40,15 @@ public class ArrowShield extends Talent implements Listener {
     @DisplayField private final int poisonDuration = Tick.fromSecond(3);
     @DisplayField private final short poisonStrength = 2;
 
-    public ArrowShield() {
-        super("Arrow Shield");
+    public ArrowShield(@Nonnull DatabaseKey key) {
+        super(key, "Arrow Shield");
 
         setDescription("""
                 Creates a &eshield&7 of arrows for {duration} that blocks &nany&7 damage.
-                                
+                
                 When hit, an arrow triggers a rapid &4explosion&7 in small &cAoE&7, dealing &cdamage&7, applying &2poison&7, and reducing %s.
-                """, AttributeType.DEFENSE);
+                """.formatted(AttributeType.DEFENSE)
+        );
 
         setType(TalentType.DEFENSE);
         setItem(Material.STRING);

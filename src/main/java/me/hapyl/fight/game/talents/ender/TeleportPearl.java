@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ender;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,13 +26,13 @@ public class TeleportPearl extends Talent implements Listener {
 
     private final Set<EnderPearl> enderPearls = new HashSet<>();
 
-    public TeleportPearl() {
-        super(
-                "Rideable Pearl",
+    public TeleportPearl(@Nonnull DatabaseKey key) {
+        super(key, "Rideable Pearl");
+
+        setDescription("""
+                Throw an ender pearl and mount to ride it all the way!
+                &6&lSNEAK &7to throw normally.
                 """
-                        Throw an ender pearl and mount to ride it all the way!
-                        &6&lSNEAK &7to throw normally.
-                        """
         );
 
         setType(TalentType.MOVEMENT);

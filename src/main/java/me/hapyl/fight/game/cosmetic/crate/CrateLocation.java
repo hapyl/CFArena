@@ -21,6 +21,7 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -260,7 +261,7 @@ public class CrateLocation extends Location {
                 return;
             }
 
-            final ItemStackRandomizedData itemStack = new ItemStackRandomizedData(material);
+            final ItemStack itemStack = ItemStackRandomizedData.of(material);
             final Vector vector = new Vector(
                     random.nextBoolean() ? -0.1 : 0.1,
                     0.07,

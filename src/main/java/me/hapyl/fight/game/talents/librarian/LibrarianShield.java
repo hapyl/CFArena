@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.librarian;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Material;
@@ -7,8 +8,8 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 
 public class LibrarianShield extends LibrarianTalent {
-    public LibrarianShield() {
-        super("Voidless Shield");
+    public LibrarianShield(@Nonnull DatabaseKey key) {
+        super(key, "Voidless Shield");
 
         addDescription("Creates a shield with voidless capacity of absorbing damage for &b<scaled>&7 seconds.");
         setItem(Material.SHIELD);
@@ -21,7 +22,7 @@ public class LibrarianShield extends LibrarianTalent {
         player.setInvulnerable(true);
         player.schedule(() -> player.setInvulnerable(false), value);
 
-        player.sendMessage("&aApplied shield for %ss!", getCurrentValue(player));
+        player.sendMessage("&aApplied shield for %ss!".formatted(getCurrentValue(player)));
 
         return Response.OK;
     }

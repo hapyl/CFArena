@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.rogue;
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
@@ -16,11 +18,10 @@ import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.rogue.SecondWind;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -30,8 +31,6 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
@@ -90,7 +89,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                         .setName("Sacrificial Dagger")
                         .setDescription("""
                                 An ornate ceremonial dagger.
-                                                                
+                                
                                 Its small size allows for fast swings.
                                 """)
                         .setDamage(3.0d)
@@ -143,17 +142,17 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.EXTRA_CUT.getTalent();
+        return TalentRegistry.EXTRA_CUT;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SWAYBLADE.getTalent();
+        return TalentRegistry.SWAYBLADE;
     }
 
     @Override
     public SecondWind getPassiveTalent() {
-        return (SecondWind) Talents.SECOND_WIND.getTalent();
+        return TalentRegistry.SECOND_WIND;
     }
 
     @Nonnull
@@ -216,13 +215,14 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         @DisplayField private final int bleedDuration = 60;
 
         public RogueUltimate() {
-            super("Pipe Bomb", 60);
+            super(Rogue.this, "Pipe Bomb", 60);
 
             setDescription("""
                     Toss a hand-made pipe bomb in front of you that &4explodes&7 upon contact with an &cenemy&7 or a &bblock&7, dealing &cdamage&7 in moderate &cAoE&7 and applies &4Bleeding&7.
-
+                    
                     If at least &none&7 enemy was &chit&7, &nrefresh&7 %s charges.
-                    """.formatted(Named.SECOND_WIND));
+                    """.formatted(Named.SECOND_WIND)
+            );
 
             setItem(Material.LIGHTNING_ROD);
             setSound(Sound.ENTITY_CREEPER_PRIMED, 1.0f);
@@ -233,7 +233,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
             final World world = player.getWorld();
             final Location location = player.getMidpointLocation();
-            final Item item = world.dropItem(location, new ItemStackRandomizedData(Material.LIGHTNING_ROD));
+            final Item item = world.dropItem(location, ItemStackRandomizedData.of(Material.LIGHTNING_ROD));
 
             item.setPickupDelay(10000);
             item.setUnlimitedLifetime(true);

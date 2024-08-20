@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.pytaria;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -8,10 +10,13 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.task.GameTask;
@@ -19,8 +24,6 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Bee;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -116,17 +119,17 @@ public class Pytaria extends Hero {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.FLOWER_ESCAPE.getTalent();
+        return TalentRegistry.FLOWER_ESCAPE;
     }
 
     @Override
     public FlowerBreeze getSecondTalent() {
-        return (FlowerBreeze) Talents.FLOWER_BREEZE.getTalent();
+        return TalentRegistry.FLOWER_BREEZE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.EXCELLENCY.getTalent();
+        return TalentRegistry.EXCELLENCY;
     }
 
     private Location getLockLocation(Bee bee, LivingGameEntity entity) {
@@ -159,20 +162,21 @@ public class Pytaria extends Hero {
         @DisplayField public final short healthRegenPercent = 40;
 
         public PytariaUltimate() {
-            super("Feel the Breeze", 60);
+            super(Pytaria.this, "Feel the Breeze", 60);
 
             setCooldownSec(50);
             setDuration(60);
 
             setDescription("""
                     Summon a blooming &6Bee&7 in front of &aPytaria&7.
-                                    
+                    
                     The Bee will lock on the closest enemy and charge for {cast}.
-                                            
+                    
                     Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
-                                            
+                    
                     Also regenerates &c{healthRegenPercent}%% ❤&7 of &aPytaria's&7 missing health.
-                    """);
+                    """
+            );
 
             setCastDuration(50);
             setSound(Sound.ENTITY_BEE_DEATH, 0.0f);
@@ -226,7 +230,7 @@ public class Pytaria extends Hero {
                     final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
 
                     player.heal(healingAmount);
-                    player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!", healingAmount);
+                    player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!".formatted(healingAmount));
 
                     // Fx
                     PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);

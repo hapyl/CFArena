@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.troll;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
@@ -16,10 +17,12 @@ public class Repulsor extends Talent {
 
     @DisplayField(suffix = "blocks") private final double radius = 10.0d;
 
-    public Repulsor() {
-        super(
-                "Repulsor",
-                "Propels all nearby opponents high up into the sky!"
+    public Repulsor(@Nonnull DatabaseKey key) {
+        super(key, "Repulsor");
+
+        setDescription("""
+                Propels all nearby opponents high up into the sky!
+                """
         );
 
         setType(TalentType.IMPAIR);

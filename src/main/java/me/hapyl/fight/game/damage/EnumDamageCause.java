@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.damage;
 
-import me.hapyl.fight.game.DeathMessage;
-import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.fight.game.DeathMessage;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
@@ -159,7 +158,6 @@ public enum EnumDamageCause {
 
     private final DamageCause damageCause;
 
-    @Super
     EnumDamageCause(DamageCause damageCause) {
         this.damageCause = damageCause;
     }

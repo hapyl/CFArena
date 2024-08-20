@@ -128,7 +128,7 @@ public enum ChatChannel {
         final String lowerCaseName = message.toLowerCase();
 
         if (lowerCaseName.contains(atReceiverName) && Settings.CHAT_PING.isEnabled(receiver)) {
-            message = message.replace(atReceiverName, (ChatColor.YELLOW + "%s" + ChatColor.RESET).formatted(atReceiverName));
+            message = message.replace(atReceiverName, (ChatColor.YELLOW + atReceiverName + ChatColor.RESET));
             PlayerLib.playSound(receiver, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f);
         }
 
@@ -139,6 +139,7 @@ public enum ChatChannel {
             message = Chat.format(message);
         }
 
+        // FIXME (Tue, Aug 20 2024 @xanyjl): For some reason the @ does not work but it worked for me???
         builder.append(Color.WHITE).append(": ").append(format.textColor()).append(message);
         receiver.sendMessage(builder.toString());
         //Chat.sendMessage(receiver, builder.toString());

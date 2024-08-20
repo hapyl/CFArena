@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.moonwalker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -30,15 +31,18 @@ public class GravityZone extends Talent {
     @DisplayField private final double radiusY = 7.0d;
     @DisplayField private final double damagePerTick = 2.0d;
 
-    public GravityZone() {
-        super("Gravity Pull", """
+    public GravityZone(@Nonnull DatabaseKey key) {
+        super(key, "Gravity Pull");
+
+        setDescription("""
                 Create a gravity zone at the &etarget&7 location that will charge over time.
-                T                
+                
                 While charging, pull all enemies within range up and slow them down.
-                                
+                
                 When charged, slam all enemies within range down and deal damage to them.
                 &8;;The damage is scaled with how long an enemy was in the gravity pull.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.PURPLE_DYE);

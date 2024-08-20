@@ -29,6 +29,13 @@ public interface StrictPlayerElementHandler {
     void onPlayersRevealed(@Nonnull GamePlayer player);
 
     /**
+     * Called <b>every time</b> a {@link GamePlayer} respawns in a {@link GameInstance}
+     *
+     * @param player - Player.
+     */
+    void onPlayerRespawned(@Nonnull GamePlayer player);
+
+    /**
      * Called <b>every time</b> a {@link GamePlayer} dies.
      * <br>
      * This is not called if death event is cancelled.

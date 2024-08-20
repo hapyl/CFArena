@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -32,12 +33,13 @@ public class Slash extends Talent {
             .decrease(AttributeType.SPEED, 0.05d) // 25%
             .decrease(AttributeType.DEFENSE, 0.25d);
 
-    public Slash() {
-        super("Slash");
+    public Slash(@Nonnull DatabaseKey key) {
+        super(key, "Slash");
 
         setDescription("""
                 Perform a &cslash&7 attack in front of you, &cdamaging&7 and knocking all &cenemies&7 in small AoE.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
         setItem(Material.QUARTZ);

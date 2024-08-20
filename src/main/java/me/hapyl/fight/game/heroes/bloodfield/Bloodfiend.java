@@ -2,6 +2,11 @@ package me.hapyl.fight.game.heroes.bloodfield;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -19,8 +24,8 @@ import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
@@ -32,11 +37,6 @@ import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.entity.EntityUtils;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -148,6 +148,16 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         getData(player).cooldownFlight(true);
     }
 
+    @Override
+    public void onPlayerRespawned(@Nonnull GamePlayer player) {
+        onPlayersRevealed(player);
+    }
+
+    @Override
+    public void onStart(@Nonnull GamePlayer player) {
+        super.onStart(player);
+    }
+
     @EventHandler()
     public void handleTalentUse(TalentUseEvent ev) {
         final GamePlayer player = ev.getPlayer();
@@ -207,22 +217,22 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @Override
     public TwinClaws getFirstTalent() {
-        return (TwinClaws) Talents.TWIN_CLAWS.getTalent();
+        return (TwinClaws) TalentRegistry.TWIN_CLAWS;
     }
 
     @Override
     public CandlebaneTalent getSecondTalent() {
-        return (CandlebaneTalent) Talents.CANDLEBANE.getTalent();
+        return (CandlebaneTalent) TalentRegistry.CANDLEBANE;
     }
 
     @Override
     public BloodChaliceTalent getThirdTalent() {
-        return (BloodChaliceTalent) Talents.BLOOD_CHALICE.getTalent();
+        return (BloodChaliceTalent) TalentRegistry.BLOOD_CHALICE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SUCCULENCE.getTalent();
+        return TalentRegistry.SUCCULENCE;
     }
 
     // impel handles
@@ -406,7 +416,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     private class BloodfiendUltimate extends UltimateTalent {
 
         public BloodfiendUltimate() {
-            super("Impel", 50);
+            super(Bloodfiend.this, "Impel", 50);
 
             setType(TalentType.IMPAIR);
             setItem(Material.MOOSHROOM_SPAWN_EGG);

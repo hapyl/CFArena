@@ -21,7 +21,7 @@ public class InterruptCommand extends SimplePlayerAdminCommand {
         }
 
         final int delay = args.length > 0 ? Integer.parseInt(args[0]) : 0;
-        gamePlayer.sendMessage("&aInterrupting in %d ticks!", delay);
+        gamePlayer.sendMessage("&aInterrupting in %d ticks!".formatted(delay));
 
         GameTask.runLater(() -> {
             gamePlayer.damage(0);

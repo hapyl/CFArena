@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.talents.ninja;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -23,18 +24,19 @@ public class NinjaSmoke extends Talent {
     @DisplayField public final int buffDuration = Tick.fromSecond(6);
     @DisplayField(suffix = "blocks") private final double smokeDistance = 4.0d;
 
-    public NinjaSmoke() {
-        super("Smoke Bomb");
+    public NinjaSmoke(@Nonnull DatabaseKey key) {
+        super(key, "Smoke Bomb");
 
         setDescription("""
                 Throw a smoke bomb at your current location and enter %s state.
-                                
+                
                 While in this state, become &binvisible&7.
-                   
+                
                 Inflicting &cdamage&7 will &nclear&7 this state and trigger the following effects:
                 └ &8Slows&7 the attacked enemy.
                 └ Grants you &e{dodgeIncrease} %s for &b{buffDuration}&7.
-                """, Named.SHADOWSTRIKE, AttributeType.DODGE);
+                """.formatted(Named.SHADOWSTRIKE, AttributeType.DODGE)
+        );
 
         setType(TalentType.ENHANCE);
         setItem(Material.INK_SAC);

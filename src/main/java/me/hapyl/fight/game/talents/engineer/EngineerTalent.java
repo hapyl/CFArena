@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.engineer;
 
 import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -22,8 +23,8 @@ public abstract class EngineerTalent extends Talent {
 
     protected double yOffset = 2.0d;
 
-    public EngineerTalent(@Nonnull String name, int ironCost) {
-        super(name);
+    public EngineerTalent(@Nonnull DatabaseKey key, @Nonnull String name, int ironCost) {
+        super(key, name);
 
         this.ironCost = Math.max(1, ironCost);
     }

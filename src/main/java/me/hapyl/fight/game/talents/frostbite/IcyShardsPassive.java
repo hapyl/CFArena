@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -39,16 +40,19 @@ public class IcyShardsPassive extends PassiveTalent {
             1
     );
 
-    public IcyShardsPassive() {
-        super("Icy Shards", Material.LIGHT_BLUE_GLAZED_TERRACOTTA);
+    public IcyShardsPassive(@Nonnull DatabaseKey key) {
+        super(key, "Icy Shards");
 
         setDescription("""
                 When &ntaking&7 &ndamage&7, there is a small chance to launch &bicicles&7 in all directions.
-                                
+                
                 Each &bicicle&7 deals &4damage&7 and decreases %s and %s.
-                """.formatted(AttributeType.ATTACK_SPEED, AttributeType.ATTACK));
+                """.formatted(AttributeType.ATTACK_SPEED, AttributeType.ATTACK)
+        );
 
+        setItem(Material.LIGHT_BLUE_GLAZED_TERRACOTTA);
         setType(TalentType.IMPAIR);
+
         setCooldownSec(2);
     }
 

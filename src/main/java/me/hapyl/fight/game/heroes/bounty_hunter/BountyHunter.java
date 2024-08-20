@@ -1,5 +1,8 @@
 package me.hapyl.fight.game.heroes.bounty_hunter;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.database.key.DatabaseKey;
@@ -11,22 +14,18 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.nightmare.ShadowShift;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -67,7 +66,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
         setDescription("""
                 She is a skilled bounty hunter.
-                                
+                
                 &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
                 """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
@@ -104,17 +103,17 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     @Override
     @StrictTalentPlacement
     public ShortyShotgun getFirstTalent() {
-        return (ShortyShotgun) Talents.SHORTY.getTalent();
+        return TalentRegistry.SHORTY;
     }
 
     @Override
     public GrappleHookTalent getSecondTalent() {
-        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
+        return TalentRegistry.GRAPPLE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SMOKE_BOMB.getTalent();
+        return TalentRegistry.SMOKE_BOMB;
     }
 
     private void spawnPoofParticle(Location location) {
@@ -122,7 +121,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     }
 
     private ShadowShift.TargetLocation getBackstabLocation(GamePlayer player) {
-        return ((ShadowShift) Talents.SHADOW_SHIFT.getTalent()).getLocationAndCheck0(player, backstabMaxDistance, 0.9d);
+        return ((ShadowShift) TalentRegistry.SHADOW_SHIFT).getLocationAndCheck0(player, backstabMaxDistance, 0.9d);
     }
 
     private void useSmokeBomb(GamePlayer player, Location location) {
@@ -167,7 +166,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
     private class BountyHunterUltimate extends UltimateTalent {
         public BountyHunterUltimate() {
-            super("Backstab", 70);
+            super(BountyHunter.this, "Backstab", 70);
 
             setDescription("""
                     Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
@@ -195,8 +194,8 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
             target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
 
             // Fx
-            player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
-            target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
+            player.sendMessage("&aBackstabbed &7%s&a!".formatted(target.getName()));
+            target.sendMessage("&cYou were backstabbed by &7%s&c!".formatted(player.getName()));
 
             player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
             player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);

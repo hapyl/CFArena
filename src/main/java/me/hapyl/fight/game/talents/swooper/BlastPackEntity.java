@@ -1,17 +1,16 @@
 package me.hapyl.fight.game.talents.swooper;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.witcher.Akciy;
-import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -119,7 +118,7 @@ public class BlastPackEntity extends TickingGameTask {
                 entity.damageNoKnockback(talent.damage, player, EnumDamageCause.SATCHEL);
 
                 if (shouldStun()) {
-                    Talents.AKCIY.getTalent(Akciy.class).stun(entity, talent.stunDuration);
+                    TalentRegistry.AKCIY.stun(entity, talent.stunDuration);
                 }
             }
 

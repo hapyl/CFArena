@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.vortex;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -8,20 +10,20 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.*;
 import org.bukkit.util.Vector;
 
@@ -86,17 +88,17 @@ public class Vortex extends Hero implements UIComplexComponent {
 
     @Override
     public VortexStarTalent getFirstTalent() {
-        return (VortexStarTalent) Talents.VORTEX_STAR.getTalent();
+        return TalentRegistry.VORTEX_STAR;
     }
 
     @Override
     public StarAligner getSecondTalent() {
-        return (StarAligner) Talents.STAR_ALIGNER.getTalent();
+        return TalentRegistry.STAR_ALIGNER;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.LIKE_A_DREAM.getTalent();
+        return TalentRegistry.LIKE_A_DREAM;
     }
 
     @Nullable
@@ -213,11 +215,12 @@ public class Vortex extends Hero implements UIComplexComponent {
         @DisplayField(percentage = true) private final double knockback = 0.3d;
 
         public VortexUltimate() {
-            super("Arcana", 50);
+            super(Vortex.this, "Arcana", 50);
 
             setDescription("""
                     Launch an &6Astral&7 energy in front of you that &nfollows&7 your crosshair and &brapidly&7 deals &cdamage&7 in small &cAoE&7.
-                    """);
+                    """
+            );
 
             setItem(Material.QUARTZ);
             setDurationSec(5);

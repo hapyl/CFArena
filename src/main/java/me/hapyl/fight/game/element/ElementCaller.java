@@ -12,14 +12,14 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.TickingHero;
 import me.hapyl.fight.game.maps.Level;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
-import me.hapyl.fight.util.EnumIterators;
 import me.hapyl.fight.util.Materials;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 /**
  * A single instanced caller responsible for operation of {@link StrictElementHandler} and {@link StrictPlayerElementHandler}.
@@ -63,7 +63,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         instance.currentLevel().onStart(instance);
 
         // Call talents
-        EnumIterators.ofWrapper(Talents.class, Talents::getTalent, talent -> {
+        TalentRegistry.values().forEach(talent -> {
             talent.onStart(instance);
         });
 
@@ -96,7 +96,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         instance.currentLevel().onStop(instance);
 
         // Call talents
-        EnumIterators.ofWrapper(Talents.class, Talents::getTalent, talent -> {
+        TalentRegistry.values().forEach(talent -> {
             talent.onStop(instance);
         });
 
@@ -130,7 +130,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         instance.currentLevel().onPlayersRevealed(instance);
 
         // Call talents
-        EnumIterators.ofWrapper(Talents.class, Talents::getTalent, talent -> {
+        TalentRegistry.values().forEach(talent -> {
             talent.onPlayersRevealed(instance);
         });
 
@@ -140,98 +140,68 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.getAttributes().onStart(player);
-
-        final Hero hero = player.getHero();
-        hero.onStart(player);
-
-        final Level level = Manager.current().currentLevel();
-        level.onStart(player);
-
-        level.getFeatures().forEach(feature -> {
-            feature.onStart(player);
+        forEachPlayerElementHandler(player, element -> {
+            element.onStart(player);
         });
-
-        hero.getNullSafeTalents().forEach(talent -> {
-            talent.onStart(player);
-        });
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onStart(player);
     }
 
     @Override
     public void onStop(@Nonnull GamePlayer player) {
-        player.getAttributes().onStop(player);
-
-        final Hero hero = player.getHero();
-        hero.onStop(player);
-
-        final Level level = Manager.current().currentLevel();
-        level.onStop(player);
-
-        level.getFeatures().forEach(feature -> {
-            feature.onStop(player);
+        forEachPlayerElementHandler(player, element -> {
+            element.onStop(player);
         });
-
-        hero.getNullSafeTalents().forEach(talent -> {
-            talent.onStop(player);
-        });
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onStop(player);
     }
 
     @Override
     public void onPlayersRevealed(@Nonnull GamePlayer player) {
-        player.getAttributes().onPlayersRevealed(player);
-
-        final Hero hero = player.getHero();
-        hero.onPlayersRevealed(player);
-
-        final Level level = Manager.current().currentLevel();
-        level.onPlayersRevealed(player);
-
-        level.getFeatures().forEach(feature -> {
-            feature.onPlayersRevealed(player);
+        forEachPlayerElementHandler(player, element -> {
+            element.onPlayersRevealed(player);
         });
+    }
 
-        hero.getNullSafeTalents().forEach(talent -> {
-            talent.onPlayersRevealed(player);
+    @Override
+    public void onPlayerRespawned(@Nonnull GamePlayer player) {
+        forEachPlayerElementHandler(player, element -> {
+            element.onPlayerRespawned(player);
         });
-
-        final Weapon weapon = hero.getWeapon();
-        weapon.onPlayersRevealed(player);
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        player.getAttributes().onDeath(player);
+        forEachPlayerElementHandler(player, element -> {
+            element.onDeath(player);
+        });
 
         final Hero hero = player.getHero();
-        hero.onDeath(player);
-
-        final Level level = Manager.current().currentLevel();
-        level.onDeath(player);
-
-        level.getFeatures().forEach(feature -> {
-            feature.onDeath(player);
-        });
-
-        hero.getNullSafeTalents().forEach(talent -> {
-            talent.onDeath(player);
-        });
-
         final Weapon weapon = hero.getWeapon();
-        weapon.onDeath(player);
+
+        // Stop cooldowns
         weapon.getAbilities().forEach(ability -> ability.stopCooldown(player));
 
+        // Execute talents here
         player.executeTalentsOnDeath();
 
         // Reset data if applicable
         if (hero instanceof PlayerDataHandler<?> handler) {
             handler.removePlayerData(player);
         }
+    }
+
+    private void forEachPlayerElementHandler(GamePlayer player, Consumer<PlayerElementHandler> consumer) {
+        consumer.accept(player.getAttributes());
+
+        final Hero hero = player.getHero();
+        consumer.accept(hero);
+
+        final Level level = Manager.current().currentLevel();
+        consumer.accept(level);
+
+        level.getFeatures().forEach(consumer);
+
+        hero.getNullSafeTalents().forEach(consumer);
+
+        final Weapon weapon = hero.getWeapon();
+        consumer.accept(weapon);
     }
 
 }

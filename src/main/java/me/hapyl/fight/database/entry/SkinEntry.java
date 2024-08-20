@@ -24,11 +24,11 @@ public class SkinEntry extends StrictPlayerDatabaseEntry {
 
     @Nullable
     public Skins getSelected(@Nonnull Hero hero) {
-        return getEnumValue("selected." + hero.getKey().toLowerCase(), Skins.class);
+        return getEnumValue("selected." + hero.getDatabaseKey().key().toLowerCase(), Skins.class);
     }
 
     public void setSelected(@Nonnull Hero hero, @Nullable Skins skin) {
-        setEnumValue("selected." + hero.getKey().toLowerCase(), skin);
+        setEnumValue("selected." + hero.getDatabaseKey().key().toLowerCase(), skin);
     }
 
 }

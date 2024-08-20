@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
@@ -22,8 +23,8 @@ public class HealingAura extends DarkMageTalent {
     @DisplayField private final double instantHealing = 10.0d;
     @DisplayField private final int healingPeriod = 15;
 
-    public HealingAura() {
-        super("Healing Aura", """
+    public HealingAura(@Nonnull DatabaseKey key) {
+        super(key, "Healing Aura", """
                 Instantly heal for &c{instantHealing} ❤&7 and create a &ahealing&7 aura at your &ncurrent&7 &nlocation&7 that &aheals&7 &nall&7 nearby players.
                 """);
 

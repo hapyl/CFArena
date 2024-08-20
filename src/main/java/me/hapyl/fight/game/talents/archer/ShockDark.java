@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.archer;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -25,6 +26,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
+// yeah I know that the class has a typo so what I'm stupid -h
 public class ShockDark extends Talent implements Listener {
 
     @DisplayField(suffix = "blocks") private final double explosionRadius = 4.0d;
@@ -39,10 +41,12 @@ public class ShockDark extends Talent implements Listener {
 
     private final Set<Arrow> shockArrows;
 
-    public ShockDark() {
-        super(
-                "Shock Dart",
-                "Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance."
+    public ShockDark(@Nonnull DatabaseKey key) {
+        super(key, "Shock Dart");
+
+        setDescription("""
+                Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.
+                """
         );
 
         setType(TalentType.DAMAGE);

@@ -137,7 +137,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 }
 
                 gamePlayer.heal(value);
-                gamePlayer.sendMessage("&aHealed you for &l%s&a!", value);
+                gamePlayer.sendMessage("&aHealed you for &l%s&a!".formatted(value));
             }
         });
 

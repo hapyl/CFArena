@@ -5,11 +5,14 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -107,17 +110,17 @@ public class Spark extends Hero {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.SPARK_MOLOTOV.getTalent();
+        return TalentRegistry.SPARK_MOLOTOV;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SPARK_FLASH.getTalent();
+        return TalentRegistry.SPARK_FLASH;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.FIRE_GUY.getTalent();
+        return TalentRegistry.FIRE_GUY;
     }
 
     private RunInBackData getMarker(GamePlayer player) {
@@ -144,13 +147,14 @@ public class Spark extends Hero {
 
     private class SparkUltimate extends UltimateTalent {
         public SparkUltimate() {
-            super("Run it Back", 80);
+            super(Spark.this, "Run it Back", 80);
 
             setDescription("""
                     Instantly place a marker at your current location for {duration}.
-                                            
+                    
                     Upon death or after duration ends, safely teleport to the marked location with health you had upon activating the talent.
-                    """);
+                    """
+            );
 
             setType(TalentType.ENHANCE);
             setItem(Material.TOTEM_OF_UNDYING);

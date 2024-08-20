@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.zealot;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -20,12 +21,13 @@ public class MalevolentHitshield extends Talent {
     @DisplayField private final short shieldStrength = 7;
     @DisplayField private final int cooldown = Tick.fromSecond(30);
 
-    public MalevolentHitshield() {
-        super("Malevolent Hitshield");
+    public MalevolentHitshield(@Nonnull DatabaseKey key) {
+        super(key, "Malevolent Hitshield");
 
         setDescription("""
                 Gain a &eshield&7 for &b{shieldStrength}&7 hits, reduced on hit &nregardless&7 of damage.
-                """);
+                """
+        );
 
         setType(TalentType.DEFENSE);
         setItem(Material.ENDER_EYE);

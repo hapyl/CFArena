@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -22,8 +22,8 @@ public abstract class TauntTalent extends Talent {
     @DisplayField(suffix = "blocks") private final double radius;
     @DisplayField private final int period; // -1 means it's passive
 
-    public TauntTalent(@Nonnull String name, double radius, int period) {
-        super(name);
+    public TauntTalent(@Nonnull DatabaseKey key, @Nonnull String name, double radius, int period) {
+        super(key, name);
 
         this.playerTaunt = PlayerMap.newConcurrentMap();
         this.radius = radius;
@@ -51,8 +51,8 @@ public abstract class TauntTalent extends Talent {
     }
 
     @Override
-    public final void setDescription(@Nonnull String description, Object... format) {
-        addDescription(description, format);
+    public final void setDescription(@Nonnull String description) {
+        addDescription(description);
     }
 
     @Override
@@ -61,7 +61,7 @@ public abstract class TauntTalent extends Talent {
 
         if (taunt != null) {
             taunt.remove();
-            player.sendMessage("&eYour previous %s&e was removed!", taunt.getName());
+            player.sendMessage("&eYour previous %s&e was removed!".formatted(taunt.getName()));
         }
 
         final Location playerLocation = player.getLocation();

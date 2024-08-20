@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -11,26 +12,23 @@ import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.witcher.WitherData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
 public abstract class DarkMageTalent extends Talent {
 
-    public DarkMageTalent(String name, String description) {
-        this(name, description, Material.BEDROCK);
-    }
+    public DarkMageTalent(@Nonnull DatabaseKey key, @Nonnull String name, @Nonnull String description) {
+        super(key, name);
 
-    public DarkMageTalent(String name, String description, Material material) {
-        super(name, description, material);
-
-        addDescription("""
+        setDescription("""
+                %s
                 
                 %s
                 
                 &8;;You must use your wand to cast this spell!
-                """.formatted(getUsage()));
+                """.formatted(description, getUsage())
+        );
     }
 
     @Nonnull

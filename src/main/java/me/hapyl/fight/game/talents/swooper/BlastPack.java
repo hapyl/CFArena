@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.swooper;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,12 +26,15 @@ public class BlastPack extends ChargedTalent {
 
     protected final PlayerMap<BlastPackEntity> blastPacks = PlayerMap.newMap();
 
-    public BlastPack() {
-        super("Blast Pack", """
+    public BlastPack(@Nonnull DatabaseKey key) {
+        super(key, "Blast Pack", 2);
+
+        setDescription("""
                 Throw an explosive &eC4&7 in front of you that &nsticks&7 to surfaces.
-                                
+                
                 &nUse&7 &nagain&7 to &4explode&7, damaging &cenemies&7 and moving all &bentities&7.
-                """, 2);
+                """
+        );
 
         setType(TalentType.MOVEMENT);
         setItem(Material.DETECTOR_RAIL);

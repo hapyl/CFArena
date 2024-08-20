@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -35,14 +36,15 @@ public class MoonSliteBomb extends Talent implements Listener {
     @DisplayField private final int explosionDuration = 600;
     @DisplayField private final int corrosionDuration = 35;
 
-    public MoonSliteBomb() {
-        super("Moonslite Bomb");
+    public MoonSliteBomb(@Nonnull DatabaseKey key) {
+        super(key, "Moonslite Bomb");
 
         setDescription("""
                 Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.
-                                
+                
                 &6;;You can only have {bombLimit} bombs at the time.
-                """);
+                """
+        );
 
         setItem(Material.END_STONE_BRICK_SLAB);
         setCooldownSec(10);

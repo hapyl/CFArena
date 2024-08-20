@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.ender;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.util.Collect;
@@ -18,18 +19,20 @@ public class EnderPassive extends PassiveTalent {
     @DisplayField(percentage = true) private final double attackBoost = 0.2d;
     @DisplayField private final int attackBoostDuration = 30;
 
-    public EnderPassive() {
-        super("Ender Skin", Material.ENDER_EYE);
+    public EnderPassive(@Nonnull DatabaseKey key) {
+        super(key, "Ender Skin");
 
         setDescription("""
                 With great power, comes great... strength!
                 Your skin is too weak for the &bwater&7, though on &dteleport&7:
-                                
+                
                 &8- &7Heal for &c&l{healing} &c❤&7.
                 &8- &7Deal &c&l{damage}&7 damage in small &eAoE&7.
                 &8- &7Gain &c{attackBoost} %s boost for a short duration.
-                """, AttributeType.ATTACK);
+                """.formatted(AttributeType.ATTACK)
+        );
 
+        setItem(Material.ENDER_EYE);
     }
 
     // Handles the passive ability

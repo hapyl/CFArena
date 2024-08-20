@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,14 +26,15 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
 
     private final String[] bloodTextures;
 
-    public BloodCup() {
-        super("Blood Cup");
+    public BloodCup(@Nonnull DatabaseKey key) {
+        super(key, "Blood Cup");
 
         setDescription("""
                 Biting &cenemies&7 has a &b&l{chance}&7 to drain &cblood&7 from them.
-                                
+                
                 Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7.
-                """);
+                """
+        );
 
         setType(TalentType.SUPPORT);
         setTexture("f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e");
@@ -76,7 +78,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         final double healing = healingPerBottle * blood;
 
         player.heal(healing);
-        player.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!", healing);
+        player.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!".formatted(healing));
         player.playSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
 
         data.clearBlood();

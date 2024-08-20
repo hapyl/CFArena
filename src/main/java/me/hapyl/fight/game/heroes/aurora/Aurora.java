@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.aurora;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -13,12 +14,12 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.aurora.AuroraArrowTalent;
 import me.hapyl.fight.game.talents.aurora.DivineIntervention;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
@@ -27,7 +28,6 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -201,17 +201,17 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.CELESTE_ARROW.getTalent();
+        return TalentRegistry.CELESTE_ARROW;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.ETHEREAL_ARROW.getTalent();
+        return TalentRegistry.ETHEREAL_ARROW;
     }
 
     @Override
     public DivineIntervention getPassiveTalent() {
-        return (DivineIntervention) Talents.DIVINE_INTERVENTION.getTalent();
+        return TalentRegistry.DIVINE_INTERVENTION;
     }
 
     @Nonnull
@@ -271,22 +271,23 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         @DisplayField private final double shieldCapacity = 1000;
 
         public AuroraUltimate() {
-            super("Divine Arrow", 70);
+            super(Aurora.this, "Divine Arrow", 70);
 
             setDescription("""
                     Shoot a &bdivine arrow&7 up in the sky.
-                                        
+                    
                     After a &nshort&7 &ndelay&7, the arrow &asplits&7 and rushes towards all &ateammates&7.
-                                        
+                    
                     Upon &ncontact&7, it explodes in small AoE, dealing &cdamage&7 to &4enemies&7 and applying &bDivine Protection Seal&7 to any nearby &ateammates&7.
-                                        
+                    
                     &6Divine Protection Seal
                     &8▷&7 Grants a &eshield&7 that &nconstantly&7 decreases its capacity.
                     &8▷&7 Grants a %s and %s boost &nidentical&7 to that of %s.
-                                        
+                    
                     &2Aurora&7 becomes &binvulnerable&7 for the whole duration unless she &ndeals&7 damage.
                     &8;;Excluding teammate damage.
-                    """.formatted(AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE, getSecondTalent()));
+                    """.formatted(AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE, getSecondTalent())
+            );
 
             setType(TalentType.SUPPORT);
             setItem(Material.TIPPED_ARROW, then -> {

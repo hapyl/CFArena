@@ -114,7 +114,7 @@ public class AchievementRegistry extends DependencyInjector<Main> {
             final String heroName = hero.getName();
 
             register(new TieredAchievement(
-                    "play_hero_" + hero.getKey(),
+                    "play_hero_" + hero.getDatabaseKey().key(),
                     heroName + " Enjoyer",
                     "Play games as %s {} times.".formatted(heroName),
                     10, 50, 100, 250, 500
@@ -125,7 +125,7 @@ public class AchievementRegistry extends DependencyInjector<Main> {
             // Win hero
             register(
                     new TieredAchievement(
-                            "win_hero_" + hero.getKey(),
+                            "win_hero_" + hero.getDatabaseKey().key(),
                             heroName + " Winner",
                             "Win games while playing as %s {} times.".formatted(heroName),
                             5, 25, 50, 100, 250

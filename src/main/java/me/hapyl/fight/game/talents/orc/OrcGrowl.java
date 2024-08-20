@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.orc;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -33,12 +34,13 @@ public class OrcGrowl extends Talent {
             .decrease(AttributeType.SPEED, speedDecrease); // 50% ~the same as the slowness
 
 
-    public OrcGrowl() {
-        super("Growl of a Beast");
+    public OrcGrowl(@Nonnull DatabaseKey key) {
+        super(key, "Growl of a Beast");
 
         setDescription("""
                 Growl with your &a&lbeautiful&7 and &4dealy&7 voice, scaring enemies in moderate range, &eimpairing&7 and &3slowing&7 them down.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.GOAT_HORN);

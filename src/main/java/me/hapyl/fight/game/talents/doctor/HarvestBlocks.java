@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.doctor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -37,16 +38,16 @@ public class HarvestBlocks extends Talent {
     @DisplayField private final double maxDistance = 20.0d;
     @DisplayField private final int collectDelay = 30;
 
-    public HarvestBlocks() {
-        super(
-                "Block Harvest",
+    public HarvestBlocks(@Nonnull DatabaseKey key) {
+        super(key, "Block Harvest");
+
+        setDescription("""
+                Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
+                
+                Then combine them in one big pile before throwing it at your enemies.
+                
+                &8;;The damage is based on the number of blocks gathered.
                 """
-                        Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
-                                                
-                        Then combine them in one big pile before throwing it at your enemies.
-                                                
-                        &8;;The damage is based on the number of blocks gathered.
-                        """
         );
 
         setItem(Material.IRON_PICKAXE);

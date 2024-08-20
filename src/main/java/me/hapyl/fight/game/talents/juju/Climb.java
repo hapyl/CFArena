@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -23,13 +24,14 @@ public class Climb extends Talent {
 
     private final PlayerMap<GameTask> tasks = PlayerMap.newMap();
 
-    public Climb() {
-        super("Climb");
-        setItem(Material.LEATHER_BOOTS);
+    public Climb(@Nonnull DatabaseKey key) {
+        super(key, "Climb");
 
         addDescription(
                 "Use the wall you're hugging to climb it and perform back-flip, gaining speed boost. Cooldown of this ability stars upon landing or after &b{cdDeadline}&7."
         );
+
+        setItem(Material.LEATHER_BOOTS);
     }
 
     @Override

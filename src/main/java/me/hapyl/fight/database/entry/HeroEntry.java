@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import org.bson.Document;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class HeroEntry extends PlayerDatabaseEntry {
@@ -23,30 +24,30 @@ public class HeroEntry extends PlayerDatabaseEntry {
 
     public boolean isPurchased(Hero hero) {
         return fetchFromDocument("heroes", document -> {
-            return document.get("purchased", Lists.newArrayList()).contains(hero.getKey());
+            return document.get("purchased", Lists.newArrayList()).contains(hero.getDatabaseKey().key());
         });
     }
 
     public void addPurchased(Hero hero) {
         fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).add(hero.getKey());
+            document.get("purchased", Lists.newArrayList()).add(hero.getDatabaseKey().key());
         });
     }
 
     public void removePurchased(Hero hero) {
         fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).remove(hero.getKey());
+            document.get("purchased", Lists.newArrayList()).remove(hero.getDatabaseKey().key());
         });
     }
 
     public void setSelectedHero(Hero hero) {
-        fetchDocument("heroes", heroes -> heroes.put("selected", hero.getKey()));
+        fetchDocument("heroes", heroes -> heroes.put("selected", hero.getDatabaseKey().key()));
     }
 
     public Skins getSkin(Hero heroes) {
         final Document document = getInDocument("heroes");
         final Document skins = document.get("skin", new Document());
-        final String selectedSkin = skins.get(heroes.getKey(), "");
+        final String selectedSkin = skins.get(heroes.getDatabaseKey().key(), "");
 
         return Validate.getEnumValue(Skins.class, selectedSkin);
     }
@@ -54,18 +55,18 @@ public class HeroEntry extends PlayerDatabaseEntry {
     public void setSkin(Skins skin) {
         fetchDocument("heroes", heroes -> {
             final Document skins = heroes.get("skin", new Document());
-            skins.put(skin.getSkin().getHero().getKey(), skin.name());
+            skins.put(skin.getSkin().getHero().getDatabaseKey().key(), skin.name());
             heroes.put("skin", skins);
         });
     }
 
-    public void setFavourite(Hero hero, boolean flag) {
+    public void setFavourite(@Nonnull Hero hero, boolean flag) {
         final List<String> favouriteHeroes = getFavouriteHeroesStrings();
         if (flag) {
-            favouriteHeroes.add(hero.getKey());
+            favouriteHeroes.add(hero.getDatabaseKey().key());
         }
         else {
-            favouriteHeroes.remove(hero.getKey());
+            favouriteHeroes.remove(hero.getDatabaseKey().key());
         }
 
         fetchDocument("heroes", heroes -> heroes.put("favourite", favouriteHeroes));

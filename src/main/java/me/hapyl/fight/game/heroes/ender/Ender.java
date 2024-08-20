@@ -8,13 +8,12 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -81,26 +80,27 @@ public class Ender extends Hero implements Listener {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.TELEPORT_PEARL.getTalent();
+        return TalentRegistry.TELEPORT_PEARL;
     }
 
     @Override
     public TransmissionBeacon getSecondTalent() {
-        return (TransmissionBeacon) Talents.TRANSMISSION_BEACON.getTalent();
+        return TalentRegistry.TRANSMISSION_BEACON;
     }
 
     @Override
     public EnderPassive getPassiveTalent() {
-        return (EnderPassive) Talents.ENDER_PASSIVE.getTalent();
+        return TalentRegistry.ENDER_PASSIVE;
     }
 
     private class EnderUltimate extends UltimateTalent {
         public EnderUltimate() {
-            super("Transmission!", 50);
+            super(Ender.this, "Transmission!", 50);
 
             setDescription("""
                     Instantly teleport to your &b&lTransmission &b&lBeacon &7and collect it for further use.
-                    """);
+                    """
+            );
 
             setType(TalentType.MOVEMENT);
             setItem(Material.SHULKER_SHELL);

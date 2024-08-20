@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.tamer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -27,17 +28,19 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
     private final int tickEnemy = 9;
     private final int tickSelf = 15;
 
-    public TamingTheWind() {
-        super("Taming the Wind");
+    public TamingTheWind(@Nonnull DatabaseKey key) {
+        super(key, "Taming the Wind");
 
         setDescription("""
                 Equip concentrated wind.
-                """);
+                """
+        );
 
         leftData.setAction("Lift Enemies");
         leftData.setDescription("""
                 Lift up to &b{maxEnemies}&7 nearby &cenemies&7 up into the air, &eimpairing&7 their movement.
-                """);
+                """
+        );
         leftData.setType(TalentType.IMPAIR);
         leftData.setDurationSec(2);
         leftData.setCooldownSec(20);
@@ -46,9 +49,10 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
         rightData.setDescription("""
                 Lift &nyourself&7 up into the air.
                 After a short delay, you will &aconstantly&7 move forward.
-                                
+                
                 &8;;Sneak to cancel movement.
-                """);
+                """
+        );
         rightData.setType(TalentType.ENHANCE);
         rightData.copyDurationAndCooldownFrom(leftData);
 

@@ -1,26 +1,18 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class PassiveTalent extends Talent {
 
-    public PassiveTalent(@Nonnull String name, @Nonnull Material material) {
-        this(name, "", material);
-    }
+    protected PassiveTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+        super(key, name);
 
-    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
-        this(name, description, material, TalentType.ENHANCE);
-    }
-
-    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material item, @Nonnull TalentType type) {
-        super(name, description, type);
-
-        setItem(item);
-        setPoint(0);
+        setType(TalentType.ENHANCE); // Default passives to enhance because most of them are
+        setPoint(0);                 // Passive talents don't regen ultimate
     }
 
     @Override

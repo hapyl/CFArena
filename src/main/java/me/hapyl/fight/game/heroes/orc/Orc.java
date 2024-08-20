@@ -11,11 +11,14 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
@@ -139,26 +142,26 @@ public class Orc extends Hero implements Listener {
 
     @Override
     public OrcGrowl getFirstTalent() {
-        return (OrcGrowl) Talents.ORC_GROWN.getTalent();
+        return TalentRegistry.ORC_GROWN;
     }
 
     @Override
     public OrcAxe getSecondTalent() {
-        return (OrcAxe) Talents.ORC_AXE.getTalent();
+        return TalentRegistry.ORC_AXE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.ORC_PASSIVE.getTalent();
+        return TalentRegistry.ORC_PASSIVE;
     }
 
     private class OrcUltimate extends UltimateTalent {
         public OrcUltimate() {
-            super("Berserk", 70);
+            super(Orc.this, "Berserk", 70);
 
             setDescription("""
                     Enter %s for {duration}.
-                                                    
+                    
                     While active, gain:
                     • &aIncreased %s.
                     • &aIncreased %s.

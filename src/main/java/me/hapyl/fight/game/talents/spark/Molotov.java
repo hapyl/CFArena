@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.spark;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -32,13 +33,14 @@ public class Molotov extends Talent implements Listener {
     @DisplayField(suffix = "&f❤/&fInterval") private final double fireHealing = 1.0d;
     @DisplayField private final int fireInterval = 5;
 
-    public Molotov() {
-        super(
-                "Hot Hands", """
-                        Throw a fireball in front of you that flies for maximum of &b{maximumAirTime}&7.
-                                                
-                        Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
-                        """
+    public Molotov(@Nonnull DatabaseKey key) {
+        super(key, "Hot Hands");
+
+        setDescription("""
+                Throw a fireball in front of you that flies for maximum of &b{maximumAirTime}&7.
+                
+                Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
+                """
         );
 
         setType(TalentType.DAMAGE);

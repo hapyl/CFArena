@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.moonwalker;
 
 import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -25,8 +26,10 @@ public class MoonPillarTalent extends Talent {
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,2.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[1.0000f,0.0000f,0.0000f,0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,1.0000f,0.0000f,-0.5000f,1.0000f,0.0000f,-0.0000f,0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-1.0000f,0.0000f,-0.0000f,0.6250f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,1.0000f,0.0000f,-0.5000f,-1.0000f,0.0000f,0.0000f,0.5625f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
-    public MoonPillarTalent() {
-        super("Moonlit Pillar", """
+    public MoonPillarTalent(DatabaseKey key) {
+        super(key, "Moonlit Pillar");
+
+        setDescription("""
                 Erect a Moonlit Pillar in front of you to create a &eMoonlit Zone&7.
                 """
         );

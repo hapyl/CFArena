@@ -86,7 +86,7 @@ public class DumpHeroData extends SimpleAdminCommand {
             this.stripColor = stripColor;
 
             path = new File(Main.getPlugin().getDataFolder() + "/hero_dumps/");
-            file = new File(path, hero.getKey() + ".md");
+            file = new File(path, hero.getDatabaseKey().key() + ".md");
         }
 
         public File dump() {

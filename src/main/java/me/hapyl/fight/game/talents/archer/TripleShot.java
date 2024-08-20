@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.archer;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -21,10 +22,12 @@ public class TripleShot extends Talent {
 
     @DisplayField(suffix = "°") private final double spread = 5;
 
-    public TripleShot() {
-        super(
-                "Triple Shot",
-                "Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage."
+    public TripleShot(@Nonnull DatabaseKey key) {
+        super(key, "Triple Shot");
+
+        setDescription("""
+                Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage.
+                """
         );
 
         setType(TalentType.DAMAGE);

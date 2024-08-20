@@ -70,7 +70,7 @@ public abstract class MageSpell implements Formatted, Timed {
         mage.spellDragonSkin.removeItem(player);
 
         // Fx
-        player.sendMessage("&aYou have used &l%s&a!", name);
+        player.sendMessage("&aYou have used &l%s&a!".formatted(name));
         player.playWorldSound(Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         return Response.OK;

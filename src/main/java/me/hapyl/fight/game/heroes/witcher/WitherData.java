@@ -39,7 +39,7 @@ public class WitherData extends PlayerData {
 
             @Override
             public void onStop() {
-                player.sendMessage(Color.WITHERS + "Your %s is gone!", witherName());
+                player.sendMessage(Color.WITHERS + "Your %s is gone!".formatted(witherName()));
 
                 final Location location = wither.getLocation();
 

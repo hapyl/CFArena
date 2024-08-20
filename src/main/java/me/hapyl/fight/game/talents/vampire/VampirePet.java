@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.vampire;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -23,10 +24,12 @@ public class VampirePet extends Talent {
     private final LinkedKeyValMap<GamePlayer, Bat> pets;
     private final int ATTACK_PERIOD = 30;
 
-    public VampirePet() {
-        super(
-                "Dracula Jr.",
-                "Call upon the lord of bats to aid you in battle, summoning a bat that will periodically nearby attack opponents."
+    public VampirePet(@Nonnull DatabaseKey key) {
+        super(key, "Dracula Jr.");
+
+        setDescription("""
+                Call upon the lord of bats to aid you in battle, summoning a bat that will periodically nearby attack opponents.
+                """
         );
 
         setItem(Material.BAT_SPAWN_EGG);

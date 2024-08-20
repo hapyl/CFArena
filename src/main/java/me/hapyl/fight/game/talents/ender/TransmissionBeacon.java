@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ender;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -30,13 +31,16 @@ public class TransmissionBeacon extends Talent implements Listener {
     private final LinkedKeyValMap<GamePlayer, Entity> beaconLocation = new LinkedKeyValMap<>();
     @DisplayField private final int cooldownIfDestroyed = 600;
 
-    public TransmissionBeacon() {
-        super("Transmission Beacon", """
+    public TransmissionBeacon(@Nonnull DatabaseKey key) {
+        super(key, "Transmission Beacon");
+
+        setDescription("""
                 Place the beacon somewhere hidden from your opponents.
                 Use your &bultimate&7 to instantly teleport to its location and collect it.
-                                
+                
                 &c&l;;The beacon can be destroyed!
-                """);
+                """
+        );
 
         setItem(Material.BEACON);
         setType(TalentType.MOVEMENT);
@@ -118,7 +122,7 @@ public class TransmissionBeacon extends Talent implements Listener {
         startCd(owner, cooldownIfDestroyed);
 
         // Fx
-        ev.getPlayer().sendMessage("&aYou broke %s's %s!", owner.getName(), getName());
+        ev.getPlayer().sendMessage("&aYou broke %s's %s!".formatted(owner.getName(), getName()));
         PlayerLib.playSound(beacon.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);
 
         owner.sendSubtitle("&cBeacon Destroyed!", 10, 20, 10);

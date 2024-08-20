@@ -9,8 +9,8 @@ import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.knight.Discharge;
 import me.hapyl.fight.game.talents.knight.StoneCastle;
@@ -131,17 +131,17 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
 
     @Override
     public StoneCastle getFirstTalent() {
-        return (StoneCastle) Talents.STONE_CASTLE.getTalent();
+        return TalentRegistry.STONE_CASTLE;
     }
 
     @Override
     public Discharge getSecondTalent() {
-        return (Discharge) Talents.DISCHARGE.getTalent();
+        return TalentRegistry.DISCHARGE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SHIELDED.getTalent();
+        return TalentRegistry.SHIELDED;
     }
 
     @Nonnull
@@ -161,11 +161,12 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         @DisplayField private final double shieldCapacity = 50;
 
         public BlastKnightUltimate() {
-            super("Nanite Rush", 60);
+            super(BlastKnight.this, "Nanite Rush", 60);
 
             setDescription("""
                     Instantly release a &dNanite Swarm&7 that &brushes&7 upwards, creating a &eshield&7 and rapidly &aregenerates&7 all existing shields.
-                    """);
+                    """
+            );
 
             setType(TalentType.SUPPORT);
             setItem(Material.PURPLE_DYE);

@@ -2,10 +2,10 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class PlayerCloneList implements TalentReference<ShadowAssassinClone> {
+public class PlayerCloneList {
 
     protected static final int MAX_LINK_TIME = 20;
 
@@ -48,16 +48,10 @@ public class PlayerCloneList implements TalentReference<ShadowAssassinClone> {
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
         player.addEffect(Effects.BLINDNESS, 1, 20);
 
-        getTalent().getData(player).addEnergy(talent.energyRegen);
+        TalentRegistry.SHADOW_ASSASSIN_CLONE.getData(player).addEnergy(talent.energyRegen);
 
         player.snapToWeapon();
         linkedClone = null;
-    }
-
-    @Nonnull
-    @Override
-    public ShadowAssassinClone getTalent() {
-        return talent;
     }
 
     public void disappearAll() {

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.dark_mage;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -13,20 +14,18 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.ShadowCloneNPC;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -139,28 +138,28 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.BLINDING_CURSE.getTalent();
+        return TalentRegistry.BLINDING_CURSE;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SLOWING_AURA.getTalent();
+        return TalentRegistry.SLOWING_AURA;
     }
 
     @Override
     public Talent getThirdTalent() {
-        return Talents.HEALING_AURA.getTalent();
+        return TalentRegistry.HEALING_AURA;
     }
 
     @Override
     @Nonnull
     public ShadowClone getFourthTalent() {
-        return (ShadowClone) Talents.SHADOW_CLONE.getTalent();
+        return (ShadowClone) TalentRegistry.SHADOW_CLONE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.DARK_MAGE_PASSIVE.getTalent();
+        return TalentRegistry.DARK_MAGE_PASSIVE;
     }
 
     @Nonnull
@@ -235,17 +234,18 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         @DisplayField private final int baseDuration = Tick.fromSecond(12);
 
         public DarkMageUltimate() {
-            super("Witherborn", 60);
+            super(DarkMage.this, "Witherborn", 60);
 
             setDescription("""
                     Raised by the %1$sWithers&7, they will &nalways&7 assist you in battle.
-
+                    
                     The %1$swither&7 will &nimprove&7 your &bspells&7 by increasing their &bduration&7 and decreasing &acooldowns&7.
-
+                    
                     Each stack of %2$s will &nincrease&7 the &bduration&7 of the %1$swither&7.
-                                        
+                    
                     &8;;You cannot plant Wither Roses while the ultimate is active!
-                    """.formatted(Color.WITHERS, Named.WITHER_ROSE));
+                    """.formatted(Color.WITHERS, Named.WITHER_ROSE)
+            );
 
             setType(TalentType.ENHANCE);
             setItem(Material.WITHER_SKELETON_SKULL);

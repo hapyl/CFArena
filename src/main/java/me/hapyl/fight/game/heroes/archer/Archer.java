@@ -15,7 +15,7 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archer.HawkeyePassive;
 import me.hapyl.fight.game.task.GameTask;
@@ -243,17 +243,17 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.TRIPLE_SHOT.getTalent();
+        return TalentRegistry.TRIPLE_SHOT;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.SHOCK_DARK.getTalent();
+        return TalentRegistry.SHOCK_DARK;
     }
 
     @Override
     public HawkeyePassive getPassiveTalent() {
-        return (HawkeyePassive) Talents.HAWKEYE_ARROW.getTalent();
+        return TalentRegistry.HAWKEYE_ARROW;
     }
 
     @Nonnull
@@ -262,6 +262,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
         return playerData;
     }
 
+    @Nonnull
     @Override
     public ArcherUltimate getUltimate() {
         return (ArcherUltimate) super.getUltimate();
@@ -279,7 +280,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
         @DisplayField protected final short fuseShotCost = 20;
 
         public ArcherUltimate() {
-            super("Boom Bow", 70);
+            super(Archer.this, "Boom Bow", 70);
 
             setDescription("""
                     Light the &6fuse&7 and equip a &6&lBOOM BOW&7 that shoots explosive arrows that &cexplode&7 on impact, dealing massive %s&7.

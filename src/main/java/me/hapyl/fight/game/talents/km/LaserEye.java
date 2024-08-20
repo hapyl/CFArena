@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.km;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -18,10 +19,12 @@ import javax.annotation.Nonnull;
 
 public class LaserEye extends Talent {
 
-    public LaserEye() {
-        super("Laser Eye");
+    public LaserEye(@Nonnull DatabaseKey key) {
+        super(key, "Laser Eye");
 
-        setDescription("Become immovable and activate laser for {duration} that rapidly damages enemies.");
+        setDescription("""
+                Become immovable and activate laser for {duration} that rapidly damages enemies.
+                """);
 
         setDuration(60);
         setItem(Material.ENDER_EYE);

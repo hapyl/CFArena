@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * @see GamePlayer#getPlayerData(Heroes, Class)
+ * @see GamePlayer#getPlayerData(Hero)
  */
 public interface PlayerDataHandler<T extends PlayerData> {
 

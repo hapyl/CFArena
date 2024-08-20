@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -27,17 +28,18 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
 
     protected final PlayerMap<GrappleHook> playerHooks = PlayerMap.newMap();
 
-    public GrappleHookTalent() {
-        super("Grappling Hook", 3);
+    public GrappleHookTalent(@Nonnull DatabaseKey key) {
+        super(key, "Grappling Hook", 3);
 
         setDescription("""
                 Launch a &6grappling hook&7 that travels up to &b{maxDistance}&7.
-                                
+                
                 Whenever it hits a &3block&7 or an &cenemy&7, it will pull &nyou&7 &ntowards&7 it.
                 &8;;The hook can be destroyed.
-                                
+                
                 &8;;The cooldown of this ability stars after all the charges are used.
-                """);
+                """
+        );
 
         setType(TalentType.MOVEMENT);
         setItem(Material.LEAD);

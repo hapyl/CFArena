@@ -8,11 +8,10 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -186,25 +185,26 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.ENGINEER_SENTRY.getTalent();
+        return TalentRegistry.ENGINEER_SENTRY;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.ENGINEER_TURRET.getTalent();
+        return TalentRegistry.ENGINEER_TURRET;
     }
 
     @Nullable
     @Override
     public Talent getThirdTalent() {
-        return Talents.ENGINEER_RECALL.getTalent();
+        return TalentRegistry.ENGINEER_RECALL;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.ENGINEER_PASSIVE.getTalent();
+        return TalentRegistry.ENGINEER_PASSIVE;
     }
 
+    @Nonnull
     @Override
     public EngineerUltimate getUltimate() {
         return (EngineerUltimate) super.getUltimate();
@@ -253,11 +253,11 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         @DisplayField public final double mechaDefense = 150;
 
         public EngineerUltimate() {
-            super("Mecha-Industries", 50);
+            super(Engineer.this, "Mecha-Industries", 50);
 
             setDescription("""
                     Instantly create a &fmech suit&7 and pilot it for {duration}.
-                                    
+                    
                     The suit provides &cattack&7 power.
                     &8;;Looks like a wire sticking out of it, probably should keep away from water.
                     """);

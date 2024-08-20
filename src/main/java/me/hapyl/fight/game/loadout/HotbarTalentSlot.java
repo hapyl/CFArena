@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.loadout;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -7,7 +8,6 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +43,7 @@ public class HotbarTalentSlot extends HotbarSlot {
         final int lock = player.getTalentLock(getHandle());
 
         if (lock > 0) {
-            player.sendMessage("&cTalent is locked for %ss!", Tick.round(lock));
+            player.sendMessage("&cTalent is locked for %ss!".formatted(Tick.round(lock)));
             player.playSound(Sound.ENTITY_ENDERMAN_SCREAM, 0.0f);
             player.snapToWeapon();
             return false;

@@ -8,13 +8,13 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
@@ -60,22 +60,22 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
     @Override
     public Uppercut getFirstTalent() {
-        return (Uppercut) Talents.UPPERCUT.getTalent();
+        return TalentRegistry.UPPERCUT;
     }
 
     @Override
     public Updraft getSecondTalent() {
-        return (Updraft) Talents.UPDRAFT.getTalent();
+        return TalentRegistry.UPDRAFT;
     }
 
     @Override
     public Slash getThirdTalent() {
-        return (Slash) Talents.SLASH.getTalent();
+        return TalentRegistry.SLASH;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SWORD_MASTER_PASSIVE.getTalent();
+        return TalentRegistry.SWORD_MASTER_PASSIVE;
     }
 
     @Nonnull
@@ -90,13 +90,14 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
     private class SwordMasterUltimate extends UltimateTalent {
         public SwordMasterUltimate() {
-            super("Ultimate Sacrifice", 60);
+            super(SwordMaster.this, "Ultimate Sacrifice", 60);
 
             setDescription("""
                     Instantly drop &nall&7 your &farmor&7 in exchange for more &4power&7, becoming a glass cannon.
-                                    
+                    
                     &8;;You also benefit from lower talent cooldowns.
-                    """);
+                    """
+            );
 
             setType(TalentType.ENHANCE);
             setItem(Material.NETHERITE_INGOT);

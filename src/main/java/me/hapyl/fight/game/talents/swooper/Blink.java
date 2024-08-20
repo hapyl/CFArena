@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.swooper;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -22,15 +23,14 @@ public class Blink extends ChargedTalent {
     @DisplayField private final int maxDistance = 6;
     @DisplayField private final int minDistance = 1;
 
-    public Blink() {
-        super(
-                "Blink",
+    public Blink(@Nonnull DatabaseKey key) {
+        super(key, "Blink", 2);
+
+        setDescription("""
+                Teleport forward a short distance, passing through any non-solid blocks in the way.
+                
+                Cannot teleport through walls.
                 """
-                        Teleport forward a short distance, passing through any non-solid blocks in the way.
-                                                
-                        Cannot teleport through walls.
-                        """,
-                2
         );
 
         setItem(Material.ENDER_PEARL);

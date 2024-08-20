@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,11 +27,14 @@ public class Igny extends Talent {
     @DisplayField private final double damageFurther = 2.0d;
     @DisplayField private final int fireTicksFurther = 20;
 
-    public Igny() {
-        super("Igni", """
+    public Igny(@Nonnull DatabaseKey key) {
+        super(key, "Igni");
+
+        setDescription("""
                 Fire &cblazing spirits&7 in front of you that deal &cAoE damage&7 and set &cenemies&7 on &6fire&7.
                 &8;;Damage and burning duration falls off with distance.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
         setItem(Material.BLAZE_POWDER);

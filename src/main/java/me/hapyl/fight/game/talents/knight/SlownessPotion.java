@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -18,12 +19,15 @@ public class SlownessPotion extends Talent {
             .setPotionMeta(PotionEffectType.SLOWNESS, 5, 80, Color.GRAY)
             .build();
 
-    public SlownessPotion() {
-        super("Slowness Potion", """
+    public SlownessPotion(@Nonnull DatabaseKey key) {
+        super(key, "Slowness Potion");
+
+        setDescription("""
                 A little bottle that can cause a lot of troubles.
-                                              
+                
                 Throw a slowing potion if front of that slows enemies in small AoE.
-                """);
+                """
+        );
 
         setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
         setCooldownSec(12);

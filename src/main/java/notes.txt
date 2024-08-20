@@ -1,5 +1,16 @@
 ###############################
 
+[x] Nyx droplet particles are wrong
+[???] Text display keeps shadow?
+[?] Droplets aren't removed
+[x] Bloodfiend cannot fly (did not call onStart >< onRespawned)
+[x] Portal does not remove on death
+[x] Glowing removes for swooper on ANY hit
+
+** Orc Changes:
+- Double axe
+- Spin changes
+
 ###############################
 
 ### Further Bow Changes:

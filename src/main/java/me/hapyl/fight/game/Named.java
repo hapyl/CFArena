@@ -86,11 +86,11 @@ public enum Named {
 
     @Nonnull
     public String prefix(@Nonnull Object toPrefix) {
-        return this.getCharacter() + " " + toPrefix;
+        return color + character + " " + toPrefix;
     }
 
     @Nonnull
     public String suffix(@Nonnull Object toSuffix) {
-        return toSuffix + " " + this.getCharacter();
+        return color + "" + toSuffix + " " + character;
     }
 }

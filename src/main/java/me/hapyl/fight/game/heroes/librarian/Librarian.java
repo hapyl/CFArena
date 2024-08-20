@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.heroes.librarian;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.database.key.DatabaseKey;
@@ -7,22 +11,20 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ComplexHero;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.librarian.EntityDarkness;
 import me.hapyl.fight.game.talents.librarian.LibrarianTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.gradient.Interpolators;
-import me.hapyl.eterna.module.player.PlayerLib;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -66,10 +68,10 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
         setItem(Material.BOOK);
         setGender(Gender.MALE);
 
-        talentMap.put(1, (LibrarianTalent) Talents.BLACK_HOLE.getTalent());
-        talentMap.put(2, (LibrarianTalent) Talents.ENTITY_DARKNESS.getTalent());
-        talentMap.put(3, (LibrarianTalent) Talents.LIBRARIAN_SHIELD.getTalent());
-        talentMap.put(4, (LibrarianTalent) Talents.WEAPON_DARKNESS.getTalent());
+        talentMap.put(1, TalentRegistry.BLACK_HOLE);
+        talentMap.put(2, TalentRegistry.ENTITY_DARKNESS);
+        talentMap.put(3, TalentRegistry.LIBRARIAN_SHIELD);
+        talentMap.put(4, TalentRegistry.WEAPON_DARKNESS);
 
         setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
@@ -167,22 +169,22 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.BLACK_HOLE.getTalent();
+        return TalentRegistry.BLACK_HOLE;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.ENTITY_DARKNESS.getTalent();
+        return TalentRegistry.ENTITY_DARKNESS;
     }
 
     @Override
     public Talent getThirdTalent() {
-        return Talents.LIBRARIAN_SHIELD.getTalent();
+        return TalentRegistry.LIBRARIAN_SHIELD;
     }
 
     @Override
     public Talent getFourthTalent() {
-        return Talents.WEAPON_DARKNESS.getTalent();
+        return TalentRegistry.WEAPON_DARKNESS;
     }
 
     @Override
@@ -248,15 +250,6 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
         }
     }
 
-    private int indexOfTalent(Talents enumTalent) {
-        return switch (enumTalent) {
-            default -> 1;
-            case ENTITY_DARKNESS -> 2;
-            case LIBRARIAN_SHIELD -> 3;
-            case WEAPON_DARKNESS -> 4;
-        };
-    }
-
     @EventHandler()
     public void handlePlayerInteract(PlayerItemHeldEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
@@ -280,5 +273,19 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
         grimoire.markUsedNow();
         grantSpellItems(player);
         player.snapToWeapon();
+    }
+
+    private int indexOfTalent(Talent enumTalent) {
+        if (TalentRegistry.ENTITY_DARKNESS == enumTalent) {
+            return 2;
+        }
+        else if (TalentRegistry.LIBRARIAN_SHIELD == enumTalent) {
+            return 3;
+        }
+        else if (TalentRegistry.WEAPON_DARKNESS == enumTalent) {
+            return 4;
+        }
+
+        return 1;
     }
 }

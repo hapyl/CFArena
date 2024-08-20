@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.rogue;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
@@ -19,12 +20,13 @@ public class Swayblade extends Talent {
     @DisplayField private final float maxYawShift = 60.0f;
     @DisplayField private final float maxPitchShift = 40.0f;
 
-    public Swayblade() {
-        super("Swayblade");
+    public Swayblade(@Nonnull DatabaseKey key) {
+        super(key, "Swayblade");
 
         setDescription("""
                 Hit all &cenemies&7 in front of you with the &bhilt&7 of your blade, &eimpairing&7 their vision.
-                """);
+                """
+        );
 
         setItem(Material.GOLD_NUGGET);
         setType(TalentType.IMPAIR);

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -25,8 +26,8 @@ public class PoisonZone extends Talent {
     @DisplayField(scaleFactor = 100) private final double defenseReduction = 0.7d;
     @DisplayField private final int defenseReductionDuration = Tick.fromSecond(5);
 
-    public PoisonZone() {
-        super("Poison Zone");
+    public PoisonZone(@Nonnull DatabaseKey key) {
+        super(key, "Poison Zone");
 
         setDurationSec(6);
     }

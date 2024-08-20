@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -36,16 +37,17 @@ public class StoneCastle extends Talent implements Listener {
             .increase(AttributeType.KNOCKBACK_RESISTANCE, kbResistanceIncrease)
             .increase(AttributeType.EFFECT_RESISTANCE, ccResistanceIncrease);
 
-    public StoneCastle() {
-        super("Castle of Stone");
+    public StoneCastle(@Nonnull DatabaseKey key) {
+        super(key, "Castle of Stone");
 
         setDescription("""
                 Erect a castle of stone at your current location.
-                                
+                
                 When a &ateammate&7 &b&nwithin&7 the castle takes &cdamage&7, the damage is &asplit&7 between you.
-                                
+                
                 You also receive a %s, %s and %s increase.
-                """, AttributeType.DEFENSE, AttributeType.KNOCKBACK_RESISTANCE, AttributeType.EFFECT_RESISTANCE);
+                """.formatted(AttributeType.DEFENSE, AttributeType.KNOCKBACK_RESISTANCE, AttributeType.EFFECT_RESISTANCE)
+        );
 
         addAttributeDescription("Damage Split", "%.0f%%/%.0f%%".formatted(damageSplitSelf * 100, damageSplitOther * 100));
 

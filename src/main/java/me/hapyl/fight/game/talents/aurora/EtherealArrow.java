@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.aurora;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Named;
@@ -29,18 +30,19 @@ public class EtherealArrow extends AuroraArrowTalent {
     @DisplayField private final short maxStacks = (short) tempers.length;
     @DisplayField private final int buffDuration = Tick.fromSecond(6);
 
-    public EtherealArrow() {
-        super("Ethereal Arrows", ChatColor.AQUA, 3);
+    public EtherealArrow(@Nonnull DatabaseKey key) {
+        super(key, "Ethereal Arrows", ChatColor.AQUA, 3);
 
         setDescription("""
                 Equip {name} that &bapplies&7 a stack of %s to hit &ateammates.
-                                
+                
                 &6%s
                 &8▷&7 Increases %s by {critRateBoost}.
                 &8▷&7 Increases %s by {critDamageBoost}.
-                                
+                
                 &8;;Each stack has independent duration.
-                """.formatted(Named.ETHEREAL_SPIRIT, Named.ETHEREAL_SPIRIT.getName(), AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE));
+                """.formatted(Named.ETHEREAL_SPIRIT, Named.ETHEREAL_SPIRIT.getName(), AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE)
+        );
 
         setItem(Material.PRISMARINE_CRYSTALS);
         setCooldownSec(8);

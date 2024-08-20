@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -32,8 +33,8 @@ public class CipherLock extends TechieTalent {
             .decrease(AttributeType.ATTACK, 0.2d)  //
             .decrease(AttributeType.SPEED, 0.04d); // 20%
 
-    public CipherLock() {
-        super("Cipher Lock");
+    public CipherLock(@Nonnull DatabaseKey key) {
+        super(key, "Cipher Lock");
 
         setType(TalentType.IMPAIR);
         setItem(Material.SPECTRAL_ARROW);
@@ -104,8 +105,8 @@ public class CipherLock extends TechieTalent {
 
                 final String talentName = lockedTalent.getName();
 
-                player.sendMessage("&5🔒 &dYou locked %s's &l%s&d!", entity.getName(), talentName);
-                entity.sendMessage("&5🔒 &d%s's locked your &l%s&d!", player.getName(), talentName);
+                player.sendMessage("&5🔒 &dYou locked %s's &l%s&d!".formatted(entity.getName(), talentName));
+                entity.sendMessage("&5🔒 &d%s's locked your &l%s&d!".formatted(player.getName(), talentName));
             }
 
             private boolean next(int i) {

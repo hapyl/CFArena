@@ -1,22 +1,21 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.heroes.GlobalHeroStats;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.util.Numeric;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.SlotPattern;
-import me.hapyl.eterna.module.inventory.gui.SmartComponent;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -119,8 +118,7 @@ public class HeroStatisticGUI extends StyledGUI {
                 continue;
             }
 
-            final Talents enumTalent = talent.getHandle();
-            final long abilityUsage = stats.getAbilityUsage(enumTalent);
+            final long abilityUsage = stats.getAbilityUsage(talent);
 
             component.add(
                     new ItemBuilder(talent.getItem())

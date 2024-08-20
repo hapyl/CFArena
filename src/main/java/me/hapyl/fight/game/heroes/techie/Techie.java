@@ -1,5 +1,8 @@
 package me.hapyl.fight.game.heroes.techie;
 
+import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -13,12 +16,11 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.TalentLock;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.techie.DeviceHack;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
@@ -27,9 +29,6 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.hologram.Hologram;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.EventHandler;
@@ -149,7 +148,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                         // Steal energy
                         if (!player.isUltimateReady() && entity instanceof GamePlayer entityPlayer) {
                             energyStolen += neuralTheftEnergy;
-                            entityPlayer.setEnergy(entityPlayer.getEnergy() - neuralTheftEnergy);
+                            entityPlayer.removeEnergy(neuralTheftEnergy, player);
                             entityPlayer.spawnDebuffDisplay(neuralTheftTitle, 20);
                         }
                     }
@@ -165,17 +164,17 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.SABOTEUR.getTalent();
+        return TalentRegistry.SABOTEUR;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.CIPHER_LOCK.getTalent();
+        return TalentRegistry.CIPHER_LOCK;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.NEURAL_THEFT.getTalent();
+        return TalentRegistry.NEURAL_THEFT;
     }
 
     @Override
@@ -198,16 +197,17 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         @DisplayField(percentage = true) private final double ultimateLosePercent = 0.75d;
 
         public TechieUltimate() {
-            super("Lockdown", 90);
+            super(Techie.this, "Lockdown", 90);
 
             setDescription("""
                     Equip a &bhacking device&7; after a &nlong&7 &3casting time&7, &coverload&7 all implanted %s&fs.
-                                    
+                    
                     &cOverloading&7 the &fbugs&7 &cimplodes&7 them, causing affected enemies' &btalents&7 to be &dlocked&7.
                     &8;;Overloading bugs causes them to break.
-                                    
+                    
                     In addition, all &cenemies&7 &4lose&7 &b&n{ultimateLosePercent}&7 of their %s.
-                    """.formatted(Named.BUG, Named.ENERGY));
+                    """.formatted(Named.BUG, Named.ENERGY)
+            );
 
             setType(TalentType.IMPAIR);
             setItem(Material.IRON_BARS);
@@ -241,6 +241,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                         final TalentLock talentLock = entityPlayer.getTalentLock();
                         talentLock.setLockAll(lockdownTalentLockDuration);
 
+                        entityPlayer.getEntityData().addAssistingPlayer(player); // Mark assist
                         entityPlayer.setEnergy((int) (entityPlayer.getEnergy() * (1 - ultimateLosePercent)));
 
                         // Fx

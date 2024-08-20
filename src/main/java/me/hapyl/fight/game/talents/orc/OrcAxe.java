@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.orc;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,10 +27,12 @@ import javax.annotation.Nonnull;
 
 public class OrcAxe extends InputTalent {
 
-    public OrcAxe() {
-        super("Axe");
+    public OrcAxe(@Nonnull DatabaseKey key) {
+        super(key, "Axe");
 
-        setDescription("Equip and prepare your axe for action.");
+        setDescription("""
+                Equip and prepare your axe for action.
+                """);
 
         leftData.setAction("Spin")
                 .setDescription("""

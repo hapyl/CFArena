@@ -7,8 +7,8 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.Race;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import org.bukkit.Material;
@@ -73,7 +73,7 @@ public class KillingMachine extends Hero implements Disabled {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.LASER_EYE.getTalent();
+        return TalentRegistry.LASER_EYE;
     }
 
     @Override

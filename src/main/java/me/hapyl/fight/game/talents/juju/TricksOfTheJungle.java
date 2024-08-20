@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -19,8 +20,8 @@ public class TricksOfTheJungle extends Talent implements Listener {
     @DisplayField public final double horizontalSpread = 1.55d;
     @DisplayField public final double damage = 5.0d;
 
-    public TricksOfTheJungle() {
-        super("Tricks of the Jungle");
+    public TricksOfTheJungle(@Nonnull DatabaseKey key) {
+        super(key,"Tricks of the Jungle");
 
         setDurationSec(8);
         setCooldownSec(20);

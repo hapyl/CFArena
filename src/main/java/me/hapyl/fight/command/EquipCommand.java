@@ -41,6 +41,6 @@ public class EquipCommand extends SimplePlayerAdminCommand {
     @Nullable
     @Override
     protected List<String> tabComplete(CommandSender sender, String[] args) {
-        return completerSort(HeroRegistry.playable(), args);
+        return completerSort(HeroRegistry.keys(), args);
     }
 }

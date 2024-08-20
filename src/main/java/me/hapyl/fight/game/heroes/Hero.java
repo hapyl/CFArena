@@ -13,6 +13,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Event;
@@ -30,10 +31,13 @@ import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.Catchers;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.NullSafeList;
+import me.hapyl.fight.util.SingletonBehaviour;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.strict.StrictPackage;
 import org.bukkit.Material;
@@ -60,8 +64,10 @@ import java.util.Set;
 @AutoRegisteredListener
 @StrictPackage("me.hapyl.fight.game.heroes")
 public abstract class Hero
+        extends
+        SingletonBehaviour
         implements
-        DatabaseKey, ElementHandler, PlayerElementHandler,
+        DatabaseKeyed, ElementHandler, PlayerElementHandler,
         Rankable, DisplayFieldProvider, Formatted {
 
     private final DatabaseKey key;
@@ -76,7 +82,7 @@ public abstract class Hero
     @Nonnull public HeroEventHandler eventHandler;
 
     protected HeroMastery mastery;
-    @Nonnull protected UltimateTalent ultimate;
+    protected UltimateTalent ultimate;
 
     private Affiliation affiliation;
     private Gender gender;
@@ -103,7 +109,7 @@ public abstract class Hero
         this.archetypes = new ArchetypeList(this);
         this.minimumLevel = 0;
         this.itemMaker = new HeroPlayerItemMaker(this);
-        this.ultimate = UltimateTalent.UNFINISHED_ULTIMATE;
+        this.ultimate = null;
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
@@ -126,12 +132,15 @@ public abstract class Hero
         }
 
         this.eventHandler = new HeroEventHandler(this);
+
+        // Instantiate singleton
+        SingletonBehaviour.instantiate(this);
     }
 
     @Nonnull
     @Override
-    public final String getKey() {
-        return key.getKey();
+    public final DatabaseKey getDatabaseKey() {
+        return key;
     }
 
     @Nonnull
@@ -257,16 +266,7 @@ public abstract class Hero
      * @return this hero's ultimate duration.
      */
     public int getUltimateDuration() {
-        return ultimate.getDuration();
-    }
-
-    /**
-     * Sets this hero's ultimate duration.
-     *
-     * @param duration - New duration.
-     */
-    public void setUltimateDuration(int duration) {
-        this.ultimate.setDuration(duration);
+        return getUltimate().getDuration();
     }
 
     /**
@@ -432,7 +432,9 @@ public abstract class Hero
      *
      * @return this hero's ultimate.
      */
+    @Nonnull
     public UltimateTalent getUltimate() {
+        Catchers.catchNull(ultimate, "Ultimate is not set for %s!");
         return ultimate;
     }
 
@@ -446,7 +448,7 @@ public abstract class Hero
      *
      * @return this hero a talent.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public abstract Talent getFirstTalent();
 
     /**
@@ -454,7 +456,7 @@ public abstract class Hero
      *
      * @return this hero b talent.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public abstract Talent getSecondTalent();
 
     /**
@@ -462,7 +464,7 @@ public abstract class Hero
      *
      * @return this hero passive talent.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public abstract Talent getPassiveTalent();
 
     /**
@@ -470,7 +472,7 @@ public abstract class Hero
      *
      * @return this hero third talent, if exists.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public Talent getThirdTalent() {
         return null;
     }
@@ -480,7 +482,7 @@ public abstract class Hero
      *
      * @return this hero fourth talent, if exists.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public Talent getFourthTalent() {
         return null;
     }
@@ -490,7 +492,7 @@ public abstract class Hero
      *
      * @return this hero fifth talent, if exists.
      */
-    @ReturnValueMustBeAConstant
+    @ReturnValueMustBeAConstant(of = TalentRegistry.class)
     public Talent getFifthTalent() {
         return null;
     }
@@ -690,7 +692,7 @@ public abstract class Hero
             return;
         }
 
-        profile.getDatabase().heroEntry.setFavourite(null, isFavourite);
+        profile.getDatabase().heroEntry.setFavourite(this, isFavourite);
     }
 
     @Nonnull
@@ -863,26 +865,8 @@ public abstract class Hero
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        final Hero other = (Hero) object;
-        return Objects.equals(key, other.key);
-    }
-
-    @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hashCode(key);
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException("Heroes cannot be cloned.");
     }
 
     private void mapTalent(HotbarSlots slot) {

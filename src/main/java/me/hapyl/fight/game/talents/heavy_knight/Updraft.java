@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -33,14 +34,15 @@ public class Updraft extends Talent implements Listener {
     @DisplayField private final double plungeDamage = 7.5d;
     @DisplayField private final int maxPlungingTime = Tick.fromSecond(10);
 
-    public Updraft() {
-        super("Touchdown");
+    public Updraft(@Nonnull DatabaseKey key) {
+        super(key, "Touchdown");
 
         setDescription("""
                 While &nairborne&7, perform a devastating &bplunging&7 attack, dealing &cdamage&7 upon &nlanding&7.
-                                
+                
                 If there are &cenemies&7 at the &nsame&7 &nheight&7 level as you, push them down.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
         setItem(Material.DRIED_KELP);

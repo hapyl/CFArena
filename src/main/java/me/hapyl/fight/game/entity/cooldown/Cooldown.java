@@ -14,6 +14,7 @@ public enum Cooldown {
     CC_MESSAGE(1000),
     AMNESIA,
     JAPAN_BOOSTER(300),
+    PORTAL(1000),
     ;
 
     public final long duration;

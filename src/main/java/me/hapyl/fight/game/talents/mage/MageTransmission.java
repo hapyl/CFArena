@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.mage;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -19,10 +20,12 @@ public class MageTransmission extends Talent {
 
     @DisplayField(suffix = "blocks") private final double maxDistance = 30.0d;
 
-    public MageTransmission() {
-        super(
-                "Transmission",
-                "Instantly &bteleport&7 to your &etarget&7 block, but lose the ability to &nmove&7 for a short duration."
+    public MageTransmission(@Nonnull DatabaseKey key) {
+        super(key, "Transmission");
+
+        setDescription("""
+                Instantly &bteleport&7 to your &etarget&7 block, but lose the ability to &nmove&7 for a short duration.
+                """
         );
 
         setType(TalentType.MOVEMENT);

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -32,16 +33,19 @@ public class ShadowPrism extends Talent {
 
     private final PlayerMap<ArmorStand> playerPrism = PlayerMap.newMap();
 
-    public ShadowPrism() {
-        super("Shadow Prism", """
+    public ShadowPrism(@Nonnull DatabaseKey key) {
+        super(key, "Shadow Prism");
+
+        setDescription("""
                 Deploy a teleportation orb that travels in straight line.
-                                
+                
                 &e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.
-                                
+                
                 Use again to teleport to the orb after a short windup.
-                                
+                
                 &b;;This ability is invisible to your opponents!
-                """);
+                """
+        );
 
         setTexture("83ed4ce23933e66e04df16070644f7599eeb55307f7eafe8d92f40fb3520863c");
     }

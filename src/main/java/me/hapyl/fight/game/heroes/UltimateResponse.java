@@ -2,10 +2,8 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.UltimateTalent;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class UltimateResponse {
 

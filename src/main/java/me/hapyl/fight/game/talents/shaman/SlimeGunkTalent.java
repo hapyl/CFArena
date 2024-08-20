@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -38,14 +39,15 @@ public class SlimeGunkTalent extends Talent implements Listener {
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
     private final PlayerMap<SlimeGunk> gunkMap = PlayerMap.newMap();
 
-    public SlimeGunkTalent() {
-        super("Gunk of Slime");
+    public SlimeGunkTalent(@Nonnull DatabaseKey key) {
+        super(key, "Gunk of Slime");
 
         setDescription("""
                 Throw a gunk of slime in the direction you're facing.
-                                
+                
                 Upon landing, creates a &atoxic&7 fields that &2poisons&7 and drastically &3slow &cenemies&7.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.SLIME_BALL);

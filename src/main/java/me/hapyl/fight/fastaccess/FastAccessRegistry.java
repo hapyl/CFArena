@@ -33,7 +33,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Hero select
         for (Hero hero : HeroRegistry.playable()) {
-            register(new FastAccess("select_hero_" + hero.getKey(), Category.SELECT_HERO) {
+            register(new FastAccess("select_hero_" + hero.getDatabaseKey().key(), Category.SELECT_HERO) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     Manager.current().setSelectedHero(player, hero);

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.taker;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
@@ -7,9 +8,12 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.taker.DeathSwap;
 import me.hapyl.fight.game.talents.taker.FatalReap;
@@ -22,7 +26,6 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -127,17 +130,17 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
     @Override
     public FatalReap getFirstTalent() {
-        return (FatalReap) Talents.FATAL_REAP.getTalent();
+        return TalentRegistry.FATAL_REAP;
     }
 
     @Override
     public DeathSwap getSecondTalent() {
-        return (DeathSwap) Talents.DEATH_SWAP.getTalent();
+        return TalentRegistry.DEATH_SWAP;
     }
 
     @Override
     public SpiritualBonesPassive getPassiveTalent() {
-        return (SpiritualBonesPassive) Talents.SPIRITUAL_BONES.getTalent();
+        return TalentRegistry.SPIRITUAL_BONES;
     }
 
     @Nonnull
@@ -152,20 +155,21 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         @DisplayField private final int hitDelay = 10;
 
         public TakerUltimate() {
-            super("Embodiment of Death", 70);
+            super(Taker.this, "Embodiment of Death", 70);
 
             setDescription("""
                     Instantly consume all %s to cloak yourself in the &8darkness&7 for {duration}.
-                                            
+                    
                     After a short delay, embrace the death and become &binvulnerable&7.
-                                            
+                    
                     The &8darkness&7 force will constantly &brush forward&7, dealing &cAoE damage&7 and &eimpairing&7 anyone who dares to stay in the way.
                     &8;;Also recover health every time an enemy is hit.
-                                            
+                    
                     Hold &6&lSNEAK&7 to rush slower.
-                                    
+                    
                     &8;;The damage and healing is scaled with %s consumed.
-                    """.formatted(Named.SPIRITUAL_BONES, Named.SPIRITUAL_BONES.toStringRaw()));
+                    """.formatted(Named.SPIRITUAL_BONES, Named.SPIRITUAL_BONES.toStringRaw())
+            );
 
             setSound(Sound.ENTITY_HORSE_DEATH, 0.0f);
             setItem(Material.WITHER_SKELETON_SKULL);

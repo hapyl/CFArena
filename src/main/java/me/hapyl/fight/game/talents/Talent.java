@@ -1,38 +1,41 @@
 package me.hapyl.fight.game.talents;
 
 import com.google.common.collect.Lists;
-import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.Final;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.game.element.ElementHandler;
+import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
-import me.hapyl.fight.game.element.PlayerElementHandler;
-import me.hapyl.fight.util.handle.EnumHandle;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
+import me.hapyl.fight.game.element.ElementHandler;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.util.SingletonBehaviour;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import me.hapyl.fight.util.strict.StrictPackage;
 import org.bukkit.Material;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -40,10 +43,17 @@ import java.util.function.Consumer;
  */
 @AutoRegisteredListener
 @StrictPackage("me.hapyl.fight.game.talents")
-public abstract class Talent extends NonNullItemCreator implements ElementHandler, PlayerElementHandler, DisplayFieldProvider, Nameable, Timed, Cooldown, EnumHandle<Talents>, Comparable<Talent> {
+public abstract class Talent
+        extends
+        SingletonBehaviour
+        implements
+        ElementHandler, PlayerElementHandler, DisplayFieldProvider,
+        Nameable, Timed, Cooldown,
+        DatabaseKeyed, NonNullItemCreator {
 
+    private final DatabaseKey key;
     private final List<String> attributeDescription;
-    private final Final<Talents> handle;
+
     private TalentType type;
     private String name;
     @Nonnull
@@ -60,55 +70,41 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
     private int duration;
     private boolean autoAdd;
 
-    public Talent(@Nonnull String name) {
-        this(name, "", TalentType.DAMAGE);
-    }
-
-    public Talent(@Nonnull String name, @Nonnull String description) {
-        this(name, description, TalentType.DAMAGE);
-    }
-
-    public Talent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
-        this(name, description);
-        setItem(material);
-    }
-
-    /**
-     * Note on creating a talent:
-     * <ul>
-     *     <li>Keep to builder methods, like setItem(), setType() etc.</li>
-     *     <li>Preserve order of such builder methods, start with enums, end with primitives.</li>
-     * </ul>
-     */
-    @Super
-    public Talent(@Nonnull String name, @Nonnull String description, @Nonnull TalentType type) {
+    public Talent(@Nonnull DatabaseKey key, @Nonnull String name) {
+        this.key = key;
         this.name = name;
-        this.description = description;
+        this.description = "";
         this.attributeDescription = Lists.newArrayList();
-        this.type = type;
+        this.type = TalentType.DAMAGE;
         this.material = Material.BEDROCK;
         this.startAmount = 1;
         this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
         this.point = 1;
         this.duration = 0;
-        this.handle = new Final<>();
+
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
+
+        // Instantiate singleton
+        SingletonBehaviour.instantiate(this);
+    }
+
+    @Nonnull
+    @Override
+    public final DatabaseKey getDatabaseKey() {
+        return key;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(key);
     }
 
     // defaults to 1 point per 10 seconds of cooldown
     public void defaultPointGeneration() {
         point = calcPointGeneration(cd);
-    }
-
-    @Nonnull
-    @Override
-    public Talents getHandle() {
-        return handle.getOrThrow();
-    }
-
-    @Override
-    public void setHandle(@Nonnull Talents handle) {
-        this.handle.set(handle);
     }
 
     public void setAltUsage(String altUsage) {
@@ -184,10 +180,9 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
      * Replaces the existing description with provided.
      *
      * @param description - New description.
-     * @param format      - Formatters if needed.
      */
-    public void setDescription(@Nonnull String description, Object... format) {
-        this.description = description.formatted(format);
+    public void setDescription(@Nonnull String description) {
+        this.description = description;
     }
 
     public boolean isAutoAdd() {
@@ -202,9 +197,11 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
         return material;
     }
 
+    @Nonnull
     public ItemStack getItemAttributes() {
         if (itemStats == null) {
-            createItem();
+            // store the actual item, itemStats is assigned in createItem()
+            item = createItem();
         }
 
         return itemStats;
@@ -240,6 +237,18 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
     @Nonnull
     public String getTypeFormattedWithClassType() {
         return type.getName() + " " + getTalentClassType();
+    }
+
+    private ItemStack item;
+
+    @Nonnull
+    @Override
+    public ItemStack getItem() {
+        if (item == null) {
+            item = createItem();
+        }
+
+        return item;
     }
 
     @Nonnull
@@ -417,9 +426,8 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
     public final void postProcessTalent(@Nonnull GamePlayer player) {
         // Progress ability usage
         final StatContainer stats = player.getStats();
-        final Talents enumTalent = getHandle();
 
-        stats.addAbilityUsage(enumTalent);
+        stats.addAbilityUsage(this);
 
         // Progress achievement
         Achievements.USE_TALENTS.complete(player);
@@ -542,18 +550,6 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
         startCd(player, 100000);
     }
 
-    @Nonnull
-    public String getHandleName() {
-        final Talents handle = this.handle.get();
-
-        return handle != null ? handle.name().toLowerCase() : "NO_HANDLE";
-    }
-
-    @Override
-    public int compareTo(@Nonnull Talent o) {
-        return handle.getOrThrow().ordinal() - o.handle.getOrThrow().ordinal();
-    }
-
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
         if (format == null || format.length == 0) {
             return toFormat;
@@ -604,5 +600,4 @@ public abstract class Talent extends NonNullItemCreator implements ElementHandle
 
         return Response.OK;
     }
-
 }

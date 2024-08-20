@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.shark;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -22,8 +23,13 @@ public class Whirlpool extends Talent {
 
     private final double range = 4.0d;
 
-    public Whirlpool() {
-        super("Whirlpool", "Create a whirlpool at your current location that pulls nearby enemies towards the center.");
+    public Whirlpool(@Nonnull DatabaseKey key) {
+        super(key, "Whirlpool");
+
+        setDescription("""
+                Create a whirlpool at your current location that pulls nearby enemies towards the center.
+                """
+        );
 
         setItem(Material.HEART_OF_THE_SEA);
 

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.talents.LoreAppender;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.talents.LoreAppender;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -9,43 +9,40 @@ import javax.annotation.Nonnull;
 /**
  * Represents a class that can create an ItemStack.
  */
-public abstract class NonNullItemCreator implements LoreAppender {
-
-    protected ItemStack item;
-
-    public final void setItem(@Nonnull ItemStack item) {
-        if (this.item != null) {
-            throw new IllegalStateException("Item already set!");
-        }
-
-        this.item = item;
-    }
+public interface NonNullItemCreator extends LoreAppender {
 
     @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
-    }
-
-    public final ItemStack getItemUnsafe() throws IllegalStateException {
-        if (this.item == null) {
-            throw new IllegalStateException("getItemUnsafe()");
-        }
-
-        return item;
-    }
-
-    @Nonnull
-    public final ItemStack getItem() {
-        if (item == null) {
-            item = createItem();
-        }
-
-        return item;
+    default void appendLore(@Nonnull ItemBuilder builder) {
     }
 
     /**
-     * A class must override and set item using this method.
+     * Gets the {@link ItemStack} produces by this {@link NonNullItemCreator}.
+     *
+     * @return the {@link ItemStack}.
+     * @implNote <b>must</b> set call {@link #createItem()} if the item is {@code null}
+     * <br>
+     * <pre>{@code
+     *  private ItemStack item;
+     *
+     *  public ItemStack getItem() {
+     *      if (item == null) {
+     *          item = createItem();
+     *      }
+     *
+     *      return item;
+     *  }
+     * }</pre>
      */
     @Nonnull
-    public abstract ItemStack createItem();
+    ItemStack getItem();
+
+    /**
+     * Construct an {@link ItemStack}.
+     * <br>
+     *
+     * @implNote This always returns a clean copy of the {@link ItemStack}, {@link #getItem()} must call and assign a reference.
+     */
+    @Nonnull
+    ItemStack createItem();
 
 }

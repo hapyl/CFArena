@@ -85,14 +85,13 @@ import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
-import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
-import me.hapyl.fight.game.talents.witcher.Akciy;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.team.Entry;
@@ -227,8 +226,36 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ArchetypeCommand("archetype"));
         register(new TermCommand("term", PlayerRank.DEFAULT));
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
+        register(new LobbyCommand("lobby"));
 
         // *=* Inner commands *=* //
+        register("scaryWither", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        TalentRegistry.BLINDING_CURSE.scaryWither(gp);
+                        gp.sendMessage("&8Boo!");
+                    });
+        });
+
+        register("whatsmyenergy", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        final double energy = gp.getEnergy();
+                        final UltimateTalent ultimate = gp.getUltimate();
+
+                        gp.sendMessage("&aYour energy: %s".formatted(energy));
+
+                        if (ultimate instanceof OverchargeUltimateTalent overcharge) {
+                            gp.sendMessage("&bUltimate cost: %s/%s".formatted(overcharge.getMinCost(), overcharge.getCost()));
+                        }
+                        else {
+                            gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
+                        }
+
+                        gp.sendMessage("&cString: " + gp.getUltimateString(GamePlayer.UltimateColor.PRIMARY));
+                    });
+        });
+
         register("loadClass", (player, args) -> {
             final String classToLoad = args.getString(0);
 
@@ -438,10 +465,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         registerDebug("maxChaosStacks", (player, args) -> {
             final NyxData data = HeroRegistry.NYX.getPlayerData(player);
-
-            for (int i = 0; i < NyxData.MAX_CHAOS_STACKS; i++) {
-                data.incrementChaosStacks();
-            }
+            data.incrementChaosStacks(NyxData.MAX_CHAOS_STACKS);
 
             player.sendMessage("&aDone!");
         });
@@ -493,8 +517,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final IcyShardsPassive talent = (IcyShardsPassive) Talents.ICY_SHARDS.getTalent();
-            talent.launchIcicles(gamePlayer);
+            TalentRegistry.ICY_SHARDS.launchIcicles(gamePlayer);
         });
 
         register("toStringRarity", (player, args) -> {
@@ -673,7 +696,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("stunMe", (player, args) -> {
-            final Akciy talent = Talents.AKCIY.getTalent(Akciy.class);
             final GamePlayer gamePlayer = CF.getPlayer(player);
             final int duration = args.get(0).toInt(30);
 
@@ -682,7 +704,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            talent.stun(gamePlayer, duration);
+            TalentRegistry.AKCIY.stun(gamePlayer, duration);
             Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
         });
 
@@ -1143,14 +1165,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("clearCachedTalentItems", (player, args) -> {
-            for (Talents enumTalent : Talents.values()) {
-                final Talent talent = enumTalent.getTalent();
-                assert talent == null;
-
-                if (talent != null) {
-                    talent.nullifyItem();
-                }
-            }
+            TalentRegistry.values().forEach(talent -> {
+                talent.nullifyItem();
+            });
 
             Chat.sendMessage(player, "&aDone!");
         });
@@ -1425,20 +1442,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             final ItemStack item = player.getInventory().getItemInMainHand();
             final ItemMeta meta = item.getItemMeta();
 
+            // TODO (Tue, Aug 20 2024 @xanyjl): Make this return just one thing if the trim is active
+
+            final StringBuilder commandCopy = new StringBuilder();
+            boolean hasColor = false;
+
             if (meta instanceof LeatherArmorMeta colorMeta) {
                 final org.bukkit.Color color = colorMeta.getColor();
                 final int red = color.getRed();
                 final int green = color.getGreen();
                 final int blue = color.getBlue();
 
-                final me.hapyl.fight.game.color.Color stringColor = new me.hapyl.fight.game.color.Color(color);
-
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.suggestCommand(red + ", " + green + ", " + blue),
-                        LazyEvent.showText("&eClick to copy color!"),
-                        "&aColor: " + stringColor + "∎∎∎ &6&lCLICK TO COPY RGB"
-                );
+                hasColor = true;
+                commandCopy.append(red).append(", ").append(green).append(", ").append(blue);
             }
 
             if (meta instanceof ArmorMeta armorMeta) {
@@ -1451,14 +1467,20 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
                     final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
 
-                    Chat.sendClickableHoverableMessage(
-                            player,
-                            LazyEvent.suggestCommand("TrimPattern." + patternKey + ", TrimMaterial." + materialKey),
-                            LazyEvent.showText("&eClick to copy armor trim!"),
-                            "&aTrim: " + patternKey + " x " + materialKey + " &6&lCLICK TO COPY TRIM"
-                    );
+                    if (hasColor) {
+                        commandCopy.append(", ");
+                    }
+
+                    commandCopy.append("TrimPattern.").append(patternKey).append(", TrimMaterial.").append(materialKey);
                 }
             }
+
+            Chat.sendClickableHoverableMessage(
+                    player,
+                    LazyEvent.suggestCommand(commandCopy.toString()),
+                    LazyEvent.showText("&7Click to copy!"),
+                    "Command generated! &6&lCLICK TO COPY!"
+            );
 
         });
 

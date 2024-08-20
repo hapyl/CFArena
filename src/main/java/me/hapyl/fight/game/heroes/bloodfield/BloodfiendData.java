@@ -3,13 +3,12 @@ package me.hapyl.fight.game.heroes.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.TalentReference;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.archive.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -24,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassive> {
+public class BloodfiendData implements Ticking {
 
     private final GamePlayer player;
     private final Map<LivingGameEntity, BiteData> succulence;
@@ -84,18 +83,17 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
     @Nonnull
     public BiteData getBiteData(LivingGameEntity entity) {
-        return succulence.computeIfAbsent(entity, fn -> new BiteData(getTalent(), this.player, entity));
+        return succulence.computeIfAbsent(entity, fn -> new BiteData(this.player, entity));
     }
 
     public void addSucculence(LivingGameEntity entity) {
-        final BloodfiendPassive succulence = getTalent();
+        final BloodfiendPassive succulence = TalentRegistry.SUCCULENCE;
         final BiteData biteData = getBiteData(entity);
 
         biteData.bite(succulence.biteDuration);
     }
 
     public void stopSucculence(LivingGameEntity player) {
-        final BloodfiendPassive succulence = getTalent();
         final BiteData biteDara = this.succulence.remove(player);
 
         if (biteDara != null) {
@@ -130,7 +128,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
             final int distanceToGround = getDistanceToGround();
 
-            if (distanceToGround >= getTalent().maxFlightHeight) {
+            if (distanceToGround >= TalentRegistry.SUCCULENCE.maxFlightHeight) {
                 player.sendMessage("&6&l\uD83D\uDD4A &eThe bats are afraid of height!");
                 stopFlying();
                 return;
@@ -149,7 +147,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
         player.setFlySpeed(0.08f);
 
         flying = true;
-        flightTime = getTalent().flightDuration;
+        flightTime = TalentRegistry.SUCCULENCE.flightDuration;
 
         // Fx
         player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.0f);
@@ -184,7 +182,7 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     public void cooldownFlight(boolean respawn) {
-        final BloodfiendPassive talent = getTalent();
+        final BloodfiendPassive talent = TalentRegistry.SUCCULENCE;
         final int cooldown = respawn ? talent.flightCooldown / 2 : talent.flightCooldown;
 
         player.setCooldown(talent.getMaterial(), cooldown);
@@ -202,18 +200,17 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
     }
 
     public int getFlightCooldown() {
-        final Material material = Talents.SUCCULENCE.getTalent().getMaterial();
+        final Material material = TalentRegistry.SUCCULENCE.getMaterial();
         return player.getCooldown(material);
     }
 
     public int getDistanceToGround() {
         final Location location = player.getLocation();
-        final BloodfiendPassive talent = getTalent();
 
         int distance = 0;
         Block block = location.getBlock();
 
-        while (!block.getType().isSolid() && !(distance > talent.maxFlightHeight)) {
+        while (!block.getType().isSolid() && !(distance > TalentRegistry.SUCCULENCE.maxFlightHeight)) {
             block = block.getRelative(BlockFace.DOWN);
             distance++;
         }
@@ -237,12 +234,6 @@ public class BloodfiendData implements Ticking, TalentReference<BloodfiendPassiv
 
     public int getSuckedCount() {
         return succulence.size();
-    }
-
-    @Nonnull
-    @Override
-    public BloodfiendPassive getTalent() {
-        return Talents.SUCCULENCE.getTalent(BloodfiendPassive.class);
     }
 
     public boolean hasFlightCooldown() {

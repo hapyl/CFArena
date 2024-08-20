@@ -49,6 +49,7 @@ import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.registry.AbstractStaticRegistry;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -57,7 +58,10 @@ import java.util.*;
 
 import static me.hapyl.fight.database.key.DatabaseKey.ofEnum;
 
-public final class HeroRegistry {
+/**
+ * {@inheritDoc}
+ */
+public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     public static final Archer ARCHER;
     public static final Alchemist ALCHEMIST;
@@ -115,6 +119,8 @@ public final class HeroRegistry {
     private static GlobalHeroStats globalStats;
 
     static {
+        AbstractStaticRegistry.ensure(HeroRegistry.class, Hero.class);
+
         values = new LinkedHashSet<>();
         playable = new ArrayList<>();
         byArchetype = new HashMap<>();
@@ -187,20 +193,12 @@ public final class HeroRegistry {
 
     @Nonnull
     public static Hero ofString(@Nonnull String string) {
-        final Hero hero = ofStringOrNull(string);
-
-        return hero != null ? hero : defaultHero();
+        return AbstractStaticRegistry.ofString(values, string, defaultHero());
     }
 
     @Nullable
     public static Hero ofStringOrNull(@Nonnull String string) {
-        for (Hero hero : values) {
-            if (hero.isKeyMatches(string)) {
-                return hero;
-            }
-        }
-
-        return null;
+        return AbstractStaticRegistry.ofStringOrNull(values, string);
     }
 
     @Nonnull
@@ -263,13 +261,7 @@ public final class HeroRegistry {
 
     @Nonnull
     public static List<String> keys() {
-        final List<String> al = new ArrayList<>();
-
-        for (Hero hero : values) {
-            al.add(hero.getKey());
-        }
-
-        return al;
+        return AbstractStaticRegistry.keys(values);
     }
 
     private static <K> Set<Hero> setFromByMap(Map<K, List<Hero>> map, K key) {

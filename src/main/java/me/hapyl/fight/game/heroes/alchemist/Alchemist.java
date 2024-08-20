@@ -20,8 +20,8 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
@@ -148,12 +148,11 @@ public class Alchemist extends Hero implements UIComponent {
         victim.addEffect(randomEffect, 3, 20);
         effect.decrementEffectPotions();
 
-        player.sendMessage(
-                "&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.",
+        player.sendMessage("&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.".formatted(
                 Chat.capitalize(randomEffect.getName()),
                 victim.getName(),
                 effect.getEffectHits()
-        );
+        ));
 
         player.playWorldSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
     }
@@ -207,17 +206,17 @@ public class Alchemist extends Hero implements UIComponent {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.POTION.getTalent();
+        return TalentRegistry.POTION;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.CAULDRON.getTalent();
+        return TalentRegistry.CAULDRON;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.INTOXICATION.getTalent();
+        return TalentRegistry.INTOXICATION;
     }
 
     public void addToxin(GamePlayer player, int value) {
@@ -269,7 +268,7 @@ public class Alchemist extends Hero implements UIComponent {
 
     private class AlchemistUltimate extends UltimateTalent {
         public AlchemistUltimate() {
-            super("Alchemical Madness", 50);
+            super(Alchemist.this, "Alchemical Madness", 50);
 
             setDescription("""
                     Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.

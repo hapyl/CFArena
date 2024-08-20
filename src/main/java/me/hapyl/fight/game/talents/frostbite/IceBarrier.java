@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.frostbite;
 
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.Direction;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -20,11 +21,11 @@ public class IceBarrier extends Talent {
     @DisplayField protected final double healingPerTick = 2.0d;
 
     public IceBarrier() {
-        super("Ice Barrier");
+        super(DatabaseKey.empty(), "Ice Barrier");
 
         setDescription("""
                 Creates an ice wall at your &etarget&7 location that melts overtime.
-                                
+                
                 While active, the wall will periodically unleash freezing energy, healing yourself and slowing enemies down.
                 """);
 

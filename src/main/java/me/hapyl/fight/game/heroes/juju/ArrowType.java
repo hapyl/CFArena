@@ -7,9 +7,8 @@ import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.Timed;
-import me.hapyl.fight.game.talents.juju.PoisonZone;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
 import me.hapyl.fight.util.Described;
 import org.bukkit.Location;
@@ -33,12 +32,8 @@ public enum ArrowType implements Described {
             bloomArrow(player, arrow.getLocation());
         }
 
-        private TricksOfTheJungle getTalent() {
-            return Talents.TRICKS_OF_THE_JUNGLE.getTalent(TricksOfTheJungle.class);
-        }
-
         private void bloomArrow(GamePlayer player, Location location) {
-            final TricksOfTheJungle talent = getTalent();
+            final TricksOfTheJungle talent = TalentRegistry.TRICKS_OF_THE_JUNGLE;
             final double horizontalSpread = talent.horizontalSpread;
             final double ySpread = talent.ySpread;
 
@@ -60,7 +55,7 @@ public enum ArrowType implements Described {
             }
 
             final Arrow arrow = location.getWorld().spawnArrow(location, vector, 1.5f, 0.25f);
-            final double damage = getTalent().damage;
+            final double damage = TalentRegistry.TRICKS_OF_THE_JUNGLE.damage;
 
             arrow.setDamage(damage);
             arrow.setShooter(player.getPlayer());
@@ -74,7 +69,7 @@ public enum ArrowType implements Described {
     ) {
         @Override
         public void onHit(GamePlayer player, Arrow arrow) {
-            Talents.POISON_ZONE.getTalent(PoisonZone.class).execute(player, arrow.getLocation());
+            TalentRegistry.POISON_ZONE.execute(player, arrow.getLocation());
         }
 
         @Override

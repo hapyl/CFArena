@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.librarian;
 
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -19,8 +20,8 @@ public class BlackHole extends LibrarianTalent {
 
     // FIXME: 027, Mar 27, 2023 -> this works without grimoire
 
-    public BlackHole() {
-        super("Black Hole");
+    public BlackHole(@Nonnull DatabaseKey key) {
+        super(key, "Black Hole");
 
         addDescription(
                 "Creates a black hole at your target block. Pulling enemies in and dealing <scaled> damage per b based on &cGrimoire &7level."

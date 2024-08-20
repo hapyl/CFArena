@@ -3,7 +3,6 @@ package me.hapyl.fight.event.custom;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.event.HandlerList;
 
@@ -32,16 +31,6 @@ public class TalentUseEvent extends GamePlayerEvent {
     @Nonnull
     public Talent getTalent() {
         return talent;
-    }
-
-    /**
-     * Gets the talent's handle that was used.
-     *
-     * @return the talent's handle that was used.
-     */
-    @Nonnull
-    public Talents getTalentHandle() {
-        return talent.getHandle();
     }
 
     /**

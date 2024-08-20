@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
+import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
@@ -13,20 +14,18 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shadow_assassin.DarkCover;
 import me.hapyl.fight.game.talents.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.shadow_assassin.ShadowAssassinClone;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.particle.ParticleBuilder;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -213,22 +212,22 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.SHADOW_SWITCH.getTalent();
+        return TalentRegistry.SHADOW_SWITCH;
     }
 
     @Override
     public DarkCover getSecondTalent() {
-        return (DarkCover) Talents.DARK_COVER.getTalent();
+        return (DarkCover) TalentRegistry.DARK_COVER;
     }
 
     @Override
     public ShadowAssassinClone getThirdTalent() {
-        return (ShadowAssassinClone) Talents.SHADOW_ASSASSIN_CLONE.getTalent();
+        return (ShadowAssassinClone) TalentRegistry.SHADOW_ASSASSIN_CLONE;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.SHADOW_ENERGY.getTalent();
+        return TalentRegistry.SHADOW_ENERGY;
     }
 
     @Nonnull
@@ -253,15 +252,16 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private class ShadowAssassinUltimate extends UltimateTalent {
         public ShadowAssassinUltimate() {
-            super("Extreme Focus", 80);
+            super(ShadowAssassin.this, "Extreme Focus", 80);
 
             setDescription("""
                     Enter {name} for {duration}.
-                                    
+                    
                     While active, your &amelee&7 attacks will &nnot&7 miss if an &cenemy&7 is within your line of sight.
-                                    
+                    
                     You cannot perform &eShadow Stab&7 while {name} is active.
-                    """);
+                    """
+            );
 
             setType(TalentType.ENHANCE);
             setItem(Material.GOLDEN_CARROT);

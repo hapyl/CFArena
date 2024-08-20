@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.taker;
 
 import com.google.common.collect.Sets;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -27,14 +28,15 @@ public class FatalReap extends Talent {
     @DisplayField(suffix = "blocks") private final double length = 2.0d;
     @DisplayField(suffix = "%", suffixSpace = false) private final double damagePercent = 20.0d;
 
-    public FatalReap() {
-        super("Fatal Reap");
+    public FatalReap(@Nonnull DatabaseKey key) {
+        super(key, "Fatal Reap");
 
         setDescription("""
                 Instantly swipe your scythe to unleash a &8devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7.
-                                
+                
                 Convert &b{spiritualBoneGeneration}&7 broken bones from each hit enemy directly into %s.
-                """, Named.SPIRITUAL_BONES);
+                """.formatted(Named.SPIRITUAL_BONES)
+        );
 
         setItem(Material.NETHERITE_HOE);
         setCooldownSec(12);

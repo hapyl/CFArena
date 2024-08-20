@@ -7,6 +7,8 @@ import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
+import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -31,21 +33,14 @@ import java.util.function.Consumer;
  */
 public abstract class UltimateTalent extends Talent implements DisplayFieldDataProvider {
 
-    public static final UltimateTalent UNFINISHED_ULTIMATE = new UltimateTalent("Unfinished Ultimate", 12345) {
-        @Nonnull
-        @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            return UltimateResponse.error("This ultimate is now finished!");
-        }
-    };
     protected final int cost;
     private final List<DisplayFieldData> dataFields;
     private Sound sound;
     private float pitch;
     private int castDuration;
 
-    public UltimateTalent(@Nonnull String name, int pointCost) {
-        super(name);
+    public UltimateTalent(@Nonnull DatabaseKeyed keyed, @Nonnull String name, int pointCost) {
+        super(DatabaseKey.ofEnum(keyed.getDatabaseKey().key() + "_ULTIMATE"), name);
 
         this.cost = pointCost;
         this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
@@ -69,8 +64,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         if (hasCd(player)) {
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
                 player.sendMessage(
-                        "&4&l※ &cYour ultimate is on cooldown for %s!",
-                        CFUtils.formatTick(getCdTimeLeft(player))
+                        "&4&l※ &cYour ultimate is on cooldown for %s!".formatted(CFUtils.formatTick(getCdTimeLeft(player)))
                 );
                 player.playSound(SoundEffect.ERROR);
             }
@@ -87,10 +81,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
 
         // Predicate fails
         if (response.isError()) {
-            player.sendMessage(
-                    "&4&l※ &cCannot use ultimate! %s",
-                    response.getReason()
-            );
+            player.sendMessage("&4&l※ &cCannot use ultimate! %s".formatted(response.getReason()));
             player.playSound(SoundEffect.ERROR);
             return null;
         }
@@ -261,15 +252,13 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         return player.getEnergy() >= cost;
     }
 
-    public void atEnergy(@Nonnull GamePlayer player, double energy) {
-        if (energy != cost) {
-            return;
+    public void atEnergy(@Nonnull GamePlayer player, double previousEnergy, double energy) {
+        if (previousEnergy < cost && energy >= cost) {
+            sendChargedMessage(player, "charged!");
+
+            player.sendTitle("&3※&b&l※&3※", "&b&lULTIMATE CHARGED!", 5, 15, 5);
+            player.playSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
         }
-
-        sendChargedMessage(player, "charged!");
-
-        player.sendTitle("&3※&b&l※&3※", "&b&lULTIMATE CHARGED!", 5, 15, 5);
-        player.playSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 2.0f);
     }
 
     protected void sendChargedMessage(GamePlayer player, String string) {

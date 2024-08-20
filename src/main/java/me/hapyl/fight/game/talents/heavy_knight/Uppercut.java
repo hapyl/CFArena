@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -26,14 +27,15 @@ public class Uppercut extends Talent {
     @DisplayField private final double height = 3.0d;
     @DisplayField private final double damage = 2.5d;
 
-    public Uppercut() {
-        super("Uppercut");
+    public Uppercut(@Nonnull DatabaseKey key) {
+        super(key, "Uppercut");
 
         setDescription("""
                 Perform an &nuppercut&7 attack, &bjumping&7 up with &cenemies&7 in front of you.
-                                
+                
                 Hit &cenemies&7 fall down &3slowly&7, &eimpairing&7 their movement.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
         setItem(Material.RABBIT_FOOT);

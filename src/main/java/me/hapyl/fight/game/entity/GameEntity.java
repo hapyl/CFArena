@@ -274,8 +274,8 @@ public class GameEntity {
         asPlayer(player -> Chat.sendTitle(player, "&4&l⚠", warning, 0, stay, 5));
     }
 
-    public void sendMessage(String message, Object... objects) {
-        Chat.sendMessage(entity, message.formatted(objects));
+    public void sendMessage(String message) {
+        Chat.sendMessage(entity, message);
     }
 
     public void sendMessage(@Nonnull MessageType messageType, @Nonnull String message) {
@@ -298,8 +298,8 @@ public class GameEntity {
         sendTitle("", subtitle, fadeIn, stay, fadeOut);
     }
 
-    public void sendActionbar(@Nonnull String text, @Nullable Object... objects) {
-        asPlayer(player -> Chat.sendActionbar(player, text.formatted(objects)));
+    public void sendActionbar(@Nonnull String text) {
+        asPlayer(player -> Chat.sendActionbar(player, text));
     }
 
     public void playSound(@Nonnull Sound sound, float pitch) {

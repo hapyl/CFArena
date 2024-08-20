@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.pytaria;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -44,12 +45,15 @@ public class FlowerBreeze extends Talent {
                     .increase(AttributeType.ATTACK, attackIncrease)
                     .increase(AttributeType.DEFENSE, defenseIncrease);
 
-    public FlowerBreeze() {
-        super("Flower Breeze", """
+    public FlowerBreeze(@Nonnull DatabaseKey key) {
+        super(key, "Flower Breeze");
+
+        setDescription("""
                 Feel the breeze of the flowers that damages your but grants &c%s &7and &b%s &7boost for {duration}.
-                                
+                
                 &8;;This ability cannot kill.
-                """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE));
+                """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE)
+        );
 
         setType(TalentType.ENHANCE);
         setItem(Material.RED_DYE);

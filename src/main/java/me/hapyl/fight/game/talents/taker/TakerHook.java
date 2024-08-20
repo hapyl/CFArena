@@ -93,11 +93,10 @@ public class TakerHook {
                     hooked = nearest;
                     double health = hooked.getHealth();
 
-                    nearest.sendMessage(
-                            "&4☠ &cOuch! %s hooked you, and you lost &e%s%%&c of your health!",
+                    nearest.sendMessage("&4☠ &cOuch! %s hooked you, and you lost &e%s%%&c of your health!".formatted(
                             player.getName(),
                             talent().damagePercent
-                    );
+                    ));
 
                     nearest.addEffect(Effects.SLOW, 1, 60);
                     nearest.addEffect(Effects.WITHER, 1, 60);

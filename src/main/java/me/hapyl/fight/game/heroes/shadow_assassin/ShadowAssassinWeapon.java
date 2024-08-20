@@ -63,7 +63,7 @@ public class ShadowAssassinWeapon extends Weapon implements HeroReference<Shadow
 
         entity.getAttributes().decreaseTemporary(Temper.BACKSTAB, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration, player);
 
-        entity.sendMessage("&a%s stabbed you!", player.getName());
+        entity.sendMessage("&a%s stabbed you!".formatted(player.getName()));
         player.setCooldown(getMaterial(), cooldown);
 
         // Fx

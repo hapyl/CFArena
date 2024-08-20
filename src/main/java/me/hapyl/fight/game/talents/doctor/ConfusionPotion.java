@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.doctor;
 
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,16 +27,16 @@ public class ConfusionPotion extends Talent {
 
     @DisplayField private final int explosionDelay = 20;
 
-    public ConfusionPotion() {
-        super(
-                "Dr. Ed's Amnesia Extract Serum",
+    public ConfusionPotion(@Nonnull DatabaseKey key) {
+        super(key, "Dr. Ed's Amnesia Extract Serum");
+
+        setDescription("""
+                Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.
+                
+                Amnesia will affect opponents within range; This effect will persist for additional &b1s &7after player leaves the aura.
+                
+                &8;;Dr. Ed is immune to his own amnesia
                 """
-                        Swiftly throw a potion in the air that explodes and creates an aura for &b{duration}&7.
-                                                
-                        Amnesia will affect opponents within range; This effect will persist for additional &b1s &7after player leaves the aura.
-                                                
-                        &8;;Dr. Ed is immune to his own amnesia
-                        """
         );
 
         setType(TalentType.IMPAIR);

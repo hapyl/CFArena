@@ -25,7 +25,7 @@ public class FrenzyMode extends CFGameMode {
 
         setDescription("""
                 A free for all with limited lives!
-                                
+                
                 Max Lives: &a%s
                 """.formatted(maxLives));
 
@@ -86,7 +86,7 @@ public class FrenzyMode extends CFGameMode {
                 player.setOutline(Outline.RED);
             }
             default -> {
-                player.sendMessage("&7[&4☠&7] &a%s lives remaining!", remainingLives);
+                player.sendMessage("&7[&4☠&7] &a%s lives remaining!".formatted(remainingLives));
                 player.setOutline(Outline.CLEAR);
             }
         }

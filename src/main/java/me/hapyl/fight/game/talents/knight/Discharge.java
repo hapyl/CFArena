@@ -3,12 +3,11 @@ package me.hapyl.fight.game.talents.knight;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.ThreadRandom;
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.knight.BlastKnightData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -27,7 +26,7 @@ import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nonnull;
 
-public class Discharge extends Talent implements Listener, HeroReference<BlastKnight> {
+public class Discharge extends Talent implements Listener {
 
     @DisplayField private final short minChargesToDischarge = 3;
     @DisplayField private final int dischargeDelayPerShieldCharge = 3;
@@ -37,14 +36,15 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
 
     private final ItemStack fxItem = ItemBuilder.playerHeadUrl("d81fcffb53acbc7c00c53bc7121ca259371b5b76c001dc52139e1804c287e54").asIcon();
 
-    public Discharge() {
-        super("Quantum Discharge");
+    public Discharge(@Nonnull DatabaseKey key) {
+        super(key, "Quantum Discharge");
 
         setDescription("""
                 Spend all &dQuantum Energy&7 to launch a &ddevice&7 that charges overtime.
-                                
+                
                 Once charged, create &fNova Explosion&7 that deals &cAoE damage&7 and knocks enemies back.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
         setItem(Material.POPPED_CHORUS_FRUIT);
@@ -53,7 +53,7 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final BlastKnightData data = getHero().getPlayerData(player);
+        final BlastKnightData data = HeroRegistry.BLAST_KNIGHT.getPlayerData(player);
         final int shieldCharge = data.getShieldCharge();
 
         if (shieldCharge < minChargesToDischarge) {
@@ -97,7 +97,7 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
                 explode(location, player, damage);
 
                 // Give shield back
-                player.setItem(EquipmentSlot.OFF_HAND, getHero().shieldItem);
+                player.setItem(EquipmentSlot.OFF_HAND, HeroRegistry.BLAST_KNIGHT.shieldItem);
                 player.setCooldown(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
 
                 startCd(player);
@@ -128,9 +128,4 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
         player.playWorldSound(location, Sound.ENTITY_WARDEN_DEATH, 0.0f);
     }
 
-    @Nonnull
-    @Override
-    public BlastKnight getHero() {
-        return HeroRegistry.BLAST_KNIGHT;
-    }
 }

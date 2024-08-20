@@ -63,7 +63,7 @@ public abstract class Construct extends TickingGameTask {
 
         if (tick > duration || entity.isDead()) {
             if (entity.isDead()) {
-                player.sendMessage("&6&l\uD83D\uDD27 &cYour %s was destroyed!", getName());
+                player.sendMessage("&6&l\uD83D\uDD27 &cYour %s was destroyed!".formatted(getName()));
             }
 
             hero.removeConstruct(player);
@@ -170,7 +170,7 @@ public abstract class Construct extends TickingGameTask {
 
         player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 10, 0.25d, 0.25d, 0.25, 0f);
 
-        player.sendMessage("&6&l🔧 &eLevelled up %s to level &l%s&e!", getName(), getLevelRoman());
+        player.sendMessage("&6&l🔧 &eLevelled up %s to level &l%s&e!".formatted(getName(), getLevelRoman()));
         return true;
     }
 

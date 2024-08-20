@@ -11,7 +11,7 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
@@ -147,7 +147,7 @@ public class AlchemicalCauldron extends TickingGameTask {
     }
 
     public void finish() {
-        Talents.CAULDRON.getTalent().startCd(owner);
+        TalentRegistry.CAULDRON.startCd(owner);
         HeroRegistry.ALCHEMIST.startCauldronBoost(owner);
 
         owner.addEffect(Effects.SPEED, 2, 30);
