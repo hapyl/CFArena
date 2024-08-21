@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.GVar;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
@@ -44,7 +43,7 @@ public class Amnesia extends Effect implements Listener {
                     new Random().nextBoolean() ? pushSpeed : -pushSpeed
             ));
 
-            player.startCooldown(Cooldown.AMNESIA, GVar.get("amnesia", 50));
+            player.startCooldown(Cooldown.AMNESIA, 50);
         }
     }
 

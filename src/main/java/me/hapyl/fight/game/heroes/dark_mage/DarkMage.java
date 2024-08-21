@@ -154,7 +154,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
     @Override
     @Nonnull
     public ShadowClone getFourthTalent() {
-        return (ShadowClone) TalentRegistry.SHADOW_CLONE;
+        return TalentRegistry.SHADOW_CLONE;
     }
 
     @Override

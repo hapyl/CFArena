@@ -143,6 +143,7 @@ import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.vampire.BloodThirstPassive;
+import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePet;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.talents.witcher.*;
@@ -394,7 +395,8 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     /**
      * {@link Vampire}
      */
-    public static final VampirePet VAMPIRE_PET;
+    @Deprecated public static final VampirePet VAMPIRE_PET;
+    public static final Bloodshift BLOODSHIFT;
     public static final BatSwarm BAT_SWARM;
     public static final BloodThirstPassive BLOOD_THIRST;
 
@@ -622,6 +624,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         REVIVE = register(new RevivePassive(ofEnum("TOTEM")));
 
         VAMPIRE_PET = register(new VampirePet(ofEnum("VAMPIRE_PET")));
+        BLOODSHIFT = register(new Bloodshift(ofEnum("BLOODSHIFT")));
         BAT_SWARM = register(new BatSwarm(ofEnum("BAT_SWARM")));
         BLOOD_THIRST = register(new BloodThirstPassive(ofEnum("BLOOD_THIRST")));
 

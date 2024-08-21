@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.nyx;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Drawable;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -20,19 +19,12 @@ import me.hapyl.fight.util.EntityList;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 
 import javax.annotation.Nonnull;
 
-public class ChaosGround extends Talent implements Listener {
+public class ChaosGround extends Talent {
 
     @DisplayField private final short orbCount = 6;
 
@@ -72,80 +64,17 @@ public class ChaosGround extends Talent implements Listener {
         setCooldownSec(15.0f);
     }
 
-    @EventHandler
-    public void handleItemPickup(EntityPickupItemEvent ev) {
-        final LivingEntity entity = ev.getEntity();
-        final Item item = ev.getItem();
-
-        final NyxData dataWithDroplet = HeroRegistry.NYX.getDataMap()
-                .values()
-                .stream()
-                .filter(data -> data.getDroplet(item) != null)
-                .findFirst()
-                .orElse(null);
-
-        if (dataWithDroplet == null) {
-            return;
-        }
-
-        final ChaosDroplet droplet = dataWithDroplet.getDroplet(item);
-
-        if (droplet == null) {
-            return;
-        }
-
-        if (!(entity instanceof Player player)) {
-            ev.setCancelled(true); // Don't allow non-player entities picking up droplets
-            return;
-        }
-
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
-            return;
-        }
-
-        // Don't allow picking up if player is full health
-        if (gamePlayer.isFullHealth()) {
-            ev.setCancelled(true);
-            return;
-        }
-
-        // Store the current droplet count before removing the droplet
-        final int dropletCount = dataWithDroplet.dropletCount();
-
-        //chaosDroplets.remove(droplet);
-        dataWithDroplet.removeDroplet(droplet);
-        ev.setCancelled(true);
-
-        // Affecting here because yes
-        final GamePlayer nyx = dataWithDroplet.player;
-        final Location location = droplet.getLocation();
-
-        if (nyx.isSelfOrTeammate(gamePlayer)) {
-            final double healing = getHealing(dropletCount);
-
-            gamePlayer.heal(healing, nyx);
-
-            // Fx
-            gamePlayer.playWorldSound(location, Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1.75f);
-            gamePlayer.playWorldSound(location, Sound.ITEM_FIRECHARGE_USE, 2.0f);
-        }
-        else {
-            gamePlayer.damage(damage, nyx, EnumDamageCause.CHAOS);
-
-            gamePlayer.spawnWorldParticle(location, Particle.RAID_OMEN, 10, 0.5, 0.25, 0.5, 0.025f);
-            gamePlayer.playWorldSound(Sound.ENTITY_EVOKER_FANGS_ATTACK, 0.75f);
-        }
-    }
-
-    private double getHealing(int dropletCount) {
+    public double getHealing(int dropletCount) {
         return switch (dropletCount) {
             case 3 -> healingFirst;
             case 2 -> healingSecond;
             case 1 -> healingThird;
             default -> 0;
         };
+    }
+
+    public double getDamage() {
+        return damage;
     }
 
     @Override
@@ -222,7 +151,7 @@ public class ChaosGround extends Talent implements Listener {
 
                         // Spawn droplets
                         for (int i = 0; i < dropletCount; ++i) {
-                            // Pick random location
+                            // Pick a random location
                             final double x = player.random.nextDoubleBool(maxDistance - 0.5d);
                             final double z = player.random.nextDoubleBool(maxDistance - 0.5d);
 

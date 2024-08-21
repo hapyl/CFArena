@@ -26,11 +26,9 @@ public class EternalFreeze extends TimedGameTask {
     private static final ItemStack[] ITEMS = {
             new ItemStack(Material.WHITE_WOOL),
             new ItemStack(Material.SNOW_BLOCK),
-            new ItemStack(Material.POWDER_SNOW),
             new ItemStack(Material.PACKED_ICE),
             new ItemStack(Material.BLUE_ICE)
     };
-
 
     private final GamePlayer player;
     private final Location location;

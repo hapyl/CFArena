@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.effect.archive;
 
 import me.hapyl.eterna.module.util.Vectors;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EntityMemory;
@@ -14,7 +12,8 @@ import javax.annotation.Nonnull;
 
 public class MovementContainment extends Effect {
 
-    private static final MemoryKey jumpStrength = new MemoryKey("jump_strength");
+    private final MemoryKey jumpStrength = new MemoryKey("jump_strength");
+    private final MemoryKey movementSpeed = new MemoryKey("move_speed");
 
     private final double speedConstant = 100;
 
@@ -28,23 +27,20 @@ public class MovementContainment extends Effect {
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        final EntityAttributes attributes = entity.getAttributes();
-
-        attributes.subtractSilent(AttributeType.SPEED, speedConstant);
-
         final EntityMemory memory = entity.getMemory();
         memory.remember(jumpStrength, entity.getAttributeValue(Attribute.GENERIC_JUMP_STRENGTH));
+        memory.remember(movementSpeed, entity.getAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED));
 
+        entity.setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, 0.0d);
         entity.setAttributeValue(Attribute.GENERIC_JUMP_STRENGTH, 0.0d);
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        final EntityAttributes attributes = entity.getAttributes();
+        final EntityMemory memory = entity.getMemory();
 
-        attributes.addSilent(AttributeType.SPEED, speedConstant);
-
-        entity.setAttributeValue(Attribute.GENERIC_JUMP_STRENGTH, entity.getMemory().forget(jumpStrength, 0.41999998688697815d));
+        entity.setAttributeValue(Attribute.GENERIC_JUMP_STRENGTH, memory.forget(jumpStrength, 0.41999998688697815d));
+        entity.setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, memory.forget(movementSpeed, 0.2d));
     }
 
     @Override

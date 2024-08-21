@@ -60,10 +60,10 @@ public class SparkFlash extends Talent {
                 final Location itemLocation = item.getLocation();
 
                 // Fx
-                PlayerLib.spawnParticle(itemLocation, Particle.ELECTRIC_SPARK, 1, 0, 0, 0, 0);
+                player.spawnWorldParticle(itemLocation, Particle.ELECTRIC_SPARK, 1, 0, 0, 0, 0);
 
                 if (tick % 2 == 0) {
-                    PlayerLib.playSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
+                    player.playWorldSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
                 }
             }
 
@@ -84,12 +84,13 @@ public class SparkFlash extends Talent {
                         victim.playSoundAndCut(Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
                         victim.damage(fireDamage, player, EnumDamageCause.FIRE_TICK);
                         victim.setFireTicks(10);
+                        victim.triggerDebuff(player);
                     }
                 });
 
                 // Fx
-                PlayerLib.playSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
-                PlayerLib.spawnParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0);
+                player.playWorldSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
+                player.spawnWorldParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0);
 
                 item.remove();
             }

@@ -55,6 +55,7 @@ public class ImpelInstance extends Instance<Bloodfiend> {
             @Override
             public void onFail(GamePlayer player) {
                 player.damage(instance.impelDamage, ImpelInstance.this.player, EnumDamageCause.IMPEL);
+                player.triggerDebuff(ImpelInstance.this.player);
 
                 player.sendMessage("&6&l🦇 &eFailed to obey %s's command! &c-%s &c❤".formatted(
                         ImpelInstance.this.player.getName(),

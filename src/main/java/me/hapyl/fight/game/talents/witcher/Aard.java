@@ -40,6 +40,7 @@ public class Aard extends Talent {
             }
 
             entity.setVelocity(vector);
+            entity.triggerDebuff(player);
         });
 
         // Fx

@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 public class TotemImprisonment extends Talent {
 
     @DisplayField protected final short height = 3;
+    @DisplayField protected final int buildingSpeed = 2;
 
     public TotemImprisonment(@Nonnull DatabaseKey key) {
         super(key, "Imprisonment");
@@ -47,7 +48,7 @@ public class TotemImprisonment extends Talent {
             return Response.OK;
         }
 
-        new TotemPrison(this, target);
+        new TotemPrison(this, target, player);
         return Response.OK;
     }
 }

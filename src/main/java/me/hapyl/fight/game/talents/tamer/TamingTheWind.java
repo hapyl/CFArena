@@ -81,6 +81,7 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
                 public void onStart() {
                     entity.setVelocity(new Vector(0, 0.75, 0));
                     entity.addEffect(Effects.IMMOVABLE, duration, true);
+                    entity.triggerDebuff(player);
                 }
 
                 @Override

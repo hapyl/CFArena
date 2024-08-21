@@ -42,6 +42,7 @@ public class TrollSpin extends Talent {
 
             victim.teleport(location);
             victim.playSound(Sound.ENTITY_BLAZE_HURT, 2.0f);
+            victim.triggerDebuff(player);
         });
 
         player.playSound(Sound.ENTITY_BLAZE_HURT, 0.75f);

@@ -52,6 +52,7 @@ public class TamingTheEarth extends Talent implements TamerTimed {
             }
 
             entity.addEffect(Effects.MOVEMENT_CONTAINMENT, duration, true);
+            entity.triggerDebuff(player);
 
             // Fx
             entity.playWorldSound(Sound.BLOCK_PISTON_EXTEND, 0.0f);

@@ -68,6 +68,7 @@ public class IceCage extends TimedGameTask implements Removable{
         entity.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
         entity.addEffect(Effects.BLINDNESS, 2, 30);
         entity.setFreezeTicks(maxTick);
+        entity.triggerDebuff(player);
 
         runTaskTimer(0, PERIOD);
     }

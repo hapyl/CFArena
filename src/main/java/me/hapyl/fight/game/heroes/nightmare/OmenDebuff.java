@@ -27,7 +27,9 @@ public class OmenDebuff implements Ticking {
         }
 
         debuff.put(entity, tick);
+
         entity.addEffect(Effects.PARANOIA, tick, true);
+        entity.triggerDebuff(player);
     }
 
     public boolean isAffected(LivingGameEntity entity) {

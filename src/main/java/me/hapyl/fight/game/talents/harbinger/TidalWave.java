@@ -71,6 +71,7 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
             }
 
             entity.setVelocity(pushVector);
+            entity.triggerDebuff(player);
         });
 
         // Sfx

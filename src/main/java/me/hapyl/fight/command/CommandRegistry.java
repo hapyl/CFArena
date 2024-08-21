@@ -91,6 +91,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.juju.Orbiting;
+import me.hapyl.fight.game.talents.shaman.TotemPrison;
 import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -229,6 +230,29 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LobbyCommand("lobby"));
 
         // *=* Inner commands *=* //
+        register("testTotemOffset", (player, args) -> {
+            final Location location = player.getLocation();
+            final int[][] offsets = TotemPrison.OFFSETS;
+
+            new TickingGameTask() {
+                @Override
+                public void run(int tick) {
+                    if (tick >= offsets.length) {
+                        cancel();
+                        return;
+                    }
+
+                    final int[] offset = offsets[tick];
+                    final int x = offset[0];
+                    final int z = offset[1];
+
+                    location.add(x, 0, z);
+                    location.getBlock().setType(Material.REDSTONE_BLOCK, false);
+                    location.subtract(x, 0, z);
+                }
+            }.runTaskTimer(5, 5);
+        });
+
         register("scaryWither", (player, args) -> {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
@@ -704,7 +728,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            TalentRegistry.AKCIY.stun(gamePlayer, duration);
+            TalentRegistry.AKCIY.stun(gamePlayer, gamePlayer, duration);
             Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
         });
 

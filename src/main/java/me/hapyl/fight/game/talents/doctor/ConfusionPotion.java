@@ -89,6 +89,7 @@ public class ConfusionPotion extends Talent {
                 }
 
                 target.addEffect(Effects.AMNESIA, 20, true);
+                target.triggerDebuff(player);
             });
 
             Geometry.drawCircleAnchored(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.END_ROD, 0.0d, 0.0d, 0.0d, 0.01f));

@@ -1,12 +1,16 @@
 package me.hapyl.fight.game.heroes.nyx;
 
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.math.geometry.Drawable;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -19,6 +23,7 @@ import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
@@ -30,7 +35,7 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.Display;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -100,6 +105,16 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         getPlayerData(nyx).decrementChaosStacks();
     }
 
+    @Override
+    public void onStart(@Nonnull GameInstance instance) {
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                nyxDataMap.values().forEach(Ticking::tick);
+            }
+        }.runTaskTimer(0, 2);
+    }
+
     @Nonnull
     @Override
     public PlayerDataMap<NyxData> getDataMap() {
@@ -155,18 +170,14 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
         return validatePlayer(player)
                 && getPlayerData(player).getChaosStacks() > 0
+                && player.isAlive() // Yeah, kinda make sure the player is alive
                 && !passive.hasCd(player);
     }
 
-    // can't use eterna tuple because it's a record, can't override toString
-    private static class NyxTuple<V> {
+    private static class NyxTuple<V> extends Tuple<V, V> {
 
-        public final V a;
-        public final V b;
-
-        private NyxTuple(@Nonnull V a, @Nonnull V b) {
-            this.a = a;
-            this.b = b;
+        public NyxTuple(@Nonnull V v, @Nonnull V v2) {
+            super(v, v2);
         }
 
         @Nonnull
@@ -176,7 +187,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
         @Nonnull
         public final String differenceInPercent() {
-            if (a instanceof Number numA && b instanceof Number numB) {
+            if (a() instanceof Number numA && b() instanceof Number numB) {
                 return "&b%.0f%%&7".formatted((1 - numA.doubleValue() / numB.doubleValue()) * 100);
             }
 
@@ -185,12 +196,12 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
         @Override
         public final String toString() {
-            return getString(a) + "/" + getString(b);
+            return getString(a()) + "/" + getString(b());
         }
 
         @Nonnull
         public final V value(@Nonnull ChargeType type) {
-            return type.value(a, b);
+            return type.value(a(), b());
         }
 
         @Nonnull
@@ -211,11 +222,13 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         @DisplayField private final NyxTuple<Double> range = NyxTuple.of(4.0d, 5.5d, String::valueOf);
         @DisplayField private final NyxTuple<Double> damage = NyxTuple.of(1.0d, 2.0d, String::valueOf);
 
-        @DisplayField private final NyxTuple<Integer> duration = NyxTuple.of(40, 55, v -> Tick.round(v, "s"));
+        @DisplayField private final NyxTuple<Integer> duration = NyxTuple.of(40, 55, v -> Tick.round(v) + "s");
         @DisplayField private final NyxTuple<Integer> chaosRegen = NyxTuple.of(2, 3, String::valueOf);
 
         @DisplayField private final int hitDelay = 2;
         @DisplayField private final double energyDecrease = 40.0d;
+
+        public DisplayData spear = BDEngine.parse("/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,0f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,1f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0.7071f,0.7071f,0f,0f,-0.7071f,0.7071f,0f,2.25f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0f,0f,-1f,0f,-0.7071f,0.7071f,0f,2.25f,0.7071f,0.7071f,0f,0f,0f,0f,0f,1f]}]}");
 
         public NyxUltimate() {
             super(Nyx.this, "Impalement", 60, 100);
@@ -252,12 +265,15 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                     player.getLocation().add(player.getDirection().setY(0.0d).multiply(2))
             );
 
+            location.setYaw(0.0f);
+            location.setPitch(0.0f);
+
             final double distance = this.range.value(type);
             final double damage = this.damage.value(type);
             final int duration = this.duration.value(type);
             final int chaosRegen = this.chaosRegen.value(type);
 
-            final TextDisplay voidEntity = Entities.TEXT_DISPLAY.spawn(location, self -> {
+            final Display voidEntity = Entities.BLOCK_DISPLAY.spawn(location, self -> {
                 self.setShadowStrength(100.0f);
                 self.setShadowRadius(0.0f);
 
@@ -361,25 +377,18 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                                         entity.damageNoKnockback(damage, player, EnumDamageCause.CHAOS);
                                     });
 
-                            // Fx (draw spears coming from the portal, maybe change to actual spear model if not lazy)
+                            // Spear fx
                             final double x = player.random.nextDoubleBool(distance - 1.0d);
-                            final double y = -1; // Go down a little bit
                             final double z = player.random.nextDoubleBool(distance - 1.0d);
 
-                            final double tX = player.random.nextDoubleBool(2.0d);
-                            final double tY = player.random.nextDouble(5.0f, 7.0f);
-                            final double tZ = player.random.nextDoubleBool(2.0d);
+                            final Location startLocation = BukkitUtils.newLocation(location).add(x, 0, z);
+                            final Location endLocation = BukkitUtils.newLocation(startLocation).add(0, player.random.nextDouble(5, 7), 0);
 
-                            final Location startLocation = BukkitUtils.newLocation(location).add(x, y, z);
-                            final Location endLocation = BukkitUtils.newLocation(startLocation).add(tX, tY, tZ);
-
-                            Geometry.drawLine(startLocation, endLocation, 0.5d, new Drawable() {
-                                @Override
-                                public void draw(@Nonnull Location location) {
-                                    player.spawnWorldParticle(location, Particle.WITCH, 1);
-                                    player.spawnWorldParticle(location, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, dustData);
-                                }
+                            final DisplayEntity spearEntity = spear.spawnInterpolated(startLocation, endLocation, self -> {
+                                self.setTeleportDuration(2);
                             });
+
+                            GameTask.runLater(spearEntity::remove, 5);
 
                             player.playWorldSound(location, Sound.ITEM_FLINTANDSTEEL_USE, 1.75f);
                             player.playWorldSound(location, Sound.ENTITY_WARDEN_HURT, 1.25f);

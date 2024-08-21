@@ -99,6 +99,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
         entity.damage(damage, EnumDamageCause.SHADOW_CLONE);
 
         entity.addEffect(Effects.BLINDNESS, 1, 20);
+        entity.triggerDebuff(player);
 
         // Reduce defense
         final EntityAttributes attributes = entity.getAttributes();

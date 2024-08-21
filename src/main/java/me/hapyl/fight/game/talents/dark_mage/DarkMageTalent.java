@@ -23,7 +23,6 @@ public abstract class DarkMageTalent extends Talent {
 
         setDescription("""
                 %s
-                
                 %s
                 
                 &8;;You must use your wand to cast this spell!

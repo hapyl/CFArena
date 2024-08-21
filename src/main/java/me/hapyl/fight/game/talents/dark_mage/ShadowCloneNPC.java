@@ -46,7 +46,7 @@ public class ShadowCloneNPC extends HumanNPC {
                 hero.getThirdTalent().getCdTimeLeft(player)
         };
 
-        this.lifeTime = talent.getDuration();
+        this.lifeTime = talent.getDuration(player);
         this.task = new GameTask() {
             @Override
             public void run() {

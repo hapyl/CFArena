@@ -47,6 +47,7 @@ public class Swayblade extends Talent {
             entityLocation.setPitch(entityLocation.getPitch() + player.random.nextFloatBool(maxPitchShift + 1));
 
             entity.teleport(entityLocation);
+            entity.triggerDebuff(player);
         });
 
         // Fx

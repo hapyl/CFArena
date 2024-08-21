@@ -101,7 +101,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
                 data.lastButt = 5;
 
                 entity.setVelocity(vector);
-                TalentRegistry.AKCIY.stun(entity, stunDuration);
+                TalentRegistry.AKCIY.stun(entity, player, stunDuration);
 
                 // Fx
                 entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.0f);

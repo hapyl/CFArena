@@ -1,26 +1,27 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.Iterators;
 import me.hapyl.fight.util.Mth;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Item;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Set;
 
-public class NyxData extends PlayerData {
+public class NyxData extends PlayerData implements Ticking {
 
     public static final int MAX_CHAOS_STACKS = 6;
     public static final int INITIAL_CHAOS_STACKS = 1;
+    private static final double DROPLET_COLLISION_THRESHOLD = 0.75d;
 
-    private final Set<ChaosDroplet> droplets;
-
-    private int chaosStacks;
+    protected final Set<ChaosDroplet> droplets;
+    protected int chaosStacks;
 
     public NyxData(GamePlayer player) {
         super(player);
@@ -55,23 +56,49 @@ public class NyxData extends PlayerData {
         droplets.add(new ChaosDroplet(player, CFUtils.anchorLocation(location)));
     }
 
-    @Nullable
-    public ChaosDroplet getDroplet(@Nonnull Item item) {
-        for (ChaosDroplet droplet : droplets) {
-            if (droplet.isEquals(item)) {
-                return droplet;
-            }
-        }
-
-        return null;
-    }
-
-    public void removeDroplet(@Nonnull ChaosDroplet droplet) {
-        droplets.remove(droplet);
-        droplet.remove();
-    }
-
     public int dropletCount() {
         return droplets.size();
     }
+
+    @Override
+    public void tick() {
+        // Tick droplets
+        Iterators.iterate(droplets, (iterator, droplet) -> {
+            final Location location = droplet.getLocation().add(0.0d, 0.25d, 0.0d);
+
+            // Animate
+            final int tick = droplet.entity.getTicksLived();
+            final double y = Math.sin(Math.toRadians(tick * 10)) * 0.01d;
+
+            final Location dropletLocation = droplet.entity.getLocation();
+            dropletLocation.add(0, y, 0);
+            dropletLocation.setYaw(dropletLocation.getYaw() + 15);
+
+            droplet.entity.teleport(dropletLocation);
+
+            CF.getAlivePlayers().forEach(player -> {
+                final boolean isTeammate = this.player.isSelfOrTeammate(player);
+
+                // Test collision and effect
+                if (player.getLocation().distance(location) <= DROPLET_COLLISION_THRESHOLD) {
+                    // Check if the droplet can affect the player
+                    if (droplet.affect(player, this)) {
+                        iterator.remove();
+                        return;
+                    }
+                }
+
+                dropletLocation.add(0, 1, 0);
+
+                // Particles effect
+                if (isTeammate) {
+                    player.spawnWorldParticle(dropletLocation, Particle.WITCH, 5, 0.25f, 0.25f, 0.25, 0.05f);
+                }
+                else {
+                    player.spawnWorldParticle(dropletLocation, Particle.ASH, 5, 0.25f, 0.25f, 0.25f, 0.025f);
+                }
+            });
+        });
+    }
+
 }

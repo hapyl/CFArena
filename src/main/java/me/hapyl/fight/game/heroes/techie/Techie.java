@@ -81,12 +81,14 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         equipment.setLeggings(Material.NETHERITE_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.WARD, TrimMaterial.NETHERITE);
 
-        setWeapon(new Weapon(Material.IRON_SWORD).setName("Nano Sword")
+        setWeapon(new Weapon(Material.IRON_SWORD)
+                .setName("Nano Sword")
                 .setDescription("""
                         A sword made with nano energy.
                         """)
                 .setDamage(4.0d)
-                .addEnchant(Enchantment.KNOCKBACK, 1));
+                .addEnchant(Enchantment.KNOCKBACK, 1)
+        );
 
         setUltimate(new TechieUltimate());
     }

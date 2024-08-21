@@ -61,6 +61,7 @@ public class Uppercut extends Talent {
             entity.damageNoKnockback(damage, player, EnumDamageCause.UPPERCUT);
             entity.addEffect(Effects.SLOW_FALLING, 5, getDuration());
             entity.setVelocity(upVelocity);
+            entity.triggerDebuff(player);
         });
 
         player.setVelocity(upVelocity);

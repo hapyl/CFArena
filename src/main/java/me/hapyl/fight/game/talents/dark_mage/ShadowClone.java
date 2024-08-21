@@ -29,7 +29,7 @@ public class ShadowClone extends DarkMageTalent {
                 """
         );
 
-        setType(TalentType.IMPAIR);
+        setType(TalentType.SUPPORT);
         setItem(Material.NETHERITE_SCRAP);
         setDurationSec(15);
         setCooldownSec(20);

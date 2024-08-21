@@ -118,7 +118,7 @@ public class BlastPackEntity extends TickingGameTask {
                 entity.damageNoKnockback(talent.damage, player, EnumDamageCause.SATCHEL);
 
                 if (shouldStun()) {
-                    TalentRegistry.AKCIY.stun(entity, talent.stunDuration);
+                    TalentRegistry.AKCIY.stun(entity, player, talent.stunDuration);
                 }
             }
 

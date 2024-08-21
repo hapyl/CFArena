@@ -103,6 +103,7 @@ public class TakerHook {
 
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
                     nearest.damage(damage, player);
+                    nearest.triggerDebuff(player);
 
                     // Reduce cooldown
                     talent().reduceCooldown(player);
