@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.swooper;
 
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 
 public class BlastPackEntity extends TickingGameTask {
 
-    public static final DisplayData data = BlockStudioParser.parse(
+    public static final DisplayData data = BDEngine.parse(
             "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:detector_rail\",Properties:{powered:\"false\",shape:\"east_west\"}},transformation:[-0.0000f,0.0000f,-0.7500f,0.3750f,0.7500f,-0.0000f,-0.0000f,0.0000f,-0.0000f,-0.7500f,0.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
     private static final double blockOffset = 0.37d;

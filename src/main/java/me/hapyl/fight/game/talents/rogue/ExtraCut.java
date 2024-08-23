@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.talents.rogue;
 
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -9,15 +13,11 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 
 public class ExtraCut extends Talent {
 
-    private final DisplayData displayData = BlockStudioParser.parse(
+    private final DisplayData displayData = BDEngine.parse(
             "{Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:iron_sword\",Count:1},item_display:\"none\",transformation:[0.3536f,0.3536f,0.0000f,0.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,-0.3536f,0.3536f,0.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:gold_block\",Properties:{}},transformation:[0.0354f,0.0000f,0.0354f,-0.0347f,0.0000f,0.0403f,0.0000f,-0.0217f,-0.0354f,0.0000f,0.0354f,-0.1774f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:gold_block\",Properties:{}},transformation:[0.0354f,0.0000f,0.0354f,-0.0347f,0.0000f,0.0403f,0.0000f,-0.0223f,-0.0354f,0.0000f,0.0354f,-0.2207f,0.0000f,0.0000f,0.0000f,1.0000f]}]}");
 
     @DisplayField private final int castingTime = 7;

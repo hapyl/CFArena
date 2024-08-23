@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -13,7 +12,7 @@ import org.bukkit.World;
 
 import javax.annotation.Nonnull;
 
-public class ShadowAssassinData implements HeroReference<ShadowAssassin> {
+public class ShadowAssassinData {
 
     public static final int MAX_ENERGY = 100;
 
@@ -70,12 +69,6 @@ public class ShadowAssassinData implements HeroReference<ShadowAssassin> {
         });
 
         playSwitchFx();
-    }
-
-    @Nonnull
-    @Override
-    public ShadowAssassin getHero() {
-        return hero;
     }
 
     public void subtractEnergy(int furyCost) {

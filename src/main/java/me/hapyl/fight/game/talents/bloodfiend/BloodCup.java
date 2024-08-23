@@ -2,11 +2,9 @@ package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.database.key.DatabaseKey;
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
@@ -17,8 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
-
+public class BloodCup extends Talent {
 
     @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) public final double chance = 0.25d;
     @DisplayField public final short maxBlood = 6;
@@ -53,7 +50,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
     public void updateTexture(BloodfiendData data) {
         final GamePlayer player = data.getPlayer();
         final int blood = data.getBlood();
-        final HotbarSlots slot = getHero().getTalentSlotByHandle(this);
+        final HotbarSlots slot = HeroRegistry.BLOODFIEND.getTalentSlotByHandle(this);
         final ItemStack item = player.getItem(slot);
 
         if (item == null) {
@@ -67,8 +64,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Bloodfiend bloodfiend = getHero();
-        final BloodfiendData data = bloodfiend.getData(player);
+        final BloodfiendData data = HeroRegistry.BLOODFIEND.getData(player);
         final int blood = data.getBlood();
 
         if (blood <= 0) {
@@ -85,12 +81,6 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         updateTexture(data);
 
         return Response.OK;
-    }
-
-    @Nonnull
-    @Override
-    public Bloodfiend getHero() {
-        return HeroRegistry.BLOODFIEND;
     }
 
     private String getTexture(int blood) {

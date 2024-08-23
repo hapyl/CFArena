@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
@@ -25,7 +25,7 @@ import org.bukkit.util.Vector;
 
 public class TwinClaw extends TickingGameTask {
 
-    private final static DisplayData DISPLAY_DATA = BlockStudioParser.parse(
+    private final static DisplayData DISPLAY_DATA = BDEngine.parse(
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:orange_terracotta\",Properties:{}},transformation:[0.6250f,0.0000f,0.0000f,-0.3125f,0.0000f,0.6875f,0.0000f,2.0000f,0.0000f,0.0000f,0.5000f,0.1250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_terracotta\",Properties:{}},transformation:[0.7500f,0.0000f,0.0000f,-0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.8125f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:terracotta\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.2210f,-0.4419f,2.8750f,0.0000f,0.2210f,0.4419f,-0.1250f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 

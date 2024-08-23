@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.engineer;
 
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
@@ -110,7 +110,7 @@ public abstract class EngineerTalent extends Talent {
     }
 
     protected void setDisplayData(int level, @Nonnull String data) {
-        setDisplayData(level, BlockStudioParser.parse(data));
+        setDisplayData(level, BDEngine.parse(data));
     }
 
 }

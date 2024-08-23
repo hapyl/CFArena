@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
@@ -95,7 +96,7 @@ public class DrWitch extends TamerPack {
             final ThrownPotion potion = entity.launchProjectile(ThrownPotion.class);
             potion.setItem(new ItemBuilder(Material.SPLASH_POTION).setPotionColor(Color.RED).asIcon());
 
-            getHero().potionMap.put(potion, new WitchData(team, player, scaleUltimateEffectiveness(player, witchHealingAmount)));
+            HeroRegistry.TAMER.potionMap.put(potion, new WitchData(team, player, scaleUltimateEffectiveness(player, witchHealingAmount)));
         }
 
         private GamePlayer getHealingTarget() {

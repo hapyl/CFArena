@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.Effects;
@@ -19,7 +18,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class ShadowAssassinWeapon extends Weapon implements HeroReference<ShadowAssassin> {
+public class ShadowAssassinWeapon extends Weapon {
 
     @DisplayField private final int cooldown = Tick.fromSecond(20);
     @DisplayField private final double defenseReduction = 0.1d;
@@ -71,9 +70,4 @@ public class ShadowAssassinWeapon extends Weapon implements HeroReference<Shadow
         entity.spawnWorldParticle(Particle.CRIT, 10, 0.25d, 0.0d, 0.25d, 0.076f);
     }
 
-    @Nonnull
-    @Override
-    public ShadowAssassin getHero() {
-        return hero;
-    }
 }

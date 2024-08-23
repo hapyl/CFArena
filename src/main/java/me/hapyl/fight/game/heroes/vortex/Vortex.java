@@ -58,7 +58,7 @@ public class Vortex extends Hero implements UIComplexComponent {
         equipment.setLeggings(179, 89, 0);
         equipment.setBoots(255, 140, 26);
 
-        setWeapon(new VortexWeapon(this));
+        setWeapon(new VortexWeapon());
         setUltimate(new VortexUltimate());
     }
 

@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.zealot;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
@@ -11,10 +10,9 @@ import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
+public class SoulsRebound extends GameTask {
 
     private final Zealot zealot;
     private final Player player;
@@ -55,9 +53,4 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
         PlayerLib.playSound(player, Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
     }
 
-    @Nonnull
-    @Override
-    public Zealot getHero() {
-        return zealot;
-    }
 }

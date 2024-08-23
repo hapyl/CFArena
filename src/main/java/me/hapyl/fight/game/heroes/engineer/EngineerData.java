@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.engineer;
 
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -8,15 +9,11 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.engineer.Construct;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Material;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class EngineerData extends PlayerData implements HeroReference<Engineer> {
+public class EngineerData extends PlayerData {
 
     private final Engineer engineer;
 
@@ -34,12 +31,6 @@ public class EngineerData extends PlayerData implements HeroReference<Engineer> 
         this.engineer = engineer;
 
         setIron(engineer.startIron);
-    }
-
-    @Nonnull
-    @Override
-    public Engineer getHero() {
-        return engineer;
     }
 
     public int getIron() {

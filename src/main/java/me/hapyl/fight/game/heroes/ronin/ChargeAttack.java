@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.ronin;
 
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
@@ -8,7 +7,7 @@ import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
+public class ChargeAttack extends GameTask {
 
     public static final int MAX_STRENGTH = 15;
     public static final long THRESHOLD = 500;
@@ -96,9 +95,4 @@ public class ChargeAttack extends GameTask implements HeroReference<Ronin> {
         }
     }
 
-    @Nonnull
-    @Override
-    public Ronin getHero() {
-        return ronin;
-    }
 }

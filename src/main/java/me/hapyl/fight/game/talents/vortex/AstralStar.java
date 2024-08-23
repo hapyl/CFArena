@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 
 public class AstralStar implements Ticking {
 
-    private static final DisplayData model = BlockStudioParser.parse(
+    private static final DisplayData model = BDEngine.parse(
             "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0625f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[-0.0000f,0.0000f,-1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0625f,1.0000f,0.0000f,-0.0000f,0.0625f,0.0000f,0.0000f,0.0000f,1.0000f]}]}");
 
     protected final LivingGameEntity entity;

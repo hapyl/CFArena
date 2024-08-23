@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.nyx;
 
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Tick;
@@ -43,7 +43,7 @@ public class WitherRosePath extends Talent {
     @DisplayField private final int impairDuration = Tick.fromSecond(6);
     @DisplayField private final int spikeDelay = 25;
 
-    private final DisplayData spike = BlockStudioParser.parse(
+    private final DisplayData spike = BDEngine.parse(
             "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.8750f,0.0000f,0.0000f,-0.4375f,0.0000f,1.0000f,0.0000f,-0.5625f,0.0000f,0.0000f,0.8750f,-0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.6250f,0.0000f,0.0000f,-0.3125f,0.0000f,0.7500f,0.0000f,0.2500f,0.0000f,0.0000f,0.6250f,-0.3125f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:crying_obsidian\",Properties:{}},transformation:[0.5000f,0.0000f,0.0000f,-0.2500f,0.0000f,0.6875f,0.0000f,0.8750f,0.0000f,0.0000f,0.5000f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.1768f,0.0000f,0.1768f,-0.1875f,0.0000f,0.3750f,0.0000f,1.5625f,-0.1768f,0.0000f,0.1768f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:wither_rose\",Properties:{}},transformation:[0.3789f,-0.2187f,0.0000f,-0.5000f,0.2187f,0.3789f,0.0000f,0.5000f,0.0000f,0.0000f,0.4375f,-0.3125f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:wither_rose\",Properties:{}},transformation:[0.4705f,0.2717f,0.1456f,0.0000f,-0.2813f,0.4871f,0.0000f,0.5000f,-0.1261f,-0.0728f,0.5433f,-0.5625f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:wither_rose\",Properties:{}},transformation:[0.3062f,0.1768f,-0.3536f,0.2500f,-0.2500f,0.4330f,0.0000f,1.3125f,0.3062f,0.1768f,0.3536f,-0.2500f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:obsidian\",Properties:{}},transformation:[0.6187f,0.0000f,0.6187f,-0.6250f,0.0000f,1.0000f,0.0000f,-0.6875f,-0.6187f,0.0000f,0.6187f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 

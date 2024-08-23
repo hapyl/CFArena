@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.zealot;
 
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -17,7 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
+public class ZealotWeapon extends Weapon {
 
     private final Zealot zealot;
 
@@ -34,12 +33,6 @@ public class ZealotWeapon extends Weapon implements HeroReference<Zealot> {
                 """);
 
         setAbility(AbilityType.RIGHT_CLICK, new SoulCryAbility());
-    }
-
-    @Nonnull
-    @Override
-    public Zealot getHero() {
-        return zealot;
     }
 
     public class SoulCryAbility extends Ability {

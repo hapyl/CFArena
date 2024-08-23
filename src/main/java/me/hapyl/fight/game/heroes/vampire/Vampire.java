@@ -109,7 +109,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Playe
                 .count();
 
         getPassiveTalent().getLegionIncrease(heroCount).temper(player, Constants.INFINITE_DURATION);
-
     }
 
     @Override

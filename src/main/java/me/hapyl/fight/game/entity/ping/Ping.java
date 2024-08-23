@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.entity.ping;
 
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
-import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.scoreboard.Team;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 public class Ping extends GameTask implements Removable {
 
-    private static final DisplayData DATA = BlockStudioParser.parse(
+    private static final DisplayData DATA = BDEngine.parse(
             "{Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:smooth_quartz_stairs\",Count:1},item_display:\"none\",transformation:[0.3536f,-0.3536f,0.0000f,-0.0215f,0.3536f,0.3536f,0.0000f,0.3536f,0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:smooth_quartz\",Count:1},item_display:\"none\",transformation:[0.2500f,0.0000f,0.0000f,-0.0215f,0.0000f,0.2500f,0.0000f,0.6563f,0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:smooth_quartz\",Count:1},item_display:\"none\",transformation:[0.2500f,0.0000f,0.0000f,-0.0215f,0.0000f,0.2500f,0.0000f,0.9063f,0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 

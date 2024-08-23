@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.shaman.resonance;
 
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.Totem;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import org.bukkit.Material;
 
@@ -31,7 +31,7 @@ public abstract class TotemResonance implements Described, DisplayFieldProvider 
     }
 
     public void setDisplayData(@Nonnull String data) {
-        this.displayData = BlockStudioParser.parse(data);
+        this.displayData = BDEngine.parse(data);
     }
 
     public void setType(@Nonnull TalentType type) {

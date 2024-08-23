@@ -2,12 +2,9 @@ package me.hapyl.fight.game.talents.tamer.pack;
 
 import me.hapyl.eterna.module.ai.AI;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.LivingGenericGameEntity;
-import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.tamer.Tamer;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.Collect;
@@ -21,7 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-public class TamerEntity<T extends LivingEntity> extends LivingGenericGameEntity<T> implements IndexedTicking, HeroReference<Tamer> {
+public class TamerEntity<T extends LivingEntity> extends LivingGenericGameEntity<T> implements IndexedTicking {
 
     private static final double MAX_DISTANCE_FROM_OWNER = 30;
 
@@ -82,12 +79,6 @@ public class TamerEntity<T extends LivingEntity> extends LivingGenericGameEntity
             spawnWorldParticle(getEyeLocation(), Particle.LAVA, 5, 0.1, 0.3, 0.1, 0.025f);
         }
 
-    }
-
-    @Nonnull
-    @Override
-    public Tamer getHero() {
-        return HeroRegistry.TAMER;
     }
 
     @Nullable

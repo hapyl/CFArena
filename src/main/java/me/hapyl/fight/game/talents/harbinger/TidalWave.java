@@ -1,9 +1,7 @@
 package me.hapyl.fight.game.talents.harbinger;
 
-import me.hapyl.fight.game.HeroReference;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
@@ -15,7 +13,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class TidalWave extends TimedGameTask implements HeroReference<Harbinger> {
+public class TidalWave extends TimedGameTask {
 
     private static final Particle.DustTransition innerColor = new Particle.DustTransition(
             Color.fromRGB(72, 209, 204),
@@ -35,7 +33,6 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
     private final Vector pushVector;
     private final Location location;
     private final DirectionalMatrix matrix;
-    private final Harbinger hero;
 
     private double d;
 
@@ -48,7 +45,6 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
         this.pushVector = direction.clone().multiply(0.75d);
         this.player = player;
         this.matrix = player.getLookAlongMatrix();
-        this.hero = getHero();
 
         runTaskTimer(0, 1);
     }
@@ -63,7 +59,7 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
                 return;
             }
 
-            hero.addRiptide(player, entity, talent.riptideDuration, false);
+            HeroRegistry.HARBINGER.addRiptide(player, entity, talent.riptideDuration, false);
 
             // Push
             if (entity.hasEffectResistanceAndNotify(player)) {
@@ -132,9 +128,4 @@ public class TidalWave extends TimedGameTask implements HeroReference<Harbinger>
         d += Math.PI / 12;
     }
 
-    @Nonnull
-    @Override
-    public Harbinger getHero() {
-        return HeroRegistry.HARBINGER;
-    }
 }

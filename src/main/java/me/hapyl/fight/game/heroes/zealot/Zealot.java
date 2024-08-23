@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.zealot;
 
-import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
@@ -127,7 +127,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
 
     public class ZealotUltimate extends UltimateTalent {
 
-        private final DisplayData giantSword = BlockStudioParser.parse(
+        private final DisplayData giantSword = BDEngine.parse(
                 "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:golden_sword\",Count:1},item_display:\"none\",transformation:[2.6043f,3.5194f,-2.4148f,-0.2500f,3.4151f,-3.4151f,-1.2941f,1.2500f,-2.5602f,-0.9753f,-4.1826f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
         );
 
