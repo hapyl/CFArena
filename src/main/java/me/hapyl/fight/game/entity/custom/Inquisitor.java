@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.entity.custom;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.NamedGameEntity;
 import me.hapyl.fight.game.entity.overlay.OverlayGameEntityType;
 import me.hapyl.fight.game.entity.overlay.OverlayNamedGameEntity;
-import me.hapyl.fight.game.heroes.PlayerSkinPreview;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -59,7 +58,7 @@ public class Inquisitor extends OverlayGameEntityType {
         @Nullable
         @Override
         public String[] getExtraHologramLines() {
-            return new String[] { Chat.format("&c+%s%% damage".formatted(AttributeType.ATTACK.getDecimalFormatted(attributes))) };
+            return new String[] { Chat.format("&c+%s%% damage".formatted(AttributeType.ATTACK.getFormattedScaled(attributes))) };
         }
 
         @Override

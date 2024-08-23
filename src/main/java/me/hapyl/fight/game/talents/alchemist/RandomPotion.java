@@ -36,7 +36,7 @@ public class RandomPotion extends Talent {
         );
 
         setType(TalentType.ENHANCE);
-        setItem(Material.POTION);
+        setItem(Material.OMINOUS_BOTTLE);
         setCooldown(50);
 
         effects.add(new Effect("&b\uD83C\uDF0A", "Speed Boost", Effects.SPEED, 1, effectDuration))

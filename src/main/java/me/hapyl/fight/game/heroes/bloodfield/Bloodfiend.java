@@ -149,7 +149,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public void onPlayerRespawned(@Nonnull GamePlayer player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         onPlayersRevealed(player);
     }
 

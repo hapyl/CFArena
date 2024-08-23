@@ -22,10 +22,7 @@ import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 @AutoRegisteredListener
@@ -113,6 +110,11 @@ public class Level implements ElementHandler, PlayerElementHandler, EnumHandle<E
 
     public boolean isAllowedMode(Modes mode) {
         return this.allowedModes.isEmpty() || this.allowedModes.contains(mode);
+    }
+
+    @Nonnull
+    public List<PredicateLocation> getLocations() {
+        return new ArrayList<>(locations);
     }
 
     public int getTimeBeforeReveal() {

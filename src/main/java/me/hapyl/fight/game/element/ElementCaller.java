@@ -160,9 +160,9 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
     }
 
     @Override
-    public void onPlayerRespawned(@Nonnull GamePlayer player) {
+    public void onRespawn(@Nonnull GamePlayer player) {
         forEachPlayerElementHandler(player, element -> {
-            element.onPlayerRespawned(player);
+            element.onRespawn(player);
         });
     }
 

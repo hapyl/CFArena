@@ -219,16 +219,18 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
 
     private class NyxUltimate extends OverchargeUltimateTalent {
 
-        @DisplayField private final NyxTuple<Double> range = NyxTuple.of(4.0d, 5.5d, String::valueOf);
+        @DisplayField private final NyxTuple<Double> distance = NyxTuple.of(4.0d, 5.5d, String::valueOf);
         @DisplayField private final NyxTuple<Double> damage = NyxTuple.of(1.0d, 2.0d, String::valueOf);
+        @DisplayField private final NyxTuple<Double> energyDecrease = NyxTuple.of(1.0, 2.0d, String::valueOf);
 
         @DisplayField private final NyxTuple<Integer> duration = NyxTuple.of(40, 55, v -> Tick.round(v) + "s");
         @DisplayField private final NyxTuple<Integer> chaosRegen = NyxTuple.of(2, 3, String::valueOf);
 
         @DisplayField private final int hitDelay = 2;
-        @DisplayField private final double energyDecrease = 40.0d;
+        @DisplayField private final double overchargedEnergyDecrease = 40.0d;
 
-        public DisplayData spear = BDEngine.parse("/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,0f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,1f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0.7071f,0.7071f,0f,0f,-0.7071f,0.7071f,0f,2.25f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0f,0f,-1f,0f,-0.7071f,0.7071f,0f,2.25f,0.7071f,0.7071f,0f,0f,0f,0f,0f,1f]}]}");
+        public DisplayData spear = BDEngine.parse(
+                "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,0f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,1f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0.7071f,0.7071f,0f,0f,-0.7071f,0.7071f,0f,2.25f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0f,0f,-1f,0f,-0.7071f,0.7071f,0f,2.25f,0.7071f,0.7071f,0f,0f,0f,0f,0f,1f]}]}");
 
         public NyxUltimate() {
             super(Nyx.this, "Impalement", 60, 100);
@@ -236,8 +238,9 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
             setDescription("""
                     Summon a &8void portal&7 in front of you.
                     
-                    After a short casting time, spears of chaos will rise from the portal, dealing &crapid damage&7 to &cenemies&7 within.
-                    """);
+                    After a short casting time, spears of chaos will rise from the portal, dealing &crapid damage&7 and reducing %s to &cenemies&7 within.
+                    """.formatted(Named.ENERGY)
+            );
 
             setOverchargeDescription("""
                     &8› &7Increases the range by %s.
@@ -247,11 +250,11 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                     Adds a &cfinal slash&7, that decreases all &cenemies&7 %s by &b%s&7.
                     &8&oThe slash is considered to be an effect.
                     """.formatted(
-                    range.differenceInPercent(),
+                    distance.differenceInPercent(),
                     damage.differenceInPercent(),
                     duration.differenceInPercent(),
                     Named.ENERGY,
-                    energyDecrease
+                    overchargedEnergyDecrease
             ));
 
             setItem(Material.DRIED_KELP);
@@ -268,8 +271,9 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
             location.setYaw(0.0f);
             location.setPitch(0.0f);
 
-            final double distance = this.range.value(type);
+            final double distance = this.distance.value(type);
             final double damage = this.damage.value(type);
+            final double energyDecrease = this.energyDecrease.value(type);
             final int duration = this.duration.value(type);
             final int chaosRegen = this.chaosRegen.value(type);
 
@@ -335,7 +339,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                                     Collect.nearbyEntities(location, distance, player::isNotSelfOrTeammateOrHasEffectResistance)
                                             .forEach(entity -> {
                                                 if (entity instanceof GamePlayer playerEnemy) {
-                                                    playerEnemy.removeEnergy(energyDecrease, player);
+                                                    playerEnemy.removeEnergy(overchargedEnergyDecrease, player);
                                                 }
                                             });
 
@@ -375,6 +379,10 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                             Collect.nearbyEntities(location, distance, player::isNotSelfOrTeammate)
                                     .forEach(entity -> {
                                         entity.damageNoKnockback(damage, player, EnumDamageCause.CHAOS);
+
+                                        if (entity instanceof GamePlayer playerEntity) {
+                                            playerEntity.removeEnergy(energyDecrease, player);
+                                        }
                                     });
 
                             // Spear fx

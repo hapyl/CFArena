@@ -228,8 +228,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new TermCommand("term", PlayerRank.DEFAULT));
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
         register(new LobbyCommand("lobby"));
+        register(new HighlightLevel("highlightLevel"));
 
         // *=* Inner commands *=* //
+        register("hurtMe", (player, args) -> {
+            GamePlayer.getPlayerOptional(player).ifPresent(gp -> gp.damage(gp.getHealth() * 0.99));
+        });
+
         register("testTotemOffset", (player, args) -> {
             final Location location = player.getLocation();
             final int[][] offsets = TotemPrison.OFFSETS;

@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public enum AttributeType implements Described {
 
@@ -373,15 +373,19 @@ public enum AttributeType implements Described {
     }
 
     @Nonnull
-    public String getDecimalFormatted(Attributes attributes) {
-        return CFUtils.decimalFormat(get(attributes) * 100.0d);
+    public String getFormatted(@Nonnull Attributes attributes) {
+        return doFormat(attributes, AttributeType::toString);
     }
 
     @Nonnull
-    public String getFormatted(Attributes attributes) {
+    public String getFormattedScaled(@Nonnull Attributes attributes) {
+        return doFormat(attributes, (t, v) -> t.toString(t.scaleUp(v)));
+    }
+
+    private String doFormat(Attributes attributes, BiFunction<AttributeType, Double, String> fn) {
         final double value = get(attributes);
 
-        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(this, value));
+        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), fn.apply(this, value));
     }
 
     public boolean isBuff(double newValue, double oldValue) {

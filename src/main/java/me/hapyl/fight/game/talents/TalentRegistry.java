@@ -142,7 +142,7 @@ import me.hapyl.fight.game.talents.troll.LastLaughPassive;
 import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.vampire.BloodThirstPassive;
+import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePet;
 import me.hapyl.fight.game.talents.vortex.*;
@@ -398,7 +398,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     @Deprecated public static final VampirePet VAMPIRE_PET;
     public static final Bloodshift BLOODSHIFT;
     public static final BatSwarm BAT_SWARM;
-    public static final BloodThirstPassive BLOOD_THIRST;
+    public static final VampirePassive VANPIRE_PASSIVE;
 
     /**
      * {@link BountyHunter}
@@ -626,7 +626,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         VAMPIRE_PET = register(new VampirePet(ofEnum("VAMPIRE_PET")));
         BLOODSHIFT = register(new Bloodshift(ofEnum("BLOODSHIFT")));
         BAT_SWARM = register(new BatSwarm(ofEnum("BAT_SWARM")));
-        BLOOD_THIRST = register(new BloodThirstPassive(ofEnum("BLOOD_THIRST")));
+        VANPIRE_PASSIVE = register(new VampirePassive(ofEnum("VAMPIRE_PASSIVE")));
 
         SHORTY = register(new ShortyShotgun(ofEnum("SHORTY")));
         GRAPPLE = register(new GrappleHookTalent(ofEnum("GRAPPLE")));

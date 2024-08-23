@@ -929,7 +929,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         addPotionEffect(PotionEffectType.BLINDNESS, 1, 20);
 
-        ElementCaller.CALLER.onPlayerRespawned(this);
+        ElementCaller.CALLER.onRespawn(this);
     }
 
     public int getUltimateCost() {

@@ -172,7 +172,7 @@ public class PlayerUI extends TickingGameTask {
                     temperBuilder.addLore("&a&l" + data.temper.name());
                     data.values.forEach((type, temper) -> {
                         temperBuilder.addLore(" " + type.toString());
-                        temperBuilder.addLore(" %s for %s".formatted(temper.value, temper.toString()));
+                        temperBuilder.addLore("  %s for %s".formatted(type.scaleUp(temper.value), temper.toString()));
                     });
                 });
             }

@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.talents.nyx;
 
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Drawable;
 import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -38,13 +40,9 @@ public class ChaosGround extends Talent {
     private final int speed = 3;
 
     @DisplayField private final double duration = durationRaw / speed;
+    @DisplayField private final double damage = 5.0d;
 
-    // Storing in three different variables for display fields
-    @DisplayField private final double healingFirst = 7.0d;
-    @DisplayField private final double healingSecond = 5.0d;
-    @DisplayField private final double healingThird = 3.0d;
-
-    @DisplayField private final double damage = 15.0d;
+    public final DropletHealing healing = new DropletHealing(7.0d, 5.0d, 3.0d);
 
     public ChaosGround(@Nonnull DatabaseKey key) {
         super(key, "Chaos Expansion");
@@ -54,23 +52,21 @@ public class ChaosGround extends Talent {
                 
                 After a short casting time, creates an &4explosion&7 in &clarge AoE&7, dealing &cdamage&7 and &eimpairing&7 enemies within.
                 
-                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and &cdeals damage&7 to &cenemies&7.
+                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and &cdeals damage&7 and decreases &cenemy's&7 %s.
                 &8&o;;The healing decreases with each droplet.
-                """.formatted(dropletCount)
+                """.formatted(dropletCount, Named.ENERGY)
         );
+
+        for (int i = 0; i < healing.values.length; i++) {
+            final int iPlusOne = i + 1;
+            final double value = healing.values[i];
+
+            addAttributeDescription("Healing " + Chat.stNdTh(iPlusOne), value);
+        }
 
         setItem(Material.CHORUS_FRUIT);
 
         setCooldownSec(15.0f);
-    }
-
-    public double getHealing(int dropletCount) {
-        return switch (dropletCount) {
-            case 3 -> healingFirst;
-            case 2 -> healingSecond;
-            case 1 -> healingThird;
-            default -> 0;
-        };
     }
 
     public double getDamage() {
@@ -194,6 +190,13 @@ public class ChaosGround extends Talent {
             }
         }.runTaskTimer(0, 1);
         return Response.OK;
+    }
+
+    public record DropletHealing(double... values) {
+        public double getHealing(int dropletCount) {
+            final int index = values.length - dropletCount;
+            return index < 0 || index >= values.length ? 0 : values[index];
+        }
     }
 
 }

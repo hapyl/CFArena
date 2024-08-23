@@ -64,7 +64,7 @@ public class ChaosDroplet implements Removable, Located, ComparableTo<Item> {
                 return false;
             }
 
-            final double healing = TalentRegistry.CHAOS_GROUND.getHealing(dropletCount);
+            final double healing = TalentRegistry.CHAOS_GROUND.healing.getHealing(dropletCount);
 
             player.heal(healing, this.nyx);
 
