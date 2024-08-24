@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.effect.archive.BleedEffect;
+import me.hapyl.fight.game.effect.effects.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;

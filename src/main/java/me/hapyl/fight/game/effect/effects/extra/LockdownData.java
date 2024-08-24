@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.effect.archive.extra;
+package me.hapyl.fight.game.effect.effects.extra;
 
 import me.hapyl.eterna.module.util.Holder;
 import org.bukkit.entity.Player;

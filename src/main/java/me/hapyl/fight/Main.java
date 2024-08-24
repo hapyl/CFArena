@@ -34,6 +34,8 @@ import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.eterna.EternaAPI;
 import me.hapyl.eterna.module.player.tablist.Tablist;
 import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.fight.vehicle.VehicleManager;
+import me.hapyl.fight.vehicle.VehiclePacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.Registry;
@@ -73,6 +75,7 @@ public class Main extends JavaPlugin {
     private CrateManager crateManager;
     private RuntimeNPCManager npcManager;
     private ReloadChecker reloadChecker;
+    private VehicleManager vehicleManager;
 
     @Override
     public void onEnable() {
@@ -111,6 +114,7 @@ public class Main extends JavaPlugin {
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
         npcManager = new RuntimeNPCManager(this);
+        vehicleManager = new VehicleManager(this);
 
         //new LampGame(this);
 
@@ -283,6 +287,11 @@ public class Main extends JavaPlugin {
         return parkourManager;
     }
 
+    @Nonnull
+    public VehicleManager getVehicleManager() {
+        return vehicleManager;
+    }
+
     public void setConfigValue(@Nonnull String path, @Nullable Object value) {
         getConfig().set(path, value);
         saveConfig();
@@ -321,6 +330,7 @@ public class Main extends JavaPlugin {
         pluginManager.registerEvents(new CameraListener(), this);
         pluginManager.registerEvents(new PlayerClickAtEntityProtocol(), this);
         pluginManager.registerEvents(new MotDProtocol(), this);
+        pluginManager.registerEvents(new VehiclePacketListener(), this);
     }
 
     private void runSafe(Runnable runnable, String handler) {

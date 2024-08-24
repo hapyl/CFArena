@@ -3,6 +3,7 @@ package me.hapyl.fight.game;
 import me.hapyl.fight.annotate.ConstantField;
 import me.hapyl.fight.game.attribute.temper.AttributeTemper;
 import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.talents.Talent;
 
 /**
  * A utility class with project constant values.
@@ -16,5 +17,17 @@ public interface Constants {
             applicableTo = { Effect.class, AttributeTemper.class }
     )
     int INFINITE_DURATION = -1;
+
+    @ConstantField(
+            description = "A constant for cooldown to display 'indefinite'.",
+            applicableTo = { Talent.class }
+    )
+    int MAX_COOLDOWN = 12000;
+
+    @ConstantField(
+            description = "A constant for very large cooldown.",
+            applicableTo = { Talent.class }
+    )
+    int INDEFINITE_COOLDOWN = 999999;
 
 }

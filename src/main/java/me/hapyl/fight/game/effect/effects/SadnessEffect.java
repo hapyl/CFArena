@@ -1,4 +1,4 @@
-package me.hapyl.fight.game.effect.archive;
+package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;

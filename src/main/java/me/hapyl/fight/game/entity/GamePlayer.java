@@ -101,6 +101,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     private final TalentLock talentLock;
     private final PlayerPing playerPing;
     private final Map<MoveType, Long> lastMoved;
+    private final UIComponentCache uiComponentCache;
+
     public boolean blockDismount;
     public long usedUltimateAt;
     private int deathWishTicks; // TODO (hapyl): 004, Mar 4: <<
@@ -127,6 +129,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.shield = null;
         this.talentLock = new TalentLock(this, profile.getHero());
         this.playerPing = new PlayerPing(this);
+        this.uiComponentCache = new UIComponentCache();
 
         markLastMoved();
     }
@@ -183,7 +186,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public int getSneakTicks() {
-        return ticker.sneakTicks.toInt();
+        return ticker.sneakTicks.getTick();
     }
 
     /**
@@ -568,12 +571,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-            return "&b&lIN USE &b(%s&b)".formatted(durationLeft < 0 ? "∞" : BukkitUtils.roundTick(Tick.fromMillis(durationLeft)) + "s");
+            return "&b&lIN USE &b(%s&b)".formatted(durationLeft <= 0 ? CFUtils.TICK_TOO_LONG_CHAR : CFUtils.formatTick(Tick.fromMillis(durationLeft)));
         }
 
         // If on cooldown, show percentage appended by cooldown left
         if (ultimate.hasCd(this)) {
-            return "&8%s &b(%ss)".formatted(pointsString, BukkitUtils.roundTick(ultimate.getCdTimeLeft(this)));
+            return "&8%s &b(%s)".formatted(pointsString, CFUtils.formatTick(ultimate.getCdTimeLeft(this)));
         }
         // Else show CHARGED or OVERCHARGED
         // This is kinda hardcoded, but I don't care
@@ -1669,6 +1672,15 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         executeOnDeathIfTalentIsNotNull(hero.getThirdTalent());
         executeOnDeathIfTalentIsNotNull(hero.getFourthTalent());
         executeOnDeathIfTalentIsNotNull(hero.getFifthTalent());
+    }
+
+    public void ui(@Nonnull Class<?> origin, @Nonnull String string) {
+        uiComponentCache.cache.put(origin, new UIComponentCache.UIComponent(string));
+    }
+
+    @Nonnull
+    public UIComponentCache getUIComponentCache() {
+        return uiComponentCache;
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

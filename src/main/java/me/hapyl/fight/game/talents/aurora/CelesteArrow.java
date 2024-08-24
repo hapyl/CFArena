@@ -1,46 +1,49 @@
 package me.hapyl.fight.game.talents.aurora;
 
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.particle.ParticleDrawer;
 import me.hapyl.fight.util.particle.Particles;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Arrow;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
 public class CelesteArrow extends AuroraArrowTalent {
 
-    @DisplayField private final double healing = 5.0d;
-    @DisplayField private final double homingRadius = 5.0d;
-    @DisplayField private final double homingStrength = 0.85;
+    @DisplayField private final double healing = 7;
 
     private final BlockData blockData = Material.GREEN_GLAZED_TERRACOTTA.createBlockData();
-    private ParticleDrawer fxParticle;
+    private final ParticleDrawer fxParticle = Particles.mobSpell(36, 227, 71);
 
     public CelesteArrow(@Nonnull DatabaseKey key) {
-        super(key, "Celeste Arrows", ChatColor.GREEN, 4);
+        super(key, "Celeste Arrows", ChatColor.GREEN, 4, 5.0d, 0.85d);
 
         setDescription("""
                 Equip {name} that &aheal&7 hit &bentities.
                 &8;;If an enemy is hit, instead of healing, the damage is reduced.
-                        
+                
                 &7&o;;Celeste arrows home towards nearby teammates.
                 """
         );
 
+        setType(TalentType.SUPPORT);
         setItem(Material.SMALL_DRIPLEAF);
 
         setCooldownSec(12);
+    }
+
+    @Override
+    public void onMove(@Nonnull GamePlayer player, @Nonnull Location location) {
+        player.spawnWorldParticle(location, Particle.FALLING_DUST, 1, 0.25, 0.25, 0.25, 0.05f, blockData);
     }
 
     @Override
@@ -77,8 +80,6 @@ public class CelesteArrow extends AuroraArrowTalent {
                 final double y = tick / 20d;
                 final double z = Math.cos(d) * 0.9d;
 
-                fxParticle = Particles.mobSpell(36, 227, 71);
-
                 LocationHelper.modify(location, x, y, z, loc -> {
                     fxParticle.draw(loc);
                 });
@@ -103,34 +104,6 @@ public class CelesteArrow extends AuroraArrowTalent {
         }.runTaskTimer(0, 1);
 
         entity.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
-    }
-
-    @Override
-    public void onTick(@Nonnull GamePlayer player, @Nonnull Arrow arrow, int tick) {
-        // Home towards teammates
-        final LivingGameEntity target = findHomingTarget(player, arrow.getLocation());
-        final Location location = arrow.getLocation();
-
-        if (tick % 2 == 0) {
-            player.spawnWorldParticle(location, Particle.FALLING_DUST, 1, 0.25, 0.25, 0.25, 0.05f, blockData);
-        }
-
-        if (target == null) {
-            return;
-        }
-
-        final Vector vector = target.getLocation()
-                .add(0, 1, 0)
-                .toVector()
-                .subtract(arrow.getLocation().toVector())
-                .normalize()
-                .multiply(homingStrength);
-
-        arrow.setVelocity(vector);
-    }
-
-    private LivingGameEntity findHomingTarget(GamePlayer player, Location location) {
-        return Collect.nearestEntity(location, homingRadius, player::isTeammate);
     }
 
 }

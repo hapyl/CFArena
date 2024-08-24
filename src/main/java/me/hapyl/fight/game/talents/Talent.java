@@ -17,7 +17,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.effect.archive.SlowingAuraEffect;
+import me.hapyl.fight.game.effect.effects.SlowingAuraEffect;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -438,11 +438,7 @@ public abstract class Talent
         new TalentUseEvent(player, this).call();
     }
 
-    public final void startMaxCd(GamePlayer player) {
-        startCd(player, 99999);
-    }
-
-    public final void startCd(GamePlayer player, int cooldown) {
+    public final void startCd(@Nonnull GamePlayer player, int cooldown) {
         if (cooldown <= 0) {
             return;
         }
@@ -546,8 +542,8 @@ public abstract class Talent
         item = null;
     }
 
-    public void startCdInferentially(@Nonnull GamePlayer player) {
-        startCd(player, 100000);
+    public final void startCdIndefinitely(@Nonnull GamePlayer player) {
+        player.setCooldown(material, Constants.INDEFINITE_COOLDOWN);
     }
 
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
@@ -563,7 +559,7 @@ public abstract class Talent
             return 1;
         }
 
-        return Numbers.clamp(cd / 200, 1, 100);
+        return Math.clamp(cd / 200, 1, 100);
     }
 
     public static Condition<GamePlayer, Response> preconditionAnd(@Nonnull GamePlayer player) {

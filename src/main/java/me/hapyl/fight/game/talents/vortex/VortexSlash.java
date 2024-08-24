@@ -84,7 +84,7 @@ public class VortexSlash extends Talent {
             }
         }.runTaskTimer(0, 1);
 
-        startCdInferentially(player);
+        startCdIndefinitely(player);
 
         return Response.AWAIT;
     }

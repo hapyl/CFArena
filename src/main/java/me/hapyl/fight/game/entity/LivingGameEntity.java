@@ -74,9 +74,9 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     private static final String CC_SMALL_CAPS_NAME = SmallCaps.format(AttributeType.EFFECT_RESISTANCE.getName());
 
     public final EntityRandom random;
+    public final EntityTicker ticker;
 
     protected final EntityData entityData;
-    protected final EntityTicker ticker;
 
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityCooldown cooldown;
@@ -134,7 +134,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return the number of ticks this entity has been alive for.
      */
     public int aliveTicks() {
-        return ticker.aliveTicks.toInt();
+        return ticker.aliveTicks.getTick();
     }
 
     /**
@@ -505,7 +505,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public boolean hasEffectResistanceAndNotify() {
-        if (ticker.noCCTicks.toInt() > 0) {
+        if (ticker.noCCTicks.getTick() > 0) {
             return true;
         }
 
@@ -538,7 +538,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     @Override
     public int getNoDamageTicks() {
-        return ticker.noDamageTicks.toInt();
+        return ticker.noDamageTicks.getTick();
     }
 
     public void setNoDamageTicks(int i) {
@@ -551,7 +551,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return the number of ticks this entity has been in water for, 0 if not in water.
      */
     public int getInWaterTicks() {
-        return ticker.inWaterTicks.toInt();
+        return ticker.inWaterTicks.getTick();
     }
 
     public void clearTitle() {
@@ -842,6 +842,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         for (EnumDamageCause cause : causes) {
             immunityCauses.remove(cause);
         }
+    }
+
+    public void resetImmune() {
+        immunityCauses.clear();
     }
 
     /**

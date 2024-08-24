@@ -47,7 +47,7 @@ import me.hapyl.fight.game.talents.archer.HawkeyePassive;
 import me.hapyl.fight.game.talents.archer.ShockDark;
 import me.hapyl.fight.game.talents.archer.TripleShot;
 import me.hapyl.fight.game.talents.aurora.CelesteArrow;
-import me.hapyl.fight.game.talents.aurora.DivineIntervention;
+import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.talents.aurora.EtherealArrow;
 import me.hapyl.fight.game.talents.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
@@ -459,7 +459,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      */
     public static final CelesteArrow CELESTE_ARROW;
     public static final EtherealArrow ETHEREAL_ARROW;
-    public static final DivineIntervention DIVINE_INTERVENTION;
+    public static final GuardianAngel GUARDIAN_ANGEL;
 
     /**
      * {@link Nyx}
@@ -663,7 +663,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
         CELESTE_ARROW = register(new CelesteArrow(ofEnum("CELESTE_ARROW")));
         ETHEREAL_ARROW = register(new EtherealArrow(ofEnum("ETHEREAL_ARROW")));
-        DIVINE_INTERVENTION = register(new DivineIntervention(ofEnum("DIVINE_INTERVENTION")));
+        GUARDIAN_ANGEL = register(new GuardianAngel(ofEnum("GUARDIAN_ANGEL")));
 
         WITHER_ROSE_PATH = register(new WitherRosePath(ofEnum("WITHER_ROSE_PATH")));
         CHAOS_GROUND = register(new ChaosGround(ofEnum("CHAOS_GROUND")));

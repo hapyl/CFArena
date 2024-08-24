@@ -8,7 +8,7 @@ public final class EntityTick extends Tick {
     private final String name;
     private final Predicate<LivingGameEntity> predicate;
 
-    public EntityTick(LivingGameEntity entity, String name, TickDirection direction, Predicate<LivingGameEntity> predicate) {
+    EntityTick(LivingGameEntity entity, String name, TickDirection direction, Predicate<LivingGameEntity> predicate) {
         super(direction);
 
         this.entity = entity;
@@ -17,17 +17,17 @@ public final class EntityTick extends Tick {
     }
 
     @Override
-    public void tick() {
+    public String toString() {
+        return name + ":" + tick;
+    }
+
+    @Override
+    protected void tick() {
         if (!predicate.test(entity)) {
             setInt(direction.defaultValue());
             return;
         }
 
         super.tick();
-    }
-
-    @Override
-    public String toString() {
-        return name + ":" + tick;
     }
 }

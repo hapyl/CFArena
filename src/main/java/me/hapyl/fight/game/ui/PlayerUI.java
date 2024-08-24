@@ -193,14 +193,17 @@ public class PlayerUI extends TickingGameTask {
 
     public void sendInGameUI(@Nonnull GamePlayer.UltimateColor ultimateColor) {
         final GamePlayer gamePlayer = profile.getGamePlayer();
+
         if (gamePlayer == null) {
             return;
         }
 
         // Send UI information
-        if (gamePlayer.isAlive() && !gamePlayer.isSpectator()) {
-            Chat.sendActionbar(player, format.format(gamePlayer, ultimateColor));
+        if (!gamePlayer.isAlive() || gamePlayer.isSpectator()) {
+            return;
         }
+
+        Chat.sendActionbar(player, format.format(gamePlayer, ultimateColor));
     }
 
     public void updateScoreboard() {

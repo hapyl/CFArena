@@ -188,7 +188,7 @@ public enum EnumLevel implements Selectable {
     FORGOTTEN_CHURCH("Forgotten Church", level -> level
             .setDescription("""
                     All forgotten church covered in snow.
-                                        
+                    
                     A long time has passed since it last seen guests.
                     """)
             .setMaterial(Material.TOTEM_OF_UNDYING)

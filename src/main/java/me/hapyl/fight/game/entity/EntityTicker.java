@@ -2,41 +2,40 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Wrap;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class EntityTicker implements Ticking {
+public class EntityTicker {
 
     /**
-     * Number of ticks where entity cannot be affected by effects.
+     * Number of ticks where effects cannot affect entity.
      */
-    protected final Tick noCCTicks;
+    public final EntityTick noCCTicks;
 
     /**
      * Number of ticks where entity cannot be damaged.
      */
-    protected final Tick noDamageTicks;
+    public final EntityTick noDamageTicks;
 
     /**
-     * Number of ticks entity has been alive for.
+     * The number of ticks the entity has been alive for.
      */
-    protected final Tick aliveTicks;
+    public final EntityTick aliveTicks;
 
     /**
-     * Number of ticks entity has been in water for.
+     * The number of ticks the entity has been in water for.
      */
-    protected final Tick inWaterTicks;
+    public final EntityTick inWaterTicks;
 
     /**
-     * Numbers of ticks player has been sneaking for.
+     * The numbers of ticks the player has been sneaking for.
      * <br>
      * Only applicable to {@link GamePlayer}.
      */
-    protected final Tick sneakTicks;
+    public final EntityTick sneakTicks;
 
     private final LivingGameEntity entity;
     private final List<Tick> tickerList;
@@ -46,18 +45,11 @@ public class EntityTicker implements Ticking {
         this.tickerList = Lists.newArrayList();
 
         // Add ticks
-        this.noCCTicks = add("cc", TickDirection.DOWN);
-        this.noDamageTicks = add("no_damage", TickDirection.DOWN);
-        this.aliveTicks = add("alive", TickDirection.UP);
-        this.inWaterTicks = add("in_water", TickDirection.UP, LivingGameEntity::isInWater);
-        this.sneakTicks = add("sneak", TickDirection.UP, predicate -> {
-            return predicate instanceof GamePlayer player && player.isSneaking();
-        });
-    }
-
-    @Override
-    public void tick() {
-        tickerList.forEach(Tick::tick);
+        this.noCCTicks = register("cc", TickDirection.DOWN);
+        this.noDamageTicks = register("no_damage", TickDirection.DOWN);
+        this.aliveTicks = register("alive", TickDirection.UP);
+        this.inWaterTicks = register("in_water", TickDirection.UP, LivingGameEntity::isInWater);
+        this.sneakTicks = register("sneak", TickDirection.UP, predicate -> predicate instanceof GamePlayer player && player.isSneaking());
     }
 
     @Override
@@ -65,14 +57,18 @@ public class EntityTicker implements Ticking {
         return CollectionUtils.wrapToString(tickerList, Wrap.DEFAULT);
     }
 
-    private Tick add(String name, TickDirection direction, Predicate<LivingGameEntity> predicate) {
+    protected void tick() {
+        tickerList.forEach(Tick::tick);
+    }
+
+    private EntityTick register(String name, TickDirection direction, Predicate<LivingGameEntity> predicate) {
         final EntityTick tick = new EntityTick(entity, name, direction, predicate);
 
         tickerList.add(tick);
         return tick;
     }
 
-    private Tick add(String name, TickDirection direction) {
-        return add(name, direction, t -> true);
+    private EntityTick register(String name, TickDirection direction) {
+        return register(name, direction, t -> true);
     }
 }

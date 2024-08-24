@@ -15,12 +15,12 @@ import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
-import me.hapyl.eterna.module.player.EffectType;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -70,12 +70,12 @@ public class CFUtils {
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final double ANGLE_IN_RAD = 6.283185307179586d;
 
+    public static final String TICK_TOO_LONG_CHAR = "∞";
+
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
 
-    private static final String tickTooLongMessage = "indefinitely";
     private static String SERVER_IP;
-    private static List<EffectType> ALLOWED_EFFECTS;
 
     /**
      * Strips the color from the given message.
@@ -556,12 +556,12 @@ public class CFUtils {
 
     @Nonnull
     public static String formatTick(int tick) {
-        return tick > 9999 ? tickTooLongMessage : Tick.round(tick) + "s";
+        return tick > Constants.MAX_COOLDOWN ? TICK_TOO_LONG_CHAR : Tick.round(tick, "s");
     }
 
     @Nonnull
     public static String decimalFormatTick(int tick) {
-        return tick > 9999 ? tickTooLongMessage : decimalFormat(tick / 20d) + "s";
+        return tick > Constants.MAX_COOLDOWN ? TICK_TOO_LONG_CHAR : decimalFormat(tick / 20d) + "s";
     }
 
     @Nonnull

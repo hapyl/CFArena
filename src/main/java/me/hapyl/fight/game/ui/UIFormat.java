@@ -3,6 +3,7 @@ package me.hapyl.fight.game.ui;
 import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.util.StrBuilder;
 
 import javax.annotation.Nonnull;
 
@@ -29,28 +30,30 @@ public class UIFormat {
 
     @Nonnull
     public String format(@Nonnull GamePlayer player, @Nonnull GamePlayer.UltimateColor ultimateColor) {
-        String toFormat = format;
+        final StrBuilder builder = new StrBuilder(format);
 
-        toFormat = toFormat.replace("{Health}", player.getHealthFormatted());
-        toFormat = toFormat.replace("{Ultimate}", player.getUltimateString(ultimateColor));
-        toFormat = toFormat.replace("{Div}", DIV);
+        builder.replace("{Health}", player.getHealthFormatted());
+        builder.replace("{Ultimate}", player.getUltimateString(ultimateColor));
+        builder.replace("{Div}", DIV);
 
         // UIComponent
         final Hero hero = player.getHero();
 
         if (hero instanceof UIComponent component) {
-            toFormat = sew(toFormat, component, player);
+            builder.append(sew(component, player));
         }
 
         if (hero.getWeapon() instanceof UIComponent component) {
-            toFormat = sew(toFormat, component, player);
+            builder.append(sew(component, player));
         }
 
-        return toFormat;
+        builder.append(sew(player.getUIComponentCache(), player));
+
+        return builder.toString();
     }
 
-    private String sew(String sew, UIComponent component, GamePlayer player) {
-        final StringBuilder builder = new StringBuilder(sew);
+    private String sew(UIComponent component, GamePlayer player) {
+        final StringBuilder builder = new StringBuilder();
         final String string = component.getString(player);
 
         if (!string.isEmpty()) {

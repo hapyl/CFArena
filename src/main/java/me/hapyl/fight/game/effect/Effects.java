@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.effect.archive.*;
+import me.hapyl.fight.game.effect.effects.*;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
@@ -65,6 +65,7 @@ public enum Effects implements Described {
     WITHER_BLOOD(new WitherBlood()),
     SADNESS(new SadnessEffect()),
     CHILL_AURA(new ChillAuraEffect()),
+    PARACHUTE(new ParachuteEffect()),
 
     ;
 

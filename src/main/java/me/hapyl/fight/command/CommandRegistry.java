@@ -235,8 +235,35 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new MasteryCommand("mastery", PlayerRank.ADMIN));
         register(new LobbyCommand("lobby"));
         register(new HighlightLevel("highlightLevel"));
+        register(new VehicleCommand("vehicle"));
 
         // *=* Inner commands *=* //
+
+        register("testUicmp", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        gp.ui(GamePlayer.class, "Test from game player yay!");
+                    });
+        });
+
+        register("ridePiggy", (player, args) -> {
+            final Pig pig = Entities.PIG.spawn(player.getLocation().add(0, 2, 0), self -> {
+                self.setGravity(false);
+            });
+
+            pig.setHealth(1);
+            pig.addPassenger(player);
+
+            player.sendRichMessage("<green>Done!");
+        });
+
+        register("addAuroraBuff", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
+                    });
+        });
+
         register("hurtMe", (player, args) -> {
             GamePlayer.getPlayerOptional(player).ifPresent(gp -> gp.damage(gp.getHealth() * 0.99));
         });
@@ -2913,12 +2940,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            gamePlayer.spawnAlliedLivingEntity(player.getLocation(), Entities.HUSK, self -> {
+            final LivingGameEntity entity = gamePlayer.spawnAlliedLivingEntity(player.getLocation(), Entities.HUSK, self -> {
                 self.setGlowing(gamePlayer, ChatColor.GREEN, 60);
-                gamePlayer.schedule(() -> {
-                    self.setGlowingColor(gamePlayer, ChatColor.BLUE);
-                }, 20);
             });
+
+            entity.getEntity().setSilent(true);
 
             gamePlayer.sendMessage("&aSpawned!");
         });

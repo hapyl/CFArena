@@ -31,7 +31,6 @@ public interface TickDirection {
             public int defaultValue() {
                 return min;
             }
-
         };
     }
 }

@@ -1,36 +1,38 @@
-package me.hapyl.fight.game.effect.archive;
+package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.Sound;
+import org.bukkit.Particle;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
-public class Riptide extends Effect {
+public class ChillAuraEffect extends Effect {
+    public ChillAuraEffect() {
+        super("Chill Aura", EffectType.NEGATIVE);
 
-    public Riptide() {
-        super("Riptide", EffectType.NEGATIVE);
+        setDescription("""
+                Chills enemies out.
+                """);
     }
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         entity.addPotionEffectIndefinitely(PotionEffectType.SLOWNESS, 0);
-        entity.addPotionEffectIndefinitely(PotionEffectType.SPEED, 0);
-
-        entity.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.25f);
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         entity.removePotionEffect(PotionEffectType.SLOWNESS);
-        entity.removePotionEffect(PotionEffectType.SPEED);
-
-        entity.playSound(Sound.AMBIENT_UNDERWATER_ENTER, 1.75f);
     }
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
+        if (tick % 10 != 0) {
+            return;
+        }
+
+        entity.spawnWorldParticle(entity.getMidpointLocation(), Particle.SNOWFLAKE, 5, 0.1d, 0.1d, 0.1d, 0.05f);
     }
 }

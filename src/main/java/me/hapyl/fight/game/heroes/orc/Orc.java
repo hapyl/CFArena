@@ -67,9 +67,9 @@ public class Orc extends Hero implements Listener {
         setItem("a06220fdfef4d53da8bcef8cbef9a8a3add3d776de43a3781b2f58869ce3d738");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(138, 140, 133, TrimPattern.RIB, TrimMaterial.QUARTZ);
-        equipment.setLeggings(20, 19, 51);
-        equipment.setBoots(Material.NETHERITE_BOOTS);
+        equipment.setChestPlate(170, 173, 164, TrimPattern.RIB, TrimMaterial.QUARTZ);
+        equipment.setLeggings(39, 45, 61, TrimPattern.DUNE, TrimMaterial.COPPER);
+        equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
         setUltimate(new OrcUltimate());
     }

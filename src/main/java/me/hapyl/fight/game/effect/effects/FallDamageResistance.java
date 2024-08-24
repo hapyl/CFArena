@@ -1,7 +1,6 @@
-package me.hapyl.fight.game.effect.archive;
+package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;

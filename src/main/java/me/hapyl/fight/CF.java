@@ -17,6 +17,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -520,4 +521,10 @@ public final class CF {
     public static String getMinecraftVersion() {
         return Bukkit.getMinecraftVersion();
     }
+
+    @Nonnull
+    public static VehicleManager getVehicleManager() {
+        return plugin.getVehicleManager();
+    }
+
 }

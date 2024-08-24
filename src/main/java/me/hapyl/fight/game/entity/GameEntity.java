@@ -3,7 +3,6 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
@@ -302,12 +301,8 @@ public class GameEntity {
         sendTitle("", subtitle, fadeIn, stay, fadeOut);
     }
 
-    public void sendActionbar(@Nonnull String text) {
-        asPlayer(player -> Chat.sendActionbar(player, text));
-    }
-
     public void playSound(@Nonnull Sound sound, float pitch) {
-        asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
+        asPlayer(player -> PlayerLib.playSound(player, sound, Math.clamp(pitch, 0.0f, 2.0f)));
     }
 
     public void playSound(@Nonnull Location location, @Nonnull Sound sound, float pitch) {
@@ -525,5 +520,7 @@ public class GameEntity {
         return Entry.of(this);
     }
 
-
+    public boolean isOnGround() {
+        return entity.isOnGround();
+    }
 }

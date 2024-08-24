@@ -9,6 +9,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.database.key.DatabaseKeyed;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -63,9 +64,17 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     public final Response execute(@Nonnull GamePlayer player) {
         if (hasCd(player)) {
             if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                player.sendMessage(
-                        "&4&l※ &cYour ultimate is on cooldown for %s!".formatted(CFUtils.formatTick(getCdTimeLeft(player)))
-                );
+                final int timeLeft = getCdTimeLeft(player);
+
+                if (timeLeft >= Constants.MAX_COOLDOWN) {
+                    player.sendMessage("&4&l※ &cYour ultimate is on cooldown!");
+                }
+                else {
+                    player.sendMessage(
+                            "&4&l※ &cYour ultimate is on cooldown for %s!".formatted(CFUtils.formatTick(timeLeft))
+                    );
+                }
+
                 player.playSound(SoundEffect.ERROR);
             }
             return null;

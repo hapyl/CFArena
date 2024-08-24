@@ -23,7 +23,7 @@ public class HealingOrb extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(@Nonnull GamePlayer player) {
-        final LivingGameEntity target = Collect.targetEntityDot(player, 20.0d, 0.8d, null);
+        final LivingGameEntity target = Collect.targetEntityDot(player, 20.0d, 0.8d, predicate -> true);
 
         if (target == null) {
             return Response.error("No valid target!");
