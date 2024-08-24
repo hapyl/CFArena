@@ -521,17 +521,20 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return lastMoved.getOrDefault(type, System.currentTimeMillis());
     }
 
+    @Nonnull
     @Override
-    public boolean heal(double amount, @Nullable LivingGameEntity healer) {
-        if (!super.heal(amount, healer)) {
-            return false;
+    public HealingOutcome heal(double amount, @Nullable LivingGameEntity healer) {
+        final HealingOutcome superOutcome = super.heal(amount, healer);
+
+        if (!superOutcome.hasHealed()) {
+            return superOutcome;
         }
 
         updateHealth();
 
-        // Fx
+        // Regen is just for the Fx to make the heart animate
         addPotionEffect(PotionEffectType.REGENERATION, 0, 25);
-        return true;
+        return superOutcome;
     }
 
     @Nonnull

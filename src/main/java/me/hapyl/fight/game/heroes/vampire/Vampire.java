@@ -9,6 +9,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.HealingOutcome;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -20,7 +21,9 @@ import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -103,9 +106,17 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
         else {
             // Regenerate health
             final double healthRegen = damage * bloodshift.healthRegenPerOneDamage;
+            final HealingOutcome healingOutcome = player.heal(healthRegen);
 
-            player.heal(healthRegen);
             ev.setCancelled(true);
+
+            // Fx (Only play if actually healed)
+            if (healingOutcome.type() != HealingOutcome.Type.HEALED) {
+                return;
+            }
+
+            player.playWorldSound(Sound.ENTITY_WITCH_DRINK, 1.25f);
+            player.playWorldSound(Sound.ENTITY_GENERIC_DRINK, 1.25f);
         }
     }
 
@@ -145,11 +156,13 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
                 .put(AttributeType.ATTACK_SPEED, 3.0d)
                 .makeMap();
 
+        @DisplayField private final double healing = 15.0d;
+
         public VampireUltimate() {
             super(Vampire.this, "Legion", 50);
 
             setDescription("""
-                    Gather the &fspirit&7 of the warriors of %1$s&7, providing you with a temporary &abuff&7.
+                    Gather the &fspirit&7 of the warriors of %1$s&7, providing you with a temporary &abuff&7 and heals you.
                     
                     Each hero from the %1$s&7 in &a&nyour&7 &a&nteam&7 increases the following attributes for {duration}:
                     %2$s
@@ -161,6 +174,8 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
 
             setType(TalentType.ENHANCE);
             setItem(Material.TOTEM_OF_UNDYING);
+            setSound(Sound.ENTITY_BAT_LOOP, 0.75f);
+
             setDurationSec(8.0f);
         }
 
@@ -177,8 +192,11 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
                 attributes.increaseTemporary(Temper.LEGION, type, type.scaleDown(value * legionCount), getDuration());
             });
 
+            // Heal
+            player.heal(healing * legionCount);
+
             // Fx
-            player.spawnBuffDisplay("&4&l🦇 LEGION", 30);
+            player.spawnBuffDisplay("&4&l🦇 LEGION &c(%s)".formatted(legionCount), 30);
             player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
 
             return UltimateResponse.OK;
@@ -188,7 +206,7 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
             final StringBuilder builder = new StringBuilder();
 
             legionAttributes.forEach((attribute, value) -> {
-                builder.append("&7› ").append(attribute.toString()).append("\n");
+                builder.append(" &8› ").append(attribute.toString()).append("\n");
             });
 
             return builder.toString();

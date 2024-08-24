@@ -22,7 +22,7 @@ public class Bloodshift extends Talent {
     @DisplayField public final double healthDrainPerOneDamage = 1.0d;
     @DisplayField public final double damageBoostPercent = 0.5d;
 
-    @DisplayField public final double healthRegenPerOneDamage = 0.75d;
+    @DisplayField public final double healthRegenPerOneDamage = 1.25d;
 
     private final SoundQueue soundFx = new SoundQueue()
             .appendSameSound(

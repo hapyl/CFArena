@@ -8,7 +8,6 @@ import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.geometry.Draw;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
@@ -672,11 +671,21 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return GamePlayer.anchorLocation(location);
     }
 
-    public void heal(double amount) {
-        heal(amount, null);
+    @Nonnull
+    public HealingOutcome heal(double amount) {
+        return heal(amount, null);
     }
 
-    public boolean heal(double amount, @Nullable LivingGameEntity healer) {
+    /**
+     * Heals this {@link LivingGameEntity} by the given amount with a given healer.
+     *
+     * @param amount - Amount to heal.
+     * @param healer - Healer.
+     *               If provided, healer's {@link AttributeType#MENDING} will influence healing amount.
+     * @return The {@link HealingOutcome}.
+     */
+    @Nonnull
+    public HealingOutcome heal(double amount, @Nullable LivingGameEntity healer) {
         final EntityAttributes attributes = getAttributes();
 
         if (healer != null && !healer.equals(this)) {
@@ -687,7 +696,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         amount = attributes.calculateIncomingHealing(amount);
 
         final double maxHealth = getMaxHealth();
-        final double healthAfterHealing = Numbers.clamp(health + amount, getMinHealth(), maxHealth);
+        final double healthAfterHealing = Math.clamp(health + amount, getMinHealth(), maxHealth);
         final double actualHealing = healthAfterHealing - health;
         final double excessHealing = Math.max(health + amount - maxHealth, 0);
 
@@ -700,7 +709,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
                 health,
                 healthAfterHealing
         ).callAndCheck()) {
-            return false;
+            return HealingOutcome.ofCancelled(actualHealing, excessHealing);
         }
 
         // Heal
@@ -708,17 +717,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         // Fx
         if (actualHealing >= 1) {
-            PlayerLib.spawnParticle(
-                    entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
+            spawnWorldParticle(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
                     Particle.HEART,
-                    (int) Numbers.clamp(actualHealing / 5, 1, 10),
+                    (int) Math.clamp(actualHealing / 5, 1, 10),
                     0.44, 0.2, 0.44, 0.015f
             );
 
             new AscendingDisplay("&a+ &l%.0f".formatted(actualHealing), 15).display(getLocation());
         }
 
-        return true;
+        return HealingOutcome.of(actualHealing, excessHealing);
     }
 
     /**
