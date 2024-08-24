@@ -69,7 +69,7 @@ public class HeroPlayerItemMaker {
                         .addLore();
 
                 final HeroAttributes attributes = hero.getAttributes();
-                builder.addLore("&e&lAttributes:");
+                builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
                 builder.addLore(attributes.getLore(AttributeType.MAX_HEALTH));
                 builder.addLore(attributes.getLore(AttributeType.ATTACK));
                 builder.addLore(attributes.getLore(AttributeType.DEFENSE));
@@ -80,7 +80,7 @@ public class HeroPlayerItemMaker {
 
                 if (hero instanceof ComplexHero) {
                     builder.addTextBlockLore("""
-                                                        
+                            
                             &6&lComplex Hero!
                             This hero is more difficult to play than others. Thus is &nnot&7 recommended for newer players.
                             """);
@@ -146,7 +146,7 @@ public class HeroPlayerItemMaker {
                 builder.addLoreIf("Race: " + race, race != Race.UNKNOWN);
 
                 // Attributes
-                builder.addLore().addLore("&e&lAttributes:");
+                builder.addLore().addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
                 final HeroAttributes attributes = hero.getAttributes();
 
                 attributes.forEachMandatoryAndNonDefault((type, value) -> {

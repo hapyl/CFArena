@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
  * @see TemperInstance
  * @see AttributeTemperTable
  */
+// FIXME: Temper should really just be a Class<?> tbh -h
 public enum Temper implements SmallCapsDescriber {
 
     COMMAND, // for testing
@@ -68,6 +69,7 @@ public enum Temper implements SmallCapsDescriber {
     VOID_SHIELD,
     NYX(false),
     LEGION(false),
+    SWARM,
 
     /* Keep semicolon on this line for easier addition. */;
 

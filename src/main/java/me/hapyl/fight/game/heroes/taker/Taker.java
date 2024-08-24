@@ -22,6 +22,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -56,9 +57,13 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
 
-        setWeapon(Material.IRON_HOE, "Reaper Scythe", """
-                The sharpest of them all!
-                """, 6.66d);
+        setWeapon(new Weapon(Material.IRON_HOE)
+                .setName("Reaper Scythe")
+                .setDescription("""
+                        The sharpest of them all!
+                        """)
+                .setDamage(6.66d)
+        );
 
         setUltimate(new TakerUltimate());
     }

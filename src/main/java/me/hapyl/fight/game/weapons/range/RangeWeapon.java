@@ -88,7 +88,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
     @Override
     public void appendLore(@Nonnull ItemBuilder builder) {
         builder.addLore();
-        builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs:");
+        builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs");
 
         addDynamicLore(builder, " ғɪʀᴇ ʀᴀᴛᴇ: &f&l%s", cooldown, t -> Tick.round(t.intValue()) + "s");
         addDynamicLore(builder, " ᴍᴀx ᴅɪsᴛᴀɴᴄᴇ: &f&l%s", maxDistance, Object::toString);

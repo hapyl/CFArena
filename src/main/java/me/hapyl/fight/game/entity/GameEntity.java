@@ -1,6 +1,11 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
@@ -9,11 +14,6 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.Reflect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -270,12 +270,16 @@ public class GameEntity {
         }
     }
 
-    public void sendWarning(String warning, int stay) {
+    public void sendWarning(@Nonnull String warning, int stay) {
         asPlayer(player -> Chat.sendTitle(player, "&4&l⚠", warning, 0, stay, 5));
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(@Nonnull String message) {
         Chat.sendMessage(entity, message);
+    }
+
+    public void sendRichMessage(@Nonnull String message) {
+        entity.sendRichMessage(message);
     }
 
     public void sendMessage(@Nonnull MessageType messageType, @Nonnull String message) {

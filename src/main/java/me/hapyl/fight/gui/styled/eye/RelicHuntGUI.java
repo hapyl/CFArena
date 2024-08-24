@@ -1,16 +1,16 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.gui.RelicRewardGUI;
 import me.hapyl.fight.gui.styled.*;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -135,7 +135,7 @@ public class RelicHuntGUI extends StyledGUI {
                             color.color(foundSize),
                             relics.size(),
                             type.getName(),
-                            CFUtils.checkmark(percentDone >= 1 ? true : null)
+                            BukkitUtils.checkmark(percentDone >= 1 ? true : null)
                     )
             );
         }

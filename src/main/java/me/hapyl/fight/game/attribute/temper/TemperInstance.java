@@ -5,7 +5,6 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
-import me.hapyl.eterna.module.util.BFormat;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,8 +51,8 @@ public class TemperInstance {
         return decrease(type, type.scaleDown(value));
     }
 
-    public TemperInstance message(@Nonnull String message, @Nullable Object... format) {
-        this.message = BFormat.format(message, format);
+    public TemperInstance message(@Nonnull String message) {
+        this.message = message;
         return this;
     }
 

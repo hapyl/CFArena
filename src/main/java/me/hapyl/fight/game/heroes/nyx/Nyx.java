@@ -28,7 +28,6 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ParticleDrawer;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -264,7 +263,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         @Nonnull
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player, @Nonnull ChargeType type) {
-            final Location location = CFUtils.anchorLocation(
+            final Location location = BukkitUtils.anchorLocation(
                     player.getLocation().add(player.getDirection().setY(0.0d).multiply(2))
             );
 

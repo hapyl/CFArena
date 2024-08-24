@@ -592,29 +592,6 @@ public abstract class Hero
     }
 
     /**
-     * Sets this hero weapon.
-     *
-     * @param material - Material.
-     * @param name     - Name.
-     * @param lore     - Lore.
-     * @param damage   - Damage.
-     */
-    public void setWeapon(Material material, String name, String lore, double damage) {
-        setWeapon(new Weapon(material, name, lore, damage));
-    }
-
-    /**
-     * Sets this hero weapon.
-     *
-     * @param material - Material.
-     * @param name     - Name.
-     * @param damage   - Damage.
-     */
-    public void setWeapon(Material material, String name, double damage) {
-        setWeapon(new Weapon(material, name, "", damage));
-    }
-
-    /**
      * Returns this hero weapon.
      *
      * @return this hero weapon.
@@ -628,7 +605,7 @@ public abstract class Hero
      *
      * @param weapon - Weapon.
      */
-    public void setWeapon(Weapon weapon) {
+    public void setWeapon(@Nonnull Weapon weapon) {
         this.weapon = weapon;
     }
 

@@ -1,36 +1,46 @@
 package me.hapyl.fight.game.heroes.vampire;
 
+import me.hapyl.eterna.module.util.MapMaker;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.Constants;
-import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePassive;
-import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import java.util.List;
+import java.util.Map;
 
-public class Vampire extends Hero implements Listener, UIComplexComponent, PlayerDataHandler<VampireData> {
+public class Vampire extends Hero implements Listener, PlayerDataHandler<VampireData> {
 
     private final PlayerDataMap<VampireData> vampireData = PlayerMap.newDataMap(VampireData::new);
 
     public Vampire(@Nonnull DatabaseKey key) {
-        super(key, "Vampire");
+        super(key, "Vorath");
+
+        setDescription("""
+                One of the royal guards at the %s&8&o, believes that with enough fire power, &oeverything&8&o is possible.
+                
+                Prefers NoSunBurn™ sunscreen.
+                """.formatted(Affiliation.CHATEAU));
 
         setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
         setGender(Gender.MALE);
@@ -43,11 +53,17 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Playe
         attributes.setHealth(90);
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(Color.BLACK);
-        equipment.setLeggings(Color.BLACK);
-        equipment.setBoots(Color.BLACK);
+        equipment.setChestPlate(25, 25, 25, TrimPattern.RIB, TrimMaterial.NETHERITE);
+        equipment.setLeggings(254, 253, 252, TrimPattern.SILENCE, TrimMaterial.IRON);
+        equipment.setBoots(25, 25, 25, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(Material.GHAST_TEAR, "Vampire's Fang", 5.0d);
+        setWeapon(new Weapon(Material.GHAST_TEAR)
+                .setName("Vampire's Fang")
+                .setDescription("""
+                        A very sharp fang.
+                        """)
+                .setDamage(5.0d)
+        );
 
         setUltimate(new VampireUltimate());
     }
@@ -94,24 +110,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Playe
     }
 
     @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        updateLegion(player);
-    }
-
-    @Override
-    public void onRespawn(@Nonnull GamePlayer player) {
-        updateLegion(player);
-    }
-
-    private void updateLegion(GamePlayer player) {
-        int heroCount = (int) player.getTeam().getPlayers().stream()
-                .filter(teammate -> teammate.getHero().getAffiliation() == Affiliation.CHATEAU)
-                .count();
-
-        getPassiveTalent().getLegionIncrease(heroCount).temper(player, Constants.INFINITE_DURATION);
-    }
-
-    @Override
     public Bloodshift getFirstTalent() {
         return TalentRegistry.BLOODSHIFT;
     }
@@ -131,15 +129,6 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Playe
         vampireData.remove(player);
     }
 
-    @Override
-    public void onPlayersRevealed(@Nonnull GameInstance instance) {
-    }
-
-    @Override
-    public List<String> getStrings(@Nonnull GamePlayer player) {
-        return List.of();
-    }
-
     @Nonnull
     @Override
     public PlayerDataMap<VampireData> getDataMap() {
@@ -148,14 +137,61 @@ public class Vampire extends Hero implements Listener, UIComplexComponent, Playe
 
     private class VampireUltimate extends UltimateTalent {
 
+        private final Map<AttributeType, Double> legionAttributes = MapMaker.<AttributeType, Double>ofLinkedHashMap()
+                .put(AttributeType.MAX_HEALTH, 5.0d)
+                .put(AttributeType.ATTACK, 10.0d)
+                .put(AttributeType.CRIT_DAMAGE, 1.0d)
+                .put(AttributeType.SPEED, 5.0d)
+                .put(AttributeType.ATTACK_SPEED, 3.0d)
+                .makeMap();
+
         public VampireUltimate() {
-            super(Vampire.this, "Vampire Ultimate", 5);
+            super(Vampire.this, "Legion", 50);
+
+            setDescription("""
+                    Gather the &fspirit&7 of the warriors of %1$s&7, providing you with a temporary &abuff&7.
+                    
+                    Each hero from the %1$s&7 in &a&nyour&7 &a&nteam&7 increases the following attributes for {duration}:
+                    %2$s
+                    """.formatted(Affiliation.CHATEAU, formatAttributeIncrease()));
+
+            legionAttributes.forEach(((attribute, value) -> {
+                addAttributeDescription(attribute.getName() + " Increase", value);
+            }));
+
+            setType(TalentType.ENHANCE);
+            setItem(Material.TOTEM_OF_UNDYING);
+            setDurationSec(8.0f);
         }
 
         @Nonnull
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+            final int legionCount = (int) player.getTeam().getPlayers().stream()
+                    .filter(p -> p.getHero().getAffiliation() == Affiliation.CHATEAU)
+                    .count();
+
+            final EntityAttributes attributes = player.getAttributes();
+
+            legionAttributes.forEach((type, value) -> {
+                attributes.increaseTemporary(Temper.LEGION, type, type.scaleDown(value * legionCount), getDuration());
+            });
+
+            // Fx
+            player.spawnBuffDisplay("&4&l🦇 LEGION", 30);
+            player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
+
             return UltimateResponse.OK;
+        }
+
+        private String formatAttributeIncrease() {
+            final StringBuilder builder = new StringBuilder();
+
+            legionAttributes.forEach((attribute, value) -> {
+                builder.append("&7› ").append(attribute.toString()).append("\n");
+            });
+
+            return builder.toString();
         }
     }
 }

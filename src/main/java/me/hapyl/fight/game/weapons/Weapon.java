@@ -109,10 +109,6 @@ public class Weapon
         return this;
     }
 
-    public Weapon setDescription(String info, Object... replacements) {
-        return setDescription(info.formatted(replacements));
-    }
-
     @Override
     @Nonnull
     public String getName() {
@@ -148,8 +144,8 @@ public class Weapon
         return description;
     }
 
-    public Weapon setDescription(String lore) {
-        this.description = lore;
+    public Weapon setDescription(@Nonnull String description) {
+        this.description = description;
         return this;
     }
 
@@ -214,9 +210,6 @@ public class Weapon
         builder.addLore(this instanceof RangeWeapon ? "&8Ranged Weapon" : "&8Weapon");
 
         if (this.description != null) {
-            // I SWEAR TO GOD IF I GET ONE MORE
-            // MISSING, FUCKING, FORMATTER ERROR
-            description = description.replace("%", "%%");
             builder.addLore().addTextBlockLore(description);
         }
 
@@ -233,7 +226,6 @@ public class Weapon
 
             description = StaticFormat.COOLDOWN.format(description, ability);
             description = StaticFormat.DURATION.format(description, ability);
-            description = description.replace("%", "%%"); // YEP KOK
 
             builder.addTextBlockLore(description);
 

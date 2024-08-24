@@ -16,7 +16,7 @@ public class TermPiercingDamage extends Term {
 
         final StringBuilder stringBuilder = new StringBuilder("""
                 Piercing damage ignores shields.
-                                
+                
                 &7&oPiercing damage includes:
                 """);
 

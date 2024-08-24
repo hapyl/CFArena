@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -179,7 +180,7 @@ public abstract class Taunt extends GameTask {
 
     @Nonnull
     public static Location pickRandomLocation(Location location) {
-        return CFUtils.findRandomLocationAround(location).subtract(0, 1.35d, 0);
+        return BukkitUtils.findRandomLocationAround(location, 3.0d).subtract(0, 1.35d, 0);
     }
 
     protected abstract class TauntParticle {

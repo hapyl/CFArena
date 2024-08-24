@@ -14,7 +14,7 @@ import java.util.function.BiFunction;
 public enum AttributeType implements Described {
 
     MAX_HEALTH(
-            new Attribute("Health", "Maximum health of an entity.") {
+            new Attribute("Max Health", "Maximum health of an entity.") {
                 @Override
                 public void update(LivingGameEntity entity, double value) {
                     final double health = entity.getHealth();
@@ -282,9 +282,9 @@ public enum AttributeType implements Described {
         this.defaultValue = defaultValue;
     }
 
-    public boolean isMandatory() {
+    public final boolean isMandatory() {
         return switch (this) {
-            case MAX_HEALTH, ATTACK, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED, HEIGHT -> true;
+            case MAX_HEALTH, ATTACK, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED -> true;
             default -> false;
         };
     }

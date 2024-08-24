@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.knight.Discharge;
 import me.hapyl.fight.game.talents.knight.StoneCastle;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -72,11 +73,15 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         equipment.setLeggings(170, 55, 204);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setWeapon(Material.IRON_SWORD, "Royal Sword", """
-                A royal sword, forget of the best quality ore possible.
-                                
-                It has tiny golden ornate pieces on the edge of the handle.
-                """, 5.0d);
+        setWeapon(new Weapon(Material.IRON_SWORD)
+                .setName("Royal Sword")
+                .setDescription("""
+                        A royal sword, forget of the best quality ore possible.
+                        
+                        It has tiny golden ornate pieces on the edge of the handle.
+                        """)
+                .setDamage(5.0d)
+        );
 
         setUltimate(new BlastKnightUltimate());
     }

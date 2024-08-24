@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class MasteryEntry extends StrictPlayerDatabaseEntry {
 
-    private final static int BAR_LENGTH = 20;
+    private final static int BAR_LENGTH = 15;
 
     public MasteryEntry(PlayerDatabase playerDatabase) {
         super(playerDatabase, "mastery");
@@ -94,6 +94,6 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
 
     @Nonnull
     public String makeMasteryHeader(@Nonnull Hero hero) {
-        return "&6&l\uD83C\uDFC5 MASTERY LEVEL " + getLevelString(hero);
+        return "&6&l\uD83C\uDFC5 ᴍᴀꜱᴛᴇʀʏ &8(&e%s&8)".formatted(getLevelString(hero));
     }
 }

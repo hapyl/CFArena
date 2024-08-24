@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.cosmetic.crate.convert;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
@@ -8,11 +11,8 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.collection.Map2Long;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -151,7 +151,7 @@ public class CrateConvert implements Described {
 
             if (database != null) {
                 final Long playerAmount = product.getProduct(database);
-                suffix = " " + CFUtils.checkmark(playerAmount >= amountScaled);
+                suffix = " " + BukkitUtils.checkmark(playerAmount >= amountScaled);
             }
 
             builder.addLore(" &8- &7%s".formatted(product.formatProduct(amountScaled)) + suffix);

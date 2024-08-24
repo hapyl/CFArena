@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.cosmetic.crate.convert;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
@@ -9,10 +13,6 @@ import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -96,7 +96,7 @@ public class CrateConvertOperationGUI extends StyledGUI {
         // Requirements
         builder.addLore("Requirements:");
         if (rank != PlayerRank.DEFAULT) {
-            builder.addLore(" &8- " + rank.getFormat().prefix() + " &7or higher " + CFUtils.checkmark(playerHasRank));
+            builder.addLore(" &8- " + rank.getFormat().prefix() + " &7or higher " + BukkitUtils.checkmark(playerHasRank));
         }
 
         convert.appendRequirementsScaledToItemBuilder(builder, conversionTimes, database);

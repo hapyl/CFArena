@@ -113,8 +113,14 @@ import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.KeyedToString;
 import me.hapyl.fight.util.collection.CacheSet;
 import me.hapyl.fight.ux.Notifier;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
@@ -738,7 +744,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("anchorMe", (player, args) -> {
-            final Location location = CFUtils.anchorLocation(player.getLocation());
+            final Location location = BukkitUtils.anchorLocation(player.getLocation());
 
             player.teleport(location);
 
@@ -999,7 +1005,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register("testAnchor", (player, args) -> {
-            final Location location = CFUtils.findRandomLocationAround(player.getLocation());
+            final Location location = BukkitUtils.findRandomLocationAround(player.getLocation(), 5.0d);
 
             player.teleport(location);
             Debug.info(BukkitUtils.locationToString(location));
@@ -1471,23 +1477,27 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             final ItemStack item = player.getInventory().getItemInMainHand();
             final ItemMeta meta = item.getItemMeta();
 
-            // TODO (Tue, Aug 20 2024 @xanyjl): Make this return just one thing if the trim is active
-
             final StringBuilder commandCopy = new StringBuilder();
-            boolean hasColor = false;
+            final net.kyori.adventure.text.TextComponent.Builder component = Component.text();
+
+            org.bukkit.Color color = null;
+            ArmorTrim trim = null;
 
             if (meta instanceof LeatherArmorMeta colorMeta) {
-                final org.bukkit.Color color = colorMeta.getColor();
+                color = colorMeta.getColor();
                 final int red = color.getRed();
                 final int green = color.getGreen();
                 final int blue = color.getBlue();
 
-                hasColor = true;
                 commandCopy.append(red).append(", ").append(green).append(", ").append(blue);
+                component.append(
+                        Component.text("Color: ").color(NamedTextColor.GREEN),
+                        Component.text("⬛⬛⬛").color(TextColor.color(color.asRGB()))
+                );
             }
 
             if (meta instanceof ArmorMeta armorMeta) {
-                final ArmorTrim trim = armorMeta.getTrim();
+                trim = armorMeta.getTrim();
 
                 if (trim != null) {
                     final TrimPattern pattern = trim.getPattern();
@@ -1496,21 +1506,43 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
                     final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
 
-                    if (hasColor) {
+                    if (color != null) { // add comma YEP
                         commandCopy.append(", ");
+                        component.append(Component.text(", ").color(NamedTextColor.GRAY));
                     }
 
                     commandCopy.append("TrimPattern.").append(patternKey).append(", TrimMaterial.").append(materialKey);
+                    component.append(
+                            Component.text("Trim: ").color(NamedTextColor.AQUA),
+                            Component.text("%s, %s".formatted(
+                                            KeyedToString.of(trim.getPattern())
+                                                    .stripMinecraft()
+                                                    .capitalize()
+                                                    .toString(),
+                                            KeyedToString.of(trim.getMaterial())
+                                                    .stripMinecraft()
+                                                    .capitalize()
+                                                    .toString()
+                                    ))
+                                    .color(NamedTextColor.DARK_AQUA)
+                    );
                 }
             }
 
-            Chat.sendClickableHoverableMessage(
-                    player,
-                    LazyEvent.suggestCommand(commandCopy.toString()),
-                    LazyEvent.showText("&7Click to copy!"),
-                    "Command generated! &6&lCLICK TO COPY!"
-            );
+            if (commandCopy.isEmpty()) {
+                Chat.sendMessage(player, "&cNo color nor trim applied to this item!");
+                return;
+            }
 
+            component.append(Component.text(" "))
+                    .append(Component.text("COPY")
+                            .color(NamedTextColor.GOLD)
+                            .decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
+                            .hoverEvent(Component.text("Click to copy!").color(NamedTextColor.YELLOW))
+                            .clickEvent(ClickEvent.suggestCommand(commandCopy.toString()))
+                    );
+
+            player.sendMessage(component);
         });
 
         register(new SwiftTeleportCommand());

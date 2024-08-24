@@ -7,15 +7,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.annotate.Range;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.annotate.ForceCloned;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.eterna.module.annotate.TestedOn;
 import me.hapyl.eterna.module.annotate.Version;
 import me.hapyl.eterna.module.chat.Chat;
@@ -27,6 +18,15 @@ import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.player.EffectType;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.GameEntity;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.task.GameTask;
 import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
 import net.minecraft.world.entity.boss.wither.EntityWither;
 import net.minecraft.world.level.block.Blocks;
@@ -34,7 +34,6 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -73,16 +72,7 @@ public class CFUtils {
 
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
-    private static final double ANCHOR_COMPENSATION = 0.61d;
 
-    private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
-            Tag.SLABS, 0.5d,
-            Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
-    );
-
-    private static final Set<Tag<Material>> softSolidTags = Set.of(
-            Tag.WOOL_CARPETS, Tag.ALL_SIGNS
-    );
     private static final String tickTooLongMessage = "indefinitely";
     private static String SERVER_IP;
     private static List<EffectType> ALLOWED_EFFECTS;
@@ -579,129 +569,6 @@ public class CFUtils {
         return TICK_FORMAT.format(number);
     }
 
-    @Nonnull
-    public static Location findRandomLocationAround(@Nonnull Location around) {
-        final Location location = new Location(
-                around.getWorld(),
-                around.getBlockX(),
-                around.getBlockY(),
-                around.getBlockZ(),
-                around.getYaw(),
-                around.getPitch()
-        );
-        final World world = location.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("Cannot find location in an unloaded world.");
-        }
-
-        location.add(RANDOM.nextDouble(-3, 3), 0, RANDOM.nextDouble(-3, 3));
-
-        return anchorLocation(location);
-    }
-
-    /**
-     * <b>Attempts</b> to anchor the location, so it's directly on a block.
-     *
-     * @param originalLocation - Location.
-     * @return The same anchored location.
-     */
-    @Nonnull
-    public static Location anchorLocation(@Nonnull Location originalLocation) {
-        final Location location = new Location(
-                originalLocation.getWorld(),
-                originalLocation.getX(),
-                originalLocation.getBlockY() + 0.5d,
-                originalLocation.getZ(),
-                originalLocation.getYaw(),
-                originalLocation.getPitch()
-        );
-
-        final World world = location.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("Cannot anchor location in an unloaded world.");
-        }
-
-        // in case in a half-block or a carpet
-        location.add(0, ANCHOR_COMPENSATION, 0);
-
-        // Up
-        while (true) {
-            final Block block = location.getBlock();
-
-            if (location.getY() >= world.getMaxHeight() || !block.getType().isSolid()) {
-                break;
-            }
-
-            location.add(0, 1, 0);
-        }
-
-        // Down
-        while (true) {
-            final Block block = location.getBlock();
-            final Block blockAbove = block.getRelative(BlockFace.UP);
-            final Block blockBelow = block.getRelative(BlockFace.DOWN);
-
-            if (location.getY() <= world.getMinHeight()) {
-                return originalLocation; // fail-safe to NOT fall out of the world
-            }
-
-            if (isAirOrSoftSolid(blockAbove) && isAirOrSoftSolid(block) && isSolid(blockBelow)) {
-                break;
-            }
-
-            location.subtract(0, 1, 0);
-        }
-
-        // Compensate
-        location.subtract(0, ANCHOR_COMPENSATION - 0.5d, 0);
-
-        // Compensate based on a block below
-        final Material blockType = location.getBlock().getType();
-        final Material blockBelowType = location.getBlock().getRelative(BlockFace.DOWN).getType();
-
-        anchorCompensationMap.forEach((tag, value) -> {
-            // If IN a block, compensate UP
-            if (tag.isTagged(blockType)) {
-                location.add(0, value, 0);
-            }
-            // If ABOVE a block, compensate DOWN
-            else if (tag.isTagged(blockBelowType)) {
-                location.subtract(0, value, 0);
-            }
-        });
-
-        return location;
-    }
-
-    public static boolean isAirOrSoftSolid(@Nonnull Block block) {
-        final Material type = block.getType();
-
-        if (type.isAir() || !type.isOccluding()) {
-            return true;
-        }
-
-
-        // Carpets
-        for (Tag<Material> tag : softSolidTags) {
-            if (tag.isTagged(type)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean isSolid(@Nonnull Block block) {
-        final Material type = block.getType();
-
-        return switch (type) {
-            case BARRIER -> false;
-            default -> type.isSolid();
-        };
-    }
-
     public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
         final Scoreboard scoreboard = player.getScoreboard();
         Team team = scoreboard.getTeam(teamName);
@@ -853,23 +720,6 @@ public class CFUtils {
     }
 
     /**
-     * Returns a checkmark based on the condition.
-     * <p>
-     * If the condition is <code>true</code>, a <code>GREEN</code> ✔ is returned.
-     * <p>
-     * If the condition is <code>false</code>, a <code>RED</code> ❌ is returned.
-     * <p>
-     * If the condition is <code>null</code>, a blank string is returned.
-     *
-     * @param condition - Boolean condition.
-     * @return a checkmark, an X or a blank string.
-     */
-    @Nonnull
-    public static String checkmark(@Nullable Boolean condition) {
-        return condition == null ? "" : condition ? "&a✔" : "&c❌";
-    }
-
-    /**
      * Center the location based on its block coordinates.
      * This does not center the <code>Y</code> coordinate.
      *
@@ -919,19 +769,14 @@ public class CFUtils {
      * @param e - Entry.
      */
     public static <E> void doClearEntry(@Nullable E e) {
-        if (e == null) {
-            return;
+        switch (e) {
+            case Entity entity -> entity.remove();
+            case GameEntity entity -> entity.kill();
+            case Block block -> block.getState().update(true, false);
+            case null, default -> {
+            }
         }
 
-        if (e instanceof Entity entity) {
-            entity.remove();
-        }
-        else if (e instanceof GameEntity entity) {
-            entity.kill();
-        }
-        else if (e instanceof Block block) {
-            block.getState().update(true, false);
-        }
     }
 
     @Nullable
@@ -1124,29 +969,6 @@ public class CFUtils {
                 cuboid.getMaxY(),
                 cuboid.getMaxZ()
         );
-    }
-
-    @Nonnull
-    public static String intToStringLower(int i) {
-        return intToString(i).toLowerCase();
-    }
-
-    @Nonnull
-    public static String intToString(int i) {
-        return switch (i) {
-            case 0 -> "Zero";
-            case 1 -> "One";
-            case 2 -> "Two";
-            case 3 -> "Three";
-            case 4 -> "Four";
-            case 5 -> "Five";
-            case 6 -> "Six";
-            case 7 -> "Seven";
-            case 8 -> "Eight";
-            case 9 -> "Nine";
-            case 10 -> "Ten";
-            default -> "" + i;
-        };
     }
 
     public static double distance(@Nonnull Location a, @Nonnull Location b) {

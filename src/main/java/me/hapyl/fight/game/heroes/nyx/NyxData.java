@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Iterators;
 import me.hapyl.fight.util.Mth;
 import org.bukkit.Location;
@@ -53,7 +53,7 @@ public class NyxData extends PlayerData implements Ticking {
     }
 
     public void createDroplet(@Nonnull Location location) {
-        droplets.add(new ChaosDroplet(player, CFUtils.anchorLocation(location)));
+        droplets.add(new ChaosDroplet(player, BukkitUtils.anchorLocation(location)));
     }
 
     public int dropletCount() {

@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -20,7 +21,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -92,7 +92,7 @@ public class WitherRosePath extends Talent {
                 final double z = direction.getZ() * d;
 
                 location.add(x, y, z);
-                createRose(player, hitEntities, CFUtils.anchorLocation(location), tick);
+                createRose(player, hitEntities, BukkitUtils.anchorLocation(location), tick);
                 location.subtract(x, y, z);
 
                 d += 1.0d;

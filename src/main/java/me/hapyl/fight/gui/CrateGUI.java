@@ -1,6 +1,9 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
@@ -12,11 +15,8 @@ import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvertGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -220,11 +220,11 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         .addLore("Requirements:")
                         .addLore(" &8-&7 &7At least &a%s&7 crates %s".formatted(
                                 CrateLocation.MIN_BULK_OPEN,
-                                CFUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)
+                                BukkitUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)
                         ))
                         .addLore(" &8-&7 %s&7 or higher %s".formatted(
                                 rankToOpenAll.getFormat().prefix(),
-                                CFUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))
+                                BukkitUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))
                         ))
                         .addLore()
                         .addLore(canOpenAll ? Color.BUTTON.color("Click to open %s crates!".formatted(totalCrates)) :

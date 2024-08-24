@@ -29,12 +29,6 @@ import java.util.Set;
 
 public class HeroPreviewGUI extends StyledGUI {
 
-    private final SlotPattern PATTERN = new SlotPattern(new byte[][] {
-            { 0, 0, 0, 0, 1, 1, 1, 0, 0 },
-            { 0, 0, 0, 0, 1, 0, 1, 0, 0 },
-            { 0, 0, 0, 0, 0, 1, 0, 0, 0 }
-    });
-
     private final Hero hero;
     private final Set<Talent> attributeDisplay;
     private final int returnPage;

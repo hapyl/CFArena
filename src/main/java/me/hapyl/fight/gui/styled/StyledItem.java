@@ -100,9 +100,9 @@ public class StyledItem implements StyledBuilder {
 
     public static final StyledItem ICON_MASTERY = new StyledItem(
             Material.GOLDEN_HELMET,
-            "Mastery",
+            "Hero Mastery",
             """
-                    &6Master&7 a hero by playing and winning!
+                    Master a hero by winning and unlock additional abilities and exclusive cosmetics!
                     """
     );
 

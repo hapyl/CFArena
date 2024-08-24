@@ -1709,7 +1709,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Nonnull
     public static Location anchorLocation(@Nonnull Location location) {
-        return CFUtils.anchorLocation(location);
+        return BukkitUtils.anchorLocation(location);
     }
 
     /**

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.vampire;
 
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.sound.SoundQueue;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,6 +13,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
@@ -22,13 +24,20 @@ public class Bloodshift extends Talent {
 
     @DisplayField public final double healthRegenPerOneDamage = 0.75d;
 
+    private final SoundQueue soundFx = new SoundQueue()
+            .appendSameSound(
+                    Sound.ENTITY_GENERIC_DRINK,
+                    2,
+                    1.0f, 1.25f, 1.0f, 1.25f, 0.75f
+            );
+
     public Bloodshift(@Nonnull DatabaseKey key) {
         super(key, "Bloodshift");
 
         setDescription("""
                 Enter &c%s&7 state for {duration}.
                 
-                While in this state, instead of dealing damage, your attacks will heal yourself based on the damage.
+                While in this state, &ninstead&7 of &cdealing damage&7, your attacks will &a&nheal&7 &a&nyourself&7 based on the damage dealt.
                 """.formatted(
                 Chat.capitalize(VampireState.SUSTAIN)
         ));
@@ -61,6 +70,7 @@ public class Bloodshift extends Talent {
         }, getDuration());
 
         // Fx
+        soundFx.play(player.getPlayer());
 
         return Response.OK;
     }

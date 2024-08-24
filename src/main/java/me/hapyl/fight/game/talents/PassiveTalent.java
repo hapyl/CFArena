@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents;
 import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.MessageType;
 
 import javax.annotation.Nonnull;
 
@@ -17,13 +18,13 @@ public class PassiveTalent extends Talent {
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        player.sendMessage("do not execute passive talents");
+        player.sendMessage(MessageType.ERROR, "Do not execute passive talents!");
         return Response.OK;
     }
 
     @Override
     public boolean isDisplayAttributes() {
-        return false;
+        return false; // This will remove the "Show Attributes" button for passive talents, because most of them don't need it.
     }
 
     @Nonnull

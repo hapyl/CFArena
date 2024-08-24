@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -29,7 +30,7 @@ public class ShadowCloneNPC extends HumanNPC {
     private int lifeTime;
 
     public ShadowCloneNPC(ShadowClone talent, GamePlayer player) {
-        super(CFUtils.anchorLocation(player.getLocation()), "", player.getName());
+        super(BukkitUtils.anchorLocation(player.getLocation()), "", player.getName());
 
         this.talent = talent;
         this.player = player;

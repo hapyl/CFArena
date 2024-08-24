@@ -1,6 +1,7 @@
 package me.hapyl.fight.notifier;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.terminology.Term;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -25,7 +26,7 @@ public enum Notification {
 
     TERM(
             "&aSeeing some unfamiliar phrase or",
-            "&awonder what &f&nunderlined&a words mean?",
+            "&awonder what words like %s&a mean?".formatted(Term.TERM_STYLER.style("this")),
             "&aUse &e/term (query)&a to learn about a game term."
     ),
     ;

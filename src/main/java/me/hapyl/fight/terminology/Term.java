@@ -1,13 +1,15 @@
 package me.hapyl.fight.terminology;
 
 import me.hapyl.fight.util.ContextQuery;
-import org.bukkit.ChatColor;
+import me.hapyl.fight.util.Styler;
 
 import javax.annotation.Nonnull;
 
 public class Term implements ContextQuery {
 
-    public static final ChatColor DEFAULT_SUFFIX_COLOR = ChatColor.GRAY;
+    public static final Styler TERM_STYLER = new Styler()
+            .setPrefix("&8&l⌈&f&n")
+            .setSuffix("&8&l⌋&7");
 
     private final String[] strings;
 
@@ -18,21 +20,13 @@ public class Term implements ContextQuery {
         this.strings = new String[3];
     }
 
-    protected void setName(@Nonnull String name) {
-        this.strings[0] = name;
-    }
-
-    protected void setShortDescription(@Nonnull String shortDescription) {
-        this.strings[1] = shortDescription;
-    }
-
-    protected void setDescription(@Nonnull String description) {
-        this.strings[2] = description;
-    }
-
     @Nonnull
     public String getName() {
         return strings[0];
+    }
+
+    protected void setName(@Nonnull String name) {
+        this.strings[0] = name;
     }
 
     @Nonnull
@@ -40,9 +34,17 @@ public class Term implements ContextQuery {
         return strings[1];
     }
 
+    protected void setShortDescription(@Nonnull String shortDescription) {
+        this.strings[1] = shortDescription;
+    }
+
     @Nonnull
     public String getDescription() {
         return strings[2];
+    }
+
+    protected void setDescription(@Nonnull String description) {
+        this.strings[2] = description;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class Term implements ContextQuery {
 
     @Override
     public final String toString() {
-        return (ChatColor.WHITE + ChatColor.UNDERLINE.toString()) + getName() + DEFAULT_SUFFIX_COLOR;
+        return TERM_STYLER.style(getName());
     }
 
     @Nonnull

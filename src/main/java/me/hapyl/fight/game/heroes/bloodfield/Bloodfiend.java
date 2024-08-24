@@ -115,10 +115,10 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         ultimate.setDescription("""
                 After a short casting time, impel all &cbitten &cenemies&7 for {duration}.
                 &8&o;;While casting, transform into a bat and fly freely.
-                                
+                
                 While impelled, &nplayers &nmust&7 obey &b&l%s &7of your commands.
                 &8&oEntities other than players take %s damage.
-                                
+                
                 If &4failed&7 to obey a command, they suffer &c%.0f&7 ❤ damage.
                 """.formatted(impelTimes, impelNonPlayerDamage, impelDamage));
 
@@ -217,17 +217,17 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     @Override
     public TwinClaws getFirstTalent() {
-        return (TwinClaws) TalentRegistry.TWIN_CLAWS;
+        return TalentRegistry.TWIN_CLAWS;
     }
 
     @Override
     public CandlebaneTalent getSecondTalent() {
-        return (CandlebaneTalent) TalentRegistry.CANDLEBANE;
+        return TalentRegistry.CANDLEBANE;
     }
 
     @Override
     public BloodChaliceTalent getThirdTalent() {
-        return (BloodChaliceTalent) TalentRegistry.BLOOD_CHALICE;
+        return TalentRegistry.BLOOD_CHALICE;
     }
 
     @Override

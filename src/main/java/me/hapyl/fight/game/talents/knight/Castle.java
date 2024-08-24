@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.knight;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -87,7 +88,7 @@ public class Castle extends TimedGameTask implements Removable {
 
                 final Location location = Castle.this.location.clone();
 
-                CFUtils.anchorLocation(location.add(x, 0.0d, z));
+                BukkitUtils.anchorLocation(location.add(x, 0.0d, z));
                 location.subtract(0.0d, 1.5d, 0.0d);
 
                 final ArmorStand stand = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
