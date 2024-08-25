@@ -3,13 +3,14 @@ package me.hapyl.fight.game.talents.pytaria;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -30,7 +31,7 @@ public class FlowerEscape extends Talent {
     @DisplayField private final double flowerDamage = 5.0d;
     @DisplayField private final int pulsePeriod = 20;
 
-    public FlowerEscape(@Nonnull DatabaseKey key) {
+    public FlowerEscape(@Nonnull Key key) {
         super(key, "Flower Escape");
 
         setDescription("""

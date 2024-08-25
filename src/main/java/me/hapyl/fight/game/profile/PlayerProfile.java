@@ -23,7 +23,7 @@ import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.CheckForNull;

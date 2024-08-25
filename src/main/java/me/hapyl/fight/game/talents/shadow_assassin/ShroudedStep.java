@@ -5,13 +5,14 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.npc.ClickType;
 import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -31,7 +32,7 @@ public class ShroudedStep extends Talent {
     @DisplayField private final double decoyExplosionRadius = 1.5d;
     @DisplayField private final double decoyExplosionDamage = 10.0d;
 
-    public ShroudedStep(@Nonnull DatabaseKey key) {
+    public ShroudedStep(@Nonnull Key key) {
         super(key, "Shrouded Step");
 
         setDescription("""

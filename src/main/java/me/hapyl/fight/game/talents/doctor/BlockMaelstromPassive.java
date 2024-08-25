@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.doctor;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class BlockMaelstromPassive extends PassiveTalent {
-    public BlockMaelstromPassive(@Nonnull DatabaseKey key) {
+    public BlockMaelstromPassive(@Nonnull Key key) {
         super(key, "Block Maelstrom");
 
         setDescription("""

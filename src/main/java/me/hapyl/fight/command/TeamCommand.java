@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.TeamSelectGUI;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public class TeamCommand extends SimplePlayerCommand {
 
         if (string.equalsIgnoreCase("join")) {
             if (team.isFull()) {
-                Notifier.error(player, "Cannot join {} team because it's full!", team.getName());
+                Notifier.error(player, "Cannot join {%s} team because it's full!".formatted(team.getName()));
                 return;
             }
 

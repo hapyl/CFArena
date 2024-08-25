@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class LikeADreamPassive extends PassiveTalent {
-    public LikeADreamPassive(@Nonnull DatabaseKey key) {
+    public LikeADreamPassive(@Nonnull Key key) {
         super(key, "Like a Dream");
 
         setDescription("""

@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,7 +18,7 @@ public class TwinClaws extends Talent implements Listener {
     @DisplayField protected final double twinClawDamage = 10.0d;
     @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 1.5d;
 
-    public TwinClaws(@Nonnull DatabaseKey key) {
+    public TwinClaws(@Nonnull Key key) {
         super(key, "Twin Claws");
 
         setDescription("""

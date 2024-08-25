@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.GameType;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.maps.EnumLevel;
 import org.bukkit.entity.Player;
 
@@ -44,8 +44,8 @@ public class NullGameInstance implements IGameInstance {
 
     @Nonnull
     @Override
-    public CFGameMode getMode() {
-        return Modes.FFA.getMode();
+    public GameType getMode() {
+        return EnumGameType.FFA.getMode();
     }
 
     @Override

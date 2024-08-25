@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.witcher;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -25,7 +26,7 @@ public class Akciy extends Talent implements Listener {
 
     protected final Map<LivingGameEntity, AxiiData> axiiDatamap = Maps.newHashMap();
 
-    public Akciy(@Nonnull DatabaseKey key) {
+    public Akciy(@Nonnull Key key) {
         super(key, "Axii");
 
         setDescription("""

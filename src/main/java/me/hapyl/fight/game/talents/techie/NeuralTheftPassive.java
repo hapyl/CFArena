@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.talents.techie;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class NeuralTheftPassive extends PassiveTalent {
-    public NeuralTheftPassive(@Nonnull DatabaseKey key) {
+    public NeuralTheftPassive(@Nonnull Key key) {
         super(key, "Neural Theft");
 
         setDescription("""

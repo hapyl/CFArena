@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.LevelFeature;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -54,7 +54,7 @@ public class CloudFeatures extends LevelFeature implements Listener {
         if (location.getY() < 0) {
             if (player.isAlive()) {
                 player.die(true);
-                Achievements.BEYOND_CLOUDS.complete(player);
+                Registries.getAchievements().BEYOND_CLOUDS.complete(player);
             }
         }
     }

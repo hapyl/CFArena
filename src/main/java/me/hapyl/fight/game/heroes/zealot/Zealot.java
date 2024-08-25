@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -43,7 +44,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
     protected final Equipment abilityEquipment;
     private final PlayerDataMap<ZealotData> zealotData = PlayerMap.newDataMap(ZealotData::new);
 
-    public Zealot(@Nonnull DatabaseKey key) {
+    public Zealot(@Nonnull Key key) {
         super(key, "Zealot");
 
         setDescription("""

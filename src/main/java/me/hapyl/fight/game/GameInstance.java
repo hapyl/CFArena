@@ -5,7 +5,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.event.custom.game.GameChangeStateEvent;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
@@ -15,8 +14,8 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
-import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.GameType;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
@@ -26,6 +25,7 @@ import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.Nulls;
 import org.bukkit.Bukkit;
@@ -48,7 +48,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     //private final Map<UUID, GamePlayer> players;
     //private final Map<LivingEntity, EntityData> entityData;
     private final EnumLevel currentMap;
-    private final CFGameMode mode;
+    private final GameType mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
 
@@ -56,7 +56,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     private State gameState;
     private Set<Hero> activeHeroes;
 
-    public GameInstance(@Nonnull CFGameMode mode, @Nonnull EnumLevel map) {
+    public GameInstance(@Nonnull GameType mode, @Nonnull EnumLevel map) {
         this.startedAt = System.currentTimeMillis();
         this.mode = mode;
 
@@ -75,7 +75,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         runTaskTimer(0, 1);
     }
 
-    public GameInstance(@Nonnull Modes mode, @Nonnull EnumLevel map) {
+    public GameInstance(@Nonnull EnumGameType mode, @Nonnull EnumLevel map) {
         this(mode.getMode(), map);
     }
 
@@ -192,7 +192,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     @Nonnull
     @Override
-    public CFGameMode getMode() {
+    public GameType getMode() {
         return mode;
     }
 
@@ -285,7 +285,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
                 player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
             }
 
-            Achievements.AFK.complete(player);
+            Registries.getAchievements().AFK.complete(player);
         });
 
         if (timeLimitInTicks == -1) {

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.moonwalker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Compute;
@@ -31,7 +32,7 @@ public class GravityZone extends Talent {
     @DisplayField private final double radiusY = 7.0d;
     @DisplayField private final double damagePerTick = 2.0d;
 
-    public GravityZone(@Nonnull DatabaseKey key) {
+    public GravityZone(@Nonnull Key key) {
         super(key, "Gravity Pull");
 
         setDescription("""

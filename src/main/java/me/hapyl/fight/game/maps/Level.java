@@ -10,7 +10,7 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.maps.gamepack.ChangePack;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.maps.gamepack.HealthPack;
@@ -34,7 +34,7 @@ public class Level implements ElementHandler, PlayerElementHandler, EnumHandle<E
     private final List<PredicateLocation> locations;
     private final Map<PackType, GamePack> gamePacks;
     private final List<LevelFeature> features;
-    private final Set<Modes> allowedModes;
+    private final Set<EnumGameType> allowedModes;
 
     private int ticksBeforeReveal;
     private int mapTime;
@@ -99,16 +99,16 @@ public class Level implements ElementHandler, PlayerElementHandler, EnumHandle<E
         return this;
     }
 
-    public Set<Modes> getAllowedModes() {
+    public Set<EnumGameType> getAllowedModes() {
         return allowedModes;
     }
 
-    public Level addAllowedMode(Modes mode) {
+    public Level addAllowedMode(EnumGameType mode) {
         this.allowedModes.add(mode);
         return this;
     }
 
-    public boolean isAllowedMode(Modes mode) {
+    public boolean isAllowedMode(EnumGameType mode) {
         return this.allowedModes.isEmpty() || this.allowedModes.contains(mode);
     }
 

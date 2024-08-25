@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.gui.MapSelectGUI;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.util.Validate;
@@ -31,7 +31,7 @@ public class MapCommand extends SimplePlayerCommand {
         if (args.length >= 1) {
             final EnumLevel value = Validate.getEnumValue(EnumLevel.class, args[0]);
             if (value == null) {
-                Notifier.error(player, "Invalid map!");
+                Notifier.ERROR.send(player, "Invalid map!");
                 Notifier.sound(player, Sound.ENTITY_VILLAGER_NO, 1.0f);
                 return;
             }

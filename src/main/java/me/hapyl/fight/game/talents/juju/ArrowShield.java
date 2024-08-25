@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -40,7 +41,7 @@ public class ArrowShield extends Talent implements Listener {
     @DisplayField private final int poisonDuration = Tick.fromSecond(3);
     @DisplayField private final short poisonStrength = 2;
 
-    public ArrowShield(@Nonnull DatabaseKey key) {
+    public ArrowShield(@Nonnull Key key) {
         super(key, "Arrow Shield");
 
         setDescription("""

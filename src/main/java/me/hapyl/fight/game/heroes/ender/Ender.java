@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.ender;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -15,6 +15,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -24,7 +25,7 @@ import javax.annotation.Nonnull;
 
 public class Ender extends Hero implements Listener {
 
-    public Ender(@Nonnull DatabaseKey key) {
+    public Ender(@Nonnull Key key) {
         super(key, "Ender");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);

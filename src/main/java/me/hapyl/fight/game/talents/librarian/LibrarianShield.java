@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.librarian;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class LibrarianShield extends LibrarianTalent {
-    public LibrarianShield(@Nonnull DatabaseKey key) {
+    public LibrarianShield(@Nonnull Key key) {
         super(key, "Voidless Shield");
 
         addDescription("Creates a shield with voidless capacity of absorbing damage for &b<scaled>&7 seconds.");

@@ -5,7 +5,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerDisplay;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.DisabledCommand;
 import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
@@ -69,10 +69,10 @@ public class NickCommand extends CFCommand implements DisabledCommand {
 
         display.setNick(newNick);
 
-        Notifier.success(player, "Set your nick to: {}!", newNick);
+        Notifier.success(player, "Set your nick to: {%s}!".formatted(newNick));
         Notifier.error(player, "Keep in mind abusing the nick system is a bannable offense!");
 
-        Notifier.broadcastStaff("{} changed their name to {}.", player.getName(), newNick);
+        Notifier.broadcastStaff("{%s} changed their name to {%s}.".formatted(player.getName(), newNick));
     }
 
 }

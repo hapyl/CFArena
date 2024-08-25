@@ -1,6 +1,6 @@
 package me.hapyl.fight.build;
 
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

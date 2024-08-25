@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.hercules;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
@@ -19,6 +19,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -41,7 +42,7 @@ public class Hercules extends Hero implements Listener, Disabled {
     private final int tridentCooldown = 300;
     private final Map<Player, Trident> fragileTrident = new HashMap<>();
 
-    public Hercules(@Nonnull DatabaseKey key) {
+    public Hercules(@Nonnull Key key) {
         super(key, "Hercules");
 
         setArchetypes(Archetype.MOBILITY);

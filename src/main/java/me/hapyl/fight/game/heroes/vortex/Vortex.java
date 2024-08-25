@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.vortex;
 
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Compute;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -21,6 +21,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -41,7 +42,7 @@ public class Vortex extends Hero implements UIComplexComponent {
     private final int blinkIterations = 3;
     private final double blinkStep = 0.75d;
 
-    public Vortex(@Nonnull DatabaseKey key) {
+    public Vortex(@Nonnull Key key) {
         super(key, "Vortex");
 
         setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);

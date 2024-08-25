@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.archer;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -22,6 +22,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.terminology.Terms;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -57,7 +58,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
     private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
 
-    public Archer(@Nonnull DatabaseKey key) {
+    public Archer(@Nonnull Key key) {
         super(key, "Archer");
 
         setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
@@ -248,7 +249,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
     @Override
     public Talent getSecondTalent() {
-        return TalentRegistry.SHOCK_DARK;
+        return TalentRegistry.SHOCK_DART;
     }
 
     @Override

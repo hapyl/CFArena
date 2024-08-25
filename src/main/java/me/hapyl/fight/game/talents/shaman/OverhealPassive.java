@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.shaman;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class OverhealPassive extends PassiveTalent {
-    public OverhealPassive(@Nonnull DatabaseKey key) {
+    public OverhealPassive(@Nonnull Key key) {
         super(key, Named.OVERHEAL.getName());
 
         setDescription("""

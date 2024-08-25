@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -33,7 +34,7 @@ public class ShadowPrism extends Talent {
 
     private final PlayerMap<ArmorStand> playerPrism = PlayerMap.newMap();
 
-    public ShadowPrism(@Nonnull DatabaseKey key) {
+    public ShadowPrism(@Nonnull Key key) {
         super(key, "Shadow Prism");
 
         setDescription("""

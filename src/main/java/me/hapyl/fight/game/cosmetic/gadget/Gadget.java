@@ -3,15 +3,15 @@ package me.hapyl.fight.game.cosmetic.gadget;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.talents.Cooldown;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
@@ -114,7 +114,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
         }
 
         player.setCooldown(icon, cooldown);
-        Achievements.USE_GADGETS.complete(player);
+        Registries.getAchievements().USE_GADGETS.complete(player);
     }
 
     @Override

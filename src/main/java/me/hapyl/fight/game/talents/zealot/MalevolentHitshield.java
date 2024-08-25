@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.zealot;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.HitShield;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ public class MalevolentHitshield extends Talent {
     @DisplayField private final short shieldStrength = 7;
     @DisplayField private final int cooldown = Tick.fromSecond(30);
 
-    public MalevolentHitshield(@Nonnull DatabaseKey key) {
+    public MalevolentHitshield(@Nonnull Key key) {
         super(key, "Malevolent Hitshield");
 
         setDescription("""

@@ -23,7 +23,7 @@ public enum LobbyItems {
         }
     }),
 
-    GAME_MANAGEMENT(new LobbyItem(Material.BOOK, 2, "Game Management", "Manage game settings such as selecting maps, modes etc.") {
+    GAME_MANAGEMENT(new LobbyItem(Material.BOOK, 2, "Game Management", "Manage game settings such as selecting maps, types etc.") {
         @Override
         public void onClick(Player player) {
             new GameManagementGUI(player);

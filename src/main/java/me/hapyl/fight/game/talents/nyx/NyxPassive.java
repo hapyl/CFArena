@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.nyx;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public class NyxPassive extends PassiveTalent {
 
     @DisplayField private final int buffDuration = Tick.fromSecond(6);
 
-    public NyxPassive(@Nonnull DatabaseKey key) {
+    public NyxPassive(@Nonnull Key key) {
         super(key, "Reverberation");
 
         setDescription("""

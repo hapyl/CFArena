@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class QuantumEnergyPassive extends PassiveTalent {
-    public QuantumEnergyPassive(@Nonnull DatabaseKey key) {
+    public QuantumEnergyPassive(@Nonnull Key key) {
         super(key, "Quantum Energy");
 
         setDescription("""

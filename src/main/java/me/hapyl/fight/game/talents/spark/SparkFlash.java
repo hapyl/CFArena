@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.spark;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -9,6 +9,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -28,7 +29,7 @@ public class SparkFlash extends Talent {
     @DisplayField private final int windupTime = 15;
     @DisplayField private final double fireDamage = 2;
 
-    public SparkFlash(@Nonnull DatabaseKey key) {
+    public SparkFlash(@Nonnull Key key) {
         super(key, "Blinding Curve");
 
         setDescription("""

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.nightmare;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -19,6 +19,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -41,7 +42,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
             .increase(AttributeType.ATTACK, 0.5d)
             .increase(AttributeType.SPEED, 0.05d);
 
-    public Nightmare(@Nonnull DatabaseKey key) {
+    public Nightmare(@Nonnull Key key) {
         super(key, "Nightmare");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);

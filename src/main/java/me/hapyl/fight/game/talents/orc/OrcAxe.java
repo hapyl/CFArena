@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.orc;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -27,7 +28,7 @@ import javax.annotation.Nonnull;
 
 public class OrcAxe extends InputTalent {
 
-    public OrcAxe(@Nonnull DatabaseKey key) {
+    public OrcAxe(@Nonnull Key key) {
         super(key, "Axe");
 
         setDescription("""

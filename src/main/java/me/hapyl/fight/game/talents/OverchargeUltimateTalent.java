@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.fight.database.key.DatabaseKeyed;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
@@ -15,8 +15,8 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
 
     private String overchargeDescription = "";
 
-    public OverchargeUltimateTalent(@Nonnull DatabaseKeyed key, @Nonnull String name, int pointCost, int overchargeCost) {
-        super(key, name, pointCost);
+    public OverchargeUltimateTalent(@Nonnull Hero hero, @Nonnull String name, int pointCost, int overchargeCost) {
+        super(hero, name, pointCost);
 
         if (overchargeCost <= pointCost) {
             throw new IllegalArgumentException("Overcharge must be greater than normal cost!");
@@ -53,7 +53,7 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
         final UltimateResponse response = useUltimate(player, isOvercharged ? ChargeType.OVERCHARGED : ChargeType.CHARGED);
 
         if (response.isOk()) {
-            Achievements.OVERCHARGED.complete(player);
+            Registries.getAchievements().OVERCHARGED.complete(player);
         }
 
         return response;

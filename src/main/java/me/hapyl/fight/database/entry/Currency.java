@@ -2,10 +2,10 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.crate.convert.Product;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.entity.Player;
 
@@ -16,7 +16,7 @@ public enum Currency implements FormattedEnum, Product<Long> {
     COINS(new Color("#FFD700"), "🪙", "Coins") {
         @Override
         public void onIncrease(Player player, long value) {
-            Achievements.GAIN_COINS.addProgress(player, (int) value);
+            Registries.getAchievements().GAIN_COINS.addCompleteCount(player, (int) value);
         }
     },
     RUBIES(new Color("#9B111E"), "💎", "Rubies"),

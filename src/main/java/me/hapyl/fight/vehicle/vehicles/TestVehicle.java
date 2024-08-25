@@ -9,8 +9,8 @@ public class TestVehicle extends Vehicle {
     public TestVehicle(@Nonnull Player passenger) {
         super(passenger);
 
-        this.speed = 0.5d;
-        this.smoothness = 0.2d;
-        this.maxHeight = 10.0d;
+        this.speed.set(0.5d);
+        this.smoothness.set(0.2d);
+        this.maxHeight.set(10.0d);
     }
 }

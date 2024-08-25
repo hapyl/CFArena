@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
@@ -16,7 +16,7 @@ public abstract class InputTalent extends Talent {
     protected final InputTalentData leftData;
     protected final InputTalentData rightData;
 
-    protected InputTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+    protected InputTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
         leftData = new InputTalentData(true);

@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.zealot;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -12,7 +13,7 @@ public class FerociousStrikes extends PassiveTalent {
 
     public static final int maxStrikes = 10;
 
-    public FerociousStrikes(@Nonnull DatabaseKey key) {
+    public FerociousStrikes(@Nonnull Key key) {
         super(key, "Ferocious Strikes");
 
         setDescription("""

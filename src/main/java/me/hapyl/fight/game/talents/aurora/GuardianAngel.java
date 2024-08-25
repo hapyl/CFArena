@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.aurora;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -17,7 +18,7 @@ public class GuardianAngel extends PassiveTalent {
 
     @DisplayField public final int teleportDelay = 10;
 
-    public GuardianAngel(@Nonnull DatabaseKey key) {
+    public GuardianAngel(@Nonnull Key key) {
         super(key, "Guardian Angel");
 
         setDescription("""

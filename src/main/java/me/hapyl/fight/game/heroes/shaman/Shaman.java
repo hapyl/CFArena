@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.shaman;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameEntityHealEvent;
 import me.hapyl.fight.game.Named;
@@ -21,6 +21,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shaman.TotemTalent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -42,7 +43,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
     private final double maxOverhealUse = 10;
     private final double maxOverhealDistance = 25;
 
-    public Shaman(@Nonnull DatabaseKey key) {
+    public Shaman(@Nonnull Key key) {
         super(key, "Shaman");
 
         setAffiliation(Affiliation.THE_JUNGLE);

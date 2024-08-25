@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -21,6 +21,7 @@ import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.talents.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -41,7 +42,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
     private final PlayerDataMap<MoonwalkerData> playerData = PlayerMap.newDataMap(MoonwalkerData::new);
 
-    public Moonwalker(@Nonnull DatabaseKey key) {
+    public Moonwalker(@Nonnull Key key) {
         super(key, "Moonwalker");
 
         setMinimumLevel(3);

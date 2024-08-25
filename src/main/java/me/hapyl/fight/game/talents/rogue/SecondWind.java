@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.rogue;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -14,7 +15,7 @@ public class SecondWind extends PassiveTalent {
 
     @DisplayField(percentage = true) public final double passiveHealing = 2.0d;
 
-    public SecondWind(@Nonnull DatabaseKey key) {
+    public SecondWind(@Nonnull Key key) {
         super(key, "Second Wind");
 
         setDescription("""

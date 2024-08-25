@@ -4,7 +4,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.handle.EnumHandle;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -99,7 +99,7 @@ public abstract class Cosmetic extends CollectionItem implements Formatted, Enum
 
         if (this instanceof Disabled) {
             if (player != null) {
-                Notifier.error(player, "This cosmetic is currently disabled, sorry!");
+                Notifier.ERROR.send(player, "This cosmetic is currently disabled, sorry!");
             }
             return;
         }

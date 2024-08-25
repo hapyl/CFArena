@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.taker;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -16,7 +17,7 @@ public class SpiritualBonesPassive extends PassiveTalent {
     @DisplayField public final double DAMAGE_REDUCE_PER_BONE = 3.0d;
     @DisplayField public final double HEALING_PER_BONE = 3.0d;
 
-    public SpiritualBonesPassive(@Nonnull DatabaseKey key) {
+    public SpiritualBonesPassive(@Nonnull Key key) {
         super(key, "Spiritual Bones");
 
         setDescription("""

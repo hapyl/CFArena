@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -33,7 +34,7 @@ public class CipherLock extends TechieTalent {
             .decrease(AttributeType.ATTACK, 0.2d)  //
             .decrease(AttributeType.SPEED, 0.04d); // 20%
 
-    public CipherLock(@Nonnull DatabaseKey key) {
+    public CipherLock(@Nonnull Key key) {
         super(key, "Cipher Lock");
 
         setType(TalentType.IMPAIR);

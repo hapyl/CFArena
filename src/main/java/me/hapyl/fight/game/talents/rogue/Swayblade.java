@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.rogue;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -20,7 +21,7 @@ public class Swayblade extends Talent {
     @DisplayField private final float maxYawShift = 60.0f;
     @DisplayField private final float maxPitchShift = 40.0f;
 
-    public Swayblade(@Nonnull DatabaseKey key) {
+    public Swayblade(@Nonnull Key key) {
         super(key, "Swayblade");
 
         setDescription("""

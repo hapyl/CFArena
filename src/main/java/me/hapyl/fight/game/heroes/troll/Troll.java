@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.troll;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -18,6 +18,8 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -34,7 +36,7 @@ public class Troll extends Hero implements Listener {
 
     private final PlayerMap<StickyCobweb> cobwebs = PlayerMap.newMap();
 
-    public Troll(@Nonnull DatabaseKey key) {
+    public Troll(@Nonnull Key key) {
         super(key, "Troll");
 
         setArchetypes(Archetype.STRATEGY, Archetype.MELEE);
@@ -110,13 +112,14 @@ public class Troll extends Hero implements Listener {
             entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
             entity.sendMessage("&a%s had the last laugh!".formatted(killer.getName()));
 
-            entity.asPlayer(Achievements.LAUGHING_OUT_LOUD_VICTIM::complete);
+            final AchievementRegistry registry = Registries.getAchievements();
+            entity.asPlayer(registry.TROLL_LAUGHING_OUT_LOUD_VICTIM::complete);
 
             // Fx
             killer.sendMessage("&aYou laughed at %s!".formatted(entity.getName()));
             killer.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
 
-            Achievements.LAUGHING_OUT_LOUD.complete(killer.getPlayer());
+            registry.TROLL_LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }
     }
 

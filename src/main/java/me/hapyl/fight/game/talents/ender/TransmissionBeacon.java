@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.ender;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.entity.Entities;
@@ -31,7 +32,7 @@ public class TransmissionBeacon extends Talent implements Listener {
     private final LinkedKeyValMap<GamePlayer, Entity> beaconLocation = new LinkedKeyValMap<>();
     @DisplayField private final int cooldownIfDestroyed = 600;
 
-    public TransmissionBeacon(@Nonnull DatabaseKey key) {
+    public TransmissionBeacon(@Nonnull Key key) {
         super(key, "Transmission Beacon");
 
         setDescription("""

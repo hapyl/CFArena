@@ -5,7 +5,7 @@ import me.hapyl.fight.database.entry.ArtifactEntry;
 import me.hapyl.fight.game.artifact.Artifact;
 import me.hapyl.fight.game.artifact.Type;
 import me.hapyl.fight.registry.Registries;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
     public ArtifactCommand(String name) {
         super(name);
 
-        artifactsNames = Registries.ARTIFACTS.values().stream().map(artifact -> artifact.getId().toString()).toList();
+        artifactsNames = Registries.getArtifacts().values().stream().map(artifact -> artifact.getKey().toString()).toList();
 
         addCompleterValues(2, "has", "add", "remove", "get");
     }
@@ -62,17 +62,17 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
             final Artifact selected = entry.getSelected(type);
 
             if (selected == null) {
-                Notifier.success(player, "{target} doesn't have any {type} selected.", target.getName(), type.name());
+                Notifier.success(player, "{%s} doesn't have any {%s} selected.".formatted(target.getName(), type.name()));
             }
             else {
-                Notifier.success(player, "{target} has {artifact} {type} selected.", target.getName(), selected.getName(), type.name());
+                Notifier.success(player, "{%s} has {%s} {%s} selected.".formatted(target.getName(), selected.getName(), type.name()));
             }
 
             return;
         }
 
         final String artifactId = getArgument(args, 2).toString();
-        final Artifact artifact = Registries.ARTIFACTS.get(artifactId);
+        final Artifact artifact = Registries.getArtifacts().get(artifactId);
 
         if (artifact == null) {
             Notifier.error(player, "Could not find that artifact!");
@@ -83,27 +83,27 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
             case "has" -> {
                 final boolean isOwned = entry.isOwned(artifact);
 
-                Notifier.info(player, "{target} {status} this artifact!", target.getName(), isOwned ? "owns" : "does not own");
+                Notifier.info(player, "{%s} {%s} this artifact!".formatted(target.getName(), isOwned ? "owns" : "does not own"));
             }
 
             case "add" -> {
                 if (entry.isOwned(artifact)) {
-                    Notifier.error(player, "{target} already owns this artifact!", target.getName());
+                    Notifier.error(player, "{%s} already owns this artifact!".formatted(target.getName()));
                     return;
                 }
 
                 entry.setOwned(artifact, true);
-                Notifier.success(player, "Gave {artifact} artifact to {target}!", artifact.getName(), target.getName());
+                Notifier.success(player, "Gave {%s} artifact to {%s}!".formatted(artifact.getName(), target.getName()));
             }
 
             case "remove" -> {
                 if (!entry.isOwned(artifact)) {
-                    Notifier.error(player, "{target} does not own this artifact!", target.getName());
+                    Notifier.error(player, "{%s} does not own this artifact!".formatted(target.getName()));
                     return;
                 }
 
                 entry.setOwned(artifact, false);
-                Notifier.success(player, "Removed {artifact} from {target}!", artifact.getName(), target.getName());
+                Notifier.success(player, "Removed {%s} from {%s}!".formatted(artifact.getName(), target.getName()));
             }
 
             default -> {

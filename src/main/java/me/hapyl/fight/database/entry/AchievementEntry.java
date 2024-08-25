@@ -17,7 +17,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      * @return number of times completed
      */
     public int getCompleteCount(Achievement achievement) {
-        return getValue("achievement.%s.complete_count".formatted(achievement.getId()), 0);
+        return getValue("achievement.%s.complete_count".formatted(achievement.getKey()), 0);
     }
 
     /**
@@ -53,20 +53,20 @@ public class AchievementEntry extends PlayerDatabaseEntry {
     }
 
     public void setCompletedAt(Achievement achievement, long time) {
-        setValue("achievement.%s.completed_at".formatted(achievement.getId()), time);
+        setValue("achievement.%s.completed_at".formatted(achievement.getKey()), time);
     }
 
     public long getCompletedAt(Achievement achievement) {
-        return getValue("achievement.%s.completed_at".formatted(achievement.getId()), 0L);
+        return getValue("achievement.%s.completed_at".formatted(achievement.getKey()), 0L);
     }
 
     public void setCompleteCount(Achievement achievement, int count) {
         if (count <= 0) {
-            setValue("achievement.%s".formatted(achievement.getId()), null);
+            setValue("achievement.%s".formatted(achievement.getKey()), null);
             return;
         }
 
-        setValue("achievement.%s.complete_count".formatted(achievement.getId()), count);
+        setValue("achievement.%s.complete_count".formatted(achievement.getKey()), count);
     }
 
 }

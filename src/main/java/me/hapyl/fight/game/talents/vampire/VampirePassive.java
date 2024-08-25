@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.vampire;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class VampirePassive extends PassiveTalent {
 
-    public VampirePassive(@Nonnull DatabaseKey key) {
+    public VampirePassive(@Nonnull Key key) {
         super(key, "Blood Thirst");
 
         setDescription("""

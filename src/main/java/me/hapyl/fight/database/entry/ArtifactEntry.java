@@ -25,7 +25,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     @Nonnull
     public List<Artifact> getOwned() {
-        final ArtifactRegistry registry = Registries.ARTIFACTS;
+        final ArtifactRegistry registry = Registries.getArtifacts();
         final List<Artifact> artifacts = Lists.newArrayList();
         final List<String> ownedNames = getInDocument().get("owned", Lists.newArrayList());
 
@@ -42,7 +42,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     public void setOwned(@Nonnull Artifact artifact, boolean owned) {
         fetchDocument(document -> {
-            final String id = artifact.getStringId();
+            final String id = artifact.getKeyAsString();
             final List<String> ownedList = document.get("owned", Lists.newArrayList());
 
             document.put("owned", CFUtils.computeCollection(ownedList, id, owned));
@@ -58,7 +58,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     public void setSelected(@Nonnull Type type, @Nullable Artifact artifact) {
         fetchDocument(document -> {
-            document.put("selected_" + type.getEntryPath(), artifact != null ? artifact.getId() : null);
+            document.put("selected_" + type.getEntryPath(), artifact != null ? artifact.getKey() : null);
         });
     }
 }

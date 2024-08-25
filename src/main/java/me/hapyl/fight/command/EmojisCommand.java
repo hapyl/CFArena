@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.fight.emoji.Emojis;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
 

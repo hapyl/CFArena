@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.game.achievement.Achievement;
-import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.game.achievement.Achievement;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.entity.Player;
 
 public class DebugAchievementCommand extends SimplePlayerAdminCommand {
@@ -15,7 +15,7 @@ public class DebugAchievementCommand extends SimplePlayerAdminCommand {
         super(name);
         setUsage("debugachievement (achievement)");
 
-        registry = Main.getPlugin().getAchievementRegistry();
+        registry = Registries.getAchievements();
 
         addCompleterValues(1, registry.listIds());
     }
@@ -27,7 +27,7 @@ public class DebugAchievementCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final Achievement achievement = registry.byId(args[0]);
+        final Achievement achievement = registry.get(args[0]);
 
         if (achievement == null) {
             Chat.sendMessage(player, "&cInvalid achievement!");

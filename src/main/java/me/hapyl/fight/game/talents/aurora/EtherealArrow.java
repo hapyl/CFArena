@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.aurora;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,7 +26,7 @@ public class EtherealArrow extends AuroraArrowTalent {
     @DisplayField public final short maxStacks = 3;
     @DisplayField public final int buffDuration = Tick.fromSecond(6);
 
-    public EtherealArrow(@Nonnull DatabaseKey key) {
+    public EtherealArrow(@Nonnull Key key) {
         super(key, "Ethereal Arrows", ChatColor.AQUA, 3, 5.0d, 0.85d);
 
         setDescription("""

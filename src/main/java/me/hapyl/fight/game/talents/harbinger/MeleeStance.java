@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.harbinger;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -35,7 +36,7 @@ public class MeleeStance extends Talent {
             .setDescription("A blade forged from pure water.")
             .setDamage(8.0d);
 
-    public MeleeStance(@Nonnull DatabaseKey key) {
+    public MeleeStance(@Nonnull Key key) {
         super(key, "Melee Stance");
 
         setDescription("""

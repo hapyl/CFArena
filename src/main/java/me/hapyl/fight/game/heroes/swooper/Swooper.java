@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.swooper;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
 import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -44,7 +45,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     private final double knockbackChance = 0.12d;
     private final int stunDuration = 40;
 
-    public Swooper(@Nonnull DatabaseKey key) {
+    public Swooper(@Nonnull Key key) {
         super(key, "Swooper");
 
         setArchetypes(Archetype.RANGE, Archetype.DAMAGE);

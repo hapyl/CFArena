@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.knight.StoneCastle;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -44,7 +45,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
     private final PlayerDataMap<BlastKnightData> dataMap = PlayerMap.newDataMap(BlastKnightData::new);
     private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
 
-    public BlastKnight(@Nonnull DatabaseKey key) {
+    public BlastKnight(@Nonnull Key key) {
         super(key, "Blast Knight");
 
         setArchetypes(Archetype.SUPPORT, Archetype.DEFENSE);

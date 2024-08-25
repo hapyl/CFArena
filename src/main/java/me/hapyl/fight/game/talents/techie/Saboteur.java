@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -19,6 +19,7 @@ import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.gamepack.ActivePack;
 import me.hapyl.fight.game.maps.gamepack.HackedPack;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.ChatColor;
@@ -42,7 +43,7 @@ public class Saboteur extends TechieTalent {
             .decrease(AttributeType.ATTACK, hackedSupplyAttackReduction)
             .decrease(AttributeType.SPEED, hackedSupplySeedReduction);
 
-    public Saboteur(@Nonnull DatabaseKey key) {
+    public Saboteur(@Nonnull Key key) {
         super(key, "Saboteur");
 
         setType(TalentType.IMPAIR);

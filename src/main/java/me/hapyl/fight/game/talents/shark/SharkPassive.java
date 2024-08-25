@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.shark;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -20,7 +21,7 @@ public class SharkPassive extends PassiveTalent {
     @DisplayField(attribute = AttributeType.ATTACK) public final double attackIncreasePerStack = 0.075d;
     @DisplayField(attribute = AttributeType.CRIT_CHANCE) public final double critChanceIncreasePerStack = 0.05d;
 
-    public SharkPassive(@Nonnull DatabaseKey key) {
+    public SharkPassive(@Nonnull Key key) {
         super(key, "Blood Thirst");
 
         setDescription("""

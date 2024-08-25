@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.hercules;
 
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.util.Vector;
@@ -12,7 +13,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 
 public class HerculesJump extends Talent {
-    public HerculesJump(@Nonnull DatabaseKey key) {
+    public HerculesJump(@Nonnull Key key) {
         super(key, "Updraft");
 
         setDescription("""

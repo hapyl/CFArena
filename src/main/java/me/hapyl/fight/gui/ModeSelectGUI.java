@@ -1,8 +1,8 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.gamemode.CFGameMode;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.GameType;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
@@ -12,9 +12,9 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ModeSelectGUI extends GameManagementSubGUI<Modes> {
+public class ModeSelectGUI extends GameManagementSubGUI<EnumGameType> {
     public ModeSelectGUI(Player player) {
-        super(player, "Mode Selection", Size.FOUR, Modes.values());
+        super(player, "Mode Selection", Size.FOUR, EnumGameType.getSelectableGameTypes());
     }
 
     @Nonnull
@@ -30,8 +30,8 @@ public class ModeSelectGUI extends GameManagementSubGUI<Modes> {
 
     @Nonnull
     @Override
-    public ItemBuilder createItem(@Nonnull Modes enumMode, boolean isSelected) {
-        final CFGameMode mode = enumMode.getMode();
+    public ItemBuilder createItem(@Nonnull EnumGameType enumMode, boolean isSelected) {
+        final GameType mode = enumMode.getMode();
 
         final ItemBuilder builder = new ItemBuilder(mode.getMaterial())
                 .setName(mode.getName())

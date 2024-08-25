@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class EyesOfTheGalaxyPassive extends PassiveTalent {
-    public EyesOfTheGalaxyPassive(@Nonnull DatabaseKey key) {
+    public EyesOfTheGalaxyPassive(@Nonnull Key key) {
         super(key, "Eyes of the Galaxy");
 
         setDescription("""

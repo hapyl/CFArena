@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.tamer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
     @DisplayField private final double attackSpeedIncrease = 1.0d;
     @DisplayField private final double speedIncrease = 0.1d;
 
-    public TamingTheTime(@Nonnull DatabaseKey key) {
+    public TamingTheTime(@Nonnull Key key) {
         super(key, "Taming the Time");
 
         setDescription("""

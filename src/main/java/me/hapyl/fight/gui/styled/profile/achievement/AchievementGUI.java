@@ -1,7 +1,7 @@
 package me.hapyl.fight.gui.styled.profile.achievement;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
@@ -12,7 +12,6 @@ import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.NoProfileException;
-import me.hapyl.fight.ux.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -76,7 +75,7 @@ public class AchievementGUI extends StyledGUI {
     }
 
     private void comingSoon(Player player) {
-        Notifier.error(player, "This feature is coming soon!");
-        PlayerLib.villagerNo(player);
+        Notifier.ERROR.send(player, "This feature is coming soon!");
+        Notifier.ERROR.sound(player);
     }
 }

@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.alchemist;
 
-import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -12,6 +11,7 @@ import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.alchemist.CauldronEffect;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -26,7 +26,7 @@ public class RandomPotion extends Talent {
     @DisplayField private final short toxinAccumulation = 12;
     @DisplayField private final int effectDuration = 60;
 
-    public RandomPotion(@Nonnull DatabaseKey key) {
+    public RandomPotion(@Nonnull Key key) {
         super(key, "Abyssal Bottle");
 
         setDescription("""

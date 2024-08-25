@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.talents.hercules;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
 public class HerculesShift extends ChargedTalent {
-    public HerculesShift(@Nonnull DatabaseKey key) {
+    public HerculesShift(@Nonnull Key key) {
         super(key, "Shift", 3);
 
         setDescription("""

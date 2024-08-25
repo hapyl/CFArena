@@ -7,7 +7,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.util.Validate;
@@ -75,8 +75,8 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetics.addOwned(value);
                     }
 
-                    Notifier.success(player, "Gave all cosmetics to {}.", target.getName());
-                    Chat.sendMessage(target, "&aAn admin gave you all the cosmetics. Wow!");
+                    Notifier.success(player, "Gave all cosmetics to {%s}.".formatted(target.getName()));
+                    Notifier.success(target, "An admin gave you all the cosmetics. Wow!");
                 }
                 case "removeall" -> {
                     final Player target = Bukkit.getPlayer(args[1]);
@@ -93,8 +93,8 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetics.removeOwned(value);
                     }
 
-                    Notifier.success(player, "Removed all cosmetics from {}.", target.getName());
-                    Chat.sendMessage(target, "&aAn admin took away all your cosmetics.");
+                    Notifier.success(player, "Removed all cosmetics from {%s}.".formatted(target.getName()));
+                    Notifier.success(target, "An admin took away all your cosmetics!");
                 }
             }
         }

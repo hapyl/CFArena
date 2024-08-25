@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Named;
@@ -14,6 +14,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -37,7 +38,7 @@ public class DarkCover extends ShadowAssassinTalent {
 
     private final PlayerMap<GameTask> darkCoverTask = PlayerMap.newMap();
 
-    public DarkCover(@Nonnull DatabaseKey key) {
+    public DarkCover(@Nonnull Key key) {
         super(key, "Dark Cover");
 
         setType(TalentType.DAMAGE);

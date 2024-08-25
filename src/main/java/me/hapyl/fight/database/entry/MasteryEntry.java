@@ -30,7 +30,7 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
     }
 
     public final long getExp(@Nonnull Hero hero) {
-        return getValue("%s.exp".formatted(hero.getDatabaseKey().key()), 0L);
+        return getValue("%s.exp".formatted(hero.getKeyAsString()), 0L);
     }
 
     public void addExp(@Nonnull Hero hero, long expToAdd) {
@@ -47,7 +47,7 @@ public class MasteryEntry extends StrictPlayerDatabaseEntry {
             playMasteryLevelUpEffect(hero, currentLevel, newLevel);
         }
 
-        setValue("%s.exp".formatted(hero.getDatabaseKey().key()), newExp);
+        setValue("%s.exp".formatted(hero.getKeyAsString()), newExp);
     }
 
     public void playMasteryLevelUpEffect(@Nonnull Hero hero, int currentLevel, int newLevel) {

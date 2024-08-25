@@ -24,30 +24,30 @@ public class HeroEntry extends PlayerDatabaseEntry {
 
     public boolean isPurchased(Hero hero) {
         return fetchFromDocument("heroes", document -> {
-            return document.get("purchased", Lists.newArrayList()).contains(hero.getDatabaseKey().key());
+            return document.get("purchased", Lists.newArrayList()).contains(hero.getKeyAsString());
         });
     }
 
     public void addPurchased(Hero hero) {
         fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).add(hero.getDatabaseKey().key());
+            document.get("purchased", Lists.newArrayList()).add(hero.getKeyAsString());
         });
     }
 
     public void removePurchased(Hero hero) {
         fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).remove(hero.getDatabaseKey().key());
+            document.get("purchased", Lists.newArrayList()).remove(hero.getKeyAsString());
         });
     }
 
     public void setSelectedHero(Hero hero) {
-        fetchDocument("heroes", heroes -> heroes.put("selected", hero.getDatabaseKey().key()));
+        fetchDocument("heroes", heroes -> heroes.put("selected", hero.getKeyAsString()));
     }
 
     public Skins getSkin(Hero heroes) {
         final Document document = getInDocument("heroes");
         final Document skins = document.get("skin", new Document());
-        final String selectedSkin = skins.get(heroes.getDatabaseKey().key(), "");
+        final String selectedSkin = skins.get(heroes.getKeyAsString(), "");
 
         return Validate.getEnumValue(Skins.class, selectedSkin);
     }
@@ -55,7 +55,7 @@ public class HeroEntry extends PlayerDatabaseEntry {
     public void setSkin(Skins skin) {
         fetchDocument("heroes", heroes -> {
             final Document skins = heroes.get("skin", new Document());
-            skins.put(skin.getSkin().getHero().getDatabaseKey().key(), skin.name());
+            skins.put(skin.getSkin().getHero().getKeyAsString(), skin.name());
             heroes.put("skin", skins);
         });
     }
@@ -63,10 +63,10 @@ public class HeroEntry extends PlayerDatabaseEntry {
     public void setFavourite(@Nonnull Hero hero, boolean flag) {
         final List<String> favouriteHeroes = getFavouriteHeroesStrings();
         if (flag) {
-            favouriteHeroes.add(hero.getDatabaseKey().key());
+            favouriteHeroes.add(hero.getKeyAsString());
         }
         else {
-            favouriteHeroes.remove(hero.getDatabaseKey().key());
+            favouriteHeroes.remove(hero.getKeyAsString());
         }
 
         fetchDocument("heroes", heroes -> heroes.put("favourite", favouriteHeroes));

@@ -1,13 +1,11 @@
 package me.hapyl.fight.dialog;
 
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.MetadataEntry;
-import me.hapyl.fight.database.entry.MetadataKey;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.registry.EnumId;
-import me.hapyl.fight.registry.Identified;
-import me.hapyl.fight.util.Keyed;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -18,22 +16,20 @@ import java.util.Queue;
 /**
  * Represents a Dialog system.
  */
-public class Dialog implements Identified, Keyed<MetadataKey> {
+public class Dialog implements Keyed {
 
-    private final EnumId id;
+    private final Key key;
     private final Queue<DialogEntry> entries;
-    private final MetadataKey key;
 
     public Dialog(@Nonnull String id) {
-        this.id = EnumId.of(id);
+        this.key = Key.ofString(id);
         this.entries = new LinkedList<>();
-        this.key = new MetadataKey("dialog." + id);
     }
 
     @Nonnull
     @Override
-    public EnumId getId() {
-        return id;
+    public final Key getKey() {
+        return key;
     }
 
     public boolean hasTalked(@Nonnull Player player) {
@@ -69,12 +65,6 @@ public class Dialog implements Identified, Keyed<MetadataKey> {
     public Dialog addEntries(@Nonnull DialogEntry[] entries) {
         this.entries.addAll(List.of(entries));
         return this;
-    }
-
-    @Nonnull
-    @Override
-    public MetadataKey getKey() {
-        return key;
     }
 
     private MetadataEntry getMetadata(Player player) {

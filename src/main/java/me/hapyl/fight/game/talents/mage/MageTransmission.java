@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.mage;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -20,7 +21,7 @@ public class MageTransmission extends Talent {
 
     @DisplayField(suffix = "blocks") private final double maxDistance = 30.0d;
 
-    public MageTransmission(@Nonnull DatabaseKey key) {
+    public MageTransmission(@Nonnull Key key) {
         super(key, "Transmission");
 
         setDescription("""

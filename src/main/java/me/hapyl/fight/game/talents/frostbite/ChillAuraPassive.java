@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.frostbite;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class ChillAuraPassive extends PassiveTalent {
-    public ChillAuraPassive(@Nonnull DatabaseKey key) {
+    public ChillAuraPassive(@Nonnull Key key) {
         super(key, "Chill Aura");
 
         setDescription("""

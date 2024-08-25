@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.artifact;
 
 import me.hapyl.fight.game.talents.Cooldown;
-import me.hapyl.fight.registry.EnumId;
-import me.hapyl.fight.registry.Identified;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 
-public class Artifact implements Identified, Described, Cooldown {
+public class Artifact implements Keyed, Described, Cooldown {
 
-    private final EnumId id;
+    private final Key key;
     private final String name;
     private final String description;
 
@@ -17,15 +17,15 @@ public class Artifact implements Identified, Described, Cooldown {
     private int cooldown;
 
     public Artifact(@Nonnull String id, @Nonnull String name, @Nonnull String description) {
-        this.id = EnumId.of(id);
+        this.key = Key.ofString(id);
         this.name = name;
         this.description = description;
     }
 
     @Nonnull
     @Override
-    public EnumId getId() {
-        return id;
+    public Key getKey() {
+        return key;
     }
 
     @Nonnull

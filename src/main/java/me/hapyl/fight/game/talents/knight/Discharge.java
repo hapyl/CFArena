@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.knight;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.ThreadRandom;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,6 +12,7 @@ import me.hapyl.fight.game.heroes.knight.BlastKnightData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public class Discharge extends Talent implements Listener {
 
     private final ItemStack fxItem = ItemBuilder.playerHeadUrl("d81fcffb53acbc7c00c53bc7121ca259371b5b76c001dc52139e1804c287e54").asIcon();
 
-    public Discharge(@Nonnull DatabaseKey key) {
+    public Discharge(@Nonnull Key key) {
         super(key, "Quantum Discharge");
 
         setDescription("""

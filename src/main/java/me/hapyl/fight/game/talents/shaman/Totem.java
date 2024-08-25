@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.shaman;
 
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.shaman.resonance.TotemResonance;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
@@ -135,7 +135,7 @@ public class Totem extends TickingGameTask {
         final double y = getLocation().getY();
 
         if (y <= 1) {
-            Achievements.TOTEM_OUT_OF_WORLD.complete(player);
+            Registries.getAchievements().SHAMAN_TOTEM_OUT_OF_WORLD.complete(player);
             return true;
         }
 

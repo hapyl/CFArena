@@ -5,7 +5,7 @@ import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

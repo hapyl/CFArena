@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.ninja;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +25,7 @@ public class NinjaSmoke extends Talent {
     @DisplayField public final int buffDuration = Tick.fromSecond(6);
     @DisplayField(suffix = "blocks") private final double smokeDistance = 4.0d;
 
-    public NinjaSmoke(@Nonnull DatabaseKey key) {
+    public NinjaSmoke(@Nonnull Key key) {
         super(key, "Smoke Bomb");
 
         setDescription("""

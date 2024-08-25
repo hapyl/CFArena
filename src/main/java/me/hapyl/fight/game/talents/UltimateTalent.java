@@ -7,17 +7,17 @@ import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
-import me.hapyl.fight.database.key.DatabaseKey;
-import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.SoundEffect;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.stats.StatType;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
@@ -40,8 +40,8 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     private float pitch;
     private int castDuration;
 
-    public UltimateTalent(@Nonnull DatabaseKeyed keyed, @Nonnull String name, int pointCost) {
-        super(DatabaseKey.ofEnum(keyed.getDatabaseKey().key() + "_ULTIMATE"), name);
+    public UltimateTalent(@Nonnull Hero hero, @Nonnull String name, int pointCost) {
+        super(Key.ofString(hero.getKeyAsString() + "_ultimate"), name);
 
         this.cost = pointCost;
         this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
@@ -130,7 +130,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         ChallengeType.USE_ULTIMATES.progress(player);
 
         // Achievement
-        Achievements.USE_ULTIMATES.complete(player);
+        Registries.getAchievements().USE_ULTIMATES.complete(player);
 
         // Notify
         CF.getPlayers().forEach(other -> {

@@ -50,13 +50,14 @@ import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.registry.AbstractStaticRegistry;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.KeyFunction;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-
-import static me.hapyl.fight.database.key.DatabaseKey.ofEnum;
+import java.util.function.Function;
 
 /**
  * {@inheritDoc}
@@ -88,10 +89,10 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Shark SHARK;
     public static final Librarian LIBRARIAN;
     public static final Techie TECHIE;
-    public static final KillingMachine WAR_MACHINE;
+    @MarkedAsIncomplete public static final KillingMachine WAR_MACHINE;
     public static final Harbinger HARBINGER;
     public static final Shaman SHAMAN;
-    public static final Healer HEALER;
+    @MarkedAsIncomplete public static final Healer HEALER;
     public static final Vampire VAMPIRE;
     public static final BountyHunter BOUNTY_HUNTER;
     public static final SwordMaster SWORD_MASTER;
@@ -99,14 +100,14 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Orc ORC;
     public static final Bloodfiend BLOODFIEND;
     public static final Zealot ZEALOT;
-    public static final Ronin RONIN;
-    public static final Jester JESTER;
+    @MarkedAsIncomplete public static final Ronin RONIN;
+    @MarkedAsIncomplete public static final Jester JESTER;
     public static final Rogue ROGUE;
-    public static final Geo GEO;
+    @MarkedAsIncomplete public static final Geo GEO;
     public static final Aurora AURORA;
     public static final Nyx NYX;
-    public static final Gunner GUNNER;
-    public static final Echo ECHO;
+    @MarkedAsIncomplete public static final Gunner GUNNER;
+    @MarkedAsIncomplete public static final Echo ECHO;
 
     // *=* Tutorial Hero *=* // Please keep last
     public static final TutorialArcher TUTORIAL_ARCHER;
@@ -127,53 +128,53 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
         /*/ ⬇️ Register below ⬇️ /*/
 
-        ARCHER = register(new Archer(ofEnum("ARCHER")));
-        ALCHEMIST = register(new Alchemist(ofEnum("ALCHEMIST")));
-        MOONWALKER = register(new Moonwalker(ofEnum("MOONWALKER")));
-        HERCULES = register(new Hercules(ofEnum("HERCULES")));
-        MAGE = register(new Mage(ofEnum("MAGE")));
-        PYTARIA = register(new Pytaria(ofEnum("PYTARIA")));
-        TROLL = register(new Troll(ofEnum("TROLL")));
-        NIGHTMARE = register(new Nightmare(ofEnum("NIGHTMARE")));
-        DR_ED = register(new DrEd(ofEnum("DR_ED")));
-        ENDER = register(new Ender(ofEnum("ENDER")));
-        SPARK = register(new Spark(ofEnum("SPARK")));
-        SHADOW_ASSASSIN = register(new ShadowAssassin(ofEnum("SHADOW_ASSASSIN")));
-        WITCHER = register(new WitcherClass(ofEnum("WITCHER")));
-        VORTEX = register(new Vortex(ofEnum("VORTEX")));
-        FREAZLY = register(new Freazly(ofEnum("FREAZLY")));
-        DARK_MAGE = register(new DarkMage(ofEnum("DARK_MAGE")));
-        BLAST_KNIGHT = register(new BlastKnight(ofEnum("BLAST_KNIGHT")));
-        NINJA = register(new Ninja(ofEnum("NINJA")));
-        TAKER = register(new Taker(ofEnum("TAKER")));
-        JUJU = register(new JuJu(ofEnum("JUJU")));
-        SWOOPER = register(new Swooper(ofEnum("SWOOPER")));
-        TAMER = register(new Tamer(ofEnum("TAMER")));
-        SHARK = register(new Shark(ofEnum("SHARK")));
-        LIBRARIAN = register(new Librarian(ofEnum("LIBRARIAN")));
-        TECHIE = register(new Techie(ofEnum("TECHIE")));
-        WAR_MACHINE = register(new KillingMachine(ofEnum("WAR_MACHINE")));
-        HARBINGER = register(new Harbinger(ofEnum("HARBINGER")));
-        SHAMAN = register(new Shaman(ofEnum("SHAMAN")));
-        HEALER = register(new Healer(ofEnum("HEALER")));
-        VAMPIRE = register(new Vampire(ofEnum("VAMPIRE")));
-        BOUNTY_HUNTER = register(new BountyHunter(ofEnum("BOUNTY_HUNTER")));
-        SWORD_MASTER = register(new SwordMaster(ofEnum("SWORD_MASTER")));
-        ENGINEER = register(new Engineer(ofEnum("ENGINEER")));
-        ORC = register(new Orc(ofEnum("ORC")));
-        BLOODFIEND = register(new Bloodfiend(ofEnum("BLOODFIEND")));
-        ZEALOT = register(new Zealot(ofEnum("ZEALOT")));
-        RONIN = register(new Ronin(ofEnum("RONIN")));
-        JESTER = register(new Jester(ofEnum("JESTER")));
-        ROGUE = register(new Rogue(ofEnum("ROGUE")));
-        GEO = register(new Geo(ofEnum("GEO")));
-        AURORA = register(new Aurora(ofEnum("AURORA")));
-        NYX = register(new Nyx(ofEnum("NYX")));
-        GUNNER = register(new Gunner(ofEnum("GUNNER")));
-        ECHO = register(new Echo(ofEnum("ECHO")));
+        ARCHER = register("archer", Archer::new);
+        ALCHEMIST = register("alchemist", Alchemist::new);
+        MOONWALKER = register("moonwalker", Moonwalker::new);
+        HERCULES = register("hercules", Hercules::new);
+        MAGE = register("mage", Mage::new);
+        PYTARIA = register("pytaria", Pytaria::new);
+        TROLL = register("troll", Troll::new);
+        NIGHTMARE = register("nightmare", Nightmare::new);
+        DR_ED = register("dr_ed", DrEd::new);
+        ENDER = register("ender", Ender::new);
+        SPARK = register("spark", Spark::new);
+        SHADOW_ASSASSIN = register("shadow_assassin", ShadowAssassin::new);
+        WITCHER = register("witcher", WitcherClass::new);
+        VORTEX = register("vortex", Vortex::new);
+        FREAZLY = register("freazly", Freazly::new);
+        DARK_MAGE = register("dark_mage", DarkMage::new);
+        BLAST_KNIGHT = register("blast_knight", BlastKnight::new);
+        NINJA = register("ninja", Ninja::new);
+        TAKER = register("taker", Taker::new);
+        JUJU = register("juju", JuJu::new);
+        SWOOPER = register("swooper", Swooper::new);
+        TAMER = register("tamer", Tamer::new);
+        SHARK = register("shark", Shark::new);
+        LIBRARIAN = register("librarian", Librarian::new);
+        TECHIE = register("techie", Techie::new);
+        WAR_MACHINE = register("war_machine", KillingMachine::new);
+        HARBINGER = register("harbinger", Harbinger::new);
+        SHAMAN = register("shaman", Shaman::new);
+        HEALER = register("healer", Healer::new);
+        VAMPIRE = register("vampire", Vampire::new);
+        BOUNTY_HUNTER = register("bounty_hunter", BountyHunter::new);
+        SWORD_MASTER = register("sword_master", SwordMaster::new);
+        ENGINEER = register("engineer", Engineer::new);
+        ORC = register("orc", Orc::new);
+        BLOODFIEND = register("bloodfiend", Bloodfiend::new);
+        ZEALOT = register("zealot", Zealot::new);
+        RONIN = register("ronin", Ronin::new);
+        JESTER = register("jester", Jester::new);
+        ROGUE = register("rogue", Rogue::new);
+        GEO = register("geo", Geo::new);
+        AURORA = register("aurora", Aurora::new);
+        NYX = register("nyx", Nyx::new);
+        GUNNER = register("gunner", Gunner::new);
+        ECHO = register("echo", Echo::new);
 
         // Keep last
-        TUTORIAL_ARCHER = register(new TutorialArcher(ofEnum("TUTORIAL_ARCHER")));
+        TUTORIAL_ARCHER = register("tutorial_archer", TutorialArcher::new);
 
         calculateGlobalStats();
     }
@@ -270,7 +271,9 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         return list != null ? new HashSet<>(list) : new HashSet<>();
     }
 
-    private static <T extends Hero> T register(@Nonnull T hero) {
+    private static <T extends Hero> T register(@Nonnull String stringKey, @Nonnull KeyFunction<T> fn) {
+        final T hero = fn.apply(Key.ofString(stringKey));
+
         values.add(hero);
 
         if (hero.isValidHero()) {

@@ -10,7 +10,7 @@ public abstract class ShadowAssassinModeSpecificTalent extends Talent {
     public final ShadowAssassinTalent parent;
 
     public ShadowAssassinModeSpecificTalent(ShadowAssassinTalent parent) {
-        super(parent.getDatabaseKey(), parent.getName());
+        super(parent.getKey(), parent.getName());
 
         this.parent = parent;
     }

@@ -2,20 +2,20 @@ package me.hapyl.fight.script;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.registry.EnumId;
-import me.hapyl.fight.registry.Identified;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.script.action.ScriptActionBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
-public class Script implements  Identified {
+public class Script implements Keyed {
 
-    private final EnumId id;
+    private final Key key;
     protected final LinkedList<ScriptAction> actions;
 
-    public Script(@Nonnull String id) {
-        this.id = EnumId.of(id);
+    public Script(@Nonnull Key key) {
+        this.key = key;
         this.actions = Lists.newLinkedList();
     }
 
@@ -38,7 +38,7 @@ public class Script implements  Identified {
 
     @Override
     public final String toString() {
-        return id.toString();
+        return key.toString();
     }
 
     public void push(@Nonnull ScriptAction action) {
@@ -47,7 +47,7 @@ public class Script implements  Identified {
 
     @Nonnull
     @Override
-    public EnumId getId() {
-        return null;
+    public Key getKey() {
+        return key;
     }
 }

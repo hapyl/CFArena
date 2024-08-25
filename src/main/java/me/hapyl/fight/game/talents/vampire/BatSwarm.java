@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.vampire;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -13,6 +13,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -42,7 +43,7 @@ public class BatSwarm extends Talent {
             .decrease(AttributeType.MAX_HEALTH, healthDecrease)
             .message("&4\uD83C\uDF36 Ouch! &8(&c-%s ❤&8)".formatted(healthDecrease));
 
-    public BatSwarm(@Nonnull DatabaseKey key) {
+    public BatSwarm(@Nonnull Key key) {
         super(key, "Swarm");
 
         setDescription("""

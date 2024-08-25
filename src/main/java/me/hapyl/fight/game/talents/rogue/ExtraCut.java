@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -16,6 +16,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -37,7 +38,7 @@ public class ExtraCut extends Talent {
     @DisplayField(scaleFactor = 500) private final double speedDecrease = 0.15d;
     @DisplayField private final int impairDuration = Tick.fromSecond(2);
 
-    public ExtraCut(@Nonnull DatabaseKey key) {
+    public ExtraCut(@Nonnull Key key) {
         super(key, "Throwing Knife");
 
         setDescription("""

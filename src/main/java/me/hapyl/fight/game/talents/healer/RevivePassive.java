@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.healer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class RevivePassive extends PassiveTalent {
-    public RevivePassive(@Nonnull DatabaseKey key) {
+    public RevivePassive(@Nonnull Key key) {
         super(key, "Revive");
 
         setDescription("""

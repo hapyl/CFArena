@@ -9,7 +9,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.GUI;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -100,7 +100,7 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, Cosmetics content, int index, int page) {
+    public ItemStack asItem(@Nonnull Player player, Cosmetics content, int index, int page) {
         final Cosmetic cosmetic = content.getCosmetic();
         final ItemBuilder builder = cosmetic.createItem(player);
 
@@ -132,21 +132,20 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetics> {
         final Cosmetic cosmetic = content.getCosmetic();
 
         if (!content.isUnlocked(player)) {
-            Notifier.error(player, "This cosmetic is locked!");
-            PlayerLib.villagerNo(player);
+            Notifier.ERROR.sendWithSound(player, "This cosmetic is locked!");
             return;
         }
 
         if (content.isSelected(player)) {
             content.deselect(player);
-            Notifier.success(player, Color.ERROR + "Deselected {Cosmetic}!", cosmetic.getName());
+            Notifier.SUCCESS.send(player, Color.ERROR + "Deselected {%s}!".formatted(cosmetic.getName()));
         }
         else {
             content.select(player);
-            Notifier.success(player, "Selected {Cosmetic} as {Type}!", cosmetic.getName(), cosmetic.getType().getName());
+            Notifier.SUCCESS.send(player, "Selected {%s} as {%s}!".formatted(cosmetic.getName(), cosmetic.getType().getName()));
         }
 
-        PlayerLib.plingNote(player, 2.0f);
+        Notifier.sound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
         update();
     }
 

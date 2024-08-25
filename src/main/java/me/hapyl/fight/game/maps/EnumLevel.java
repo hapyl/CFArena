@@ -14,7 +14,7 @@ import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.moon.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
 import me.hapyl.fight.util.handle.EnumHandleFunction;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WeatherType;
@@ -53,7 +53,7 @@ public enum EnumLevel implements Selectable {
         }
     }.setMaterial(Material.NETHER_STAR)),
 
-    // == Playable Maps Separator ==
+    // *=* PvP Levels *=* //
 
     ARENA(handle -> new Level(handle, "Arena") {
         @Nonnull
@@ -197,6 +197,8 @@ public enum EnumLevel implements Selectable {
             .setTicksBeforeReveal(100)
             .addLocation(7000, 64, 0)
     ),
+
+    // *=* Commission Levels *=* //
 
     ;
 

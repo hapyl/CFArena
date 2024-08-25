@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.ender;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ public class EnderPassive extends PassiveTalent {
     @DisplayField(percentage = true) private final double attackBoost = 0.2d;
     @DisplayField private final int attackBoostDuration = 30;
 
-    public EnderPassive(@Nonnull DatabaseKey key) {
+    public EnderPassive(@Nonnull Key key) {
         super(key, "Ender Skin");
 
         setDescription("""

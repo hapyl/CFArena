@@ -18,7 +18,7 @@ public class ScriptManager extends DependencyInjector<Main> {
     }
 
     public ScriptRunner run(@Nonnull Script script) {
-        final String id = script.getStringId();
+        final String id = script.getKeyAsString();
 
         if (runningScripts.containsKey(id)) {
             return runningScripts.get(id);
@@ -31,11 +31,11 @@ public class ScriptManager extends DependencyInjector<Main> {
     }
 
     public boolean free(@Nonnull Script script) {
-        return runningScripts.remove(script.getStringId()) != null;
+        return runningScripts.remove(script.getKeyAsString()) != null;
     }
 
     public boolean isRunning(@Nonnull Script script) {
-        return runningScripts.containsKey(script.getStringId());
+        return runningScripts.containsKey(script.getKeyAsString());
     }
 
 }

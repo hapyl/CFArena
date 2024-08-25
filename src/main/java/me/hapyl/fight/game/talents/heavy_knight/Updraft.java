@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Geometry;
@@ -34,7 +35,7 @@ public class Updraft extends Talent implements Listener {
     @DisplayField private final double plungeDamage = 7.5d;
     @DisplayField private final int maxPlungingTime = Tick.fromSecond(10);
 
-    public Updraft(@Nonnull DatabaseKey key) {
+    public Updraft(@Nonnull Key key) {
         super(key, "Touchdown");
 
         setDescription("""

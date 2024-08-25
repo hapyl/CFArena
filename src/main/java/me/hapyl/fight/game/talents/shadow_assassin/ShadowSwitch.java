@@ -1,18 +1,19 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class ShadowSwitch extends ShadowAssassinTalent {
 
-    public ShadowSwitch(@Nonnull DatabaseKey key) {
+    public ShadowSwitch(@Nonnull Key key) {
         super(key, "Shadow Switch");
 
         setType(TalentType.ENHANCE);

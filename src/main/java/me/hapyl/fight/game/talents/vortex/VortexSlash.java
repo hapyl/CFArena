@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Tick;
@@ -25,7 +26,7 @@ public class VortexSlash extends Talent {
     @DisplayField private final double collectDistance = 2.0d;
     @DisplayField private final double shiftDistance = 0.5;
 
-    public VortexSlash(@Nonnull DatabaseKey key) {
+    public VortexSlash(@Nonnull Key key) {
         super(key, "Astral Slash");
 
         setDescription("""

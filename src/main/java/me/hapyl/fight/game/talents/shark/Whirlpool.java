@@ -1,39 +1,44 @@
 package me.hapyl.fight.game.talents.shark;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.BukkitUtils;
+
+import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.geometry.Quality;
-import me.hapyl.eterna.module.math.geometry.WorldParticle;
-import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
 public class Whirlpool extends Talent {
 
-    private final double range = 4.0d;
+    @DisplayField private final double radius = 4.0d;
+    @DisplayField private final double pullStrength = 0.5d;
+    @DisplayField private final double damage = 6.0d;
 
-    public Whirlpool(@Nonnull DatabaseKey key) {
-        super(key, "Whirlpool");
+    @DisplayField private final int period = 5;
+
+    public Whirlpool(@Nonnull Key key) {
+        super(key, "Sharknado");
 
         setDescription("""
-                Create a whirlpool at your current location that pulls nearby enemies towards the center.
+                Create a Sharknado in front of you that constantly pulls enemies towards the center.
+                
+                Enemies at the center of the Sharknado are lifter up and take continuous damage.
                 """
         );
 
         setItem(Material.HEART_OF_THE_SEA);
 
-        setDurationSec(4);
+        setDurationSec(8);
         setCooldownSec(16);
     }
 
@@ -41,51 +46,65 @@ public class Whirlpool extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
-        new GameTask() {
-            private int tick = getDuration();
+        final Vector vector = location.getDirection();
+        vector.setY(0.0d).multiply(4.0);
+
+        final Riptide riptide = new Riptide(location.add(vector));
+
+        new TickingGameTask() {
+
+            private double d;
 
             @Override
-            public void run() {
-                if (tick-- <= 0) {
-                    this.cancel();
+            public void onTaskStop() {
+                riptide.remove();
+            }
+
+            @Override
+            public void run(int tick) {
+                if (tick >= getDuration()) {
+                    cancel();
                     return;
                 }
 
-                // Pull every b
-                if (tick % 20 == 0) {
-                    for (int i = 0; i < 10; i++) {
-                        createWhirlpool(location, range - (i / 2d), i + 4);
-                    }
-
-                    // Pull enemies towards the center
-                    Collect.nearbyEntities(location, range).forEach(entity -> {
+                // Pull enemies towards the center
+                if (modulo(period)) {
+                    Collect.nearbyEntities(location, radius).forEach(entity -> {
                         if (player.isSelfOrTeammateOrHasEffectResistance(entity)) {
-                            return;
+                            //return;
                         }
 
                         final Location entityLocation = entity.getLocation();
+                        final Vector vector = location.clone().subtract(entityLocation).toVector().normalize().multiply(pullStrength);
 
-                        Vector direction = location.clone().subtract(entityLocation).toVector().normalize().multiply(0.5);
-                        entity.addEffect(Effects.SLOW, 20);
-                        entity.setVelocity(direction);
+                        // Center
+                        if (entityLocation.distanceSquared(location) <= 1.0d) {
+                            vector.setY(BukkitUtils.GRAVITY * 2);
+
+                            entity.damage(damage, player);
+                        }
+
+                        entity.setVelocity(vector);
                     });
-
-                    // Fx
-                    PlayerLib.playSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 2.0f);
-                    PlayerLib.playSound(location, Sound.AMBIENT_UNDERWATER_ENTER, 0.75f);
                 }
 
-                Geometry.drawCircleAnchored(location, range, Quality.VERY_HIGH, new WorldParticle(Particle.SPLASH), 0.5d);
+                // Fx
+                final double x = Math.sin(d) * radius;
+                final double y = Math.atan(Math.toRadians(tick * 8)) * 1d;
+                final double z = Math.cos(d) * radius;
+
+                LocationHelper.modify(location, x, y, z, then -> {
+                    player.spawnWorldParticle(location, Particle.FLAME, 1);
+                });
+
+                LocationHelper.modify(location, z, y, x, then -> {
+                    player.spawnWorldParticle(location, Particle.FLAME, 1);
+                });
+
+                d += Math.PI / 32;
             }
         }.runTaskTimer(0, 1);
 
         return Response.OK;
-    }
-
-    public void createWhirlpool(Location location, double size, int delay) {
-        GameTask.runLater(() -> {
-            Geometry.drawCircle(location, size, Quality.VERY_HIGH, new WorldParticle(Particle.BUBBLE));
-            Geometry.drawCircle(location, size, Quality.VERY_HIGH, new WorldParticle(Particle.BUBBLE_POP));
-        }, delay);
     }
 }

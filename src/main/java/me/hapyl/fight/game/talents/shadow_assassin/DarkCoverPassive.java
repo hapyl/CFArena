@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class DarkCoverPassive extends PassiveTalent {
-    public DarkCoverPassive(@Nonnull DatabaseKey key) {
+    public DarkCoverPassive(@Nonnull Key key) {
         super(key, "Dark Cover");
 
         setDescription("""

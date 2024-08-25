@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -55,7 +56,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     private final int climbCooldown = Tick.fromSecond(6);
     private final BlockData climbingBlockData = Material.GRAY_CONCRETE.createBlockData();
 
-    public JuJu(@Nonnull DatabaseKey key) {
+    public JuJu(@Nonnull Key key) {
         super(key, "Juju");
 
         setArchetypes(Archetype.HEXBANE, Archetype.DAMAGE, Archetype.POWERFUL_ULTIMATE, Archetype.DEFENSE);

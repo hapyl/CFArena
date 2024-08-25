@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -28,7 +29,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
 
     protected final PlayerMap<GrappleHook> playerHooks = PlayerMap.newMap();
 
-    public GrappleHookTalent(@Nonnull DatabaseKey key) {
+    public GrappleHookTalent(@Nonnull Key key) {
         super(key, "Grappling Hook", 3);
 
         setDescription("""

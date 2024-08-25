@@ -7,8 +7,7 @@ public enum Category {
 
     GAMEPLAY("Gameplay", "General gameplay achievements."),
     TIERED("Tiered", "Tiered achievements can be completed multiple times."),
-    HERO_WIN("Hero Wins", "Win while playing as a hero to advance."),
-    HERO_PLAY("Hero Play", "Play as a hero to advance."),
+    HERO("Hero Related Achievements", "Hero-specific achievements."),
 
     ;
 

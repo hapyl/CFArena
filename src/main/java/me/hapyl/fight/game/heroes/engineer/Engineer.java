@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.engineer;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -15,6 +15,7 @@ import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -48,7 +49,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     private final int ironRechargeRate = 60;
     private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
 
-    public Engineer(@Nonnull DatabaseKey key) {
+    public Engineer(@Nonnull Key key) {
         super(key, "Engineer");
 
         setArchetypes(Archetype.STRATEGY);

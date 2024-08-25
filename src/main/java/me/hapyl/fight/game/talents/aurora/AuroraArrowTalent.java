@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.aurora;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.aurora.AuroraData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.ChatColor;
@@ -27,7 +28,7 @@ public abstract class AuroraArrowTalent extends Talent {
     @DisplayField private final double homingRadius;
     @DisplayField private final double homingStrength;
 
-    public AuroraArrowTalent(@Nonnull DatabaseKey key, @Nonnull String name, @Nonnull ChatColor color, int maxArrows, double homingRadius, double homingStrength) {
+    public AuroraArrowTalent(@Nonnull Key key, @Nonnull String name, @Nonnull ChatColor color, int maxArrows, double homingRadius, double homingStrength) {
         super(key, name);
 
         this.maxArrows = maxArrows;

@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.bloodfiend.candlebane;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +17,7 @@ public class CandlebaneTalent extends TauntTalent {
     @DisplayField protected final short pillarClicks = 10;
     @DisplayField(suffix = "❤") protected final double damagePerInterval = 5.0d;
 
-    public CandlebaneTalent(@Nonnull DatabaseKey key) {
+    public CandlebaneTalent(@Nonnull Key key) {
         super(key, "Candlebane Pillar", 10, 50);
 
         setItem(Material.RED_CANDLE);

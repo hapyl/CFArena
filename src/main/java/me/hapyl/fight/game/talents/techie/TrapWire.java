@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -32,7 +33,7 @@ public class TrapWire extends ChargedTalent implements Listener {
     @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
     @DisplayField private final int windupTime = 40;
 
-    public TrapWire(@Nonnull DatabaseKey key) {
+    public TrapWire(@Nonnull Key key) {
         super(key, "Tripwire", 3);
 
         setDescription("""

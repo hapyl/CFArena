@@ -21,7 +21,7 @@ import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;

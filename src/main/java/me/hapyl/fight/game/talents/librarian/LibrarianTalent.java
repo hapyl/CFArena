@@ -2,11 +2,12 @@ package me.hapyl.fight.game.talents.librarian;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
@@ -14,7 +15,7 @@ public abstract class LibrarianTalent extends Talent {
 
     protected Response ERROR = new Response(null, Response.Type.ERROR);
 
-    public LibrarianTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+    public LibrarianTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
         setAutoAdd(false);

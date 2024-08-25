@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.profile.data;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.profile.PlayerProfile;
 
 import javax.annotation.Nonnull;
@@ -12,10 +12,10 @@ import java.util.function.BiFunction;
 public class AchievementData {
 
     private final PlayerProfile profile;
-    private final Achievements achievement;
+    private final Achievement achievement;
     private final Map<Type<?>, Object> objectMap;
 
-    public AchievementData(PlayerProfile profile, Achievements achievement) {
+    public AchievementData(PlayerProfile profile, Achievement achievement) {
         this.profile = profile;
         this.achievement = achievement;
         this.objectMap = Maps.newHashMap();

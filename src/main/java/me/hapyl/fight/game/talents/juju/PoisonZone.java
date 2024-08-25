@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.juju;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Tick;
@@ -26,7 +27,7 @@ public class PoisonZone extends Talent {
     @DisplayField(scaleFactor = 100) private final double defenseReduction = 0.7d;
     @DisplayField private final int defenseReductionDuration = Tick.fromSecond(5);
 
-    public PoisonZone(@Nonnull DatabaseKey key) {
+    public PoisonZone(@Nonnull Key key) {
         super(key, "Poison Zone");
 
         setDurationSec(6);

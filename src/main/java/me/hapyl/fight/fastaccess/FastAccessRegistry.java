@@ -8,7 +8,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -33,7 +33,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Hero select
         for (Hero hero : HeroRegistry.playable()) {
-            register(new FastAccess("select_hero_" + hero.getDatabaseKey().key(), Category.SELECT_HERO) {
+            register(new FastAccess("select_hero_" + hero.getKey().getKey(), Category.SELECT_HERO) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     Manager.current().setSelectedHero(player, hero);
@@ -84,7 +84,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         }
 
         // Mode select
-        for (Modes enumMode : Modes.values()) {
+        for (EnumGameType enumMode : EnumGameType.values()) {
             register(new FastAccess("select_mode_" + enumMode.name(), Category.SELECT_MODE) {
                 @Override
                 public void onClick(@Nonnull Player player) {
@@ -192,7 +192,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
     }
 
     @Override
-    public boolean register(@Nonnull FastAccess fastAccess) {
+    public FastAccess register(@Nonnull FastAccess fastAccess) {
         byCategory.compute(fastAccess.getCategory(), Compute.listAdd(fastAccess));
         return super.register(fastAccess);
     }

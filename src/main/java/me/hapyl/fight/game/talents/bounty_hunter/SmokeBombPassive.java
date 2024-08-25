@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class SmokeBombPassive extends PassiveTalent {
-    public SmokeBombPassive(@Nonnull DatabaseKey key) {
+    public SmokeBombPassive(@Nonnull Key key) {
         super(key, "Smoke Bomb");
 
         setDescription("""

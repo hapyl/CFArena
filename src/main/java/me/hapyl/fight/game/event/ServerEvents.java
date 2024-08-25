@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.event;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.fight.registry.Registries;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
@@ -45,7 +45,7 @@ public final class ServerEvents  {
                 profile.setOriginalSkin(theSkin);
                 profile.applyOriginalSkin();
 
-                Achievements.APRIL_FOOLS.complete(profile.getPlayer());
+                Registries.getAchievements().APRIL_FOOLS.complete(profile.getPlayer());
             }
         });
 

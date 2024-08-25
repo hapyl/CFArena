@@ -44,11 +44,11 @@ import me.hapyl.fight.game.talents.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.alchemist.IntoxicationPassive;
 import me.hapyl.fight.game.talents.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archer.HawkeyePassive;
-import me.hapyl.fight.game.talents.archer.ShockDark;
+import me.hapyl.fight.game.talents.archer.ShockDart;
 import me.hapyl.fight.game.talents.archer.TripleShot;
 import me.hapyl.fight.game.talents.aurora.CelesteArrow;
-import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.talents.aurora.EtherealArrow;
+import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.talents.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
@@ -142,8 +142,8 @@ import me.hapyl.fight.game.talents.troll.LastLaughPassive;
 import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.talents.vampire.Bloodshift;
+import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.talents.vampire.VampirePet;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.talents.witcher.*;
@@ -152,6 +152,8 @@ import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
 import me.hapyl.fight.registry.AbstractStaticRegistry;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.KeyFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -159,15 +161,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static me.hapyl.fight.database.key.DatabaseKey.ofEnum;
-
 public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
     /**
      * {@link Archer}
      */
     public static final TripleShot TRIPLE_SHOT;
-    public static final ShockDark SHOCK_DARK;
+    public static final ShockDart SHOCK_DART;
     public static final HawkeyePassive HAWKEYE_ARROW;
 
     /**
@@ -484,192 +484,194 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
         /*/ ⬇️ Register below ⬇️ /*/
 
-        TRIPLE_SHOT = register(new TripleShot(ofEnum("TRIPLE_SHOT")));
-        SHOCK_DARK = register(new ShockDark(ofEnum("SHOCK_DARK")));
-        HAWKEYE_ARROW = register(new HawkeyePassive(ofEnum("HAWKEYE_ARROW")));
+        TRIPLE_SHOT = register("triple_shot", TripleShot::new);
+        SHOCK_DART = register("shock_dart", ShockDart::new);
+        HAWKEYE_ARROW = register("hawkeye_arrow", HawkeyePassive::new);
 
-        POTION = register(new RandomPotion(ofEnum("POTION")));
-        CAULDRON = register(new CauldronAbility(ofEnum("CAULDRON")));
-        INTOXICATION = register(new IntoxicationPassive(ofEnum("INTOXICATION")));
+        POTION = register("potion", RandomPotion::new);
+        CAULDRON = register("cauldron", CauldronAbility::new);
+        INTOXICATION = register("intoxication", IntoxicationPassive::new);
 
-        MOONSLITE_PILLAR = register(new MoonPillarTalent(ofEnum("MOONSLITE_PILLAR")));
-        MOONSLITE_BOMB = register(new MoonSliteBomb(ofEnum("MOONSLITE_BOMB")));
-        MOON_GRAVITY = register(new GravityZone(ofEnum("MOON_GRAVITY")));
-        MOON_PASSIVE = register(new MoonPassive(ofEnum("MOON_PASSIVE")));
+        MOONSLITE_PILLAR = register("moonslite_pillar", MoonPillarTalent::new);
+        MOONSLITE_BOMB = register("moonslite_bomb", MoonSliteBomb::new);
+        MOON_GRAVITY = register("moon_gravity", GravityZone::new);
+        MOON_PASSIVE = register("moon_passive", MoonPassive::new);
 
-        HERCULES_DASH = register(new HerculesShift(ofEnum("HERCULES_DASH")));
-        HERCULES_UPDRAFT = register(new HerculesJump(ofEnum("HERCULES_UPDRAFT")));
-        PLUNGE = register(new PlungePassive(ofEnum("PLUNGE")));
+        HERCULES_DASH = register("hercules_dash", HerculesShift::new);
+        HERCULES_UPDRAFT = register("hercules_updraft", HerculesJump::new);
+        PLUNGE = register("plunge", PlungePassive::new);
 
-        MAGE_TRANSMISSION = register(new MageTransmission(ofEnum("MAGE_TRANSMISSION")));
-        ARCANE_MUTE = register(new ArcaneMute(ofEnum("ARCANE_MUTE")));
-        SOUL_HARVEST = register(new SoulHarvestPassive(ofEnum("SOUL_HARVEST")));
+        MAGE_TRANSMISSION = register("mage_transmission", MageTransmission::new);
+        ARCANE_MUTE = register("arcane_mute", ArcaneMute::new);
+        SOUL_HARVEST = register("soul_harvest", SoulHarvestPassive::new);
 
-        FLOWER_ESCAPE = register(new FlowerEscape(ofEnum("FLOWER_ESCAPE")));
-        FLOWER_BREEZE = register(new FlowerBreeze(ofEnum("FLOWER_BREEZE")));
-        EXCELLENCY = register(new ExcellencyPassive(ofEnum("EXCELLENCY")));
+        FLOWER_ESCAPE = register("flower_escape", FlowerEscape::new);
+        FLOWER_BREEZE = register("flower_breeze", FlowerBreeze::new);
+        EXCELLENCY = register("excellency", ExcellencyPassive::new);
 
-        TROLL_SPIN = register(new TrollSpin(ofEnum("TROLL_SPIN")));
-        REPULSOR = register(new Repulsor(ofEnum("REPULSOR")));
-        TROLL_PASSIVE = register(new LastLaughPassive(ofEnum("TROLL_PASSIVE")));
+        TROLL_SPIN = register("troll_spin", TrollSpin::new);
+        REPULSOR = register("repulsor", Repulsor::new);
+        TROLL_PASSIVE = register("troll_passive", LastLaughPassive::new);
 
-        MINE_O_BALL = register(new MineOBall(ofEnum("MINE_O_BALL")));
-        TAMING_THE_WIND = register(new TamingTheWind(ofEnum("TAMING_THE_WIND")));
-        TAMING_THE_EARTH = register(new TamingTheEarth(ofEnum("TAMING_THE_EARTH")));
-        TAMING_THE_TIME = register(new TamingTheTime(ofEnum("TAMING_THE_TIME")));
+        MINE_O_BALL = register("mine_o_ball", MineOBall::new);
+        TAMING_THE_WIND = register("taming_the_wind", TamingTheWind::new);
+        TAMING_THE_EARTH = register("taming_the_earth", TamingTheEarth::new);
+        TAMING_THE_TIME = register("taming_the_time", TamingTheTime::new);
 
-        PARANOIA = register(new Paranoia(ofEnum("PARANOIA")));
-        SHADOW_SHIFT = register(new ShadowShift(ofEnum("SHADOW_SHIFT")));
-        IN_THE_SHADOWS = register(new InTheShadowsPassive(ofEnum("IN_THE_SHADOWS")));
+        PARANOIA = register("paranoia", Paranoia::new);
+        SHADOW_SHIFT = register("shadow_shift", ShadowShift::new);
+        IN_THE_SHADOWS = register("in_the_shadows", InTheShadowsPassive::new);
 
-        CONFUSION_POTION = register(new ConfusionPotion(ofEnum("CONFUSION_POTION")));
-        HARVEST = register(new HarvestBlocks(ofEnum("HARVEST")));
-        BLOCK_SHIELD = register(new BlockMaelstromPassive(ofEnum("BLOCK_SHIELD")));
+        CONFUSION_POTION = register("confusion_potion", ConfusionPotion::new);
+        HARVEST = register("harvest", HarvestBlocks::new);
+        BLOCK_SHIELD = register("block_shield", BlockMaelstromPassive::new);
 
-        TELEPORT_PEARL = register(new TeleportPearl(ofEnum("TELEPORT_PEARL")));
-        TRANSMISSION_BEACON = register(new TransmissionBeacon(ofEnum("TRANSMISSION_BEACON")));
-        ENDER_PASSIVE = register(new EnderPassive(ofEnum("ENDER_PASSIVE")));
+        TELEPORT_PEARL = register("teleport_pearl", TeleportPearl::new);
+        TRANSMISSION_BEACON = register("transmission_beacon", TransmissionBeacon::new);
+        ENDER_PASSIVE = register("ender_passive", EnderPassive::new);
 
-        SPARK_MOLOTOV = register(new Molotov(ofEnum("SPARK_MOLOTOV")));
-        SPARK_FLASH = register(new SparkFlash(ofEnum("SPARK_FLASH")));
-        FIRE_GUY = register(new FireGuyPassive(ofEnum("FIRE_GUY")));
+        SPARK_MOLOTOV = register("spark_molotov", Molotov::new);
+        SPARK_FLASH = register("spark_flash", SparkFlash::new);
+        FIRE_GUY = register("fire_guy", FireGuyPassive::new);
 
-        SHADOW_PRISM = register(new ShadowPrism(ofEnum("SHADOW_PRISM")));
-        SHROUDED_STEP = register(new ShroudedStep(ofEnum("SHROUDED_STEP")));
-        SECRET_SHADOW_WARRIOR_TECHNIQUE = register(new DarkCoverPassive(ofEnum("SECRET_SHADOW_WARRIOR_TECHNIQUE")));
-        SHADOW_SWITCH = register(new ShadowSwitch(ofEnum("SHADOW_SWITCH")));
-        DARK_COVER = register(new DarkCover(ofEnum("DARK_COVER")));
-        SHADOW_ASSASSIN_CLONE = register(new ShadowAssassinClone(ofEnum("SHADOW_ASSASSIN_CLONE")));
-        SHADOW_ENERGY = register(new ShadowEnergyPassive(ofEnum("SHADOW_ENERGY")));
+        SHADOW_PRISM = register("shadow_prism", ShadowPrism::new);
+        SHROUDED_STEP = register("shrouded_step", ShroudedStep::new);
+        SECRET_SHADOW_WARRIOR_TECHNIQUE = register("secret_shadow_warrior_technique", DarkCoverPassive::new);
+        SHADOW_SWITCH = register("shadow_switch", ShadowSwitch::new);
+        DARK_COVER = register("dark_cover", DarkCover::new);
+        SHADOW_ASSASSIN_CLONE = register("shadow_assassin_clone", ShadowAssassinClone::new);
+        SHADOW_ENERGY = register("shadow_energy", ShadowEnergyPassive::new);
 
-        AARD = register(new Aard(ofEnum("AARD")));
-        IGNY = register(new Igny(ofEnum("IGNY")));
-        KVEN = register(new Kven(ofEnum("KVEN")));
-        AKCIY = register(new Akciy(ofEnum("AKCIY")));
-        IRDEN = register(new Irden(ofEnum("IRDEN")));
-        COMBO_SYSTEM = register(new ComboPassive(ofEnum("COMBO_SYSTEM")));
+        AARD = register("aard", Aard::new);
+        IGNY = register("igny", Igny::new);
+        KVEN = register("kven", Kven::new);
+        AKCIY = register("akciy", Akciy::new);
+        IRDEN = register("irden", Irden::new);
+        COMBO_SYSTEM = register("combo_system", ComboPassive::new);
 
-        VORTEX_SLASH = register(new VortexSlash(ofEnum("VORTEX_SLASH")));
-        VORTEX_STAR = register(new VortexStarTalent(ofEnum("VORTEX_STAR")));
-        STAR_ALIGNER = register(new StarAligner(ofEnum("STAR_ALIGNER")));
-        LIKE_A_DREAM = register(new LikeADreamPassive(ofEnum("LIKE_A_DREAM")));
-        EYES_OF_THE_GALAXY = register(new EyesOfTheGalaxyPassive(ofEnum("EYES_OF_THE_GALAXY")));
+        VORTEX_SLASH = register("vortex_slash", VortexSlash::new);
+        VORTEX_STAR = register("vortex_star", VortexStarTalent::new);
+        STAR_ALIGNER = register("star_aligner", StarAligner::new);
+        LIKE_A_DREAM = register("like_a_dream", LikeADreamPassive::new);
+        EYES_OF_THE_GALAXY = register("eyes_of_the_galaxy", EyesOfTheGalaxyPassive::new);
 
-        ICICLES = register(new Icicles(ofEnum("ICICLES")));
-        ICE_CAGE = register(new IceCageTalent(ofEnum("ICE_CAGE")));
-        ICY_SHARDS = register(new IcyShardsPassive(ofEnum("ICY_SHARDS")));
-        CHILL_AURA = register(new ChillAuraPassive(ofEnum("CHILL_AURA")));
+        ICICLES = register("icicles", Icicles::new);
+        ICE_CAGE = register("ice_cage", IceCageTalent::new);
+        ICY_SHARDS = register("icy_shards", IcyShardsPassive::new);
+        CHILL_AURA = register("chill_aura", ChillAuraPassive::new);
 
-        BLINDING_CURSE = register(new BlindingCurse(ofEnum("BLINDING_CURSE")));
-        SLOWING_AURA = register(new SlowingAura(ofEnum("SLOWING_AURA")));
-        HEALING_AURA = register(new HealingAura(ofEnum("HEALING_AURA")));
-        SHADOW_CLONE = register(new ShadowClone(ofEnum("SHADOW_CLONE")));
-        DARK_MAGE_PASSIVE = register(new WitherRosePassive(ofEnum("DARK_MAGE_PASSIVE")));
+        BLINDING_CURSE = register("blinding_curse", BlindingCurse::new);
+        SLOWING_AURA = register("slowing_aura", SlowingAura::new);
+        HEALING_AURA = register("healing_aura", HealingAura::new);
+        SHADOW_CLONE = register("shadow_clone", ShadowClone::new);
+        DARK_MAGE_PASSIVE = register("dark_mage_passive", WitherRosePassive::new);
 
-        STONE_CASTLE = register(new StoneCastle(ofEnum("STONE_CASTLE")));
-        DISCHARGE = register(new Discharge(ofEnum("DISCHARGE")));
-        SPEAR = register(new Spear(ofEnum("SPEAR")));
-        SLOWNESS_POTION = register(new SlownessPotion(ofEnum("SLOWNESS_POTION")));
-        SHIELDED = register(new QuantumEnergyPassive(ofEnum("SHIELDED")));
+        STONE_CASTLE = register("stone_castle", StoneCastle::new);
+        DISCHARGE = register("discharge", Discharge::new);
+        SPEAR = register("spear", Spear::new);
+        SLOWNESS_POTION = register("slowness_potion", SlownessPotion::new);
+        SHIELDED = register("shielded", QuantumEnergyPassive::new);
 
-        NINJA_DASH = register(new NinjaDash(ofEnum("NINJA_DASH")));
-        NINJA_SMOKE = register(new NinjaSmoke(ofEnum("NINJA_SMOKE")));
-        FLEET_FOOT = register(new NinjaStylePassive(ofEnum("FLEET_FOOT")));
+        NINJA_DASH = register("ninja_dash", NinjaDash::new);
+        NINJA_SMOKE = register("ninja_smoke", NinjaSmoke::new);
+        FLEET_FOOT = register("fleet_foot", NinjaStylePassive::new);
 
-        FATAL_REAP = register(new FatalReap(ofEnum("FATAL_REAP")));
-        DEATH_SWAP = register(new DeathSwap(ofEnum("DEATH_SWAP")));
-        SPIRITUAL_BONES = register(new SpiritualBonesPassive(ofEnum("SPIRITUAL_BONES")));
+        FATAL_REAP = register("fatal_reap", FatalReap::new);
+        DEATH_SWAP = register("death_swap", DeathSwap::new);
+        SPIRITUAL_BONES = register("spiritual_bones", SpiritualBonesPassive::new);
 
-        ARROW_SHIELD = register(new ArrowShield(ofEnum("ARROW_SHIELD")));
-        CLIMB = register(new Climb(ofEnum("CLIMB")));
-        TRICKS_OF_THE_JUNGLE = register(new TricksOfTheJungle(ofEnum("TRICKS_OF_THE_JUNGLE")));
-        POISON_ZONE = register(new PoisonZone(ofEnum("POISON_ZONE")));
-        JUJU_PASSIVE = register(new ClimbPassive(ofEnum("JUJU_PASSIVE")));
+        ARROW_SHIELD = register("arrow_shield", ArrowShield::new);
+        CLIMB = register("climb", Climb::new);
+        TRICKS_OF_THE_JUNGLE = register("tricks_of_the_jungle", TricksOfTheJungle::new);
+        POISON_ZONE = register("poison_zone", PoisonZone::new);
+        JUJU_PASSIVE = register("juju_passive", ClimbPassive::new);
 
-        BLAST_PACK = register(new BlastPack(ofEnum("BLAST_PACK")));
-        SWOOPER_SMOKE_BOMB = register(new SmokeBomb(ofEnum("SWOOPER_SMOKE_BOMB")));
-        BLINK = register(new Blink(ofEnum("BLINK")));
-        SWOOPER_PASSIVE = register(new SwooperPassive(ofEnum("SWOOPER_PASSIVE")));
+        BLAST_PACK = register("blast_pack", BlastPack::new);
+        SWOOPER_SMOKE_BOMB = register("swooper_smoke_bomb", SmokeBomb::new);
+        BLINK = register("blink", Blink::new);
+        SWOOPER_PASSIVE = register("swooper_passive", SwooperPassive::new);
 
-        SUBMERGE = register(new SubmergeTalent(ofEnum("SUBMERGE")));
-        WHIRLPOOL = register(new Whirlpool(ofEnum("WHIRLPOOL")));
-        SHARK_PASSIVE = register(new SharkPassive(ofEnum("SHARK_PASSIVE")));
+        SUBMERGE = register("submerge", SubmergeTalent::new);
+        WHIRLPOOL = register("whirlpool", Whirlpool::new);
+        SHARK_PASSIVE = register("shark_passive", SharkPassive::new);
 
-        BLACK_HOLE = register(new BlackHole(ofEnum("BLACK_HOLE")));
-        ENTITY_DARKNESS = register(new EntityDarkness(ofEnum("ENTITY_DARKNESS")));
-        LIBRARIAN_SHIELD = register(new LibrarianShield(ofEnum("LIBRARIAN_SHIELD")));
-        WEAPON_DARKNESS = register(new WeaponDarkness(ofEnum("WEAPON_DARKNESS")));
+        BLACK_HOLE = register("black_hole", BlackHole::new);
+        ENTITY_DARKNESS = register("entity_darkness", EntityDarkness::new);
+        LIBRARIAN_SHIELD = register("librarian_shield", LibrarianShield::new);
+        WEAPON_DARKNESS = register("weapon_darkness", WeaponDarkness::new);
 
-        STANCE = register(new MeleeStance(ofEnum("STANCE")));
-        TIDAL_WAVE = register(new TidalWaveTalent(ofEnum("TIDAL_WAVE")));
-        RIPTIDE = register(new RiptidePassive(ofEnum("RIPTIDE")));
+        STANCE = register("stance", MeleeStance::new);
+        TIDAL_WAVE = register("tidal_wave", TidalWaveTalent::new);
+        RIPTIDE = register("riptide", RiptidePassive::new);
 
-        SABOTEUR = register(new Saboteur(ofEnum("SABOTEUR")));
-        CIPHER_LOCK = register(new CipherLock(ofEnum("CIPHER_LOCK")));
-        TRAP_CAGE = register(new TrapCage(ofEnum("TRAP_CAGE")));
-        TRAP_WIRE = register(new TrapWire(ofEnum("TRAP_WIRE")));
-        NEURAL_THEFT = register(new NeuralTheftPassive(ofEnum("NEURAL_THEFT")));
+        SABOTEUR = register("saboteur", Saboteur::new);
+        CIPHER_LOCK = register("cipher_lock", CipherLock::new);
+        TRAP_CAGE = register("trap_cage", TrapCage::new);
+        TRAP_WIRE = register("trap_wire", TrapWire::new);
+        NEURAL_THEFT = register("neural_theft", NeuralTheftPassive::new);
 
-        LASER_EYE = register(new LaserEye(ofEnum("LASER_EYE")));
+        LASER_EYE = register("laser_eye", LaserEye::new);
 
-        TOTEM = register(new TotemTalent(ofEnum("TOTEM")));
-        TOTEM_IMPRISONMENT = register(new TotemImprisonment(ofEnum("TOTEM_IMPRISONMENT")));
-        SHAMAN_MARK = register(new ShamanMarkTalent(ofEnum("SHAMAN_MARK")));
-        OVERHEAL = register(new OverhealPassive(ofEnum("OVERHEAL")));
-        SLIMY_GUNK = register(new SlimeGunkTalent(ofEnum("SLIMY_GUNK")));
-        TOTEM_LINK = register(new ArcaneLinkPassive(ofEnum("TOTEM_LINK")));
+        TOTEM = register("totem", TotemTalent::new);
+        TOTEM_IMPRISONMENT = register("totem_imprisonment", TotemImprisonment::new);
+        SHAMAN_MARK = register("shaman_mark", ShamanMarkTalent::new);
+        OVERHEAL = register("overheal", OverhealPassive::new);
+        SLIMY_GUNK = register("slimy_gunk", SlimeGunkTalent::new);
+        TOTEM_LINK = register("totem_link", ArcaneLinkPassive::new);
 
-        HEALING_ORB = register(new HealingOrb(ofEnum("HEALING_ORB")));
-        REVIVE_TOTEM = register(new ReviveTotem(ofEnum("REVIVE_TOTEM")));
-        REVIVE = register(new RevivePassive(ofEnum("TOTEM")));
+        HEALING_ORB = register("healing_orb", HealingOrb::new);
+        REVIVE_TOTEM = register("revive_totem", ReviveTotem::new);
+        REVIVE = register("revive", RevivePassive::new);
 
-        VAMPIRE_PET = register(new VampirePet(ofEnum("VAMPIRE_PET")));
-        BLOODSHIFT = register(new Bloodshift(ofEnum("BLOODSHIFT")));
-        BAT_SWARM = register(new BatSwarm(ofEnum("BAT_SWARM")));
-        VANPIRE_PASSIVE = register(new VampirePassive(ofEnum("VAMPIRE_PASSIVE")));
+        VAMPIRE_PET = register("vampire_pet", VampirePet::new);
+        BLOODSHIFT = register("bloodshift", Bloodshift::new);
+        BAT_SWARM = register("bat_swarm", BatSwarm::new);
+        VANPIRE_PASSIVE = register("vampire_passive", VampirePassive::new);
 
-        SHORTY = register(new ShortyShotgun(ofEnum("SHORTY")));
-        GRAPPLE = register(new GrappleHookTalent(ofEnum("GRAPPLE")));
-        SMOKE_BOMB = register(new SmokeBombPassive(ofEnum("SMOKE_BOMB")));
+        SHORTY = register("shorty", ShortyShotgun::new);
+        GRAPPLE = register("grapple", GrappleHookTalent::new);
+        SMOKE_BOMB = register("smoke_bomb", SmokeBombPassive::new);
 
-        UPPERCUT = register(new Uppercut(ofEnum("UPPERCUT")));
-        UPDRAFT = register(new Updraft(ofEnum("UPDRAFT")));
-        SLASH = register(new Slash(ofEnum("SLASH")));
-        SWORD_MASTER_PASSIVE = register(new PerfectSequencePassive(ofEnum("SWORD_MASTER_PASSIVE")));
+        UPPERCUT = register("uppercut", Uppercut::new);
+        UPDRAFT = register("updraft", Updraft::new);
+        SLASH = register("slash", Slash::new);
+        SWORD_MASTER_PASSIVE = register("sword_master_passive", PerfectSequencePassive::new);
 
-        ORC_GROWN = register(new OrcGrowl(ofEnum("ORC_GROWN")));
-        ORC_AXE = register(new OrcAxe(ofEnum("ORC_AXE")));
-        ORC_PASSIVE = register(new DontAngerMePassive(ofEnum("ORC_PASSIVE")));
+        // Orc talents
+        ORC_GROWN = register("orc_grown", OrcGrowl::new);
+        ORC_AXE = register("orc_axe", OrcAxe::new);
+        ORC_PASSIVE = register("orc_passive", DontAngerMePassive::new);
 
-        ENGINEER_SENTRY = register(new EngineerSentry(ofEnum("ENGINEER_SENTRY")));
-        ENGINEER_TURRET = register(new EngineerTurret(ofEnum("ENGINEER_TURRET")));
-        ENGINEER_RECALL = register(new EngineerRecall(ofEnum("ENGINEER_RECALL")));
-        ENGINEER_PASSIVE = register(new MagneticAttractionPassive(ofEnum("ENGINEER_PASSIVE")));
+        // Engineer talents
+        ENGINEER_SENTRY = register("engineer_sentry", EngineerSentry::new);
+        ENGINEER_TURRET = register("engineer_turret", EngineerTurret::new);
+        ENGINEER_RECALL = register("engineer_recall", EngineerRecall::new);
+        ENGINEER_PASSIVE = register("engineer_passive", MagneticAttractionPassive::new);
 
-        TWIN_CLAWS = register(new TwinClaws(ofEnum("TWIN_CLAWS")));
-        CANDLEBANE = register(new CandlebaneTalent(ofEnum("CANDLEBANE")));
-        BLOOD_CHALICE = register(new BloodChaliceTalent(ofEnum("BLOOD_CHALICE")));
-        BLOOD_CUP = register(new BloodCup(ofEnum("BLOOD_CUP")));
-        SUCCULENCE = register(new BloodfiendPassive(ofEnum("SUCCULENCE")));
+        TWIN_CLAWS = register("twin_claws", TwinClaws::new);
+        CANDLEBANE = register("candlebane", CandlebaneTalent::new);
+        BLOOD_CHALICE = register("blood_chalice", BloodChaliceTalent::new);
+        BLOOD_CUP = register("blood_cup", BloodCup::new);
+        SUCCULENCE = register("succulence", BloodfiendPassive::new);
 
-        BROKEN_HEART_RADIATION = register(new BrokenHeartRadiation(ofEnum("BROKEN_HEART_RADIATION")));
-        MALEVOLENT_HITSHIELD = register(new MalevolentHitshield(ofEnum("MALEVOLENT_HITSHIELD")));
-        FEROCIOUS_STRIKES = register(new FerociousStrikes(ofEnum("FEROCIOUS_STRIKES")));
-        MALEDICTION_VEIL = register(new MaledictionVeil(ofEnum("MALEDICTION_VEIL")));
+        BROKEN_HEART_RADIATION = register("broken_heart_radiation", BrokenHeartRadiation::new);
+        MALEVOLENT_HITSHIELD = register("malevolent_hitshield", MalevolentHitshield::new);
+        FEROCIOUS_STRIKES = register("ferocious_strikes", FerociousStrikes::new);
+        MALEDICTION_VEIL = register("malediction_veil", MaledictionVeil::new);
 
-        EXTRA_CUT = register(new ExtraCut(ofEnum("EXTRA_CUT")));
-        SWAYBLADE = register(new Swayblade(ofEnum("SWAYBLADE")));
-        SECOND_WIND = register(new SecondWind(ofEnum("SECOND_WIND")));
+        EXTRA_CUT = register("extra_cut", ExtraCut::new);
+        SWAYBLADE = register("swayblade", Swayblade::new);
+        SECOND_WIND = register("second_wind", SecondWind::new);
 
-        CELESTE_ARROW = register(new CelesteArrow(ofEnum("CELESTE_ARROW")));
-        ETHEREAL_ARROW = register(new EtherealArrow(ofEnum("ETHEREAL_ARROW")));
-        GUARDIAN_ANGEL = register(new GuardianAngel(ofEnum("GUARDIAN_ANGEL")));
+        CELESTE_ARROW = register("celeste_arrow", CelesteArrow::new);
+        ETHEREAL_ARROW = register("ethereal_arrow", EtherealArrow::new);
+        GUARDIAN_ANGEL = register("guardian_angel", GuardianAngel::new);
 
-        WITHER_ROSE_PATH = register(new WitherRosePath(ofEnum("WITHER_ROSE_PATH")));
-        CHAOS_GROUND = register(new ChaosGround(ofEnum("CHAOS_GROUND")));
-        NYX_PASSIVE = register(new NyxPassive(ofEnum("NYX_PASSIVE")));
+        WITHER_ROSE_PATH = register("wither_rose_path", WitherRosePath::new);
+        CHAOS_GROUND = register("chaos_ground", ChaosGround::new);
+        NYX_PASSIVE = register("nyx_passive", NyxPassive::new);
 
-        ECHO = register(new EchoTalent(ofEnum("ECHO")));
+        ECHO = register("echo", EchoTalent::new);
     }
 
     @Nonnull
@@ -692,9 +694,11 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         return AbstractStaticRegistry.ofStringOrNull(values, string);
     }
 
-    private static <E extends Talent> E register(@Nonnull E e) {
-        values.add(e);
-        return e;
+    private static <E extends Talent> E register(@Nonnull String string, @Nonnull KeyFunction<E> fn) {
+        final E talent = fn.apply(Key.ofString(string));
+
+        values.add(talent);
+        return talent;
     }
 
 }

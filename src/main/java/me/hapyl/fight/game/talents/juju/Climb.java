@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.juju;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Supplier;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -24,7 +25,7 @@ public class Climb extends Talent {
 
     private final PlayerMap<GameTask> tasks = PlayerMap.newMap();
 
-    public Climb(@Nonnull DatabaseKey key) {
+    public Climb(@Nonnull Key key) {
         super(key, "Climb");
 
         addDescription(

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.spark;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -27,7 +28,7 @@ public class Spark extends Hero {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
 
-    public Spark(@Nonnull DatabaseKey key) {
+    public Spark(@Nonnull Key key) {
         super(key, "Spark");
 
         setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);

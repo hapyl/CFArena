@@ -2,7 +2,6 @@ package me.hapyl.fight.game.maps.winery;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -11,6 +10,7 @@ import me.hapyl.fight.game.maps.HiddenLevelFeature;
 import me.hapyl.fight.game.maps.features.WinerySteamFeature;
 import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
@@ -97,7 +97,7 @@ public class WineryMap extends Level {
                 }
 
                 for (GamePlayer player : Collect.aliveGamePlayers()) {
-                    if (Achievements.OWL_SPY.hasCompletedAtLeastOnce(player)) {
+                    if (Registries.getAchievements().OWL_SPY.hasCompletedAtLeastOnce(player)) {
                         continue;
                     }
 
@@ -112,7 +112,7 @@ public class WineryMap extends Level {
                     }
 
                     if (owlCount == owls.length) {
-                        Achievements.OWL_SPY.complete(player);
+                        Registries.getAchievements().OWL_SPY.complete(player);
                     }
                 }
             }

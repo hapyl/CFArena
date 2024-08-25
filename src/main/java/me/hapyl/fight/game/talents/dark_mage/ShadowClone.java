@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 
@@ -15,7 +16,7 @@ public class ShadowClone extends DarkMageTalent {
 
     protected final PlayerMap<ShadowCloneNPC> clones = PlayerMap.newMap();
 
-    public ShadowClone(@Nonnull DatabaseKey key) {
+    public ShadowClone(@Nonnull Key key) {
         super(key, "Shadow Clone", """
                 Create a &breflection&7 of &nyourself&7 at your &ncurrent&7 &nlocation&7 for a maximum of {duration}.
                 

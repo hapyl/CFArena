@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.ronin;
 
 import com.google.common.collect.Maps;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,10 +45,10 @@ public class Ronin extends Hero implements Listener, Disabled {
      * <p>
      * ULTIMATE
      * - Lose 50% of current health.
-     * - Increase speed and attack.
+     * - Increase speed and attack and crit.
      * - All hits apply bleed.
      */
-    public Ronin(@Nonnull DatabaseKey key) {
+    public Ronin(@Nonnull Key key) {
         super(key, "Ronin");
 
         setArchetypes(Archetype.DAMAGE);

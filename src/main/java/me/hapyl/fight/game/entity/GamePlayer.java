@@ -17,7 +17,6 @@ import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -33,7 +32,7 @@ import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.entity.task.PlayerTaskList;
-import me.hapyl.fight.game.gamemode.CFGameMode;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
@@ -51,6 +50,7 @@ import me.hapyl.fight.game.task.player.IPlayerTask;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.util.MaterialCategory;
@@ -400,8 +400,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
                 }
 
                 // Check for first blood
-                if (isFirstBlood) {
-                    Achievements.FIRST_BLOOD.complete(team);
+                if (isFirstBlood && team != null) {
+                    Registries.getAchievements().FIRST_BLOOD.complete(team);
                 }
             }
 
@@ -450,7 +450,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         // Send death info to manager
         final GameInstance gameInstance = Manager.current().getGameInstance(); /*ignore deprecation*/
         if (gameInstance != null) {
-            final CFGameMode mode = gameInstance.getMode();
+            final GameType mode = gameInstance.getMode();
 
             mode.onDeath(gameInstance, this);
             gameOver = gameInstance.checkWinCondition();

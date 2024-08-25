@@ -2,11 +2,12 @@ package me.hapyl.fight.database.collection;
 
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.Numeric;
 import org.bson.Document;
 
@@ -14,23 +15,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class HeroStatsCollection extends AsynchronousDatabase {
+public class HeroStatsCollection extends AsynchronousDatabase implements Keyed {
 
-    private final DatabaseKey key;
+    private final Key key;
 
-    public HeroStatsCollection(@Nonnull DatabaseKey key) {
-        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.key()));
+    public HeroStatsCollection(@Nonnull Key key) {
+        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
 
         this.key = key;
     }
 
     @Nonnull
-    public DatabaseKey getKey() {
+    @Override
+    public Key getKey() {
         return key;
     }
 
     public double getStat(@Nonnull StatType statisticType) {
-        return read(statisticType.name(), 0d);
+        return read(statisticType.name(), 0.0d);
     }
 
     public void setStat(@Nonnull StatType statisticType, double value) {
@@ -42,7 +44,7 @@ public class HeroStatsCollection extends AsynchronousDatabase {
     }
 
     public long getAbilityUsage(@Nonnull Talent talent) {
-        return read("ability_used." + talent.getDatabaseKey().key(), 0L);
+        return read("ability_used." + talent.getKey().getKey(), 0L);
     }
 
     public void addAbilityUsage(@Nonnull Talent talent, long value) {
@@ -50,7 +52,7 @@ public class HeroStatsCollection extends AsynchronousDatabase {
     }
 
     public void setAbilityUsage(@Nonnull Talent talent, long value) {
-        write("ability_used." + talent.getDatabaseKey().key(), value);
+        write("ability_used." + talent.getKeyAsString(), value);
     }
 
     @Nullable

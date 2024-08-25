@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.geometry.Draw;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -47,7 +48,7 @@ public class BlindingCurse extends DarkMageTalent {
         }
     };
 
-    public BlindingCurse(@Nonnull DatabaseKey key) {
+    public BlindingCurse(@Nonnull Key key) {
         super(key, "Darkness Curse", """
                 Launch a &8darkness curse&7 forward that deals &cdamage&7 and &eimpairs&7 hit &cenemies&7.
                 """

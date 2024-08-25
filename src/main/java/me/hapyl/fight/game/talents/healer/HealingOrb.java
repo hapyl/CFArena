@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.talents.healer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.InputTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class HealingOrb extends InputTalent {
-    public HealingOrb(@Nonnull DatabaseKey key) {
+    public HealingOrb(@Nonnull Key key) {
         super(key, "Healing Aura");
 
         setItem(Material.NETHER_WART);

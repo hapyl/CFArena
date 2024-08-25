@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.archer_tutorial;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -15,6 +15,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,7 +29,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
     private final Archer archer = HeroRegistry.ARCHER;
     private final double healthThreshold = 25d;
 
-    public TutorialArcher(@Nonnull DatabaseKey key) {
+    public TutorialArcher(@Nonnull Key key) {
         super(key, "Archer");
 
         final HeroAttributes attributes = getAttributes();
@@ -89,7 +90,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
 
     @Override
     public Talent getSecondTalent() {
-        return TalentRegistry.SHOCK_DARK;
+        return TalentRegistry.SHOCK_DART;
     }
 
     @Override

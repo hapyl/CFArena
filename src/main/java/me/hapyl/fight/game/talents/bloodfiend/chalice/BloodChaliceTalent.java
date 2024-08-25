@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.bloodfiend.chalice;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +15,7 @@ public class BloodChaliceTalent extends TauntTalent {
 
     @DisplayField(percentage = true) public final double healingPercent = 0.6d;
 
-    public BloodChaliceTalent(@Nonnull DatabaseKey key) {
+    public BloodChaliceTalent(@Nonnull Key key) {
         super(key, "Blood Chalice", 6, -1);
 
         setType(TalentType.SUPPORT);

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.util.PlayerInvite;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
@@ -112,7 +112,7 @@ public class GuessWhoCommand extends SimplePlayerCommand {
 
                 @Override
                 public void onDecline() {
-                    Notifier.error(player, "{} has declined you invite.", target.getName());
+                    Notifier.error(player, "{%s} has declined you invite.".formatted(target.getName()));
                 }
             };
         }

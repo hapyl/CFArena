@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.doctor;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.entity.Entities;
@@ -27,7 +28,7 @@ public class ConfusionPotion extends Talent {
 
     @DisplayField private final int explosionDelay = 20;
 
-    public ConfusionPotion(@Nonnull DatabaseKey key) {
+    public ConfusionPotion(@Nonnull Key key) {
         super(key, "Dr. Ed's Amnesia Extract Serum");
 
         setDescription("""

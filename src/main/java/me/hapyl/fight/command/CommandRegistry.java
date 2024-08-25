@@ -107,6 +107,7 @@ import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
 import me.hapyl.fight.infraction.HexID;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.Scripts;
@@ -115,7 +116,7 @@ import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.KeyedToString;
 import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -236,9 +237,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new LobbyCommand("lobby"));
         register(new HighlightLevel("highlightLevel"));
         register(new VehicleCommand("vehicle"));
+        register(new FixMongoDbMigrationFiles("fixmongodbmigrationfiles"));
 
         // *=* Inner commands *=* //
-
         register("testUicmp", (player, args) -> {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
@@ -612,7 +613,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 skin.getSkin().equip(player);
-                Notifier.success(player, "Equipped {} skin!", skin.getSkin().getName());
+                Notifier.success(player, "Equipped {%s} skin!".formatted(skin.getSkin().getName()));
                 return;
             }
 
@@ -951,22 +952,27 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final String key = getArgument(strings, 0).toString();
+                final String stringKey = getArgument(strings, 0).toString();
 
-                if (key.isBlank() || key.isEmpty()) {
+                if (stringKey.isBlank() || stringKey.isEmpty()) {
                     Chat.sendMessage(player, "&cKey cannot be blank or empty!");
                     return;
                 }
 
                 final MetadataEntry entry = profile.getDatabase().metadataEntry;
-                final MetadataKey metadataKey = new MetadataKey(key);
+                final Key key = Key.ofStringOrNull(stringKey);
 
-                if (!entry.has(metadataKey)) {
+                if (key == null) {
+                    Notifier.error(player, "Invalid key: " + stringKey);
+                    return;
+                }
+
+                if (!entry.has(key)) {
                     Chat.sendMessage(player, "&cMetadata value is already null!");
                     return;
                 }
 
-                entry.set(metadataKey, null);
+                entry.set(key, null);
                 Chat.sendMessage(player, "&aDone!");
             }
         });
@@ -1634,7 +1640,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             final Crates crate = args.get(0).toEnum(Crates.class);
 
             if (crate == null) {
-                Notifier.error(player, "Cannot find crate named {}.", args.getString(0));
+                Notifier.error(player, "Cannot find crate named {%s}.".formatted(args.getString(0)));
                 return;
             }
 

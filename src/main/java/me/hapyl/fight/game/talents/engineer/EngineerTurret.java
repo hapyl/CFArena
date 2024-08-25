@@ -3,12 +3,13 @@ package me.hapyl.fight.game.talents.engineer;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.RaycastTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -34,7 +35,7 @@ public class EngineerTurret extends EngineerTalent {
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:grindstone\",Properties:{face:\"ceiling\",facing:\"east\"}},transformation:[-0.3536f,-0.3536f,0.0000f,1.0693f,-0.3536f,0.3536f,0.0000f,0.1844f,-0.0000f,0.0000f,-0.5000f,0.2463f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:diorite_wall\",Properties:{up:\"true\"}},transformation:[-0.3536f,-0.5303f,0.0000f,0.8505f,-0.3536f,0.5303f,0.0000f,0.4031f,-0.0000f,0.0000f,-0.5000f,0.2463f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:grindstone\",Properties:{face:\"ceiling\",facing:\"east\"}},transformation:[0.1768f,0.1768f,0.4330f,-0.7772f,-0.3536f,0.3536f,0.0000f,0.1844f,-0.3062f,-0.3062f,0.2500f,0.8122f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:diorite_wall\",Properties:{up:\"true\"}},transformation:[0.1768f,0.2652f,0.4330f,-0.6679f,-0.3536f,0.5303f,0.0000f,0.4031f,-0.3062f,-0.4593f,0.2500f,0.6228f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:grindstone\",Properties:{face:\"ceiling\",facing:\"east\"}},transformation:[0.1768f,0.1768f,-0.4330f,-0.3445f,-0.3536f,0.3536f,0.0000f,0.1844f,0.3062f,0.3062f,0.2500f,-1.0695f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:diorite_wall\",Properties:{up:\"true\"}},transformation:[0.1768f,0.2652f,-0.4330f,-0.2351f,-0.3536f,0.5303f,0.0000f,0.4031f,0.3062f,0.4593f,0.2500f,-0.8801f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:andesite_wall\",Properties:{up:\"true\"}},transformation:[0.2500f,0.0000f,0.0000f,-0.1313f,0.0000f,0.2500f,0.0000f,0.5594f,0.0000f,0.0000f,0.2500f,-0.1250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[0.6125f,0.0000f,0.0000f,0.0112f,0.0000f,-0.0000f,1.5000f,0.8406f,0.0000f,-0.6125f,-0.0000f,-0.0175f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[0.6364f,-0.6364f,-0.0000f,-0.0137f,-0.0000f,-0.0000f,1.5000f,0.9344f,-0.6364f,-0.6364f,-0.0000f,-0.0263f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:nether_star\",Count:1},item_display:\"none\",transformation:[0.6125f,0.0000f,0.0000f,0.0112f,0.0000f,-0.0000f,1.5000f,1.0281f,0.0000f,-0.6125f,-0.0000f,-0.0175f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:stone_slab\",Properties:{type:\"bottom\"}},transformation:[0.7500f,0.0000f,0.0000f,-0.3887f,0.0000f,0.5000f,0.0000f,1.0281f,0.0000f,0.0000f,0.7500f,-0.3600f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
-    public EngineerTurret(@Nonnull DatabaseKey key) {
+    public EngineerTurret(@Nonnull Key key) {
         super(key, "Sentry", 1);
 
         setDescription("""

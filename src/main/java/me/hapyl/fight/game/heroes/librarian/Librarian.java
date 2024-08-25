@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
@@ -22,6 +22,7 @@ import me.hapyl.fight.game.talents.librarian.EntityDarkness;
 import me.hapyl.fight.game.talents.librarian.LibrarianTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -58,7 +59,7 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
     private final String grimoireIsMaxGradient = new Gradient("Grimoire Maxed!")
             .rgb(ChatColor.RED.getColor(), ChatColor.BLUE.getColor(), Interpolators.LINEAR);
 
-    public Librarian(@Nonnull DatabaseKey key) {
+    public Librarian(@Nonnull Key key) {
         super(key, "Librarian of Void");
 
         setDescription("""

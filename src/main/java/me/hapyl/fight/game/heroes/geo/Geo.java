@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.heroes.geo;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
 public class Geo extends Hero implements Disabled {
-    public Geo(@Nonnull DatabaseKey key) {
+    public Geo(@Nonnull Key key) {
         super(key, "Geo");
     }
 

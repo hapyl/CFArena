@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.swooper;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -23,7 +24,7 @@ public class Blink extends ChargedTalent {
     @DisplayField private final int maxDistance = 6;
     @DisplayField private final int minDistance = 1;
 
-    public Blink(@Nonnull DatabaseKey key) {
+    public Blink(@Nonnull Key key) {
         super(key, "Blink", 2);
 
         setDescription("""

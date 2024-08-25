@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
@@ -26,7 +27,7 @@ public class ChargedTalent extends Talent {
     private int rechargeTime;
     private Material noChargedMaterial;
 
-    public ChargedTalent(@Nonnull DatabaseKey key, @Nonnull String name, int maxCharges) {
+    public ChargedTalent(@Nonnull Key key, @Nonnull String name, int maxCharges) {
         super(key, name);
 
         this.maxCharges = maxCharges;

@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.harbinger;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class RiptidePassive extends PassiveTalent {
-    public RiptidePassive(@Nonnull DatabaseKey key) {
+    public RiptidePassive(@Nonnull Key key) {
         super(key, "Riptide");
 
         setDescription("""

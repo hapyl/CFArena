@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.resonance.ResonanceType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -27,7 +28,7 @@ public class TotemTalent extends InputTalent {
 
     private final PlayerMap<LinkedList<Totem>> playerTotems = PlayerMap.newMap();
 
-    public TotemTalent(@Nonnull DatabaseKey key) {
+    public TotemTalent(@Nonnull Key key) {
         super(key, "Totem");
 
         setDescription("""

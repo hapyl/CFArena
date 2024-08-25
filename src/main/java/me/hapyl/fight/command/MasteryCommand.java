@@ -5,7 +5,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -39,7 +39,7 @@ public class MasteryCommand extends CFCommand {
             final int lvl = database.masteryEntry.getLevel(hero);
             final long exp = database.masteryEntry.getExp(hero);
 
-            Notifier.success(player, "{}'s mastery level for {} is: {} with a total of {} exp.", target.getName(), hero.getName(), lvl, exp);
+            Notifier.success(player, "{%s}'s mastery level for {%s} is: {%s} with a total of {%s} exp.".formatted(target.getName(), hero.getName(), lvl, exp));
         } else if (argument.equalsIgnoreCase("set")) {
             final long newExp = args.get(3).toLong(-1);
 
@@ -50,7 +50,7 @@ public class MasteryCommand extends CFCommand {
 
             database.masteryEntry.setExp(hero, newExp);
 
-            Notifier.success(player, "Set {} mastery exp for {} to {}.", target.getName(), hero.getName(), newExp);
+            Notifier.success(player, "Set {%s} mastery exp for {%s} to {%s}.".formatted(target.getName(), hero.getName(), newExp));
         } else {
             Notifier.error(player, "Invalid argument: " + argument);
         }

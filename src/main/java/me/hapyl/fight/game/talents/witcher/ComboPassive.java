@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.witcher;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class ComboPassive extends PassiveTalent {
-    public ComboPassive(@Nonnull DatabaseKey key) {
+    public ComboPassive(@Nonnull Key key) {
         super(key, "Combo");
 
         setDescription("""

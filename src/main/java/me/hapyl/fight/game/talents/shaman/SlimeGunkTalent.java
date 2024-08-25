@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -39,7 +40,7 @@ public class SlimeGunkTalent extends Talent implements Listener {
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
     private final PlayerMap<SlimeGunk> gunkMap = PlayerMap.newMap();
 
-    public SlimeGunkTalent(@Nonnull DatabaseKey key) {
+    public SlimeGunkTalent(@Nonnull Key key) {
         super(key, "Gunk of Slime");
 
         setDescription("""

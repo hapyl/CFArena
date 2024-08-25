@@ -3,19 +3,7 @@ package me.hapyl.fight.event;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.mojang.brigadier.tree.CommandNode;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import com.mojang.brigadier.tree.RootCommandNode;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.command.CommandProcessor;
-import me.hapyl.eterna.module.command.SimpleCommand;
-import me.hapyl.eterna.module.reflect.Reflect;
-import net.minecraft.commands.ICompletionProvider;
-import net.minecraft.network.protocol.game.PacketPlayOutCommands;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,7 +39,7 @@ public class ServerHandler implements Listener {
             return;
         }
 
-        Notifier.error(player, "Unknown or incomplete command! ({})", message);
+        Notifier.error(player, "Unknown or incomplete command! ({%s})".formatted(message));
         ev.setCancelled(true);
     }
 

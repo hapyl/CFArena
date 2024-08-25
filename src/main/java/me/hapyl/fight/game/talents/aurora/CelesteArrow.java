@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.aurora;
 
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.particle.ParticleDrawer;
 import me.hapyl.fight.util.particle.Particles;
@@ -24,7 +25,7 @@ public class CelesteArrow extends AuroraArrowTalent {
     private final BlockData blockData = Material.GREEN_GLAZED_TERRACOTTA.createBlockData();
     private final ParticleDrawer fxParticle = Particles.mobSpell(36, 227, 71);
 
-    public CelesteArrow(@Nonnull DatabaseKey key) {
+    public CelesteArrow(@Nonnull Key key) {
         super(key, "Celeste Arrows", ChatColor.GREEN, 4, 5.0d, 0.85d);
 
         setDescription("""

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.doctor;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -21,6 +21,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Location;
@@ -36,7 +37,7 @@ public class DrEd extends Hero implements UIComponent {
     private final PhysGun ultimateWeapon = new PhysGun();
     private final PlayerMap<BlockShield> playerShield;
 
-    public DrEd(@Nonnull DatabaseKey key) {
+    public DrEd(@Nonnull Key key) {
         super(key, "Dr. Ed");
 
         setArchetypes(Archetype.STRATEGY, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);

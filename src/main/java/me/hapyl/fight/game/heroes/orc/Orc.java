@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.orc;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -44,7 +45,7 @@ public class Orc extends Hero implements Listener {
             .decrease(AttributeType.DEFENSE, 0.6d)
             .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
-    public Orc(@Nonnull DatabaseKey key) {
+    public Orc(@Nonnull Key key) {
         super(key, "Pakarat Rakab");
 
         setDescription("""

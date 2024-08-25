@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class ShadowEnergyPassive extends PassiveTalent {
-    public ShadowEnergyPassive(@Nonnull DatabaseKey key) {
+    public ShadowEnergyPassive(@Nonnull Key key) {
         super(key, "Shadow Energy");
 
         setDescription("""

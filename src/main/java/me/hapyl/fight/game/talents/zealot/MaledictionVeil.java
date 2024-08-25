@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.zealot;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -24,7 +25,7 @@ public class MaledictionVeil extends PassiveTalent {
     public final TemperInstance temperInstance = Temper.MALEDICTION_VEIL.newInstance()
             .decrease(AttributeType.VITALITY, mendingDecrease);
 
-    public MaledictionVeil(@Nonnull DatabaseKey key) {
+    public MaledictionVeil(@Nonnull Key key) {
         super(key, "Malediction Veil");
 
         setDescription("""

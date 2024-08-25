@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.doctor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.entity.Entities;
@@ -38,7 +39,7 @@ public class HarvestBlocks extends Talent {
     @DisplayField private final double maxDistance = 20.0d;
     @DisplayField private final int collectDelay = 30;
 
-    public HarvestBlocks(@Nonnull DatabaseKey key) {
+    public HarvestBlocks(@Nonnull Key key) {
         super(key, "Block Harvest");
 
         setDescription("""

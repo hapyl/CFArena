@@ -4,7 +4,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.gamemode.CFGameMode;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.eterna.module.chat.Chat;
@@ -60,8 +60,8 @@ public class FinalMessageCosmetic extends Cosmetic {
             armorStand.setCustomNameVisible(true);
         });
 
-        // Remove upon respawn in respawn allowed modes.
-        final CFGameMode currentMode = Manager.current().getCurrentGame().getMode();
+        // Remove upon respawn in respawn allowed types.
+        final GameType currentMode = Manager.current().getCurrentGame().getMode();
         if (currentMode.isAllowRespawn()) {
             GameTask.runLater(stand::remove, currentMode.getRespawnTime());
         }

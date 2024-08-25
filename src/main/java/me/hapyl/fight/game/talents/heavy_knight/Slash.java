@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Tick;
@@ -33,7 +34,7 @@ public class Slash extends Talent {
             .decrease(AttributeType.SPEED, 0.05d) // 25%
             .decrease(AttributeType.DEFENSE, 0.25d);
 
-    public Slash(@Nonnull DatabaseKey key) {
+    public Slash(@Nonnull Key key) {
         super(key, "Slash");
 
         setDescription("""

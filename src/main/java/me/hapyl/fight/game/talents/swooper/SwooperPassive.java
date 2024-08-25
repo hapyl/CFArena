@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.swooper;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
@@ -15,7 +16,7 @@ public class SwooperPassive extends PassiveTalent {
     @DisplayField public final double stealthDamageMultiplier = 2.0d;
     @DisplayField(suffix = "blocks") public final double maxNestStrayDistance = 1.0d;
 
-    public SwooperPassive(@Nonnull DatabaseKey key) {
+    public SwooperPassive(@Nonnull Key key) {
         super(key, "Sniper Nest");
 
         setDescription("""

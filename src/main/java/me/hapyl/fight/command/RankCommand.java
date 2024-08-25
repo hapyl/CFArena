@@ -4,7 +4,7 @@ import me.hapyl.fight.annotate.NowListenToMe;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -42,7 +42,7 @@ public final class RankCommand extends SimpleCommand {
         }
 
         if (args.length == 0) {
-            Notifier.success(sender, "Your rank is {}!", rank.getPrefixWithFallback());
+            Notifier.success(sender, "Your rank is {%s}!".formatted(rank.getPrefixWithFallback()));
             return;
         }
 
@@ -58,7 +58,7 @@ public final class RankCommand extends SimpleCommand {
             final RankConfirmation rankConfirmation = CONFIRM_CACHE.findFirst(rc -> rc.hash.equals(hash));
 
             if (rankConfirmation == null) {
-                Notifier.error(sender, "Confirmation for '{}' has expired or doesn't exist!", hash);
+                Notifier.error(sender, "Confirmation for '{%s}' has expired or doesn't exist!".formatted(hash));
                 return;
             }
 
@@ -72,7 +72,7 @@ public final class RankCommand extends SimpleCommand {
         final PlayerRank rankToSet = getArgument(args, 1).toEnum(PlayerRank.class);
 
         if (target == null) {
-            Notifier.error(sender, "%s is not online!", args[0]);
+            Notifier.error(sender, "{%s} is not online!".formatted(args[0]));
             return;
         }
 
@@ -80,12 +80,12 @@ public final class RankCommand extends SimpleCommand {
         final PlayerRank targetRank = targetDatabase.getRank();
 
         if (rankToSet == targetRank) {
-            Notifier.error(sender, "{}'s rank is already {}!", target.getName(), targetRank.getPrefixWithFallback());
+            Notifier.error(sender, "{%s}'s rank is already {%s}!".formatted(target.getName(), targetRank.getPrefixWithFallback()));
             return;
         }
 
         if (rankToSet == null) {
-            Notifier.success(sender, "{}'s rank is {}.", target.getName(), targetRank.getPrefixWithFallback());
+            Notifier.success(sender, "{%s}'s rank is {%s}.".formatted(target.getName(), targetRank.getPrefixWithFallback()));
             return;
         }
 
@@ -101,9 +101,12 @@ public final class RankCommand extends SimpleCommand {
 
             CONFIRM_CACHE.add(confirmation);
 
-            Notifier.success(sender, "Created request to set &e{}'s rank to &c{}.", target.getName(), rankToSet.getPrefixWithFallback());
+            Notifier.success(
+                    sender,
+                    "Created request to set &e{%s}'s rank to &c{%s}.".formatted(target.getName(), rankToSet.getPrefixWithFallback())
+            );
             Notifier.success(sender, "Because it's a staff rank, it requires a confirmation.");
-            Notifier.success(sender, "Run &e/rank &e{} within &b{}s to confirm!", confirmation.hash, CONFIRM_TIMEOUT / 1000L);
+            Notifier.success(sender, "Run &e/rank &e{%s} within &b{%s}s to confirm!".formatted(confirmation.hash, CONFIRM_TIMEOUT / 1000L));
             return;
         }
 
@@ -121,16 +124,15 @@ public final class RankCommand extends SimpleCommand {
 
         database.setRank(rankToSet);
 
-        Notifier.success(sender, "Set &a{}'s rank to {}!", target.getName(), rankToSet.getPrefixWithFallback());
-        Notifier.success(target, "You are now {}!", rankToSet.getPrefixWithFallback());
+        Notifier.success(sender, "Set &a{%s}'s rank to {%s}!".formatted(target.getName(), rankToSet.getPrefixWithFallback()));
+        Notifier.success(target, "You are now {%s}!".formatted(rankToSet.getPrefixWithFallback()));
 
-        Notifier.broadcastStaff(
-                "{} changed {}'s rank '{}&b' » '{}&b'.",
+        Notifier.broadcastStaff("{%s} changed {%s}'s rank '{%s}' » '{%s}'.".formatted(
                 sender.getName(),
                 target.getName(),
                 oldRank.getPrefixWithFallback(),
                 rankToSet.getPrefixWithFallback()
-        );
+        ));
     }
 
     @Nonnull

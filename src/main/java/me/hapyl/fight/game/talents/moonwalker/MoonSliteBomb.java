@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -8,6 +8,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -36,7 +37,7 @@ public class MoonSliteBomb extends Talent implements Listener {
     @DisplayField private final int explosionDuration = 600;
     @DisplayField private final int corrosionDuration = 35;
 
-    public MoonSliteBomb(@Nonnull DatabaseKey key) {
+    public MoonSliteBomb(@Nonnull Key key) {
         super(key, "Moonslite Bomb");
 
         setDescription("""

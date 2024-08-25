@@ -1,16 +1,16 @@
 package me.hapyl.fight.game.talents.echo;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
 public class EchoTalent extends Talent {
 
-
-    public EchoTalent(@Nonnull DatabaseKey key) {
+    public EchoTalent(@Nonnull Key key) {
         super(key, "Echo");
 
         setDescription("""

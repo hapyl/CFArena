@@ -1,10 +1,9 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;

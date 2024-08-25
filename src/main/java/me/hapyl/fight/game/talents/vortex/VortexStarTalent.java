@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -22,7 +23,7 @@ public class VortexStarTalent extends Talent {
 
     private final PlayerMap<AstralStarList> stars = PlayerMap.newMap();
 
-    public VortexStarTalent(@Nonnull DatabaseKey key) {
+    public VortexStarTalent(@Nonnull Key key) {
         super(key, "Astral Star");
 
         setDescription("""

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Drawable;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingStepGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.EntityList;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -44,7 +45,7 @@ public class ChaosGround extends Talent {
 
     public final DropletHealing healing = new DropletHealing(7.0d, 5.0d, 3.0d);
 
-    public ChaosGround(@Nonnull DatabaseKey key) {
+    public ChaosGround(@Nonnull Key key) {
         super(key, "Chaos Expansion");
 
         setDescription("""

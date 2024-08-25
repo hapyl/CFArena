@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,7 +25,7 @@ public class IceCageTalent extends Talent implements Listener {
     protected final PlayerMap<IceCage> iceCageMap = PlayerMap.newMap();
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
 
-    public IceCageTalent(@Nonnull DatabaseKey key) {
+    public IceCageTalent(@Nonnull Key key) {
         super(key, "Ice Cage");
 
         setDescription("""

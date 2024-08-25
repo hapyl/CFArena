@@ -1,6 +1,6 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,18 +33,18 @@ public class GotoCommand extends SimplePlayerAdminCommand {
             if (files != null) {
                 for (File file : files) {
                     if (file.isDirectory() && file.getName().equals(worldName)) {
-                        Notifier.broadcastStaff("Loading '{}' world...", worldName);
+                        Notifier.broadcastStaff("Loading '{%s}' world...".formatted(worldName));
 
                         world = Bukkit.createWorld(new WorldCreator(worldName));
 
-                        Notifier.broadcastStaff("World '{}' loaded!", worldName);
+                        Notifier.broadcastStaff("World '{%s}' loaded!".formatted(worldName));
                     }
                 }
             }
 
             // If the world is still null, then it's invalid.
             if (world == null) {
-                Notifier.error(player, "Invalid world '{}'!", worldName);
+                Notifier.error(player, "Invalid world '{%s}'!".formatted(worldName));
                 return;
             }
         }
@@ -68,7 +68,7 @@ public class GotoCommand extends SimplePlayerAdminCommand {
 
         player.teleport(location);
 
-        Notifier.broadcastStaff("{} moved into '{}' world.", player.getName(), world.getName());
+        Notifier.broadcastStaff("{%s} moved into '{%s}' world.".formatted(player.getName(), world.getName()));
     }
 
 }

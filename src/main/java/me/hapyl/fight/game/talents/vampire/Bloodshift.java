@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.vampire;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.sound.SoundQueue;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.heroes.vampire.VampireData;
 import me.hapyl.fight.game.heroes.vampire.VampireState;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -31,7 +32,7 @@ public class Bloodshift extends Talent {
                     1.0f, 1.25f, 1.0f, 1.25f, 0.75f
             );
 
-    public Bloodshift(@Nonnull DatabaseKey key) {
+    public Bloodshift(@Nonnull Key key) {
         super(key, "Bloodshift");
 
         setDescription("""

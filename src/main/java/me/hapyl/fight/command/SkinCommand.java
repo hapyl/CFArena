@@ -8,7 +8,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.cache.Caches;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.util.ArgumentList;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -87,7 +87,7 @@ public class SkinCommand extends CFCommand {
                 final JsonArray jsonArray = profileObject.get("properties").getAsJsonArray();
 
                 if (jsonArray.isEmpty()) {
-                    Notifier.error(player, "Somehow there are no textures for {}!", argument);
+                    Notifier.error(player, "Somehow there are no textures for {%s}!".formatted(argument));
                     return;
                 }
 

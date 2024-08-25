@@ -54,7 +54,7 @@ public class HeroPlayerItemMaker {
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())
                         .setName(hero.toString())
-                        .addLore("&8/hero " + hero.getDatabaseKey().key().toLowerCase(Locale.ROOT))
+                        .addLore("&8/hero " + hero.getKeyAsString())
                         .addLore();
 
                 // Archetypes

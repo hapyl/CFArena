@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.dark_mage;
 
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -44,7 +45,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
     private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 
-    public DarkMage(@Nonnull DatabaseKey key) {
+    public DarkMage(@Nonnull Key key) {
         super(key, "Dark Mage");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);

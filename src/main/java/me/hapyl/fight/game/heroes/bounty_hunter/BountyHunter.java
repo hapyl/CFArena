@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.nightmare.ShadowShift;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -57,7 +58,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     @DisplayField private final double backstabMaxDistance = 15;
     @DisplayField private final double backstabDamage = 30;
 
-    public BountyHunter(@Nonnull DatabaseKey key) {
+    public BountyHunter(@Nonnull Key key) {
         super(key, "Bounty Hunter");
 
         setAffiliation(Affiliation.MERCENARY);

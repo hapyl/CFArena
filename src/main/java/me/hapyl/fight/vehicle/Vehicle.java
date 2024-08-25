@@ -7,6 +7,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.ImmutableList;
+import me.hapyl.fight.util.Property;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -21,9 +22,9 @@ public class Vehicle implements Removable {
     protected final Player passenger;
     protected final Entity vehicle;
 
-    protected double speed;
-    protected double smoothness;
-    protected double maxHeight;
+    protected final Property<Double> speed;
+    protected final Property<Double> smoothness;
+    protected final Property<Double> maxHeight;
 
     protected Vehicle(@Nonnull Player passenger) {
         this.passenger = passenger;
@@ -38,9 +39,9 @@ public class Vehicle implements Removable {
         this.vehicle.addPassenger(passenger);
 
         // Properties
-        this.speed = 1.0d;
-        this.smoothness = 0.5d;
-        this.maxHeight = 255.0d;
+        this.speed = new Property<>(1.0d);
+        this.smoothness = new Property<>(0.5d);
+        this.maxHeight = new Property<>(255.0d);
     }
 
     @Event
@@ -70,7 +71,7 @@ public class Vehicle implements Removable {
                 .when(VehicleDirection.DOWN, v -> v.setY(-1));
 
         if (vector.lengthSquared() > 0) {
-            vector.normalize().multiply(speed);
+            vector.normalize().multiply(speed.get());
         }
 
         // Height
@@ -84,12 +85,12 @@ public class Vehicle implements Removable {
             distanceToGround++;
         }
 
-        if (distanceToGround >= maxHeight) {
+        if (distanceToGround >= maxHeight.get()) {
             vector.setY(-BukkitUtils.GRAVITY);
         }
 
         final Vector velocity = vehicle.getVelocity();
-        final Vector interpolatedVelocity = velocity.clone().add(vector.subtract(velocity).multiply(smoothness));
+        final Vector interpolatedVelocity = velocity.clone().add(vector.subtract(velocity).multiply(smoothness.get()));
 
         vehicle.setVelocity(interpolatedVelocity);
         onMove();
@@ -100,8 +101,8 @@ public class Vehicle implements Removable {
         return passenger;
     }
 
-    public void dismount() {
-        CF.getVehicleManager().stopRiding(getPassenger());
+    public boolean dismount() {
+        return CF.getVehicleManager().stopRiding(getPassenger(), this);
     }
 
     @Override

@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.ender;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EnderPearl;
@@ -26,7 +27,7 @@ public class TeleportPearl extends Talent implements Listener {
 
     private final Set<EnderPearl> enderPearls = new HashSet<>();
 
-    public TeleportPearl(@Nonnull DatabaseKey key) {
+    public TeleportPearl(@Nonnull Key key) {
         super(key, "Rideable Pearl");
 
         setDescription("""

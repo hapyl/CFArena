@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.librarian;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
@@ -16,7 +17,7 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 
 public class EntityDarkness extends LibrarianTalent {
-    public EntityDarkness(@Nonnull DatabaseKey key) {
+    public EntityDarkness(@Nonnull Key key) {
         super(key, "Darkness Spell");
 
         addDescription("Launches a sprite of darkness, dealing <scaled> damage and applying paranoia. This spell has 3 charges.");

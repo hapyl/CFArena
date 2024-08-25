@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class WitherRosePassive extends PassiveTalent {
-    public WitherRosePassive(@Nonnull DatabaseKey key) {
+    public WitherRosePassive(@Nonnull Key key) {
         super(key, "Wither Rose");
 
         setDescription("""

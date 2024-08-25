@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -22,7 +23,7 @@ public abstract class TauntTalent extends Talent {
     @DisplayField(suffix = "blocks") private final double radius;
     @DisplayField private final int period; // -1 means it's passive
 
-    public TauntTalent(@Nonnull DatabaseKey key, @Nonnull String name, double radius, int period) {
+    public TauntTalent(@Nonnull Key key, @Nonnull String name, double radius, int period) {
         super(key, name);
 
         this.playerTaunt = PlayerMap.newConcurrentMap();

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -15,6 +15,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
@@ -35,7 +36,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
     private final PlayerDataMap<SwordMasterData> playerData = PlayerMap.newDataMap(player -> new SwordMasterData(this, player));
 
-    public SwordMaster(@Nonnull DatabaseKey key) {
+    public SwordMaster(@Nonnull Key key) {
         super(key, "Heavy Knight");
 
         setArchetypes(Archetype.DAMAGE);

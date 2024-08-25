@@ -38,15 +38,15 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     public long getAbilityUsage(Hero hero, Talent talent) {
         return getInDocument(PATH_ROOT)
                 .get(PATH_HERO_STATS, new Document())
-                .get(hero.getDatabaseKey().key(), new Document())
+                .get(hero.getKeyAsString(), new Document())
                 .get(PATH_ABILITY_USAGE, new Document())
-                .get(talent.getDatabaseKey().key(), 0L);
+                .get(talent.getKeyAsString(), 0L);
     }
 
     public void setAbilityUsage(Hero hero, Talent talent, long value) {
         setValue(
-                "statistic.hero_stats." + hero.getDatabaseKey().key() +
-                        ".ability_usage." + talent.getDatabaseKey().key(),
+                "statistic.hero_stats." + hero.getKeyAsString() +
+                        ".ability_usage." + talent.getKeyAsString(),
                 value
         );
     }
@@ -58,17 +58,17 @@ public class StatisticEntry extends PlayerDatabaseEntry {
     public double getHeroStat(Hero hero, StatType type) {
         return getInDocument(PATH_ROOT)
                 .get(PATH_HERO_STATS, new Document())
-                .get(hero.getDatabaseKey().key(), new Document())
+                .get(hero.getKeyAsString(), new Document())
                 .get(type.name(), 0.0d);
     }
 
     public void setHeroStat(Hero hero, StatType type, double value) {
         final Document statistic = getInDocument(PATH_ROOT);
         final Document heroStats = statistic.get(PATH_HERO_STATS, new Document());
-        final Document document = heroStats.get(hero.getDatabaseKey().key(), new Document());
+        final Document document = heroStats.get(hero.getKeyAsString(), new Document());
 
         document.put(type.name(), value);
-        heroStats.put(hero.getDatabaseKey().key(), document);
+        heroStats.put(hero.getKeyAsString(), document);
         statistic.put(PATH_HERO_STATS, heroStats);
     }
 

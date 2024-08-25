@@ -16,7 +16,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

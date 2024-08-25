@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.orc;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -8,6 +8,7 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Geometry;
@@ -34,7 +35,7 @@ public class OrcGrowl extends Talent {
             .decrease(AttributeType.SPEED, speedDecrease); // 50% ~the same as the slowness
 
 
-    public OrcGrowl(@Nonnull DatabaseKey key) {
+    public OrcGrowl(@Nonnull Key key) {
         super(key, "Growl of a Beast");
 
         setDescription("""

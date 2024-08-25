@@ -12,7 +12,7 @@ import me.hapyl.fight.game.profile.relationship.Relationship;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Bukkit;

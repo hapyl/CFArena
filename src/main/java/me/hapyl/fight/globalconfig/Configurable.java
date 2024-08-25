@@ -1,7 +1,7 @@
 package me.hapyl.fight.globalconfig;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.command.CommandSender;
 
 import javax.annotation.Nonnull;

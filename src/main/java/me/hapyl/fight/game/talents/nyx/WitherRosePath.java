@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -21,6 +21,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -53,7 +54,7 @@ public class WitherRosePath extends Talent {
 
     private final BlockData spikeBlockData = Material.OBSIDIAN.createBlockData();
 
-    public WitherRosePath(@Nonnull DatabaseKey key) {
+    public WitherRosePath(@Nonnull Key key) {
         super(key, "Wither Path");
 
         setDescription("""

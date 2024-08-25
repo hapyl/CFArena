@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.mage;
 
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -17,6 +17,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -33,7 +34,7 @@ public class Mage extends Hero implements UIComponent {
 
     private final PlayerMap<Integer> soulsCharge = PlayerMap.newMap();
 
-    public Mage(@Nonnull DatabaseKey key) {
+    public Mage(@Nonnull Key key) {
         super(key, "Mage");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.RANGE, Archetype.MOBILITY);

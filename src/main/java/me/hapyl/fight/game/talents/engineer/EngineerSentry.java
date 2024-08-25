@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.engineer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +14,7 @@ public class EngineerSentry extends EngineerTalent {
 
     private final double radius = 35;
 
-    public EngineerSentry(@Nonnull DatabaseKey key) {
+    public EngineerSentry(@Nonnull Key key) {
         super(key, "Spotter", 4);
 
         setDescription("""

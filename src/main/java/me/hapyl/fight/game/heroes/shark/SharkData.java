@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.shark;
 
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
@@ -34,8 +33,7 @@ public class SharkData extends PlayerData {
 
     public int getBloodThirstStacks() {
         if (icd.timeSinceLastUseInTicks() > shark.getPassiveTalent().stackDuration) {
-            Debug.uncommentMe("blood stack reset");
-            //remove();
+            remove();
         }
 
         return bloodThirstStacks;

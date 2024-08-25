@@ -5,53 +5,63 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public interface Registry<T extends Identified> {
+public interface Registry<T extends Keyed> {
 
     /**
-     * Gets the element by its {@link EnumId} or null if not registered.
+     * Gets the element by its {@link Key} or null if not registered.
      *
-     * @param id - {@link EnumId}.
+     * @param key - {@link Key}.
      * @return the element or null if not registered.
      */
     @Nullable
-    T get(@Nonnull EnumId id);
+    T get(@Nonnull Key key);
 
     /**
-     * Gets the element by its {@link EnumId} from a string Id; or null if not registered.
+     * Gets the element by its {@link Key} from a string Id; or null if not registered.
      *
-     * @param id - String Id. Will be forced to uppercase.
-     * @return the element by its {@link EnumId} from a string Id.
-     * @throws IllegalStateException if the string does not match {@link EnumId#PATTERN}.
+     * @param string - String Id. Will be forced to uppercase.
+     * @return the element by its {@link Key} from a string Id.
+     * @throws IllegalStateException if the string does not match {@link Key#PATTERN}.
      */
     @Nullable
-    default T get(@Nonnull String id) throws IllegalStateException {
-        id = id.toUpperCase();
+    default T get(@Nonnull String string) throws IllegalStateException {
+        final Key key = Key.ofStringOrNull(string);
 
-        if (!EnumId.PATTERN.matcher(id).matches()) {
-            return null;
-        }
-
-        return get(new EnumId(id));
+        return key != null ? get(key) : null;
     }
 
     /**
-     * Gets an optional of the element by its {@link EnumId}.
+     * Gets an optional of the element by its {@link Key}.
      *
-     * @param id - {@link EnumId}.
+     * @param key - {@link Key}.
      * @return the optional of the element.
      */
     @Nonnull
-    default Optional<T> getOptional(@Nonnull EnumId id) {
-        return Optional.ofNullable(get(id));
+    default Optional<T> getOptional(@Nonnull Key key) {
+        return Optional.ofNullable(get(key));
     }
 
     /**
      * Attempts to register the item.
      *
      * @param t - Item to register.
-     * @return true if registered; false otherwise.
+     * @return the registered item.
      */
-    boolean register(@Nonnull T t);
+    T register(@Nonnull T t);
+
+    /**
+     * Attempts to register the item.
+     *
+     * @param key - Key to register to.
+     * @param fn  - Function on how to create the registry item.
+     * @return the registered item.
+     */
+    default T register(@Nonnull String key, @Nonnull KeyFunction<T> fn) {
+        final T t = fn.apply(Key.ofString(key));
+
+        register(t);
+        return t;
+    }
 
     /**
      * Attempts to unregister the item.

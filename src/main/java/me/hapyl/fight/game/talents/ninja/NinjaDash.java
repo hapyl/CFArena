@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.ninja;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -15,7 +16,7 @@ public class NinjaDash extends Talent {
 
     @DisplayField private final float magnitude = 1.5f;
 
-    public NinjaDash(@Nonnull DatabaseKey key) {
+    public NinjaDash(@Nonnull Key key) {
         super(key, "Dashing Wind");
 
         setDescription("""

@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -20,7 +21,7 @@ public class Spear extends Talent {
     @DisplayField private final double radius = 1.5d;
     @DisplayField private final double damage = 4.0d;
 
-    public Spear(@Nonnull DatabaseKey key) {
+    public Spear(@Nonnull Key key) {
         super(key, "Spear");
 
         setDescription("""

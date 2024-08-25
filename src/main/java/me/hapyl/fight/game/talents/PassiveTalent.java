@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.MessageType;
+import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
 public class PassiveTalent extends Talent {
 
-    protected PassiveTalent(@Nonnull DatabaseKey key, @Nonnull String name) {
+    protected PassiveTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
         setType(TalentType.ENHANCE); // Default passives to enhance because most of them are
@@ -18,7 +18,7 @@ public class PassiveTalent extends Talent {
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        player.sendMessage(MessageType.ERROR, "Do not execute passive talents!");
+        player.sendMessage(Notifier.ERROR, "Do not execute passive talents!");
         return Response.OK;
     }
 

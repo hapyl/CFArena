@@ -1,7 +1,5 @@
 package me.hapyl.fight.registry;
 
-import me.hapyl.fight.database.key.DatabaseKeyed;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
@@ -47,28 +45,28 @@ import java.util.Set;
  * </ul>
  * Registry should call {@link #ensure(Class, Class)} to validate the basic method requirements.
  *
- * @param <T> - A registrable item, must extend {@link DatabaseKeyed}.
+ * @param <T> - A registrable item, must extend {@link Keyed}.
  */
 @SuppressWarnings("unused" /* keep generic to unsure type */)
-public abstract class AbstractStaticRegistry<T extends DatabaseKeyed> {
+public abstract class AbstractStaticRegistry<T extends Keyed> {
 
     @Nonnull
-    protected static <T extends DatabaseKeyed> List<String> keys(@Nonnull Set<T> values) {
+    protected static <T extends Keyed> List<String> keys(@Nonnull Set<T> values) {
         final List<String> keys = new ArrayList<>();
 
         for (T value : values) {
-            keys.add(value.getDatabaseKey().key());
+            keys.add(value.getKeyAsString());
         }
 
         return keys;
     }
 
     @Nonnull
-    protected static <T extends DatabaseKeyed> List<T> values(@Nonnull Set<T> values) {
+    protected static <T extends Keyed> List<T> values(@Nonnull Set<T> values) {
         return new ArrayList<>(values);
     }
 
-    protected static <D extends DatabaseKeyed, T extends AbstractStaticRegistry<?>> void ensure(@Nonnull Class<T> clazz, @Nonnull Class<D> registryClass) {
+    protected static <D extends Keyed, T extends AbstractStaticRegistry<?>> void ensure(@Nonnull Class<T> clazz, @Nonnull Class<D> registryClass) {
         validateMethod(clazz, "ofString", registryClass, String.class);
         validateMethod(clazz, "ofStringOrNull", registryClass, String.class);
         validateMethod(clazz, "values", List.class);
@@ -76,9 +74,9 @@ public abstract class AbstractStaticRegistry<T extends DatabaseKeyed> {
     }
 
     @Nullable
-    protected static <T extends DatabaseKeyed> T ofStringOrNull(@Nonnull Set<T> values, @Nonnull String string) {
+    protected static <T extends Keyed> T ofStringOrNull(@Nonnull Set<T> values, @Nonnull String string) {
         for (T value : values) {
-            if (value.getDatabaseKey().isKeyMatchesAnyCase(string)) {
+            if (value.getKey().isKeyMatchesIgnoreCase(string)) {
                 return value;
             }
         }
@@ -87,7 +85,7 @@ public abstract class AbstractStaticRegistry<T extends DatabaseKeyed> {
     }
 
     @Nonnull
-    protected static <T extends DatabaseKeyed> T ofString(@Nonnull Set<T> values, @Nonnull String string, @Nullable T defaultValue) {
+    protected static <T extends Keyed> T ofString(@Nonnull Set<T> values, @Nonnull String string, @Nullable T defaultValue) {
         final T value = ofStringOrNull(values, string);
 
         if (value != null) {

@@ -1,15 +1,15 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
 import me.hapyl.fight.game.cosmetic.crate.CrateManager;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -31,7 +31,7 @@ public class CrateCommandCommand extends SimplePlayerCommand {
             final CrateLocation closestCrate = manager.getClosest(player.getLocation());
 
             if (closestCrate == null) {
-                Notifier.error(player, "There are no crate chests nearby!");
+                Notifier.ERROR.send(player, "There are no crate chests nearby!");
                 return;
             }
 
@@ -70,27 +70,27 @@ public class CrateCommandCommand extends SimplePlayerCommand {
         switch (argument) {
             case "give" -> {
                 crates.addCrate(crate);
-                Notifier.success(player, "Gave {} {} crate.", target.getName(), crate);
+                Notifier.SUCCESS.send(player, "Gave {%s} {%s} crate.".formatted(target.getName(), crate));
             }
 
             case "remove" -> {
                 if (!crates.hasCrate(crate)) {
-                    Notifier.error(player, "{} doesn't have any crates!", target.getName());
+                    Notifier.error(player, "{%s} doesn't have any crates!".formatted(target.getName()));
                     return;
                 }
 
                 crates.removeCrate(crate);
-                Notifier.success(player, "Removed {} crate from {}.", crate, target.getName());
+                Notifier.success(player, "Removed {%s} crate from {%s}.".formatted(crate, target.getName()));
             }
 
             case "has" -> {
                 final long count = crates.getCrates(crate);
 
                 if (count > 0) {
-                    Notifier.success(player, "{} has {} {} crates.", target.getName(), count, crate);
+                    Notifier.success(player, "{%s} has {%s} {%s} crates.".formatted(target.getName(), count, crate));
                 }
                 else {
-                    Notifier.error(player, "{} doesn't have any {} crates!", target.getName(), crate);
+                    Notifier.error(player, "{%s} doesn't have any {%s} crates!".formatted(target.getName(), crate));
                 }
             }
 

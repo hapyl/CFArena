@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.Rewards;
 import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -74,10 +74,10 @@ public class RateHeroCommand extends SimplePlayerCommand {
         stats.setPlayerRating(uuid, playerRating);
 
         if (hasRated) {
-            Notifier.success(player, "Changed {} rating to {}!", hero.getName(), playerRating.getName());
+            Notifier.success(player, "Changed {%s} rating to {%s}!".formatted(hero.getName(), playerRating.getName()));
         }
         else {
-            Notifier.success(player, "Rated {} as {}!", hero.getName(), playerRating.getName());
+            Notifier.success(player, "Rated {%s} as {%s}!".formatted(hero.getName(), playerRating.getName()));
             Notifier.success(player, "Thank you for rating this hero, your feedback is appreciated!");
 
             final Reward reward = Rewards.HERO_RATING_FIRST_TIME.getReward();
@@ -113,7 +113,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
             component.setClickEvent(new ClickEvent(
                     ClickEvent.Action.RUN_COMMAND,
-                    "/ratehero %s %s".formatted(hero.getDatabaseKey().key(), rating.toInt())
+                    "/ratehero %s %s".formatted(hero.getKeyAsString(), rating.toInt())
             ));
 
             builder.append(component).append("  ");

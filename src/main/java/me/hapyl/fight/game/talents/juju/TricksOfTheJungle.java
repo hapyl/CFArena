@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.juju;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.juju.ArrowType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
@@ -20,7 +21,7 @@ public class TricksOfTheJungle extends Talent implements Listener {
     @DisplayField public final double horizontalSpread = 1.55d;
     @DisplayField public final double damage = 5.0d;
 
-    public TricksOfTheJungle(@Nonnull DatabaseKey key) {
+    public TricksOfTheJungle(@Nonnull Key key) {
         super(key,"Tricks of the Jungle");
 
         setDurationSec(8);

@@ -24,7 +24,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.CFGarbageCollector;
-import me.hapyl.fight.notifier.Notifier;
+import me.hapyl.fight.notifier.NotificationManager;
 import me.hapyl.fight.npc.HumanManager;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
 import me.hapyl.fight.protocol.*;
@@ -68,10 +68,9 @@ public class Main extends JavaPlugin {
     private BoosterController boosters;
     private Experience experience;
     private Database database;
-    private Notifier notifier;
+    private NotificationManager notificationManager;
     private CFParkourManager parkourManager;
     private RelicHunt relicHunt;
-    private AchievementRegistry achievementRegistry;
     private CrateManager crateManager;
     private RuntimeNPCManager npcManager;
     private ReloadChecker reloadChecker;
@@ -106,11 +105,10 @@ public class Main extends JavaPlugin {
 
         experience = new Experience(this);
         boosters = new BoosterController(this);
-        notifier = new Notifier(this);
+        notificationManager = new NotificationManager(this);
         parkourManager = new CFParkourManager(this);
         relicHunt = new RelicHunt(this);
         humanManager = new HumanManager(this);
-        achievementRegistry = new AchievementRegistry(this);
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
         npcManager = new RuntimeNPCManager(this);
@@ -156,9 +154,6 @@ public class Main extends JavaPlugin {
 
         // Register Commands
         new CommandRegistry(this);
-
-        // Initiate registry
-        Registries.initiate();
 
         // Instantiate anti cheat
         AntiCheat.getInstance();
@@ -263,11 +258,6 @@ public class Main extends JavaPlugin {
     }
 
     @Nonnull
-    public AchievementRegistry getAchievementRegistry() {
-        return achievementRegistry;
-    }
-
-    @Nonnull
     public CrateManager getCrateManager() {
         return crateManager;
     }
@@ -278,8 +268,8 @@ public class Main extends JavaPlugin {
     }
 
     @Nonnull
-    public Notifier getNotifier() {
-        return notifier;
+    public NotificationManager getNotifier() {
+        return notificationManager;
     }
 
     @Nonnull

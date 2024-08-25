@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.alchemist;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -26,6 +26,7 @@ import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.RandomTable;
 import org.bukkit.Material;
@@ -49,7 +50,7 @@ public class Alchemist extends Hero implements UIComponent {
     private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
     private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
 
-    public Alchemist(@Nonnull DatabaseKey key) {
+    public Alchemist(@Nonnull Key key) {
         super(key, "Alchemist");
 
         setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.SELF_SUSTAIN);

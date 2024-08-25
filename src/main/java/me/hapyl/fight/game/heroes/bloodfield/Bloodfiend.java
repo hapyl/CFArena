@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -35,6 +35,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -73,7 +74,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
     private final Map<GamePlayer, BloodfiendData> playerData = Maps.newConcurrentMap();
 
-    public Bloodfiend(@Nonnull DatabaseKey key) {
+    public Bloodfiend(@Nonnull Key key) {
         super(key, "Bloodfiend");
 
         setArchetypes(Archetype.DAMAGE);

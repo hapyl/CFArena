@@ -2,7 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import me.hapyl.eterna.module.util.IOptional;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

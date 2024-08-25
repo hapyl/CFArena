@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.healer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,7 +17,7 @@ public class ReviveTotem extends Talent {
 
     private final PlayerMap<ArmorStand> playerCatalysts;
 
-    public ReviveTotem(@Nonnull DatabaseKey key) {
+    public ReviveTotem(@Nonnull Key key) {
         super(key, "Revive Catalyst");
 
         setDescription("""

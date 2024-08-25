@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.engineer;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -17,7 +18,7 @@ public class EngineerRecall extends Talent {
 
     @DisplayField(percentage = true) private final double regainPercent = 0.5d;
 
-    public EngineerRecall(@Nonnull DatabaseKey key) {
+    public EngineerRecall(@Nonnull Key key) {
         super(key, "Recall");
 
         setDescription("""

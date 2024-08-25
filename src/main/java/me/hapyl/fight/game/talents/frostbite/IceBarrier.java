@@ -2,10 +2,11 @@ package me.hapyl.fight.game.talents.frostbite;
 
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.Direction;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ public class IceBarrier extends Talent {
     @DisplayField protected final double healingPerTick = 2.0d;
 
     public IceBarrier() {
-        super(DatabaseKey.empty(), "Ice Barrier");
+        super(Key.empty(), "Ice Barrier");
 
         setDescription("""
                 Creates an ice wall at your &etarget&7 location that melts overtime.

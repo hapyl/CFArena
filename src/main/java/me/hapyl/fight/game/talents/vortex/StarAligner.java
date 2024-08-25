@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -25,7 +26,7 @@ public class StarAligner extends InputTalent {
     @DisplayField private final int implodeDelay = 20;
     @DisplayField private final double damageHealthMultiplier = 2.0d;
 
-    public StarAligner(@Nonnull DatabaseKey key) {
+    public StarAligner(@Nonnull Key key) {
         super(key, "Astral Vision");
 
         setDescription("""

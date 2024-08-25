@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -13,6 +13,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -46,7 +47,7 @@ public class Icicles extends Talent {
             new ItemStack(Material.BLUE_ICE)
     };
 
-    public Icicles(@Nonnull DatabaseKey key) {
+    public Icicles(@Nonnull Key key) {
         super(key, "Frostfall");
 
         setDescription("""

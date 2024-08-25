@@ -1,16 +1,16 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.game.achievement.Achievement;
-import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.fight.game.achievement.Category;
-import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.game.achievement.Achievement;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
+import me.hapyl.fight.game.achievement.Category;
+import me.hapyl.fight.registry.Registries;
+import me.hapyl.fight.util.ItemStacks;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -31,7 +31,7 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
     public LegacyAchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
-        registry = Main.getPlugin().getAchievementRegistry();
+        registry = Registries.getAchievements();
 
         Notifier.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 

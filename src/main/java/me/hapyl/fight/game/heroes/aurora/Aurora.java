@@ -6,12 +6,11 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -32,6 +31,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -52,7 +52,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Listener, UIComponent, Disabled {
+public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Listener, UIComponent {
 
     private final PlayerDataMap<AuroraData> auroraDataMap = PlayerMap.newDataMap(AuroraData::new);
     private final Set<AuroraArrowData> arrowDataSet = Sets.newHashSet();
@@ -60,7 +60,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             Color.fromRGB(1, 126, 213), Color.fromRGB(141, 0, 196), 1
     );
 
-    public Aurora(@Nonnull DatabaseKey key) {
+    public Aurora(@Nonnull Key key) {
         super(key, "Aurora");
 
         setArchetypes(Archetype.SUPPORT, Archetype.HEALER);

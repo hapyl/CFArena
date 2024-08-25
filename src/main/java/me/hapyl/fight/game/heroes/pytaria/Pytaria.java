@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.pytaria;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -22,6 +22,7 @@ import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
@@ -42,7 +43,7 @@ public class Pytaria extends Hero {
     private final double critChanceScale;
     private final double defenseScale;
 
-    public Pytaria(@Nonnull DatabaseKey key) {
+    public Pytaria(@Nonnull Key key) {
         super(key, "Pytaria");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);

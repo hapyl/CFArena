@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.vampire;
 
 import me.hapyl.eterna.module.util.MapMaker;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -19,6 +19,7 @@ import me.hapyl.fight.game.talents.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -36,7 +37,7 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
 
     private final PlayerDataMap<VampireData> vampireData = PlayerMap.newDataMap(VampireData::new);
 
-    public Vampire(@Nonnull DatabaseKey key) {
+    public Vampire(@Nonnull Key key) {
         super(key, "Vorath");
 
         setDescription("""

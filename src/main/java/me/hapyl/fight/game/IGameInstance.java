@@ -1,6 +1,6 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.gamemode.CFGameMode;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.GameTeam;
 import org.bukkit.entity.Player;
@@ -82,7 +82,7 @@ public interface IGameInstance {
      * @return This instance game mode.
      */
     @Nonnull
-    CFGameMode getMode();
+    GameType getMode();
 
     /**
      * Returns true if player is winner.

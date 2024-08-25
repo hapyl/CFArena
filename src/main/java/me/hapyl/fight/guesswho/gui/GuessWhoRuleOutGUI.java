@@ -3,11 +3,11 @@ package me.hapyl.fight.guesswho.gui;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.database.entry.GuessWhoEntry;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.guesswho.GameResult;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
@@ -56,7 +56,7 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
                 data.triggerLose();
 
                 // Achievement
-                Achievements.FORFEIT_GUESS_WHO.complete(data.getPlayer());
+                Registries.getAchievements().FORFEIT_GUESS_WHO.complete(data.getPlayer());
             }, ClickType.SHIFT_RIGHT);
         }
 

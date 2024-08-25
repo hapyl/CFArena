@@ -1,10 +1,9 @@
 package me.hapyl.fight.gui.styled;
 
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.SoundEffect;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;

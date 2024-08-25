@@ -9,8 +9,8 @@ public class AuroraVehicle extends Vehicle {
     protected AuroraVehicle(@Nonnull Player passenger) {
         super(passenger);
 
-        this.maxHeight = 12d;
-        this.speed = 0.75d;
-        this.smoothness = 0.4d;
+        this.maxHeight.set(12.0d);
+        this.speed.set(0.75d);
+        this.smoothness.set(0.4d);
     }
 }

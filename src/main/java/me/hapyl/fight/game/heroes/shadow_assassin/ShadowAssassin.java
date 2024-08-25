@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.shadow_assassin;
 
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -24,6 +24,7 @@ import me.hapyl.fight.game.talents.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.shadow_assassin.ShadowAssassinClone;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
@@ -51,7 +52,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
     private final PlayerMap<ShadowAssassinData> playerData = PlayerMap.newMap();
 
-    public ShadowAssassin(@Nonnull DatabaseKey key) {
+    public ShadowAssassin(@Nonnull Key key) {
         super(key, "Shadow Assassin");
 
         setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.POWERFUL_ULTIMATE);

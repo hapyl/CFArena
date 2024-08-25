@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.heavy_knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class PerfectSequencePassive extends PassiveTalent {
-    public PerfectSequencePassive(@Nonnull DatabaseKey key) {
+    public PerfectSequencePassive(@Nonnull Key key) {
         super(key, "Perfect Sequence");
 
         setDescription("""

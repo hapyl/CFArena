@@ -3,11 +3,11 @@ package me.hapyl.fight.game.maps.features;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Direction;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.maps.LevelFeature;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -56,7 +56,7 @@ public class TurbineFeature extends LevelFeature {
 
                 // Trigger achievement
                 if (entity instanceof Player player) {
-                    Achievements.SHREDDING_TIME.complete(player);
+                    Registries.getAchievements().SHREDDING_TIME.complete(player);
                 }
             });
 

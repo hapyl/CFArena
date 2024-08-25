@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.shark;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -22,7 +23,7 @@ public class SubmergeTalent extends Talent {
             .decrease(AttributeType.HEIGHT, 1.0)
             .decrease(AttributeType.SPEED, 1.0);
 
-    public SubmergeTalent(@Nonnull DatabaseKey key) {
+    public SubmergeTalent(@Nonnull Key key) {
         super(key, "Submerge");
 
         setDescription("""

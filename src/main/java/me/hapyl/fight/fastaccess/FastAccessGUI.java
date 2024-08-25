@@ -80,6 +80,6 @@ public class FastAccessGUI extends StyledPageGUI<FastAccess> {
     }
 
     private void updateContents() {
-        setContents(filter.filter(Registries.FAST_ACCESS.values(player)));
+        setContents(filter.filter(Registries.getFastAccess().values(player)));
     }
 }

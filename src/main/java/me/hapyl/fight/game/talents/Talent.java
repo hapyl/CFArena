@@ -9,12 +9,9 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.database.key.DatabaseKey;
-import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.effect.effects.SlowingAuraEffect;
@@ -22,6 +19,9 @@ import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.stats.StatContainer;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.SingletonBehaviour;
@@ -49,9 +49,9 @@ public abstract class Talent
         implements
         ElementHandler, PlayerElementHandler, DisplayFieldProvider,
         Nameable, Timed, Cooldown,
-        DatabaseKeyed, NonNullItemCreator {
+        Keyed, NonNullItemCreator {
 
-    private final DatabaseKey key;
+    private final Key key;
     private final List<String> attributeDescription;
 
     private TalentType type;
@@ -70,7 +70,7 @@ public abstract class Talent
     private int duration;
     private boolean autoAdd;
 
-    public Talent(@Nonnull DatabaseKey key, @Nonnull String name) {
+    public Talent(@Nonnull Key key, @Nonnull String name) {
         this.key = key;
         this.name = name;
         this.description = "";
@@ -93,7 +93,7 @@ public abstract class Talent
 
     @Nonnull
     @Override
-    public final DatabaseKey getDatabaseKey() {
+    public final Key getKey() {
         return key;
     }
 
@@ -430,7 +430,7 @@ public abstract class Talent
         stats.addAbilityUsage(this);
 
         // Progress achievement
-        Achievements.USE_TALENTS.complete(player);
+        Registries.getAchievements().USE_TALENTS.complete(player);
 
         // Progress bond
         ChallengeType.USE_TALENTS.progress(player);

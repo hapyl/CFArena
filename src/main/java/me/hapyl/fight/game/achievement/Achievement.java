@@ -1,15 +1,5 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.annotate.ForceLowercase;
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.AchievementEntry;
-import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.fight.database.entry.CurrencyEntry;
-import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.registry.PatternId;
-import me.hapyl.fight.trigger.EntityTrigger;
-import me.hapyl.fight.trigger.Subscribe;
-import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.eterna.module.chat.CenterChat;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
@@ -17,55 +7,78 @@ import me.hapyl.eterna.module.chat.LazyEvent;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.annotate.ForceLowercase;
+import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.database.entry.AchievementEntry;
+import me.hapyl.fight.database.entry.Currency;
+import me.hapyl.fight.database.entry.CurrencyEntry;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
+import me.hapyl.fight.util.ChatUtils;
 import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.regex.Pattern;
+import java.util.Objects;
 
 /**
  * Base achievement class.
  */
-public class Achievement extends PatternId {
+@AutoRegisteredListener
+public class Achievement implements Keyed {
 
     private static final SimpleDateFormat COMPLETE_FORMAT = new SimpleDateFormat("MMMM d'th' yyyy, HH:mm:ss z");
     private static final String GRADIENT = new Gradient("ACHIEVEMENT COMPLETE")
             .makeBold()
             .rgb(new Color(235, 100, 52), new Color(235, 232, 52), Interpolators.QUADRATIC_SLOW_TO_FAST);
 
+    private static final int DEFAULT_POINT_REWARD = 5;
+
+    private final Key key;
     private final String name;
     private final String description;
 
     protected int maxCompleteCount;
+
     private Category category;
     private int pointReward;
+    private Hero heroSpecific;
 
-    public Achievement(@Nullable @ForceLowercase String id, @Nonnull String name, @Nonnull String description) {
-        super(Pattern.compile("^[a-z0-9_]+$"));
+    /**
+     * @see #builder(Key)
+     */
+    Achievement(@Nonnull @ForceLowercase Key key, @Nonnull String name, @Nonnull String description) {
+        this.key = key;
         this.name = name;
         this.description = description;
         this.category = Category.GAMEPLAY;
         this.maxCompleteCount = 1;
-        this.pointReward = 5;
+        this.pointReward = DEFAULT_POINT_REWARD;
 
-        if (id != null) {
-            setId(id);
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
         }
-    }
-
-    public Achievement(@Nonnull String name, @Nonnull String description) {
-        this(null, name, description);
     }
 
     public int getPointReward() {
         return pointReward;
+    }
+
+    public Achievement setPointReward(int pointReward) {
+        this.pointReward = pointReward;
+        return this;
     }
 
     @Nonnull
@@ -76,11 +89,6 @@ public class Achievement extends PatternId {
     @Nonnull
     public String formatPointReward(int points) {
         return me.hapyl.fight.game.color.Color.ROYAL_BLUE.color(points + " " + Currency.ACHIEVEMENT_POINT.getFormatted());
-    }
-
-    public Achievement setPointReward(int pointReward) {
-        this.pointReward = pointReward;
-        return this;
     }
 
     @Nonnull
@@ -164,7 +172,7 @@ public class Achievement extends PatternId {
      * @param player - Player to complete achievement for.
      * @return true if success, false if already completed.
      */
-    public final boolean complete(Player player) {
+    public final boolean complete(@Nonnull Player player) {
         final int completeCount = getCompleteCount(player);
 
         // If already completed, check if progress achievement
@@ -175,7 +183,20 @@ public class Achievement extends PatternId {
         return setCompleteCount(player, completeCount + 1);
     }
 
-    public final boolean setCompleteCount(Player player, int completeCount) {
+    public final boolean complete(@Nonnull GamePlayer player) {
+        return complete(player.getPlayer());
+    }
+
+    public final boolean complete(@Nonnull GameTeam team) {
+        team.getBukkitPlayers().forEach(this::complete);
+        return true;
+    }
+
+    public final boolean addCompleteCount(@Nonnull Player player, int completeCount) {
+        return setCompleteCount(player, getCompleteCount(player) + completeCount);
+    }
+
+    public final boolean setCompleteCount(@Nonnull Player player, int completeCount) {
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
         final AchievementEntry entry = database.achievementEntry;
 
@@ -228,8 +249,12 @@ public class Achievement extends PatternId {
      * @param player - Player to check.
      * @return true if a player has completed this achievement at least once.
      */
-    public final boolean hasCompletedAtLeastOnce(Player player) {
+    public final boolean hasCompletedAtLeastOnce(@Nonnull Player player) {
         return PlayerDatabase.getDatabase(player).achievementEntry.hasCompletedAtLeastOnce(this);
+    }
+
+    public final boolean hasCompletedAtLeastOnce(@Nonnull GamePlayer player) {
+        return hasCompletedAtLeastOnce(player.getPlayer());
     }
 
     /**
@@ -294,29 +319,6 @@ public class Achievement extends PatternId {
         return maxCompleteCount;
     }
 
-    /**
-     * Sets the trigger for this achievement.
-     * Triggers are used to trigger achievement whenever a certain action happens.
-     *
-     * @param sub     - Subscribe.
-     * @param trigger - Trigger.
-     */
-    public <T extends EntityTrigger> Achievement setTrigger(Subscribe<T> sub, AchievementTrigger<T> trigger) {
-        sub.subscribe(t -> {
-            final LivingEntity entity = t.entity.getEntity();
-
-            if (!(entity instanceof Player player) || isComplete(player)) { // don't check if already complete
-                return;
-            }
-
-            if (trigger.test(t)) {
-                complete(player);
-            }
-        });
-
-        return this;
-    }
-
     @Nonnull
     public String getCompletedAtFormatted(Player player) {
         return COMPLETE_FORMAT.format(getCompletedAt(player));
@@ -330,13 +332,96 @@ public class Achievement extends PatternId {
         builder.addLore();
         builder.addSmartLore(getDescription());
         builder.addLore();
-        builder.addLore("&b&lREWARD:" + checkmark(isComplete));
+        builder.addLore("&b&lREWARD:" + BukkitUtils.checkmark(isComplete));
         builder.addLore(getPointRewardFormatted());
     }
 
     @Nonnull
-    public String checkmark(boolean condition) {
-        return condition ? " &a✔" : " &c❌";
+    @Override
+    public final Key getKey() {
+        return key;
     }
 
+    @Nonnull
+    public static Builder builder(@Nonnull Key key) {
+        return new Builder(key);
+    }
+
+    public static class Builder implements me.hapyl.fight.util.Builder<Achievement> {
+
+        private final Key key;
+
+        private String name;
+        private String description;
+        private boolean isSecret;
+        private int pointReward;
+        private Category category;
+        private Hero hero;
+
+        private Builder(Key key) {
+            this.key = key;
+            this.name = "Unnamed achievement.";
+            this.description = "No description.";
+        }
+
+        public Builder setName(@Nonnull String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setDescription(@Nonnull String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder setSecret(boolean isSecret) {
+            this.isSecret = isSecret;
+            return this;
+        }
+
+        public Builder setPointReward(int pointReward) {
+            this.pointReward = pointReward;
+            return this;
+        }
+
+        public Builder setCategory(@Nonnull Category category) {
+            this.category = category;
+            return this;
+        }
+
+        public Builder setHeroSpecific(@Nonnull Hero hero) {
+            this.hero = hero;
+            return this;
+        }
+
+        @Nonnull
+        @Override
+        public Achievement build() {
+            final Achievement achievement = isSecret ? new HiddenAchievement(key, name, description) : new Achievement(key, name, description);
+
+            achievement.category = category;
+            achievement.pointReward = pointReward;
+            achievement.heroSpecific = hero;
+
+            return achievement;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Achievement that = (Achievement) o;
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
+    }
 }

@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.ninja;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class NinjaStylePassive extends PassiveTalent {
-    public NinjaStylePassive(@Nonnull DatabaseKey key) {
+    public NinjaStylePassive(@Nonnull Key key) {
         super(key, "Ninja Style");
 
         setDescription("""

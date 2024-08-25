@@ -5,7 +5,7 @@ import me.hapyl.fight.terminology.Term;
 import me.hapyl.fight.terminology.TermCollectionGUI;
 import me.hapyl.fight.terminology.TermGUI;
 import me.hapyl.fight.terminology.Terms;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
@@ -29,7 +29,7 @@ public class TermCommand extends CFCommand {
         final List<Term> terms = Terms.byContext(query);
 
         if (terms.isEmpty()) {
-            Notifier.error(player, "Could not find any terms matching the query '{}'!", query);
+            Notifier.ERROR.send(player, "Could not find any terms matching the query '{%s}'!".formatted(query));
         }
         else if (terms.size() == 1) {
             final Term term = terms.getFirst();

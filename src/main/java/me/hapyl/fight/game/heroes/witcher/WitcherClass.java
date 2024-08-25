@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.witcher;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -16,6 +16,7 @@ import me.hapyl.fight.game.talents.witcher.Kven;
 import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -30,7 +31,7 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
     @DisplayField private final double defenseIncrease = 2.0d;
     @DisplayField private final double damageMultiplierPerCombo = 0.1d;
 
-    public WitcherClass(@Nonnull DatabaseKey key) {
+    public WitcherClass(@Nonnull Key key) {
         super(key, "The Witcher");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);

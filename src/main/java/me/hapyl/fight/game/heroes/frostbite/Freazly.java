@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -14,6 +14,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -22,7 +23,7 @@ import javax.annotation.Nonnull;
 
 public class Freazly extends Hero {
 
-    public Freazly(@Nonnull DatabaseKey key) {
+    public Freazly(@Nonnull Key key) {
         super(key, "Frostbite");
 
         setArchetypes(Archetype.HEXBANE, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);

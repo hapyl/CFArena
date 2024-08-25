@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.orc;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class DontAngerMePassive extends PassiveTalent {
-    public DontAngerMePassive(@Nonnull DatabaseKey key) {
+    public DontAngerMePassive(@Nonnull Key key) {
         super(key, "Don't Anger Me");
 
         setDescription("""

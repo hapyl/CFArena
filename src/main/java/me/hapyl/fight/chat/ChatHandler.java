@@ -5,7 +5,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.infraction.InfractionType;
 import me.hapyl.fight.infraction.PlayerInfraction;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

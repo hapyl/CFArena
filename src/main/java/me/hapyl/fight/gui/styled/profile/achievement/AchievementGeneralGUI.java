@@ -10,6 +10,7 @@ import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +26,7 @@ public class AchievementGeneralGUI extends StyledPageGUI<Achievement> {
     public AchievementGeneralGUI(Player player) {
         super(player, "Achievements (General)", Size.FIVE);
 
-        registry = Main.getPlugin().getAchievementRegistry();
+        registry = Registries.getAchievements();
 
         final LinkedList<Achievement> achievements = registry.byCategory(Category.GAMEPLAY);
 

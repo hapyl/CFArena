@@ -10,11 +10,11 @@ import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.reward.*;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -113,7 +113,7 @@ public class Experience extends DependencyInjector<Main> {
         }
 
         // Fix achievement
-        Achievements.LEVEL_TIERED.setProgress(player, (int) playerLvl);
+        Registries.getAchievements().LEVEL_TIERED.setCompleteCount(player, (int) playerLvl);
     }
 
     @Nonnull

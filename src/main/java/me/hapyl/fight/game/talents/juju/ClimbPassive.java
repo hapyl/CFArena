@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.juju;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class ClimbPassive extends PassiveTalent {
-    public ClimbPassive(@Nonnull DatabaseKey key) {
+    public ClimbPassive(@Nonnull Key key) {
         super(key, "Climb");
 
         setDescription("""

@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.knight;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.ThrownPotion;
@@ -19,7 +20,7 @@ public class SlownessPotion extends Talent {
             .setPotionMeta(PotionEffectType.SLOWNESS, 5, 80, Color.GRAY)
             .build();
 
-    public SlownessPotion(@Nonnull DatabaseKey key) {
+    public SlownessPotion(@Nonnull Key key) {
         super(key, "Slowness Potion");
 
         setDescription("""

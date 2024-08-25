@@ -36,7 +36,7 @@ import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.parkour.Data;
@@ -124,7 +124,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Notifier.broadcastStaff("{} joined.", player.getName());
+            Notifier.broadcastStaff("{%s} joined.".formatted(player.getName()));
         }
 
         LocalTeamManager.updateAll();
@@ -168,7 +168,7 @@ public class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Notifier.broadcastStaff("{} left.", player.getName());
+            Notifier.broadcastStaff("{%s} left.".formatted(player.getName()));
         }
 
         // Save database

@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.achievement.Achievements;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -54,10 +55,11 @@ public class IceCage extends TimedGameTask implements Removable{
 
         // Achievement
         if (player.isSelfOrTeammate(entity)) {
-            Achievements.CAGE_SELF.complete(player);
+            final AchievementRegistry registry = Registries.getAchievements();
+            registry.FROSTBITE_CAGE_SELF.complete(player);
 
             if (!player.equals(entity) && entity instanceof GamePlayer playerEntity) {
-                Achievements.CAGE_SELF_OTHER.complete(playerEntity);
+                registry.FROSTBITE_CAGE_SELF_OTHER.complete(playerEntity);
             }
         }
 

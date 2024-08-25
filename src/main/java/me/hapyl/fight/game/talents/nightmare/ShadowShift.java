@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.nightmare;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.nightmare.OmenDebuff;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -27,7 +28,7 @@ public class ShadowShift extends Talent implements Listener {
     @DisplayField private final int immobilizationDuration = 20;
     @DisplayField private final int omenDuration = 60;
 
-    public ShadowShift(@Nonnull DatabaseKey key) {
+    public ShadowShift(@Nonnull Key key) {
         super(key, "Shadow Shift");
 
         setDescription("""

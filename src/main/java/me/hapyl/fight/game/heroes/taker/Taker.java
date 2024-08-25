@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.taker;
 
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -23,6 +23,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -41,7 +42,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
     private final PlayerMap<SpiritualBones> playerBones = PlayerMap.newConcurrentMap();
 
-    public Taker(@Nonnull DatabaseKey key) {
+    public Taker(@Nonnull Key key) {
         super(key, "Taker");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE);

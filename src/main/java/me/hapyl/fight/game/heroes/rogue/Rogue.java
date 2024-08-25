@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.rogue;
 
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
@@ -25,6 +25,7 @@ import me.hapyl.fight.game.talents.rogue.SecondWind;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -59,7 +60,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
             .increase(AttributeType.ATTACK, 1.32d)
             .decrease(AttributeType.COOLDOWN_MODIFIER, 0.5d);
 
-    public Rogue(@Nonnull DatabaseKey key) {
+    public Rogue(@Nonnull Key key) {
         super(key, "Rogue");
 
         setArchetypes(Archetype.DAMAGE);

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
@@ -38,7 +39,7 @@ public class SlowingAura extends DarkMageTalent {
         PlayerLib.spawnParticle(location, Particle.DUST_PLUME, 1, 0.1d, 0.1d, 0.1d, 0);
     };
 
-    public SlowingAura(@Nonnull DatabaseKey key) {
+    public SlowingAura(@Nonnull Key key) {
         super(key, "Slowing Aura", """
                 Creates a &fslowness pool&7 at your &etarget&7 block that &3slows&7, increases %s and &4interrupts&7 &cenemies&7 actions.
                 """.formatted(AttributeType.COOLDOWN_MODIFIER)

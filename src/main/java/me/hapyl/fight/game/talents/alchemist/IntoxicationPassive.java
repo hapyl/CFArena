@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.alchemist;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class IntoxicationPassive extends PassiveTalent {
-    public IntoxicationPassive(@Nonnull DatabaseKey key) {
+    public IntoxicationPassive(@Nonnull Key key) {
         super(key, "Intoxication");
 
         setDescription("""

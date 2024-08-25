@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.zealot;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -11,6 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,7 +37,7 @@ public class BrokenHeartRadiation extends Talent {
             .decrease(AttributeType.DEFENSE, defenseReduction)
             .onApply(entity -> entity.spawnParticle(entity.getLocation(), Particle.ELDER_GUARDIAN, 1, 0, 0, 0, 0));
 
-    public BrokenHeartRadiation(@Nonnull DatabaseKey key) {
+    public BrokenHeartRadiation(@Nonnull Key key) {
         super(key, "Broken Heart Radiation");
 
         setDescription("""

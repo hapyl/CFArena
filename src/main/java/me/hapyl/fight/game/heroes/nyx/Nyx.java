@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Tuple;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.AttributeTemperEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -28,6 +28,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ParticleDrawer;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -54,7 +55,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
             1
     );
 
-    public Nyx(@Nonnull DatabaseKey key) {
+    public Nyx(@Nonnull Key key) {
         super(key, "Nyx");
 
         setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE, Archetype.DEFENSE, Archetype.POWERFUL_ULTIMATE);

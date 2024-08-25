@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
@@ -16,7 +17,7 @@ public class BloodfiendPassive extends PassiveTalent {
     @DisplayField public final int flightCooldown = Tick.fromSecond(12);
     @DisplayField public final double maxFlightHeight = 6;
 
-    public BloodfiendPassive(@Nonnull DatabaseKey key) {
+    public BloodfiendPassive(@Nonnull Key key) {
         super(key, "Vampire's Bite/Spectral Form");
 
         setDescription("""

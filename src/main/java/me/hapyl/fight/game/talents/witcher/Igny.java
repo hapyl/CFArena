@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.witcher;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -27,7 +28,7 @@ public class Igny extends Talent {
     @DisplayField private final double damageFurther = 2.0d;
     @DisplayField private final int fireTicksFurther = 20;
 
-    public Igny(@Nonnull DatabaseKey key) {
+    public Igny(@Nonnull Key key) {
         super(key, "Igni");
 
         setDescription("""

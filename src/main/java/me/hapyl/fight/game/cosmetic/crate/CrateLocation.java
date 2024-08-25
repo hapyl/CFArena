@@ -12,7 +12,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStackRandomizedData;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.hologram.PlayerHologram;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -71,7 +71,7 @@ public class CrateLocation extends Location {
     }
 
     public void sendOccupiedMessage(@Nonnull Player player) {
-        Notifier.error(player, "{} already opening a crate!", occupiedBy == player ? "You are" : occupiedBy.getName() + " is");
+        Notifier.error(player, "{%s} already opening a crate!".formatted(occupiedBy == player ? "You are" : occupiedBy.getName() + " is"));
     }
 
     public boolean checkOccupiedAndSendError(@Nonnull Player player) {

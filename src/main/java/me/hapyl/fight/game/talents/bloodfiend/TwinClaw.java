@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -16,6 +15,7 @@ import me.hapyl.fight.game.profile.data.AchievementData;
 import me.hapyl.fight.game.profile.data.Type;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -102,7 +102,8 @@ public class TwinClaw extends TickingGameTask {
 
         // Achievement
         final PlayerProfile profile = player.getProfile();
-        final AchievementData data = profile.getPlayerData().getAchievementData(Achievements.THEY_ARE_TWINS_ALRIGHT);
+        final AchievementData data = profile.getPlayerData()
+                .getAchievementData(Registries.getAchievements().BLOODFIEND_THEY_ARE_TWINS_ALRIGHT);
 
         final int useTime = data.checkExpire(5000).increment(Type.USE_TIME, 1);
 

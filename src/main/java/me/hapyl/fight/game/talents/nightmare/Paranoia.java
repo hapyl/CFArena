@@ -1,13 +1,14 @@
 package me.hapyl.fight.game.talents.nightmare;
 
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 
 public class Paranoia extends Talent {
 
-    public Paranoia(@Nonnull DatabaseKey key) {
+    public Paranoia(@Nonnull Key key) {
         super(key, "Paranoia");
 
         setDescription("""

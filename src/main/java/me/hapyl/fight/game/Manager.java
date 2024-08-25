@@ -17,7 +17,6 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.command.RateHeroCommand;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.competetive.Tournament;
@@ -25,7 +24,7 @@ import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.event.ServerEvents;
-import me.hapyl.fight.game.gamemode.Modes;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.heroes.ArchetypeList;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -44,9 +43,10 @@ import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCs;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -87,7 +87,7 @@ public final class Manager extends BukkitRunnable {
     private final AutoSync autoSave;
 
     @Nonnull private EnumLevel currentMap;
-    @Nonnull private Modes currentMode;
+    @Nonnull private EnumGameType currentMode;
 
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
@@ -114,7 +114,7 @@ public final class Manager extends BukkitRunnable {
 
         // load config data
         currentMap = Main.getPlugin().getConfigEnumValue("current-map", EnumLevel.class, EnumLevel.ARENA);
-        currentMode = Main.getPlugin().getConfigEnumValue("current-mode", Modes.class, Modes.FFA);
+        currentMode = Main.getPlugin().getConfigEnumValue("current-mode", EnumGameType.class, EnumGameType.FFA);
 
         // init skin effect manager
         skinEffectManager = new SkinEffectManager(main);
@@ -219,7 +219,7 @@ public final class Manager extends BukkitRunnable {
         }
 
         final PlayerProfileData playerData = getOrCreateProfile(player).getPlayerData();
-        final AchievementData data = playerData.getAchievementData(Achievements.I_DONT_WANT_TO_PLAY);
+        final AchievementData data = playerData.getAchievementData(Registries.getAchievements().I_DONT_WANT_TO_PLAY);
 
         final int useTime = data.checkExpire(10000).increment(Type.USE_TIME, 1);
 
@@ -496,11 +496,11 @@ public final class Manager extends BukkitRunnable {
         return debugData;
     }
 
-    public Modes getCurrentMode() {
+    public EnumGameType getCurrentMode() {
         return currentMode;
     }
 
-    public void setCurrentMode(@Nonnull Modes mode) {
+    public void setCurrentMode(@Nonnull EnumGameType mode) {
         if (mode == getCurrentMode()) {
             return;
         }
@@ -764,7 +764,7 @@ public final class Manager extends BukkitRunnable {
             goldenGg.add(player);
 
             // Progress achievement
-            Achievements.PLAY_FIRST_GAME.complete(player);
+            Registries.getAchievements().PLAY_FIRST_GAME.complete(player);
 
             // Progress bonds
             ChallengeType.PLAY_GAMES.progress(player);
@@ -1032,8 +1032,11 @@ public final class Manager extends BukkitRunnable {
 
         this.fairMode = fairMode;
 
-        Notifier.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{} has set fair mode to {}!", player.getName(), fairMode.getName());
-        Notifier.broadcast(fairMode.getDescription());
+        Notifier.INFO.broadcast("&6\\uD83E\\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
+                player.getName(),
+                fairMode.getName()
+        ));
+        Notifier.INFO.broadcast(fairMode.getDescription());
     }
 
     private void playAnimation() {

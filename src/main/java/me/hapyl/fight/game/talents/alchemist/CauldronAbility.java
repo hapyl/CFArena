@@ -2,7 +2,6 @@ package me.hapyl.fight.game.talents.alchemist;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.key.DatabaseKey;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
@@ -13,6 +12,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -34,7 +34,7 @@ public class CauldronAbility extends Talent implements Listener {
             .setSmartLore("Your stick is currently brewing a potion! Click the cauldron to get it back.")
             .asIcon();
 
-    public CauldronAbility(@Nonnull DatabaseKey key) {
+    public CauldronAbility(@Nonnull Key key) {
         super(key, "Brewing Pot");
 
         setDescription("""

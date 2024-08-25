@@ -2,13 +2,13 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Filter;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -141,7 +141,7 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
             new HeroPreviewGUI(player, enumHero, page);
         }
         else {
-            Achievements.RULES_ARE_NOT_FOR_ME.complete(player);
+            Registries.getAchievements().RULES_ARE_NOT_FOR_ME.complete(player);
         }
     }
 

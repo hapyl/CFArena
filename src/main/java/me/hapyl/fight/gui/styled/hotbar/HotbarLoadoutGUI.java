@@ -15,7 +15,7 @@ import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.NoProfileException;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.CancelType;
 import me.hapyl.eterna.module.inventory.gui.EventListener;
@@ -193,7 +193,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
                 continue;
             }
 
-            Notifier.error(player, "Cannot save! Loadout is missing '{}'!", value.getName());
+            Notifier.error(player, "Cannot save! Loadout is missing '{%s}'!".formatted(value.getName()));
             PlayerLib.villagerNo(player);
             return;
         }

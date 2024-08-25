@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.librarian;
 
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +21,7 @@ public class BlackHole extends LibrarianTalent {
 
     // FIXME: 027, Mar 27, 2023 -> this works without grimoire
 
-    public BlackHole(@Nonnull DatabaseKey key) {
+    public BlackHole(@Nonnull Key key) {
         super(key, "Black Hole");
 
         addDescription(

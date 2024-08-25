@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.km;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 
 public class LaserEye extends Talent {
 
-    public LaserEye(@Nonnull DatabaseKey key) {
+    public LaserEye(@Nonnull Key key) {
         super(key, "Laser Eye");
 
         setDescription("""

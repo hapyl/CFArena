@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.shark;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
@@ -15,14 +15,16 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
+import me.hapyl.fight.game.talents.shark.SubmergeTalent;
+import me.hapyl.fight.game.talents.shark.Whirlpool;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.terminology.Terms;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -32,6 +34,8 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -48,7 +52,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     private final int heartBeatSoundEffectDuration = 40;
     private final double heartBeatHealthThreshold = 0.25d;
 
-    public Shark(@Nonnull DatabaseKey key) {
+    public Shark(@Nonnull Key key) {
         super(key, "Shark");
 
         setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
@@ -61,9 +65,11 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(116, 172, 204);
-        equipment.setLeggings(116, 172, 204);
-        equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(116, 172, 204))
+        equipment.setChestPlate(157, 175, 194, TrimPattern.RIB, TrimMaterial.QUARTZ);
+        equipment.setLeggings(157, 175, 194, TrimPattern.RIB, TrimMaterial.QUARTZ);
+
+        equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(157, 175, 194))
+                .setArmorTrim(TrimPattern.RIB, TrimMaterial.QUARTZ)
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
                 .cleanToItemSack());
 
@@ -154,12 +160,12 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public SubmergeTalent getFirstTalent() {
         return TalentRegistry.SUBMERGE;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public Whirlpool getSecondTalent() {
         return TalentRegistry.WHIRLPOOL;
     }
 

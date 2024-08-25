@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.techie;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -25,6 +25,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -54,7 +55,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
             .decrease(AttributeType.SPEED, 0.1) // 50%
             .decrease(AttributeType.ATTACK_SPEED, 0.5);
 
-    public Techie(@Nonnull DatabaseKey key) {
+    public Techie(@Nonnull Key key) {
         super(key, "Cryptshade");
 
         setArchetypes(Archetype.HEXBANE);

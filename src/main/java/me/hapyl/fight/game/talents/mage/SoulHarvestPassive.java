@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.mage;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class SoulHarvestPassive extends PassiveTalent {
-    public SoulHarvestPassive(@Nonnull DatabaseKey key) {
+    public SoulHarvestPassive(@Nonnull Key key) {
         super(key, "Soul Harvest");
 
         setDescription("""

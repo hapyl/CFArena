@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.vampire;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
@@ -24,7 +25,7 @@ public class VampirePet extends Talent {
     private final LinkedKeyValMap<GamePlayer, Bat> pets;
     private final int ATTACK_PERIOD = 30;
 
-    public VampirePet(@Nonnull DatabaseKey key) {
+    public VampirePet(@Nonnull Key key) {
         super(key, "Dracula Jr.");
 
         setDescription("""

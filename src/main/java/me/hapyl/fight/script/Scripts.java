@@ -1,7 +1,7 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.registry.EnumId;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.script.scripts.WineryLiftScript;
 
 import javax.annotation.Nonnull;
@@ -17,7 +17,7 @@ public final class Scripts {
 
     public static final Script WINERY_LIFT;
 
-    private static final Map<String, Script> values;
+    private static final Map<Key, Script> values;
 
     static {
         values = Maps.newHashMap();
@@ -26,25 +26,30 @@ public final class Scripts {
     }
 
     @Nullable
-    public static Script byId(@Nonnull String id) {
-        return values.get(EnumId.formatString(id));
+    public static Script byId(@Nonnull String string) {
+        final Key key = Key.ofStringOrNull(string);
+
+        return key != null ? values.get(key) : null;
     }
 
     @Nonnull
     public static Script register(@Nonnull Script script) {
-        final String id = script.getStringId();
+        final Key key = script.getKey();
 
-        if (values.containsKey(id)) {
-            throw new IllegalArgumentException("Script with id '%s' is already registered!".formatted(id));
+        if (values.containsKey(key)) {
+            throw new IllegalArgumentException("Script with id '%s' is already registered!".formatted(key));
         }
 
-        values.put(id, script);
+        values.put(key, script);
         return script;
     }
 
     @Nonnull
-    public static Script register(@Nonnull String id, @Nonnull Function<String, Script> fn) {
-        return register(fn.apply(EnumId.formatString(id)));
+    public static Script register(@Nonnull String id, @Nonnull Function<Key, Script> fn) {
+        final Key enumKey = Key.ofString(id);
+        final Script script = fn.apply(enumKey);
+
+        return register(script);
     }
 
 }

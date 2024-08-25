@@ -10,7 +10,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

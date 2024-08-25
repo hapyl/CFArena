@@ -13,6 +13,7 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.Notifier;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -281,8 +282,8 @@ public class GameEntity {
         entity.sendRichMessage(message);
     }
 
-    public void sendMessage(@Nonnull MessageType messageType, @Nonnull String message) {
-        asPlayer(player -> messageType.send(player, message));
+    public void sendMessage(@Nonnull Notifier.Channel sender, @Nonnull String message) {
+        asPlayer(player -> sender.send(player, message));
     }
 
     public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {

@@ -12,8 +12,6 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.database.key.DatabaseKey;
-import me.hapyl.fight.database.key.DatabaseKeyed;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Event;
@@ -34,6 +32,8 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.Catchers;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.NullSafeList;
@@ -67,10 +67,10 @@ public abstract class Hero
         extends
         SingletonBehaviour
         implements
-        DatabaseKeyed, ElementHandler, PlayerElementHandler,
+        Keyed, ElementHandler, PlayerElementHandler,
         Rankable, DisplayFieldProvider, Formatted {
 
-    private final DatabaseKey key;
+    private final Key key;
     private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
     private final Equipment equipment;
@@ -96,7 +96,7 @@ public abstract class Hero
     private String guiTextureUrl = "";
 
     @Super
-    public Hero(@Nonnull DatabaseKey key, @Nonnull String name) {
+    public Hero(@Nonnull Key key, @Nonnull String name) {
         this.key = key;
         this.name = name;
         this.stats = new HeroStatsCollection(key);
@@ -139,7 +139,7 @@ public abstract class Hero
 
     @Nonnull
     @Override
-    public final DatabaseKey getDatabaseKey() {
+    public final Key getKey() {
         return key;
     }
 

@@ -3,7 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 

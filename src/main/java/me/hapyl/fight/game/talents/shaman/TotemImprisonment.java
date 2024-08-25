@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.shaman;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -18,7 +19,7 @@ public class TotemImprisonment extends Talent {
     @DisplayField protected final short height = 3;
     @DisplayField protected final int buildingSpeed = 2;
 
-    public TotemImprisonment(@Nonnull DatabaseKey key) {
+    public TotemImprisonment(@Nonnull Key key) {
         super(key, "Imprisonment");
 
         setDescription("""

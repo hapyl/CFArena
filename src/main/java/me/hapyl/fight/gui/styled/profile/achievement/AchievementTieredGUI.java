@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui.styled.profile.achievement;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
@@ -13,6 +14,7 @@ import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -32,13 +34,13 @@ public class AchievementTieredGUI extends StyledGUI {
     public AchievementTieredGUI(Player player) {
         super(player, "Achievements (Tiered)", Size.FIVE);
 
-        final AchievementRegistry registry = Main.getPlugin().getAchievementRegistry();
+        final AchievementRegistry registry = Registries.getAchievements();
         page = 1;
 
         achievements = Lists.newLinkedList();
         registry.byCategory(Category.TIERED).forEach(achievement -> {
             if (!(achievement instanceof TieredAchievement tieredAchievement)) {
-                throw new IllegalArgumentException("%s is not a tiered achievement but assigned as such!".formatted(achievement.getId()));
+                throw new IllegalArgumentException("%s is not a tiered achievement but assigned as such!".formatted(achievement.getKey()));
             }
 
             achievements.add(tieredAchievement);
@@ -101,7 +103,7 @@ public class AchievementTieredGUI extends StyledGUI {
                 builder.addLore();
                 builder.addSmartLore(BFormat.format(achievement.getDescription(), "&f" + numericTier + "&7"));
                 builder.addLore();
-                builder.addLore("&b&lTIER REWARD:" + achievement.checkmark(isTierComplete));
+                builder.addLore("&b&lTIER REWARD:" + BukkitUtils.checkmark(isTierComplete));
                 builder.addLore(achievement.formatPointReward(tier.getReward()));
                 builder.addLore();
 

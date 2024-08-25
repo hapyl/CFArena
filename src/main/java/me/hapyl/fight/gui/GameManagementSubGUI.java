@@ -21,10 +21,6 @@ public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> exten
 
     private final List<T> values;
 
-    public GameManagementSubGUI(Player player, String name, Size size, T[] values) {
-        this(player, name, size, List.of(values));
-    }
-
     public GameManagementSubGUI(Player player, String name, Size size, List<T> values) {
         super(player, name, size);
         this.values = values;

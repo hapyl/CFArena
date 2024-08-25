@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +33,7 @@ public class TrapCage extends ChargedTalent implements Listener {
 
     private final Map<Player, Set<CyberCage>> cageMap = new HashMap<>();
 
-    public TrapCage(@Nonnull DatabaseKey key) {
+    public TrapCage(@Nonnull Key key) {
         super(key, "CYber Cage", 3);
 
         setDescription("""

@@ -14,8 +14,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.BuffDisplay;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import me.hapyl.fight.trigger.Triggers;
-import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -173,7 +171,6 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
      */
     @Super
     public Tuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
-        final double oldBaseValue = get(type);
         final double original = super.get(type);
         final double newValue = original + value;
 
@@ -183,10 +180,6 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
         }
 
         mapped.put(type, newValue);
-
-        // Call trigger
-        final double newBaseValue = get(type);
-        Triggers.call(new AttributeChangeTrigger(entity, type, oldBaseValue, newBaseValue));
 
         // Call update
         triggerUpdate(type);

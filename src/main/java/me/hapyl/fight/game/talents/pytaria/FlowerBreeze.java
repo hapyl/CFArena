@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.pytaria;
 
-import me.hapyl.fight.database.key.DatabaseKey;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Location;
@@ -45,7 +46,7 @@ public class FlowerBreeze extends Talent {
                     .increase(AttributeType.ATTACK, attackIncrease)
                     .increase(AttributeType.DEFENSE, defenseIncrease);
 
-    public FlowerBreeze(@Nonnull DatabaseKey key) {
+    public FlowerBreeze(@Nonnull Key key) {
         super(key, "Flower Breeze");
 
         setDescription("""

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.ux.Notifier;
+import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
