@@ -13,6 +13,8 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.moon.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.KeyedEnum;
 import me.hapyl.fight.util.handle.EnumHandleFunction;
 import me.hapyl.fight.Notifier;
 import org.bukkit.Location;
@@ -24,7 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum EnumLevel implements Selectable {
+public enum EnumLevel implements Selectable, KeyedEnum {
 
     // april fools maps (replaces spawn and arena with classic maps)
     SPAWN_APRIL_FOOLS(handle -> new NonPlayableLevel(
@@ -210,10 +212,6 @@ public enum EnumLevel implements Selectable {
 
     EnumLevel(@Nonnull EnumHandleFunction<EnumLevel, Level> function) {
         this.level = function.apply(this);
-    }
-
-    EnumLevel(Level level) {
-        this.level = level;
     }
 
     public boolean isPlayable() {

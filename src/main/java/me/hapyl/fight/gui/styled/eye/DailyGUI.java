@@ -1,5 +1,6 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.util.TimeFormat;
 import me.hapyl.fight.game.challenge.Challenge;
 import me.hapyl.fight.game.challenge.ChallengeRarity;
 import me.hapyl.fight.game.challenge.PlayerChallenge;
@@ -7,12 +8,11 @@ import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.RewardDisplay;
+import me.hapyl.fight.game.reward.RewardDescription;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.util.TimeFormat;
 import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -21,6 +21,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
 
 public class DailyGUI extends StyledGUI {
 
@@ -73,7 +74,7 @@ public class DailyGUI extends StyledGUI {
                     .addLore();
 
             final Reward reward = rarity.getReward();
-            final RewardDisplay display = reward.getDisplay(player);
+            final RewardDescription display = reward.getDescription(player);
             final int rewardsSlot = slot + 9;
 
             display.forEach(builder::addLore);
@@ -111,10 +112,12 @@ public class DailyGUI extends StyledGUI {
 
                         reward.grant(player);
 
-                        Notifier.success(player, "Claimed bond rewards:");
-                        display.sendMessage(player);
+                        final RewardDescription description = reward.getDescription(player);
 
-                        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
+                        Notifier.success(player, "Claimed bond rewards:");
+                        description.forEach(player, Notifier::info);
+
+                        Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
 
                         update();
                     });
@@ -132,7 +135,7 @@ public class DailyGUI extends StyledGUI {
                 .addLore()
                 .addTextBlockLore("""
                         &7&o;;Not happy with today's bonds?
-                                                        
+                        
                         &7&o;;Well, for a small price, we can always change them!
                         """)
                 .addLore();

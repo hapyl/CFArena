@@ -13,15 +13,11 @@ public class ArchetypeList implements Iterable<Archetype>, SequencedCollectionWr
 
     ArchetypeList(Hero hero) {
         this.hero = hero;
-        this.archetypes = Lists.newArrayList();
+        this.archetypes = Lists.newArrayList(Archetype.NOT_SET);
     }
 
-    public ArchetypeList add(@Nonnull Archetype archetype) {
-        this.archetypes.add(archetype);
-        return this;
-    }
-
-    public ArchetypeList addAll(@Nonnull Archetype... archetypes) {
+    public ArchetypeList set(@Nonnull Archetype... archetypes) {
+        this.archetypes.clear();
         this.archetypes.addAll(Arrays.asList(archetypes));
         return this;
     }

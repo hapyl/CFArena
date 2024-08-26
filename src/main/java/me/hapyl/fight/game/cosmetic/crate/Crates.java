@@ -173,7 +173,7 @@ public enum Crates implements WeightedDrop, EnumWrapper<Crate>, Product<Long> {
 
     @Nonnull
     public static Crates randomCrate() {
-        return WEIGHTED.getOrDefault(Crates.COMMON);
+        return WEIGHTED.getRandomElementOrDefault(Crates.COMMON);
     }
 
     public static void grant(@Nonnull GamePlayer player, @Nullable Crates crate) {

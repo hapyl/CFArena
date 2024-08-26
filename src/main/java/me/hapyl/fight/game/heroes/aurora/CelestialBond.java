@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.aurora;
 
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -9,6 +10,7 @@ import me.hapyl.fight.game.loadout.HotbarSlots;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
@@ -67,6 +69,16 @@ public class CelestialBond extends TickingGameTask {
 
         final Location location = player.getLocation();
         final int aliveTicks = player.ticker.aliveTicks.getTick();
+
+        // Don't allow being too far away
+        final Location entityLocation = entity.getLocation();
+        final double distance = location.distanceSquared(entityLocation);
+
+        if (distance >= ultimate.maxStayDistance) {
+            final Vector pushVector = entityLocation.toVector().subtract(location.toVector()).normalize();
+
+            vehicle.move(pushVector);
+        }
 
         if (aliveTicks % player.random.nextInt(15, 30) == 0) {
             player.playWorldSound(location, Sound.ENTITY_ALLAY_AMBIENT_WITH_ITEM, player.random.nextFloat(0.75f, 1.25f));

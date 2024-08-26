@@ -1,6 +1,8 @@
 package me.hapyl.fight.vehicle;
 
 import me.hapyl.fight.util.ImmutableList;
+import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 

@@ -1,26 +1,29 @@
 package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class CurrencyReward extends Reward implements OneTimeReward {
+public class CurrencyReward extends SimpleReward {
 
     private final Map<CurrencyType, Long> currencyMap;
 
-    public CurrencyReward() {
+    protected CurrencyReward(@Nonnull String name) {
+        super(name);
+
         this.currencyMap = Maps.newHashMap();
+    }
+
+    public long get(@Nonnull CurrencyType currency) {
+        return currencyMap.getOrDefault(currency, 0L);
     }
 
     public CurrencyReward with(@Nonnull CurrencyType currency, long value) {
         currencyMap.put(currency, value);
         return this;
-    }
-
-    public long get(@Nonnull CurrencyType currency) {
-        return currencyMap.getOrDefault(currency, 0L);
     }
 
     public CurrencyReward withCoins(long coins) {
@@ -49,8 +52,8 @@ public class CurrencyReward extends Reward implements OneTimeReward {
 
     @Nonnull
     @Override
-    public RewardDisplay getDisplay(@Nonnull Player player) {
-        final RewardDisplay display = RewardDisplay.of();
+    public RewardDescription getDescription(@Nonnull Player player) {
+        final RewardDescription display = new RewardDescription();
 
         for (CurrencyType currency : CurrencyType.values()) {
             final long value = get(currency);
@@ -75,8 +78,4 @@ public class CurrencyReward extends Reward implements OneTimeReward {
         }));
     }
 
-    @Nonnull
-    public static CurrencyReward create() {
-        return new CurrencyReward();
-    }
 }

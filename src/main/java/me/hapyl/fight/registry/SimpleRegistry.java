@@ -4,10 +4,18 @@ import com.google.common.collect.Maps;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A simple {@link Map} based registry.
+ * <br>
+ * This registry does not permit duplicate registration.
+ *
+ * @param <T> - Item type.
+ */
 public class SimpleRegistry<T extends Keyed> implements Registry<T> {
 
     protected final Map<Key, T> registered;
@@ -23,14 +31,15 @@ public class SimpleRegistry<T extends Keyed> implements Registry<T> {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public T register(@Nonnull T t) {
         final Key key = t.getKey();
-        final T previousValue = registered.put(key, t);
 
-        if (previousValue != null) {
-            throw new IllegalArgumentException("Duplicate registration of " + key + "!");
+        if (registered.containsKey(key)) {
+            throw new IllegalArgumentException("Duplicate registration of '%s'!".formatted(key));
         }
 
+        registered.put(key, t);
         return t;
     }
 

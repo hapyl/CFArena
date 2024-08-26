@@ -12,6 +12,8 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.KeyedEnum;
 import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.SmallCapsDescriber;
@@ -32,7 +34,7 @@ import java.util.TreeMap;
  * The players are limited to {@link #maxPlayers}, but the entities are unlimited.
  * The entities will also be cleared upon {@link #onStop()}
  */
-public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifecycle {
+public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifecycle, KeyedEnum {
 
     RED(ChatColor.RED, Material.RED_BANNER),
     GREEN(ChatColor.GREEN, Material.GREEN_BANNER),
@@ -72,6 +74,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
     }
 
     public final TeamData data;
+
     private final ChatColor color;
     private final Material material;
     private final int maxPlayers;
@@ -80,6 +83,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
     private final String flag;
     private final String smallCaps;
     private final org.bukkit.Color bukkitColor;
+
     private int playerCount;
 
     GameTeam(ChatColor color, Material material) {

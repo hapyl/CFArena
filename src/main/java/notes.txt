@@ -1,5 +1,14 @@
 ###############################
 
+- [x] Aurora is AFK while using the ultimate
+- [x] Aurora add max distance
+
+- Vampire changes
+- [x] Overcharge percent is wrong
+- [x] Totem Prison breaks blocks
+
+###############################
+
 [x] Nyx droplet particles are wrong
 [???] Text display keeps shadow?
 [?] Droplets aren't removed

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-// TODO (Sun, Aug 25 2024 @xanyjl): Make this an actual registry dumbass
 public class AchievementRegistry extends SimpleRegistry<Achievement> {
 
     /////////////////////////////////
@@ -167,7 +166,7 @@ public class AchievementRegistry extends SimpleRegistry<Achievement> {
                 "Use gadgets {} times.",
                 100, 500, 1_000, 1_500, 2_000
         );
-        GAIN_COINS = tiered("use_gadgets",
+        GAIN_COINS = tiered("gain_coins",
                 "Oh, the Riches!",
                 "Obtain {} coins.",
                 1_000, 10_000, 100_000, 500_000, 1_000_000

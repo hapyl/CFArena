@@ -58,7 +58,7 @@ public class EyeGUI extends StyledGUI {
 
             builder.addLore(canClaim ? "Today's Rewards:" : "Tomorrow's Rewards:");
 
-            reward.formatBuilder(player, builder);
+            reward.getDescription(player).forEach(builder::addLore);
 
             // Streak
             final int streak = rewardEntry.getStreak(type);

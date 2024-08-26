@@ -8,6 +8,7 @@ import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ForceLowercase;
@@ -21,6 +22,15 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.ChatUtils;
+import me.hapyl.fight.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEventSource;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -140,30 +150,31 @@ public class Achievement implements Keyed {
         Chat.sendMessage(player, "");
         Chat.sendCenterMessage(player, GRADIENT);
 
-        CenterChat.sendCenteredClickableMessage(
-                player,
-                ChatColor.GOLD + getName(),
-                getShowTextHoverEvent(),
-                LazyEvent.runCommand("/viewachievementgui")
+        player.sendMessage(
+                Component.text(CenterChat.makeString(getName()), NamedTextColor.GOLD)
+                        .hoverEvent(ComponentUtils.showText(
+                                Component.text(getName(), NamedTextColor.GOLD),
+                                Component.text(getType(), NamedTextColor.DARK_GRAY),
+                                null,
+                                Component.text(getDescription(), NamedTextColor.GRAY, TextDecoration.ITALIC),
+                                null,
+                                Component.text("Reward", NamedTextColor.GRAY),
+                                Component.text(
+                                        "%s %s %s".formatted(
+                                                pointReward,
+                                                Currency.ACHIEVEMENT_POINT.getPrefix(),
+                                                Currency.ACHIEVEMENT_POINT.getName()
+                                        ),
+                                        me.hapyl.fight.game.color.Color.ROYAL_BLUE
+                                )
+                        ))
+                        .clickEvent(ClickEvent.runCommand("/viewachievementgui"))
         );
 
         Chat.sendMessage(player, "");
 
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.25f);
         PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.75f);
-    }
-
-    @Nonnull
-    public HoverEvent getShowTextHoverEvent() {
-        return ChatUtils.showText(
-                ChatColor.GOLD + getName(),
-                ChatColor.DARK_GRAY + getType(),
-                "",
-                getDescription(),
-                "",
-                "Reward:",
-                getPointRewardFormatted()
-        );
     }
 
     /**
@@ -342,26 +353,42 @@ public class Achievement implements Keyed {
         return key;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Achievement that = (Achievement) o;
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
+    }
+
     @Nonnull
     public static Builder builder(@Nonnull Key key) {
         return new Builder(key);
     }
 
-    public static class Builder implements me.hapyl.fight.util.Builder<Achievement> {
+    public static final class Builder implements me.hapyl.fight.util.Builder<Achievement> {
 
         private final Key key;
 
-        private String name;
-        private String description;
-        private boolean isSecret;
-        private int pointReward;
-        private Category category;
-        private Hero hero;
+        private String name = null;
+        private String description = null;
+        private boolean isSecret = false;
+        private int pointReward = Achievement.DEFAULT_POINT_REWARD;
+        private Category category = Category.GAMEPLAY;
+        private Hero hero = null;
 
         private Builder(Key key) {
             this.key = key;
-            this.name = "Unnamed achievement.";
-            this.description = "No description.";
         }
 
         public Builder setName(@Nonnull String name) {
@@ -397,7 +424,14 @@ public class Achievement implements Keyed {
         @Nonnull
         @Override
         public Achievement build() {
-            final Achievement achievement = isSecret ? new HiddenAchievement(key, name, description) : new Achievement(key, name, description);
+            Validate.notNull(name, "Name must be set!");
+            Validate.notNull(description, "Description must be set!");
+
+            final Achievement achievement = isSecret ? new HiddenAchievement(key, name, description) : new Achievement(
+                    key,
+                    name,
+                    description
+            );
 
             achievement.category = category;
             achievement.pointReward = pointReward;
@@ -405,23 +439,5 @@ public class Achievement implements Keyed {
 
             return achievement;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final Achievement that = (Achievement) o;
-        return Objects.equals(key, that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(key);
     }
 }

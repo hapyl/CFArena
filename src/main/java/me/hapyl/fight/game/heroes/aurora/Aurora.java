@@ -438,6 +438,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         @DisplayField public final double healing = 0.5d;
         @DisplayField public final int cooldown = Tick.fromSecond(25);
+        @DisplayField public final double maxStayDistance = 250;
 
         @DisplayField private final String duration = "Infinite";
 

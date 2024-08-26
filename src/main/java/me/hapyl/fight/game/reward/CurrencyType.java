@@ -7,6 +7,9 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This cannot be {@link Currency} because exp is not a currency.
+ */
 public enum CurrencyType {
 
     COINS(Currency.COINS),

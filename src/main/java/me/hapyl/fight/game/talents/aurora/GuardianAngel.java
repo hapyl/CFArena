@@ -14,7 +14,7 @@ public class GuardianAngel extends PassiveTalent {
     @DisplayField(suffix = "blocks") public final double maxDistance = 50d;
     @DisplayField public final double healingRadius = 3d;
     @DisplayField public final double healing = 5.0d;
-    @DisplayField public final double lookupRadius = 1.3d;
+    @DisplayField public final double lookupRadius = 2.0d;
 
     @DisplayField public final int teleportDelay = 10;
 

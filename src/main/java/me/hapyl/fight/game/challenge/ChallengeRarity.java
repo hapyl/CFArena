@@ -1,21 +1,22 @@
 package me.hapyl.fight.game.challenge;
 
 import me.hapyl.fight.game.reward.CurrencyReward;
+import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 
 public enum ChallengeRarity implements Described {
 
-    COMMON("Common", new CurrencyReward()
+    COMMON("Common", Reward.currency("Common Challenge")
             .withCoins(1000)
             .withExp(1000)
     ),
-    UNCOMMON("Uncommon", new CurrencyReward()
+    UNCOMMON("Uncommon", Reward.currency("Uncommon Challenge")
             .withCoins(1500)
             .withExp(1500)
     ),
-    RARE("Rare", new CurrencyReward()
+    RARE("Rare", Reward.currency("Rare Challenge")
             .withCoins(2500)
             .withExp(2500)
             .withRubies(1)

@@ -1,11 +1,10 @@
 package me.hapyl.fight.registry;
 
-import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.annotate.ForceLowercase;
-import org.checkerframework.checker.units.qual.K;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -21,11 +20,9 @@ public final class Key {
 
     private final String key;
 
-    private Key(@Nonnull @ForceLowercase String key) {
-        final String lowerCase = key.toLowerCase();
-
-        if (!PATTERN.matcher(lowerCase).matches()) {
-            throw new IllegalArgumentException("Key %s does not match the pattern: %s!".formatted(lowerCase, PATTERN.pattern()));
+    private Key(@Nonnull String key) {
+        if (!PATTERN.matcher(key).matches()) {
+            throw new IllegalArgumentException("Key %s does not match the pattern: %s!".formatted(key, PATTERN.pattern()));
         }
 
         this.key = key;
@@ -54,6 +51,15 @@ public final class Key {
     }
 
     /**
+     * Returns true if this key is empty.
+     *
+     * @return true if this key is empty.
+     */
+    public boolean isEmpty() {
+        return this.equals(EMPTY);
+    }
+
+    /**
      * Returns true if the given {@link String} matches the {@link Key} exactly.
      *
      * @param string - String to check.
@@ -71,6 +77,25 @@ public final class Key {
      */
     public boolean isKeyMatchesIgnoreCase(@Nonnull String string) {
         return key.equalsIgnoreCase(string);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        final Key that = (Key) object;
+        return Objects.equals(key, that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
     }
 
     /**
@@ -116,5 +141,4 @@ public final class Key {
 
         return EMPTY;
     }
-
 }

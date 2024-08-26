@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.BFormat;
 import me.hapyl.eterna.module.util.Validate;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
  * A custom color formatting.
  * Allows creating and using #hex colors.
  */
-public class Color {
+public class Color implements TextColor {
 
     // *=* Bukkit Colors *=*
 
@@ -116,6 +117,8 @@ public class Color {
     /// - hapyl, signing off
     public final org.bukkit.ChatColor bukkitChatColor;
     public final org.bukkit.Color bukkitColor;
+    public final int value;
+
     private ColorFlag[] flags;
 
     public Color(int red, int green, int blue) {
@@ -149,16 +152,10 @@ public class Color {
 
         this.color = validateColor(color);
         this.bukkitChatColor = backingColor;
+        this.value = valueFromColor(color);
 
         final java.awt.Color javaColor = color.getColor();
         this.bukkitColor = org.bukkit.Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue());
-    }
-
-    private Color(Color color) {
-        this.color = color.color;
-        this.flags = color.flags;
-        this.bukkitColor = color.bukkitColor;
-        this.bukkitChatColor = color.bukkitChatColor;
     }
 
     /**
@@ -315,6 +312,11 @@ public class Color {
         return this.bold() + string + this;
     }
 
+    @Override
+    public final int value() {
+        return value;
+    }
+
     /**
      * Parses a {@link ChatColor} from hex.
      *
@@ -351,6 +353,12 @@ public class Color {
         }
 
         return color;
+    }
+
+    private static int valueFromColor(ChatColor color) {
+        final java.awt.Color javaColor = color.getColor();
+
+        return (javaColor.getRed() << 16) | (javaColor.getGreen() << 8) | javaColor.getBlue();
     }
 
     @Nonnull

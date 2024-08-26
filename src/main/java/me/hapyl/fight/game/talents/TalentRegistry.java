@@ -15,6 +15,7 @@ import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.healer.Healer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.hercules.Hercules;
+import me.hapyl.fight.game.heroes.jester.Jester;
 import me.hapyl.fight.game.heroes.juju.JuJu;
 import me.hapyl.fight.game.heroes.km.KillingMachine;
 import me.hapyl.fight.game.heroes.knight.BlastKnight;
@@ -86,6 +87,8 @@ import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.hercules.PlungePassive;
+import me.hapyl.fight.game.talents.jester.MusicBox;
+import me.hapyl.fight.game.talents.jester.TakeACaveToTheFace;
 import me.hapyl.fight.game.talents.juju.*;
 import me.hapyl.fight.game.talents.km.LaserEye;
 import me.hapyl.fight.game.talents.knight.*;
@@ -473,6 +476,11 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      */
     public static final EchoTalent ECHO;
 
+    /**
+     * {@link Jester}
+     */
+    public static final MusicBox MUSIC_BOX;
+    public static final TakeACaveToTheFace TAKE_A_CAKE_TO_THE_FACE;
 
     /*/ don't put anything below here /*/
     private static final Set<Talent> values;
@@ -672,6 +680,9 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         NYX_PASSIVE = register("nyx_passive", NyxPassive::new);
 
         ECHO = register("echo", EchoTalent::new);
+
+        MUSIC_BOX = register("music_box", MusicBox::new);
+        TAKE_A_CAKE_TO_THE_FACE = register("take_a_cake_to_the_face", TakeACaveToTheFace::new);
     }
 
     @Nonnull

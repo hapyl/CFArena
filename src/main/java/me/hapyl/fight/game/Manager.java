@@ -1032,7 +1032,7 @@ public final class Manager extends BukkitRunnable {
 
         this.fairMode = fairMode;
 
-        Notifier.INFO.broadcast("&6\\uD83E\\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
+        Notifier.INFO.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
                 player.getName(),
                 fairMode.getName()
         ));

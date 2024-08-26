@@ -7,6 +7,7 @@ import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreferredReturnValue;
+import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -21,6 +22,10 @@ import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;
 import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -35,10 +40,13 @@ import java.util.function.Consumer;
 public abstract class UltimateTalent extends Talent implements DisplayFieldDataProvider {
 
     protected final int cost;
+
     private final List<DisplayFieldData> dataFields;
+
     private Sound sound;
     private float pitch;
     private int castDuration;
+    private boolean isSilent;
 
     public UltimateTalent(@Nonnull Hero hero, @Nonnull String name, int pointCost) {
         super(Key.ofString(hero.getKeyAsString() + "_ultimate"), name);
@@ -47,6 +55,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         this.sound = Sound.ENTITY_ENDER_DRAGON_GROWL;
         this.pitch = 2.0f;
         this.dataFields = Lists.newArrayList();
+        this.isSilent = false;
 
         setDuration(0);
     }
@@ -59,6 +68,14 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     @Nonnull
     @PreferredReturnValue("UltimateCallback#OK")
     public abstract UltimateResponse useUltimate(@Nonnull GamePlayer player);
+
+    public void setSilent(boolean silent) {
+        isSilent = silent;
+    }
+
+    public boolean isSilent() {
+        return isSilent;
+    }
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
@@ -133,12 +150,44 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
         Registries.getAchievements().USE_ULTIMATES.complete(player);
 
         // Notify
-        CF.getPlayers().forEach(other -> {
-            other.sendMessage("&b&l※ &b%s used &3&l%s&b!".formatted((player.equals(other) ? "You" : player.getName()), getName()));
-            other.playSound(sound, pitch);
+        CF.getPlayers().forEach(new Consumer<>() {
+            @Override
+            public void accept(GamePlayer other) {
+                final String youOrPlayerName = player.equals(other) ? "You" : player.getName();
+
+                if (isSilent) {
+                    // Only show the message for teammates and the player who used the ultimate for silent ultimates
+                    if (player.isSelfOrTeammate(other)) {
+                        other.sendMessage("&b&oShhh... &7※ &7%s used &8&l%s&7!".formatted(
+                                youOrPlayerName,
+                                UltimateTalent.this.getName()
+                        ));
+                        other.playSound(sound, pitch);
+                    }
+                }
+                else {
+                    other.sendMessage("&b※ &b%s used &3&l%s&b!".formatted(
+                            youOrPlayerName,
+                            UltimateTalent.this.getName()
+                    ));
+                    other.playSound(sound, pitch);
+                }
+            }
+
+            private Component formatUltimateMessage(GamePlayer other) {
+                final TextColor colorPrimary = isSilent ? NamedTextColor.GRAY : NamedTextColor.AQUA;
+                final TextColor colorSecondary = isSilent ? NamedTextColor.DARK_GRAY : NamedTextColor.DARK_AQUA;
+
+                return Component.text().append(
+                        Component.text(" ", colorPrimary, TextDecoration.BOLD),
+                        Component.text(player.equals(other) ? "You" : player.getName(), colorSecondary),
+                        Component.text(" used ", colorPrimary),
+                        Component.text(UltimateTalent.this.getName() + "!", colorSecondary, TextDecoration.BOLD)
+                ).build();
+            }
         });
 
-        return null;
+        return Response.OK;
     }
 
     @Override
@@ -254,7 +303,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
     @Nonnull
     @Override
     public String getTalentClassType() {
-        return "Ultimate";
+        return isSilent ? "Silent Ultimate" : "Ultimate";
     }
 
     public boolean canUseUltimate(@Nonnull GamePlayer player) {

@@ -564,14 +564,16 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public String getUltimateString(@Nonnull UltimateColor color) {
         final UltimateTalent ultimate = getUltimate();
-        final double energyPercent = energy / ultimate.getMinCost();
+        final int minCost = ultimate.getMinCost();
+        final double energyPercent = energy / minCost;
         final String pointsString = "&b&l%.0f%%".formatted(energyPercent * 100);
 
         // If currently using ultimate, show IN USE and duration left
         if (isUsingUltimate()) {
             final long durationLeft = getHero().getUltimateDurationLeft(this);
 
-            return "&b&lIN USE &b(%s&b)".formatted(durationLeft <= 0 ? CFUtils.TICK_TOO_LONG_CHAR : CFUtils.formatTick(Tick.fromMillis(durationLeft)));
+            return "&b&lIN USE &b(%s&b)".formatted(
+                    durationLeft <= 0 ? CFUtils.TICK_TOO_LONG_CHAR : CFUtils.formatTick(Tick.fromMillis(durationLeft)));
         }
 
         // If on cooldown, show percentage appended by cooldown left
@@ -582,7 +584,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         // This is kinda hardcoded, but I don't care
         else if (isUltimateReady()) {
             if (ultimate instanceof OverchargeUltimateTalent && energyPercent >= 1.0d) {
-                final double percentToOvercharged = energy / ultimate.getCost();
+                final double percentToOvercharged = (energy - minCost) / (ultimate.getCost() - minCost);
 
                 // Overcharged
                 if (percentToOvercharged == 1.0d) {
@@ -764,7 +766,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return getHero().getUltimate();
     }
 
-    public void addEnergy(int points) {
+    public void addEnergy(double points) {
         final UltimateTalent ultimate = getUltimate();
         final int ultimateCost = ultimate.getCost();
 
@@ -776,7 +778,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
 
         final double previousEnergy = this.energy;
-        this.energy = Numbers.clamp(energy + energyScaled, 0, ultimateCost);
+        this.energy = Math.clamp(energy + energyScaled, 0, ultimateCost);
 
         ultimate.atEnergy(this, previousEnergy, this.energy);
     }

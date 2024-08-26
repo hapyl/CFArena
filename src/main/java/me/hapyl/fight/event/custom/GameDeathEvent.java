@@ -30,7 +30,7 @@ public class GameDeathEvent extends CustomEvent implements Cancellable {
     }
 
     @Nullable
-    public GameEntity getDamager() {
+    public GameEntity getKiller() {
         return instance.getDamager();
     }
 

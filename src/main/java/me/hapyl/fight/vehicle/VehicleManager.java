@@ -53,4 +53,8 @@ public class VehicleManager extends DependencyInjector<Main> {
     public Vehicle getVehicle(@Nonnull Player player) {
         return playerVehicle.get(player);
     }
+
+    public boolean isRiding(@Nonnull Player player) {
+        return playerVehicle.containsKey(player);
+    }
 }

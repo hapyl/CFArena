@@ -1,128 +1,103 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.CosmeticEntry;
-import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.fight.util.Named;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public abstract class Reward {
+public interface Reward extends Named {
 
-    public static final String BULLET = "&8+ &7";
+    String BULLET = "&8+ &7";
 
-    public Reward() {
-    }
+    /**
+     * Gets the name of this {@link Reward}.
+     *
+     * @return the name of this reward.
+     */
+    @Nonnull
+    @Override
+    String getName();
 
-    public PlayerDatabase getDatabase(Player player) {
-        return PlayerDatabase.getDatabase(player);
+    /**
+     * Gets the {@link RewardDescription} of this {@link Reward} for the given {@link Player}.
+     *
+     * @param player - Player.
+     * @return the description of this reward for the given player.
+     */
+    @Nonnull
+    default RewardDescription getDescription(@Nonnull Player player) {
+        return RewardDescription.EMPTY;
     }
 
     /**
-     * Gets the display for this reward.
-     * Display is used in item lore and player chat to notify them what this reward gives.
+     * Grants this {@link Reward} to the given {@link Player}.
      *
-     * @param player - Player.
-     * @return a {@link RewardDisplay}.
+     * @param player - Player to grant the reward to.
      */
-    @Nonnull
-    public abstract RewardDisplay getDisplay(@Nonnull Player player);
+    void grant(@Nonnull Player player);
 
     /**
-     * Grants this reward to a player.
+     * Revokes this {@link Reward} from the given {@link Player}.
      *
-     * @param player - Player.
+     * @param player - Player to revoke the reward from.
      */
-    public abstract void grant(@Nonnull Player player);
+    void revoke(@Nonnull Player player);
 
     /**
-     * Revokes this reward from a player.
+     * Sends a reward message to the give {@link Player}.
+     * <br>
+     * The default implementation behaves as if:
+     * <pre>{@code
+     * Notifier.success(player, "&6&lReward: ");
      *
-     * @param player - Player.
+     * final RewardDescription description = getDescription(player);
+     * description.forEach(player, Notifier::info);
+     * }</pre>
+     *
+     * @param player - Player to send the message to.
      */
-    public abstract void revoke(@Nonnull Player player);
+    default void sendRewardMessage(@Nonnull Player player) {
+        Notifier.success(player, "&6&lReward: ");
 
+        final RewardDescription description = getDescription(player);
+        description.forEach(player, Notifier::info);
+    }
+
+    /**
+     * Creates a new {@link CurrencyReward} with the given name.
+     *
+     * @param name - Reward name.
+     * @return a new currency reward with the given name.
+     */
     @Nonnull
-    public ItemBuilder formatBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
-        getDisplay(player).forEach(builder::addLore);
-
-        return builder;
+    static CurrencyReward currency(@Nonnull String name) {
+        return new CurrencyReward(name);
     }
 
-    public void displayChat(Player player) {
-        Chat.sendMessage(player, "&6&lRewards:");
-
-        getDisplay(player).forEach(string -> {
-            Chat.sendMessage(player, string);
-        });
-    }
-
+    /**
+     * Creates a new {@link CosmeticsReward} with the given name.
+     *
+     * @param name      - Name of the reward.
+     * @param cosmetics - Cosmetics the reward will grant/revoke.
+     * @return a new cosmetics reward with the given name.
+     */
     @Nonnull
-    public static Reward create() {
-        return new Reward() {
-            @Override
-            public void grant(@Nonnull Player player) {
-            }
-
-            @Override
-            public void revoke(@Nonnull Player player) {
-            }
-
-            @Override
-            @Nonnull
-            public RewardDisplay getDisplay(@Nonnull Player player) {
-                return RewardDisplay.EMPTY;
-            }
-        };
+    static CosmeticsReward cosmetics(@Nonnull String name, @Nonnull Cosmetics... cosmetics) {
+        return new CosmeticsReward(name, cosmetics);
     }
 
+    /**
+     * Creates a new {@link DisplayReward} with the given name and description.
+     *
+     * @param name        - Name of the reward.
+     * @param description - Description of the reward.
+     * @return a new display reward with the given name and description.
+     */
     @Nonnull
-    public static CurrencyReward currency() {
-        return CurrencyReward.create();
+    static DisplayReward display(@Nonnull String name, @Nonnull String description) {
+        return new DisplayReward(name, description);
     }
 
-    @Nonnull
-    public static Reward cosmetics(final Cosmetics... cosmetics) {
-        Validate.isTrue(cosmetics != null, "cosmetics cannot be null");
-        Validate.isTrue(cosmetics.length > 0, "there must be at least one cosmetic");
-
-        return new Reward() {
-
-            @Override
-            @Nonnull
-            public RewardDisplay getDisplay(@Nonnull Player player) {
-                final RewardDisplay display = new RewardDisplay();
-
-                for (Cosmetics enumCosmetic : cosmetics) {
-                    final Cosmetic cosmetic = enumCosmetic.getCosmetic();
-
-                    display.add(cosmetic.getFormatted());
-                }
-
-                return display;
-            }
-
-            @Override
-            public void grant(@Nonnull Player player) {
-                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
-
-                for (Cosmetics cosmetic : cosmetics) {
-                    entry.addOwned(cosmetic);
-                }
-            }
-
-            @Override
-            public void revoke(@Nonnull Player player) {
-                final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
-
-                for (Cosmetics cosmetic : cosmetics) {
-                    entry.removeOwned(cosmetic);
-                }
-            }
-        };
-    }
 }

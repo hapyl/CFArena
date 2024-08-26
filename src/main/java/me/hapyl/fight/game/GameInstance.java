@@ -28,6 +28,7 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Lifecycle;
 import me.hapyl.fight.util.Nulls;
+import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -274,7 +275,8 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
         // AFK detection
         alivePlayers.forEach(player -> {
-            if (player.hasMovedInLast(MoveType.MOUSE, 15000)) { // 15s afk detection
+            // Is moved mouse in the last 15s or riding a vehicle we don't care
+            if (player.hasMovedInLast(MoveType.MOUSE, 15000) || CF.getVehicleManager().isRiding(player.getPlayer())) {
                 return;
             }
 

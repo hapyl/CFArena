@@ -11,7 +11,8 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.Rewards;
+import me.hapyl.fight.game.reward.EnumReward;
+import me.hapyl.fight.game.reward.RewardDescription;
 import me.hapyl.fight.game.setting.Settings;
 import me.hapyl.fight.Notifier;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -80,15 +81,15 @@ public class RateHeroCommand extends SimplePlayerCommand {
             Notifier.success(player, "Rated {%s} as {%s}!".formatted(hero.getName(), playerRating.getName()));
             Notifier.success(player, "Thank you for rating this hero, your feedback is appreciated!");
 
-            final Reward reward = Rewards.HERO_RATING_FIRST_TIME.getReward();
+            final Reward reward = EnumReward.HERO_RATING_FIRST_TIME;
 
             reward.grant(player);
-            reward.displayChat(player);
+            reward.sendRewardMessage(player);
 
-            PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+            Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
         }
 
-        PlayerLib.playSound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
+        Notifier.sound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
     }
 
     public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Hero hero) {

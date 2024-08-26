@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui.styled.profile.achievement;
 
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
@@ -9,7 +10,6 @@ import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,7 +36,7 @@ public class AchievementGeneralGUI extends StyledPageGUI<Achievement> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, Achievement content, int index, int page) {
+    public ItemStack asItem(@Nonnull Player player, Achievement content, int index, int page) {
         final boolean isComplete = content.isComplete(player);
 
         final ItemBuilder builder = ItemBuilder.of(isComplete ? Material.DIAMOND : Material.COAL);

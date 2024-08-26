@@ -343,10 +343,10 @@ public abstract class Talent
                 builderAttributes.addLore("Recharge Time: &f&l%ss".formatted(BukkitUtils.roundTick(rechargeTime)));
             }
         }
-        else if (this instanceof UltimateTalent ult) {
-            final int castDuration = ult.getCastDuration();
+        else if (this instanceof UltimateTalent ultimate) {
+            final int castDuration = ultimate.getCastDuration();
 
-            builderAttributes.addLore("Ultimate Cost: &f&l%s ※".formatted(ult.getMinCost()));
+            builderAttributes.addLore("Ultimate Cost: &f&l%s ※".formatted(ultimate.getMinCost()));
 
             if (this instanceof OverchargeUltimateTalent overchargedUltimate) {
                 builderAttributes.addLore("Overcharge Cost: &f&l%s ※".formatted(overchargedUltimate.getCost()));

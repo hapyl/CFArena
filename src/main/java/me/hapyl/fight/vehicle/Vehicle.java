@@ -74,7 +74,10 @@ public class Vehicle implements Removable {
             vector.normalize().multiply(speed.get());
         }
 
-        // Height
+        move(vector);
+    }
+
+    public void move(@Nonnull Vector vector) {
         final Location location = vehicle.getLocation();
 
         double distanceToGround = 0.0d;

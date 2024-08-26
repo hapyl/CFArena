@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.KeyedEnum;
 import me.hapyl.fight.util.EnumWrapper;
 import me.hapyl.fight.util.PlayerItemCreator;
 import me.hapyl.eterna.module.chat.Chat;
@@ -16,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
+public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator, KeyedEnum {
 
     //////////////
     // Gameplay //
@@ -40,10 +42,10 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Material.SHIELD,
             "Show Health and Shield Separately", """
             Whenever to show health and shield amount separately, rather than combined.
-                        
+            
             &aIf enabled:
             &c&c50 &c❤ &e&l50 &e🛡
-                        
+            
             &cIf disabled:
             &e&l100 &e🛡
             """,
@@ -74,7 +76,7 @@ public enum Settings implements EnumWrapper<Setting>, PlayerItemCreator {
             Material.SWEET_BERRIES,
             "Show Damage in Chat", """
             Whenever you'll see damage dealt and taken messages in chat.
-                                
+            
             &9Nerds special!
             """,
             Category.CHAT

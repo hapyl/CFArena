@@ -99,6 +99,10 @@ public class TotemPrison extends TickingGameTask {
     }
 
     private void create(Block block, int height) {
+        if (!block.getType().isAir()) {
+            return;
+        }
+
         block.setType(entity.random.choice(Material.COBBLESTONE_WALL, Material.MOSSY_COBBLESTONE_WALL), false);
 
         // Fx

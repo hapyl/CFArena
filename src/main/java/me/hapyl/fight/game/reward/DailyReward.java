@@ -1,15 +1,16 @@
 package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.TimeFormat;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -20,23 +21,19 @@ public class DailyReward extends CurrencyReward {
 
     public static final long MILLIS_WHOLE_DAY = 86_400_000L;
 
+    private final DailyRewardEntry.Type type;
     private final long bonusRubies;
     private final Map<Crates, Integer> dailyCrates;
 
-    private DailyRewardEntry.Type type;
-
-    public DailyReward(long coins, long exp, long bonusRubies) {
-        super();
+    public DailyReward(DailyRewardEntry.Type type, long coins, long exp, long bonusRubies) {
+        super("Daily %s Reward".formatted(Chat.capitalize(type)));
 
         withCoins(coins);
         withExp(exp);
 
+        this.type = type;
         this.bonusRubies = bonusRubies;
         this.dailyCrates = Maps.newHashMap();
-    }
-
-    public void setType(DailyRewardEntry.Type type) {
-        this.type = type;
     }
 
     @Nonnull
@@ -47,8 +44,8 @@ public class DailyReward extends CurrencyReward {
 
     @Override
     @Nonnull
-    public RewardDisplay getDisplay(@Nonnull Player player) {
-        final RewardDisplay display = super.getDisplay(player);
+    public RewardDescription getDescription(@Nonnull Player player) {
+        final RewardDescription display = super.getDescription(player);
         final PlayerDatabase database = PlayerDatabase.getDatabase(player);
         final DailyRewardEntry entry = database.dailyRewardEntry;
 
@@ -81,11 +78,11 @@ public class DailyReward extends CurrencyReward {
         rewardEntry.increaseStreak(type);
 
         // Fx
-        Chat.sendMessage(player, "&aYou have claimed your daily %s&a rewards!".formatted(type.toString()));
+        Notifier.success(player, "You have claimed your daily {%s} rewards!".formatted(type.toString()));
 
-        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.0f);
-        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
-        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+        Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 0.0f);
+        Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
+        Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
     }
 
     @Override
@@ -94,7 +91,7 @@ public class DailyReward extends CurrencyReward {
 
     @Nonnull
     public String format(@Nonnull Player player) {
-        final PlayerDatabase database = getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
         final long nextDaily = database.dailyRewardEntry.nextDaily(type);
 
         return TimeFormat.format(nextDaily);

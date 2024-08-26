@@ -219,7 +219,7 @@ public abstract class Hero
     }
 
     public void setArchetypes(@Nonnull Archetype... archetype) {
-        archetypes.addAll(archetype);
+        archetypes.set(archetype);
     }
 
     /**

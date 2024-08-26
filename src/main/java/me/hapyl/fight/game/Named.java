@@ -31,6 +31,7 @@ public enum Named {
     ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
     THE_CHAOS(ChatColor.BOLD + "\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
     BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
+    THE_JOKER("\uD83D\uDE08", "The Joker", Color.SOFT_PINK),
 
     ;
 

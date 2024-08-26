@@ -27,7 +27,7 @@ public class ExperienceDebugGUI extends PlayerGUI {
             else {
                 builder.addLore("&aReward: ");
                 rewards.forEach(reward -> {
-                    reward.formatBuilder(player, builder);
+                    reward.getDescription(player).forEach(builder::addLore);
                 });
             }
 

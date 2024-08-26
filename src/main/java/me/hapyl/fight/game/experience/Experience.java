@@ -85,35 +85,27 @@ public class Experience extends DependencyInjector<Main> {
      * <p>
      * Needed in case of new reward to grant, or admin
      * manipulations.
+     * <br>
+     * This method is kinda wacky, soo I'm deprecating it -h
      */
-    public void fixRewards(Player player) {
+    @Deprecated
+    public void fixRewards(@Nonnull Player player) {
         final ExperienceEntry entry = getDatabaseEntry(player);
         final long playerLvl = entry.get(ExperienceEntry.Type.LEVEL);
 
         // Give all previous rewards
         for (long lvl = playerLvl; lvl > 0; lvl--) {
             final List<Reward> rewards = getRewards(lvl);
-            if (rewards == null) {
-                continue;
-            }
 
             for (Reward reward : rewards) {
-                // Don't give one time rewards, such as coins etc
-
-                // FIXME (hapyl): 029, Sep 29:
-                //  This could really use reward entry and storing claimed reward,
-                //  but then all rewards must be named or ID's somehow.
-                //  And what about daily or repeatable rewards?
-                if (reward instanceof OneTimeReward) {
+                // Don't re-give currency
+                if (reward instanceof CurrencyReward) {
                     continue;
                 }
 
                 reward.grant(player);
             }
         }
-
-        // Fix achievement
-        Registries.getAchievements().LEVEL_TIERED.setCompleteCount(player, (int) playerLvl);
     }
 
     @Nonnull
@@ -152,15 +144,16 @@ public class Experience extends DependencyInjector<Main> {
         for (long level = currentLevel + 1; level <= toLevel; level++) {
             final List<Reward> rewards = getRewards(level);
 
-            if (rewards != null) {
-                for (Reward reward : rewards) {
-                    reward.grant(player);
-                }
+            for (Reward reward : rewards) {
+                reward.grant(player);
             }
         }
 
         // Fix rewards
         fixRewards(player);
+
+        // Fix achievement
+        Registries.getAchievements().LEVEL_TIERED.setCompleteCount(player, (int) toLevel);
 
         // Display reward message and sound
         // Don't display if leveling up to level 1
@@ -201,10 +194,10 @@ public class Experience extends DependencyInjector<Main> {
         return ExperienceEntry.Type.LEVEL.getMaxValue();
     }
 
-    @Nullable
+    @Nonnull
     public List<Reward> getRewards(long level) {
         if (level < 1 || level > getMaxLevel()) {
-            return null;
+            return List.of();
         }
 
         return experienceLevelMap.get(level).getRewards();
@@ -341,13 +334,7 @@ public class Experience extends DependencyInjector<Main> {
             final ExperienceLevel experienceLevel = new ExperienceLevel(level, currentExp);
 
             if (isPrestige) {
-                experienceLevel.addReward(new DisplayReward("Prestige Color") {
-                    @Nonnull
-                    @Override
-                    public RewardDisplay getDisplay(@Nonnull Player player) {
-                        return RewardDisplay.of(color + " &7prestige color");
-                    }
-                });
+                experienceLevel.addReward(Reward.display("Prestige Color", color + " &7prestige color"));
             }
 
             experienceLevelMap.put(level, experienceLevel);
@@ -357,7 +344,7 @@ public class Experience extends DependencyInjector<Main> {
     private void setupRewards() {
         // Coins rewards
         experienceLevelMap.forEach((lvl, level) -> {
-            final CurrencyReward reward = new CurrencyReward();
+            final CurrencyReward reward = Reward.currency("Level %s Rewards".formatted(lvl));
 
             reward.with(CurrencyType.COINS, 1000 * lvl);
 
@@ -381,15 +368,18 @@ public class Experience extends DependencyInjector<Main> {
 
         // Manual rewards
         // Keep manual rewards last for consistency
-        setReward(1, Reward.cosmetics(Cosmetics.PEACE));
-        setReward(2, Reward.cosmetics(Cosmetics.EMERALD_EXPLOSION));
+        addReward(1, Reward.cosmetics("Level 1 Rewards", Cosmetics.PEACE));
+        addReward(2, Reward.cosmetics("Level 2 Rewards", Cosmetics.EMERALD_EXPLOSION));
     }
 
-    private void setReward(int level, Reward reward) {
+    private void addReward(int level, @Nonnull Reward reward) {
         final ExperienceLevel exp = experienceLevelMap.get((long) level);
-        if (exp != null) {
-            exp.addReward(reward);
+
+        if (exp == null) {
+            throw new IllegalArgumentException("There is not such level as: " + level);
         }
+
+        exp.addReward(reward);
     }
 
     private void updateProgressBar(Player player) {

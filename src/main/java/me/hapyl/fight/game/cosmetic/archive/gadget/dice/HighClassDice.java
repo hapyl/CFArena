@@ -3,30 +3,15 @@ package me.hapyl.fight.game.cosmetic.archive.gadget.dice;
 import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.reward.CurrencyReward;
-import me.hapyl.fight.game.reward.RewardDisplay;
+import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.RewardDescription;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
 public class HighClassDice extends Dice {
     public HighClassDice() {
-        super("High-Class Dice", Rarity.LEGENDARY, 66_666, new CurrencyReward() {
-            @Nonnull
-            @Override
-            public RewardDisplay getDisplay(@Nonnull Player player) {
-                final RewardDisplay display = super.getDisplay(player);
-
-                display.add(Cosmetics.DICE_STATUS.getCosmetic().getFormatted());
-                return display;
-            }
-
-            @Override
-            public void grant(@Nonnull Player player) {
-                super.grant(player);
-
-                Cosmetics.DICE_STATUS.setUnlocked(player, true);
-            }
-        }.withCoins(1_000_000).withRubies(100).withExp(10_000));
+        super("High-Class Dice", Rarity.LEGENDARY, 66_666, new HighClassDice.DiceReward());
 
         setSide(1, "4675996c9164cf409f9fc9024231ca301a4f024e3a306c8f3f4caa062a5576b8", 50);
         setSide(2, "6c8c54dc6c2d40625a72e95d8a80f04a8f9fead318f370a97a82ab8872542477", 50);
@@ -35,4 +20,32 @@ public class HighClassDice extends Dice {
         setSide(5, "826aa157fe7680b3bd21d53c061e4a61c46a96078d641ca6bbfc604e219de19e", 50);
         setSide(6, "586b745566284a05366baff2807d9d8f8344612aabddeb012c47c7252e34e731", 1);
     }
+
+    private static class DiceReward extends CurrencyReward {
+
+        protected DiceReward() {
+            super("High Class Dice");
+
+            withCoins(1_000_000);
+            withExp(10_000);
+            withRubies(100);
+        }
+
+        @Nonnull
+        @Override
+        public RewardDescription getDescription(@Nonnull Player player) {
+            final RewardDescription display = super.getDescription(player);
+
+            display.add(Cosmetics.DICE_STATUS.getCosmetic().getFormatted());
+            return display;
+        }
+
+        @Override
+        public void grant(@Nonnull Player player) {
+            super.grant(player);
+
+            Cosmetics.DICE_STATUS.setUnlocked(player, true);
+        }
+    }
+
 }

@@ -6,8 +6,10 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.gui.styled.StyledTexture;
+import org.checkerframework.checker.fenum.qual.FenumUnqualified;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class DailyRewardEntry extends PlayerDatabaseEntry {
     public DailyRewardEntry(PlayerDatabase playerDatabase) {
@@ -70,9 +72,23 @@ public class DailyRewardEntry extends PlayerDatabaseEntry {
     }
 
     public enum Type {
-        DEFAULT(PlayerRank.DEFAULT, StyledTexture.CHEST, new DailyReward(1000, 10, 1).setCrate(Crates.COMMON, 1)),
-        VIP(PlayerRank.VIP, StyledTexture.CHEST_EMERALD, new DailyReward(2500, 25, 1).setCrate(Crates.UNCOMMON, 1)),
-        PREMIUM(PlayerRank.PREMIUM, StyledTexture.CHEST_DIAMOND, new DailyReward(5000, 50, 1).setCrate(Crates.RARE, 2));
+        DEFAULT(
+                PlayerRank.DEFAULT,
+                StyledTexture.CHEST,
+                type -> new DailyReward(type, 1000, 10, 1).setCrate(Crates.COMMON, 1)
+        ),
+
+        VIP(
+                PlayerRank.VIP,
+                StyledTexture.CHEST_EMERALD,
+                type -> new DailyReward(type, 2500, 25, 1).setCrate(Crates.UNCOMMON, 1)
+        ),
+
+        PREMIUM(
+                PlayerRank.PREMIUM,
+                StyledTexture.CHEST_DIAMOND,
+                type -> new DailyReward(type, 5000, 50, 1).setCrate(Crates.RARE, 2)
+        );
 
         public final PlayerRank rank;
         public final StyledTexture texture;
@@ -80,11 +96,10 @@ public class DailyRewardEntry extends PlayerDatabaseEntry {
 
         public final int bonus = 7;
 
-        Type(PlayerRank rank, StyledTexture texture, DailyReward reward) {
+        Type(PlayerRank rank, StyledTexture texture, Function<Type, DailyReward> fn) {
             this.rank = rank;
             this.texture = texture;
-            this.reward = reward;
-            this.reward.setType(this);
+            this.reward = fn.apply(this);
         }
 
         @Override

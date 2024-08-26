@@ -85,6 +85,7 @@ import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
+import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
@@ -107,6 +108,7 @@ import me.hapyl.fight.gui.LegacyAchievementGUI;
 import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
 import me.hapyl.fight.infraction.HexID;
+import me.hapyl.fight.loot.Loot;
 import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.ScriptAction;
@@ -240,6 +242,61 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new FixMongoDbMigrationFiles("fixmongodbmigrationfiles"));
 
         // *=* Inner commands *=* //
+        register(new SimplePlayerAdminCommand("testLoot") {
+
+            private Loot testLoot;
+
+            @Override
+            protected void execute(Player player, String[] args) {
+                if (testLoot == null) {
+                    testLoot = new Loot();
+
+                    testLoot.add(Reward.currency("test1").withCoins(1), 500);
+                    testLoot.add(Reward.currency("test2").withCoins(20), 500);
+                    testLoot.add(Reward.currency("test3").withCoins(30), 400);
+                    testLoot.add(Reward.currency("test4").withCoins(100), 1);
+                }
+
+                Debug.info("Loot info:");
+
+                for (WeightedCollection<Reward>.WeightedElement element : testLoot.getWeightedElements()) {
+                    Debug.info(element.toString());
+                }
+
+                int lootTestTimes = 1000;
+                Debug.info("Picking a random loot " + lootTestTimes + " times...");
+
+                Map<Reward, Integer> testedLoot = new LinkedHashMap<>();
+
+                for (int i = 0; i < lootTestTimes; i++) {
+                    final Reward reward = testLoot.getRandomElement();
+
+                    testedLoot.compute(reward, Compute.intAdd());
+                }
+
+                final Set<Map.Entry<Reward, Integer>> entries = testedLoot.entrySet();
+                final List<Map.Entry<Reward, Integer>> testedLootSorted = entries.stream()
+                        .sorted(Map.Entry.comparingByValue())
+                        .toList();
+
+                Debug.info("Results:");
+                for (Map.Entry<Reward, Integer> entry : testedLootSorted) {
+                    final Reward key = entry.getKey();
+                    final Integer value = entry.getValue();
+
+                    Debug.info("%s = %s".formatted(key.toString(), value));
+                }
+
+            }
+        });
+        register("testcustomtextcolor", (player, args) -> {
+            final net.kyori.adventure.text.TextComponent component = Component
+                    .text("This is a test")
+                    .color(me.hapyl.fight.game.color.Color.WITHERS);
+
+            player.sendMessage(component);
+        });
+
         register("testUicmp", (player, args) -> {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {

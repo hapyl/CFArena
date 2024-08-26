@@ -7,6 +7,7 @@ import me.hapyl.eterna.module.player.tablist.EntryTexture;
 import me.hapyl.eterna.module.player.tablist.PingBars;
 import me.hapyl.eterna.module.player.tablist.Tablist;
 import me.hapyl.eterna.module.util.SmallCaps;
+import me.hapyl.eterna.module.util.TimeFormat;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -28,7 +29,6 @@ import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.TimeFormat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

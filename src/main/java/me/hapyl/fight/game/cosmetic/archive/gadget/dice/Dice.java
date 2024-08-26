@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.RewardDisplay;
+import me.hapyl.fight.game.reward.RewardDescription;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.Validate;
@@ -42,7 +42,7 @@ public class Dice extends Gadget {
 
     @Override
     public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
-        rollJackpot.getDisplay(player).forEach(builder::addLore);
+        rollJackpot.getDescription(player).forEach(builder::addLore);
 
         builder.addLore();
         builder.addLore("But &close&7 this gadget.");
@@ -52,7 +52,7 @@ public class Dice extends Gadget {
         final int number = side.getSide();
 
         if (number == 6) {
-            final RewardDisplay display = rollJackpot.getDisplay(player);
+            final RewardDescription display = rollJackpot.getDescription(player);
 
             getHandle().setUnlocked(player, false);
             rollJackpot.grant(player);
@@ -95,6 +95,6 @@ public class Dice extends Gadget {
 
     @Nonnull
     public DiceSide getRandomSide() {
-        return sideWeight.get();
+        return sideWeight.getRandomElement();
     }
 }

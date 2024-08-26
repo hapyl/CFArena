@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.experience;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
@@ -111,12 +112,12 @@ public class ExperienceGUI extends StyledGUI {
 
         // Display rewards
         if (experienceLevel.hasRewards()) {
-            builder.addLore("&7Rewards: " + (levelReached ? "&a✔" : "&c❌"));
+            builder.addLore("&7Rewards: " + BukkitUtils.checkmark(levelReached));
 
             final List<Reward> rewards = experienceLevel.getRewards();
 
             for (Reward reward : rewards) {
-                reward.formatBuilder(player, builder);
+                reward.getDescription(player).forEach(builder::addLore);
             }
 
         }

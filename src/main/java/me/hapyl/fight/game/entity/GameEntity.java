@@ -6,6 +6,7 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
@@ -13,7 +14,7 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.CFGarbageCollector;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.Notifier;
+import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -276,6 +277,10 @@ public class GameEntity {
 
     public void sendMessage(@Nonnull String message) {
         Chat.sendMessage(entity, message);
+    }
+
+    public void sendMessage(@Nonnull Component component) {
+        entity.sendMessage(component);
     }
 
     public void sendRichMessage(@Nonnull String message) {

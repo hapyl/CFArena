@@ -1,5 +1,7 @@
 package me.hapyl.fight.registry;
 
+import me.hapyl.fight.game.Debug;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;

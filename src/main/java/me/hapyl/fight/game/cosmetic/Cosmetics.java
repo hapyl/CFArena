@@ -9,6 +9,7 @@ import me.hapyl.fight.game.cosmetic.archive.*;
 import me.hapyl.fight.game.cosmetic.archive.gadget.FireworkGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.DiceGadget;
 import me.hapyl.fight.game.cosmetic.archive.gadget.dice.HighClassDice;
+import me.hapyl.fight.registry.KeyedEnum;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.StaticUUID;
 import me.hapyl.eterna.module.chat.Chat;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 // Yeah, don't use enums as registries 🤪
-public enum Cosmetics implements RareItem, BelongsToCollection {
+public enum Cosmetics implements RareItem, BelongsToCollection, KeyedEnum {
 
     ////////////////////
     // Kill Cosmetics //

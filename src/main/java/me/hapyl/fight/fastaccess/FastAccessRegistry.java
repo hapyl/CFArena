@@ -33,7 +33,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Hero select
         for (Hero hero : HeroRegistry.playable()) {
-            register(new FastAccess("select_hero_" + hero.getKey().getKey(), Category.SELECT_HERO) {
+            register(new FastAccess("select_hero_" + hero.getKeyAsString(), Category.SELECT_HERO) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     Manager.current().setSelectedHero(player, hero);
@@ -63,7 +63,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Map select
         for (EnumLevel enumMap : EnumLevel.getPlayableMaps()) {
-            register(new FastAccess("select_map_" + enumMap.name(), Category.SELECT_MAP) {
+            register(new FastAccess("select_map_" + enumMap.getKeyAsString(), Category.SELECT_MAP) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     enumMap.select(player);
@@ -85,7 +85,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Mode select
         for (EnumGameType enumMode : EnumGameType.values()) {
-            register(new FastAccess("select_mode_" + enumMode.name(), Category.SELECT_MODE) {
+            register(new FastAccess("select_mode_" + enumMode.getKeyAsString(), Category.SELECT_MODE) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     enumMode.select(player);
@@ -107,7 +107,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Team select
         for (GameTeam enumTeam : GameTeam.values()) {
-            register(new FastAccess("join_team_" + enumTeam.name(), Category.JOIN_TEAM) {
+            register(new FastAccess("join_team_" + enumTeam.getKeyAsString(), Category.JOIN_TEAM) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     enumTeam.addEntry(Entry.of(player));
@@ -131,7 +131,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Toggle Setting
         for (Settings enumSetting : Settings.values()) {
-            register(new FastAccess("toggle_setting_" + enumSetting.name(), Category.TOGGLE_SETTING) {
+            register(new FastAccess("toggle_setting_" + enumSetting.getKeyAsString(), Category.TOGGLE_SETTING) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     enumSetting.setEnabled(player, !enumSetting.isEnabled(player));
@@ -157,7 +157,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
         // Select Gadget
         for (Cosmetics enumCosmetic : Cosmetics.getByType(Type.GADGET)) {
-            register(new FastAccess("select_gadget_" + enumCosmetic.name(), Category.SELECT_GADGET) {
+            register(new FastAccess("select_gadget_" + enumCosmetic.getKeyAsString(), Category.SELECT_GADGET) {
                 @Override
                 public void onClick(@Nonnull Player player) {
                     if (!enumCosmetic.isUnlocked(player)) {

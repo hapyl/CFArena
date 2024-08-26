@@ -77,7 +77,7 @@ public class RelicRewardGUI extends StyledGUI {
                     continue;
                 }
 
-                reward.formatBuilder(player, builder);
+                reward.getDescription(player).forEach(builder::addLore);
                 builder.addLore();
 
                 switch (index) {
@@ -186,7 +186,7 @@ public class RelicRewardGUI extends StyledGUI {
         exchangeBuilder.addLore();
         exchangeBuilder.addLore("Rewards:");
 
-        reward.formatBuilder(player, exchangeBuilder);
+        reward.getDescription(player).forEach(exchangeBuilder::addLore);
         exchangeBuilder.addLore();
 
         if (canExchange < CollectibleEntry.PERMANENT_EXCHANGE_RATE) {
