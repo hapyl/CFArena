@@ -53,7 +53,7 @@ public class Main extends JavaPlugin {
 
     public static final UpdateTopic updateTopic = new UpdateTopic("&d1.21 Awaits!");
 
-    public static final String requireEternaVersion = "4.2.0";
+    public static final String requireEternaVersion = "4.4.4";
     public static final String requireMinecraftVersion = "1.21";
 
     private static long start;

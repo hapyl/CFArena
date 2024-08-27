@@ -51,8 +51,10 @@ public class Ronin extends Hero implements Listener, Disabled {
     public Ronin(@Nonnull Key key) {
         super(key, "Ronin");
 
-        setArchetypes(Archetype.DAMAGE);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setGender(Gender.MALE);
+
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
 
         final Equipment equipment = getEquipment();

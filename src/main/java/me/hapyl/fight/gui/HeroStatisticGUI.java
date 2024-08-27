@@ -50,7 +50,7 @@ public class HeroStatisticGUI extends StyledGUI {
         setHeader(
                 new ItemBuilder(hero.getItem()).setName(this.hero.getName())
                         .addLore()
-                        .addLore("Archetype: " + hero.getArchetypes())
+                        .addLore("Archetype: " + hero.getProfile().getArchetypes())
                         .addLore()
                         .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
                         .addLore()

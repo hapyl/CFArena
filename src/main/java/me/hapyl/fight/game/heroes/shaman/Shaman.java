@@ -46,9 +46,10 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
     public Shaman(@Nonnull Key key) {
         super(key, "Shaman");
 
-        setAffiliation(Affiliation.THE_JUNGLE);
-        setArchetypes(Archetype.SUPPORT);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setAffiliation(Affiliation.THE_JUNGLE);
+        profile.setArchetypes(Archetype.SUPPORT);
+        profile.setGender(Gender.MALE);
 
         setDescription("""
                 An orc from the jungle. Always rumbles about something.

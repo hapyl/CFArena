@@ -71,8 +71,8 @@ public class HealingAura extends DarkMageTalent {
                 final double y = Math.sin(Math.toRadians(tick) * 16) * 0.4;
                 final double z = Math.cos(theta) * radius;
 
-                LocationHelper.modify(location, x, y, z, then -> {
-                    player.spawnWorldParticle(then, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
+                LocationHelper.offset(location, x, y, z, () -> {
+                    player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
                 });
 
                 theta += Math.PI / 26;

@@ -101,7 +101,7 @@ public enum EnumDamageCause {
     COLD(DamageCause.of("froze to death", "with the help of")),
     LASER(DamageCause.of("was lasered to death", "by").setDamageTicks(5)),
     WATER(DamageCause.of("really liked the water").setDamageTicks(5)),
-    SWARM(DamageCause.of("was swarmed to death by {damager}'s bats").setDamageTicks(1).addFlags(DamageFlag.IGNORES_DAMAGE_TICKS)),
+    SWARM(DamageCause.of("was swarmed to death by {damager}'s bats").setDamageTicks(1)),
     TROLL_LAUGH(DamageCause.nonCrit("was trolled to death", "by")),
     BLOCK_SHIELD(DamageCause.of("was hit by {damager}'s circling block")),
     DECOY(DamageCause.of("was bamboozled", "by")),

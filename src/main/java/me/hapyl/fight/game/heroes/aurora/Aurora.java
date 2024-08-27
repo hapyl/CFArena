@@ -63,8 +63,12 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     public Aurora(@Nonnull Key key) {
         super(key, "Aurora");
 
-        setArchetypes(Archetype.SUPPORT, Archetype.HEALER);
-        setGender(Gender.FEMALE);
+        setDescription("""
+                """);
+
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE);
+        profile.setGender(Gender.FEMALE);
 
         setItem("9babb9fbe50a84b31f68e749b438d4c8f7f58618aec3e769243aa660ce4440fb");
 
@@ -76,6 +80,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(80);
         attributes.setSpeed(110);
+        attributes.setCritChance(-100);
 
         setWeapon(new BowWeapon("Celestial", """
                 A unique bow of celestial origins.
@@ -261,8 +266,8 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                                 final double y = Math.atan(Math.toRadians(tick) * 10) * 0.5d;
                                 final double z = Math.cos(d) * distance;
 
-                                LocationHelper.modify(teleportLocation, x, y, z, then -> {
-                                    spawnParticles(then, 2, 0.1f, 0.1f, 0.1f);
+                                LocationHelper.offset(teleportLocation, x, y, z, () -> {
+                                    spawnParticles(teleportLocation, 2, 0.1f, 0.1f, 0.1f);
                                 });
                             }
 

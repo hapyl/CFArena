@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.vampire;
 
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 

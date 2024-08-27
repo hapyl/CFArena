@@ -63,9 +63,10 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
     public Rogue(@Nonnull Key key) {
         super(key, "Rogue");
 
-        setArchetypes(Archetype.DAMAGE);
-        setAffiliation(Affiliation.MERCENARY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.MERCENARY);
+        profile.setGender(Gender.MALE);
 
         setDescription("""
                 The most selfish member of the mercenaries.

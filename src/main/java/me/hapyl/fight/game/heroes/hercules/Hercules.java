@@ -10,10 +10,7 @@ import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -45,8 +42,9 @@ public class Hercules extends Hero implements Listener, Disabled {
     public Hercules(@Nonnull Key key) {
         super(key, "Hercules");
 
-        setArchetypes(Archetype.MOBILITY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY);
+        profile.setGender(Gender.MALE);
 
         setDescription(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."

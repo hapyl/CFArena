@@ -31,7 +31,7 @@ public class MoonZone implements Ticking, Removable {
 
         this.hologram = new Hologram();
 
-        LocationHelper.modify(centre, 0, hologramOffset(), 0, location -> {
+        LocationHelper.offset(centre, 0, hologramOffset(), 0, location -> {
             this.hologram.create(location);
         });
 

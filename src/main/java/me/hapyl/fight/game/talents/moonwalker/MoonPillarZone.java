@@ -25,7 +25,7 @@ public class MoonPillarZone extends MoonZone {
         centre.getBlock().getRelative(BlockFace.UP).setType(Material.BARRIER, false);
         centre.getBlock().getRelative(BlockFace.UP, 2).setType(Material.BARRIER, false);
 
-        this.entity = LocationHelper.modify(centre, -0.5, -3, -0.5, loc -> {
+        this.entity = LocationHelper.offset(centre, -0.5, -3, -0.5, loc -> {
             return talent.displayData.spawnInterpolated(centre);
         });
 

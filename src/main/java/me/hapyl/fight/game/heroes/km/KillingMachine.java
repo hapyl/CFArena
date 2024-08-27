@@ -4,6 +4,7 @@ package me.hapyl.fight.game.heroes.km;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.Race;
 import me.hapyl.fight.game.heroes.UltimateResponse;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -28,7 +29,8 @@ public class KillingMachine extends Hero implements Disabled {
         setDescription("A machine of war that was left for scrap, until now...");
         setItem("ec2f3d5d62fd9be6d654d314c123390abfa3698d3d87c1516a453a7ee4fcbf");
 
-        setRace(Race.CYBERNETIC);
+        final HeroProfile profile = getProfile();
+        profile.setRace(Race.CYBERNETIC);
 
         final Equipment equipment = this.getEquipment();
         equipment.setChestPlate(Material.CHAINMAIL_CHESTPLATE);

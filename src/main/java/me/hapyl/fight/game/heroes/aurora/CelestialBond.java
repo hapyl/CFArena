@@ -90,11 +90,11 @@ public class CelestialBond extends TickingGameTask {
         final double y = Math.atan(theta * 5) * 0.1d;
         final double z = Math.cos(theta) * 1.25d;
 
-        LocationHelper.modify(location, x, y, z, then -> {
+        LocationHelper.offset(location, x, y, z, () -> {
             HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f);
         });
 
-        LocationHelper.modify(location, z, y, x, then -> {
+        LocationHelper.offset(location, z, y, x, () -> {
             HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f);
         });
 

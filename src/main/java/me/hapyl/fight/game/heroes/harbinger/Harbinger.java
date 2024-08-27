@@ -70,9 +70,10 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 She is a harbinger of unknown organization. Nothing else is known.
                 """);
 
-        setArchetypes(Archetype.STRATEGY);
-        setAffiliation(Affiliation.UNKNOWN);
-        setGender(Gender.FEMALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.STRATEGY);
+        profile.setAffiliation(Affiliation.UNKNOWN);
+        profile.setGender(Gender.FEMALE);
 
         setMinimumLevel(5);
         setItem("22a1ac2a8dd48c371482806b3963571952997a5712806e2c8060b8e7777754");

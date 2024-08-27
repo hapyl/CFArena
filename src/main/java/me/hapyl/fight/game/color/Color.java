@@ -178,7 +178,7 @@ public class Color implements TextColor {
      * @return The adjusted color.
      */
     public final Color adjust(@Range(max = 2) float factor) {
-        factor = Numbers.clamp(factor, 0, 2);
+        factor = Math.clamp(factor, 0, 2);
 
         final java.awt.Color javaColor = color.getColor();
 

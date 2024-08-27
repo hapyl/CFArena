@@ -77,10 +77,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public Bloodfiend(@Nonnull Key key) {
         super(key, "Bloodfiend");
 
-        setArchetypes(Archetype.DAMAGE);
-        setAffiliation(Affiliation.CHATEAU);
-        setGender(Gender.MALE);
-        setRace(Race.VAMPIRE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.CHATEAU);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.VAMPIRE);
 
         setDescription("""
                 A vampire prince with a sunscreen.

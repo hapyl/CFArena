@@ -7,6 +7,7 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -22,6 +23,8 @@ public class FireworksWinEffect extends WinCosmetic {
         super("Fireworks", "Let's celebrate this win!", Rarity.COMMON);
 
         fireworks = Sets.newHashSet();
+
+        setIcon(Material.FIREWORK_ROCKET);
 
         setStep(5);
         setMaxTimes(18);

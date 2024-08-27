@@ -279,7 +279,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
             playable.add(hero);
         }
 
-        hero.getArchetypes().forEach(archetype -> {
+        hero.getProfile().getArchetypes().forEach(archetype -> {
             byArchetype.compute(archetype, Compute.listAdd(hero));
         });
 

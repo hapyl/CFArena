@@ -39,9 +39,10 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
     public SwordMaster(@Nonnull Key key) {
         super(key, "Heavy Knight");
 
-        setArchetypes(Archetype.DAMAGE);
-        setAffiliation(Affiliation.KINGDOM);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.KINGDOM);
+        profile.setGender(Gender.MALE);
 
         setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 

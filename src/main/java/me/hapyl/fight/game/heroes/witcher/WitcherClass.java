@@ -34,8 +34,9 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
     public WitcherClass(@Nonnull Key key) {
         super(key, "The Witcher");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);
+        profile.setGender(Gender.MALE);
 
         setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");
         setItem("910905be4f67e2fcad291cdf8aeb2e9ff55fe93f27b8c1f0959024a3cb4a7052");

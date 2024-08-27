@@ -84,7 +84,7 @@ public class HeroStatsCollection extends AsynchronousDatabase implements Keyed {
             rated++;
         }
 
-        return PlayerRating.fromInt((int) Numbers.clamp((double) rating / rated, 1, 10));
+        return PlayerRating.fromInt((int) Math.clamp((double) rating / rated, 1, 10));
     }
 
     public void fromPlayerStatistic(StatContainer stat) {

@@ -61,9 +61,10 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
     public Archer(@Nonnull Key key) {
         super(key, "Archer");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
-        setGender(Gender.MALE);
-        setRace(Race.HUMAN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.HUMAN);
 
         setDescription("One of the best archers joins the fight! Not alone though but with his &3&ocustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");

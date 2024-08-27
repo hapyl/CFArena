@@ -8,10 +8,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -45,8 +42,9 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
     public Nightmare(@Nonnull Key key) {
         super(key, "Nightmare");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
-        setGender(Gender.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE);
+        profile.setGender(Gender.UNKNOWN);
 
         setDescription("A spirit from the worst nightmares, blinds enemies and strikes from behind!");
         setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");

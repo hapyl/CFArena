@@ -11,10 +11,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -52,8 +49,9 @@ public class Orc extends Hero implements Listener {
                 Half-orc half-dwarf loner.
                 """);
 
-        setArchetypes(Archetype.DAMAGE);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();
         attributes.setHealth(120);

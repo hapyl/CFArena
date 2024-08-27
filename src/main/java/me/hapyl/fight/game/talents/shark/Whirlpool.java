@@ -93,11 +93,11 @@ public class Whirlpool extends Talent {
                 final double y = Math.atan(Math.toRadians(tick * 8)) * 1d;
                 final double z = Math.cos(d) * radius;
 
-                LocationHelper.modify(location, x, y, z, then -> {
+                LocationHelper.offset(location, x, y, z, () -> {
                     player.spawnWorldParticle(location, Particle.FLAME, 1);
                 });
 
-                LocationHelper.modify(location, z, y, x, then -> {
+                LocationHelper.offset(location, z, y, x, () -> {
                     player.spawnWorldParticle(location, Particle.FLAME, 1);
                 });
 

@@ -11,10 +11,7 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.ComplexHero;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -67,7 +64,9 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
                 """);
 
         setItem(Material.BOOK);
-        setGender(Gender.MALE);
+
+        final HeroProfile profile = getProfile();
+        profile.setGender(Gender.MALE);
 
         talentMap.put(1, TalentRegistry.BLACK_HOLE);
         talentMap.put(2, TalentRegistry.ENTITY_DARKNESS);

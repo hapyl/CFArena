@@ -55,9 +55,10 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public ShadowAssassin(@Nonnull Key key) {
         super(key, "Shadow Assassin");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.POWERFUL_ULTIMATE);
-        setGender(Gender.UNKNOWN);
-        setRace(Race.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.UNKNOWN);
+        profile.setRace(Race.UNKNOWN);
 
         setDescription("""
                 An assassin with anger management issues from dimension of shadows. Capable of switching between being &9&oStealth&8&o, and &c&oFurious&8&o.

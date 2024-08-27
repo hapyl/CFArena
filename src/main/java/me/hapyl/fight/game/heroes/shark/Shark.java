@@ -55,9 +55,10 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     public Shark(@Nonnull Key key) {
         super(key, "Shark");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
-        setGender(Gender.FEMALE);
-        setRace(Race.SHARK);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
+        profile.setGender(Gender.FEMALE);
+        profile.setRace(Race.SHARK);
 
         setDescription("""
                 A strong warrior from the &3&oDepths of Waters&8&o.

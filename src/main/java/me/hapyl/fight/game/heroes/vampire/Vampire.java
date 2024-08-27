@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.vampire;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.MapMaker;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
@@ -20,11 +21,15 @@ import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.util.EntitySpawner;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -46,10 +51,11 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
                 Prefers NoSunBurn™ sunscreen.
                 """.formatted(Affiliation.CHATEAU));
 
-        setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
-        setGender(Gender.MALE);
-        setRace(Race.VAMPIRE);
-        setAffiliation(Affiliation.CHATEAU);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
+        profile.setAffiliation(Affiliation.CHATEAU);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.VAMPIRE);
 
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
@@ -85,39 +91,35 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
         final VampireState state = data.getState();
         final Bloodshift bloodshift = getFirstTalent();
 
-        if (state == VampireState.DAMAGE) {
-            // Make sure we have enough health to deal damage
-            final double health = player.getHealth();
-            final double healthDrain = damage * bloodshift.healthDrainPerOneDamage;
+        switch (state) {
+            case DAMAGE -> {
+                final double health = player.getHealth();
+                final double healthDrain = damage * bloodshift.healthDrainPerOneDamage;
 
-            if (health <= healthDrain) {
-                player.sendSubtitle("&cNot enough health to deal damage!", 0, 10, 0);
-                ev.setCancelled(true);
-                return;
+                // Drain health
+                player.setHealth(Math.max(1, health - healthDrain)); // Don't go below 1
+
+                // Multiple damage
+                ev.multiplyDamage(bloodshift.calculateDamage(player));
+
+                // Fx
             }
+            case SUSTAIN -> {
+                final double healthRegen = damage * bloodshift.healingFromDamage;
 
-            // Drain health
-            player.setHealth(health - healthDrain);
+                // Decrease damage
+                ev.multiplyDamage(bloodshift.damageReduction);
 
-            // Multiple damage
-            ev.multiplyDamage(bloodshift.calculateDamage(player));
+                final HealingOutcome healingOutcome = player.heal(healthRegen);
 
-            // Fx
-        }
-        else {
-            // Regenerate health
-            final double healthRegen = damage * bloodshift.healthRegenPerOneDamage;
-            final HealingOutcome healingOutcome = player.heal(healthRegen);
+                // Fx (Only play if actually healed)
+                if (healingOutcome.type() != HealingOutcome.Type.HEALED) {
+                    return;
+                }
 
-            ev.setCancelled(true);
-
-            // Fx (Only play if actually healed)
-            if (healingOutcome.type() != HealingOutcome.Type.HEALED) {
-                return;
+                player.playWorldSound(Sound.ENTITY_WITCH_DRINK, 1.25f);
+                player.playWorldSound(Sound.ENTITY_GENERIC_DRINK, 1.25f);
             }
-
-            player.playWorldSound(Sound.ENTITY_WITCH_DRINK, 1.25f);
-            player.playWorldSound(Sound.ENTITY_GENERIC_DRINK, 1.25f);
         }
     }
 
@@ -136,11 +138,6 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
         return TalentRegistry.VANPIRE_PASSIVE;
     }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        vampireData.remove(player);
-    }
-
     @Nonnull
     @Override
     public PlayerDataMap<VampireData> getDataMap() {
@@ -157,7 +154,7 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
                 .put(AttributeType.ATTACK_SPEED, 3.0d)
                 .makeMap();
 
-        @DisplayField private final double healing = 15.0d;
+        @DisplayField private final double healing = 20.0d;
 
         public VampireUltimate() {
             super(Vampire.this, "Legion", 50);
@@ -175,16 +172,17 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
 
             setType(TalentType.ENHANCE);
             setItem(Material.TOTEM_OF_UNDYING);
-            setSound(Sound.ENTITY_BAT_LOOP, 0.75f);
+            setSound(Sound.ENTITY_BAT_DEATH, 0.75f);
 
-            setDurationSec(8.0f);
+            setDurationSec(22.0f);
+            setCooldownSec(25.0f);
         }
 
         @Nonnull
         @Override
         public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
             final int legionCount = (int) player.getTeam().getPlayers().stream()
-                    .filter(p -> p.getHero().getAffiliation() == Affiliation.CHATEAU)
+                    .filter(p -> p.getHero().getProfile().getAffiliation() == Affiliation.CHATEAU)
                     .count();
 
             final EntityAttributes attributes = player.getAttributes();
@@ -199,6 +197,20 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
             // Fx
             player.spawnBuffDisplay("&4&l🦇 LEGION &c(%s)".formatted(legionCount), 30);
             player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
+
+            EntitySpawner.of(Entities.BAT, self -> {
+                        self.setAwake(true);
+                        self.setInvulnerable(true);
+                    })
+                    .then(EntitySpawner.spawn(player.getLocation(), 10))
+                    .then(EntitySpawner.tick(30, self -> player.spawnWorldParticle(self.getLocation().add(0, 0.2, 0), Particle.SMOKE, 1)))
+                    .then(EntitySpawner.forEach(self -> {
+                        final Location location = self.getLocation().add(0, 0.2, 0);
+
+                        player.spawnWorldParticle(location, Particle.POOF, 2, 0.2f, 0.2f, 0.2f, 0.05f);
+                        self.remove();
+                    }))
+                    .run();
 
             return UltimateResponse.OK;
         }

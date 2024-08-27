@@ -5,6 +5,7 @@ import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.heroes.Affiliation;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.UltimateTalent;
@@ -87,20 +88,21 @@ public abstract class GuessWhoGUI extends StyledGUI {
         builder.setName(hero.getName());
         builder.addLore();
 
-        final Affiliation affiliation = hero.getAffiliation();
+        final HeroProfile profile = hero.getProfile();
+        final Affiliation affiliation = profile.getAffiliation();
 
         // General
-        builder.addLore("Archetype: " + hero.getArchetypes());
+        builder.addLore("Archetype: " + profile.getArchetypes());
 
         if (affiliation == Affiliation.NOT_SET) {
             builder.addLore("&mAffiliation");
         }
         else {
-            builder.addLore("Affiliation: " + affiliation.toString());
+            builder.addLore("Affiliation: " + affiliation);
         }
 
-        builder.addLore("Gender: " + hero.getGender());
-        builder.addLore("Race: " + hero.getRace());
+        builder.addLore("Gender: " + profile.getGender());
+        builder.addLore("Race: " + profile.getRace());
         builder.addLore("Player Rating: " + hero.getAverageRating());
 
         // Talents

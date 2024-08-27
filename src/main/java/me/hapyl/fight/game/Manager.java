@@ -24,8 +24,8 @@ import me.hapyl.fight.game.cosmetic.skin.SkinEffectManager;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.event.ServerEvents;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.type.EnumGameType;
-import me.hapyl.fight.game.heroes.ArchetypeList;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -757,7 +757,7 @@ public final class Manager extends BukkitRunnable {
         // teleport players to spawn
         for (final Player player : Bukkit.getOnlinePlayers()) {
             final Hero hero = getSelectedLobbyHero(player);
-            final ArchetypeList archetypes = hero.getArchetypes();
+            final List<Archetype> archetypes = hero.getProfile().getArchetypes();
 
             resetPlayer(player);
 

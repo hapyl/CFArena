@@ -88,6 +88,10 @@ public class BatSwarm extends Talent {
                 bats.forEach(bat -> {
                     // Entity collision
                     Collect.nearbyEntities(bat.getLocation(), hitboxSize, player::isNotSelfOrTeammate).forEach(entity -> {
+                        if (entity.ticker.noDamageTicks.getTick() > 0) {
+                            return;
+                        }
+
                         entity.damage(damage, player, EnumDamageCause.SWARM);
                         entity.addEffect(Effects.BLINDNESS, 1, 20);
 

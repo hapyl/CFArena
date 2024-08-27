@@ -95,9 +95,10 @@ public class DumpHeroData extends SimpleAdminCommand {
             }
 
             final LocalDate now = LocalDate.now();
+            final HeroProfile profile = hero.getProfile();
 
             try (MdFileWriter writer = new MdFileWriter(this)) {
-                writer.comment("Shaman ; v%s ; %s".formatted(CF.getVersionNoSnapshot(), now.toString()));
+                writer.comment("%s ; v%s ; %s".formatted(hero.getKey(), CF.getVersionNoSnapshot(), now.toString()));
 
                 writer.header("Name:");
                 writer.append(hero.getName());
@@ -106,11 +107,11 @@ public class DumpHeroData extends SimpleAdminCommand {
                 writer.append(hero.getDescription());
 
                 writer.header("Archetype");
-                writer.append(hero.getArchetypes().toString());
+                writer.append(profile.getArchetypes().toString());
 
-                final Affiliation affiliation = hero.getAffiliation();
-                final Race race = hero.getRace();
-                final Gender gender = hero.getGender();
+                final Affiliation affiliation = profile.getAffiliation();
+                final Race race = profile.getRace();
+                final Gender gender = profile.getGender();
 
                 if (affiliation != Affiliation.NOT_SET) {
                     writer.header("Affiliation");

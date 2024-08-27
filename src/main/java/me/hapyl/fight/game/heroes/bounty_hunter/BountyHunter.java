@@ -61,9 +61,10 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     public BountyHunter(@Nonnull Key key) {
         super(key, "Bounty Hunter");
 
-        setAffiliation(Affiliation.MERCENARY);
-        setArchetypes(Archetype.MOBILITY);
-        setGender(Gender.FEMALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY);
+        profile.setAffiliation(Affiliation.MERCENARY);
+        profile.setGender(Gender.FEMALE);
 
         setDescription("""
                 She is a skilled bounty hunter.

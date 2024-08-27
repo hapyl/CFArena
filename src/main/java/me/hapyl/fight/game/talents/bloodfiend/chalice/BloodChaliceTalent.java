@@ -27,6 +27,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @Nonnull
     @Override
     public String getDescription() {
+        // FIXME (Tue, Aug 27 2024 @xanyjl): The chalice doesn't actually convert the damage, it just heals n% of the damage, kinda misleading
         return """
                 The chalice will convert &c{healingPercent}&7 of damage dealt into healing.
                 &8&o;;Only against taunted entities.

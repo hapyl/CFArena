@@ -8,10 +8,7 @@ import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -39,8 +36,9 @@ public class Troll extends Hero implements Listener {
     public Troll(@Nonnull Key key) {
         super(key, "Troll");
 
-        setArchetypes(Archetype.STRATEGY, Archetype.MELEE);
-        setGender(Gender.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.STRATEGY, Archetype.MELEE);
+        profile.setGender(Gender.UNKNOWN);
 
         setDescription("Not a good fighter... but definitely a good troll!");
         setItem("9626c019c8b41c7b249ae9bb6760c4e6980051cf0d6895cb3e6846d81245ad11");

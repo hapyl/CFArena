@@ -101,6 +101,8 @@ public class PlayerTablist extends Tablist {
             entryList.append(displayNameTab, EntryTexture.of(profile.getPlayer()), PingBars.byValue(profile.getPlayer().getPing()));
         }
 
+        // TODO (Tue, Aug 27 2024 @xanyjl): Add ...and N more if there are a lot of players
+
         setColumn(0, entryList);
     }
 

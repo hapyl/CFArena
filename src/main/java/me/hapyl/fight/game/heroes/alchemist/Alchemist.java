@@ -14,10 +14,7 @@ import me.hapyl.fight.game.effect.EffectFlag;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -53,8 +50,9 @@ public class Alchemist extends Hero implements UIComponent {
     public Alchemist(@Nonnull Key key) {
         super(key, "Alchemist");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.SELF_SUSTAIN);
-        setGender(Gender.FEMALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.STRATEGY, Archetype.SELF_SUSTAIN);
+        profile.setGender(Gender.FEMALE);
 
         setDescription(
                 "An alchemist who was deceived by the abyss."

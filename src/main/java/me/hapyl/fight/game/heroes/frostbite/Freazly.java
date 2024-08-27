@@ -4,10 +4,7 @@ package me.hapyl.fight.game.heroes.frostbite;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -26,8 +23,10 @@ public class Freazly extends Hero {
     public Freazly(@Nonnull Key key) {
         super(key, "Frostbite");
 
-        setArchetypes(Archetype.HEXBANE, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
-        setGender(Gender.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.HEXBANE, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.UNKNOWN);
+
         setDescription("A very cold entity to the touch.");
         setItem("cad7486b5d20823d5c24cba1850a600a7744209899828b19ccf93f69f2187058");
 

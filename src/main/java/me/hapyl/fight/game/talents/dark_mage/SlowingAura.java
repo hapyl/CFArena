@@ -103,8 +103,8 @@ public class SlowingAura extends DarkMageTalent {
                 final double y = Math.sin(Math.toRadians(tick) * 8) * 0.3d;
                 final double z = Math.cos(d) * radius;
 
-                LocationHelper.modify(location, x, y, z, particle::draw);
-                LocationHelper.modify(location, z, -y, x, particle::draw);
+                LocationHelper.offset(location, x, y, z, particle::draw);
+                LocationHelper.offset(location, z, -y, x, particle::draw);
 
                 d += Math.PI / 32;
             }

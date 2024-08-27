@@ -35,6 +35,8 @@ public class EtherealArrow extends AuroraArrowTalent {
                 &6%s
                 &8▷&7 Increases %s by {critRateBoost}.
                 &8▷&7 Increases %s by {critDamageBoost}.
+                
+                &7&o;;Ethereal arrows home towards nearby teammates.
                 """.formatted(Named.ETHEREAL_SPIRIT, Named.ETHEREAL_SPIRIT.getName(), AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE)
         );
 

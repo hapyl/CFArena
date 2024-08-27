@@ -81,11 +81,11 @@ public class CelesteArrow extends AuroraArrowTalent {
                 final double y = tick / 20d;
                 final double z = Math.cos(d) * 0.9d;
 
-                LocationHelper.modify(location, x, y, z, loc -> {
+                LocationHelper.offset(location, x, y, z, loc -> {
                     fxParticle.draw(loc);
                 });
 
-                LocationHelper.modify(location, z, y, x, loc -> {
+                LocationHelper.offset(location, z, y, x, loc -> {
                     fxParticle.draw(loc);
                 });
 

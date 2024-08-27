@@ -28,8 +28,9 @@ public class Ender extends Hero implements Listener {
     public Ender(@Nonnull Key key) {
         super(key, "Ender");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
-        setGender(Gender.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
+        profile.setGender(Gender.UNKNOWN);
 
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
         setMinimumLevel(5);

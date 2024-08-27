@@ -6,10 +6,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -57,8 +54,9 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
 
-        setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.SELF_BUFF);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.SELF_BUFF);
+        profile.setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();
         attributes.setSpeed(70);

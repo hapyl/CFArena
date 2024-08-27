@@ -73,20 +73,17 @@ public abstract class Hero
     private final Key key;
     private final HeroStatsCollection stats;
     private final HeroAttributes attributes;
+    private final HeroProfile profile;
     private final Equipment equipment;
     private final String name;
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
     private final Map<Talent, HotbarSlots> talentsMapped;
-    private final ArchetypeList archetypes;
     @Nonnull public HeroEventHandler eventHandler;
 
     protected HeroMastery mastery;
     protected UltimateTalent ultimate;
 
-    private Affiliation affiliation;
-    private Gender gender;
-    private Race race;
     private String description;
     private ItemStack guiTexture;
     private Weapon weapon;
@@ -105,16 +102,13 @@ public abstract class Hero
         this.weapon = new Weapon(Material.WOODEN_SWORD);
         this.equipment = new Equipment();
         this.attributes = new HeroAttributes(this);
-        this.affiliation = Affiliation.NOT_SET;
-        this.archetypes = new ArchetypeList(this);
+        this.profile = new HeroProfile(this);
         this.minimumLevel = 0;
         this.itemMaker = new HeroPlayerItemMaker(this);
         this.ultimate = null;
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
-        this.gender = Gender.UNKNOWN;
-        this.race = Race.HUMAN; // defaulted to human
         this.mastery = new HeroMastery(this);
 
         // Map talents
@@ -144,21 +138,8 @@ public abstract class Hero
     }
 
     @Nonnull
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(@Nonnull Gender sex) {
-        this.gender = sex;
-    }
-
-    @Nonnull
-    public Race getRace() {
-        return race;
-    }
-
-    public void setRace(@Nonnull Race race) {
-        this.race = race;
+    public HeroProfile getProfile() {
+        return profile;
     }
 
     @Override
@@ -211,33 +192,6 @@ public abstract class Hero
      */
     public void setMinimumLevel(long minimumLevel) {
         this.minimumLevel = minimumLevel;
-    }
-
-    @Nonnull
-    public ArchetypeList getArchetypes() {
-        return archetypes;
-    }
-
-    public void setArchetypes(@Nonnull Archetype... archetype) {
-        archetypes.set(archetype);
-    }
-
-    /**
-     * Returns the origin of this hero.
-     *
-     * @return the origin of this hero.
-     */
-    public Affiliation getAffiliation() {
-        return affiliation;
-    }
-
-    /**
-     * Sets the origin for this hero.
-     *
-     * @param affiliation - New origin.
-     */
-    public void setAffiliation(Affiliation affiliation) {
-        this.affiliation = affiliation;
     }
 
     /**
@@ -685,7 +639,7 @@ public abstract class Hero
 
     @Nonnull
     public final String getPrefix() {
-        return getArchetypes().getFirst().getPrefix();
+        return getProfile().getArchetypes().getFirst().getPrefix();
     }
 
     public final boolean isValidHero() {

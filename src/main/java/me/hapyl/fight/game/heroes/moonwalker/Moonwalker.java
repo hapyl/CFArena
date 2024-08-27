@@ -46,10 +46,12 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
         super(key, "Moonwalker");
 
         setMinimumLevel(3);
-        setArchetypes(Archetype.RANGE);
-        setAffiliation(Affiliation.SPACE);
-        setGender(Gender.MALE);
-        setRace(Race.ALIEN);
+
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.RANGE);
+        profile.setAffiliation(Affiliation.SPACE);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.ALIEN);
 
         setDescription("A traveler from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
