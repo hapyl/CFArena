@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.cosmetic;
 
+/**
+ * @deprecated legacy
+ */
+@Deprecated
 public interface RandomDrop {
 
     float getDropChance();

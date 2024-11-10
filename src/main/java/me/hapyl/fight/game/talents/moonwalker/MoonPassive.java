@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 

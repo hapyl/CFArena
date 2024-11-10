@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.ComparableTo;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.util.ComparableTo;
 import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.Located;
 import org.bukkit.Location;
@@ -73,7 +73,8 @@ public class ChaosDroplet implements Removable, Located, ComparableTo<Item> {
             player.playWorldSound(location, Sound.ITEM_FIRECHARGE_USE, 2.0f);
         }
         else {
-            player.damage(TalentRegistry.CHAOS_GROUND.getDamage(), nyx, EnumDamageCause.CHAOS);
+            this.nyx.damage(TalentRegistry.CHAOS_GROUND.getDamage(), EnumDamageCause.CHAOS);
+            player.removeEnergy(TalentRegistry.CHAOS_GROUND.getEnergyDecrease(), this.nyx);
 
             player.spawnWorldParticle(location, Particle.RAID_OMEN, 10, 0.5, 0.25, 0.5, 0.025f);
             player.playWorldSound(Sound.ENTITY_EVOKER_FANGS_ATTACK, 0.75f);

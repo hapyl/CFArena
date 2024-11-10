@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.Action;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -22,6 +21,8 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+
+import java.util.function.Consumer;
 
 public class AlchemicalCauldron extends TickingGameTask {
 
@@ -120,7 +121,7 @@ public class AlchemicalCauldron extends TickingGameTask {
     }
 
     public void setStatus(Status status) {
-        if (owner.hasCooldown(Material.STICK)) {
+        if (owner.cooldownManager.hasCooldown(TalentRegistry.CAULDRON.cooldownKey)) {
             return;
         }
         this.status = status;
@@ -200,14 +201,15 @@ public class AlchemicalCauldron extends TickingGameTask {
         return createStand(location, null);
     }
 
-    private ArmorStand createStand(Location location, Action<ArmorStand> action) {
+    private ArmorStand createStand(Location location, Consumer<ArmorStand> action) {
         return Entities.ARMOR_STAND.spawn(location, me -> {
             me.setMarker(true);
             me.setSmall(true);
             me.setInvisible(true);
             me.setCustomNameVisible(true);
+
             if (action != null) {
-                action.use(me);
+                action.accept(me);
             }
         });
     }

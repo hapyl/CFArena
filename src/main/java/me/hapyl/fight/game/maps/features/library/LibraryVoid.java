@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.maps.features.library;
 
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -8,7 +9,6 @@ import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.features.VoidFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;

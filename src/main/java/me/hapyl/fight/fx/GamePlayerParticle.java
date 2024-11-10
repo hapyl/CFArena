@@ -1,7 +1,7 @@
 package me.hapyl.fight.fx;
 
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.eterna.module.math.geometry.Draw;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 

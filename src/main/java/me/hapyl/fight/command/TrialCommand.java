@@ -1,10 +1,11 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -22,7 +23,7 @@ public class TrialCommand extends SimplePlayerCommand {
             return;
         }
 
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
 
         if (Manager.current().isGameInProgress()) {
             Notifier.error(player, "Cannot start trial while the game is in progress!");

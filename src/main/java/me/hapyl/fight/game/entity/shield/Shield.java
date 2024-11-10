@@ -1,21 +1,20 @@
 package me.hapyl.fight.game.entity.shield;
 
-import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+// TODO (Wed, Sep 4 2024 @xanyjl): Add shield % like before
 public class Shield implements Ticking {
 
     protected final GamePlayer player;
@@ -130,18 +129,8 @@ public class Shield implements Ticking {
     public void onCreate() {
     }
 
-    public final void setShield(@Nonnull GamePlayer player) {
-        player.setShield(this);
-    }
-
-    public final void setShield(@Nonnull Player player) {
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
-            throw new IllegalArgumentException("Game player does not exist for " + player);
-        }
-
-        setShield(gamePlayer);
+    public final void setShield(@Nonnull LivingGameEntity entity) {
+        entity.setShield(this);
     }
 
     public final void onCreate0() {
@@ -172,7 +161,7 @@ public class Shield implements Ticking {
 
     private void updateShield() {
         // Update UI indicator
-        final double absorptionAmount = Numbers.clamp(20 / maxCapacity * capacity, 0, 20);
+        final double absorptionAmount = Math.clamp(20 / maxCapacity * capacity, 0, 20);
 
         player.getPlayer().setAbsorptionAmount(absorptionAmount);
     }

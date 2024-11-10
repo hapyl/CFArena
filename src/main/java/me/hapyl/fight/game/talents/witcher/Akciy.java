@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.talents.witcher;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
+import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -93,7 +92,7 @@ public class Akciy extends Talent implements Listener {
     }
 
     @EventHandler()
-    public void handleTalentUse(PlayerPreconditionEvent ev) {
+    public void handleTalentUse(TalentPreconditionEvent ev) {
         if (!axiiDatamap.containsKey(ev.getPlayer())) {
             return;
         }

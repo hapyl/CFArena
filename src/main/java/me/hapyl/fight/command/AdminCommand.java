@@ -1,6 +1,9 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.command.extra.Acceptor;
 import me.hapyl.fight.database.entry.Currency;
@@ -10,9 +13,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
-import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -174,7 +174,8 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final EnumLevel map = Validate.getEnumValue(EnumLevel.class, args[0]);
+                final EnumLevel map = Enums.byName(EnumLevel.class, args[0]);
+
                 if (map == null) {
                     sendMessage(player, "&cInvalid map!");
                     return;

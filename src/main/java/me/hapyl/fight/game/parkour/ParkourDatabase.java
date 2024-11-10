@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.parkour.Data;
+import me.hapyl.eterna.module.parkour.Stats;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.collection.AsynchronousDatabase;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.eterna.module.parkour.Data;
-import me.hapyl.eterna.module.parkour.Stats;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

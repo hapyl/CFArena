@@ -1,9 +1,9 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.GVar;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimpleAdminCommand;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.GVar;
 import org.bukkit.command.CommandSender;
 
 import javax.annotation.Nullable;
@@ -87,10 +87,10 @@ public class GVarCommand extends SimpleAdminCommand {
         final String newValue = args[1];
 
         switch (toType) {
-            case "int" -> trySet(sender, name, newValue, Validate::getInt);
-            case "long" -> trySet(sender, name, newValue, Validate::getLong);
-            case "double" -> trySet(sender, name, newValue, Validate::getDouble);
-            case "float" -> trySet(sender, name, newValue, Validate::getFloat);
+            case "int" -> trySet(sender, name, newValue, Numbers::getInt);
+            case "long" -> trySet(sender, name, newValue, Numbers::getLong);
+            case "double" -> trySet(sender, name, newValue, Numbers::getDouble);
+            case "float" -> trySet(sender, name, newValue, Numbers::getFloat);
             default -> trySet(sender, name, newValue, t -> t);
         }
     }

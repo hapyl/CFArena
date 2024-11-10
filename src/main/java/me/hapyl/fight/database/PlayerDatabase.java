@@ -3,12 +3,13 @@ package me.hapyl.fight.database;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mongodb.client.MongoCollection;
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.ProgrammerShouldPreferCFCallInsteadOfCallingThisMethod;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerDisplay;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.util.Validate;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -35,7 +36,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final FriendsEntry friendsEntry;
     public final CollectibleEntry collectibleEntry;
     public final DailyRewardEntry dailyRewardEntry;
-    public final CrateEntry crateEntry;
+    @Deprecated public final CrateEntry crateEntry;
     public final DeliveryEntry deliveryEntry;
     public final HotbarLoadoutEntry hotbarEntry;
     public final FastAccessEntry fastAccessEntry;
@@ -46,6 +47,8 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final ChallengeEntry challengeEntry;
     public final SkinEntry skinEntry;
     public final MasteryEntry masteryEntry;
+    public final StoreEntry storeEntry;
+    public final QuestEntry questEntry;
 
     // *=* Entries End *=* //
 
@@ -62,7 +65,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
 
     PlayerDatabase(UUID uuid) {
         this.uuid = uuid;
-        this.mongo = Main.getPlugin().getDatabase();
+        this.mongo = CF.getPlugin().getDatabase();
         this.player = Bukkit.getOfflinePlayer(uuid);
 
         this.filter = new Document("uuid", uuid.toString());
@@ -93,6 +96,8 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.challengeEntry = load(new ChallengeEntry(this));
         this.skinEntry = load(new SkinEntry(this));
         this.masteryEntry = load(new MasteryEntry(this));
+        this.storeEntry = load(new StoreEntry(this));
+        this.questEntry = load(new QuestEntry(this));
 
         // Call onLoad
         entries.forEach(PlayerDatabaseEntry::onLoad);
@@ -141,7 +146,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public PlayerRank getRank() {
         final String rankString = document.get("rank", "DEFAULT");
 
-        return Validate.getEnumValue(PlayerRank.class, rankString, PlayerRank.DEFAULT);
+        return Enums.byName(PlayerRank.class, rankString, PlayerRank.DEFAULT);
     }
 
     public void setRank(@Nonnull PlayerRank rank) {
@@ -251,14 +256,14 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     }
 
     private Logger getLogger() {
-        return Main.getPlugin().getLogger();
+        return CF.getPlugin().getLogger();
     }
 
-    @Nonnull
-    public static PlayerDatabase getDatabase(@Nonnull Player player) {
-        return getDatabase(player.getUniqueId());
-    }
-
+    /**
+     * @deprecated prefer CF#getDatabase
+     */
+    @ProgrammerShouldPreferCFCallInsteadOfCallingThisMethod
+    @Deprecated
     @Nonnull
     public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
         PlayerDatabase database = UUID_DATABASE_MAP.get(uuid);
@@ -273,7 +278,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     }
 
     @Nonnull
-    public static PlayerDatabase instantiate(Player player) {
+    public static PlayerDatabase instantiate(@Nonnull Player player) {
         PlayerDatabase database = UUID_DATABASE_MAP.get(player.getUniqueId());
 
         if (database == null || database instanceof OfflinePlayerDatabase) {

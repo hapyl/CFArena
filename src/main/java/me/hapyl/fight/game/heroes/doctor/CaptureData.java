@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.doctor;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -50,7 +50,7 @@ public class CaptureData extends TickingGameTask {
 
     @Override
     public void run(int tick) {
-        if (player.isDeadOrRespawning() || entity.isDeadOrRespawning() || !player.isHeldSlot(HotbarSlots.HERO_ITEM)) {
+        if (player.isDeadOrRespawning() || entity.isDeadOrRespawning() || !player.isHeldSlot(HotBarSlot.HERO_ITEM)) {
             cancel();
             return;
         }

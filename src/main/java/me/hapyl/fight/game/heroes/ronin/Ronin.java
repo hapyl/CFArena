@@ -1,58 +1,42 @@
 package me.hapyl.fight.game.heroes.ronin;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
-public class Ronin extends Hero implements Listener, Disabled {
+public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData> {
 
-    private final int chargeAttackCooldown = Tick.fromSecond(5);
-    private final Map<GamePlayer, ChargeAttack> chargeAttackMap;
+    private final PlayerDataMap<RoninData> playerDataMap = PlayerMap.newDataMap(RoninData::new);
 
-    /**
-     * WEAPON
-     * 3 perfect hits = 4th hit (any) more dmg 100% bleed for 10s.
-     * <p>
-     * ABILITY 1
-     * Move charge attack to ability.
-     * ABILITY 2
-     * Small dash, damage and slowness.
-     * <p>
-     * ABILITY 3
-     * AoE in front cone x3 BIG DAMAJE.
-     * <p>
-     * Right click block/reflect. ANVIL_LAND SOUND
-     * <p>
-     * ULTIMATE
-     * - Lose 50% of current health.
-     * - Increase speed and attack and crit.
-     * - All hits apply bleed.
-     */
     public Ronin(@Nonnull Key key) {
         super(key, "Ronin");
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.TALENT_DAMAGE);
         profile.setGender(Gender.MALE);
 
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
@@ -63,8 +47,7 @@ public class Ronin extends Hero implements Listener, Disabled {
         equipment.setBoots(5, 2, 41, TrimPattern.TIDE, TrimMaterial.GOLD);
 
         setWeapon(new RoninWeapon());
-
-        chargeAttackMap = Maps.newConcurrentMap();
+        setUltimate(new RoninUltimate());
     }
 
     @Override
@@ -74,49 +57,31 @@ public class Ronin extends Hero implements Listener, Disabled {
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
-        final GamePlayer player = instance.getDamagerAsPlayer();
-        final ChargeAttack chargeAttack = chargeAttackMap.remove(player);
+        final LivingGameEntity damager = instance.getDamager();
+        final LivingGameEntity entity = instance.getEntity();
 
-        if (chargeAttack == null) {
+        if (!(damager instanceof GamePlayer player)) {
             return;
         }
 
-        final Strength strength = chargeAttack.getStrength();
-
-        instance.multiplyDamage(strength.multiplier);
-    }
-
-    @EventHandler()
-    public void handleClick(PlayerInteractEvent ev) {
-        final EquipmentSlot hand = ev.getHand();
-        final Action action = ev.getAction();
-        final Player player = ev.getPlayer();
-
-        if (!validatePlayer(player)
-                || (action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK)
-                || hand == EquipmentSlot.OFF_HAND
-                || player.hasCooldown(getWeapon().getMaterial())) {
+        if (!validatePlayer(player)) {
             return;
         }
 
-        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-        if (gamePlayer == null) {
-            return;
+        // Apply bleed
+        if (player.isUsingUltimate()) {
+            entity.addEffect(Effects.BLEED, 60, true);
         }
-
-        final ChargeAttack chargeAttack = getChargeAttack(gamePlayer);
-        chargeAttack.increment();
     }
 
     @Override
     public Talent getFirstTalent() {
-        return null;
+        return TalentRegistry.CHARGE_ATTACK;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return null;
+        return TalentRegistry.RONIN_DASH;
     }
 
     @Override
@@ -124,14 +89,65 @@ public class Ronin extends Hero implements Listener, Disabled {
         return null;
     }
 
-    public void failChargeAttack(GamePlayer player) {
-        chargeAttackMap.remove(player);
-
-        player.setCooldown(getWeapon().getMaterial(), chargeAttackCooldown);
+    @Nonnull
+    @Override
+    public PlayerDataMap<RoninData> getDataMap() {
+        return playerDataMap;
     }
 
-    @Nonnull
-    private ChargeAttack getChargeAttack(GamePlayer player) {
-        return chargeAttackMap.computeIfAbsent(player, fn -> new ChargeAttack(this, player));
+    private class RoninUltimate extends UltimateTalent {
+
+        @DisplayField(percentage = true) private final double healthSacrifice = 0.5d;
+
+        @DisplayField private final double speedIncrease = 20;
+        @DisplayField private final double critChanceIncrease = 20;
+        @DisplayField private final double critDamageIncrease = 40;
+
+        private final TemperInstance temperInstance = Temper.RONIN.newInstance("&4&lﾒ &cHakariki")
+                .increaseScaled(AttributeType.SPEED, speedIncrease)
+                .increaseScaled(AttributeType.CRIT_CHANCE, critChanceIncrease)
+                .increaseScaled(AttributeType.CRIT_DAMAGE, critDamageIncrease);
+
+        private final BlockData particleData = Material.NETHER_WART_BLOCK.createBlockData();
+
+        public RoninUltimate() {
+            super(Ronin.this, "Harakiri", 60);
+
+            setDescription("""
+                    Perform an ancient ritual, losing {healthSacrifice} of your current health.
+                    
+                    In return, gain the following for {duration}:
+                    • Increased %s.
+                    • Increased %s.
+                    • Increased %s.
+                    • Your attacks apply &cbleed&7.
+                    """.formatted(AttributeType.SPEED, AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE));
+
+            setType(TalentType.ENHANCE);
+            setItem(Material.REDSTONE);
+
+            setDurationSec(15);
+            setCastDurationSec(0.75f);
+        }
+
+        @Nonnull
+        @Override
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return builder()
+                    .onCastStart(() -> {
+                        // Fx
+                        player.addEffect(Effects.SLOW, 3, getCastDuration());
+                        player.spawnWorldParticle(player.getLocation(), Particle.DUST_PILLAR, 20, 0.1, 0.1, 0.1, particleData);
+                        player.playHurtAnimation(0);
+
+                        player.playWorldSound(Sound.ENTITY_BREEZE_DEFLECT, 0.5f);
+                        player.playWorldSound(Sound.ENTITY_BLAZE_HURT, 0.5f);
+                        player.playWorldSound(Sound.ENTITY_PLAYER_HURT, 0.75f);
+                    })
+                    .onCastEnd(() -> {
+                        player.setHealth(player.getHealth() * 0.5d);
+                        temperInstance.temper(player, getDuration(), player);
+                    });
+        }
     }
 }

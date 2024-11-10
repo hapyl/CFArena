@@ -1,15 +1,14 @@
 package me.hapyl.fight.gui.styled.profile;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.delivery.Delivery;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.SlotPattern;
-import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;

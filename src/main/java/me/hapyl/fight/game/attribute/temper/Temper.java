@@ -68,6 +68,7 @@ public enum Temper implements SmallCapsDescriber {
     NYX(false),
     LEGION(false),
     SWARM,
+    RONIN,
 
     /* Keep semicolon on this line for easier addition. */;
 

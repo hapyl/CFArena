@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.maps;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.element.PlayerElementHandler;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.event.Listener;
 

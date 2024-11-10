@@ -39,7 +39,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
 
     public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
         this.entity = entity;
-        this.baseAttributes = baseAttributes.weakCopy();
+        this.baseAttributes = baseAttributes.createCopy();
         this.tempers = new AttributeTemperTable(this);
 
         mapped.clear(); // default to 0
@@ -129,7 +129,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
      */
     @Super
     public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent, @Nullable LivingGameEntity applier) {
-        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent, applier).callAndCheck()) {
+        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent, applier).call()) {
             return;
         }
 
@@ -175,7 +175,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
         final double newValue = original + value;
 
         // Call event
-        if (new AttributeChangeEvent(entity, type, original, newValue).callAndCheck()) {
+        if (new AttributeChangeEvent(entity, type, original, newValue).call()) {
             return Tuple.of(0.d, 0.d);
         }
 
@@ -258,12 +258,6 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
 
     public void resetTemper(@Nonnull Temper temper) {
         tempers.cancel(temper);
-    }
-
-    @Nonnull
-    @Override
-    public WeakEntityAttributes weakCopy() {
-        return new WeakEntityAttributes(this);
     }
 
     private void display(AttributeType type, boolean isBuff) {

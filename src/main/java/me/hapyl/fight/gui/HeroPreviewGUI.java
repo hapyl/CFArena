@@ -1,24 +1,24 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.SlotPattern;
-import me.hapyl.eterna.module.inventory.gui.SmartComponent;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -161,7 +161,7 @@ public class HeroPreviewGUI extends StyledGUI {
                 }
         );
 
-        final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
+        final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
 
         // Mastery
         setItem(
@@ -174,6 +174,14 @@ public class HeroPreviewGUI extends StyledGUI {
                         .addLore()
                         .addLore(Color.BUTTON + "Click for details")
                         .asIcon(), player -> new MasteryGUI(player, hero, returnPage)
+        );
+
+        // Story
+        setItem(27, StyledItem.ICON_STORY
+                .toBuilder()
+                .addLore()
+                .addLore(Color.ERROR + "Find at least one chapter to unlock!")
+                .asIcon()
         );
 
         // Global stats

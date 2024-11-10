@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.DebugData;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

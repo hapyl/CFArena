@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.doctor;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -11,14 +11,14 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Location;
@@ -166,15 +166,14 @@ public class DrEd extends Hero implements UIComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
-
-            return new UltimateResponse() {
-                @Override
-                public void onUltimateEnd(@Nonnull GamePlayer player) {
-                    ultimateWeapon.stop(player);
-                }
-            };
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return builder()
+                    .onExecute(() -> {
+                        player.setItemAndSnap(HotBarSlot.HERO_ITEM, ultimateWeapon.getItem());
+                    })
+                    .onEnd(() -> {
+                        ultimateWeapon.stop(player);
+                    });
         }
     }
 }

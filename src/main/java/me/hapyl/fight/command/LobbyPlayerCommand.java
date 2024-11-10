@@ -1,8 +1,8 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.Manager;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.fight.game.Manager;
 import org.bukkit.entity.Player;
 
 public abstract class LobbyPlayerCommand extends SimplePlayerCommand {

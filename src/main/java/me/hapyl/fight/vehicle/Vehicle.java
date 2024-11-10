@@ -1,6 +1,7 @@
 package me.hapyl.fight.vehicle;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.reflect.packet.wrapped.WrappedPacketPlayInSteerVehicle;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.CF;
@@ -16,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public class Vehicle implements Removable {
 
@@ -48,7 +50,7 @@ public class Vehicle implements Removable {
     public void onMove() {
     }
 
-    public void move(@Nonnull ImmutableList<VehicleDirection> directions) {
+    public void move(@Nonnull ImmutableList<WrappedPacketPlayInSteerVehicle.WrappedInputDirection> directions) {
         // Make sure the player is still riding the vehicle
         if (!vehicle.getPassengers().contains(passenger)) {
             vehicle.addPassenger(passenger);
@@ -61,14 +63,14 @@ public class Vehicle implements Removable {
         final Vector vector = new Vector(0, 0, 0);
 
         directions.apply(vector)
-                .when(VehicleDirection.FORWARD, vec -> vector.add(direction))
-                .when(VehicleDirection.BACKWARDS, v -> v.subtract(direction))
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.FORWARD, vec -> vector.add(direction))
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.BACKWARD, v -> v.subtract(direction))
 
-                .when(VehicleDirection.LEFT, v -> v.subtract(rightVector))
-                .when(VehicleDirection.RIGHT, v -> v.add(rightVector))
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.LEFT, v -> v.subtract(rightVector))
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.RIGHT, v -> v.add(rightVector))
 
-                .when(VehicleDirection.UP, v -> v.setY(1))
-                .when(VehicleDirection.DOWN, v -> v.setY(-1));
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.JUMP, v -> v.setY(1))
+                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.SHIFT, v -> v.setY(-1));
 
         if (vector.lengthSquared() > 0) {
             vector.normalize().multiply(speed.get());
@@ -109,6 +111,7 @@ public class Vehicle implements Removable {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void remove() {
         // Remove the entity
         vehicle.remove();

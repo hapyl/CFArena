@@ -1,20 +1,23 @@
 package me.hapyl.fight.game.heroes.mage;
 
-import me.hapyl.eterna.module.math.Numbers;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -71,7 +74,7 @@ public class Mage extends Hero implements UIComponent {
     }
 
     public void addSouls(GamePlayer player, int amount) {
-        this.soulsCharge.put(player, Numbers.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
+        this.soulsCharge.put(player, Math.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
     }
 
     public int getSouls(GamePlayer player) {
@@ -119,19 +122,21 @@ public class Mage extends Hero implements UIComponent {
 
             setItem(Material.WRITABLE_BOOK);
             setType(TalentType.ENHANCE);
-            setCooldownSec(-1);
+
+            setManualDuration();
+            setCooldown(Constants.INFINITE_DURATION);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setUsingUltimate(true);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                player.setUsingUltimate(true);
 
-            player.setItem(HotbarSlots.TALENT_3, spellWyvernHeart.getSpellItem());
-            player.setItem(HotbarSlots.TALENT_5, spellDragonSkin.getSpellItem());
-            player.snapTo(HotbarSlots.TALENT_4);
-
-            return UltimateResponse.OK;
+                player.setItem(HotBarSlot.TALENT_3, spellWyvernHeart.getSpellItem());
+                player.setItem(HotBarSlot.TALENT_5, spellDragonSkin.getSpellItem());
+                player.snapTo(HotBarSlot.TALENT_4);
+            });
         }
     }
 }

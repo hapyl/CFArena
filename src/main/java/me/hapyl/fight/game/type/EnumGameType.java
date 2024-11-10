@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.type;
 
+import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
@@ -9,8 +10,6 @@ import me.hapyl.fight.game.type.types.DeathmatchKills;
 import me.hapyl.fight.game.type.types.FreeForAll;
 import me.hapyl.fight.game.type.types.FrenzyMode;
 import me.hapyl.fight.game.type.types.commission.CommissionMode;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.KeyedEnum;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

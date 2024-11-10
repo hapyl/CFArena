@@ -3,7 +3,7 @@ package me.hapyl.fight.guesswho;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.GuessWhoEntry;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -174,12 +174,7 @@ public class GuessWhoPlayer {
 
     @Nonnull
     public String getProfileName() {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return toString();
-        }
-
+        final PlayerProfile profile = CF.getProfile(player);
         return profile.getDisplay().getNamePrefixed();
     }
 
@@ -193,7 +188,7 @@ public class GuessWhoPlayer {
     }
 
     public GuessWhoEntry getEntry() {
-        return PlayerDatabase.getDatabase(player).guessWhoEntry;
+        return CF.getDatabase(player).guessWhoEntry;
     }
 
     public void triggerLose() {

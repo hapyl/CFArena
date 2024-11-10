@@ -1,15 +1,11 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.attribute.Attribute;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
-import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.entity.Player;
-
-import java.util.Arrays;
 
 public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
     public PlayerAttributeCommand(String name) {

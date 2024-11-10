@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.witcher;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -10,13 +10,15 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.*;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.witcher.Irden;
 import me.hapyl.fight.game.talents.witcher.Kven;
-import me.hapyl.fight.game.task.player.PlayerTimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -46,13 +48,13 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
         equipment.setLeggings(60, 66, 69);
         equipment.setBoots(29, 29, 33);
 
-        setWeapon(
-                new Weapon(Material.IRON_SWORD)
-                        .setName("Aerondight")
-                        .setDescription("""
-                                Light, sharp as a razor, and fits the hand neatly.
-                                """)
-                        .setDamage(5.0d));
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("aerondight"))
+                .name("Aerondight")
+                .description("""
+                        Light, sharp as a razor, and fits the hand neatly.
+                        """)
+                .damage(5.0d)
+        );
 
         setUltimate(new WitcherUltimate());
     }
@@ -178,30 +180,25 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final EntityAttributes attributes = player.getAttributes();
             final Kven kven = TalentRegistry.KVEN;
             final Irden irden = TalentRegistry.IRDEN;
 
-            kven.startCd(player, 10000);
-            irden.startCd(player, 10000);
+            return builder()
+                    .onExecute(() -> {
+                        kven.startCd(player, 10000);
+                        irden.startCd(player, 10000);
 
-            attributes.increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, defenseIncrease, getUltimateDuration());
-
-            new PlayerTimedGameTask(player, getClass(), getUltimate()) {
-                @Override
-                public void run(int tick) {
-                    irden.affect(player, player.getLocation(), tick);
-                }
-
-                @Override
-                public void onLastTick() {
-                    kven.startCd(player);
-                    irden.startCd(player);
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                        attributes.increaseTemporary(Temper.WITCHER, AttributeType.DEFENSE, defenseIncrease, getUltimateDuration(), player);
+                    })
+                    .onTick(tick -> {
+                        irden.affect(player, player.getLocation(), tick);
+                    })
+                    .onEnd(() -> {
+                        kven.startCd(player);
+                        irden.startCd(player);
+                    });
         }
     }
 }

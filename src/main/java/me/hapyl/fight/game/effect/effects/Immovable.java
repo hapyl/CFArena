@@ -25,8 +25,8 @@ public class Immovable extends Effect {
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         final EntityMemory memory = entity.getMemory();
 
-        memory.remember(key, entity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE));
-        entity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
+        memory.remember(key, entity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE));
+        entity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, 1.0d);
     }
 
     @Override
@@ -34,6 +34,6 @@ public class Immovable extends Effect {
         final EntityMemory memory = entity.getMemory();
         final double value = memory.forget(key, Double.class, 0.0d);
 
-        entity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, value);
+        entity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, value);
     }
 }

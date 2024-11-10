@@ -1,12 +1,13 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.ArtifactEntry;
 import me.hapyl.fight.game.artifact.Artifact;
 import me.hapyl.fight.game.artifact.Type;
 import me.hapyl.fight.registry.Registries;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -48,7 +49,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final PlayerDatabase database = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase database = CF.getDatabase(target);
         final ArtifactEntry entry = database.artifactEntry;
 
         if (argument.equalsIgnoreCase("get")) {

@@ -1,17 +1,21 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.Filter;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.registry.Registries;
-import me.hapyl.fight.util.Filter;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -31,9 +35,9 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
     public HeroSelectGUI(Player player, int startPage) {
         super(player, "Hero Selection", Size.FOUR);
 
-        this.profile = Manager.current().getOrCreateProfile(player);
+        this.profile = CF.getProfile(player);
 
-        this.archetypeSort = new Filter<>(Archetype.class, Archetype.NOT_SET) {
+        this.archetypeSort = new Filter<>(Archetype.class) {
             @Override
             public boolean isKeep(@Nonnull Hero heroes, @Nonnull Archetype archetype) {
                 return heroes.getProfile().getArchetypes().contains(archetype);

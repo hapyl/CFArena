@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.Named;
 
 import javax.annotation.Nonnull;
 

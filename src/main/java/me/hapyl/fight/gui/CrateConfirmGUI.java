@@ -1,9 +1,9 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
-import me.hapyl.fight.game.cosmetic.crate.CrateLoot;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.crate.CrateLocation;
+import me.hapyl.fight.game.crate.CrateLoot;
+import me.hapyl.fight.game.crate.Crates;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

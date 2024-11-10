@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.PigZombie;
@@ -17,15 +18,20 @@ public class PigmanRusher extends TamerPack {
     @DisplayField(percentage = true) private final double pigmanInitialSpeed = 1.5;
     @DisplayField(percentage = true) private final double pigmanMaxSpeed = 2.5;
 
-    private final Weapon pigmanWeapon = new Weapon(Material.GOLDEN_SWORD).setDamage(pigmanBaseDamage);
-    private final Weapon pigmanUltimateWeapon = new Weapon(Material.GOLDEN_SWORD).setDamage(pigmanBaseDamage * 2);
+    private final Weapon pigmanWeapon = Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("pigman_sword"))
+            .damage(pigmanBaseDamage)
+            .build();
+
+    private final Weapon pigmanUltimateWeapon = Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("pigman_ultimate_sword"))
+            .damage(pigmanBaseDamage * 2)
+            .build();
 
     public PigmanRusher() {
         super("Pigman Rusher", """
                 &bRushes&7 and &cattacks&7 all nearby enemies.
                 """, TalentType.DAMAGE);
 
-        attributes.setHealth(50);
+        attributes.setMaxHealth(50);
 
         setDurationSec(60);
     }

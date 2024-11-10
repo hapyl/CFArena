@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
-import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.builtin.Debuggable;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.Important;
 import me.hapyl.fight.game.GameInstance;
@@ -11,7 +14,6 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.util.collection.CacheSet;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -19,35 +21,38 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Used to store custom damage, effects, etc.
+ * Used to store named damage, effects, etc.
  */
-public final class EntityData {
+public final class EntityData implements Ticking, Debuggable {
 
     private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
 
     private final Map<Effects, ActiveGameEffect> gameEffects;
     private final Map<GamePlayer, Double> damageTaken;
-    private final CacheSet<GamePlayer> assistingPlayers;
+    private final Map<GameEntity, Integer> noDamageTicks;
+
+    private final Cache<GamePlayer> assistingPlayers;
 
     private final LivingGameEntity entity;
 
-    @Important(value = "Notifies the event that the damage is custom, not vanilla.") boolean wasHit;
+    @Important(value = "Notifies the event that the damage is named, not vanilla.")
+    boolean wasHit;
+
     @Nullable private GameEntity lastDamager;
     @Nullable private EnumDamageCause lastDamageCause;
-
-    private double lastDamage;
-    private boolean isCrit;
 
     public EntityData(@Nonnull LivingGameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
-        this.assistingPlayers = new CacheSet<>(ASSIST_DURATION);
+        this.noDamageTicks = Maps.newConcurrentMap();
+        this.assistingPlayers = Cache.ofSet(ASSIST_DURATION);
     }
 
     /**
@@ -69,24 +74,6 @@ public final class EntityData {
     }
 
     /**
-     * Returns the last damage taken. Defaults to 0.
-     *
-     * @return the last damage taken.
-     */
-    public double getLastDamage() {
-        return lastDamage;
-    }
-
-    /**
-     * Sets the last damage taken.
-     *
-     * @param lastDamage - Last damage.
-     */
-    public void setLastDamage(double lastDamage) {
-        this.lastDamage = lastDamage;
-    }
-
-    /**
      * Gets the actual map of the game effects.
      *
      * @return game effect map.
@@ -101,26 +88,9 @@ public final class EntityData {
      *
      * @return damage taken map.
      */
+    @Nonnull
     public Map<GamePlayer, Double> getDamageTaken() {
         return damageTaken;
-    }
-
-    /**
-     * Return true if the last damage taken was critical.
-     *
-     * @return true if the last damage taken was critical.
-     */
-    public boolean isCrit() {
-        return isCrit;
-    }
-
-    /**
-     * Sets if the last damage taken was critical.
-     *
-     * @param crit - Is critical.
-     */
-    public void setCrit(boolean crit) {
-        isCrit = crit;
     }
 
     /**
@@ -334,77 +304,11 @@ public final class EntityData {
      * <ul>
      *     <li>{@link #lastDamager}</li>
      *     <li>{@link #lastDamageCause}</li>
-     *     <li>{@link #lastDamage}</li>
-     *     <li>{@link #isCrit}</li>
      * </ul>
      */
     public void resetDamage() {
         lastDamager = null;
         lastDamageCause = null;
-        lastDamage = 0.0d;
-        isCrit = false;
-    }
-
-    /**
-     * Notifiers player about incoming damage for this data.
-     *
-     * @param player - Player to notify.
-     */
-    public void notifyChatIncoming(GamePlayer player) {
-        final double damage = this.lastDamage;
-
-        if (damage < 1) {
-            return;
-        }
-
-        final String prefix = "&7[&c⚔&7] &f";
-        String message = "&l%.2f &ffrom &l%s".formatted(damage, Chat.capitalize(this.getLastDamageCauseNonNull()));
-
-        final LivingEntity lastDamager = this.rootLastDamager();
-
-        if (lastDamager != null) {
-            message += " &fby &l" + lastDamager.getName();
-        }
-
-        if (this.isCrit) {
-            message += " &b&lCRITICAL";
-        }
-
-        player.sendMessage(prefix + message);
-    }
-
-    /**
-     * Notifiers player about outgoing damage for this data.
-     *
-     * @param player - Player to notify.
-     */
-    public void notifyChatOutgoing(GamePlayer player) {
-        final double damage = this.lastDamage;
-
-        if (damage < 1) {
-            return;
-        }
-
-        final String prefix = "&7[&a⚔&7] &f";
-
-        player.sendMessage(prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
-                damage,
-                Chat.capitalize(this.getLastDamageCauseNonNull()),
-                this.entity.getName(),
-                this.isCrit ? " &b&lCRITICAL" : ""
-        ));
-    }
-
-    @Override
-    public String toString() {
-        return "EntityData{" +
-                "entity=" + entity.getName() +
-                ", lastDamager=" + lastDamager +
-                ", lastDamageCause=" + lastDamageCause +
-                ", lastDamage=" + lastDamage +
-                ", isCrit=" + isCrit +
-                ", wasHit=" + wasHit +
-                '}';
     }
 
     public void addAssistingPlayer(@Nonnull GamePlayer player) {
@@ -419,6 +323,45 @@ public final class EntityData {
     @Nonnull
     public Set<GamePlayer> getAssistingPlayers() {
         return new HashSet<>(assistingPlayers);
+    }
+
+    @Override
+    public void tick() {
+        // Tick effects
+        gameEffects.values().forEach(ActiveGameEffect::tick);
+
+        // Tick no damage ticks
+        tickNoDamage();
+    }
+
+    public int getNoDamageTicks(@Nullable GameEntity entity) {
+        return noDamageTicks.getOrDefault(entity != null ? entity : this.entity, 0);
+    }
+
+    public void setNoDamageTicks(@Nullable GameEntity entity, int ticks) {
+        noDamageTicks.put(entity != null ? entity : this.entity, ticks);
+    }
+
+    @Nonnull
+    @Override
+    public String toDebugString() {
+        return CollectionUtils.wrapToString(noDamageTicks);
+    }
+
+    private void tickNoDamage() {
+        final Iterator<Map.Entry<GameEntity, Integer>> iterator = noDamageTicks.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            final Map.Entry<GameEntity, Integer> next = iterator.next();
+            final int value = next.getValue() - 1;
+
+            if (value > 0) {
+                next.setValue(value);
+            }
+            else {
+                iterator.remove();
+            }
+        }
     }
 
     /**

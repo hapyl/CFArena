@@ -1,26 +1,27 @@
 package me.hapyl.fight.game.heroes.taker;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.taker.DeathSwap;
 import me.hapyl.fight.game.talents.taker.FatalReap;
 import me.hapyl.fight.game.talents.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -56,12 +57,12 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
         equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
 
-        setWeapon(new Weapon(Material.IRON_HOE)
-                .setName("Reaper Scythe")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.IRON_HOE, Key.ofString("reaper_scythe"))
+                .name("Reaper Scythe")
+                .description("""
                         The sharpest of them all!
                         """)
-                .setDamage(6.66d)
+                .damage(6.66d)
         );
 
         setUltimate(new TakerUltimate());
@@ -184,11 +185,11 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final SpiritualBones bones = getBones(player);
 
             if (bones.getBones() <= 0) {
-                return UltimateResponse.error("Not enough &l%s&c!".formatted(getPassiveTalent().getName()));
+                return error("Not enough &l%s&c!".formatted(getPassiveTalent().getName()));
             }
 
             final Location location = player.getLocation();
@@ -203,83 +204,66 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
             player.addEffect(Effects.SLOW, 255, castDuration);
 
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick >= castDuration) {
-                        cancel();
-                        return;
-                    }
+            return builder()
+                    .onCastTick(tick -> {
+                        final double distance = Math.sin(tick * 0.1 + 0.5d);
 
-                    final double distance = Math.sin(tick * 0.1 + 0.5d);
+                        for (double d = 0.0d; d < Math.PI * 2; d += Math.PI / 16) {
+                            final double x = Math.sin(d) * distance;
+                            final double y = player.getEyeHeight() - (2.0d / castDuration * tick);
+                            final double z = Math.cos(d) * distance;
 
-                    for (double d = 0.0d; d < Math.PI * 2; d += Math.PI / 16) {
-                        final double x = Math.sin(d) * distance;
-                        final double y = player.getEyeHeight() - (2.0d / castDuration * tick);
-                        final double z = Math.cos(d) * distance;
+                            location.add(x, y, z);
 
-                        location.add(x, y, z);
+                            player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 1);
+                            player.spawnWorldParticle(location, Particle.SMOKE, 1);
 
-                        player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 1);
-                        player.spawnWorldParticle(location, Particle.SMOKE, 1);
-
-                        location.subtract(x, y, z);
-                    }
-
-                    // SFX
-                    if (modulo(2)) {
-                        player.playWorldSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 2.0f / castDuration * tick);
-                    }
-                }
-            }.runTaskTimer(0, 1);
-
-            return new UltimateResponse() {
-                @Override
-                public void onCastFinished(@Nonnull GamePlayer player) {
-                    player.setInvulnerable(true);
-
-                    new TimedGameTask(getUltimateDuration()) {
-                        @Override
-                        public void run(int tick) {
-                            final boolean sneaking = player.isSneaking();
-
-                            player.setVelocity(player.getLocation()
-                                    .getDirection()
-                                    .normalize()
-                                    .multiply(sneaking ? ultimateSpeed / 2 : ultimateSpeed)
-                                    .add(new Vector(0.0d, BukkitUtils.GRAVITY, 0.0d)));
-
-                            // Damage
-                            if (modulo(hitDelay)) {
-                                final Location hitLocation = player.getLocationInFrontFromEyes(1.5d);
-
-                                Collect.nearbyEntities(hitLocation, 2.0d, living -> living.isValid(player))
-                                        .forEach(entity -> {
-                                            entity.damage(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH);
-                                            player.heal(healing);
-                                        });
-
-                                // Hit Fx
-                                player.spawnWorldParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
-                                player.spawnWorldParticle(hitLocation, Particle.LARGE_SMOKE, 20, 1, 1, 1, 0.0f);
-                                player.spawnWorldParticle(hitLocation, Particle.EFFECT, 20, 1, 1, 1, 0.0f);
-
-                                player.playWorldSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
-                                player.playWorldSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);
-                            }
-
-                            // Instant Fx
-                            player.spawnWorldParticle(player.getEyeLocation(), Particle.SQUID_INK, 5, 0.03125d, 0.6d, 0.03125d, 0.01f);
-                            player.spawnWorldParticle(player.getEyeLocation(), Particle.LAVA, 2, 0.03125d, 0.6d, 0.03125d, 0.01f);
+                            location.subtract(x, y, z);
                         }
-                    }.runTaskTimer(0, 1);
-                }
 
-                @Override
-                public void onUltimateEnd(@Nonnull GamePlayer player) {
-                    player.setInvulnerable(false);
-                }
-            };
+                        // SFX
+                        if (tick % 2 == 0) {
+                            player.playWorldSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 2.0f / castDuration * tick);
+                        }
+                    })
+                    .onCastEnd(() -> {
+                        player.setInvulnerable(true);
+                    })
+                    .onTick(tick -> {
+                        final boolean sneaking = player.isSneaking();
+
+                        player.setVelocity(player.getLocation()
+                                .getDirection()
+                                .normalize()
+                                .multiply(sneaking ? ultimateSpeed / 2 : ultimateSpeed)
+                                .add(new Vector(0.0d, BukkitUtils.GRAVITY, 0.0d)));
+
+                        // Damage
+                        if (tick % hitDelay == 0) {
+                            final Location hitLocation = player.getLocationInFrontFromEyes(1.5d);
+
+                            Collect.nearbyEntities(hitLocation, 2.0d, living -> living.isValid(player))
+                                    .forEach(entity -> {
+                                        entity.damage(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH);
+                                        player.heal(healing);
+                                    });
+
+                            // Hit Fx
+                            player.spawnWorldParticle(hitLocation, Particle.SWEEP_ATTACK, 20, 1, 1, 1, 0.0f);
+                            player.spawnWorldParticle(hitLocation, Particle.LARGE_SMOKE, 20, 1, 1, 1, 0.0f);
+                            player.spawnWorldParticle(hitLocation, Particle.EFFECT, 20, 1, 1, 1, 0.0f);
+
+                            player.playWorldSound(hitLocation, Sound.ITEM_TRIDENT_THROW, 0.0f);
+                            player.playWorldSound(hitLocation, Sound.ENTITY_WITHER_HURT, 0.75f);
+                        }
+
+                        // Instant Fx
+                        player.spawnWorldParticle(player.getEyeLocation(), Particle.SQUID_INK, 5, 0.03125d, 0.6d, 0.03125d, 0.01f);
+                        player.spawnWorldParticle(player.getEyeLocation(), Particle.LAVA, 2, 0.03125d, 0.6d, 0.03125d, 0.01f);
+                    })
+                    .onEnd(() -> {
+                        player.setInvulnerable(false);
+                    });
         }
     }
 }

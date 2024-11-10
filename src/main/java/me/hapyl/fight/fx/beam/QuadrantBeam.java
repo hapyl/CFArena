@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx.beam;
 
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.eterna.module.entity.packet.PacketEntity;
 import me.hapyl.eterna.module.entity.packet.PacketGuardian;
 import me.hapyl.eterna.module.entity.packet.PacketSquid;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

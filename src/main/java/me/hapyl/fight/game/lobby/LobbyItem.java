@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.lobby;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -61,7 +62,7 @@ public abstract class LobbyItem {
     }
 
     private ItemStack createBuilder() {
-        final ItemBuilder builder = new ItemBuilder(material, getId())
+        final ItemBuilder builder = new ItemBuilder(material, getKey())
                 .setName(Color.SUCCESS + name)
                 .addSmartLore(description)
                 .addClickEvent(LobbyItem.this::onClick);
@@ -69,8 +70,8 @@ public abstract class LobbyItem {
         return builder.asIcon();
     }
 
-    private String getId() {
-        return "lobby_" + (name.replace(" ", "_").toLowerCase());
+    private Key getKey() {
+        return Key.ofString("lobby_" + (name.replace(" ", "_").toLowerCase()));
     }
 
 }

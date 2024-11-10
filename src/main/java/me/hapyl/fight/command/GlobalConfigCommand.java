@@ -1,11 +1,11 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.collection.GlobalConfigCollection;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.globalconfig.Configuration;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ public class GlobalConfigCommand extends CFCommand {
             return;
         }
 
-        final GlobalConfigCollection globalConfig = CF.getDatabase().getGlobalConfig();
+        final GlobalConfigCollection globalConfig = CF.getServerDatabase().getGlobalConfig();
         final boolean enabled = globalConfig.isEnabled(configuration);
         final String configurationName = configuration.name();
 

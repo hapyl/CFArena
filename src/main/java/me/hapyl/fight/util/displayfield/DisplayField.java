@@ -45,7 +45,7 @@ public @interface DisplayField {
     boolean percentage() default false;
 
     /**
-     * Annotates custom decimal point.
+     * Annotates named decimal point.
      * <br>
      * -1 to dynamically use 1 dp for <code>float</code> and 2 for <code>double</code>.
      *

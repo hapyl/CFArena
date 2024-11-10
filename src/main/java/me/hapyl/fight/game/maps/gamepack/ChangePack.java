@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.maps.gamepack;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.*;
 
 public class ChangePack extends GamePack {

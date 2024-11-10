@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -10,9 +10,8 @@ import me.hapyl.fight.game.heroes.dark_mage.DarkMageData;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.witcher.WitherData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
@@ -91,7 +90,7 @@ public abstract class DarkMageTalent extends Talent {
         }
 
         // Check for lock
-        final HotbarSlots slot = HeroRegistry.DARK_MAGE.getTalentSlotByHandle(this);
+        final HotBarSlot slot = HeroRegistry.DARK_MAGE.getTalentSlotByHandle(this);
 
         if (player.getTalentLock().isLocked(slot)) {
             player.sendTitle("&cTalent is locked!", null, 0, 20, 5);

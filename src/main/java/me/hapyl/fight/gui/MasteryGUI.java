@@ -3,7 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
@@ -49,7 +49,7 @@ public class MasteryGUI extends StyledGUI {
         setHeader(StyledItem.ICON_MASTERY.asIcon());
 
         final HeroMastery mastery = hero.getMastery();
-        final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
+        final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
 
         final int level = entry.getLevel(hero);
 

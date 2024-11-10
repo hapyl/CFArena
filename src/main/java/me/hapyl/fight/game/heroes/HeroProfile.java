@@ -3,12 +3,10 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class HeroProfile {
 

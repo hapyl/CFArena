@@ -1,5 +1,9 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
@@ -8,9 +12,6 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public class DailyResetGUI extends StyledGUI {
     public DailyResetGUI(Player player) {
         super(player, "Reset Bonds", Size.FIVE);
 
-        this.profile = PlayerProfile.getProfileOrThrow(player);
+        this.profile = CF.getProfile(player);
         this.database = profile.getDatabase();
 
         this.entry = database.currencyEntry;

@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.bloodfiend.chalice;
 
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;

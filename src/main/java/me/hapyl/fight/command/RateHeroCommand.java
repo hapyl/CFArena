@@ -6,15 +6,14 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
-import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.EnumReward;
-import me.hapyl.fight.game.reward.RewardDescription;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.setting.EnumSetting;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -93,7 +92,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
     }
 
     public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Hero hero) {
-        if (Settings.SEE_HERO_RATING_MESSAGE.isDisabled(player) || hero.getStats().hasRated(player.getUniqueId())) {
+        if (EnumSetting.SEE_HERO_RATING_MESSAGE.isDisabled(player) || hero.getStats().hasRated(player.getUniqueId())) {
             return;
         }
 

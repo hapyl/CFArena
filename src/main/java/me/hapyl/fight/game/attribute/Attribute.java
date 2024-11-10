@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.attribute;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Described;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;

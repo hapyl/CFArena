@@ -25,18 +25,16 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
      * </blockquote>
      */
 
-    public RandomHeroEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
-
-        setPath("random_hero_prefs");
+    public RandomHeroEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "random_hero_prefs");
     }
 
     public boolean isEnabled() {
-        return getValueInPath("enabled", false);
+        return getValue("enabled", false);
     }
 
     public void setEnabled(boolean enabled) {
-        setValueInPath("enabled", enabled);
+        setValue("enabled", enabled);
     }
 
     @Nonnull
@@ -44,7 +42,7 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
         final Set<Archetype> include = Sets.newHashSet();
 
         for (Archetype archetype : Archetype.values()) {
-            if (getValueInPath("include." + archetype.name(), false)) {
+            if (getValue("include." + archetype.name(), false)) {
                 include.add(archetype);
             }
         }
@@ -56,17 +54,17 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
         for (Archetype archetype : Archetype.values()) {
             final boolean contains = include.contains(archetype);
 
-            setValueInPath("include." + archetype.name(), contains ? true : null);
+            setValue("include." + archetype.name(), contains ? true : null);
         }
     }
 
     @Nullable
     public Hero getLastSelectedHero() {
-        return HeroRegistry.ofStringOrNull(getValueInPath("lastSelectedHero", ""));
+        return HeroRegistry.ofStringOrNull(getValue("lastSelectedHero", ""));
     }
 
     public void setLastSelectedHero(@Nullable Hero hero) {
-        setValueInPath("lastSelectedHero", hero != null ? hero.getKeyAsString() : null);
+        setValue("lastSelectedHero", hero != null ? hero.getKeyAsString() : null);
     }
 
     @Nonnull

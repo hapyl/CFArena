@@ -1,6 +1,10 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.TimeFormat;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.challenge.Challenge;
 import me.hapyl.fight.game.challenge.ChallengeRarity;
 import me.hapyl.fight.game.challenge.PlayerChallenge;
@@ -13,15 +17,11 @@ import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
-import java.util.function.BiConsumer;
 
 public class DailyGUI extends StyledGUI {
 
@@ -31,7 +31,7 @@ public class DailyGUI extends StyledGUI {
     public DailyGUI(Player player) {
         super(player, "Daily Bonds", Size.FIVE);
 
-        this.profile = PlayerProfile.getProfileOrThrow(player);
+        this.profile = CF.getProfile(player);
         this.challengeList = profile.getChallengeList();
 
         openInventory();
@@ -51,7 +51,7 @@ public class DailyGUI extends StyledGUI {
 
         int slot = 20;
         for (PlayerChallenge playerChallenge : challenges) {
-            final Challenge challenge = playerChallenge.getType().get();
+            final Challenge challenge = playerChallenge.getType().getWrapped();
             final ChallengeRarity rarity = challenge.getRarity();
             final boolean complete = playerChallenge.isComplete();
             final boolean hasClaimedRewards = playerChallenge.hasClaimedRewards();

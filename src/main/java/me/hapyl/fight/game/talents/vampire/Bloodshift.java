@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.vampire;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.sound.SoundQueue;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
@@ -11,7 +11,6 @@ import me.hapyl.fight.game.heroes.vampire.VampireData;
 import me.hapyl.fight.game.heroes.vampire.VampireState;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;

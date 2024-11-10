@@ -1,9 +1,9 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.fx.SwiftTeleportAnimation;
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.fx.SwiftTeleportAnimation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;

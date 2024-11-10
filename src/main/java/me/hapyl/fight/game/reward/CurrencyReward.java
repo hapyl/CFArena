@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Maps;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

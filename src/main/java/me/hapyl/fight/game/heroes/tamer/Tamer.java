@@ -1,24 +1,24 @@
 package me.hapyl.fight.game.heroes.tamer;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.tamer.MineOBall;
 import me.hapyl.fight.game.talents.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.DrWitch;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Color;
@@ -66,11 +66,10 @@ public class Tamer extends Hero implements Listener, UIComponent {
         equipment.setLeggings(48, 119, 227);
         equipment.setBoots(38, 0, 0);
 
-        setWeapon(new Weapon(Material.FISHING_ROD)
-                .setName("Lash")
-                .setDescription("An old lash used to train beasts and monsters.")
-                .setId("tamer_weapon")
-                .setDamage(2.0d)); // This is melee damage, weapon damage is handled in the event
+        setWeapon(Weapon.builder(Material.FISHING_ROD, Key.ofString("tamer_weapon"))
+                .name("Lash")
+                .description("An old lash used to train beasts and monsters.")
+                .damage(2.0d)); // This is melee damage, weapon damage is handled in the event
 
         setUltimate(new TamerUltimate());
     }
@@ -139,7 +138,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
             hook.remove();
         }
 
-        gamePlayer.setCooldown(Material.FISHING_ROD, WEAPON_COOLDOWN);
+        gamePlayer.cooldownManager.setCooldown(getWeapon(), WEAPON_COOLDOWN);
     }
 
     @Override
@@ -200,9 +199,10 @@ public class Tamer extends Hero implements Listener, UIComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            // TODO -> Add FX
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            // TODO (Sun, Nov 10 2024 @xanyjl): Yeah add at least fx idk this is fucking empty
+            return execute(() -> {
+            });
         }
     }
 }

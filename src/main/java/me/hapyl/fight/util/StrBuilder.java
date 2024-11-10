@@ -1,5 +1,7 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Builder;
+
 import javax.annotation.Nonnull;
 
 import static java.lang.String.valueOf;

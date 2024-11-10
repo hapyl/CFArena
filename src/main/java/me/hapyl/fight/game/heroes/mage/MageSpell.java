@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.mage;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
@@ -16,17 +17,18 @@ import javax.annotation.Nonnull;
 
 public abstract class MageSpell implements Formatted, Timed {
 
-    private final ItemStack item;
     private final String name;
     private final String description;
 
+    private final ItemStack item;
+
     private int duration;
 
-    public MageSpell(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
+    public MageSpell(@Nonnull Key key, @Nonnull String name, @Nonnull String description, @Nonnull Material material) {
         this.name = name;
         this.description = description;
 
-        this.item = new ItemBuilder(material, name.replace(" ", ""))
+        this.item = new ItemBuilder(material, key)
                 .addClickEvent(player -> {
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 

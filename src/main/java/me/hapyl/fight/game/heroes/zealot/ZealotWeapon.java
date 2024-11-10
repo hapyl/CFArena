@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.zealot;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -21,10 +22,9 @@ public class ZealotWeapon extends Weapon {
     private final Zealot zealot;
 
     public ZealotWeapon(Zealot zealot) {
-        super(Material.DIAMOND_SWORD);
+        super(Material.DIAMOND_SWORD, Key.ofString("zealot_weapon"));
         this.zealot = zealot;
 
-        setId("zealot_weapon");
         setDamage(2.0d);
 
         setName("Psionic Blade");

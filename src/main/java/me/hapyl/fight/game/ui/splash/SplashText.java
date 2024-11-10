@@ -1,8 +1,9 @@
 package me.hapyl.fight.game.ui.splash;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -54,9 +55,9 @@ public class SplashText {
 
     @Nullable
     public static SplashText create(@Nonnull Player player, int startLine, @Nonnull String... text) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
 
-        if (profile == null || !profile.isResourcePack()) {
+        if (!profile.isResourcePack()) {
             return null;
         }
 

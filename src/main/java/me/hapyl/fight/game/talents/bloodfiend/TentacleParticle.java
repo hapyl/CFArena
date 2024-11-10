@@ -35,7 +35,7 @@ public abstract class TentacleParticle extends TickingStepGameTask {
     }
 
     @Override
-    public boolean tick(int tick) {
+    public boolean tick(int tick, int step) {
         if (d >= distance) {
             onDrawFinish(location);
             return true;
@@ -49,7 +49,7 @@ public abstract class TentacleParticle extends TickingStepGameTask {
         draw(location);
 
         location.subtract(0, y, 0);
-        d += step;
+        d += this.step;
         return false;
     }
 

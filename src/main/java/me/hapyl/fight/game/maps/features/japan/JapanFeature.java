@@ -1,6 +1,10 @@
 package me.hapyl.fight.game.maps.features.japan;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
@@ -9,10 +13,6 @@ import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.gradient.Interpolators;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

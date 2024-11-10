@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.reward;
 
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -12,9 +11,9 @@ import java.util.List;
 
 public class CosmeticsReward extends SimpleReward {
 
-    private final List<Cosmetics> cosmetics;
+    private final List<Cosmetic> cosmetics;
 
-    protected CosmeticsReward(@Nonnull String name, @Nonnull Cosmetics[] cosmetics) {
+    protected CosmeticsReward(@Nonnull String name, @Nonnull Cosmetic[] cosmetics) {
         super(name);
 
         this.cosmetics = Arrays.asList(cosmetics);
@@ -25,9 +24,7 @@ public class CosmeticsReward extends SimpleReward {
     public RewardDescription getDescription(@Nonnull Player player) {
         final RewardDescription display = new RewardDescription();
 
-        for (Cosmetics enumCosmetic : cosmetics) {
-            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
-
+        for (Cosmetic cosmetic : cosmetics) {
             display.add(cosmetic.getFormatted());
         }
 
@@ -36,18 +33,18 @@ public class CosmeticsReward extends SimpleReward {
 
     @Override
     public void grant(@Nonnull Player player) {
-        final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
+        final CosmeticEntry entry = CF.getDatabase(player).cosmeticEntry;
 
-        for (Cosmetics cosmetic : cosmetics) {
+        for (Cosmetic cosmetic : cosmetics) {
             entry.addOwned(cosmetic);
         }
     }
 
     @Override
     public void revoke(@Nonnull Player player) {
-        final CosmeticEntry entry = PlayerDatabase.getDatabase(player).cosmeticEntry;
+        final CosmeticEntry entry = CF.getDatabase(player).cosmeticEntry;
 
-        for (Cosmetics cosmetic : cosmetics) {
+        for (Cosmetic cosmetic : cosmetics) {
             entry.removeOwned(cosmetic);
         }
     }

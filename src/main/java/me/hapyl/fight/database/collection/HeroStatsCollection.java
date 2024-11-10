@@ -1,13 +1,12 @@
 package me.hapyl.fight.database.collection;
 
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.Numeric;
 import org.bson.Document;
 
@@ -20,7 +19,7 @@ public class HeroStatsCollection extends AsynchronousDatabase implements Keyed {
     private final Key key;
 
     public HeroStatsCollection(@Nonnull Key key) {
-        super(Main.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
+        super(CF.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
 
         this.key = key;
     }
@@ -32,11 +31,11 @@ public class HeroStatsCollection extends AsynchronousDatabase implements Keyed {
     }
 
     public double getStat(@Nonnull StatType statisticType) {
-        return read(statisticType.name(), 0.0d);
+        return read(statisticType.getKeyAsString(), 0.0d);
     }
 
     public void setStat(@Nonnull StatType statisticType, double value) {
-        write(statisticType.name(), value);
+        write(statisticType.getKeyAsString(), value);
     }
 
     public void addStat(@Nonnull StatType statisticType, double value) {

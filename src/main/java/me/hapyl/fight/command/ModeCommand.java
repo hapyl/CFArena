@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.gui.ModeSelectGUI;
@@ -30,7 +30,7 @@ public class ModeCommand extends SimplePlayerCommand {
             return;
         }
 
-        final EnumGameType mode = Validate.getEnumValue(EnumGameType.class, args[0]);
+        final EnumGameType mode = Enums.byName(EnumGameType.class, args[0]);
 
         if (mode == null) {
             sendInvalidUsageMessage(player);

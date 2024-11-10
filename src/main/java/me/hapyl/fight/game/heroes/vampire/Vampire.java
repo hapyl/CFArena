@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.vampire;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.MapMaker;
-
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -13,14 +13,14 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.HealingOutcome;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.vampire.BatSwarm;
 import me.hapyl.fight.game.talents.vampire.Bloodshift;
 import me.hapyl.fight.game.talents.vampire.VampirePassive;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.EntitySpawner;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -29,7 +29,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -60,19 +59,19 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
         setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(90);
+        attributes.setMaxHealth(90);
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(25, 25, 25, TrimPattern.RIB, TrimMaterial.NETHERITE);
         equipment.setLeggings(254, 253, 252, TrimPattern.SILENCE, TrimMaterial.IRON);
         equipment.setBoots(25, 25, 25, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(new Weapon(Material.GHAST_TEAR)
-                .setName("Vampire's Fang")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang"))
+                .name("Vampire's Fang")
+                .description("""
                         A very sharp fang.
                         """)
-                .setDamage(5.0d)
+                .damage(5.0d)
         );
 
         setUltimate(new VampireUltimate());
@@ -180,39 +179,39 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final int legionCount = (int) player.getTeam().getPlayers().stream()
-                    .filter(p -> p.getHero().getProfile().getAffiliation() == Affiliation.CHATEAU)
-                    .count();
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                final int legionCount = (int) player.getTeam().getPlayers().stream()
+                        .filter(p -> p.getHero().getProfile().getAffiliation() == Affiliation.CHATEAU)
+                        .count();
 
-            final EntityAttributes attributes = player.getAttributes();
+                final EntityAttributes attributes = player.getAttributes();
 
-            legionAttributes.forEach((type, value) -> {
-                attributes.increaseTemporary(Temper.LEGION, type, type.scaleDown(value * legionCount), getDuration());
+                legionAttributes.forEach((type, value) -> {
+                    attributes.increaseTemporary(Temper.LEGION, type, type.scaleDown(value * legionCount), getDuration());
+                });
+
+                // Heal
+                player.heal(healing * legionCount);
+
+                // Fx
+                player.spawnBuffDisplay("&4&l🦇 LEGION &c(%s)".formatted(legionCount), 30);
+                player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
+
+                EntitySpawner.of(Entities.BAT, self -> {
+                            self.setAwake(true);
+                            self.setInvulnerable(true);
+                        })
+                        .then(EntitySpawner.spawn(player.getLocation(), 10))
+                        .then(EntitySpawner.tick(30, self -> player.spawnWorldParticle(self.getLocation().add(0, 0.2, 0), Particle.SMOKE, 1)))
+                        .then(EntitySpawner.forEach(self -> {
+                            final Location location = self.getLocation().add(0, 0.2, 0);
+
+                            player.spawnWorldParticle(location, Particle.POOF, 2, 0.2f, 0.2f, 0.2f, 0.05f);
+                            self.remove();
+                        }))
+                        .run();
             });
-
-            // Heal
-            player.heal(healing * legionCount);
-
-            // Fx
-            player.spawnBuffDisplay("&4&l🦇 LEGION &c(%s)".formatted(legionCount), 30);
-            player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
-
-            EntitySpawner.of(Entities.BAT, self -> {
-                        self.setAwake(true);
-                        self.setInvulnerable(true);
-                    })
-                    .then(EntitySpawner.spawn(player.getLocation(), 10))
-                    .then(EntitySpawner.tick(30, self -> player.spawnWorldParticle(self.getLocation().add(0, 0.2, 0), Particle.SMOKE, 1)))
-                    .then(EntitySpawner.forEach(self -> {
-                        final Location location = self.getLocation().add(0, 0.2, 0);
-
-                        player.spawnWorldParticle(location, Particle.POOF, 2, 0.2f, 0.2f, 0.2f, 0.05f);
-                        self.remove();
-                    }))
-                    .run();
-
-            return UltimateResponse.OK;
         }
 
         private String formatAttributeIncrease() {

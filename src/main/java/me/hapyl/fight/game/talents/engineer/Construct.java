@@ -152,7 +152,7 @@ public abstract class Construct extends TickingGameTask {
 
         final LivingGameEntity entity = this.entity.getEntity();
 
-        entity.getAttributes().setHealth(health);
+        entity.getAttributes().setMaxHealth(health);
 
         // If health < than half of the new max health, heal to half.
         if (entity.getHealth() < halfHealth) {

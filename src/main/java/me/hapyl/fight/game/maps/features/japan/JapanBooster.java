@@ -1,12 +1,10 @@
 package me.hapyl.fight.game.maps.features.japan;
 
-import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.util.Vector;

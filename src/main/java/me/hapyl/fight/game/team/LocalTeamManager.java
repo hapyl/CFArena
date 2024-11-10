@@ -19,18 +19,16 @@ public class LocalTeamManager implements Ticking {
 
     public LocalTeamManager(@Nonnull PlayerProfile profile) {
         this.profile = profile;
-
-        Manager.current().forEachProfile(this::getTeam);
-        updateAll(!Manager.current().isGameInProgress());
+        //Manager.current().forEachProfile(this::getTeam);
+        //updateAll(!Manager.current().isGameInProgress());
     }
 
     @Nonnull
     public Team getTeam(@Nonnull PlayerProfile profile) {
         final Player player = profile.getPlayer();
-
         final Scoreboard scoreboard = this.profile.getPlayer().getScoreboard();
 
-        final String teamName = "zzz-cf-%s".formatted(player.getName()); // force to be last on TAB so custom tab can override it
+        final String teamName = "zzz-cf-%s".formatted(player.getName()); // force to be last on TAB so named tab can override it
 
         Team team = scoreboard.getTeam(teamName);
 

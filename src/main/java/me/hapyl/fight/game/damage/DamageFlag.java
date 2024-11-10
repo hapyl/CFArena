@@ -13,9 +13,9 @@ public enum DamageFlag {
     PROJECTILE,
 
     /**
-     * Is this {@link DamageCause} is custom damage or vanilla damage.
+     * Is this {@link DamageCause} is named damage or vanilla damage.
      * <p>
-     * This flag is default for custom causes.
+     * This flag is default for named causes.
      */
     CUSTOM,
 

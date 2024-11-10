@@ -2,7 +2,7 @@ package me.hapyl.fight.notifier;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.util.Debuggable;
 import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Bukkit;
@@ -45,7 +45,7 @@ public class NotificationManager implements Runnable, Debuggable {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (Settings.SEE_NOTIFICATIONS.isDisabled(player)) {
+            if (EnumSetting.SEE_NOTIFICATIONS.isDisabled(player)) {
                 continue;
             }
 

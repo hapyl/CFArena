@@ -1,19 +1,19 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.setting.Category;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.gui.styled.ReturnData;
-import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.setting.Category;
+import me.hapyl.fight.game.setting.EnumSetting;
+import me.hapyl.fight.gui.styled.ReturnData;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledGUI;
+import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
+import me.hapyl.fight.util.ItemStacks;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -77,10 +77,10 @@ public class SettingsGUI extends StyledGUI {
         component.apply(this, SlotPattern.DEFAULT, 0);
 
         // Update Settings
-        final List<Settings> settings = Settings.byCategory(selectedCategory);
+        final List<EnumSetting> settings = EnumSetting.byCategory(selectedCategory);
 
         for (int i = 0; i < settings.size(); i++) {
-            final Settings setting = settings.get(i);
+            final EnumSetting setting = settings.get(i);
             final boolean isEnabled = setting.isEnabled(player);
 
             if (i >= settingsSlots.length) {

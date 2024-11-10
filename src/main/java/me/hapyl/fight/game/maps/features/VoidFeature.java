@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.alphabet.AlphabetImpl;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
@@ -13,7 +14,7 @@ import javax.annotation.Nonnull;
 public class VoidFeature extends LevelFeature {
 
     private final PlayerMap<Integer> voidMap = PlayerMap.newMap();
-    private final char[] chars = { 'ᛈ', 'ᚢ', 'ᛋ', 'ᛏ', 'ᛟ', 'ᛏ', 'ᚨ' };
+    private final char[] chars = AlphabetImpl.FUTHARK.translateTo("pustota").toCharArray();
 
     public VoidFeature(String name, String description) {
         super(name, description);
@@ -30,7 +31,7 @@ public class VoidFeature extends LevelFeature {
     }
 
     public void removeVoidValue(@Nonnull GamePlayer player) {
-        voidMap.computeIfPresent(player, (pl, a) -> Numbers.clamp(a - 1, 0, chars.length));
+        voidMap.computeIfPresent(player, (pl, a) -> Math.clamp(a - 1, 0, chars.length));
 
         displayVoidValues(player);
 

@@ -1,11 +1,11 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.maps.features.Booster;
-import me.hapyl.fight.game.maps.features.MathBooster;
-import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.LazyEvent;
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.game.maps.features.Booster;
+import me.hapyl.fight.game.maps.features.MathBooster;
+import me.hapyl.fight.util.BlockLocation;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;

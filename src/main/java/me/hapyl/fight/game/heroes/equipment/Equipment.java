@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.equipment;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.story.lore.Lore;
-import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.story.Lore;
+import me.hapyl.fight.util.ItemStacks;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;

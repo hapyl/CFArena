@@ -31,6 +31,10 @@ public class DirectionalMatrix extends Matrix3f {
     public DirectionalMatrix() {
     }
 
+    public DirectionalMatrix(@Nonnull Vector vector) {
+        setLookAlong(vector);
+    }
+
     /**
      * Creates an empty {@link DirectionalMatrix} and sets the {@link #setLookAlong(Vector)} the given entity's direction.
      *

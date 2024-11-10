@@ -1,15 +1,15 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.maps.Selectable;
-import me.hapyl.fight.gui.styled.ReturnData;
-import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.maps.Selectable;
+import me.hapyl.fight.gui.styled.ReturnData;
+import me.hapyl.fight.gui.styled.Size;
+import me.hapyl.fight.gui.styled.StyledGUI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

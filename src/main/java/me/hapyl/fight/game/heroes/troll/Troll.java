@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.troll;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
@@ -10,12 +10,12 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
@@ -48,15 +48,17 @@ public class Troll extends Hero implements Listener {
         equipment.setLeggings(255, 204, 84);
         equipment.setBoots(255, 204, 84);
 
-        setWeapon(new Weapon(Material.STICK).setName("Stickonator")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.STICK, Key.ofString("stickonator"))
+                .name("Stickonator")
+                .description("""
                         - What's brown and sticky?
                         - What?
                         - A stick!
                         - ...
                         """)
-                .setDamage(4.0)
-                .addEnchant(Enchantment.KNOCKBACK, 1));
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .damage(4.0)
+        );
 
         setUltimate(new TrollUltimate());
     }
@@ -155,11 +157,11 @@ public class Troll extends Hero implements Listener {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            clearCobwebs(player);
-
-            cobwebs.put(player, new StickyCobweb(player));
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                clearCobwebs(player);
+                cobwebs.put(player, new StickyCobweb(player));
+            });
         }
     }
 }

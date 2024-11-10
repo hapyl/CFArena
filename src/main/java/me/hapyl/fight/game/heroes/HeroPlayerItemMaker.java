@@ -1,23 +1,21 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.eterna.module.util.Named;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.Named;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.skin.Skins;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Locale;
 
 public class HeroPlayerItemMaker {
 
@@ -37,7 +35,7 @@ public class HeroPlayerItemMaker {
     @Nonnull
     public ItemBuilder makeBuilder(@Nonnull Type type, @Nonnull Player player) {
         final ItemBuilder builder = type.createItem(this, player);
-        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero);
+        final Skins skin = CF.getDatabase(player).skinEntry.getSelected(hero);
 
         // FIXME: This was in makeItem() instead of makeBuilder(), if any problems occur put it back ig -h
         if (skin != null) {
@@ -56,7 +54,7 @@ public class HeroPlayerItemMaker {
                 final PlayerRating averageRating = maker.stats.getAverageRating();
 
                 // Mastery
-                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                final PlayerDatabase database = CF.getDatabase(player);
                 final MasteryEntry entry = database.masteryEntry;
                 final long exp = entry.getExp(hero);
 

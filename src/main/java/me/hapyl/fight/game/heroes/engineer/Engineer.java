@@ -1,21 +1,21 @@
 package me.hapyl.fight.game.heroes.engineer;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -36,9 +36,10 @@ import javax.annotation.Nullable;
 
 public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComponent, DisplayFieldProvider {
 
-    public final Weapon ironFist = new Weapon(Material.IRON_BLOCK)
-            .setDamage(8.0d)
-            .setName("&6&lIron Fist");
+    public final Weapon ironFist = Weapon.builder(Material.IRON_BLOCK, Key.ofString("iron_fist"))
+            .name("&6&lIron Fist")
+            .damage(8.0d)
+            .build();
 
     @DisplayField public final double ultimateInWaterDamage = 10;
     @DisplayField public final int ultimateHitCd = 5;
@@ -62,13 +63,15 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
                 """);
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
 
-        setWeapon(new Weapon(Material.IRON_HOE)
-                .setName("Prototype Wrench")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.IRON_HOE, Key.ofString("prototype_wrench"))
+                .name("Prototype Wrench")
+                .description("""
                         A prototype wrench for all the needs.
                         It... probably hurts to be hit with it.
                         """
-                ).setDamage(5.0d));
+                )
+                .damage(5.0d)
+        );
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(255, 0, 0);
@@ -82,16 +85,16 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
     public void handleEntityInteractEvent(PlayerInteractAtEntityEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final EquipmentSlot hand = ev.getHand();
-        final Material cooldownMaterial = getPassiveTalent().getMaterial();
+        final Talent passiveTalent = getPassiveTalent();
 
-        if (player == null || !validatePlayer(player) || hand == EquipmentSlot.OFF_HAND) {
+        if (!validatePlayer(player) || hand == EquipmentSlot.OFF_HAND) {
             return;
         }
 
         final ItemStack heldItem = player.getHeldItem();
 
         // Didn't click with iron
-        if (heldItem.getType() != cooldownMaterial) {
+        if (heldItem.getType() != passiveTalent.getMaterial()) {
             return;
         }
 
@@ -104,11 +107,11 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         }
 
         // internal cd
-        if (player.hasCooldown(cooldownMaterial)) {
+        if (player.cooldownManager.hasCooldown(passiveTalent)) {
             return;
         }
 
-        player.setCooldown(cooldownMaterial, 10);
+        player.cooldownManager.setCooldown(passiveTalent, 10);
 
         final int iron = data.getIron();
 
@@ -273,13 +276,13 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final EngineerData data = getPlayerData(player);
-            data.createMechaIndustries(Engineer.this);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                final EngineerData data = getPlayerData(player);
+                data.createMechaIndustries(Engineer.this);
 
-            player.schedule(data::removeMechaIndustries, getUltimateDuration());
-
-            return UltimateResponse.OK;
+                player.schedule(data::removeMechaIndustries, getUltimateDuration());
+            });
         }
     }
 }

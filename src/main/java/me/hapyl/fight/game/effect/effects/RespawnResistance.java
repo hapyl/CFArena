@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
-import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectParticle;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;

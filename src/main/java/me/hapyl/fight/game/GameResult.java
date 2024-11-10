@@ -1,6 +1,7 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -10,7 +11,6 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

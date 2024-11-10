@@ -5,13 +5,11 @@ import javax.annotation.Nullable;
 
 public abstract class PlayerDatabaseArrayEntry<T> extends PlayerDatabaseEntry {
 
-    public final String parent;
     public final int size;
 
-    public PlayerDatabaseArrayEntry(PlayerDatabase playerDatabase, String parent, int size) {
-        super(playerDatabase);
+    public PlayerDatabaseArrayEntry(@Nonnull PlayerDatabase playerDatabase, @Nonnull String parent, int size) {
+        super(playerDatabase, parent);
 
-        this.parent = parent;
         this.size = size;
     }
 
@@ -47,6 +45,6 @@ public abstract class PlayerDatabaseArrayEntry<T> extends PlayerDatabaseEntry {
     }
 
     private String getPath(int index) {
-        return parent + ".slot_" + index;
+        return "slot_" + index;
     }
 }

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -8,14 +8,14 @@ import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
@@ -108,39 +108,38 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            temperInstance.temper(player, getUltimateDuration());
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return builder()
+                    .onExecute(() -> {
+                        temperInstance.temper(player, getUltimateDuration());
 
-            // Remove armor for Fx
-            final EntityEquipment equipment = player.getEquipment();
-            equipment.setHelmet(null, true);
-            equipment.setChestplate(null, true);
-            equipment.setLeggings(null, true);
-            equipment.setBoots(null, true);
+                        // Remove armor for Fx
+                        final EntityEquipment equipment = player.getEquipment();
+                        equipment.setHelmet(null, true);
+                        equipment.setChestplate(null, true);
+                        equipment.setLeggings(null, true);
+                        equipment.setBoots(null, true);
 
-            // Fx
-            player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
-            player.spawnWorldParticle(
-                    player.getMidpointLocation(),
-                    Particle.ITEM,
-                    20,
-                    0.15,
-                    0.4,
-                    0.15,
-                    0.25f,
-                    new ItemStack(Material.NETHERITE_INGOT)
-            );
+                        // Fx
+                        player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.75f);
+                        player.spawnWorldParticle(
+                                player.getMidpointLocation(),
+                                Particle.ITEM,
+                                20,
+                                0.15,
+                                0.4,
+                                0.15,
+                                0.25f,
+                                new ItemStack(Material.NETHERITE_INGOT)
+                        );
+                    })
+                    .onEnd(() -> {
+                        getEquipment().equip(player);
 
-            return new UltimateResponse() {
-                @Override
-                public void onUltimateEnd(@Nonnull GamePlayer player) {
-                    getEquipment().equip(player);
-
-                    // Fx
-                    player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.0f);
-                    player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.75f);
-                }
-            };
+                        // Fx
+                        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.0f);
+                        player.playWorldSound(Sound.ITEM_ARMOR_EQUIP_NETHERITE, 0.75f);
+                    });
         }
     }
 }

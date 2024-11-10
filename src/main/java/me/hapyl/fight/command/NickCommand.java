@@ -1,13 +1,14 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.filter.ProfanityFilter;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.profile.PlayerDisplay;
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.DisabledCommand;
 import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.filter.ProfanityFilter;
+import me.hapyl.fight.game.profile.PlayerDisplay;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -36,13 +37,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
             return;
         }
 
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            Notifier.error(player, "Bad profile!");
-            return;
-        }
-
+        final PlayerProfile profile = CF.getProfile(player);
         final PlayerDisplay display = profile.getDisplay();
         final String newNick = args.get(0).toString();
 

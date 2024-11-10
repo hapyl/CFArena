@@ -1,8 +1,8 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.util.Benchmark;
-import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class AutoSync {
@@ -43,12 +43,12 @@ public class AutoSync {
             benchmark.start();
             Chat.broadcast("&7&oSyncing database, might lag a little.");
 
-            Manager.current().allProfiles(profile -> {
+            Manager.current().forEachProfile(profile -> {
                 profile.getDatabase().save();
             });
 
-            benchmark.end();
-            long millis = benchmark.getResult().asMillis();
+            benchmark.step("save");
+            long millis = benchmark.getFirstResult().asMillis();
 
             Chat.broadcast("&a&oDatabase synced! &8(%sms)".formatted(millis));
         } catch (Exception e) {

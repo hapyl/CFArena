@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.attribute.temper;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.collection.ConcurrentTable;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.collection.ConcurrentTable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -2,21 +2,23 @@ package me.hapyl.fight.fastaccess;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.SimpleRegistry;
 import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.CosmeticRegistry;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.registry.SimpleRegistry;
+import me.hapyl.fight.game.type.EnumGameType;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.entity.Player;
 
@@ -47,8 +49,8 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                 @Nonnull
                 @Override
                 public ItemBuilder create(@Nonnull Player player) {
-                    final PlayerProfile profile = PlayerProfile.getProfile(player);
-                    final Hero currentHero = profile != null ? profile.getHero() : HeroRegistry.defaultHero();
+                    final PlayerProfile profile = CF.getProfile(player);
+                    final Hero currentHero = profile.getHero();
 
                     return new ItemBuilder(hero.getItem(player))
                             .setName("Select " + hero.getName())
@@ -130,7 +132,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         }
 
         // Toggle Setting
-        for (Settings enumSetting : Settings.values()) {
+        for (EnumSetting enumSetting : EnumSetting.values()) {
             register(new FastAccess("toggle_setting_" + enumSetting.getKeyAsString(), Category.TOGGLE_SETTING) {
                 @Override
                 public void onClick(@Nonnull Player player) {
@@ -142,7 +144,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                 public ItemBuilder create(@Nonnull Player player) {
                     final boolean enabled = enumSetting.isEnabled(player);
 
-                    return new ItemBuilder(enumSetting.get().getMaterial())
+                    return new ItemBuilder(enumSetting.getMaterial())
                             .setName("Toggle " + enumSetting.getName())
                             .addLore()
                             .addSmartLore("Toggles the setting value.", "&8&o")
@@ -156,27 +158,28 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         }
 
         // Select Gadget
-        for (Cosmetics enumCosmetic : Cosmetics.getByType(Type.GADGET)) {
-            register(new FastAccess("select_gadget_" + enumCosmetic.getKeyAsString(), Category.SELECT_GADGET) {
+        final CosmeticRegistry registry = Registries.getCosmetics();
+
+        for (Cosmetic cosmetic : registry.byType(Type.GADGET)) {
+            register(new FastAccess("select_gadget_" + cosmetic.getKeyAsString(), Category.SELECT_GADGET) {
                 @Override
                 public void onClick(@Nonnull Player player) {
-                    if (!enumCosmetic.isUnlocked(player)) {
+                    if (!cosmetic.isUnlocked(player)) {
                         return;
                     }
 
-                    enumCosmetic.select(player);
+                    cosmetic.select(player);
                 }
 
                 @Override
                 public boolean shouldDisplayTo(@Nonnull Player player) {
-                    return enumCosmetic.isUnlocked(player);
+                    return cosmetic.isUnlocked(player);
                 }
 
                 @Nonnull
                 @Override
                 public ItemBuilder create(@Nonnull Player player) {
-                    final Cosmetic cosmetic = enumCosmetic.getCosmetic();
-                    final Cosmetics selectedGadget = Cosmetics.getSelected(player, Type.GADGET);
+                    final Cosmetic selectedGadget = CF.getDatabase(player).cosmeticEntry.getSelected(Type.GADGET);
 
                     return new ItemBuilder(cosmetic.getIcon())
                             .setName("Select " + cosmetic.getName() + " Gadget")
@@ -185,7 +188,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                             .addLore()
                             .addLore("Gadget to select: " + Color.GOLD + cosmetic.getName())
                             .addLore("Selected gadget: " +
-                                    (selectedGadget != null ? Color.GOLD + selectedGadget.getCosmetic().getName() : "&8None!"));
+                                    (selectedGadget != null ? Color.GOLD + selectedGadget.getName() : "&8None!"));
                 }
             });
         }

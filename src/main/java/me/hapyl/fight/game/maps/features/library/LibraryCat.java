@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.maps.features.library;
 
-import me.hapyl.fight.game.maps.LevelFeature;
-import me.hapyl.fight.garbage.CFGarbageCollector;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.game.maps.LevelFeature;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
+import me.hapyl.fight.util.Nulls;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -66,10 +66,10 @@ public class LibraryCat extends LevelFeature implements Listener {
             self.setOwner(null);
             self.setCatType(Cat.Type.ALL_BLACK);
             self.setAdult();
-            CFGarbageCollector.add(self);
+            SynchronizedGarbageEntityCollector.add(self);
 
-            Nulls.runIfNotNull(self.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE), attr -> attr.setBaseValue(1.0f));
-            Nulls.runIfNotNull(self.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED), attr -> attr.setBaseValue(0.0f));
+            Nulls.runIfNotNull(self.getAttribute(Attribute.KNOCKBACK_RESISTANCE), attr -> attr.setBaseValue(1.0f));
+            Nulls.runIfNotNull(self.getAttribute(Attribute.MOVEMENT_SPEED), attr -> attr.setBaseValue(0.0f));
         });
 
         currentCatPos = 0;

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.util.Named;
+
+import me.hapyl.eterna.module.util.Named;
 
 import javax.annotation.Nonnull;
 

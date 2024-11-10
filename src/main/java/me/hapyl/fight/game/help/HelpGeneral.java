@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.help;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
@@ -27,7 +28,7 @@ public class HelpGeneral extends HelpGUI {
     public void onUpdate() {
         super.onUpdate();
 
-        final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
+        final PlayerProfile profile = CF.getProfile(player);
         final ItemStack heroItem = profile.getSelectedHero().getItem(player);
 
         setItem(
@@ -53,6 +54,7 @@ public class HelpGeneral extends HelpGUI {
         setItem(
                 24,
                 new ItemBuilder(Material.BOOK)
+                        .setName("About Developers")
                         .addSmartLore("Meet the developers.")
                         .addLore()
                         .addLore(Color.BUTTON + "Click to meet them.")
@@ -63,7 +65,7 @@ public class HelpGeneral extends HelpGUI {
     @Nonnull
     @Override
     public Material getBorder() {
-        return Material.LIGHT_GRAY_STAINED_GLASS_PANE;
+        return Material.WHITE_STAINED_GLASS_PANE;
     }
 
 }

@@ -52,7 +52,7 @@ public final class EnderPearlHandler implements Listener {
 
         final EnderPearlTeleportEvent event = new EnderPearlTeleportEvent(gamePlayer, location);
 
-        if (event.callAndCheck()) {
+        if (event.call()) {
             return;
         }
 

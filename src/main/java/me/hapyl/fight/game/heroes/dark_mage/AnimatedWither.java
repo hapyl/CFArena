@@ -99,8 +99,7 @@ public abstract class AnimatedWither {
 
     public final void setInvul(int i) {
         invul = i;
-        CFUtils.setWitherInvul(wither, i);
-        //wither.setInvulnerabilityTicks(i); - I don't know why it doesn't work, updated with BuildTools
+        wither.setInvulnerableTicks(i);
     }
 
     public void remove() {

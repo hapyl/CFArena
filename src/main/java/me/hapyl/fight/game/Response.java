@@ -38,14 +38,19 @@ public class Response {
     }
 
     public void sendError(GamePlayer player) {
-        if (this.isError() && getReason() != null) {
-            player.sendMessage("&cCannot use this! &l" + getReason());
+        if (isError() && reason != null) {
+            player.sendMessage("&8[&c❌&8] &4" + reason);
         }
     }
 
     @Nonnull
-    public static Response error(@Nonnull String reason, @Nullable Object... format) {
-        return new Response(reason.formatted(format), Type.ERROR);
+    public static Response error(@Nonnull String reason) {
+        return new Response(reason, Type.ERROR);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(reason);
     }
 
     @Nonnull

@@ -1,24 +1,30 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.Notifier;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.database.entry.DailyRewardEntry;
+import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.crate.Crates;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
+import me.hapyl.fight.game.setting.EnumSetting;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.archer.ShockDart;
-import me.hapyl.fight.registry.Keyed;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
+    private boolean busy;
+
     public FixMongoDbMigrationFiles(String name) {
         super(name);
     }
@@ -28,10 +34,18 @@ public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
         try {
             final String hostName = InetAddress.getLocalHost().getHostName();
 
+            if (busy) {
+                Notifier.error(player, "The fixer is currently busy!");
+                return;
+            }
+
             if (!hostName.equals("hapyl")) {
                 Notifier.error(player, "This can only be used on a localhost server!");
                 return;
             }
+
+            busy = true;
+            Notifier.info(player, "Working on it...");
 
             final Path path = Path.of(getArgument(args, 0).toString());
             final List<String> lines = Files.readAllLines(path);
@@ -56,42 +70,52 @@ public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
 
             Files.write(path, lines);
             Notifier.success(player, "Successfully fixed {%s} occurrences.".formatted(fixedCount));
-
         } catch (Exception e) {
             Notifier.error(player, "Error occurred! {%s}".formatted(e.getClass() + ":" + e.getMessage()));
+        } finally {
+            busy = false;
         }
     }
 
     private String doFix(String original) {
-        Debug.info(">| " + original);
+        //Debug.info(">| " + original);
 
-        for (Talent keyed : TalentRegistry.values()) {
-            original = doFix(original, keyed);
+        original = doFix(original, TalentRegistry.values());
+        original = doFix(original, HeroRegistry.values());
+        original = doFix(original, Registries.getCosmetics().values());
+        original = doFix(original, ExperienceEntry.Type.values());
+        original = doFix(original, EnumSetting.values());
+        original = doFix(original, StatType.values());
+        original = doFix(original, Type.values());
+        original = doFix(original, me.hapyl.fight.game.collectible.relic.Type.values());
+        original = doFix(original, DailyRewardEntry.Type.values());
+        original = doFix(original, Crates.values());
+        original = doFix(original, HotBarSlot.values());
+        original = doFix(original, Archetype.values());
+
+        return original;
+    }
+
+    private <K extends Keyed> String doFix(String original, K[] keyed) {
+        for (K k : keyed) {
+            original = doFix(original, k);
         }
 
-        for (Hero keyed : HeroRegistry.values()) {
-            original = doFix(original, keyed);
+        return original;
+    }
+
+    private <K extends Keyed> String doFix(String original, List<K> keyed) {
+        for (K k : keyed) {
+            original = doFix(original, k);
         }
 
         return original;
     }
 
     private String doFix(String original, Keyed keyed) {
-        String newKey;
-        String oldKey;
+        final String newKey = keyed.getKeyAsString();
+        final String oldKey = newKey.toUpperCase(); // assume enum
 
-        // I'm fucking fixing shock_darK it's bothering me
-        if (keyed instanceof ShockDart) {
-            newKey = "shock_dart";
-            oldKey = "SHOCK_DARK";
-        }
-        else {
-            newKey = keyed.getKeyAsString();
-            oldKey = newKey.toUpperCase();
-        }
-
-        final Pattern pattern = Pattern.compile("\\b" + Pattern.quote(oldKey) + "\\b");
-
-        return pattern.matcher(original).replaceAll(newKey);
+        return Pattern.compile("\\b" + Pattern.quote(oldKey) + "\\b").matcher(original).replaceAll(newKey);
     }
 }

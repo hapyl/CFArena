@@ -4,19 +4,20 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.crate.*;
-import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvertGUI;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.game.crate.*;
+import me.hapyl.fight.game.crate.convert.CrateConvertGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.Notifier;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -46,7 +47,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
     public CrateGUI(Player player, CrateLocation location) {
         super(player, "Crates", Size.FOUR);
 
-        this.database = PlayerDatabase.getDatabase(player);
+        this.database = CF.getDatabase(player);
         this.entry = database.crateEntry;
         this.location = location;
 
@@ -64,9 +65,9 @@ public class CrateGUI extends StyledPageGUI<Crates> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, Crates enumCrate, int index, int page) {
+    public ItemStack asItem(@Nonnull Player player, Crates enumCrate, int index, int page) {
         final Crate crate = enumCrate.getCrate();
-        final RandomLootSchema<Cosmetics> schema = crate.getSchema();
+        final RandomLootSchema<Cosmetic> schema = crate.getSchema();
         final int crateCount = (int) entry.getCrates(enumCrate);
 
         final ItemBuilder builder = ItemBuilder.of(crate.getMaterial(), crate.getName(), crate.getDescription());
@@ -82,19 +83,19 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             builder.addLore(rarity + " &8" + schema.getDropChanceString(rarity));
 
             int count = 0;
-            for (Cosmetics cosmetics : items) {
+            for (Cosmetic enumCosmetic : items) {
                 if (count++ >= MAX_ITEMS_PREVIEW && items.size() > MAX_ITEMS_PREVIEW) {
                     builder.addLore(" &8...and %s more!".formatted(items.size() - MAX_ITEMS_PREVIEW));
                     break;
                 }
 
-                final boolean isUnlocked = cosmetics.isUnlocked(player);
-                final String cosmeticName = cosmetics.getCosmetic().getName();
+                final boolean isUnlocked = enumCosmetic.isUnlocked(player);
+                final String cosmeticName = enumCosmetic.getName();
 
                 if (isUnlocked) {
                     builder.addLore("&a✔ &7&m%s&b » %s".formatted(
                             cosmeticName,
-                            rarity.getCompensationString()
+                            rarity.getCompensation()
                     ));
                 }
                 else {

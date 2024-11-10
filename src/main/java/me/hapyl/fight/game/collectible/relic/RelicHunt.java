@@ -2,15 +2,16 @@ package me.hapyl.fight.game.collectible.relic;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.eterna.module.annotate.Range;
+import me.hapyl.eterna.module.nbt.NBT;
+import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.maps.EnumLevel;
-import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.eterna.module.nbt.NBT;
-import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.npc.StoreOwnerNPC;
+import me.hapyl.fight.npc.TheEyeNPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +25,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.profile.PlayerProfile;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,11 +58,11 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         collectorRewards.put(2, Reward.currency("Collector 2").withCoins(2500).withExp(25));
         collectorRewards.put(3, Reward.currency("Collector 3").withCoins(5000).withExp(50).withRubies(1));
 
-        exchangeReward.put(1,Reward.currency("Exchange 1").withCoins(500).withExp(5));
-        exchangeReward.put(2,Reward.currency("Exchange 2").withCoins(1000).withExp(10));
-        exchangeReward.put(3,Reward.currency("Exchange 3").withCoins(1500).withExp(15));
-        exchangeReward.put(4,Reward.currency("Exchange 4").withCoins(2000).withExp(20));
-        exchangeReward.put(5,Reward.currency("Exchange 5").withCoins(3000).withExp(30).withRubies(1));
+        exchangeReward.put(1, Reward.currency("Exchange 1").withCoins(500).withExp(5));
+        exchangeReward.put(2, Reward.currency("Exchange 2").withCoins(1000).withExp(10));
+        exchangeReward.put(3, Reward.currency("Exchange 3").withCoins(1500).withExp(15));
+        exchangeReward.put(4, Reward.currency("Exchange 4").withCoins(2000).withExp(20));
+        exchangeReward.put(5, Reward.currency("Exchange 5").withCoins(3000).withExp(30).withRubies(1));
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().runTaskTimer(plugin, new RelicRunnable(this), 0L, 20L);
@@ -78,12 +80,12 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     @Nullable
-    public Reward getCollectorReward(@Range(min = 1) int tier) {
+    public Reward getCollectorReward(@Range(from = 1, to = Byte.MAX_VALUE) int tier) {
         return collectorRewards.get(tier);
     }
 
     @Nonnull
-    public Reward getExchangeReward(@Range(min = 1) int tier) {
+    public Reward getExchangeReward(@Range(from = 1, to = Byte.MAX_VALUE) int tier) {
         Reward reward = exchangeReward.get(tier);
 
         if (reward == null) { // default to the last reward
@@ -188,7 +190,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     public boolean hasClaimedAll(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
         final List<Integer> foundList = database.collectibleEntry.getFoundList();
 
         return byId.size() == foundList.size();
@@ -209,7 +211,8 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(103, new Relic(Type.AMETHYST, 11, 67, -27));
         registerRelic(104, new Relic(Type.AMETHYST, 7, 66, 23));
         registerRelic(105, new Relic(Type.ROSE_QUARTZ, 0, 59, 39).setBlockFace(BlockFace.WEST_NORTH_WEST));
-        registerRelic(106, new Relic(Type.SAPPHIRE, -9, 61, 6));
+        registerRelic(TheEyeNPC.RELIC_ID, new Relic(Type.SAPPHIRE, -9, 61, 6));
+        registerRelic(StoreOwnerNPC.RELIC_ID, new Relic(Type.DIAMOND, 22, 66, 5).setBlockFace(BlockFace.SOUTH_WEST));
 
         // Arena
         registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(EnumLevel.ARENA));

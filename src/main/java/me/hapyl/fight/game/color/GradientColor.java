@@ -7,7 +7,6 @@ import me.hapyl.eterna.module.util.BFormat;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class GradientColor extends Color {
 
@@ -24,12 +23,12 @@ public class GradientColor extends Color {
 
     @Nonnull
     @Override
-    public String color(@Nonnull Object string, @Nullable Object... format) {
+    public String color(@Nonnull Object string) {
         return color(string, Interpolators.LINEAR);
     }
 
-    public String color(@Nonnull Object string, @Nonnull Interpolator interpolator, @Nullable Object... format) {
-        final Gradient gradient = new Gradient(BFormat.format(String.valueOf(string), format));
+    public String color(@Nonnull Object string, @Nonnull Interpolator interpolator) {
+        final Gradient gradient = new Gradient(BFormat.format(String.valueOf(string)));
 
         final ColorFlag[] flags = getFlags();
         if (flags != null) {

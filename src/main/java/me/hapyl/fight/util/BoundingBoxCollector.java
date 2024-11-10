@@ -1,10 +1,9 @@
 package me.hapyl.fight.util;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.eterna.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

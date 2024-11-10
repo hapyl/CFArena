@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.parkour.ParkourCourse;
-import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimpleAdminCommand;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.game.parkour.ParkourCourse;
+import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import org.bukkit.command.CommandSender;
 
 public class UpdateParkourLeaderboardCommand extends SimpleAdminCommand {
@@ -20,7 +20,7 @@ public class UpdateParkourLeaderboardCommand extends SimpleAdminCommand {
             return;
         }
 
-        final ParkourCourse parkourCourse = Validate.getEnumValue(ParkourCourse.class, args[0]);
+        final ParkourCourse parkourCourse = Enums.byName(ParkourCourse.class, args[0]);
         if (parkourCourse == null) {
             Chat.sendMessage(sender, "&cInvalid parkour course!");
             return;

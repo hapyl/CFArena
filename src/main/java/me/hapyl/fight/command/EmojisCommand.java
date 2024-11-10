@@ -1,9 +1,10 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.emoji.Emojis;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -15,12 +16,7 @@ public class EmojisCommand extends SimplePlayerCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return;
-        }
-
+        final PlayerProfile profile = CF.getProfile(player);
         final List<Emojis> emojis = Emojis.getAvailable(profile);
 
         if (emojis.isEmpty()) {

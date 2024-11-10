@@ -7,16 +7,22 @@ import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.event.ProfileInitializationEvent;
+import me.hapyl.fight.game.cosmetic.CosmeticRegistry;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.reward.*;
+import me.hapyl.fight.game.reward.CurrencyReward;
+import me.hapyl.fight.game.reward.CurrencyType;
+import me.hapyl.fight.game.reward.HeroUnlockReward;
+import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Experience extends DependencyInjector<Main> {
+public final class Experience extends DependencyInjector<Main> implements Listener {
 
     private final TreeMap<Long, ExperienceLevel> experienceLevelMap;
 
@@ -47,6 +53,13 @@ public class Experience extends DependencyInjector<Main> {
         experienceLevelMap = Maps.newTreeMap();
         setupMap();
         setupRewards();
+
+        CF.registerEvents(this);
+    }
+
+    @EventHandler
+    public void handleProfileInitializationEvent(ProfileInitializationEvent ev) {
+        triggerUpdate(ev.getPlayer());
     }
 
     /**
@@ -248,7 +261,7 @@ public class Experience extends DependencyInjector<Main> {
     }
 
     public ExperienceEntry getDatabaseEntry(Player player) {
-        return Manager.current().getOrCreateProfile(player).getDatabase().experienceEntry;
+        return CF.getDatabase(player).experienceEntry;
     }
 
     public long getLevel(Player player) {
@@ -368,8 +381,10 @@ public class Experience extends DependencyInjector<Main> {
 
         // Manual rewards
         // Keep manual rewards last for consistency
-        addReward(1, Reward.cosmetics("Level 1 Rewards", Cosmetics.PEACE));
-        addReward(2, Reward.cosmetics("Level 2 Rewards", Cosmetics.EMERALD_EXPLOSION));
+        final CosmeticRegistry cosmetics = Registries.getCosmetics();
+
+        addReward(1, Reward.cosmetics("Level 1 Rewards", cosmetics.PEACE));
+        addReward(2, Reward.cosmetics("Level 2 Rewards", cosmetics.EMERALD_EXPLOSION));
     }
 
     private void addReward(int level, @Nonnull Reward reward) {

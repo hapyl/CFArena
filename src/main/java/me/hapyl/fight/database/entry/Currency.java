@@ -1,17 +1,18 @@
 package me.hapyl.fight.database.entry;
 
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.convert.Product;
-import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.crate.convert.Product;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public enum Currency implements FormattedEnum, Product<Long> {
+public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
 
     COINS(new Color("#FFD700"), "🪙", "Coins") {
         @Override
@@ -20,8 +21,10 @@ public enum Currency implements FormattedEnum, Product<Long> {
         }
     },
     RUBIES(new Color("#9B111E"), "💎", "Rubies"),
-    CHEST_DUST(new Color("#964B00"), "📦", "Dust"),
-    ACHIEVEMENT_POINT(Color.ROYAL_BLUE, "\uD83C\uDF1F", "Achievement Points"),
+    /**
+     * @deprecated Crates are being discontinued
+     */
+    @Deprecated CHEST_DUST(new Color("#964B00"), "📦", "Dust"),
 
     ;
 
@@ -72,10 +75,6 @@ public enum Currency implements FormattedEnum, Product<Long> {
         return getFormatted() + " %,d".formatted(amount);
     }
 
-    public String getPath() {
-        return name().toLowerCase();
-    }
-
     @Nonnull
     @Override
     public Color getColor() {
@@ -101,14 +100,8 @@ public enum Currency implements FormattedEnum, Product<Long> {
     }
 
     @Nonnull
-    public String getFormatted(Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return "null";
-        }
-
-        final CurrencyEntry currency = profile.getDatabase().currencyEntry;
+    public String getFormatted(@Nonnull Player player) {
+        final CurrencyEntry currency = CF.getDatabase(player).currencyEntry;
         final String formatted = currency.getFormatted(this);
 
         return getPrefixColored() + " " + getColor() + formatted;

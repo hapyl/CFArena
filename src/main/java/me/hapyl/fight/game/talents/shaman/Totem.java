@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.shaman.resonance.TotemResonance;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

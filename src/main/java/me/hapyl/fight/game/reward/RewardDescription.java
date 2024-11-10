@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.reward;
 
 import com.google.common.collect.Lists;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.fight.Notifier;
 import me.hapyl.fight.util.IterableOver;
 import org.bukkit.entity.Player;
 

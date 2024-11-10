@@ -2,6 +2,7 @@ package me.hapyl.fight.game.ui;
 
 import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.util.StrBuilder;
 
@@ -29,7 +30,7 @@ public class UIFormat {
     }
 
     @Nonnull
-    public String format(@Nonnull GamePlayer player, @Nonnull GamePlayer.UltimateColor ultimateColor) {
+    public String format(@Nonnull GamePlayer player, @Nonnull UltimateColor ultimateColor) {
         final StrBuilder builder = new StrBuilder(format);
 
         builder.replace("{Health}", player.getHealthFormatted());

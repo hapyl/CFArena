@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.eterna.module.util.Compute;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;

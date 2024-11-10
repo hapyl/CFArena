@@ -11,7 +11,7 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -137,7 +137,7 @@ public class ActiveElement {
         this.task = new GameTask() {
             @Override
             public void run() {
-                if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
+                if (!player.isHeldSlot(HotBarSlot.WEAPON)) {
                     entityPoof();
                     PlayerLib.playSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
                     ((GravityGun) HeroRegistry.DR_ED.getWeapon()).setElement(player, null);

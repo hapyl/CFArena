@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.maps.features.library;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.BlockLocation;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.ThreadRandom;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.util.BlockLocation;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.potion.PotionEffectType;

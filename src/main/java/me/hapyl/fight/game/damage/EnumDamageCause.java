@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.damage;
 
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.game.DeathMessage;
 import org.bukkit.event.entity.EntityDamageEvent;
 
@@ -8,19 +10,19 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 /**
- * This allows to display custom damage cause messages.
+ * This allows to display named damage cause messages.
  * <p>
  * ToDo -> add many more, for each ability at least
- * ToDo -> add custom gradient colors (:
+ * ToDo -> add named gradient colors (:
  */
-public enum EnumDamageCause {
+public enum EnumDamageCause implements Named {
 
     /**
      * System damage causes, <b>do not</b> modify the order.
      */
-    // Have to consider entity_attack as custom damage for display purpose
+    // Have to consider entity_attack as named damage for display purpose
     ENTITY_ATTACK(DamageCause.of("was killed", "by")),
-    // Use this for normal attacks that should not crit if too lazy to create a custom damage cause
+    // Use this for normal attacks that should not crit if too lazy to create a named damage cause
     ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.createCopy().setCanCrit(false)),
     PROJECTILE(DamageCause.minecraft("was shot", "by").setProjectile(true)),
     FALL(DamageCause.minecraft("fell to their death", "while escaping from").addFlags(DamageFlag.PIERCING_DAMAGE)),
@@ -61,7 +63,7 @@ public enum EnumDamageCause {
     OTHER(DamageCause.EMPTY),  // this used if there is no other damage
 
     /**
-     * End of system damage causes, add custom damage causes below.
+     * End of system damage causes, add named damage causes below.
      */
 
     CREEPER_EXPLOSION(DamageCause.of("'sploded by lovely friend", "of")),
@@ -99,7 +101,7 @@ public enum EnumDamageCause {
     LIBRARY_VOID(DamageCause.of("was consumed by §kthe void")),
     RIPTIDE(DamageCause.nonCrit("was splashed", "by").addFlags(DamageFlag.IGNORES_DAMAGE_TICKS)),
     COLD(DamageCause.of("froze to death", "with the help of")),
-    LASER(DamageCause.of("was lasered to death", "by").setDamageTicks(5)),
+    LASER(DamageCause.of("was lasered to death", "by").setDamageTicks(7)),
     WATER(DamageCause.of("really liked the water").setDamageTicks(5)),
     SWARM(DamageCause.of("was swarmed to death by {damager}'s bats").setDamageTicks(1)),
     TROLL_LAUGH(DamageCause.nonCrit("was trolled to death", "by")),
@@ -154,13 +156,18 @@ public enum EnumDamageCause {
     SHARK_BITE(DamageCause.nonCrit("was bitten", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
     NYX_SPIKE(DamageCause.nonCrit("was pierced to death", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
     THE_JOKER(DamageCause.nonCrit("'s death was yoinked", "by")),
+    ECHO(DamageCause.nonCrit("lost their body in the monochrome world", "of")),
+    RONIN_HIT(DamageCause.nonCrit("lost in the duel", "to")),
+    DEFLECT(DamageCause.nonCrit("was killed by {damager}'s deflected attack")),
 
     ;
 
     private final DamageCause damageCause;
+    private final String name;
 
-    EnumDamageCause(DamageCause damageCause) {
+    EnumDamageCause(@Nonnull DamageCause damageCause) {
         this.damageCause = damageCause;
+        this.name = Chat.capitalize(this);
     }
 
     public DamageCause getDamageCause() {
@@ -209,8 +216,14 @@ public enum EnumDamageCause {
         return damageCause.getDamageTicks();
     }
 
+    @Nonnull
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {
-        final EnumDamageCause enumValue = Validate.getEnumValue(EnumDamageCause.class, cause.name());
+        final EnumDamageCause enumValue = Enums.byName(EnumDamageCause.class, cause.name());
         return enumValue == null ? EnumDamageCause.OTHER : enumValue;
     }
 

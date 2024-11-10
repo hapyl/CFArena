@@ -2,13 +2,12 @@ package me.hapyl.fight.game.talents.engineer;
 
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.engineer.Engineer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Blocks;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -64,7 +63,7 @@ public abstract class EngineerTalent extends Talent {
         final Location location = block.getLocation().add(0.5d, 0.0d, 0.5d);
 
         if (block.getType().isOccluding()) {
-            return Response.error("Cannot fit %s!", getName());
+            return Response.error("Cannot fit %s!".formatted(getName()));
         }
 
         if (playerIron < ironCost) {
@@ -79,7 +78,7 @@ public abstract class EngineerTalent extends Talent {
 
         Construct construct = hero.getConstruct(player);
         if (construct != null) {
-            return Response.error("%s already exists!", construct.getName());
+            return Response.error("%s already exists!".formatted(construct.getName()));
         }
 
         hero.removeConstruct(player);

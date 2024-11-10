@@ -1,8 +1,8 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.game.heroes.Archetype;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

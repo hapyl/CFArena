@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.heroes.mastery;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.MapWrap;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.MapGuide;
-import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.FairMode;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
@@ -9,9 +12,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.MapWrap;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -121,7 +121,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         // In truth, this method should only while IN the game, hence it takes GamePlayer,
         // meaning GameInstance would have to exist, but just in case it doesn't somehow,
         // the default value will be returned
-        return PlayerDatabase.getDatabase(player.getPlayer()).masteryEntry.getLevel(hero);
+        return CF.getDatabase(player.getPlayer()).masteryEntry.getLevel(hero);
     }
 
     /**

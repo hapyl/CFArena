@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.heroes.mage;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -9,7 +11,6 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -24,7 +25,7 @@ public class MageWeapon extends Weapon {
     private final Mage hero;
 
     public MageWeapon(Mage hero) {
-        super(Material.IRON_HOE);
+        super(Material.IRON_HOE, Key.ofString("soul_eater"));
 
         this.hero = hero;
 
@@ -33,7 +34,6 @@ public class MageWeapon extends Weapon {
         setDescription("""
                 A weapon capable of absorbing soul fragments and convert them into fuel.
                 """);
-        setId("soul_eater");
 
         setAbility(AbilityType.RIGHT_CLICK, new SoulWhisper());
     }
@@ -59,7 +59,8 @@ public class MageWeapon extends Weapon {
             CFUtils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, entity -> hitEnemy(entity, player));
 
             HeroRegistry.MAGE.addSouls(player, -1);
-            player.setCooldown(Material.IRON_HOE, 10);
+
+            player.setCooldownInternal(getMaterial(), 10);
             player.playSound(Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
 
             return Response.OK;

@@ -1,19 +1,19 @@
 package me.hapyl.fight.game.cosmetic.gadget;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -26,17 +26,8 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     private ItemStack item;
     private int cooldown;
 
-    public Gadget(String name, Rarity rarity, String texture) {
-        this(name, rarity, Material.PLAYER_HEAD, texture);
-    }
-
-    public Gadget(String name, Rarity rarity, Material material) {
-        this(name, rarity, material, null);
-    }
-
-    protected Gadget(String name, Rarity rarity, Material material, String texture) {
-        super(name, null, Type.GADGET, rarity, material);
-        this.texture = texture;
+    public Gadget(@Nonnull Key key, @Nonnull String name) {
+        super(key, name, Type.GADGET);
     }
 
     @Override
@@ -51,18 +42,17 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     }
 
     @Nonnull
-    public ItemStack getItem(Player player) {
+    public ItemStack getItem(@Nonnull Player player) {
         if (item == null) {
-            final ItemBuilder builder = new ItemBuilder(icon, name.replace(" ", "_"))
-                    .setName(name + Color.BUTTON.bold() + " RIGHT CLICK")
+            final ItemBuilder builder = new ItemBuilder(icon, getKey())
+                    .setName(getName() + Color.BUTTON.bold() + " RIGHT CLICK")
                     .addLore("&8Gadget")
                     .addLore()
                     .addTextBlockLore(description)
                     .addClickEvent(this::execute0);
 
-            addExtraLore(builder, player);
-
             if (texture != null) {
+                builder.setType(Material.PLAYER_HEAD);
                 builder.setHeadTextureUrl(texture);
             }
 
@@ -82,12 +72,12 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     }
 
     @Override
-    public void onEquip(Player player) {
+    public void onEquip(@Nonnull Player player) {
         give(player);
     }
 
     @Override
-    public void onUnequip(Player player) {
+    public void onUnequip(@Nonnull Player player) {
         player.getInventory().setItem(5, ItemStacks.AIR);
     }
 
@@ -118,7 +108,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     }
 
     @Override
-    protected void onDisplay(Display display) {
+    public void onDisplay(@Nonnull Display display) {
         final Player player = display.getPlayer();
 
         if (player == null) {

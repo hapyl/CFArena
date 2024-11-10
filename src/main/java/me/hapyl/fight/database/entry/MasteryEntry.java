@@ -3,7 +3,7 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.StrictPlayerDatabaseEntry;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import org.bukkit.ChatColor;
@@ -12,13 +12,12 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public class MasteryEntry extends StrictPlayerDatabaseEntry {
+public class MasteryEntry extends PlayerDatabaseEntry {
 
     private final static int BAR_LENGTH = 15;
 
     public MasteryEntry(PlayerDatabase playerDatabase) {
         super(playerDatabase, "mastery");
-        setPath("mastery");
     }
 
     public final int getLevel(@Nonnull Hero hero) {

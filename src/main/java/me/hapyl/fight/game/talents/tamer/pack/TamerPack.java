@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.tamer.TamerTimed;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.Location;
 
@@ -79,6 +79,6 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
 
     @Nonnull
     public String getTypeString() {
-        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getHealth(), CFUtils.formatTick(duration));
+        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getMaxHealth(), CFUtils.formatTick(duration));
     }
 }

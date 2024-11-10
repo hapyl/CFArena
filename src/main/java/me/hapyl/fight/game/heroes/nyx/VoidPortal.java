@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.UltimateStatus;
 import me.hapyl.fight.game.talents.ChargeType;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.GameTask;
@@ -48,8 +47,8 @@ public class VoidPortal extends TickingGameTask implements Removable {
         final int duration = ultimate.duration.value(type);
         final int chaosRegen = ultimate.chaosRegen.value(type);
 
-        this.radiusIncrease = distance / ultimate.getCastDuration();
-        this.durationWithCast = duration + ultimate.getCastDuration();
+        this.radiusIncrease = distance / ultimate.castDuration;
+        this.durationWithCast = duration + ultimate.castDuration;
 
         // Spawn the entity
         this.voidEntity = Entities.TEXT_DISPLAY.spawn(location, self -> {
@@ -88,7 +87,7 @@ public class VoidPortal extends TickingGameTask implements Removable {
         }
 
         // If tick > castDuration then the animation is finished
-        if (tick > ultimate.getCastDuration()) {
+        if (tick > ultimate.castDuration) {
             if (tick > durationWithCast) {
                 // Final slash
                 if (type == ChargeType.OVERCHARGED) {
@@ -156,7 +155,7 @@ public class VoidPortal extends TickingGameTask implements Removable {
             private double d = 0.0d;
 
             @Override
-            public boolean tick(int tick) {
+            public boolean tick(int tick, int step) {
                 final double x = Math.sin(d) * distance - 0.5d;
                 final double y = Math.atan(d / (Math.PI * 2)) * distance - 0.5d;
                 final double z = Math.cos(d) * distance - 0.5d;

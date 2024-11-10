@@ -1,12 +1,10 @@
 package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * A better version of {@link org.bukkit.event.entity.ProjectileLaunchEvent}.

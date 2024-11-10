@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.ninja;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -14,13 +14,13 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.ninja.NinjaSmoke;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.MaterialCooldown;
 import org.bukkit.Color;
@@ -39,7 +39,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     private final double ultimateDamage = 20.0d;
 
-    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, "THROWING_STAR")
+    private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, Key.ofString("ninja_throwing_star"))
             .setName("Throwing Star &6(Right Click)")
             .setAmount(5)
             .addClickEvent(player -> {
@@ -154,16 +154,16 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final LivingGameEntity entity = instance.getEntity();
         final NinjaWeapon weapon = getWeapon();
 
-        if (entity == player || player == null || !instance.isEntityAttack() || player.hasCooldown(weapon.getMaterial())) {
+        if (entity == player || player == null || !instance.isEntityAttack() || player.cooldownManager.hasCooldown(weapon)) {
             return;
         }
 
-        if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
+        if (!player.isHeldSlot(HotBarSlot.WEAPON)) {
             return;
         }
 
         weapon.noAbilityWeapon.give(player);
-        player.setCooldown(weapon.getMaterial(), weapon.stunCd);
+        player.cooldownManager.setCooldown(weapon, weapon.stunCd);
 
         // Fx
         player.playWorldSound(Sound.ITEM_SHIELD_BREAK, 0.75f);
@@ -239,17 +239,17 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
             setItem(Material.NETHER_STAR);
             setSound(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.75f);
+
+            setManualDuration();
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setUsingUltimate(true);
-
-            player.setItemAndSnap(HotbarSlots.HERO_ITEM, throwingStar);
-            player.setCooldown(throwingStar.getType(), 20);
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                player.setItemAndSnap(HotBarSlot.HERO_ITEM, throwingStar);
+                player.setCooldownInternal(throwingStar.getType(), 20);
+            });
         }
     }
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -23,13 +24,12 @@ public class MoonwalkerWeapon extends Weapon {
     private final Moonwalker hero;
 
     public MoonwalkerWeapon(Moonwalker hero) {
-        super(Material.IRON_HOE);
+        super(Material.IRON_HOE, Key.ofString("moon_weapon"));
 
         this.hero = hero;
 
         setName("Stinger");
         setDamage(2.0d); // Melee damage
-        setId("MOON_WEAPON");
 
         this.rayOfDeathMap = PlayerMap.newMap();
 

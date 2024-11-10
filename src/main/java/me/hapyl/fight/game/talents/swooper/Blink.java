@@ -1,12 +1,11 @@
 package me.hapyl.fight.game.talents.swooper;
 
-
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,7 +35,7 @@ public class Blink extends ChargedTalent {
 
         setItem(Material.ENDER_PEARL);
         setRechargeTimeSec(5);
-        setNoChargedMaterial(Material.ENDER_EYE);
+        setNoChargesItem(Material.ENDER_EYE);
     }
 
     @Override

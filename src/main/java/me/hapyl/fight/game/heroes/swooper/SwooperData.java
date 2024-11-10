@@ -71,7 +71,7 @@ public class SwooperData extends PlayerData {
             nestLocation = null;
 
             // Start cooldown
-            player.startCooldown(swooper.getPassiveTalent());
+            swooper.getPassiveTalent().startCd(player);
 
             // Fx
             player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.0f);

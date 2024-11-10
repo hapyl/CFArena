@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.talents.troll;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

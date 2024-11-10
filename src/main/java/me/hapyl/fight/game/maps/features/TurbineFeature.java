@@ -3,7 +3,6 @@ package me.hapyl.fight.game.maps.features;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Direction;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.maps.LevelFeature;
@@ -52,7 +51,9 @@ public class TurbineFeature extends LevelFeature {
             // Kill em all
             killTrigger.collect(world).forEach(entity -> {
                 entity.damage(entity.getHealth() + 100, EnumDamageCause.SHREDS_AND_PIECES);
-                Cosmetics.BLOOD.getCosmetic().onDisplay0(new Display(null, entity.getLocation()));
+
+                // Fx
+                Registries.getCosmetics().BLOOD.onDisplay0(new Display(null, entity.getLocation()));
 
                 // Trigger achievement
                 if (entity instanceof Player player) {

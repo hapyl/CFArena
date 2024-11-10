@@ -1,16 +1,17 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimpleAdminCommand;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

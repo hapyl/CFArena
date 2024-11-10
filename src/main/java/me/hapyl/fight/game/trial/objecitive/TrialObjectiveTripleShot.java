@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.trial.objecitive;
 
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.registry.Registries;
-import me.hapyl.fight.util.collection.CacheSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,7 +29,7 @@ public class TrialObjectiveTripleShot extends TrialObjective {
         );
     }
 
-    private final CacheSet<Location> cache = new CacheSet<>(500);
+    private final Cache<Location> cache = Cache.ofSet(500);
     private int tries;
 
     public TrialObjectiveTripleShot(Trial trial) {
@@ -43,20 +43,20 @@ public class TrialObjectiveTripleShot extends TrialObjective {
         super.onStart();
 
         final PlayerProfile profile = trial.getProfile();
-        final HotbarLoadout loadout = profile.getHotbarLoadout();
+        final HotBarLoadout loadout = profile.getHotbarLoadout();
         final GamePlayer player = trial.getPlayer();
 
         player.sendTextBlockMessage("""
                 &a&lᴛᴀʟᴇɴᴛs
                 Each &6hero&7 has at least &ntwo&7 combat &btalents&7 that can be used to aid you in battle.
-                                
+                
                 In this case, you just &bunlocked&7 your first talent: &aTriple Shot&7, which shoots &nthree&7 &narrows&7 at once!
                 Try hitting &nall&7 &nthree&7 &etarget blocks&7 at the &nsame&7 time!
-                                
+                
                 &aPress &l&n%s&a on the keyboard to use the talent!
-                """.formatted(loadout.getInventorySlotBySlot(HotbarSlots.TALENT_1) + 1));
+                """.formatted(loadout.getInventorySlotBySlot(HotBarSlot.TALENT_1) + 1));
 
-        player.giveTalentItem(HotbarSlots.TALENT_1);
+        player.giveTalentItem(HotBarSlot.TALENT_1);
     }
 
     @Override

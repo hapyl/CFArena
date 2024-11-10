@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.swooper;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
@@ -31,14 +32,14 @@ public class SwooperWeapon extends RangeWeapon {
     };
 
     public SwooperWeapon(Swooper swooper) {
-        super(Material.WOODEN_HOE, "swooper_weapon");
+        super(Material.WOODEN_HOE, Key.ofString("swooper_weapon"));
 
         setName("Sniper Rifle");
 
         setDescription("""
                 Slow firing sniper rifle.
                 &8&o;;Looks like a gift from someone important.
-                                
+                
                 &eAbility: Scope %s&lSNEAK
                 Activates a sniper score, increasing the max bullet distance.
                 """.formatted(Color.BUTTON));

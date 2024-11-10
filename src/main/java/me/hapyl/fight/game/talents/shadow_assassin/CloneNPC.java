@@ -1,5 +1,8 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -11,9 +14,6 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.TickingScheduler;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Team;

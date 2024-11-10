@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -7,8 +9,6 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 

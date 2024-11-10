@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.challenge;
 
-import me.hapyl.fight.database.entry.ChallengeEntry;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.messagebuilder.HoverEventBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.database.entry.ChallengeEntry;
+import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.reward.CurrencyReward;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -43,7 +43,7 @@ public class PlayerChallengeList {
     }
 
     public boolean canGenerate(@Nonnull ChallengeType type) {
-        return type.get().canGenerate(profile);
+        return type.getWrapped().canGenerate(profile);
     }
 
     public void validateSameDay() {

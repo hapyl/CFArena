@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.moonwalker.MoonZone;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

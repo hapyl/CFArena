@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.talents.engineer;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;

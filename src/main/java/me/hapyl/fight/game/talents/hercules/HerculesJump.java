@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.talents.hercules;
 
 import me.hapyl.eterna.module.player.PlayerLib;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.util.Vector;

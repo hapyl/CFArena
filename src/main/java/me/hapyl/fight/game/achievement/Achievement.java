@@ -1,43 +1,35 @@
 package me.hapyl.fight.game.achievement;
 
+import me.hapyl.eterna.module.annotate.ForceLowercase;
 import me.hapyl.eterna.module.chat.CenterChat;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.LazyEvent;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.annotate.ForceLowercase;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.AchievementEntry;
-import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.fight.database.entry.CurrencyEntry;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
-import me.hapyl.fight.util.ChatUtils;
 import me.hapyl.fight.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEventSource;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.md_5.bungee.api.chat.HoverEvent;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -98,7 +90,7 @@ public class Achievement implements Keyed {
 
     @Nonnull
     public String formatPointReward(int points) {
-        return me.hapyl.fight.game.color.Color.ROYAL_BLUE.color(points + " " + Currency.ACHIEVEMENT_POINT.getFormatted());
+        return me.hapyl.fight.game.color.Color.ROYAL_BLUE.color(points + " " + Named.ACHIEVEMENT_POINT);
     }
 
     @Nonnull
@@ -142,7 +134,7 @@ public class Achievement implements Keyed {
 
     /**
      * Displays the completion for the player.
-     * Plugin may override this for custom display.
+     * Plugin may override this for named display.
      *
      * @param player - Player.
      */
@@ -162,8 +154,8 @@ public class Achievement implements Keyed {
                                 Component.text(
                                         "%s %s %s".formatted(
                                                 pointReward,
-                                                Currency.ACHIEVEMENT_POINT.getPrefix(),
-                                                Currency.ACHIEVEMENT_POINT.getName()
+                                                Named.ACHIEVEMENT_POINT.getCharacterColored(),
+                                                Named.ACHIEVEMENT_POINT.getName()
                                         ),
                                         me.hapyl.fight.game.color.Color.ROYAL_BLUE
                                 )
@@ -208,25 +200,18 @@ public class Achievement implements Keyed {
     }
 
     public final boolean setCompleteCount(@Nonnull Player player, int completeCount) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
         final AchievementEntry entry = database.achievementEntry;
 
         entry.setCompleteCount(this, completeCount);
 
-        awardPlayer(player);
         markComplete(player);
         displayComplete(player);
         return true;
     }
 
-    public void awardPlayer(Player player) {
-        final CurrencyEntry currency = PlayerDatabase.getDatabase(player).currencyEntry;
-
-        currency.add(Currency.ACHIEVEMENT_POINT, pointReward);
-    }
-
     public void markComplete(Player player) {
-        final AchievementEntry entry = PlayerDatabase.getDatabase(player).achievementEntry;
+        final AchievementEntry entry = CF.getDatabase(player).achievementEntry;
 
         onComplete(player);
         entry.setCompletedAt(this, System.currentTimeMillis());
@@ -261,7 +246,7 @@ public class Achievement implements Keyed {
      * @return true if a player has completed this achievement at least once.
      */
     public final boolean hasCompletedAtLeastOnce(@Nonnull Player player) {
-        return PlayerDatabase.getDatabase(player).achievementEntry.hasCompletedAtLeastOnce(this);
+        return CF.getDatabase(player).achievementEntry.hasCompletedAtLeastOnce(this);
     }
 
     public final boolean hasCompletedAtLeastOnce(@Nonnull GamePlayer player) {
@@ -285,7 +270,7 @@ public class Achievement implements Keyed {
      * @return the number of times a player has completed this achievement.
      */
     public final int getCompleteCount(Player player) {
-        return PlayerDatabase.getDatabase(player).achievementEntry.getCompleteCount(this);
+        return CF.getDatabase(player).achievementEntry.getCompleteCount(this);
     }
 
     /**
@@ -296,7 +281,7 @@ public class Achievement implements Keyed {
      * @return the millis at when a player has completed this achievement.
      */
     public final long getCompletedAt(Player player) {
-        return PlayerDatabase.getDatabase(player).achievementEntry.getCompletedAt(this);
+        return CF.getDatabase(player).achievementEntry.getCompletedAt(this);
     }
 
     /**
@@ -341,9 +326,9 @@ public class Achievement implements Keyed {
         builder.setName((isComplete ? me.hapyl.fight.game.color.Color.SUCCESS : me.hapyl.fight.game.color.Color.ERROR) + getName());
         builder.addLore(me.hapyl.fight.game.color.Color.WARM_GRAY + getType());
         builder.addLore();
-        builder.addSmartLore(getDescription());
+        builder.addTextBlockLore(getDescription());
         builder.addLore();
-        builder.addLore("&b&lREWARD:" + BukkitUtils.checkmark(isComplete));
+        builder.addLore("&b&lREWARD: " + BukkitUtils.checkmark(isComplete));
         builder.addLore(getPointRewardFormatted());
     }
 
@@ -371,12 +356,21 @@ public class Achievement implements Keyed {
         return Objects.hashCode(key);
     }
 
+    @Nullable
+    public Hero getHero() {
+        return heroSpecific;
+    }
+
+    public int getPointRewardForCompleting(int times) {
+        return times > 0 ? pointReward : 0;
+    }
+
     @Nonnull
     public static Builder builder(@Nonnull Key key) {
         return new Builder(key);
     }
 
-    public static final class Builder implements me.hapyl.fight.util.Builder<Achievement> {
+    public static final class Builder implements me.hapyl.eterna.module.util.Builder<Achievement> {
 
         private final Key key;
 

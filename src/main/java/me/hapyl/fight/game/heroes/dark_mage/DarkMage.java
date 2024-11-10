@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.dark_mage;
 
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -14,16 +14,16 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -127,7 +127,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         if (player == null
                 || !validatePlayer(player)
                 || ev.getHand() == EquipmentSlot.OFF_HAND
-                || player.hasCooldown(getWeapon().getMaterial())
+                || player.hasCooldownInternal(getWeapon().getMaterial())
                 || ev.getAction() == Action.PHYSICAL) {
             return;
         }
@@ -191,7 +191,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
     // I'm clearly fucking interacting???
     // But of course, the event handles with 2 hands, even if I have nothing in my b hand, makes sense.
     private void processSpellClick(GamePlayer player, boolean isLeftClick) {
-        if (!player.isHeldSlot(HotbarSlots.WEAPON)) {
+        if (!player.isHeldSlot(HotBarSlot.WEAPON)) {
             return;
         }
 
@@ -258,24 +258,24 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final DarkMageData playerData = getPlayerData(player);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                final DarkMageData playerData = getPlayerData(player);
 
-            // Remove clone if present
-            final ShadowClone talent = getFourthTalent();
-            talent.removeClone(player);
+                // Remove clone if present
+                final ShadowClone talent = getFourthTalent();
+                talent.removeClone(player);
 
-            final int witheredCount = playerData.getWitheredCount();
-            final int duration = baseDuration + (durationIncreasePerStack * witheredCount);
+                final int witheredCount = playerData.getWitheredCount();
+                final int duration = baseDuration + (durationIncreasePerStack * witheredCount);
 
-            player.setUsingUltimate(duration);
+                player.setUsingUltimate(duration);
 
-            playerData.resetWitheredCountWithFx();
-            playerData.newWither(duration);
+                playerData.resetWitheredCountWithFx();
+                playerData.newWither(duration);
 
-            player.schedule(playerData::removeWither, duration);
-
-            return UltimateResponse.OK;
+                player.schedule(playerData::removeWither, duration);
+            });
         }
     }
 }

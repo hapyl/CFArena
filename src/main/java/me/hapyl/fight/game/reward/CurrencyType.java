@@ -15,7 +15,6 @@ public enum CurrencyType {
     COINS(Currency.COINS),
     RUBY(Currency.RUBIES),
     CHEST_DUST(Currency.CHEST_DUST),
-    ACHIEVEMENT_POINTS(Currency.ACHIEVEMENT_POINT),
     EXPERIENCE(null) {
         @Override
         public void increment(@Nonnull Player player, long value) {

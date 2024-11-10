@@ -16,11 +16,6 @@ public class EntityTicker {
     public final EntityTick noCCTicks;
 
     /**
-     * Number of ticks where entity cannot be damaged.
-     */
-    public final EntityTick noDamageTicks;
-
-    /**
      * The number of ticks the entity has been alive for.
      */
     public final EntityTick aliveTicks;
@@ -46,7 +41,6 @@ public class EntityTicker {
 
         // Add ticks
         this.noCCTicks = register("cc", TickDirection.DOWN);
-        this.noDamageTicks = register("no_damage", TickDirection.DOWN);
         this.aliveTicks = register("alive", TickDirection.UP);
         this.inWaterTicks = register("in_water", TickDirection.UP, LivingGameEntity::isInWater);
         this.sneakTicks = register("sneak", TickDirection.UP, predicate -> predicate instanceof GamePlayer player && player.isSneaking());

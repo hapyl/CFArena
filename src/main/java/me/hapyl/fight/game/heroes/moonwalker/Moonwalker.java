@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.player.PlayerLib;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -12,16 +12,17 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.WarningType;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.talents.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -156,74 +157,74 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final Block targetBlock = HeroRegistry.MOONWALKER.getTargetBlock(player);
 
             if (targetBlock == null) {
-                return UltimateResponse.error("Invalid block!");
+                return error("Invalid block!");
             }
 
-            final Location landingLocation = targetBlock.getRelative(BlockFace.UP).getLocation();
-            landingLocation.setYaw(0.0f);
-            landingLocation.setPitch(0.0f);
+            return execute(() -> {
+                final Location landingLocation = targetBlock.getRelative(BlockFace.UP).getLocation();
+                landingLocation.setYaw(0.0f);
+                landingLocation.setPitch(0.0f);
 
-            final Location spawnLocation = landingLocation.clone();
-            final Vector offset = player.getLocation().getDirection();
+                final Location spawnLocation = landingLocation.clone();
+                final Vector offset = player.getLocation().getDirection();
 
-            offset.normalize().setY(0.0d).multiply(20);
-            spawnLocation.add(0.0d, 15, 0.0d);
-            spawnLocation.subtract(offset);
+                offset.normalize().setY(0.0d).multiply(20);
+                spawnLocation.add(0.0d, 15, 0.0d);
+                spawnLocation.subtract(offset);
 
-            final DisplayEntity entity = blob.spawnInterpolated(spawnLocation);
+                final DisplayEntity entity = blob.spawnInterpolated(spawnLocation);
 
-            final Vector vector = landingLocation.toVector()
-                    .subtract(spawnLocation.toVector())
-                    .normalize()
-                    .multiply(0.7d);
+                final Vector vector = landingLocation.toVector()
+                        .subtract(spawnLocation.toVector())
+                        .normalize()
+                        .multiply(0.7d);
 
-            new TickingGameTask() {
-                private double theta = 0.0d;
-                private int spots = 10;
+                new TickingGameTask() {
+                    private double theta = 0.0d;
+                    private int spots = 10;
 
-                @Override
-                public void run(int tick) {
-                    if (tick > getDuration()) {
-                        entity.remove();
-                        explode(player, landingLocation);
-                        PlayerLib.stopSound(Sound.ENTITY_WITHER_DEATH);
-                        cancel();
-                        return;
+                    @Override
+                    public void run(int tick) {
+                        if (tick > getDuration()) {
+                            entity.remove();
+                            explode(player, landingLocation);
+                            PlayerLib.stopSound(Sound.ENTITY_WITHER_DEATH);
+                            cancel();
+                            return;
+                        }
+
+                        spawnLocation.add(vector);
+                        entity.teleport(spawnLocation);
+
+                        // Notify players
+                        Collect.nearbyPlayers(landingLocation, meteoriteRadius).forEach(player -> {
+                            player.sendWarning(WarningType.DANGER);
+                        });
+
+                        // Fx
+                        for (int i = 1; i <= spots; i++) {
+                            final double x = Math.sin(theta + i * spots) * meteoriteRadius;
+                            final double z = Math.cos(theta + i * spots) * meteoriteRadius;
+
+                            landingLocation.add(x, 0, z);
+
+                            player.spawnWorldParticle(landingLocation, Particle.CRIT, 2, 0.1d, 0.05d, 0.1d, 0.5f);
+                            player.spawnWorldParticle(landingLocation, Particle.ITEM_SNOWBALL, 1, 0.1d, 0.05d, 0.1d, 1.0f);
+
+                            landingLocation.subtract(x, 0, z);
+                        }
+
+                        theta += Math.PI / 16;
                     }
+                }.runTaskTimer(0, 1);
 
-                    spawnLocation.add(vector);
-                    entity.teleport(spawnLocation);
-
-                    // Notify players
-                    Collect.nearbyPlayers(landingLocation, meteoriteRadius).forEach(player -> {
-                        player.sendWarning("Meteorite Warning!", 5);
-                    });
-
-                    // Fx
-                    for (int i = 1; i <= spots; i++) {
-                        final double x = Math.sin(theta + i * spots) * meteoriteRadius;
-                        final double z = Math.cos(theta + i * spots) * meteoriteRadius;
-
-                        landingLocation.add(x, 0, z);
-
-                        player.spawnWorldParticle(landingLocation, Particle.CRIT, 2, 0.1d, 0.05d, 0.1d, 0.5f);
-                        player.spawnWorldParticle(landingLocation, Particle.ITEM_SNOWBALL, 1, 0.1d, 0.05d, 0.1d, 1.0f);
-
-                        landingLocation.subtract(x, 0, z);
-                    }
-
-                    theta += Math.PI / 16;
-                }
-            }.runTaskTimer(0, 1);
-
-            // Fx
-            player.playSound(Sound.ENTITY_WITHER_DEATH, 0.0f);
-
-            return UltimateResponse.OK;
+                // Fx
+                player.playSound(Sound.ENTITY_WITHER_DEATH, 0.0f);
+            });
         }
 
         public void createBlob(Location center, boolean last) {

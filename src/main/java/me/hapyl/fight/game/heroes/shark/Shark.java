@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.shark;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
@@ -15,16 +15,15 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
 import me.hapyl.fight.game.talents.shark.SubmergeTalent;
 import me.hapyl.fight.game.talents.shark.Whirlpool;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.terminology.Terms;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -74,10 +73,11 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
                 .cleanToItemSack());
 
-        setWeapon(new Weapon(Material.QUARTZ)
-                .setName("Claws")
-                .setDescription("Using one's claws is a better idea than using a stick, don't you think so?")
-                .setDamage(7.0d));
+        setWeapon(Weapon.builder(Material.QUARTZ, Key.ofString("claws"))
+                .name("Claws")
+                .description("Using one's claws is a better idea than using a stick, don't you think so?")
+                .damage(7.0d)
+        );
 
         setUltimate(new SharkUltimate());
     }
@@ -210,70 +210,68 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
             setCastDuration(20);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final SharkData data = getPlayerData(player);
             final int stacks = data.getBloodThirstStacks();
             final boolean strongAttack = stacks >= minBloodThirst;
 
-            player.setAttributeValue(Attribute.GENERIC_GRAVITY, 0.0d);
+            player.setAttributeValue(Attribute.GRAVITY, 0.0d);
             player.setVelocity(player.getDirection().normalize().setY(0.75d));
 
-            return new UltimateResponse() {
+            return new UltimateInstance() {
+                private Vector vector;
+
                 @Override
-                public void onCastFinished(@Nonnull GamePlayer player) {
+                public void onCastEnd() {
                     if (strongAttack) {
                         Collect.nearbyEntities(player.getLocation(), 100, entity -> entity.getHealth() <= damage)
                                 .forEach(entity -> {
                                     player.spawnParticle(entity.getEyeLocation(), Particle.FLASH, 1, 0, 0, 0, 0);
                                 });
                     }
+                }
 
-                    new PlayerTickingGameTask(player) {
-                        private Vector vector;
+                @Override
+                public void onExecute() {
+                    player.setAttributeValue(Attribute.GRAVITY, BukkitUtils.GRAVITY);
+                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 1000);
+                }
 
-                        @Override
-                        public void onTaskStart() {
-                            player.setAttributeValue(Attribute.GENERIC_GRAVITY, BukkitUtils.GRAVITY);
-                            player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 1000);
-                        }
+                @Override
+                public void onTick(int tick) {
+                    if (player.isOnGround() || tick >= maxDashTime) {
+                        doLand();
+                        return;
+                    }
 
-                        @Override
-                        public void run(int tick) {
-                            if (player.isOnGround() || tick >= maxDashTime) {
-                                doLand();
-                                return;
-                            }
+                    player.setVelocity(getVector());
+                }
 
-                            player.setVelocity(getVector());
-                        }
+                private Vector getVector() {
+                    if (vector == null) {
+                        final Vector direction = player.getDirection().normalize();
 
-                        private Vector getVector() {
-                            if (vector == null) {
-                                final Vector direction = player.getDirection().normalize();
+                        vector = direction.multiply(2.5d);
+                        vector.setY(Math.min(vector.getY(), -0.5d));
+                    }
 
-                                vector = direction.multiply(2.5d);
-                                vector.setY(Math.min(vector.getY(), -0.5d));
-                            }
+                    return vector;
+                }
 
-                            return vector;
-                        }
+                private void doLand() {
+                    forceEndUltimate();
 
-                        private void doLand() {
-                            cancel();
+                    final Location location = player.getLocation();
 
-                            final Location location = player.getLocation();
+                    Collect.nearbyEntities(location, radius, entity -> !player.isSelfOrTeammate(entity))
+                            .forEach(entity -> {
+                                entity.damage(damage, player, EnumDamageCause.SHARK_BITE);
+                            });
 
-                            Collect.nearbyEntities(location, radius, entity -> !player.isSelfOrTeammate(entity))
-                                    .forEach(entity -> {
-                                        entity.damage(damage, player, EnumDamageCause.SHARK_BITE);
-                                    });
-
-                            // Fx
-                        }
-
-                    }.runTaskTimer(10, 1);
+                    // Fx
                 }
             };
         }

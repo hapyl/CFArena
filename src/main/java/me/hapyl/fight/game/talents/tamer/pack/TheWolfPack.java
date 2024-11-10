@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.attribute.Attribute;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.Wolf;
 
@@ -22,7 +22,7 @@ public class TheWolfPack extends TamerPack {
                 &nEach&a alive&7 wolf grants you an %s boost.
                 """.formatted(AttributeType.ATTACK), TalentType.ENHANCE);
 
-        attributes.setHealth(25);
+        attributes.setMaxHealth(25);
         setDurationSec(25);
     }
 

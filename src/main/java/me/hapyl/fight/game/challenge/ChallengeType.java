@@ -1,21 +1,22 @@
 package me.hapyl.fight.game.challenge;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumWrapper;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.Enums;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nonnull;
 
-public enum ChallengeType implements EnumWrapper<Challenge> {
+public enum ChallengeType implements EnumWrapper<Challenge>, KeyedEnum {
 
     KILL_ENEMIES(
             new Challenge("Swift Slayer", "Eliminate {} players.")
@@ -62,12 +63,6 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
 
     // *=* Uncommon *=* //
 
-    OPEN_CRATE(
-            new Challenge("Gambler", "Open {} crates.")
-                    .setRarity(ChallengeRarity.UNCOMMON)
-                    .setMax(3)
-    ),
-
     FIRST_BLOOD(
             new Challenge("First Blood!", "Cause first blood in a game.")
                     .setRarity(ChallengeRarity.UNCOMMON)
@@ -107,7 +102,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
 
     @Nonnull
     @Override
-    public Challenge get() {
+    public Challenge getWrapped() {
         return challenge;
     }
 
@@ -152,7 +147,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     }
 
     public void progress(@Nonnull Player player) {
-        progress(PlayerProfile.getProfileOrThrow(player));
+        progress(CF.getProfile(player));
     }
 
     public void progress(@Nonnull GamePlayer player) {

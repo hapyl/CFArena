@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
@@ -21,20 +24,26 @@ import me.hapyl.eterna.module.inventory.gui.GUI;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.nn.IntInt;
 import me.hapyl.eterna.module.player.EffectType;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.player.dialog.DialogInstance;
+import me.hapyl.eterna.module.player.quest.Quest;
 import me.hapyl.eterna.module.reflect.DataWatcherType;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.*;
+import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.anticheat.PunishmentReport;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.chat.ChatChannel;
@@ -42,7 +51,10 @@ import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.collection.AntiCheatCollection;
 import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.database.entry.*;
+import me.hapyl.fight.database.entry.DailyRewardEntry;
+import me.hapyl.fight.database.entry.MasteryEntry;
+import me.hapyl.fight.database.entry.MetadataEntry;
+import me.hapyl.fight.database.entry.SkinEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -50,24 +62,26 @@ import me.hapyl.fight.fx.GiantItem;
 import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.fx.beam.Quadrant;
 import me.hapyl.fight.game.*;
+import me.hapyl.fight.game.achievement.Achievement;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.Attributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
+import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvert;
-import me.hapyl.fight.game.cosmetic.crate.convert.CrateConverts;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
+import me.hapyl.fight.game.crate.Crates;
+import me.hapyl.fight.game.crate.convert.CrateConvert;
+import me.hapyl.fight.game.crate.convert.CrateConverts;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.CooldownData;
+import me.hapyl.fight.game.entity.named.NamedEntityType;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
@@ -79,17 +93,18 @@ import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.shaman.TotemPrison;
@@ -100,7 +115,7 @@ import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.Season;
 import me.hapyl.fight.game.ui.splash.SplashText;
-import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.github.Contributor;
 import me.hapyl.fight.github.Contributors;
 import me.hapyl.fight.gui.HeroPreviewGUI;
@@ -109,16 +124,12 @@ import me.hapyl.fight.gui.styled.profile.DeliveryGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
 import me.hapyl.fight.infraction.HexID;
 import me.hapyl.fight.loot.Loot;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.quest.CFQuestHandler;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.Scripts;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.ChatUtils;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.KeyedToString;
-import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -167,6 +178,7 @@ import java.io.FileWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -228,7 +240,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new GuessWhoCommand("guessWho"));
         register(new InviteCommand("invite"));
         register(new EmojisCommand("emojis"));
-        register(new NpcCommand("npcf"));
         register(new PersonalMessageCommand("tell"));
         register(new ReplyCommand("reply"));
         register(new GotoCommand("world"));
@@ -240,8 +251,269 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new HighlightLevel("highlightLevel"));
         register(new VehicleCommand("vehicle"));
         register(new FixMongoDbMigrationFiles("fixmongodbmigrationfiles"));
+        register(new StartCountdownCommand("startCountdown"));
+        register(new StoryCommand("story"));
+        register(new StoreCommand("store"));
 
         // *=* Inner commands *=* //
+        register("testserverlinks", (player, args) -> {
+            final ServerLinks serverLinks = Bukkit.getServerLinks();
+            try {
+                final ServerLinks.ServerLink link = serverLinks.setLink(ServerLinks.Type.SUPPORT, new URI("testlink"));
+
+                player.sendLinks(serverLinks);
+                player.sendMessage("sent links!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        register("testvecrot", (player, args) -> {
+            final Location location = player.getEyeLocation();
+            final DirectionalMatrix matrix = new DirectionalMatrix(player.getEyeLocation().getDirection().setY(0.0d));
+
+            PiHelper.rotate(300, 120, Math.PI / 16, d -> {
+                final double x = Math.sin(d);
+                final double z = Math.cos(d);
+
+                matrix.transformLocation(location, x, 0, z, then -> {
+                    PlayerLib.spawnParticle(location, Particle.COMPOSTER, 1);
+                });
+            });
+
+            player.sendMessage(ChatColor.GREEN + "Displayed!");
+        });
+
+        register("testCooldown", (player, args) -> {
+            final PlayerInventory inventory = player.getInventory();
+
+            final ItemStack test1 = ItemBuilder.playerHeadUrl("2104f13c719f0c8af92f536dbd109285e6e3d21af3158ed91f603f7ecf7359b0")
+                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_1")))
+                    .toItemStack();
+            final ItemStack test2 = ItemBuilder.playerHeadUrl("ce50e2e418b9d955837177ba643d2f75d4e7f593c3e1db6ee9d410741f43535e")
+                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_2")))
+                    .toItemStack();
+            final ItemStack test3 = ItemBuilder.playerHeadUrl("ac964ed0f717ae671cdf0ed0e0341887ae8ccbd282c0058dc11276ef3cd78cc7")
+                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_3")))
+                    .toItemStack();
+            final ItemStack test4 = ItemBuilder.playerHeadUrl("70fa3d8c2bad7be6196a21d43708e41454bc986a10856d604bbc2a0c21c2b91e")
+                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_4")))
+                    .toItemStack();
+
+            inventory.clear();
+            inventory.addItem(test1);
+            inventory.addItem(test2);
+            inventory.addItem(test3);
+            inventory.addItem(test4);
+
+            player.setCooldown(test1, 70);
+            player.setCooldown(test2, 120);
+            player.setCooldown(test3, 50);
+            player.setCooldown(test4, 200);
+        });
+
+        register("testDecay", (player, args) -> {
+            CF.getPlayerOptional(player)
+                    .ifPresent(gp -> {
+                        final double amount = args.get(0).toDouble();
+                        final int duration = args.get(1).toInt();
+
+                        if (amount <= 0.0d) {
+                            gp.sendMessage("&cAmount cannot be zero or negative!");
+                            return;
+                        }
+
+                        gp.setDecay(new Decay(amount, duration));
+                        gp.sendMessage("&aApplied %s decay for %s!".formatted(amount, duration));
+                    });
+        });
+
+        register(new CFCommand("testModel", PlayerRank.ADMIN) {
+
+            @Override
+            protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+                final DisplayData data = BDEngine.parse(
+                        "/summon block_display ~-0.5 ~ ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1608773508,-1271084427,-1742725610,-1723550642],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmFiOTIzMjIyNzY1MWYzYzk2YWE1M2Q2OGJiNDAxYWFjZWRiOTE3ODM2MDA1YTJhNGZmMDE3NWQ3YmVmOWU3YiJ9fX0=\"}]}}},item_display:\"none\",transformation:[1f,0f,0f,0.0006f,0f,1f,0f,2.8281f,0f,0f,1f,-0.0669f,0f,0f,0f,1f],Tags: [\"head\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;484189966,235562485,-426604314,1508866504],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.5f,0f,0f,0f,0f,0.8673f,0.0661f,2.3125f,0f,-0.1157f,0.4956f,0f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-421449231,-1477363886,1489181897,381866332],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.5f,0f,0f,0f,0f,0.875f,0f,1.9169f,0f,0f,0.5f,0.0481f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1306925969,1905446903,2095328652,-1837142236],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.5f,0f,0f,0f,0f,0.8536f,-0.1099f,1.5275f,0f,0.1924f,0.4878f,0.0544f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;345578666,-1718594445,-808170745,8870679],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.5f,0f,0f,0f,0f,0.875f,0f,1.1306f,0f,0f,0.5f,-0.0375f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-312173002,1206235293,-1053032680,748162889],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.0514f,0.2022f,0.26f,-0.1875f,0f,0f,2.1181f,0f,-0.5542f,-0.0188f,-0.1469f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0066f,0.3689f,0.0174f,-0.6169f,-0.0099f,0.246f,-0.026f,2.0756f,-0.3998f,0f,0.0009f,0.1606f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0083f,0.084f,0.0312f,-0.3919f,-0.0009f,0.8883f,-0.0029f,0.5481f,-0.3999f,-0.0003f,0.0007f,0.1881f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1408136501,-50173608,-2101705965,873901182],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.3813f,0f,0f,0f,0f,0.8671f,0.0533f,0.7956f,0f,-0.1172f,0.3939f,-0.0375f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[-0.3999f,-0.0003f,0.0007f,0.2075f,-0.0009f,1.0549f,-0.0029f,0.3869f,-0.0083f,-0.0997f,-0.0312f,0.3712f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0083f,-0.084f,-0.0312f,0.4106f,0.0009f,0.8883f,-0.0029f,0.5472f,0.3999f,-0.0003f,0.0007f,-0.2312f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1465f,-0.0592f,-0.021f,0.3888f,0.0005f,0.9538f,-0.0029f,0.4894f,0.1338f,-0.068f,-0.023f,0.2044f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0.3375f,0f,0f,-0.1525f,0f,0.0949f,0f,1.4231f,0f,0f,0.1078f,0.16f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0f,0f,0.1078f,-0.3244f,0f,0.0949f,0f,1.4231f,-0.3375f,0f,0f,0.1644f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0f,0f,0.1078f,0.2338f,0f,0.0949f,0f,1.4231f,-0.3375f,0f,0f,0.1488f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0.1736f,0f,-0.0612f,0.18f,0f,0.0949f,0f,1.4231f,0.1198f,0f,0.0887f,-0.3256f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0.1736f,0f,-0.0612f,-0.2506f,0f,0.0949f,0f,1.4231f,0.1198f,0f,0.0887f,0.0725f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1804519909,-550768275,-57154716,-339151212],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWM5ZmE3ODI4YjRiMzdlODI2MmQyYzIyMmEwNGY4ZTMyNjFhZjJhYjNiZDQ5NGVhODA3YTkzMmNjZDE4NGE1MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0f,-0.58f,0.0038f,0.4215f,0f,0f,1.45f,0f,-0.4125f,0f,-0.3675f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0.1736f,0f,0.0612f,-0.3312f,0f,0.0949f,0f,1.4231f,-0.1198f,0f,0.0887f,-0.1956f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:basalt\",Properties:{axis:\"x\"}},transformation:[0.1736f,0f,0.0612f,0.1025f,0f,0.0949f,0f,1.4231f,-0.1198f,0f,0.0887f,0.1919f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1465f,0.0592f,0.021f,-0.225f,-0.0005f,0.9538f,-0.0029f,0.4899f,-0.1338f,-0.068f,-0.023f,0.3475f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1465f,-0.0592f,0.021f,0.3677f,0.0005f,0.9538f,0.0029f,0.4865f,-0.1338f,0.068f,-0.023f,-0.2375f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1465f,0.0592f,-0.021f,-0.1977f,-0.0005f,0.9538f,0.0029f,0.4869f,0.1338f,0.068f,-0.023f,-0.3562f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1030341735,-1035138481,979987612,1365477519],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzc3ZTQwYmIwYjM3MWIzNzQ1ZGZlNWVkNTIwMzNmZmNmYzhjODJmZWVmYzI1YjM0YmFjN2FlZDFmZjljZTU4ZiJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.2417f,0.0076f,0.1849f,-0.4006f,-0.0457f,0.0068f,0.9822f,1.1925f,0.0061f,-0.2498f,0.0323f,-0.1519f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.0068f,0.0995f,-0.0311f,-0.3838f,-0.0003f,1.0552f,0.0029f,0.3856f,0.1486f,0.0069f,-0.0014f,-0.0912f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.0068f,-0.0995f,0.0311f,0.4175f,0.0003f,1.0552f,0.0029f,0.3853f,-0.1486f,0.0069f,-0.0014f,0.0574f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1697390209,94129626,713818941,-1638285711],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.4809f,0.1297f,0.0225f,-0.1875f,0f,0f,2.1223f,0f,-0.3992f,-0.1563f,-0.3212f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1718111115,-1898299514,921829331,-470802009],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.522f,0.0705f,0.3225f,-0.1875f,0f,0f,2.1223f,0f,-0.1931f,0.1905f,0.0638f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1014034832,1161651296,1377053259,-1125806584],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.511f,0.1297f,0.0331f,-0.1875f,0f,0f,1.9661f,0f,-0.4242f,-0.1563f,-0.3487f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;934151430,100379817,-806574783,-1788822002],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.0525f,0.2022f,0.2831f,-0.1875f,0f,0f,1.9661f,0f,-0.5658f,-0.0188f,-0.1712f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-35686707,-125064048,-433943884,-1272401138],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.4786f,0.0705f,0.3225f,-0.1875f,0f,0f,1.9661f,0f,-0.177f,0.1905f,0.0638f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1564344584,669265178,2021242612,893332218],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.4809f,0.1297f,0.0775f,-0.1875f,0f,0f,1.8204f,0f,-0.3992f,-0.1563f,-0.3719f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-750633298,-417793487,-325781032,-1699740805],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.0533f,0.2022f,0.3181f,-0.1875f,0f,0f,1.8204f,0f,-0.5741f,-0.0188f,-0.2075f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1259703469,975047208,-995808560,-17096679],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.5384f,0.0705f,0.3588f,-0.1875f,0f,0f,1.8242f,0f,-0.1992f,0.1905f,0.0638f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1952546901,865210129,-1958054609,1357939637],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.4809f,0.1297f,0.0813f,-0.1875f,0f,0f,1.6829f,0f,-0.3992f,-0.1563f,-0.3937f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;696774,-198365510,-1789390588,2087795399],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.0104f,0.2031f,0.3106f,-0.1875f,0f,0f,1.6829f,0f,-0.5965f,-0.0035f,-0.205f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;2116999602,-524170851,-917280352,436445215],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.4786f,0.0705f,0.3225f,-0.1875f,0f,0f,1.6829f,0f,-0.177f,0.1905f,0.0712f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;455388714,537982893,-1389492851,1977883781],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.1875f,0f,0f,-0.005f,0f,-0.6232f,0.0156f,1.8773f,0f,-0.0479f,-0.2025f,-0.3381f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;906127004,-565115624,2046065901,1894789699],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.4809f,-0.1297f,-0.0275f,0.1875f,0f,0f,2.1223f,0f,-0.3992f,-0.1563f,-0.3325f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-860674204,-1858772280,-1256694480,159362818],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.0514f,-0.2022f,-0.265f,0.1875f,0f,0f,2.1223f,0f,-0.5542f,-0.0188f,-0.1719f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-189659764,1553016431,745501483,1688094811],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.522f,-0.0705f,-0.3275f,0.1875f,0f,0f,2.1223f,0f,-0.1931f,0.1905f,0.0431f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-767039326,184731349,1831571602,-875157595],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.511f,-0.1297f,-0.0381f,0.1875f,0f,0f,1.9661f,0f,-0.4242f,-0.1563f,-0.36f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1594331702,-290086596,-361166661,-592086127],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.0525f,-0.2022f,-0.2881f,0.1875f,0f,0f,1.9661f,0f,-0.5658f,-0.0188f,-0.1919f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1179139773,-30725095,402372491,-1400261363],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.4786f,-0.0705f,-0.3275f,0.1875f,0f,0f,1.9661f,0f,-0.177f,0.1905f,0.0431f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1081594423,6785381,-547401130,-256503738],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.4809f,-0.1297f,-0.0825f,0.1875f,0f,0f,1.8204f,0f,-0.3992f,-0.1563f,-0.3831f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1023389741,-1951715326,864261281,747551552],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.0533f,-0.2022f,-0.3231f,0.1875f,0f,0f,1.8204f,0f,-0.5741f,-0.0188f,-0.2281f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1927598337,998386509,-873258299,-98640829],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.5384f,-0.0705f,-0.3638f,0.1875f,0f,0f,1.8242f,0f,-0.1992f,0.1905f,0.0431f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1191560378,-641784127,2093574723,-1024253872],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.4809f,-0.1297f,-0.0862f,0.1875f,0f,0f,1.6829f,0f,-0.3992f,-0.1563f,-0.39f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-229347471,-1428962173,519286072,-1329624916],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,0.0104f,-0.2031f,-0.3156f,0.1875f,0f,0f,1.6829f,0f,-0.5965f,-0.0035f,-0.2256f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1938573160,-1088319532,1731905068,467520481],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhNzljNTEyY2ZmMWE5ZjQ3MzE5ZmQ3N2VmZDA2ZjY3M2E3NzJhYTk3NTk3NDM2YjAxNjBjNDA5YzhhMmU2MCJ9fX0=\"}]}}},item_display:\"none\",transformation:[0f,-0.4786f,-0.0705f,-0.3275f,0.1875f,0f,0f,1.6829f,0f,-0.177f,0.1905f,0.0506f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0346f,-0.0681f,0f,-0.3456f,0.0075f,0.315f,0f,1.5031f,0f,0f,0.4438f,-0.2681f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0354f,0.0157f,0f,-0.4188f,-0.0017f,0.3219f,0f,1.8119f,0f,0f,0.4438f,-0.2681f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0346f,0.0672f,0.0011f,0.3213f,-0.0074f,0.3152f,-0.0016f,1.5106f,-0.0001f,0.0009f,0.4438f,-0.2681f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0354f,-0.0157f,0f,0.3836f,0.0017f,0.3219f,0f,1.8101f,0f,0f,0.4438f,-0.2681f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0f,0f,-0.4438f,0.2244f,-0.0075f,0.315f,0f,1.5106f,0.0346f,0.0681f,0f,0.2188f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0f,0f,-0.4438f,0.2244f,0.0017f,0.3219f,0f,1.8101f,0.0354f,-0.0157f,0f,0.2811f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0201f,0.0396f,-0.1895f,0.3456f,-0.0075f,0.315f,0f,1.5105f,0.0281f,0.0554f,0.1356f,0.1044f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0206f,-0.0092f,-0.1895f,0.3819f,0.0017f,0.3219f,0f,1.81f,0.0287f,-0.0128f,0.1356f,0.1551f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0201f,-0.0396f,0.1895f,-0.3625f,0.0075f,0.315f,0f,1.503f,-0.0281f,0.0554f,0.1356f,0.1325f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0206f,0.0092f,0.1895f,-0.3992f,-0.0017f,0.3219f,0f,1.8117f,-0.0287f,-0.0128f,0.1356f,0.1838f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0f,0f,-0.4272f,0.2244f,0.0237f,0.1094f,0f,2.1269f,0.0263f,-0.0989f,0f,0.2663f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[-0.0208f,0.1193f,0f,-0.3881f,0.0286f,0.0867f,0f,2.1269f,0f,0f,-0.3994f,0.1356f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[-0.0207f,-0.1196f,-0.001f,0.4061f,-0.0287f,0.0864f,0.0014f,2.1543f,0f,0.0006f,-0.405f,0.1414f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0155f,-0.0621f,-0.1893f,0.3819f,0.0241f,0.1181f,0.0043f,2.1106f,0.0208f,-0.0903f,0.1358f,0.1551f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0155f,0.0621f,0.1893f,-0.4f,-0.0241f,0.1181f,0.0043f,2.1347f,-0.0208f,-0.0903f,0.1358f,0.1759f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0201f,0.0396f,0.1895f,0.1462f,-0.0075f,0.315f,0f,1.5105f,-0.0281f,-0.0554f,0.1356f,-0.3294f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.0201f,-0.0396f,-0.1895f,-0.1594f,0.0075f,0.315f,0f,1.503f,0.0281f,-0.0554f,0.1356f,-0.3575f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0209f,-0.0093f,0.1209f,0.2581f,0.0017f,0.3219f,0f,1.81f,-0.0285f,0.0127f,0.0888f,-0.3306f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.0209f,0.0093f,-0.1209f,-0.2631f,-0.0017f,0.3219f,0f,1.8117f,0.0285f,0.0127f,0.0888f,-0.3591f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;2064011671,495645899,1452086140,501745066],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzc3ZTQwYmIwYjM3MWIzNzQ1ZGZlNWVkNTIwMzNmZmNmYzhjODJmZWVmYzI1YjM0YmFjN2FlZDFmZjljZTU4ZiJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.2351f,0.0083f,0.2932f,-0.4006f,-0.0703f,-0.0363f,0.9473f,1.1731f,0.0182f,-0.2472f,-0.1291f,0.0263f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0072f,-0.3527f,-0.019f,0.6106f,0.0094f,0.2687f,-0.0249f,2.0563f,0.3998f,0f,0.0009f,-0.2392f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[-0.0783f,-0.4569f,0.0132f,0.3962f,0.5001f,-0.0716f,-0.084f,0.9431f,0.0802f,0f,0.5371f,-0.6425f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0.008f,-0.4624f,-0.0013f,0.1162f,0.5061f,0.0073f,-0.0851f,0.9231f,0.0802f,0f,0.5371f,-0.6425f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:crimson_roots\",Properties:{}},transformation:[0.7f,0f,0f,-0.3306f,0f,1f,0f,1.5563f,0f,0f,0.45f,-0.3919f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[-0.3999f,0.0039f,0.0005f,0.1987f,-0.0011f,0.3573f,-0.0185f,2.0256f,-0.0074f,-0.2625f,-0.0252f,0.4287f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[-0.3286f,-0.0836f,0.013f,-0.1031f,-0.1742f,0.1944f,-0.0223f,2.1731f,-0.021f,-0.3052f,-0.0177f,0.4263f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[-0.3286f,0.0836f,-0.013f,0.425f,0.1742f,0.1944f,-0.0223f,1.9989f,0.021f,-0.3052f,-0.0177f,0.4053f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0.1894f,-0.0965f,-0.3481f,0.3663f,0.0616f,0.4486f,-0.0207f,2.0194f,0.1611f,-0.0582f,0.4173f,-0.5606f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0.1894f,0.0965f,0.3481f,-0.5556f,-0.0616f,0.4486f,-0.0207f,2.081f,-0.1611f,-0.0582f,0.4173f,-0.3995f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0.3519f,0.0154f,-0.0193f,-0.1788f,-0.0125f,0.4613f,-0.0334f,2.0194f,0.0117f,0.029f,0.5424f,-0.6619f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.0873f,-0.1592f,0.0231f,0.5988f,0.3833f,0.0009f,0.009f,1.7269f,-0.0741f,0.192f,0.0191f,0.1506f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.049f,-0.2241f,0.0132f,0.4094f,0.3833f,0.0009f,0.009f,1.7269f,-0.1035f,0.1095f,0.0269f,0.365f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.0873f,0.1592f,-0.0231f,-0.5338f,-0.3833f,0.0009f,0.009f,2.1101f,0.0741f,0.192f,0.0191f,0.0765f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.049f,0.2241f,-0.0132f,-0.3826f,-0.3833f,0.0009f,0.009f,2.1101f,0.1035f,0.1095f,0.0269f,0.2615f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1767f,-0.0484f,-0.021f,0.5288f,0.0005f,0.7809f,-0.0029f,1.0738f,0.1613f,-0.0557f,-0.023f,0.3138f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:black_concrete_powder\",Properties:{}},transformation:[-0.1767f,0.0484f,0.021f,-0.4019f,-0.0005f,0.7809f,-0.0029f,1.0806f,-0.1613f,-0.0557f,-0.023f,0.4575f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[-0.0573f,-0.4596f,0.0017f,0.7169f,0.5069f,-0.0514f,0.053f,0.6463f,-0.0495f,0.0065f,0.5412f,0.1756f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[-0.0573f,0.4596f,-0.0017f,-0.6763f,-0.5069f,-0.0514f,0.053f,1.1531f,0.0495f,0.0065f,0.5412f,0.07f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[-0.3999f,-0.0004f,0.0007f,0.2075f,-0.0004f,1.2574f,-0.0012f,0.7506f,-0.0084f,-0.0483f,-0.0313f,0.4706f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.11f,0f,0.0585f,0.2269f,-0.039f,0.0929f,0.0739f,2.2056f,-0.0433f,-0.0836f,0.0821f,-0.1581f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:netherite_block\",Properties:{}},transformation:[0.11f,0f,-0.0585f,-0.3206f,0.039f,0.0929f,0.0739f,2.1666f,0.0433f,-0.0836f,0.0821f,-0.2014f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:weeping_vines\",Properties:{}},transformation:[-0.0797f,0f,-0.0661f,0.4562f,0f,1f,0f,-0.4562f,0.9113f,0f,-0.0058f,-0.4775f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:weeping_vines\",Properties:{}},transformation:[0.0208f,0f,0.0664f,-0.3862f,0f,1f,0f,-0.4375f,-0.9146f,0f,0.0015f,0.4914f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:weeping_vines\",Properties:{}},transformation:[-0.9148f,0f,0.0001f,0.4662f,0f,1f,0f,-0.5f,-0.0016f,0f,-0.0664f,0.3746f,0f,0f,0f,1f],Tags: [\"torso\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.5685f,0.1075f,0f,0.3125f,-0.232f,0.2634f,0f,1.8801f,0f,0f,0.265f,-0.1631f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-1931543666,916090057,-269574239,230189945],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.0911f,0.9509f,0f,1.346f,-0.3399f,0.2548f,0f,1.8694f,0f,0f,0.3188f,-0.0331f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-812878447,1562157620,1157935521,2071378794],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.0339f,0.5359f,-0.1829f,1.5954f,-0.1058f,0.2376f,0.2954f,1.9956f,0.0968f,0.0719f,0.3869f,-0.0006f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0576f,0.113f,0f,0.864f,-0.0243f,0.2676f,0f,1.6537f,0f,0f,0.2969f,-0.175f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:nether_wart_block\",Properties:{}},transformation:[0.0576f,-0.113f,0f,-0.9465f,0.0243f,0.2676f,0f,1.6294f,0f,0f,0.2969f,-0.175f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;1642989349,-9395865,-1938977434,1026065519],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjE4YzRlYzZmMTQ5MDk0MDNkNmZiMWNlMzExODRmZTkyZTFkOGI5MGI4ZTE5MTFlNDM4NjEyMTg4ZjUwMmE5MyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.1791f,-0.4651f,0.4193f,-1.5431f,0.3409f,0.4448f,0.3354f,2.3925f,-0.5314f,0.1286f,0.3565f,0.0238f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:polished_blackstone\",Properties:{}},transformation:[0.5685f,-0.1075f,0f,-0.9059f,0.232f,0.2634f,0f,1.6481f,0f,0f,0.265f,-0.1631f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-665736015,-1005443466,307293432,-1664422451],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.0911f,-0.9509f,0f,-1.3709f,0.3399f,0.2548f,0f,1.8694f,0f,0f,0.3188f,-0.0331f,0f,0f,0f,1f],Tags: [\"right_arm\"]},{id:\"minecraft:item_display\",item:{id:\"minecraft:player_head\",Count:1,components:{\"minecraft:profile\":{id:[I;-2118636653,751873036,344721982,1851737464],properties:[{name:\"textures\",value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDdmY2E4NjY0ODY0YTI0NmViNzY1ZmM3MjQ5N2U4YjFjOTE2MjI0NjE0MGUwOGU4ZWQ3Y2EwNGQ4MmRlNjBjMyJ9fX0=\"}]}}},item_display:\"none\",transformation:[0.0466f,-0.5594f,0.0278f,-1.659f,0.1397f,0.1875f,0.0099f,1.95f,-0.0051f,0.0264f,0.5192f,-0.015f,0f,0f,0f,1f],Tags: [\"right_arm\"]}]}"
+                );
+
+                data.spawn(player.getLocation());
+            }
+        });
+
+        register("resetquest", (player, args) -> {
+            final String stringKey = args.getString(0);
+            final Key key = Key.ofStringOrNull(stringKey);
+
+            if (key == null) {
+                Notifier.error(player, "Invalid key {%s}.".formatted(stringKey));
+                return;
+            }
+
+            final CFQuestHandler questHandler = CF.getQuestHandler();
+            final Quest quest = questHandler.get(key);
+
+            if (quest == null) {
+                Notifier.error(player, "Invalid quest {%s}.".formatted(key.getKey()));
+                return;
+            }
+
+            CF.getDatabase(player).questEntry.resetQuest(quest);
+            Notifier.success(player, "Reset quest {%s}!".formatted(quest.getName()));
+        });
+
+        register("distanceToLos", (player, args) -> {
+            final Block targetBlock = player.getTargetBlockExact(10);
+
+            if (targetBlock == null) {
+                Notifier.error(player, "No block in los!");
+                return;
+            }
+
+            final Location location = player.getLocation();
+            final Location blockLocation = targetBlock.getLocation();
+
+            final double distanceSquared = blockLocation.distanceSquared(location);
+            final double distance = blockLocation.distance(location);
+
+            Notifier.success(
+                    player,
+                    "Distance to {%s} is {%.2f} (√{%.2f})".formatted(
+                            targetBlock.getType().name().toLowerCase(),
+                            distanceSquared,
+                            distance
+                    )
+            );
+        });
+
+        register("metadata", (player, args) -> {
+            final MetadataEntry entry = CF.getDatabase(player).metadataEntry;
+
+            if (args.length == 0) {
+                final Map<String, Object> mapped = MetadataEntry.map(player);
+
+                int count = 0;
+                for (Map.Entry<String, Object> mapEntry : mapped.entrySet()) {
+                    final String key = mapEntry.getKey();
+                    final Object value = mapEntry.getValue();
+
+                    final ChatColor color = (count++ % 2 == 0 ? ChatColor.GREEN : ChatColor.DARK_GREEN);
+
+                    Chat.sendClickableHoverableMessage(
+                            player,
+                            LazyEvent.runCommand("/metadata %s remove".formatted(key)),
+                            LazyEvent.showText("&eClick to remove '%s'!".formatted(key)),
+                            "%s &d&l= %s".formatted(color + key, color + value.toString())
+                    );
+                }
+
+                return;
+            }
+
+            final String argument = args.get(0).toString();
+
+            MetadataEntry.MetadataParent parent;
+            String keyString;
+            Key key;
+
+            if (argument.contains(".")) {
+                final String[] keySplits = argument.split("\\.");
+
+                parent = entry.getParent(keySplits[0]);
+                key = Key.ofStringOrNull(keyString = keySplits[1]);
+            }
+            else {
+                parent = entry.NULL;
+                key = Key.ofStringOrNull(keyString = argument);
+            }
+
+            if (key == null) {
+                Notifier.error(player, "Illegal key; " + keyString);
+                return;
+            }
+
+            final boolean isRemove = args.get(1).toString().equalsIgnoreCase("remove");
+
+            if (isRemove) {
+                parent.set(key, null);
+
+                Notifier.success(player, "Removed metadata for key {%s}.".formatted(key));
+            }
+            else {
+                final Object value = parent.get(key, null);
+
+                if (value == null) {
+                    Notifier.error(player, "There is no metadata for key {%s}!".formatted(key));
+                }
+                else {
+                    Notifier.success(player, "Metadata for key {%s}: {%s}".formatted(key, value.toString()));
+                }
+            }
+        });
+
+        register("setTalkedDialog", (player, args) -> {
+            final PlayerDatabase database = CF.getDatabase(player);
+            final String id = args.get(0).toString();
+            final boolean value = args.get(0).toBoolean();
+
+            final Key key = Key.ofStringOrNull(id);
+
+            if (key == null) {
+                Notifier.error(player, "Invalid key: " + id);
+                return;
+            }
+
+            database.metadataEntry.DIALOG.set(key, !value ? null : true);
+            Notifier.success(player, "Set dialog metadata for dialog '{%s}' to {%s}.".formatted(key, value));
+        });
+
+        register("skipDialog", (player, args) -> {
+            final DialogInstance dialog = Eterna.getManagers().dialog.get(player);
+
+            if (dialog == null) {
+                Notifier.error(player, "You're not in a dialog!");
+                return;
+            }
+
+            dialog.cancel();
+            Notifier.success(player, "Skipped.");
+        });
+
+        register("removeFoundRelic", (player, args) ->
+
+        {
+            final int id = args.getInt(0);
+            final Relic relic = CF.getPlugin().getRelicHunt().byId(id);
+
+            if (relic == null) {
+                Notifier.error(player, "Invalid relic: " + id);
+                return;
+            }
+
+            relic.take(player);
+        });
+
+        register("calculatePointReward", (player, args) ->
+
+        {
+            final AchievementRegistry registry = Registries.getAchievements();
+
+            final String query = args.getString(0);
+            final int completeCount = args.getInt(1);
+            final Achievement achievement = registry.get(query);
+
+            if (achievement == null) {
+                Notifier.error(player, "Invalid achievement: {%s}".formatted(query));
+                return;
+            }
+
+            final int reward = achievement.getPointRewardForCompleting(completeCount);
+
+            Notifier.success(
+                    player,
+                    "Completing {%s} {%s} times grants {%s} points.".formatted(achievement.getName(), completeCount, reward)
+            );
+        });
+
         register(new SimplePlayerAdminCommand("testLoot") {
 
             private Loot testLoot;
@@ -289,7 +561,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
             }
         });
-        register("testcustomtextcolor", (player, args) -> {
+
+        register("testcustomtextcolor", (player, args) ->
+
+        {
             final net.kyori.adventure.text.TextComponent component = Component
                     .text("This is a test")
                     .color(me.hapyl.fight.game.color.Color.WITHERS);
@@ -297,14 +572,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             player.sendMessage(component);
         });
 
-        register("testUicmp", (player, args) -> {
+        register("testUicmp", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         gp.ui(GamePlayer.class, "Test from game player yay!");
                     });
         });
 
-        register("ridePiggy", (player, args) -> {
+        register("ridePiggy", (player, args) ->
+
+        {
             final Pig pig = Entities.PIG.spawn(player.getLocation().add(0, 2, 0), self -> {
                 self.setGravity(false);
             });
@@ -315,18 +594,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             player.sendRichMessage("<green>Done!");
         });
 
-        register("addAuroraBuff", (player, args) -> {
+        register("addAuroraBuff", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
                     });
         });
 
-        register("hurtMe", (player, args) -> {
+        register("hurtMe", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player).ifPresent(gp -> gp.damage(gp.getHealth() * 0.99));
         });
 
-        register("testTotemOffset", (player, args) -> {
+        register("testTotemOffset", (player, args) ->
+
+        {
             final Location location = player.getLocation();
             final int[][] offsets = TotemPrison.OFFSETS;
 
@@ -349,7 +634,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }.runTaskTimer(5, 5);
         });
 
-        register("scaryWither", (player, args) -> {
+        register("scaryWither", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         TalentRegistry.BLINDING_CURSE.scaryWither(gp);
@@ -357,7 +644,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     });
         });
 
-        register("whatsmyenergy", (player, args) -> {
+        register("whatsmyenergy", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         final double energy = gp.getEnergy();
@@ -372,11 +661,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                             gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
                         }
 
-                        gp.sendMessage("&cString: " + gp.getUltimateString(GamePlayer.UltimateColor.PRIMARY));
+                        gp.sendMessage("&cString: " + gp.getUltimateString(UltimateColor.PRIMARY));
                     });
         });
 
-        register("loadClass", (player, args) -> {
+        register("loadClass", (player, args) ->
+
+        {
             final String classToLoad = args.getString(0);
 
             if (classToLoad.isEmpty()) {
@@ -395,7 +686,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testHealthTemper", (player, args) -> {
+        register("testHealthTemper", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
@@ -403,7 +696,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     });
         });
 
-        register("testMongoSerialize", (player, args) -> {
+        register("testMongoSerialize", (player, args) ->
+
+        {
             if (args.length == 0) {
                 final List<PunishmentReport> reports = AntiCheatCollection.get(player.getUniqueId());
 
@@ -425,7 +720,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             player.sendMessage(report.toString());
         });
 
-        register("testitemwithdefaultattributes", (player, args) -> {
+        register("testitemwithdefaultattributes", (player, args) ->
+
+        {
             final Material material = args.get(0).toEnum(Material.class);
             final boolean hideFlags = args.get(0).toBoolean();
 
@@ -439,7 +736,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
 
-        register("testoptional", (player, args) -> {
+        register("testoptional", (player, args) ->
+
+        {
             final IOptional<Object> nullOptional = IOptional.of(null);
             final IOptional<Player> playerOptional = IOptional.of(player);
 
@@ -460,7 +759,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             });
         });
 
-        register("resistcrowncontrol", (player, args) -> {
+        register("resistcrowncontrol", (player, args) ->
+
+        {
             GamePlayer.getPlayerOptional(player)
                     .ifPresent(gp -> {
                         gp.sendMessage("resisted");
@@ -470,7 +771,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register(new SimplePlayerAdminCommand("testCacheSet") {
 
-            CacheSet<String> set = new CacheSet<>(2000);
+            Cache<String> set = Cache.ofSet(2000);
 
             @Override
             protected void execute(Player player, String[] args) {
@@ -486,8 +787,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("playMasteryLevelUpEffect", (player, args) -> {
-            final MasteryEntry entry = PlayerDatabase.getDatabase(player).masteryEntry;
+        register("playMasteryLevelUpEffect", (player, args) ->
+
+        {
+            final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
             final Hero hero = Manager.current().getSelectedLobbyHero(player);
             final int level = entry.getLevel(hero);
 
@@ -496,11 +799,15 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register("masteryExp", (player, args) -> HeroMastery.dumpExpMap(player));
 
-        register("giveHideTooltipsItem", (player, args) -> {
+        register("giveHideTooltipsItem", (player, args) ->
+
+        {
             player.getInventory().addItem(new ItemBuilder(Material.IRON_PICKAXE).asIcon());
         });
 
-        register("showSeasonalDecoration", (player, args) -> {
+        register("showSeasonalDecoration", (player, args) ->
+
+        {
             final Season season = args.get(0).toEnum(Season.class);
 
             if (season == null) {
@@ -511,7 +818,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             player.sendMessage(season.toString());
         });
 
-        register("nextNotification", (player, args) -> {
+        register("nextNotification", (player, args) ->
+
+        {
             player.sendMessage(ChatColor.YELLOW + "Triggered next notification!");
             Main.getPlugin().getNotifier().run();
         });
@@ -574,7 +883,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        registerDebug("particleFollow", (player, args) -> {
+        registerDebug("particleFollow", (player, args) ->
+
+        {
             new EntityFollowingParticle(1, player.getLocation().add(0, 5, 0), player) {
                 @Override
                 public void draw(int tick, @Nonnull Location location) {
@@ -583,26 +894,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }.runTaskTimer(0, 2);
         });
 
-        registerDebug("maxChaosStacks", (player, args) -> {
+        registerDebug("maxChaosStacks", (player, args) ->
+
+        {
             final NyxData data = HeroRegistry.NYX.getPlayerData(player);
             data.incrementChaosStacks(NyxData.MAX_CHAOS_STACKS);
 
             player.sendMessage("&aDone!");
         });
 
-        register("makeMeDeflective", (player, args) -> {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+        register("debugScript", (player, args) ->
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNo handle.");
-                return;
-            }
-
-            gamePlayer.setDeflecting(!gamePlayer.isDeflecting());
-            gamePlayer.sendMessage(gamePlayer.isDeflecting() ? "&aYou are now deflecting." : "&cYou are no longer deflecting.");
-        });
-
-        register("debugScript", (player, args) -> {
+        {
             final String id = args.getString(0);
             final Script script = Scripts.byId(id);
 
@@ -623,13 +926,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("clearGarbageEntities", (player, args) -> {
-            final int cleared = CFGarbageCollector.clearInAllWorlds();
+        register("clearGarbageEntities", (player, args) ->
+
+        {
+            final int cleared = SynchronizedGarbageEntityCollector.clearInAllWorlds();
 
             Chat.sendMessage(player, "Removed %s entities.".formatted(cleared));
         });
 
-        register("launchIcicles", (player, args) -> {
+        register("launchIcicles", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -640,7 +947,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             TalentRegistry.ICY_SHARDS.launchIcicles(gamePlayer);
         });
 
-        register("toStringRarity", (player, args) -> {
+        register("toStringRarity", (player, args) ->
+
+        {
             final Rarity rarity = args.get(0).toEnum(Rarity.class);
             final String string = args.makeStringArray(1);
 
@@ -655,7 +964,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, value);
         });
 
-        register("adminSkin", (player, args) -> {
+        register("adminSkin", (player, args) ->
+
+        {
             // adminSkin equip SKIN
             // adminSkin set HERO SKIN
             // adminSkin remove HERO SKIN
@@ -678,13 +989,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             final Hero hero = HeroRegistry.ofString(args.get(1).toString());
             final Skins skin = args.get(2).toEnum(Skins.class);
 
-            final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+            final PlayerDatabase database = CF.getDatabase(player);
             final SkinEntry skinEntry = database.skinEntry;
-
-            if (hero == null) {
-                Chat.sendMessage(player, "&cInvalid hero!");
-                return;
-            }
 
             switch (string) {
                 case "set" -> {
@@ -714,7 +1020,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("awardMe", (player, args) -> {
+        register("awardMe", (player, args) ->
+
+        {
             final Award award = args.get(0).toEnum(Award.class);
 
             if (award == null) {
@@ -722,20 +1030,23 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            award.award(PlayerProfile.getProfile(player));
+            award.award(CF.getProfile(player));
         });
 
         register("allowMeToGoldenGg", (player, args) -> {
-            Manager.current().goldenGg.add(player);
-
+            Manager.current().allowGoldenGg(player);
             Chat.sendMessage(player, "&6Done!");
         });
 
-        register("resetBonds", (player, args) -> {
-            PlayerProfile.getProfileOrThrow(player).getChallengeList().resetBonds();
+        register("resetBonds", (player, args) ->
+
+        {
+            CF.getProfile(player).getChallengeList().resetBonds();
         });
 
-        register("progressChallenge", (player, args) -> {
+        register("progressChallenge", (player, args) ->
+
+        {
             final ChallengeType type = args.get(0).toEnum(ChallengeType.class);
 
             if (type == null) {
@@ -743,7 +1054,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
+            final PlayerProfile profile = CF.getProfile(player);
             final PlayerChallengeList challengeList = profile.getChallengeList();
 
             if (!challengeList.hasOfType(type)) {
@@ -755,11 +1066,15 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aDone!");
         });
 
-        register("stopGuessWho", (player, args) -> {
+        register("stopGuessWho", (player, args) ->
+
+        {
             Manager.current().stopGuessWhoGame();
         });
 
-        register("spawnBlastPackWallEntity", (player, args) -> {
+        register("spawnBlastPackWallEntity", (player, args) ->
+
+        {
             final float yaw = args.get(0).toFloat();
             final float pitch = args.get(1).toFloat();
 
@@ -772,19 +1087,19 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aSpawned with %s yaw and %s pitch!".formatted(yaw, pitch));
         });
 
-        register("debugCosmetic", (player, args) -> {
-            final Cosmetics enumCosmetic = args.get(0).toEnum(Cosmetics.class);
+        register("debugCosmetic", (player, args) ->
 
-            if (enumCosmetic == null) {
-                Chat.sendMessage(player, "&cInvalid cosmetic!");
+        {
+            final Cosmetic cosmetic = Registries.getCosmetics().get(args.getString(0));
+
+            if (cosmetic == null) {
+                Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
                 return;
             }
 
-            final Cosmetic cosmetic = enumCosmetic.getCosmetic();
-
-            Chat.sendMessage(player, "&bEnum: " + enumCosmetic.name());
+            Chat.sendMessage(player, "&bKey: " + cosmetic.getKey());
             Chat.sendMessage(player, "&3Class: " + cosmetic.getClass().getSimpleName());
-            Chat.sendMessage(player, "&bIs Valid For Crate: " + enumCosmetic.isValidForCrate());
+            Chat.sendMessage(player, "&bIs Valid: " + cosmetic.isNotDisabledNorExclusive());
             Chat.sendMessage(player, "&3Name: " + cosmetic.getName());
             Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
             Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
@@ -792,7 +1107,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof Disabled));
         });
 
-        register("later", (player, args) -> {
+        register("later", (player, args) ->
+
+        {
             final int delay = args.get(0).toInt();
             final String command = Chat.arrayToString(args.array, 1);
 
@@ -815,7 +1132,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }, delay);
         });
 
-        register("stunMe", (player, args) -> {
+        register("stunMe", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
             final int duration = args.get(0).toInt(30);
 
@@ -828,7 +1147,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
         });
 
-        register("anchorMe", (player, args) -> {
+        register("anchorMe", (player, args) ->
+
+        {
             final Location location = BukkitUtils.anchorLocation(player.getLocation());
 
             player.teleport(location);
@@ -844,7 +1165,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("scaleAttribute", (player, args) -> {
+        register("scaleAttribute", (player, args) ->
+
+        {
             final AttributeType attribute = args.get(0).toEnum(AttributeType.class);
             final double value = args.get(1).toDouble();
             final String operation = args.get(2).toString();
@@ -871,7 +1194,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("damageMeDaddy", (player, args) -> {
+        register("damageMeDaddy", (player, args) ->
+
+        {
             final double damage = args.get(0).toDouble();
             final EnumDamageCause cause = args.get(1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
 
@@ -886,7 +1211,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             gamePlayer.sendMessage("&a⚑↸⚑⍀⚐⚐⚍⚑⚙!");
         });
 
-        register("debugDamageCause", (player, args) -> {
+        register("debugDamageCause", (player, args) ->
+
+        {
             final EnumDamageCause cause = args.get(0).toEnum(EnumDamageCause.class);
 
             if (cause == null) {
@@ -903,13 +1230,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         });
 
-        register("calculateGlobalStats", (player, args) -> {
+        register("calculateGlobalStats", (player, args) ->
+
+        {
             HeroRegistry.calculateGlobalStats();
 
             Chat.sendMessage(player, "&aDone!");
         });
 
-        register("promptHeroRate", (player, args) -> {
+        register("promptHeroRate", (player, args) ->
+
+        {
             RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, Manager.current().getSelectedLobbyHero(player));
         });
 
@@ -946,7 +1277,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testLosBlocks", (player, args) -> {
+        register("testLosBlocks", (player, args) ->
+
+        {
             final RayTraceResult result = player.rayTraceBlocks(50);
             final org.bukkit.entity.Entity hitEntity = result.getHitEntity();
             final LivingGameEntity entity = CF.getEntity(hitEntity);
@@ -959,7 +1292,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aHit: " + entity.toString());
         });
 
-        register("testContributors", (player, args) -> {
+        register("testContributors", (player, args) ->
+
+        {
             final List<Contributor> contributors = Contributors.getContributors();
 
             if (contributors.isEmpty()) {
@@ -981,13 +1316,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("spawnEntityWithGameEffects", (player, args) -> {
+        register("spawnEntityWithGameEffects", (player, args) ->
+
+        {
             LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
             entity.addEffect(Effects.IMMOVABLE, 10000, true);
         });
 
-        register("whenLastMoved", (player, args) -> {
+        register("whenLastMoved", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -1002,7 +1341,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("resetMetadata") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final PlayerProfile profile = PlayerProfile.getProfile(player);
+                final PlayerProfile profile = CF.getProfile(player);
 
                 if (profile == null) {
                     Chat.sendMessage(player, "&cNo profile somehow!");
@@ -1024,12 +1363,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                if (!entry.has(key)) {
+                if (!entry.NULL.has(key)) {
                     Chat.sendMessage(player, "&cMetadata value is already null!");
                     return;
                 }
 
-                entry.set(key, null);
+                entry.NULL.set(key, null);
                 Chat.sendMessage(player, "&aDone!");
             }
         });
@@ -1081,7 +1420,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("ph") {
             @Override
             protected void execute(Player player, String[] args) {
-                final PlayerProfile profile = PlayerProfile.getProfileOrThrow(player);
+                final PlayerProfile profile = CF.getProfile(player);
                 final Hero hero = profile.getHero();
                 final Hero exactHero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
 
@@ -1094,18 +1433,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAnchor", (player, args) -> {
+        register("testAnchor", (player, args) ->
+
+        {
             final Location location = BukkitUtils.findRandomLocationAround(player.getLocation(), 5.0d);
 
             player.teleport(location);
             Debug.info(BukkitUtils.locationToString(location));
         });
 
-        register("spawnMoonwalkerBlob", (player, args) -> {
+        register("spawnMoonwalkerBlob", (player, args) ->
+
+        {
             HeroRegistry.MOONWALKER.getUltimate().createBlob(player.getLocation(), false);
         });
 
-        register("whoami", (player, args) -> {
+        register("whoami", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -1116,7 +1461,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             gamePlayer.sendMessage("Your state: " + gamePlayer.getState());
         });
 
-        register("forceAutoSyncDatabase", (player, args) -> {
+        register("forceAutoSyncDatabase", (player, args) ->
+
+        {
             Manager.current().getAutoSave().save();
         });
 
@@ -1169,7 +1516,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             protected void execute(CommandSender sender, String[] args) {
                 final UUID uuid = UUID.fromString(args[0]);
 
-                PlayerDatabase.getDatabase(uuid);
+                CF.getDatabase(uuid);
             }
         });
 
@@ -1190,7 +1537,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final CrateConvert convert = enumConvert.get();
+                final CrateConvert convert = enumConvert.getWrapped();
                 final int canConvertTimes = convert.canConvertTimes(player);
 
                 if (canConvertTimes > 0) {
@@ -1289,7 +1636,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("clearCachedTalentItems", (player, args) -> {
+        register("clearCachedTalentItems", (player, args) ->
+
+        {
             TalentRegistry.values().forEach(talent -> {
                 talent.nullifyItem();
             });
@@ -1310,7 +1659,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final TalentLock talentLock = gamePlayer.getTalentLock();
-                final HotbarSlots slot = gamePlayer.getProfile().getHotbarLoadout().bySlot(i);
+                final HotBarSlot slot = gamePlayer.getProfile().getHotbarLoadout().bySlot(i);
 
                 if (slot == null) {
                     Chat.sendMessage(player, "&cInvalid talent!");
@@ -1415,16 +1764,22 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("viewLegacyAchievementGUI", (player, args) -> {
+        register("viewLegacyAchievementGUI", (player, args) ->
+
+        {
             new LegacyAchievementGUI(player);
         });
 
-        register("getLobbyItems", (player, args) -> {
+        register("getLobbyItems", (player, args) ->
+
+        {
             LobbyItems.giveAll(player);
             Chat.sendMessage(player, "&aThere you go!");
         });
 
-        register("startAndCancelCountdown", (player, args) -> {
+        register("startAndCancelCountdown", (player, args) ->
+
+        {
             final Manager manager = Manager.current();
             manager.createStartCountdown(DebugData.FORCE);
             manager.stopStartCountdown(player);
@@ -1435,21 +1790,22 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("entity") {
             @Override
             protected void execute(Player player, String[] args) {
-                final GameEntities entity = getArgument(args, 0).toEnum(GameEntities.class);
+                final String stringArg = getArgument(args, 0).toString();
+                final NamedEntityType type = Registries.getEntities().get(stringArg);
 
-                if (entity == null) {
-                    Chat.sendMessage(player, "&cInvalid entity!");
+                if (type == null) {
+                    Notifier.error(player, "Invalid entity type: {%s}!".formatted(stringArg));
                     return;
                 }
 
-                entity.spawn(player.getLocation());
-                Chat.sendMessage(player, "&aSpawned %s!".formatted(entity.type));
+                type.create(player.getLocation());
+                Notifier.success(player, "Spawned {%s}!".formatted(type.getName()));
             }
 
             @Nullable
             @Override
             protected List<String> tabComplete(CommandSender sender, String[] args) {
-                return completerSort(GameEntities.values(), args);
+                return completerSort(Registries.getEntities().keys(), args);
             }
         });
 
@@ -1519,7 +1875,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("damageSelf", (player, args) -> {
+        register("damageSelf", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -1553,8 +1911,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("deleteGamePlayer", (player, args) -> {
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
+        register("deleteGamePlayer", (player, args) ->
+
+        {
+            final PlayerProfile profile = CF.getProfile(player);
             if (profile == null) {
                 return;
             }
@@ -1563,7 +1923,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aDone!");
         });
 
-        register("dumpColor", (player, args) -> {
+        register("dumpColor", (player, args) ->
+
+        {
             final ItemStack item = player.getInventory().getItemInMainHand();
             final ItemMeta meta = item.getItemMeta();
 
@@ -1652,7 +2014,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("debugCollection", (player, args) -> {
+        register("debugCollection", (player, args) ->
+
+        {
             final CosmeticCollection collection = args.get(0).toEnum(CosmeticCollection.class);
 
             if (collection == null) {
@@ -1663,13 +2027,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Notifier.info(player, collection.getItems().toString());
         });
 
-        register("debugExpTreeMap", (player, args) -> {
+        register("debugExpTreeMap", (player, args) ->
+
+        {
             final Experience experience = Main.getPlugin().getExperience();
 
             experience.getLevelEnoughExp(10000);
         });
 
         register(new SkinCommand());
+
         register(new NickCommand());
 
         register(new SimplePlayerAdminCommand("isProfanity") {
@@ -1687,13 +2054,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("cstr", (player, args) -> {
+        register("cstr", (player, args) ->
+
+        {
             final String string = Chat.arrayToString(args.array, 0);
 
             Chat.sendCenterMessage(player, string);
         });
 
-        register("debugCrate", (player, args) -> {
+        register("debugCrate", (player, args) ->
+
+        {
             final Crates crate = args.get(0).toEnum(Crates.class);
 
             if (crate == null) {
@@ -1770,7 +2141,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("dumpEntities", (player, args) -> {
+        register("dumpEntities", (player, args) ->
+
+        {
             final Set<GameEntity> entities = CF.getEntities();
 
             Chat.sendMessage(player, "&aEntity Dump (%s)".formatted(entities.size()));
@@ -1790,7 +2163,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("rechargeIron", (player, args) -> {
+        register("rechargeIron", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -1802,9 +2177,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aRecharged!");
         });
 
-        register("setHeroSkin", (player, args) -> {
+        register("setHeroSkin", (player, args) ->
+
+        {
             if (args.length == 0) {
-                PlayerProfile.getProfileOrThrow(player).resetSkin();
+                CF.getProfile(player).resetSkin();
                 Chat.sendMessage(player, "&eReset!");
                 return;
             }
@@ -1867,7 +2244,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAddSucculence", (player, args) -> {
+        register("testAddSucculence", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -1933,7 +2312,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testTransformationRotation", (player, args) -> {
+        register("testTransformationRotation", (player, args) ->
+
+        {
             if (args.length != 8) {
                 Chat.sendMessage(
                         player,
@@ -1942,15 +2323,15 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 return;
             }
 
-            final double a = Validate.getDouble(args.array[0]);
-            final double b = Validate.getDouble(args.array[1]);
-            final double c = Validate.getDouble(args.array[2]);
-            final double d = Validate.getDouble(args.array[3]);
+            final double a = Numbers.getDouble(args.array[0]);
+            final double b = Numbers.getDouble(args.array[1]);
+            final double c = Numbers.getDouble(args.array[2]);
+            final double d = Numbers.getDouble(args.array[3]);
 
-            final double e = Validate.getDouble(args.array[4]);
-            final double f = Validate.getDouble(args.array[5]);
-            final double g = Validate.getDouble(args.array[6]);
-            final double h = Validate.getDouble(args.array[7]);
+            final double e = Numbers.getDouble(args.array[4]);
+            final double f = Numbers.getDouble(args.array[5]);
+            final double g = Numbers.getDouble(args.array[6]);
+            final double h = Numbers.getDouble(args.array[7]);
 
             Entities.ITEM_DISPLAY.spawn(player.getLocation(), self -> {
                 self.setItemStack(ItemBuilder.playerHeadUrl("2c8c8f382667bf59f164106849c00e6dfd9ad00a72670b9de99589e4dcd00900").asIcon());
@@ -1970,14 +2351,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&aSpawned!");
         });
 
-        register("testHoverText", (player, args) -> {
+        register("testHoverText", (player, args) ->
+
+        {
             final TextComponent text = new TextComponent("Hover me");
 
             text.setHoverEvent(ChatUtils.showText(args.array));
             player.spigot().sendMessage(text);
         });
 
-        register("spawnHuskWithCCResist", (player, args) -> {
+        register("spawnHuskWithCCResist", (player, args) ->
+
+        {
             final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.HUSK);
 
             entity.getAttributes().set(AttributeType.EFFECT_RESISTANCE, 1);
@@ -1985,7 +2370,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             Chat.sendMessage(player, "&dDone!");
         });
 
-        register("spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) -> {
+        register("spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) ->
+
+        {
             final Pig pig = Entities.PIG.spawn(player.getLocation());
             final LivingGameEntity entity = CF.getEntity(pig);
 
@@ -2024,7 +2411,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("recipes", (player, args) -> {
+        register("recipes", (player, args) ->
+
+        {
             if (args.length == 0) {
                 Chat.sendMessage(player, "&cMissing argument, either 'reset' or 'clear'.");
                 return;
@@ -2045,7 +2434,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("dumpBlockNamesCSV", (player, args) -> {
+        register("dumpBlockNamesCSV", (player, args) ->
+
+        {
             Runnables.runAsync(() -> {
                 final File path = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
 
@@ -2066,12 +2457,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             });
         });
 
-        register("testEternaItemBuilderAddTrim", (player, args) -> {
+        register("testEternaItemBuilderAddTrim", (player, args) ->
+
+        {
             player.getInventory()
                     .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE).setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND).asIcon());
         });
 
-        register("getUuidName", (player, args) -> {
+        register("getUuidName", (player, args) ->
+
+        {
             try {
                 final UUID uuid = UUID.fromString(args.getString(0));
 
@@ -2150,7 +2545,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("readElementTypesCSV", (player, args) -> {
+        register("readElementTypesCSV", (player, args) ->
+
+        {
             Runnables.runAsync(() -> {
                 final File file = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
 
@@ -2232,7 +2629,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             });
         });
 
-        register("debugLevelUpConstruct", (player, args) -> {
+        register("debugLevelUpConstruct", (player, args) ->
+
+        {
             final Construct construct = HeroRegistry.ENGINEER.getConstruct(CF.getPlayer(player));
 
             if (construct == null) {
@@ -2247,7 +2646,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerCommand("resourcePack") {
             @Override
             protected void execute(Player player, String[] args) {
-                final PlayerProfile profile = PlayerProfile.getProfile(player);
+                final PlayerProfile profile = CF.getProfile(player);
 
                 if (profile == null) {
                     Chat.sendMessage(player, "&cCouldn't find your profile! That's a bug you should report.");
@@ -2258,7 +2657,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAchievementToast", (player, args) -> {
+        register("testAchievementToast", (player, args) ->
+
+        {
         });
 
         register(new SimplePlayerAdminCommand("testSplashText") {
@@ -2351,7 +2752,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testRotatingCircle", (player, args) -> {
+        register("testRotatingCircle", (player, args) ->
+
+        {
             final Location location = player.getLocation();
 
             new TickingGameTask() {
@@ -2821,7 +3224,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("accelerateGamePackSpawn", (player, args) -> {
+        register("accelerateGamePackSpawn", (player, args) ->
+
+        {
             final GameInstance gameInstance = Manager.current().getGameInstance();
 
             if (gameInstance == null) {
@@ -2838,7 +3243,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Override
             protected void execute(Player player, String[] args) {
                 final double newValue = getArgument(args, 0).toDouble(-999);
-                final AttributeInstance attribute = player.getAttribute(Attribute.GENERIC_ATTACK_SPEED);
+                final AttributeInstance attribute = player.getAttribute(Attribute.ATTACK_SPEED);
 
                 if (newValue == -999) {
                     Chat.sendMessage(
@@ -2853,7 +3258,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testTradeGUi", ((player, strings) -> {
+        register("testTradeGUi", ((player, strings) ->
+
+        {
             final PlayerGUI gui = new PlayerGUI(player, 6);
 
             gui.fillColumn(4, ItemBuilder.of(Material.BLACK_WOOL).asIcon());
@@ -2957,7 +3364,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("commitSuicideButDontTriggerModeWinCondition", (player, args) -> {
+        register("commitSuicideButDontTriggerModeWinCondition", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -2977,7 +3386,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("leaveTeam", (player, args) -> {
+        register("leaveTeam", (player, args) ->
+
+        {
             final Entry entry = Entry.of(player);
             final GameTeam team = GameTeam.getEntryTeam(entry);
 
@@ -2995,7 +3406,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             );
         });
 
-        register("spawnAlliedEntity", (player, args) -> {
+        register("spawnAlliedEntity", (player, args) ->
+
+        {
             final GamePlayer gamePlayer = CF.getPlayer(player);
 
             if (gamePlayer == null) {
@@ -3052,7 +3465,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("resetDaily") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                final PlayerDatabase database = CF.getDatabase(player);
 
                 for (DailyRewardEntry.Type type : DailyRewardEntry.Type.values()) {
                     database.dailyRewardEntry.setLastDaily(type, System.currentTimeMillis() - DailyReward.MILLIS_WHOLE_DAY);
@@ -3075,11 +3488,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(Attribute.GENERIC_ATTACK_SPEED);
+                final Collection<AttributeModifier> modifiers = meta.getAttributeModifiers(Attribute.ATTACK_SPEED);
 
-                meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+                meta.removeAttributeModifier(Attribute.ATTACK_SPEED);
                 meta.addAttributeModifier(
-                        Attribute.GENERIC_ATTACK_SPEED,
+                        Attribute.ATTACK_SPEED,
                         new AttributeModifier(
                                 BukkitUtils.createKey(UUID.randomUUID()),
                                 value,
@@ -3138,9 +3551,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final int from = Validate.getInt(args[0]);
-                final int to = Validate.getInt(args[1]);
-                final long speed = Validate.getLong(args[2]);
+                final int from = Numbers.getInt(args[0]);
+                final int to = Numbers.getInt(args[1]);
+                final long speed = Numbers.getLong(args[2]);
 
                 new AnimatedWither(LocationHelper.getInFront(player.getLocation(), 6)) {
 
@@ -3246,9 +3659,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 npc = new HumanNPC(player.getLocation(), player.getName(), player.getName());
                 npc.setLookAtCloseDist(5);
-                npc.addDialogLine("Hello {player}, my name is {name} and I'm here as a test!", 40);
-                npc.addDialogLine("I'm located at {location}", 20);
-                npc.addDialogLine("That's it then, bye &c❤");
                 npc.setInteractionDelay(60);
 
                 npc.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
@@ -3288,13 +3698,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         // these are small shortcuts not feeling creating a class D:
 
-        register("start", (player, args) -> {
+        register("start", (player, args) ->
+
+        {
             player.performCommand("cf start " + Chat.arrayToString(args.array, 0));
         });
 
         register(new TestNpcDeathAnimationCommand("testNpcDeathAnimation"));
 
-        register("testNpcTeleport", (player, args) -> {
+        register("testNpcTeleport", (player, args) ->
+
+        {
             final Human human = HumanNPC.create(player.getLocation());
             human.showAll();
 
@@ -3346,7 +3760,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("showCommands", (player, args) -> {
+        register("showCommands", (player, args) ->
+
+        {
             Debug.info("Here is a list of commands:");
 
             ChatColor color = ChatColor.AQUA;

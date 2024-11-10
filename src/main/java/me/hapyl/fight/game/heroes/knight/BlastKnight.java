@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.knight;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -8,16 +8,15 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.knight.Discharge;
 import me.hapyl.fight.game.talents.knight.StoneCastle;
-import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -43,7 +42,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
             .build();
 
     private final PlayerDataMap<BlastKnightData> dataMap = PlayerMap.newDataMap(BlastKnightData::new);
-    private final Material shieldRechargeCdItem = Material.HORSE_SPAWN_EGG;
+    private final Key shieldRechargeCdKey = Key.ofString("shield_recharge_key");
 
     public BlastKnight(@Nonnull Key key) {
         super(key, "Blast Knight");
@@ -75,14 +74,15 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         equipment.setLeggings(170, 55, 204);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 
-        setWeapon(new Weapon(Material.IRON_SWORD)
-                .setName("Royal Sword")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("royal_sword"))
+                .name("Royal Sword")
+                .description("""
                         A royal sword, forget of the best quality ore possible.
                         
                         It has tiny golden ornate pieces on the edge of the handle.
-                        """)
-                .setDamage(5.0d)
+                        """
+                )
+                .damage(5.0d)
         );
 
         setUltimate(new BlastKnightUltimate());
@@ -154,8 +154,8 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
-        if (player.hasCooldown(shieldRechargeCdItem)) {
-            return "&7🛡 &l" + player.getCooldownFormatted(shieldRechargeCdItem);
+        if (player.cooldownManager.hasCooldown(shieldRechargeCdKey)) {
+            return "&7🛡 &l" + player.cooldownManager.getCooldownFormatted(shieldRechargeCdKey);
         }
 
         return "&5&l✨ &l" + getShieldCharge(player);
@@ -183,20 +183,20 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final double shieldPerTick = (shieldCapacity - initialShieldCapacity) / getUltimateDuration();
             final Location location = player.getLocation();
 
-            new TimedGameTask(getUltimate()) {
+            return new UltimateInstance() {
                 @Override
-                public void onFirstTick() {
+                public void onExecute() {
                     nearbyPlayers().forEach(player -> {
                         player.setShield(new Shield(player, shieldCapacity, initialShieldCapacity));
                     });
                 }
 
                 @Override
-                public void run(int tick) {
+                public void onTick(int tick) {
                     nearbyPlayers().forEach(player -> {
                         final Shield shield = player.getShield();
 
@@ -206,7 +206,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
                     });
 
                     // Fx
-                    final float pitch = 0.5f + (1.5f / maxTick * tick);
+                    final float pitch = 0.5f + (1.5f / getDuration() * tick);
 
                     player.spawnWorldParticle(location, Particle.WITCH, 50, ultimateRadius / 4, 0.1d, ultimateRadius / 4, 1f);
 
@@ -222,9 +222,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
 
                     return players;
                 }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+            };
         }
     }
 }

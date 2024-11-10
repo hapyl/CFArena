@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.orc;
 
 import me.hapyl.eterna.module.math.Tick;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -13,14 +13,14 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -54,7 +54,7 @@ public class Orc extends Hero implements Listener {
         profile.setGender(Gender.MALE);
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(120);
+        attributes.setMaxHealth(120);
         attributes.setDefense(60);
         attributes.setSpeed(110);
         attributes.setCritChance(15);
@@ -181,10 +181,10 @@ public class Orc extends Hero implements Listener {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            enterBerserk(player, getUltimateDuration());
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                enterBerserk(player, getUltimateDuration());
+            });
         }
     }
 }

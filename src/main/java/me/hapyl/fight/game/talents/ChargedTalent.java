@@ -1,18 +1,19 @@
 package me.hapyl.fight.game.talents;
 
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.annotate.DoNotMutate;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -25,7 +26,7 @@ public class ChargedTalent extends Talent {
     private final int maxCharges;
     private final PlayerMap<ChargedTalentData> data;
     private int rechargeTime;
-    private Material noChargedMaterial;
+    private ItemStack noChargesItem;
 
     public ChargedTalent(@Nonnull Key key, @Nonnull String name, int maxCharges) {
         super(key, name);
@@ -33,19 +34,19 @@ public class ChargedTalent extends Talent {
         this.maxCharges = maxCharges;
         this.data = PlayerMap.newMap();
         this.rechargeTime = -1; // -1 = does not recharge (manual)
-        this.noChargedMaterial = Material.CHARCOAL;
+        this.noChargesItem = makeNoChargesItem(Material.CHARCOAL);
     }
 
     public ChargedTalentData getData(GamePlayer player) {
         return data.computeIfAbsent(player, data -> new ChargedTalentData(player, this));
     }
 
-    public Material getNoChargedMaterial() {
-        return noChargedMaterial;
+    public ItemStack getNoChargesItem() {
+        return noChargesItem;
     }
 
-    public void setNoChargedMaterial(Material noChargedMaterial) {
-        this.noChargedMaterial = noChargedMaterial;
+    public void setNoChargesItem(Material noChargesItem) {
+        this.noChargesItem = makeNoChargesItem(noChargesItem);
     }
 
     @Override
@@ -83,18 +84,6 @@ public class ChargedTalent extends Talent {
         this.setRechargeTime(-1);
     }
 
-    public int getLastKnownSlot(GamePlayer player) {
-        return getData(player).getLastKnownSlot();
-    }
-
-    public void setLastKnownSlot(GamePlayer player, int slot) {
-        if (getLastKnownSlot(player) == slot) {
-            return;
-        }
-
-        getData(player).setLastKnownSlot(slot);
-    }
-
     public int getMaxCharges() {
         return maxCharges;
     }
@@ -112,9 +101,14 @@ public class ChargedTalent extends Talent {
     }
 
     public void removeChargeAndStartCooldown(GamePlayer player) {
-        final int slot = getLastKnownSlot(player);
-        final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(slot);
+        final HotBarSlot slot = getData(player).getLastKnownSlot();
+
+        // Illegal call
+        if (slot == null) {
+            return;
+        }
+
+        final ItemStack item = player.getItem(slot);
 
         getData(player).removeCharge();
 
@@ -125,9 +119,9 @@ public class ChargedTalent extends Talent {
         final int amount = item.getAmount();
 
         if (amount == 1) {
-            inventory.setItem(slot, noChargesItem());
+            player.setItem(slot, noChargesItem());
             if (getRechargeTime() >= 0) {
-                player.setCooldown(noChargedMaterial, getRechargeTime());
+                player.setCooldownInternal(noChargesItem.getType(), getRechargeTime());
             }
 
             onLastCharge(player);
@@ -149,21 +143,22 @@ public class ChargedTalent extends Talent {
     }
 
     public void grantAllCharges(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        final int slot = getLastKnownSlot(player);
+        final HotBarSlot slot = getData(player).getLastKnownSlot();
 
-        if (slot == -1) {
+        if (slot == null) {
             return;
         }
 
-        final ItemStack item = inventory.getItem(slot);
+        final ItemStack item = player.getItem(slot);
+
         if (item == null) {
             return;
         }
 
-        inventory.setItem(slot, this.getItem());
-        final ItemStack newItem = inventory.getItem(slot);
+        player.setItem(slot, getItem());
+        final ItemStack newItem = player.getItem(slot);
 
+        // Fix amount
         if (newItem != null) {
             newItem.setAmount(maxCharges);
         }
@@ -174,25 +169,21 @@ public class ChargedTalent extends Talent {
         player.playSound(Sound.ENTITY_CHICKEN_EGG, 1);
     }
 
-    public void grantCharge(GamePlayer player, int delay) {
-        GameTask.runLater(() -> grantCharge(player), delay);
-    }
-
     public void grantCharge(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        final int slot = getLastKnownSlot(player);
+        final HotBarSlot slot = getData(player).getLastKnownSlot();
 
-        if (slot == -1) {
+        if (slot == null) {
             return;
         }
 
-        final ItemStack item = inventory.getItem(slot);
+        final ItemStack item = player.getItem(slot);
+
         if (item == null) {
             return;
         }
 
-        if (item.getType() == noChargedMaterial) {
-            inventory.setItem(slot, this.getItem());
+        if (item.getType() == noChargesItem.getType()) {
+            player.setItem(slot, getItem());
         }
         else {
             item.setAmount(item.getAmount() + 1);
@@ -213,15 +204,20 @@ public class ChargedTalent extends Talent {
         return Response.AWAIT;
     }
 
+    @DoNotMutate
     @Nonnull
     public ItemStack noChargesItem() {
-        return ItemBuilder.of(noChargedMaterial, "&cOut of Charged!").build();
+        return this.noChargesItem;
     }
 
     @Nonnull
     @Override
     public String getTalentClassType() {
         return "Charged Talent";
+    }
+
+    private static ItemStack makeNoChargesItem(Material material) {
+        return new ItemBuilder(material).setName("&4Out of Charges!").toItemStack();
     }
 }
 

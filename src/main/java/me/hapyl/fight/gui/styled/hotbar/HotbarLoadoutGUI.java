@@ -1,12 +1,17 @@
 package me.hapyl.fight.gui.styled.hotbar;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.CancelType;
+import me.hapyl.eterna.module.inventory.gui.EventListener;
+import me.hapyl.eterna.module.inventory.gui.GUI;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlot;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.loadout.HotbarTalentSlot;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.gui.styled.Size;
@@ -14,17 +19,11 @@ import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.NoProfileException;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.CancelType;
-import me.hapyl.eterna.module.inventory.gui.EventListener;
-import me.hapyl.eterna.module.inventory.gui.GUI;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,54 +37,35 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             .asIcon();
 
     private final int[] HOTBAR_SLOTS = { 27, 28, 29, 30, 31, 32, 33, 34, 35 };
+    private final int UNMODIFIABLE_SLOT = 35;
 
     private final PlayerProfile profile;
-    private final HotbarLoadout loadout;
+    private final HotBarLoadout loadout;
     private final Hero hero;
-    private final Map<ItemStack, HotbarSlots> itemToSlotMap;
+    private final Map<ItemStack, HotBarSlot> itemToSlotMap;
 
     private int wrongClicks;
 
     public HotbarLoadoutGUI(Player player) {
         super(player, "Customize Loadout", Size.FIVE);
 
-        profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            throw new NoProfileException();
-        }
-
+        profile = CF.getProfile(player);
         hero = profile.getHero();
         loadout = profile.getHotbarLoadout();
         itemToSlotMap = Maps.newHashMap();
 
-        putToMap(HotbarSlots.WEAPON, hero.getWeapon().getItem());
-        putToMap(HotbarSlots.TALENT_1, hero.getTalentItem(HotbarSlots.TALENT_1));
-        putToMap(HotbarSlots.TALENT_2, hero.getTalentItem(HotbarSlots.TALENT_2));
-        putToMap(HotbarSlots.TALENT_3, hero.getTalentItem(HotbarSlots.TALENT_3));
-        putToMap(HotbarSlots.TALENT_4, hero.getTalentItem(HotbarSlots.TALENT_4));
-        putToMap(HotbarSlots.TALENT_5, hero.getTalentItem(HotbarSlots.TALENT_5));
-        putToMap(HotbarSlots.HERO_ITEM, null);
+        putToMap(HotBarSlot.WEAPON, hero.getWeapon().getItem());
+        putToMap(HotBarSlot.TALENT_1, hero.getTalentItem(HotBarSlot.TALENT_1));
+        putToMap(HotBarSlot.TALENT_2, hero.getTalentItem(HotBarSlot.TALENT_2));
+        putToMap(HotBarSlot.TALENT_3, hero.getTalentItem(HotBarSlot.TALENT_3));
+        putToMap(HotBarSlot.TALENT_4, hero.getTalentItem(HotBarSlot.TALENT_4));
+        putToMap(HotBarSlot.TALENT_5, hero.getTalentItem(HotBarSlot.TALENT_5));
+        putToMap(HotBarSlot.HERO_ITEM, hero.getItem());
+        putToMap(HotBarSlot.ARTIFACT, null);
 
         setEventListener(this);
         setCancelType(CancelType.INVENTORY);
         openInventory();
-
-        // Default to the current loadout
-        loadout.forEach((slot, i) -> {
-            if (slot == HotbarSlots.MAP_ITEM) {
-                return;
-            }
-
-            final ItemStack item = getItemBySlot(slot);
-
-            if (item.getType().isAir()) {
-                setItem(27 + i, item);
-                return;
-            }
-
-            moveItem(item, 27 + i);
-        });
     }
 
     @Override
@@ -93,23 +73,24 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         setHeader(StyledItem.ICON_LOADOUT.asIcon());
         fillMiddleRow();
 
-        setItem(12, getItemBySlot(HotbarSlots.WEAPON));
-        setItem(14, getItemBySlot(HotbarSlots.HERO_ITEM));
-        setItem(20, getItemBySlot(HotbarSlots.TALENT_1));
-        setItem(21, getItemBySlot(HotbarSlots.TALENT_2));
-        setItem(22, getItemBySlot(HotbarSlots.TALENT_3));
-        setItem(23, getItemBySlot(HotbarSlots.TALENT_4));
-        setItem(24, getItemBySlot(HotbarSlots.TALENT_5));
+        setItem(12, getItemBySlot(HotBarSlot.WEAPON));
+        setItem(13, getItemBySlot(HotBarSlot.ARTIFACT));
+        setItem(14, getItemBySlot(HotBarSlot.HERO_ITEM));
 
-        final HotbarSlot mapItem = HotbarSlots.MAP_ITEM.get();
+        setItem(20, getItemBySlot(HotBarSlot.TALENT_1));
+        setItem(21, getItemBySlot(HotBarSlot.TALENT_2));
+        setItem(22, getItemBySlot(HotBarSlot.TALENT_3));
+        setItem(23, getItemBySlot(HotBarSlot.TALENT_4));
+        setItem(24, getItemBySlot(HotBarSlot.TALENT_5));
 
         setItem(
-                35,
-                new ItemBuilder(mapItem.getMaterial()).setName(mapItem.getName())
+                UNMODIFIABLE_SLOT,
+                new ItemBuilder(HotBarSlot.MAP_ITEM.getMaterial())
+                        .setName(HotBarSlot.MAP_ITEM.getName())
                         .addLore()
-                        .addSmartLore(mapItem.getDescription())
+                        .addSmartLore(HotBarSlot.MAP_ITEM.getDescription(), "&7&o")
                         .addLore()
-                        .addLore("&cThis slot cannot be modified!")
+                        .addLore(Color.ERROR + "This slot cannot be modified!")
                         .asIcon()
         );
 
@@ -145,7 +126,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             return;
         }
 
-        if (slot == 35) {
+        if (slot == UNMODIFIABLE_SLOT) {
             Notifier.error(player, "This slot cannot be modified!");
             event.setCancelled(true);
             return;
@@ -159,10 +140,6 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         final ItemStack item = gui.getItem(slot);
         final ItemStack cursor = event.getCursor();
 
-        if (cursor == null) {
-            return;
-        }
-
         if (item == null || item.getType() == EMPTY_SLOT.getType()) {
             event.setCancelled(true);
             event.setCursor(null);
@@ -175,20 +152,20 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
     }
 
     private void tryConfirm() {
-        final HotbarSlots[] newLoadout = new HotbarSlots[9];
+        final HotBarSlot[] newLoadout = new HotBarSlot[9];
 
         for (int i = 0; i < HOTBAR_SLOTS.length; i++) {
             final int slot = HOTBAR_SLOTS[i];
             final ItemStack item = getItem(slot);
-            final HotbarSlots hotbarSlot = itemToSlotMap.get(item);
+            final HotBarSlot hotbarSlot = itemToSlotMap.get(item);
 
             newLoadout[i] = hotbarSlot;
         }
 
         // unmodifiable
-        newLoadout[8] = HotbarSlots.MAP_ITEM;
+        newLoadout[8] = HotBarSlot.MAP_ITEM;
 
-        for (HotbarSlots value : HotbarSlots.values()) {
+        for (HotBarSlot value : HotBarSlot.values()) {
             if (arrayContains(newLoadout, value)) {
                 continue;
             }
@@ -234,36 +211,46 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         }
     }
 
-    private void putToMap(HotbarSlots slot, ItemStack item) {
-        final HotbarSlot hotbarSlot = slot.get();
-        final ItemBuilder builder = new ItemBuilder(hotbarSlot.getMaterial()).setName(hotbarSlot.getName());
+    private void putToMap(HotBarSlot slot, ItemStack item) {
+        final ItemBuilder builder = new ItemBuilder(slot.getMaterial()).setName(slot.getName());
 
         if (item != null) {
-            builder.setType(item.getType());
-            builder.addLore("&8" + CFUtils.getItemName(item));
+            final Material itemType = item.getType();
+            builder.setType(itemType);
+
+            if (itemType == Material.PLAYER_HEAD) {
+                final SkullMeta skull = (SkullMeta) item.getItemMeta();
+
+                builder.modifyMeta(SkullMeta.class, meta -> {
+                    meta.setPlayerProfile(skull.getPlayerProfile());
+                });
+            }
+            else {
+                builder.addLore("&8" + CFUtils.getItemName(item));
+            }
         }
 
         builder.addLore();
-        builder.addTextBlockLore(hotbarSlot.getDescription());
+        builder.addTextBlockLore(slot.getDescription(), "&7&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT);
         builder.addLore();
-        builder.addSmartLore("Move this item to the designated slot!", " &7&o");
+        builder.addSmartLore(Color.DEFAULT + "Move this item to the designated slot!");
 
-        if (hotbarSlot instanceof HotbarTalentSlot talentSlot) {
-            builder.setAmount(talentSlot.getTalentIndex());
-        }
+        final int itemAmount = slot.getItemAmount();
+        builder.setMaximumStackSize(itemAmount);
+        builder.setAmount(itemAmount);
 
         itemToSlotMap.put(builder.asIcon(), slot);
     }
 
     @Nonnull
-    private ItemStack getItemBySlot(@Nullable HotbarSlots slot) {
+    private ItemStack getItemBySlot(@Nullable HotBarSlot slot) {
         if (slot == null) {
             return EMPTY_SLOT;
         }
 
-        for (Map.Entry<ItemStack, HotbarSlots> entry : itemToSlotMap.entrySet()) {
+        for (Map.Entry<ItemStack, HotBarSlot> entry : itemToSlotMap.entrySet()) {
             final ItemStack key = entry.getKey();
-            final HotbarSlots value = entry.getValue();
+            final HotBarSlot value = entry.getValue();
 
             if (value == slot) {
                 return key;

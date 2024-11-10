@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.game.cosmetic.skin.Skin;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.equipment.Slot;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.reflect.npc.ItemSlot;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.Slot;
+import me.hapyl.fight.game.setting.EnumSetting;
+import me.hapyl.fight.game.skin.Skin;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -36,7 +36,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         this(
                 player,
                 skin == null ? hero : skin.getHero(),
-                skin == null ? (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
+                skin == null ? (EnumSetting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
         );
     }
 

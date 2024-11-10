@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -44,7 +44,7 @@ public class Freazly extends Hero {
         final IcyShardsPassive talent = getPassiveTalent();
         final GamePlayer player = instance.getEntityAsPlayer();
 
-        if (player.hasCooldown(talent.getMaterial())) {
+        if (player.cooldownManager.hasCooldown(talent)) {
             return;
         }
 
@@ -109,10 +109,10 @@ public class Freazly extends Hero {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            new EternalFreeze(player, this);
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                new EternalFreeze(player, this);
+            });
         }
     }
 }

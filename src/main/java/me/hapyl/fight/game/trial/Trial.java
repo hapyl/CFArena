@@ -11,7 +11,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -94,8 +94,8 @@ public class Trial extends TickingGameTask implements Lifecycle {
         player.hide();
 
         // Remove talents because they will be explained one by one
-        player.setItem(HotbarSlots.TALENT_1, lockedTalent);
-        player.setItem(HotbarSlots.TALENT_2, lockedTalent);
+        player.setItem(HotBarSlot.TALENT_1, lockedTalent);
+        player.setItem(HotBarSlot.TALENT_2, lockedTalent);
 
         showObjective();
 

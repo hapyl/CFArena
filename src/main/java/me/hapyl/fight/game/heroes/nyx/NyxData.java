@@ -5,7 +5,6 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.util.Mth;
@@ -20,7 +19,7 @@ public class NyxData extends PlayerData implements Ticking {
     public static final int MAX_CHAOS_STACKS = 6;
     public static final int INITIAL_CHAOS_STACKS = 1;
 
-    private static final double DROPLET_COLLISION_THRESHOLD = 0.5d;
+    private static final double DROPLET_COLLISION_THRESHOLD = 0.75d;
 
     protected final Set<ChaosDroplet> droplets;
     protected int chaosStacks;

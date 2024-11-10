@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.rogue;
 
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.Tick;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
@@ -18,14 +18,14 @@ import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.rogue.SecondWind;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ItemStackRandomizedData;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -76,7 +76,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         final HeroAttributes attributes = getAttributes();
 
-        attributes.setHealth(60);
+        attributes.setMaxHealth(60);
         attributes.setSpeed(130);
         attributes.setAttackSpeed(300);
 
@@ -86,15 +86,14 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         equipment.setLeggings(36, 14, 4, TrimPattern.DUNE, TrimMaterial.NETHERITE);
         equipment.setBoots(23, 7, 0, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(
-                new Weapon(Material.GOLDEN_SWORD)
-                        .setName("Sacrificial Dagger")
-                        .setDescription("""
-                                An ornate ceremonial dagger.
-                                
-                                Its small size allows for fast swings.
-                                """)
-                        .setDamage(3.0d)
+        setWeapon(Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("scarificial_dagger"))
+                .name("Sacrificial Dagger")
+                .description("""
+                        An ornate ceremonial dagger.
+                        
+                        Its small size allows for fast swings.
+                        """)
+                .damage(3.0d)
         );
 
         setUltimate(new RogueUltimate());
@@ -230,71 +229,74 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
             setSound(Sound.ENTITY_CREEPER_PRIMED, 1.0f);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final World world = player.getWorld();
-            final Location location = player.getMidpointLocation();
-            final Item item = world.dropItem(location, ItemStackRandomizedData.of(Material.LIGHTNING_ROD));
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            // TODO (Sun, Nov 10 2024 @xanyjl): Make pipe bomb actuall better yES!
 
-            item.setPickupDelay(10000);
-            item.setUnlimitedLifetime(true);
-            item.setVelocity(location.getDirection().normalize().multiply(magnitude).setY(yMagnitude));
+            return execute(() -> {
+                final World world = player.getWorld();
+                final Location location = player.getMidpointLocation();
+                final Item item = world.dropItem(location, ItemStackRandomizedData.of(Material.LIGHTNING_ROD));
 
-            // Explode
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    final LivingGameEntity targetEntity = Collect.nearestEntity(item.getLocation(), 0.25d, entity -> {
-                        return !player.isSelfOrTeammate(entity);
-                    });
+                item.setPickupDelay(10000);
+                item.setUnlimitedLifetime(true);
+                item.setVelocity(location.getDirection().normalize().multiply(magnitude).setY(yMagnitude));
 
-                    if (targetEntity != null || item.isOnGround() || tick > maxExplosionDelay) {
-                        explode();
-                        return;
-                    }
+                // Explode
+                new TickingGameTask() {
+                    @Override
+                    public void run(int tick) {
+                        final LivingGameEntity targetEntity = Collect.nearestEntity(item.getLocation(), 0.25d, entity -> {
+                            return !player.isSelfOrTeammate(entity);
+                        });
 
-                    // Fx
-                    final Location location = item.getLocation();
-
-                    player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, tick % 2 == 0 ? 0.5f : 1.0f);
-                    player.spawnWorldParticle(location, Particle.CRIT, 1);
-                }
-
-                private void explode() {
-                    final Location location = item.getLocation();
-                    boolean hitEnemy = false;
-
-                    for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
-                        if (player.isSelfOrTeammate(entity)) {
-                            continue;
+                        if (targetEntity != null || item.isOnGround() || tick > maxExplosionDelay) {
+                            explode();
+                            return;
                         }
 
-                        if (!hitEnemy) {
-                            hitEnemy = true;
+                        // Fx
+                        final Location location = item.getLocation();
+
+                        player.playWorldSound(location, Sound.BLOCK_NOTE_BLOCK_HAT, tick % 2 == 0 ? 0.5f : 1.0f);
+                        player.spawnWorldParticle(location, Particle.CRIT, 1);
+                    }
+
+                    private void explode() {
+                        final Location location = item.getLocation();
+                        boolean hitEnemy = false;
+
+                        for (LivingGameEntity entity : Collect.nearbyEntities(location, explosionRadius)) {
+                            if (player.isSelfOrTeammate(entity)) {
+                                continue;
+                            }
+
+                            if (!hitEnemy) {
+                                hitEnemy = true;
+                            }
+
+                            entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
+                            entity.addEffect(Effects.BLEED, bleedDuration);
                         }
 
-                        entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
-                        entity.addEffect(Effects.BLEED, bleedDuration);
+                        // Refresh passive
+                        if (hitEnemy) {
+                            getPlayerData(player).refreshSecondWindCharges();
+                        }
+
+                        // Fx
+                        player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
+                        Geometry.drawSphere(location, explosionRadius * 3, explosionRadius,
+                                loc -> player.spawnWorldParticle(loc, Particle.WAX_ON, 1, 0, 0, 0, 5)
+                        );
+
+                        item.remove();
+                        cancel();
                     }
-
-                    // Refresh passive
-                    if (hitEnemy) {
-                        getPlayerData(player).refreshSecondWindCharges();
-                    }
-
-                    // Fx
-                    player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
-                    Geometry.drawSphere(location, explosionRadius * 3, explosionRadius,
-                            loc -> player.spawnWorldParticle(loc, Particle.WAX_ON, 1, 0, 0, 0, 5)
-                    );
-
-                    item.remove();
-                    cancel();
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                }.runTaskTimer(0, 1);
+            });
         }
     }
 }

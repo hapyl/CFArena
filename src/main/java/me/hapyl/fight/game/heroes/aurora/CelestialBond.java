@@ -1,12 +1,10 @@
 package me.hapyl.fight.game.heroes.aurora;
 
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -31,7 +29,7 @@ public class CelestialBond extends TickingGameTask {
         this.entity = entity;
 
         // Ride vehicle
-        this.vehicle = CF.getVehicleManager().startRiding(player.getPlayer(), AuroraVehicle::new);
+        this.vehicle = player.startRiding(AuroraVehicle::new);
 
         // Buff
         data.buffMap.replace(entity, new CelestialBondSpirit(player, entity), EtherealSpirit::remove);
@@ -45,7 +43,7 @@ public class CelestialBond extends TickingGameTask {
         data.buffMap.remove(entity, EtherealSpirit::remove);
 
         // Stop riding
-        CF.getVehicleManager().stopRiding(player.getPlayer(), vehicle);
+        vehicle.dismount();
     }
 
     @Override
@@ -57,7 +55,7 @@ public class CelestialBond extends TickingGameTask {
         }
 
         // Lock to hero item
-        player.snapTo(HotbarSlots.HERO_ITEM);
+        player.snapTo(HotBarSlot.HERO_ITEM);
 
         // Affect
         entity.heal(ultimate.healing, player);
@@ -74,7 +72,7 @@ public class CelestialBond extends TickingGameTask {
         final Location entityLocation = entity.getLocation();
         final double distance = location.distanceSquared(entityLocation);
 
-        if (distance >= ultimate.maxStayDistance) {
+        if (distance >= ultimate.maxStrayDistance) {
             final Vector pushVector = entityLocation.toVector().subtract(location.toVector()).normalize();
 
             vehicle.move(pushVector);

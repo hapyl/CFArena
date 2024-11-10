@@ -1,9 +1,9 @@
 package me.hapyl.fight.database.rank;
 
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.util.SmallCaps;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
@@ -259,7 +259,7 @@ public enum PlayerRank {
 
     @Nonnull
     public static PlayerRank getRank(@Nonnull Player player) {
-        return PlayerDatabase.getDatabase(player).getRank();
+        return CF.getDatabase(player).getRank();
     }
 
 }

@@ -1,6 +1,6 @@
 package me.hapyl.fight.anticheat;
 
-import me.hapyl.fight.util.collection.CacheSet;
+import me.hapyl.eterna.module.util.collection.Cache;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -21,10 +21,10 @@ public class AntiData {
     }
 
     public static class ClickData {
-        private final CacheSet<Long> clicks;
+        private final Cache<Long> clicks;
 
         private ClickData() {
-            this.clicks = new CacheSet<>(1_000L);
+            this.clicks = Cache.ofSet(1_000L);
         }
 
         public int size() {

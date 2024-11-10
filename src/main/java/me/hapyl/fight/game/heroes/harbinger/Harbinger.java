@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes.harbinger;
 
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -16,9 +16,10 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.harbinger.MeleeStance;
 import me.hapyl.fight.game.talents.harbinger.StanceData;
 import me.hapyl.fight.game.talents.harbinger.TidalWaveTalent;
@@ -27,7 +28,6 @@ import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -83,7 +83,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         equipment.setLeggings(54, 48, 48);
         equipment.setBoots(183, 183, 180);
 
-        setWeapon(new BowWeapon().setDamage(2.0d).setName("Bow").setDescription("Just a normal bow."));
+        setWeapon(BowWeapon.of(Key.ofString("harbinger_bow"), "Bow", "Just a normal bow.", 2.0d));
         setUltimate(new HarbingerUltimate());
     }
 
@@ -288,93 +288,94 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
             copyDisplayFieldsFrom(Harbinger.this);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final Location location = player.getEyeLocation();
-            final RiptideStatus riptide = getPlayerData(player);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                final Location location = player.getEyeLocation();
+                final RiptideStatus riptide = getPlayerData(player);
 
-            // Stance Check
-            final boolean isMeleeStance = getFirstTalent().isActive(player);
+                // Stance Check
+                final boolean isMeleeStance = getFirstTalent().isActive(player);
 
-            // Melee Stance
-            if (isMeleeStance) {
-                new TickingGameTask() {
-                    private final double mathPi2 = Math.PI * 2;
+                // Melee Stance
+                if (isMeleeStance) {
+                    new TickingGameTask() {
+                        private final double mathPi2 = Math.PI * 2;
 
-                    private double d = 0;
-                    private double radius = 1.0d;
+                        private double d = 0;
+                        private double radius = 1.0d;
 
-                    @Override
-                    public void run(int tick) {
-                        if (d > mathPi2) {
-                            cancel();
-                            return;
-                        }
-
-                        final double x = Math.sin(d) * radius;
-                        final double y = Math.sin(Math.toRadians(tick)) * 0.25d;
-                        final double z = Math.cos(d) * radius;
-
-                        location.add(x, y, z);
-
-                        // Affect
-                        Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
-                            if (player.isSelfOrTeammate(entity)) {
+                        @Override
+                        public void run(int tick) {
+                            if (d > mathPi2) {
+                                cancel();
                                 return;
                             }
 
-                            final boolean affected = riptide.isAffected(entity);
-                            riptide.stop(entity);
+                            final double x = Math.sin(d) * radius;
+                            final double y = Math.sin(Math.toRadians(tick)) * 0.25d;
+                            final double z = Math.cos(d) * radius;
 
-                            entity.setLastDamager(player);
-                            entity.damage(
-                                    affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
-                                    EnumDamageCause.RIPTIDE
+                            location.add(x, y, z);
+
+                            // Affect
+                            Collect.nearbyEntities(location, 2.0d).forEach(entity -> {
+                                if (player.isSelfOrTeammate(entity)) {
+                                    return;
+                                }
+
+                                final boolean affected = riptide.isAffected(entity);
+                                riptide.stop(entity);
+
+                                entity.setLastDamager(player);
+                                entity.damage(
+                                        affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
+                                        EnumDamageCause.RIPTIDE
+                                );
+                                entity.setNoDamageTicks(player, 30); // Prevent multiple damage
+                            });
+
+                            // Fx
+                            player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.1f);
+                            player.spawnWorldParticle(location, Particle.FALLING_WATER, 3, 0.5, 0, 0.5, 0.01f);
+
+                            player.playWorldSound(location, Sound.ENTITY_DROWNED_HURT, (float) (0.5f + (1.0f / Math.PI * 2 * d)));
+
+                            location.subtract(x, y, z);
+
+                            d += Math.PI / 5;
+                            radius += (ultimateMeleeRadius - 1) / mathPi2 / d;
+                        }
+                    }.runTaskTimer(15, 1);
+                }
+                // Ranged Stance
+                else {
+                    final Vector direction = location.getDirection();
+
+                    final Arrow arrow = player.getWorld()
+                            .spawnArrow(
+                                    location.add(direction.setY(0.0d).multiply(2)).add(0.0d, 3.0d, 0.0d),
+                                    direction.normalize().multiply(0.75d).setY(0.25),
+                                    0.15f,
+                                    0
                             );
-                            entity.setNoDamageTicks(30); // Prevent multiple damage
-                        });
 
-                        // Fx
-                        player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.1f);
-                        player.spawnWorldParticle(location, Particle.FALLING_WATER, 3, 0.5, 0, 0.5, 0.01f);
+                    arrow.setShooter(player.getPlayer());
+                    arrow.setCritical(false);
+                    arrow.setColor(Color.AQUA);
 
-                        player.playWorldSound(location, Sound.ENTITY_DROWNED_HURT, (float) (0.5f + (1.0f / Math.PI * 2 * d)));
+                    ultimateArrows.add(arrow);
 
-                        location.subtract(x, y, z);
-
-                        d += Math.PI / 5;
-                        radius += (ultimateMeleeRadius - 1) / mathPi2 / d;
-                    }
-                }.runTaskTimer(15, 1);
-            }
-            // Ranged Stance
-            else {
-                final Vector direction = location.getDirection();
-
-                final Arrow arrow = player.getWorld()
-                        .spawnArrow(
-                                location.add(direction.setY(0.0d).multiply(2)).add(0.0d, 3.0d, 0.0d),
-                                direction.normalize().multiply(0.75d).setY(0.25),
-                                0.15f,
-                                0
-                        );
-
-                arrow.setShooter(player.getPlayer());
-                arrow.setCritical(false);
-                arrow.setColor(Color.AQUA);
-
-                ultimateArrows.add(arrow);
+                    // Fx
+                    player.playWorldSound(Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
+                }
 
                 // Fx
-                player.playWorldSound(Sound.ITEM_CROSSBOW_SHOOT, 0.75f);
-            }
-
-            // Fx
-            player.addEffect(Effects.SLOW, 2, 20);
-            player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
-
-            return UltimateResponse.OK;
+                player.addEffect(Effects.SLOW, 2, 20);
+                player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
+            });
         }
     }
 }

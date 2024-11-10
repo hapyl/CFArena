@@ -1,5 +1,76 @@
 ###############################
 
+- MAKE MASTERY WORK RIGHT
+
+======= IMPORTANT =======
+[10:51:40 WARN]: [EternaAPI] Task #18591 for EternaAPI v4.6.1 generated an exception
+java.util.ConcurrentModificationException: null
+	at java.base/java.util.HashMap$HashIterator.nextNode(HashMap.java:1605) ~[?:?]
+	at java.base/java.util.HashMap$ValueIterator.next(HashMap.java:1633) ~[?:?]
+	at java.base/java.lang.Iterable.forEach(Iterable.java:74) ~[?:?]
+	at EternaAPI.jar/me.hapyl.eterna.builtin.manager.QuestManager.tryIncrementObjective(QuestManager.java:480) ~[EternaAPI.jar:?]
+	at EternaAPI.jar/me.hapyl.eterna.builtin.manager.QuestManager.tryIncrementObjective(QuestManager.java:471) ~[EternaAPI.jar:?]
+	at EternaAPI.jar/me.hapyl.eterna.module.player.dialog.DialogInstance.nextEntry(DialogInstance.java:146) ~[EternaAPI.jar:?]
+	at EternaAPI.jar/me.hapyl.eterna.module.player.dialog.DialogInstance.run(DialogInstance.java:111) ~[EternaAPI.jar:?]
+	at org.bukkit.craftbukkit.scheduler.CraftTask.run(CraftTask.java:78) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.scheduler.CraftScheduler.mainThreadHeartbeat(CraftScheduler.java:474) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:1801) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1662) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1328) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:339) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+
+ Could not pass event EntityDamageByEntityEvent to CFArena v2.6.0-SNAPSHOT
+java.lang.IllegalArgumentException: Health value (40.400001525878906) must be between 0 and 40.0. (attribute base value: 40.0, player: wsknmx)
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:482) ~[guava-32.1.2-jre.jar:?]
+	at org.bukkit.craftbukkit.entity.CraftLivingEntity.setHealth(CraftLivingEntity.java:112) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at CFArena.jar/me.hapyl.fight.game.entity.GamePlayer.updateHealth(GamePlayer.java:636) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.game.entity.GamePlayer.decreaseHealth(GamePlayer.java:627) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.event.PlayerHandler.handleDamage0(PlayerHandler.java:588) ~[CFArena.jar:?]
+	at com.destroystokyo.paper.event.executor.asm.generated.GeneratedEventExecutor175.execute(Unknown Source) ~[?:?]
+	at org.bukkit.plugin.EventExecutor$2.execute(EventExecutor.java:77) ~[paper-api-1.21.3-R0.1-SNAPSHOT.jar:?]
+	at co.aikar.timings.TimedEventExecutor.execute(TimedEventExecutor.java:80) ~[paper-api-1.21.3-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.RegisteredListener.callEvent(RegisteredListener.java:70) ~[paper-api-1.21.3-R0.1-SNAPSHOT.jar:?]
+	at io.papermc.paper.plugin.manager.PaperEventManager.callEvent(PaperEventManager.java:54) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at io.papermc.paper.plugin.manager.PaperPluginManagerImpl.callEvent(PaperPluginManagerImpl.java:131) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.plugin.SimplePluginManager.callEvent(SimplePluginManager.java:628) ~[paper-api-1.21.3-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.callEvent(CraftEventFactory.java:276) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDamageEvent(CraftEventFactory.java:1207) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDamageEvent(CraftEventFactory.java:1197) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.handleEntityDamageEvent(CraftEventFactory.java:1127) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.handleEntityDamageEvent(CraftEventFactory.java:1090) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at org.bukkit.craftbukkit.event.CraftEventFactory.handleLivingEntityDamageEvent(CraftEventFactory.java:1245) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.LivingEntity.handleEntityDamage(LivingEntity.java:2403) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.LivingEntity.hurtServer(LivingEntity.java:1522) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.player.Player.hurtServer(Player.java:957) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.level.ServerPlayer.hurtServer(ServerPlayer.java:1466) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.Entity.hurtOrSimulate(Entity.java:2399) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.AbstractArrow.onHitEntity(AbstractArrow.java:480) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.Projectile.onHit(Projectile.java:387) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.Projectile.hitTargetOrDeflectSelf(Projectile.java:346) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.AbstractArrow.stepMoveAndHit(AbstractArrow.java:312) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.AbstractArrow.tick(AbstractArrow.java:274) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.entity.projectile.Arrow.tick(Arrow.java:76) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.level.ServerLevel.tickNonPassenger(ServerLevel.java:1298) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.level.Level.guardEntityTick(Level.java:1489) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.level.ServerLevel.lambda$tick$4(ServerLevel.java:805) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.world.level.entity.EntityTickList.forEach(EntityTickList.java:39) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.level.ServerLevel.tick(ServerLevel.java:787) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.tickChildren(MinecraftServer.java:1873) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:1662) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1328) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:339) ~[paper-1.21.3.jar:1.21.3-14-fcb6c72]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[?:?]
+
+- Accelerate dialog is not implemented for the new dialog system
+- Remove CLICK from null names
+- Add checkmark when purcharsed store offer
+- REmove hereso from game tab
+- Vampire still too weak (how about perma legion, ult bakes it better or buff teammates? )
+- GOlden gg is still bugged?
+
+###############################
+
 - [x] Aurora is AFK while using the ultimate
 - [x] Aurora add max distance
 

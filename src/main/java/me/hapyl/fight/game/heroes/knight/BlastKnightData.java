@@ -30,7 +30,7 @@ public class BlastKnightData extends PlayerData implements MaterialCooldown {
     }
 
     public boolean isShieldOnCooldown() {
-        return player.hasCooldown(Material.SHIELD);
+        return player.hasCooldownInternal(Material.SHIELD);
     }
 
     public void incrementShieldCharge() {

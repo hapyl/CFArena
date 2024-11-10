@@ -7,7 +7,6 @@ import me.hapyl.eterna.module.player.tablist.EntryTexture;
 import me.hapyl.eterna.module.player.tablist.PingBars;
 import me.hapyl.eterna.module.player.tablist.Tablist;
 import me.hapyl.eterna.module.util.SmallCaps;
-import me.hapyl.eterna.module.util.TimeFormat;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -23,12 +22,17 @@ import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.registry.Registries;
+import me.hapyl.fight.store.PlayerStoreOffers;
+import me.hapyl.fight.store.Store;
+import me.hapyl.fight.store.StoreOffer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -53,12 +57,14 @@ public class PlayerTablist extends Tablist {
     private final PlayerProfile profile;
     private final Player player;
     private final Manager manager;
+    private final Store store;
 
     public PlayerTablist(PlayerUI ui) {
         this.ui = ui;
         this.profile = ui.profile;
         this.player = ui.getPlayer();
         this.manager = Manager.current();
+        this.store = CF.getPlugin().getStore();
     }
 
     public void update() {
@@ -79,7 +85,7 @@ public class PlayerTablist extends Tablist {
 
         profiles.removeIf(PlayerProfile::isHidden);
 
-        final Experience experience = Main.getPlugin().getExperience();
+        final Experience experience = CF.getPlugin().getExperience();
 
         profiles.sort((p1, p2) -> {
             final long p1Level = experience.getLevel(p1.getPlayer());
@@ -157,7 +163,7 @@ public class PlayerTablist extends Tablist {
                     entryList.append("&8- &a%s &7⁑ &c&l%s  &b%s".formatted(
                             teammate.getName(),
                             teammate.getHealthFormatted(player),
-                            teammate.getUltimateString(GamePlayer.UltimateColor.PRIMARY)
+                            teammate.getUltimateString(UltimateColor.PRIMARY)
                     ));
 
                     toFill--;
@@ -167,13 +173,8 @@ public class PlayerTablist extends Tablist {
                 final List<Player> bukkitPlayers = playerTeam.getBukkitPlayers();
 
                 for (Player bukkitPlayer : bukkitPlayers) {
-                    final PlayerProfile profile = PlayerProfile.getProfile(bukkitPlayer);
+                    final PlayerProfile profile = CF.getProfile(bukkitPlayer);
                     toFill--;
-
-                    if (profile == null) {
-                        entryList.append("&4Error loading profile for " + bukkitPlayer.getName());
-                        continue;
-                    }
 
                     entryList.append("&8- %s &8(%s&8)".formatted(profile.getDisplay().getNamePrefixed(), profile.getSelectedHeroString()));
                 }
@@ -184,18 +185,16 @@ public class PlayerTablist extends Tablist {
             }
         }
 
-        // Crates
-        final PlayerDatabase database = profile.getDatabase();
-        final long totalCrates = database.crateEntry.getTotalCratesCount();
+        // Store
+        final PlayerStoreOffers offers = store.getOffers(player);
 
         entryList.append();
-        entryList.append("&6&lCrates:", EntryTexture.GOLD);
+        entryList.append("&6&lStore: &8(%s)".formatted(Challenge.getTimeUntilResetFormatted()), EntryTexture.GOLD);
 
-        if (totalCrates == 0) {
-            entryList.append(" &8No crates!");
-        }
-        else {
-            entryList.append(" &a%,1d unopened crates!".formatted(totalCrates));
+        final boolean isStoreUnlocked = Registries.getNPCs().STORE_OWNER.isStoreUnlocked(player);
+
+        for (StoreOffer offer : offers.getOffers()) {
+            entryList.append("&8- " + (isStoreUnlocked ? offer.toString() : "???"));
         }
 
         setColumn(1, entryList);
@@ -256,7 +255,7 @@ public class PlayerTablist extends Tablist {
         // Daily challenges
         entryList.append();
         entryList.append(
-                "&a&lDaily Bonds: &8(%s)".formatted(TimeFormat.format(Challenge.getTimeUntilReset(), TimeFormat.HOURS)),
+                "&a&lDaily Bonds: &8(%s)".formatted(Challenge.getTimeUntilResetFormatted()),
                 EntryTexture.GREEN
         );
 

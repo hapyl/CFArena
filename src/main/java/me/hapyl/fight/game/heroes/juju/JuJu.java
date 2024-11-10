@@ -4,8 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -14,16 +14,16 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.juju.ArrowShield;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -74,10 +74,12 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
         equipment.setLeggings(62, 51, 40);
         equipment.setBoots(16, 13, 10);
 
-        setWeapon(new BowWeapon()
-                .setName("Twisted")
-                .setDescription("A bow made of anything you can find in the middle of the jungle.")
-                .setDamage(4.0d));
+        setWeapon(BowWeapon.of(
+                Key.ofString("twisted"),
+                "Twisted",
+                "A bow made of anything you can find in the middle of the jungle.",
+                4.0d
+        ));
 
         setUltimate(new JujuUltimate());
     }
@@ -211,7 +213,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     @Override
     public List<String> getStrings(@Nonnull GamePlayer player) {
         final ArrowType type = getArrowType(player);
-        final int climbCooldown = player.getCooldown(getPassiveTalent().getMaterial());
+        final int climbCooldown = player.cooldownManager.getCooldown(getPassiveTalent());
 
         return List.of(
                 climbCooldown <= 0 ? "" : "&7&l\uD83E\uDE9C " + Tick.round(climbCooldown) + "s",
@@ -221,7 +223,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public void onStart(@Nonnull GameInstance instance) {
-        final Material climbCooldownMaterial = getPassiveTalent().getMaterial();
+        final Talent climbTalent = getPassiveTalent();
 
         new GameTask() {
             @Override
@@ -232,7 +234,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                         return;
                     }
 
-                    if (player.hasCooldown(climbCooldownMaterial)) {
+                    if (player.cooldownManager.hasCooldown(climbTalent)) {
                         return;
                     }
 
@@ -264,7 +266,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                         // Stopped Climbing
                         climbing.remove(player);
                         player.setAllowFlight(false);
-                        player.setCooldown(climbCooldownMaterial, climbCooldown);
+                        player.cooldownManager.setCooldown(climbTalent, climbCooldown);
 
                         // Add a little boost
                         final Location location = player.getLocation();
@@ -300,7 +302,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
     public void handleFlight(PlayerToggleFlightEvent ev) {
         final GamePlayer player = CF.getPlayer(ev);
 
-        if (player == null || !validatePlayer(player)) {
+        if (!validatePlayer(player)) {
             return;
         }
 
@@ -402,17 +404,17 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final ArrowType type = getArrowType(player);
 
             if (type != null) {
-                return UltimateResponse.error("Already using %s!".formatted(type.getName()));
+                return error("Already using %s!".formatted(type.getName()));
             }
 
-            setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
-            player.snapToWeapon();
-
-            return UltimateResponse.OK;
+            return execute(() -> {
+                setArrowType(player, ArrowType.POISON_IVY, getUltimateDuration());
+                player.snapToWeapon();
+            });
         }
     }
 }

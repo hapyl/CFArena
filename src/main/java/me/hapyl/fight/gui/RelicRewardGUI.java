@@ -1,24 +1,24 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.eye.RelicHuntGUI;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -33,7 +33,8 @@ public class RelicRewardGUI extends StyledGUI {
 
     public RelicRewardGUI(Player player) {
         super(player, "Relic Rewards", Size.FIVE);
-        relicHunt = Main.getPlugin().getRelicHunt();
+
+        relicHunt = CF.getPlugin().getRelicHunt();
 
         openInventory();
     }
@@ -46,7 +47,7 @@ public class RelicRewardGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final CollectibleEntry entry = PlayerDatabase.getDatabase(player).collectibleEntry;
+        final CollectibleEntry entry = CF.getDatabase(player).collectibleEntry;
 
         setHeader(StyledItem.ICON_RELIC_REWARDS.asIcon());
 
@@ -127,14 +128,14 @@ public class RelicRewardGUI extends StyledGUI {
         }
 
         // All relics
-        final Cosmetics cosmetic = Cosmetics.RELIC_HUNTER;
+        final Cosmetic cosmetic = Registries.getCosmetics().RELIC_HUNTER;
         final ItemBuilder builder = new ItemBuilder(Material.DIAMOND);
 
         builder.setName("Exclusive Cosmetic");
         builder.addLore("&8One Time Exchange");
         builder.addLore();
         builder.addSmartLore("Collect every single relic to claim:", "&7&o");
-        builder.addLore(cosmetic.getCosmetic().getFormatted());
+        builder.addLore(cosmetic.getFormatted());
         builder.addLore();
 
         if (cosmetic.isUnlocked(player)) {

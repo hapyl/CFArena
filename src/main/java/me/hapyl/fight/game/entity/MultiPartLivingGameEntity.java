@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.eterna.module.entity.Entities;
-import org.bukkit.EntityEffect;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.entity.named.NamedEntityType;
+import me.hapyl.fight.game.entity.named.NamedGameEntity;
+import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
@@ -20,7 +21,7 @@ public class MultiPartLivingGameEntity<T extends LivingEntity> extends NamedGame
 
     private final Set<Part<?>> parts;
 
-    public MultiPartLivingGameEntity(GameEntityType<T> type, T entity) {
+    public MultiPartLivingGameEntity(NamedEntityType type, T entity) {
         super(type, entity);
 
         parts = Sets.newHashSet();
@@ -54,9 +55,8 @@ public class MultiPartLivingGameEntity<T extends LivingEntity> extends NamedGame
     }
 
     public void simulateHit() {
-        entity.playEffect(EntityEffect.HURT);
-
-        parts.forEach(part -> part.entity.playEffect(EntityEffect.HURT));
+        entity.playHurtAnimation(0.0f);
+        parts.forEach(part -> part.entity.playHurtAnimation(0.0f));
     }
 
     public <E extends LivingEntity> Part<E> createPart(@Nonnull Entities<E> type, @Nullable Consumer<Part<E>> consumer) {

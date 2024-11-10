@@ -1,0 +1,77 @@
+package me.hapyl.fight.game.talents.alchemist;
+
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.alchemist.ActivePotion;
+import me.hapyl.fight.game.heroes.alchemist.AlchemistData;
+import me.hapyl.fight.game.talents.Timed;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nonnull;
+
+public abstract class AlchemistPotion implements Timed, Described {
+
+    private final String name;
+    private final int intoxication;
+    private final Color potionColor;
+
+    private final int duration = Tick.fromSecond(10);
+
+    private String description = "set description";
+    private ItemStack potionItem;
+
+    public AlchemistPotion(String name, int intoxication, Color potionColor) {
+        this.name = name;
+        this.intoxication = intoxication;
+        this.potionColor = potionColor;
+    }
+
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+
+    @Override
+    @Deprecated
+    public Timed setDuration(int duration) {
+        return this;
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(@Nonnull String description) {
+        this.description = description;
+    }
+
+    @Nonnull
+    public ItemStack getPotionItem() {
+        if (potionItem == null) {
+            potionItem = new ItemBuilder(Material.POTION)
+                    .setName(name)
+                    .addLore()
+                    .addTextBlockLore(description)
+                    .setPotionColor(potionColor)
+                    .asIcon();
+        }
+
+        return potionItem;
+    }
+
+    @Nonnull
+    public abstract ActivePotion use(@Nonnull AlchemistData data, @Nonnull GamePlayer player);
+
+}

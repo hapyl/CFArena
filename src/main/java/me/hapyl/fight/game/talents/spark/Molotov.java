@@ -1,19 +1,19 @@
 package me.hapyl.fight.game.talents.spark;
 
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
  * Annotates that this parameter <b>must not</b> be mutated.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
+@Target({ ElementType.TYPE_USE, ElementType.PARAMETER })
 public @interface DoNotMutate {
 }

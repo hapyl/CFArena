@@ -1,8 +1,8 @@
 package me.hapyl.fight.gui.styled;
 
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.SoundEffect;
-import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

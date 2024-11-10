@@ -55,7 +55,7 @@ public class AstralStar implements Ticking {
             slime.setInvisible(true);
 
             final Attributes attributes = new Attributes();
-            attributes.setHealth(talent.healthSacrificePerStar);
+            attributes.setMaxHealth(talent.healthSacrificePerStar);
 
             final LivingGameEntity entity = new LivingGameEntity(slime, attributes) {
                 @Override

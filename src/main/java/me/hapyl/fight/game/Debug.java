@@ -2,11 +2,13 @@ package me.hapyl.fight.game;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.util.ConstructorAccess;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -60,8 +62,14 @@ public class Debug {
         }
     }
 
-    private static String now() {
-        return DateTimeFormatter.ofPattern("hh:mm:ss").format(LocalTime.now());
+    @Nonnull
+    @SuppressWarnings("unchecked")
+    public static <T extends Throwable> T exception(Class<T> clazz, String message) {
+        return ConstructorAccess.of(clazz)
+                .tryGet(String.class)
+                .tryGet()
+                .tryInvoke(message)
+                .getResultOrDefault((T) new RuntimeException(message));
     }
 
     public static void run(Runnable r) {
@@ -74,6 +82,10 @@ public class Debug {
 
         send("&b$ " + element.toString().replace(element.getClassLoaderName() + "//", ""));
         r.run();
+    }
+
+    private static String now() {
+        return DateTimeFormatter.ofPattern("hh:mm:ss").format(LocalTime.now());
     }
 
     private static void send(String string) {

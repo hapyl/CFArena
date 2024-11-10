@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.nyx;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Tuple;
@@ -14,6 +15,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.ChargeType;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -21,7 +23,6 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.ParticleDrawer;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -221,6 +222,8 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         @DisplayField final int hitDelay = 2;
         @DisplayField final double overchargedEnergyDecrease = 40.0d;
 
+        @DisplayField final int castDuration = 21; // not using cast duration because void portal handles it differently
+
         public DisplayData spear = BDEngine.parse(
                 "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,0f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,-1f,0f,0.5f,1f,0f,0f,1f,0f,0f,1f,-0.5f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0.7071f,0.7071f,0f,0f,-0.7071f,0.7071f,0f,2.25f,0f,0f,1f,0f,0f,0f,0f,1f]},{id:\"minecraft:item_display\",item:{id:\"minecraft:stone_sword\",Count:1},item_display:\"none\",transformation:[0f,0f,-1f,0f,-0.7071f,0.7071f,0f,2.25f,0.7071f,0.7071f,0f,0f,0f,0f,0f,1f]}]}");
 
@@ -250,22 +253,22 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
             ));
 
             setItem(Material.DRIED_KELP);
-            setCastDuration(21);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player, @Nonnull ChargeType type) {
-            final Location location = BukkitUtils.anchorLocation(
-                    player.getLocation().add(player.getDirection().setY(0.0d).multiply(2))
-            );
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, @Nonnull ChargeType type) {
+            return execute(() -> {
+                final Location location = BukkitUtils.anchorLocation(
+                        player.getLocation().add(player.getDirection().setY(0.0d).multiply(2))
+                );
 
-            location.setYaw(0.0f);
-            location.setPitch(0.0f);
+                location.setYaw(0.0f);
+                location.setPitch(0.0f);
 
-            new VoidPortal(player, location, this, type);
-
-            return UltimateResponse.OK;
+                new VoidPortal(player, location, this, type);
+            });
         }
+
     }
 }

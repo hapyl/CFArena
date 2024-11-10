@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.nightmare;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -10,13 +10,13 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -49,10 +49,11 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         setDescription("A spirit from the worst nightmares, blinds enemies and strikes from behind!");
         setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");
 
-        setWeapon(new Weapon(Material.NETHERITE_SWORD)
-                .setName("Oathbreaker")
-                .setDescription("A sword that is capable of splitting dreams in half.")
-                .setDamage(7.0d));
+        setWeapon(Weapon.builder(Material.NETHERITE_SWORD, Key.ofString("oathbreaker"))
+                .name("Oathbreaker")
+                .description("A sword that is capable of splitting dreams in half.")
+                .damage(7.0d)
+        );
 
         final Equipment equipment = getEquipment();
         equipment.setChestPlate(50, 0, 153);
@@ -154,21 +155,21 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final OmenDebuff debuff = getDebuff(player);
-            final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
-            final int enemiesSize = enemies.size();
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                final OmenDebuff debuff = getDebuff(player);
+                final Set<GamePlayer> enemies = Collect.enemyPlayers(player);
+                final int enemiesSize = enemies.size();
 
-            if (enemiesSize == 0) {
-                player.sendMessage("&4👻 &cOmen didn't affect anything!");
-            }
-            else {
-                player.sendMessage("&4👻 &aOmen affected %s enemies!".formatted(enemiesSize));
-            }
+                if (enemiesSize == 0) {
+                    player.sendMessage("&4👻 &cOmen didn't affect anything!");
+                }
+                else {
+                    player.sendMessage("&4👻 &aOmen affected %s enemies!".formatted(enemiesSize));
+                }
 
-            enemies.forEach(enemy -> debuff.setOmen(enemy, getUltimateDuration()));
-
-            return UltimateResponse.OK;
+                enemies.forEach(enemy -> debuff.setOmen(enemy, getUltimateDuration()));
+            });
         }
     }
 }

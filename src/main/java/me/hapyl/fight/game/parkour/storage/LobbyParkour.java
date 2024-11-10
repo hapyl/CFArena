@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.parkour.storage;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.Location;
 
 public class LobbyParkour extends CFParkour {

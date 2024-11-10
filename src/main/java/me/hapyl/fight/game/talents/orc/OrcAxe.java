@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.talents.orc;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -54,7 +53,7 @@ public class OrcAxe extends InputTalent {
     @Nonnull
     @Override
     public Response onLeftClick(@Nonnull GamePlayer player) {
-        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
+        final ItemStack item = player.getItem(HotBarSlot.WEAPON);
 
         // Don't allow spin if no axe
         if (item == null || item.getType() != Material.IRON_AXE) {
@@ -70,7 +69,7 @@ public class OrcAxe extends InputTalent {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
 
-            player.setItem(HotbarSlots.WEAPON, null);
+            player.setItem(HotBarSlot.WEAPON, null);
         });
 
         new GeometryTask() {

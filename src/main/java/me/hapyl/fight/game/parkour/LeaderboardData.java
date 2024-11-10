@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.parkour.Stats;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.eterna.module.parkour.Stats;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -19,7 +20,7 @@ public class LeaderboardData implements Comparator<Long> {
     private boolean dirty;
 
     public LeaderboardData(UUID uuid, long completionTime) {
-        this.database = PlayerDatabase.getDatabase(uuid);
+        this.database = CF.getDatabase(uuid);
         this.uuid = uuid;
         this.completionTime = completionTime;
         this.stats = Maps.newHashMap();

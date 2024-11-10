@@ -14,7 +14,6 @@ public enum AntiCheatCheck {
 
     ;
 
-
     private final int maxFails;
     private final FailAction failAction;
 
@@ -35,7 +34,7 @@ public enum AntiCheatCheck {
         KICK,
 
         /**
-         * @deprecated not implemented needs custom ban system DB and shit -h
+         * @deprecated not implemented needs named ban system DB and shit -h
          */
         @Deprecated
         BAN
@@ -66,12 +65,12 @@ public enum AntiCheatCheck {
         public void punish(Player player, PunishmentReport report) {
             player.kickPlayer(Chat.format("""
                     %s
-                                        
+                    
                     &c&lYou have been kicked!
-                                        
+                    
                     &cReason:
                     &7&o%s
-                                        
+                    
                     &8Punishment Id: %s
                     """.formatted(
                     AntiCheat.PREFIX,

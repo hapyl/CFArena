@@ -5,7 +5,6 @@ import me.hapyl.fight.event.custom.game.GameEndEvent;
 import me.hapyl.fight.event.custom.game.GameStartEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -107,9 +106,6 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
             if (player.isSpectator()) {
                 return;
             }
-
-            // Give crates to players
-            Crates.grant(player, Crates.randomCrate());
         });
 
         // Call event

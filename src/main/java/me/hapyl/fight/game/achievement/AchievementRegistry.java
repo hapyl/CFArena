@@ -2,12 +2,11 @@ package me.hapyl.fight.game.achievement;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.KeyFunction;
+import me.hapyl.eterna.module.registry.SimpleRegistry;
 import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.tamer.Tamer;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.KeyFunction;
-import me.hapyl.fight.registry.SimpleRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -62,6 +61,8 @@ public class AchievementRegistry extends SimpleRegistry<Achievement> {
     public final Achievement WITCHER_COMBO;
 
     public final Achievement BLOODFIEND_THEY_ARE_TWINS_ALRIGHT;
+
+    public final Achievement RONIN_DEFLECT;
 
     // This is private
     private final Map<Category, List<Achievement>> byCategory;
@@ -229,11 +230,17 @@ public class AchievementRegistry extends SimpleRegistry<Achievement> {
                 .setPointReward(20)
         );
 
+        RONIN_DEFLECT = build("ronin_deflect", builder -> builder
+                .setName("Deflect!")
+                .setDescription("Successfully deflect incoming attack as Ronin.")
+                .setHeroSpecific(HeroRegistry.RONIN)
+        );
     }
 
     @Nonnull
+    @Deprecated
     public List<String> listIds() {
-        return registered.keySet().stream().map(Key::getKey).toList();
+        return keysAsString();
     }
 
     /**
@@ -262,13 +269,28 @@ public class AchievementRegistry extends SimpleRegistry<Achievement> {
         return Lists.newLinkedList(byCategory.getOrDefault(category, Lists.newArrayList()));
     }
 
+    @Nonnull
+    public List<Achievement> heroSpecific(@Nonnull Hero hero) {
+        return values().stream()
+                .filter(achievement -> hero.equals(achievement.getHero()))
+                .toList();
+    }
+
     @Override
     @Deprecated
     public boolean unregister(@Nonnull Achievement achievement) {
         throw new UnsupportedOperationException("Cannot unregister achievement!");
     }
 
-    public Achievement build(@Nonnull String key, @Nonnull Consumer<Achievement.Builder> consumer) {
+    @Override
+    public <E extends Achievement> E register(@Nonnull String key, @Nonnull KeyFunction<E> fn) {
+        final E achievement = super.register(key, fn);
+
+        byCategory.compute(achievement.getCategory(), Compute.listAdd(achievement));
+        return achievement;
+    }
+
+    private Achievement build(@Nonnull String key, @Nonnull Consumer<Achievement.Builder> consumer) {
         return register(key, k -> {
             final Achievement.Builder builder = Achievement.builder(k);
             consumer.accept(builder);
@@ -277,16 +299,7 @@ public class AchievementRegistry extends SimpleRegistry<Achievement> {
         });
     }
 
-    public Achievement tiered(@Nonnull String key, @Nonnull String name, @Nonnull String description, int tier1, int tier2, int tier3, int tier4, int tier5) {
+    private Achievement tiered(@Nonnull String key, @Nonnull String name, @Nonnull String description, int tier1, int tier2, int tier3, int tier4, int tier5) {
         return register(key, k -> new TieredAchievement(k, name, description, tier1, tier2, tier3, tier4, tier5));
     }
-
-    @Override
-    public Achievement register(@Nonnull String key, @Nonnull KeyFunction<Achievement> fn) {
-        final Achievement achievement = super.register(key, fn);
-
-        byCategory.compute(achievement.getCategory(), Compute.listAdd(achievement));
-        return achievement;
-    }
-
 }

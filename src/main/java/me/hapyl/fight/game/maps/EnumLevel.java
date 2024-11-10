@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.maps;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.maps.features.CloudFeatures;
@@ -13,10 +15,7 @@ import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.moon.MoonBase;
 import me.hapyl.fight.game.maps.winery.WineryMap;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.KeyedEnum;
 import me.hapyl.fight.util.handle.EnumHandleFunction;
-import me.hapyl.fight.Notifier;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.WeatherType;
@@ -257,7 +256,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     }
 
     public static EnumLevel byName(String str, EnumLevel def) {
-        final EnumLevel gm = Validate.getEnumValue(EnumLevel.class, str == null ? ARENA.name() : str);
+        final EnumLevel gm = Enums.byName(EnumLevel.class, str == null ? ARENA.name() : str);
         return gm == null ? def : gm;
     }
 

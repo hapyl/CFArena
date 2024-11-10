@@ -15,7 +15,7 @@ public enum EquipmentSlots {
     CHEST(org.bukkit.inventory.EquipmentSlot.CHEST),
     HEAD(org.bukkit.inventory.EquipmentSlot.HEAD),
 
-    // custom
+    // named
     ARROW {
         @Override
         public void setItem(@Nonnull PlayerInventory inventory, @Nullable ItemStack item) {

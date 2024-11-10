@@ -6,29 +6,27 @@ import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.event.custom.game.GameChangeStateEvent;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.cosmetic.WinCosmetic;
+import me.hapyl.fight.game.cosmetic.win.WinCosmetic;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
-import me.hapyl.fight.game.type.GameType;
-import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.report.GameReport;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.type.EnumGameType;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Lifecycle;
-import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -41,8 +39,6 @@ import java.util.Random;
 import java.util.Set;
 
 public class GameInstance extends TickingGameTask implements IGameInstance, Lifecycle {
-
-    private final Cosmetics DEFAULT_WIN_COSMETIC = Cosmetics.FIREWORKS;
 
     private final String hexCode;
     private final long startedAt;
@@ -102,7 +98,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     @Override
     public void setGameState(State gameState) {
-        if (new GameChangeStateEvent(this, this.gameState, gameState).callAndCheck()) {
+        if (new GameChangeStateEvent(this, this.gameState, gameState).call()) {
             return;
         }
 
@@ -123,7 +119,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     }
 
     public void executeWinCosmetic() {
-        Cosmetics cosmetic = DEFAULT_WIN_COSMETIC;
+        Cosmetic cosmetic = Registries.getCosmetics().FIREWORKS;
         Location location = currentMap.getLevel().getLocation();
         Player winner = null;
 
@@ -131,7 +127,9 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         if (gameResult.isWinners()) {
             for (final GamePlayer player : gameResult.getWinners()) {
                 if (!player.isDead()) { // isDead to allow respawning players to have their cosmetics
-                    cosmetic = Nulls.notNullOr(player.getDatabase().cosmeticEntry.getSelected(Type.WIN), DEFAULT_WIN_COSMETIC);
+                    final Cosmetic playerCosmetic = player.getDatabase().cosmeticEntry.getSelected(Type.WIN);
+
+                    cosmetic = playerCosmetic != null ? playerCosmetic : cosmetic;
                     location = player.getPlayer().getLocation();
                     winner = player.getPlayer();
                     break;
@@ -139,7 +137,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
             }
         }
 
-        if (!(cosmetic.getCosmetic() instanceof WinCosmetic winCosmetic)) {
+        if (!(cosmetic instanceof WinCosmetic winCosmetic)) {
             Manager.current().onStop();
             throw new IllegalArgumentException("Cosmetic is not a WinCosmetic!");
         }
@@ -320,12 +318,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     private void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-            if (profile == null) {
-                return;
-            }
-
+            final PlayerProfile profile = CF.getProfile(player);
             final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
             if (entry.isEnabled()) {
@@ -342,14 +335,14 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
             final GamePlayer gamePlayer = profile.createGamePlayer();
 
             // Spectate Setting
-            if (Settings.SPECTATE.isEnabled(player)) {
+            if (EnumSetting.SPECTATE.isEnabled(player)) {
                 gamePlayer.setSpectator(true);
             }
             else {
                 gamePlayer.resetPlayer();
             }
 
-            if (Settings.HIDE_UI.isEnabled(player)) {
+            if (EnumSetting.HIDE_UI.isEnabled(player)) {
                 gamePlayer.sendMessage("&6Your UI is hidden!");
                 gamePlayer.sendMessage("&6Use &e/settings &76 to turn enable the UI!");
             }

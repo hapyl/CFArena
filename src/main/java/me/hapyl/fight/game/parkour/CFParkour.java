@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.parkour;
 
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.parkour.*;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.challenge.ChallengeType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -201,7 +201,7 @@ public class CFParkour extends Parkour implements ParkourHandler {
 
     @Nullable
     @Override
-    public Response onCheckpoint(Player player, Data data, Position position, Type type) {
+    public Response onCheckpoint(Player player, Data data, ParkourPosition position, Type type) {
         return null;
     }
 }

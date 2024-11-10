@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.heroes.ninja;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.ability.DummyAbility;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 
 public class NinjaWeapon extends Weapon {
@@ -13,7 +14,7 @@ public class NinjaWeapon extends Weapon {
     @DisplayField public final int stunCd = Tick.fromSecond(10);
 
     public NinjaWeapon() {
-        super(Material.STONE_SWORD);
+        super(Material.STONE_SWORD, Key.ofString("ninja_sword_strong"));
 
         setName("斬馬刀");
         setDescription("Light but sharp sword.");

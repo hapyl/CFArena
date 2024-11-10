@@ -1,9 +1,9 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.eterna.module.util.Action;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public interface ReturnData {
 
@@ -11,7 +11,7 @@ public interface ReturnData {
     String getName();
 
     @Nonnull
-    Action<Player> getAction();
+    Consumer<Player> getAction();
 
     /**
      * Gets the slot to put the return button to.
@@ -27,12 +27,12 @@ public interface ReturnData {
     int getSlot();
 
     @Nonnull
-    static ReturnData of(@Nonnull String name, @Nonnull Action<Player> action) {
+    static ReturnData of(@Nonnull String name, @Nonnull Consumer<Player> action) {
         return of(name, action, 1);
     }
 
     @Nonnull
-    static ReturnData of(@Nonnull String name, @Nonnull Action<Player> action, int slot) {
+    static ReturnData of(@Nonnull String name, @Nonnull Consumer<Player> action, int slot) {
         return new ReturnData() {
             @Nonnull
             @Override
@@ -42,7 +42,7 @@ public interface ReturnData {
 
             @Nonnull
             @Override
-            public Action<Player> getAction() {
+            public Consumer<Player> getAction() {
                 return action;
             }
 

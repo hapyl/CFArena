@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.talents.vampire;
 
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.LinkedKeyValMap;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.util.LinkedKeyValMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;

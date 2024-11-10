@@ -1,8 +1,8 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;

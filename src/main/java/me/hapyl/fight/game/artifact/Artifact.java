@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.artifact;
 
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.talents.Cooldown;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
-import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 

@@ -13,7 +13,6 @@ import org.bukkit.projectiles.ProjectileSource;
 public class TrialListener implements Listener {
 
     public TrialListener() {
-        CF.registerEvents(this);
     }
 
     @EventHandler()
@@ -28,21 +27,20 @@ public class TrialListener implements Listener {
     }
 
     private <T extends Event> void workTrial(Player player, T event) {
-        PlayerProfile.getProfileOptional(player).ifPresent(profile -> {
-            final Trial trial = profile.getTrial();
+        final PlayerProfile profile = CF.getProfile(player);
+        final Trial trial = profile.getTrial();
 
-            if (trial == null) {
-                return;
-            }
+        if (trial == null) {
+            return;
+        }
 
-            final TrialObjective objective = trial.getCurrentObjective();
+        final TrialObjective objective = trial.getCurrentObjective();
 
-            if (objective == null) {
-                return;
-            }
+        if (objective == null) {
+            return;
+        }
 
-            objective.handle(event);
-        });
+        objective.handle(event);
     }
 
 

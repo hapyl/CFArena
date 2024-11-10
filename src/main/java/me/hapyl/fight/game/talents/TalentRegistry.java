@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.KeyFunction;
 import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archer.Archer;
 import me.hapyl.fight.game.heroes.aurora.Aurora;
@@ -28,6 +30,7 @@ import me.hapyl.fight.game.heroes.nyx.Nyx;
 import me.hapyl.fight.game.heroes.orc.Orc;
 import me.hapyl.fight.game.heroes.pytaria.Pytaria;
 import me.hapyl.fight.game.heroes.rogue.Rogue;
+import me.hapyl.fight.game.heroes.ronin.Ronin;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.shaman.Shaman;
 import me.hapyl.fight.game.heroes.shark.Shark;
@@ -43,6 +46,7 @@ import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.talents.alchemist.CauldronAbility;
 import me.hapyl.fight.game.talents.alchemist.IntoxicationPassive;
+import me.hapyl.fight.game.talents.alchemist.PotionBundle;
 import me.hapyl.fight.game.talents.alchemist.RandomPotion;
 import me.hapyl.fight.game.talents.archer.HawkeyePassive;
 import me.hapyl.fight.game.talents.archer.ShockDart;
@@ -62,7 +66,8 @@ import me.hapyl.fight.game.talents.dark_mage.*;
 import me.hapyl.fight.game.talents.doctor.BlockMaelstromPassive;
 import me.hapyl.fight.game.talents.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.doctor.HarvestBlocks;
-import me.hapyl.fight.game.talents.echo.EchoTalent;
+import me.hapyl.fight.game.talents.echo.EchoTrapTalent;
+import me.hapyl.fight.game.talents.echo.EchoWorldTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
@@ -87,8 +92,8 @@ import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
 import me.hapyl.fight.game.talents.hercules.HerculesJump;
 import me.hapyl.fight.game.talents.hercules.HerculesShift;
 import me.hapyl.fight.game.talents.hercules.PlungePassive;
-import me.hapyl.fight.game.talents.jester.MusicBox;
-import me.hapyl.fight.game.talents.jester.TakeACaveToTheFace;
+import me.hapyl.fight.game.talents.jester.MusicBoxTalent;
+import me.hapyl.fight.game.talents.jester.TakeACakeToTheFace;
 import me.hapyl.fight.game.talents.juju.*;
 import me.hapyl.fight.game.talents.km.LaserEye;
 import me.hapyl.fight.game.talents.knight.*;
@@ -121,6 +126,8 @@ import me.hapyl.fight.game.talents.pytaria.FlowerEscape;
 import me.hapyl.fight.game.talents.rogue.ExtraCut;
 import me.hapyl.fight.game.talents.rogue.SecondWind;
 import me.hapyl.fight.game.talents.rogue.Swayblade;
+import me.hapyl.fight.game.talents.ronin.ChargeAttack;
+import me.hapyl.fight.game.talents.ronin.RoninDash;
 import me.hapyl.fight.game.talents.shadow_assassin.*;
 import me.hapyl.fight.game.talents.shaman.*;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
@@ -155,8 +162,6 @@ import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MaledictionVeil;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
 import me.hapyl.fight.registry.AbstractStaticRegistry;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.KeyFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -178,6 +183,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      */
     public static final RandomPotion POTION;
     public static final CauldronAbility CAULDRON;
+    public static final PotionBundle POTION_BUNDLE;
     public static final IntoxicationPassive INTOXICATION;
 
     /**
@@ -474,13 +480,20 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     /**
      * {@link Echo}
      */
-    public static final EchoTalent ECHO;
+    public static final EchoWorldTalent ECHO_WORLD;
+    public static final EchoTrapTalent ECHO_TRAP;
 
     /**
      * {@link Jester}
      */
-    public static final MusicBox MUSIC_BOX;
-    public static final TakeACaveToTheFace TAKE_A_CAKE_TO_THE_FACE;
+    public static final MusicBoxTalent MUSIC_BOX;
+    public static final TakeACakeToTheFace TAKE_A_CAKE_TO_THE_FACE;
+
+    /**
+     * {@link Ronin}
+     */
+    public static final ChargeAttack CHARGE_ATTACK;
+    public static final RoninDash RONIN_DASH;
 
     /*/ don't put anything below here /*/
     private static final Set<Talent> values;
@@ -498,6 +511,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
         POTION = register("potion", RandomPotion::new);
         CAULDRON = register("cauldron", CauldronAbility::new);
+        POTION_BUNDLE = register("potion_bundle", PotionBundle::new);
         INTOXICATION = register("intoxication", IntoxicationPassive::new);
 
         MOONSLITE_PILLAR = register("moonslite_pillar", MoonPillarTalent::new);
@@ -679,10 +693,14 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         CHAOS_GROUND = register("chaos_ground", ChaosGround::new);
         NYX_PASSIVE = register("nyx_passive", NyxPassive::new);
 
-        ECHO = register("echo", EchoTalent::new);
+        ECHO_TRAP = register("echo", EchoTrapTalent::new);
+        ECHO_WORLD = register("echo_world", EchoWorldTalent::new);
 
-        MUSIC_BOX = register("music_box", MusicBox::new);
-        TAKE_A_CAKE_TO_THE_FACE = register("take_a_cake_to_the_face", TakeACaveToTheFace::new);
+        MUSIC_BOX = register("music_box", MusicBoxTalent::new);
+        TAKE_A_CAKE_TO_THE_FACE = register("take_a_cake_to_the_face", TakeACakeToTheFace::new);
+
+        CHARGE_ATTACK = register("charge_attack", ChargeAttack::new);
+        RONIN_DASH = register("ronin_dash", RoninDash::new);
     }
 
     @Nonnull

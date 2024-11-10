@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.type.types;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.eterna.module.util.collection.LinkedValue2IntegerReverseMap;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
 import me.hapyl.fight.game.type.GameType;
-import me.hapyl.fight.util.collection.LinkedValue2IntegerReverseMap;
-import me.hapyl.eterna.module.scoreboard.Scoreboarder;
-import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

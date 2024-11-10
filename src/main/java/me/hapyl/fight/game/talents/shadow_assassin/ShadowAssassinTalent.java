@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -8,7 +9,6 @@ import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +32,7 @@ public abstract class ShadowAssassinTalent extends Talent {
             return response;
         }
 
-        // Don't return OK because of custom cooldown
+        // Don't return OK because of named cooldown
         return Response.AWAIT;
     }
 

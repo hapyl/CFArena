@@ -1,13 +1,12 @@
 package me.hapyl.fight.game.talents.ender;
 
-
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EnderPearl;

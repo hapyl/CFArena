@@ -2,8 +2,8 @@ package me.hapyl.fight.game.maps.gamepack;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.Location;
 import org.bukkit.Particle;
