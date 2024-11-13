@@ -1,14 +1,17 @@
 package me.hapyl.fight.game.talents.archive.engineer;
 
-import me.hapyl.fight.game.EnumDamageCause;
+import me.hapyl.eterna.module.block.display.BlockStudioParser;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.talents.engineer.Construct;
+import me.hapyl.fight.game.talents.engineer.EngineerTalent;
+import me.hapyl.fight.game.talents.engineer.ImmutableArray;
 import me.hapyl.fight.game.task.RaycastTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
-import me.hapyl.spigotutils.module.block.display.DisplayData;
-import me.hapyl.spigotutils.module.block.display.DisplayEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -115,7 +118,7 @@ public class EngineerTurret extends EngineerTalent {
 
                     @Override
                     public boolean step(@Nonnull Location location) {
-                        player.spawnWorldParticle(location, Particle.CRIT_MAGIC, 1);
+                        player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 1);
 
                         // Hit detection
                         final LivingGameEntity targetEntity = Collect.nearestEntity(location, 1, entity -> {
