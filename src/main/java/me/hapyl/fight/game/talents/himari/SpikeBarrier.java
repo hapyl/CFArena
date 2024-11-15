@@ -35,19 +35,21 @@ public class SpikeBarrier extends HimariTalent implements Listener {
         setType(TalentType.DEFENSE);
     }
 
+
     @EventHandler
-    public void handleGameDamageEvent(GameDamageEvent ev) {
+    public void handleGameDamageEvent(GameDamageEvent event) {
+
         Debug.info("Spike shield parameters setup");
 
         // Get the target player
-        GamePlayer targetPlayer = (GamePlayer) ev.getEntity();
-        final GameEntity damager = ev.getDamager();
-        final double damage = ev.getDamage();
+        GamePlayer targetPlayer = (GamePlayer) event.getEntity();
+        final GameEntity damager = event.getDamager();
+        final double damage = event.getDamage();
         Debug.info("Damage and damager fetched successfully!");
 
         // Absorb half the damage
         double reducedDamage = damage * 0.5;
-        ev.multiplyDamage(0.5d);
+        event.multiplyDamage(0.5d);
         Debug.info("Damage reduced by 50%.");
 
         // Reflect half of the reduced damage back to the attacker
