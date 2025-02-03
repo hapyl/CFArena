@@ -24,6 +24,7 @@ import me.hapyl.fight.game.heroes.harbinger.Harbinger;
 import me.hapyl.fight.game.heroes.healer.Healer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.hercules.Hercules;
+import me.hapyl.fight.game.heroes.himari.Himari;
 import me.hapyl.fight.game.heroes.jester.Jester;
 import me.hapyl.fight.game.heroes.juju.JuJu;
 import me.hapyl.fight.game.heroes.km.KillingMachine;
@@ -108,6 +109,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Nyx NYX;
     @MarkedAsIncomplete public static final Gunner GUNNER;
     @MarkedAsIncomplete public static final Echo ECHO;
+    public static final Himari HIMARI;
 
     // *=* Tutorial Hero *=* // Please keep last
     public static final TutorialArcher TUTORIAL_ARCHER;
@@ -172,6 +174,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         NYX = register("nyx", Nyx::new);
         GUNNER = register("gunner", Gunner::new);
         ECHO = register("echo", Echo::new);
+        HIMARI = register("himari",Himari::new);
 
         // Keep last
         TUTORIAL_ARCHER = register("tutorial_archer", TutorialArcher::new);
