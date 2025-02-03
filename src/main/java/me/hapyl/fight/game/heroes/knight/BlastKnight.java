@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.heroes.knight;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.event.custom.PlayerShieldEvent;
+import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
@@ -25,13 +27,15 @@ import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.shield.PatternTypes;
 import me.hapyl.fight.util.shield.ShieldBuilder;
 import org.bukkit.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider {
+public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<BlastKnightData>, DisplayFieldProvider, Listener {
 
     public final ItemStack shieldItem = new ShieldBuilder(DyeColor.BLACK)
             .with(DyeColor.WHITE, PatternTypes.DLS)
@@ -88,15 +92,18 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         setUltimate(new BlastKnightUltimate());
     }
 
-    @Override
-    public void processDamageAsVictim(@Nonnull DamageInstance instance) {
-        final GamePlayer player = instance.getEntityAsPlayer();
-        final GameEntity damager = instance.getDamager();
-        final double damage = instance.getDamage();
+    @EventHandler
+    public void handleGamePlayerShieldEvent(PlayerShieldEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev);
+        final LivingGameEntity damager = CF.getEntity(ev.getDamager());
 
-        if (!player.isBlocking() || damager == null || damage > 0.0d) {
+        Debug.info(1);
+
+        if (player == null || damager == null) {
             return;
         }
+
+        Debug.info(2);
 
         final double dot = player.dot(damager.getLocation());
 
@@ -104,11 +111,15 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
             return;
         }
 
+        Debug.info(3);
+
         final BlastKnightData data = getPlayerData(player);
 
         if (data.isShieldOnCooldown()) {
             return;
         }
+
+        Debug.info(4);
 
         data.incrementShieldCharge();
 
@@ -118,7 +129,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         // Fx
         player.playSound(Sound.ITEM_SHIELD_BREAK, 1.0f);
 
-        instance.multiplyDamage(0.0d);
+        ev.setCancelled(true);
     }
 
     @Nonnull

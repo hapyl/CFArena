@@ -1,4 +1,4 @@
-package me.hapyl.fight.database.collection;
+package me.hapyl.fight.database.async;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Updates;
@@ -92,14 +92,14 @@ import java.util.function.Consumer;
  *     <li>When <b>writing</b>, the data will be updated instantly and the document will be refreshed. Both locally and on remote. Writing is done asynchronously.</li>
  * </ul>
  */
-public class AsynchronousDatabase {
+public class AsynchronousDocument {
 
     protected final MongoCollection<Document> collection;
     protected final Document filter;
 
     protected Document document;
 
-    public AsynchronousDatabase(MongoCollection<Document> collection, Document filter) {
+    public AsynchronousDocument(MongoCollection<Document> collection, Document filter) {
         this.collection = collection;
         this.filter = filter;
 
@@ -144,7 +144,7 @@ public class AsynchronousDatabase {
      * @param value   - Value to write.
      * @param andThen - Synchronized updated instance of this.
      */
-    public final <E> void write(@Nonnull String path, @Nullable E value, @Nullable Consumer<AsynchronousDatabase> andThen) {
+    public final <E> void write(@Nonnull String path, @Nullable E value, @Nullable Consumer<AsynchronousDocument> andThen) {
         write(Updates.set(path, value), andThen);
     }
 
@@ -163,7 +163,7 @@ public class AsynchronousDatabase {
      * @param update  - Update.
      * @param andThen - Synced callback.
      */
-    public final void write(@Nonnull Bson update, @Nullable Consumer<AsynchronousDatabase> andThen) {
+    public final void write(@Nonnull Bson update, @Nullable Consumer<AsynchronousDocument> andThen) {
         try {
             async(() -> {
                 collection.updateOne(filter, update);

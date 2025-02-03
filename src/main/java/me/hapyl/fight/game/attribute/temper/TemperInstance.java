@@ -95,6 +95,10 @@ public class TemperInstance {
         entity.getAttributes().resetTemper(temper);
     }
 
+    public boolean isTempered(@Nonnull LivingGameEntity entity) {
+        return entity.getAttributes().hasTemper(temper);
+    }
+
     private <T> void ifNotNull(@Nullable T t, Consumer<T> consumer) {
         if (t != null) {
             consumer.accept(t);

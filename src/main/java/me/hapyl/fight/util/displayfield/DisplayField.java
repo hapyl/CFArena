@@ -35,7 +35,7 @@ public @interface DisplayField {
     /**
      * Multiplier by which the numeral value will be scaled.
      */
-    double scaleFactor() default 1.0d;
+    double scaleFactor() default 1;
 
     /**
      * Annotates that this field is a percentage and will be scaled by 100 and appended with "%" without a space.

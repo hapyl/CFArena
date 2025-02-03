@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 public class FlowerBreeze extends Talent {
 
-    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.3d;
-    @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 1.5d;
+    @DisplayField(scaleFactor = 100) public final double attackIncrease = 0.3d;
+    @DisplayField(scaleFactor = 100) public final double defenseIncrease = 1.5d;
     @DisplayField private final double healthSacrifice = 15.0d;
 
     private final Material[] flowers = {

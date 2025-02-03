@@ -1671,6 +1671,24 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         sendMessage("&8[&c❌&8] &4" + message);
     }
 
+    public void spectate(@Nullable Entity entity) {
+        final Player player = getPlayer();
+
+        if (entity == null) {
+            player.setGameMode(GameMode.ADVENTURE);
+        }
+        else {
+            player.setGameMode(GameMode.SPECTATOR);
+            player.setSpectatorTarget(entity);
+        }
+    }
+
+    @Nonnull
+    @SuppressWarnings("UnstableApiUsage")
+    public Input input() {
+        return getPlayer().getCurrentInput();
+    }
+
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {
         final List<Block> blocks = Lists.newArrayList();
         final Location location = getEyeLocation();

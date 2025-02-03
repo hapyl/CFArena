@@ -48,9 +48,10 @@ import me.hapyl.fight.anticheat.PunishmentReport;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.Award;
+import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.AntiCheatCollection;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.database.entry.MetadataEntry;
@@ -93,10 +94,13 @@ import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
+import me.hapyl.fight.game.parkour.ParkourCourse;
+import me.hapyl.fight.game.parkour.snake.SnakeParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
@@ -104,7 +108,6 @@ import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.shaman.TotemPrison;
@@ -232,7 +235,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new PlayerAttributeCommand("playerAttribute"));
         register(new SnakeBuilderCommand("snakeBuilder"));
         register(new CrateCommandCommand("crate"));
-        register(new GlobalConfigCommand("globalConfig"));
         register(new ArtifactCommand("artifact"));
         register(new RateHeroCommand("rateHero"));
         register(new ScriptCommand("script"));
@@ -254,79 +256,102 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new StartCountdownCommand("startCountdown"));
         register(new StoryCommand("story"));
         register(new StoreCommand("store"));
+        register(new EnvironmentCommand("environment"));
 
         // *=* Inner commands *=* //
-        register("testserverlinks", (player, args) -> {
-            final ServerLinks serverLinks = Bukkit.getServerLinks();
-            try {
-                final ServerLinks.ServerLink link = serverLinks.setLink(ServerLinks.Type.SUPPORT, new URI("testlink"));
+        register(
+                "respawnSnakeParkour", (player, args) -> {
+                    final SnakeParkour parkour = (SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour();
+                    parkour.getSnake().createEntities();
+                    parkour.showSnakeEntities();
 
-                player.sendLinks(serverLinks);
-                player.sendMessage("sent links!");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+                    player.sendMessage("Done!");
+                }
+        );
 
-        register("testvecrot", (player, args) -> {
-            final Location location = player.getEyeLocation();
-            final DirectionalMatrix matrix = new DirectionalMatrix(player.getEyeLocation().getDirection().setY(0.0d));
+        register(
+                "testserverlinks", (player, args) -> {
+                    final ServerLinks serverLinks = Bukkit.getServerLinks();
+                    try {
+                        final ServerLinks.ServerLink link = serverLinks.setLink(ServerLinks.Type.SUPPORT, new URI("testlink"));
 
-            PiHelper.rotate(300, 120, Math.PI / 16, d -> {
-                final double x = Math.sin(d);
-                final double z = Math.cos(d);
+                        player.sendLinks(serverLinks);
+                        player.sendMessage("sent links!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
 
-                matrix.transformLocation(location, x, 0, z, then -> {
-                    PlayerLib.spawnParticle(location, Particle.COMPOSTER, 1);
-                });
-            });
+        register(
+                "testvecrot", (player, args) -> {
+                    final Location location = player.getEyeLocation();
+                    final DirectionalMatrix matrix = new DirectionalMatrix(player.getEyeLocation().getDirection().setY(0.0d));
 
-            player.sendMessage(ChatColor.GREEN + "Displayed!");
-        });
+                    PiHelper.rotate(
+                            300, 120, Math.PI / 16, d -> {
+                                final double x = Math.sin(d);
+                                final double z = Math.cos(d);
 
-        register("testCooldown", (player, args) -> {
-            final PlayerInventory inventory = player.getInventory();
+                                matrix.transformLocation(
+                                        location, x, 0, z, then -> {
+                                            PlayerLib.spawnParticle(location, Particle.COMPOSTER, 1);
+                                        }
+                                );
+                            }
+                    );
 
-            final ItemStack test1 = ItemBuilder.playerHeadUrl("2104f13c719f0c8af92f536dbd109285e6e3d21af3158ed91f603f7ecf7359b0")
-                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_1")))
-                    .toItemStack();
-            final ItemStack test2 = ItemBuilder.playerHeadUrl("ce50e2e418b9d955837177ba643d2f75d4e7f593c3e1db6ee9d410741f43535e")
-                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_2")))
-                    .toItemStack();
-            final ItemStack test3 = ItemBuilder.playerHeadUrl("ac964ed0f717ae671cdf0ed0e0341887ae8ccbd282c0058dc11276ef3cd78cc7")
-                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_3")))
-                    .toItemStack();
-            final ItemStack test4 = ItemBuilder.playerHeadUrl("70fa3d8c2bad7be6196a21d43708e41454bc986a10856d604bbc2a0c21c2b91e")
-                    .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_4")))
-                    .toItemStack();
+                    player.sendMessage(ChatColor.GREEN + "Displayed!");
+                }
+        );
 
-            inventory.clear();
-            inventory.addItem(test1);
-            inventory.addItem(test2);
-            inventory.addItem(test3);
-            inventory.addItem(test4);
+        register(
+                "testCooldown", (player, args) -> {
+                    final PlayerInventory inventory = player.getInventory();
 
-            player.setCooldown(test1, 70);
-            player.setCooldown(test2, 120);
-            player.setCooldown(test3, 50);
-            player.setCooldown(test4, 200);
-        });
+                    final ItemStack test1 = ItemBuilder.playerHeadUrl("2104f13c719f0c8af92f536dbd109285e6e3d21af3158ed91f603f7ecf7359b0")
+                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_1")))
+                            .toItemStack();
+                    final ItemStack test2 = ItemBuilder.playerHeadUrl("ce50e2e418b9d955837177ba643d2f75d4e7f593c3e1db6ee9d410741f43535e")
+                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_2")))
+                            .toItemStack();
+                    final ItemStack test3 = ItemBuilder.playerHeadUrl("ac964ed0f717ae671cdf0ed0e0341887ae8ccbd282c0058dc11276ef3cd78cc7")
+                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_3")))
+                            .toItemStack();
+                    final ItemStack test4 = ItemBuilder.playerHeadUrl("70fa3d8c2bad7be6196a21d43708e41454bc986a10856d604bbc2a0c21c2b91e")
+                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_4")))
+                            .toItemStack();
 
-        register("testDecay", (player, args) -> {
-            CF.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        final double amount = args.get(0).toDouble();
-                        final int duration = args.get(1).toInt();
+                    inventory.clear();
+                    inventory.addItem(test1);
+                    inventory.addItem(test2);
+                    inventory.addItem(test3);
+                    inventory.addItem(test4);
 
-                        if (amount <= 0.0d) {
-                            gp.sendMessage("&cAmount cannot be zero or negative!");
-                            return;
-                        }
+                    player.setCooldown(test1, 70);
+                    player.setCooldown(test2, 120);
+                    player.setCooldown(test3, 50);
+                    player.setCooldown(test4, 200);
+                }
+        );
 
-                        gp.setDecay(new Decay(amount, duration));
-                        gp.sendMessage("&aApplied %s decay for %s!".formatted(amount, duration));
-                    });
-        });
+        register(
+                "testDecay", (player, args) -> {
+                    CF.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                final double amount = args.get(0).toDouble();
+                                final int duration = args.get(1).toInt();
+
+                                if (amount <= 0.0d) {
+                                    gp.sendMessage("&cAmount cannot be zero or negative!");
+                                    return;
+                                }
+
+                                gp.setDecay(new Decay(amount, duration));
+                                gp.sendMessage("&aApplied %s decay for %s!".formatted(amount, duration));
+                            });
+                }
+        );
 
         register(new CFCommand("testModel", PlayerRank.ADMIN) {
 
@@ -340,179 +365,193 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("resetquest", (player, args) -> {
-            final String stringKey = args.getString(0);
-            final Key key = Key.ofStringOrNull(stringKey);
+        register(
+                "resetquest", (player, args) -> {
+                    final String stringKey = args.getString(0);
+                    final Key key = Key.ofStringOrNull(stringKey);
 
-            if (key == null) {
-                Notifier.error(player, "Invalid key {%s}.".formatted(stringKey));
-                return;
-            }
+                    if (key == null) {
+                        Notifier.error(player, "Invalid key {%s}.".formatted(stringKey));
+                        return;
+                    }
 
-            final CFQuestHandler questHandler = CF.getQuestHandler();
-            final Quest quest = questHandler.get(key);
+                    final CFQuestHandler questHandler = CF.getQuestHandler();
+                    final Quest quest = questHandler.get(key);
 
-            if (quest == null) {
-                Notifier.error(player, "Invalid quest {%s}.".formatted(key.getKey()));
-                return;
-            }
+                    if (quest == null) {
+                        Notifier.error(player, "Invalid quest {%s}.".formatted(key.getKey()));
+                        return;
+                    }
 
-            CF.getDatabase(player).questEntry.resetQuest(quest);
-            Notifier.success(player, "Reset quest {%s}!".formatted(quest.getName()));
-        });
+                    CF.getDatabase(player).questEntry.resetQuest(quest);
+                    Notifier.success(player, "Reset quest {%s}!".formatted(quest.getName()));
+                }
+        );
 
-        register("distanceToLos", (player, args) -> {
-            final Block targetBlock = player.getTargetBlockExact(10);
+        register(
+                "distanceToLos", (player, args) -> {
+                    final Block targetBlock = player.getTargetBlockExact(10);
 
-            if (targetBlock == null) {
-                Notifier.error(player, "No block in los!");
-                return;
-            }
+                    if (targetBlock == null) {
+                        Notifier.error(player, "No block in los!");
+                        return;
+                    }
 
-            final Location location = player.getLocation();
-            final Location blockLocation = targetBlock.getLocation();
+                    final Location location = player.getLocation();
+                    final Location blockLocation = targetBlock.getLocation();
 
-            final double distanceSquared = blockLocation.distanceSquared(location);
-            final double distance = blockLocation.distance(location);
+                    final double distanceSquared = blockLocation.distanceSquared(location);
+                    final double distance = blockLocation.distance(location);
 
-            Notifier.success(
-                    player,
-                    "Distance to {%s} is {%.2f} (√{%.2f})".formatted(
-                            targetBlock.getType().name().toLowerCase(),
-                            distanceSquared,
-                            distance
-                    )
-            );
-        });
-
-        register("metadata", (player, args) -> {
-            final MetadataEntry entry = CF.getDatabase(player).metadataEntry;
-
-            if (args.length == 0) {
-                final Map<String, Object> mapped = MetadataEntry.map(player);
-
-                int count = 0;
-                for (Map.Entry<String, Object> mapEntry : mapped.entrySet()) {
-                    final String key = mapEntry.getKey();
-                    final Object value = mapEntry.getValue();
-
-                    final ChatColor color = (count++ % 2 == 0 ? ChatColor.GREEN : ChatColor.DARK_GREEN);
-
-                    Chat.sendClickableHoverableMessage(
+                    Notifier.success(
                             player,
-                            LazyEvent.runCommand("/metadata %s remove".formatted(key)),
-                            LazyEvent.showText("&eClick to remove '%s'!".formatted(key)),
-                            "%s &d&l= %s".formatted(color + key, color + value.toString())
+                            "Distance to {%s} is {%.2f} (√{%.2f})".formatted(
+                                    targetBlock.getType().name().toLowerCase(),
+                                    distanceSquared,
+                                    distance
+                            )
                     );
                 }
+        );
 
-                return;
-            }
+        register(
+                "metadata", (player, args) -> {
+                    final MetadataEntry entry = CF.getDatabase(player).metadataEntry;
 
-            final String argument = args.get(0).toString();
+                    if (args.length == 0) {
+                        final Map<String, Object> mapped = MetadataEntry.map(player);
 
-            MetadataEntry.MetadataParent parent;
-            String keyString;
-            Key key;
+                        int count = 0;
+                        for (Map.Entry<String, Object> mapEntry : mapped.entrySet()) {
+                            final String key = mapEntry.getKey();
+                            final Object value = mapEntry.getValue();
 
-            if (argument.contains(".")) {
-                final String[] keySplits = argument.split("\\.");
+                            final ChatColor color = (count++ % 2 == 0 ? ChatColor.GREEN : ChatColor.DARK_GREEN);
 
-                parent = entry.getParent(keySplits[0]);
-                key = Key.ofStringOrNull(keyString = keySplits[1]);
-            }
-            else {
-                parent = entry.NULL;
-                key = Key.ofStringOrNull(keyString = argument);
-            }
+                            Chat.sendClickableHoverableMessage(
+                                    player,
+                                    LazyEvent.runCommand("/metadata %s remove".formatted(key)),
+                                    LazyEvent.showText("&eClick to remove '%s'!".formatted(key)),
+                                    "%s &d&l= %s".formatted(color + key, color + value.toString())
+                            );
+                        }
 
-            if (key == null) {
-                Notifier.error(player, "Illegal key; " + keyString);
-                return;
-            }
+                        return;
+                    }
 
-            final boolean isRemove = args.get(1).toString().equalsIgnoreCase("remove");
+                    final String argument = args.get(0).toString();
 
-            if (isRemove) {
-                parent.set(key, null);
+                    MetadataEntry.MetadataParent parent;
+                    String keyString;
+                    Key key;
 
-                Notifier.success(player, "Removed metadata for key {%s}.".formatted(key));
-            }
-            else {
-                final Object value = parent.get(key, null);
+                    if (argument.contains(".")) {
+                        final String[] keySplits = argument.split("\\.");
 
-                if (value == null) {
-                    Notifier.error(player, "There is no metadata for key {%s}!".formatted(key));
+                        parent = entry.getParent(keySplits[0]);
+                        key = Key.ofStringOrNull(keyString = keySplits[1]);
+                    }
+                    else {
+                        parent = entry.NULL;
+                        key = Key.ofStringOrNull(keyString = argument);
+                    }
+
+                    if (key == null) {
+                        Notifier.error(player, "Illegal key; " + keyString);
+                        return;
+                    }
+
+                    final boolean isRemove = args.get(1).toString().equalsIgnoreCase("remove");
+
+                    if (isRemove) {
+                        parent.set(key, null);
+
+                        Notifier.success(player, "Removed metadata for key {%s}.".formatted(key));
+                    }
+                    else {
+                        final Object value = parent.get(key, null);
+
+                        if (value == null) {
+                            Notifier.error(player, "There is no metadata for key {%s}!".formatted(key));
+                        }
+                        else {
+                            Notifier.success(player, "Metadata for key {%s}: {%s}".formatted(key, value.toString()));
+                        }
+                    }
                 }
-                else {
-                    Notifier.success(player, "Metadata for key {%s}: {%s}".formatted(key, value.toString()));
+        );
+
+        register(
+                "setTalkedDialog", (player, args) -> {
+                    final PlayerDatabase database = CF.getDatabase(player);
+                    final String id = args.get(0).toString();
+                    final boolean value = args.get(0).toBoolean();
+
+                    final Key key = Key.ofStringOrNull(id);
+
+                    if (key == null) {
+                        Notifier.error(player, "Invalid key: " + id);
+                        return;
+                    }
+
+                    database.metadataEntry.DIALOG.set(key, !value ? null : true);
+                    Notifier.success(player, "Set dialog metadata for dialog '{%s}' to {%s}.".formatted(key, value));
                 }
-            }
-        });
+        );
 
-        register("setTalkedDialog", (player, args) -> {
-            final PlayerDatabase database = CF.getDatabase(player);
-            final String id = args.get(0).toString();
-            final boolean value = args.get(0).toBoolean();
+        register(
+                "skipDialog", (player, args) -> {
+                    final DialogInstance dialog = Eterna.getManagers().dialog.get(player);
 
-            final Key key = Key.ofStringOrNull(id);
+                    if (dialog == null) {
+                        Notifier.error(player, "You're not in a dialog!");
+                        return;
+                    }
 
-            if (key == null) {
-                Notifier.error(player, "Invalid key: " + id);
-                return;
-            }
+                    dialog.cancel();
+                    Notifier.success(player, "Skipped.");
+                }
+        );
 
-            database.metadataEntry.DIALOG.set(key, !value ? null : true);
-            Notifier.success(player, "Set dialog metadata for dialog '{%s}' to {%s}.".formatted(key, value));
-        });
+        register(
+                "removeFoundRelic", (player, args) ->
 
-        register("skipDialog", (player, args) -> {
-            final DialogInstance dialog = Eterna.getManagers().dialog.get(player);
+                {
+                    final int id = args.getInt(0);
+                    final Relic relic = CF.getPlugin().getRelicHunt().byId(id);
 
-            if (dialog == null) {
-                Notifier.error(player, "You're not in a dialog!");
-                return;
-            }
+                    if (relic == null) {
+                        Notifier.error(player, "Invalid relic: " + id);
+                        return;
+                    }
 
-            dialog.cancel();
-            Notifier.success(player, "Skipped.");
-        });
+                    relic.take(player);
+                }
+        );
 
-        register("removeFoundRelic", (player, args) ->
+        register(
+                "calculatePointReward", (player, args) ->
 
-        {
-            final int id = args.getInt(0);
-            final Relic relic = CF.getPlugin().getRelicHunt().byId(id);
+                {
+                    final AchievementRegistry registry = Registries.getAchievements();
 
-            if (relic == null) {
-                Notifier.error(player, "Invalid relic: " + id);
-                return;
-            }
+                    final String query = args.getString(0);
+                    final int completeCount = args.getInt(1);
+                    final Achievement achievement = registry.get(query);
 
-            relic.take(player);
-        });
+                    if (achievement == null) {
+                        Notifier.error(player, "Invalid achievement: {%s}".formatted(query));
+                        return;
+                    }
 
-        register("calculatePointReward", (player, args) ->
+                    final int reward = achievement.getPointRewardForCompleting(completeCount);
 
-        {
-            final AchievementRegistry registry = Registries.getAchievements();
-
-            final String query = args.getString(0);
-            final int completeCount = args.getInt(1);
-            final Achievement achievement = registry.get(query);
-
-            if (achievement == null) {
-                Notifier.error(player, "Invalid achievement: {%s}".formatted(query));
-                return;
-            }
-
-            final int reward = achievement.getPointRewardForCompleting(completeCount);
-
-            Notifier.success(
-                    player,
-                    "Completing {%s} {%s} times grants {%s} points.".formatted(achievement.getName(), completeCount, reward)
-            );
-        });
+                    Notifier.success(
+                            player,
+                            "Completing {%s} {%s} times grants {%s} points.".formatted(achievement.getName(), completeCount, reward)
+                    );
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testLoot") {
 
@@ -562,212 +601,242 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testcustomtextcolor", (player, args) ->
+        register(
+                "testcustomtextcolor", (player, args) ->
 
-        {
-            final net.kyori.adventure.text.TextComponent component = Component
-                    .text("This is a test")
-                    .color(me.hapyl.fight.game.color.Color.WITHERS);
+                {
+                    final net.kyori.adventure.text.TextComponent component = Component
+                            .text("This is a test")
+                            .color(me.hapyl.fight.game.color.Color.WITHERS);
 
-            player.sendMessage(component);
-        });
+                    player.sendMessage(component);
+                }
+        );
 
-        register("testUicmp", (player, args) ->
+        register(
+                "testUicmp", (player, args) ->
 
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        gp.ui(GamePlayer.class, "Test from game player yay!");
-                    });
-        });
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                gp.ui(GamePlayer.class, "Test from game player yay!");
+                            });
+                }
+        );
 
-        register("ridePiggy", (player, args) ->
+        register(
+                "ridePiggy", (player, args) ->
 
-        {
-            final Pig pig = Entities.PIG.spawn(player.getLocation().add(0, 2, 0), self -> {
-                self.setGravity(false);
-            });
+                {
+                    final Pig pig = Entities.PIG.spawn(
+                            player.getLocation().add(0, 2, 0), self -> {
+                                self.setGravity(false);
+                            }
+                    );
 
-            pig.setHealth(1);
-            pig.addPassenger(player);
+                    pig.setHealth(1);
+                    pig.addPassenger(player);
 
-            player.sendRichMessage("<green>Done!");
-        });
+                    player.sendRichMessage("<green>Done!");
+                }
+        );
 
-        register("addAuroraBuff", (player, args) ->
+        register(
+                "addAuroraBuff", (player, args) ->
 
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
-                    });
-        });
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
+                            });
+                }
+        );
 
-        register("hurtMe", (player, args) ->
+        register(
+                "hurtMe", (player, args) ->
 
-        {
-            GamePlayer.getPlayerOptional(player).ifPresent(gp -> gp.damage(gp.getHealth() * 0.99));
-        });
+                {
+                    GamePlayer.getPlayerOptional(player).ifPresent(gp -> gp.damage(gp.getHealth() * 0.99));
+                }
+        );
 
-        register("testTotemOffset", (player, args) ->
+        register(
+                "testTotemOffset", (player, args) ->
 
-        {
-            final Location location = player.getLocation();
-            final int[][] offsets = TotemPrison.OFFSETS;
+                {
+                    final Location location = player.getLocation();
+                    final int[][] offsets = TotemPrison.OFFSETS;
 
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick >= offsets.length) {
-                        cancel();
+                    new TickingGameTask() {
+                        @Override
+                        public void run(int tick) {
+                            if (tick >= offsets.length) {
+                                cancel();
+                                return;
+                            }
+
+                            final int[] offset = offsets[tick];
+                            final int x = offset[0];
+                            final int z = offset[1];
+
+                            location.add(x, 0, z);
+                            location.getBlock().setType(Material.REDSTONE_BLOCK, false);
+                            location.subtract(x, 0, z);
+                        }
+                    }.runTaskTimer(5, 5);
+                }
+        );
+
+        register(
+                "scaryWither", (player, args) ->
+
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                TalentRegistry.BLINDING_CURSE.scaryWither(gp);
+                                gp.sendMessage("&8Boo!");
+                            });
+                }
+        );
+
+        register(
+                "whatsmyenergy", (player, args) ->
+
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                final double energy = gp.getEnergy();
+                                final UltimateTalent ultimate = gp.getUltimate();
+
+                                gp.sendMessage("&aYour energy: %s".formatted(energy));
+
+                                if (ultimate instanceof OverchargeUltimateTalent overcharge) {
+                                    gp.sendMessage("&bUltimate cost: %s/%s".formatted(overcharge.getMinCost(), overcharge.getCost()));
+                                }
+                                else {
+                                    gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
+                                }
+
+                                gp.sendMessage("&cString: " + gp.getUltimateString(UltimateColor.PRIMARY));
+                            });
+                }
+        );
+
+        register(
+                "loadClass", (player, args) ->
+
+                {
+                    final String classToLoad = args.getString(0);
+
+                    if (classToLoad.isEmpty()) {
+                        player.sendRichMessage("<dark_red>Missing class name!");
                         return;
                     }
 
-                    final int[] offset = offsets[tick];
-                    final int x = offset[0];
-                    final int z = offset[1];
+                    player.sendRichMessage("<yellow>Loading class '%s'...".formatted(classToLoad));
 
-                    location.add(x, 0, z);
-                    location.getBlock().setType(Material.REDSTONE_BLOCK, false);
-                    location.subtract(x, 0, z);
+                    try {
+                        final Class<?> clazz = Class.forName(classToLoad);
+
+                        player.sendRichMessage("<green>Loaded class '%s'!".formatted(clazz.getName()));
+                    } catch (ClassNotFoundException e) {
+                        player.sendRichMessage("<dark_red>No such class '%s'!".formatted(classToLoad));
+                    }
                 }
-            }.runTaskTimer(5, 5);
-        });
+        );
 
-        register("scaryWither", (player, args) ->
+        register(
+                "testHealthTemper", (player, args) ->
 
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        TalentRegistry.BLINDING_CURSE.scaryWither(gp);
-                        gp.sendMessage("&8Boo!");
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
+                                gp.sendMessage("Increase health!");
+                            });
+                }
+        );
+
+        register(
+                "testMongoSerialize", (player, args) ->
+
+                {
+                    if (args.length == 0) {
+                        final List<PunishmentReport> reports = AntiCheatAsynchronousDocument.get(player.getUniqueId());
+
+                        player.sendMessage(CollectionUtils.wrapToString(reports));
+                        return;
+                    }
+
+                    // deserialize
+                    final HexID hexId = HexID.fromStringOrEmpty(args.getString(0));
+                    final PunishmentReport report = AntiCheatAsynchronousDocument.get(hexId);
+
+                    if (report == null) {
+                        player.sendRichMessage("<rainbow:2>No such report!");
+                        player.sendRichMessage("<rainbow:4>No such report!");
+                        player.sendRichMessage("<rainbow:6>No such report!");
+                        return;
+                    }
+
+                    player.sendMessage(report.toString());
+                }
+        );
+
+        register(
+                "testitemwithdefaultattributes", (player, args) ->
+
+                {
+                    final Material material = args.get(0).toEnum(Material.class);
+                    final boolean hideFlags = args.get(0).toBoolean();
+
+                    final ItemBuilder builder = new ItemBuilder(material);
+
+                    if (hideFlags) {
+                        builder.hideFlag(ItemFlag.values());
+                    }
+
+                    player.getInventory().addItem(builder.toItemStack());
+                }
+        );
+
+
+        register(
+                "testoptional", (player, args) ->
+
+                {
+                    final IOptional<Object> nullOptional = IOptional.of(null);
+                    final IOptional<Player> playerOptional = IOptional.of(player);
+
+                    nullOptional.ifPresent(__ -> {
+                        player.sendMessage("nullOptional ifPresent");
+                    }).orElse(() -> {
+                        player.sendMessage("nullOptional orElse");
+                    }).always(() -> {
+                        player.sendMessage("nullOptional always");
                     });
-        });
 
-        register("whatsmyenergy", (player, args) ->
-
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        final double energy = gp.getEnergy();
-                        final UltimateTalent ultimate = gp.getUltimate();
-
-                        gp.sendMessage("&aYour energy: %s".formatted(energy));
-
-                        if (ultimate instanceof OverchargeUltimateTalent overcharge) {
-                            gp.sendMessage("&bUltimate cost: %s/%s".formatted(overcharge.getMinCost(), overcharge.getCost()));
-                        }
-                        else {
-                            gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
-                        }
-
-                        gp.sendMessage("&cString: " + gp.getUltimateString(UltimateColor.PRIMARY));
+                    playerOptional.ifPresent(__ -> {
+                        player.sendMessage("playerOptional ifPresent");
+                    }).orElse(() -> {
+                        player.sendMessage("playerOptional orElse");
+                    }).always(() -> {
+                        player.sendMessage("playerOptional always");
                     });
-        });
+                }
+        );
 
-        register("loadClass", (player, args) ->
+        register(
+                "resistcrowncontrol", (player, args) ->
 
-        {
-            final String classToLoad = args.getString(0);
-
-            if (classToLoad.isEmpty()) {
-                player.sendRichMessage("<dark_red>Missing class name!");
-                return;
-            }
-
-            player.sendRichMessage("<yellow>Loading class '%s'...".formatted(classToLoad));
-
-            try {
-                final Class<?> clazz = Class.forName(classToLoad);
-
-                player.sendRichMessage("<green>Loaded class '%s'!".formatted(clazz.getName()));
-            } catch (ClassNotFoundException e) {
-                player.sendRichMessage("<dark_red>No such class '%s'!".formatted(classToLoad));
-            }
-        });
-
-        register("testHealthTemper", (player, args) ->
-
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
-                        gp.sendMessage("Increase health!");
-                    });
-        });
-
-        register("testMongoSerialize", (player, args) ->
-
-        {
-            if (args.length == 0) {
-                final List<PunishmentReport> reports = AntiCheatCollection.get(player.getUniqueId());
-
-                player.sendMessage(CollectionUtils.wrapToString(reports));
-                return;
-            }
-
-            // deserialize
-            final HexID hexId = HexID.fromStringOrEmpty(args.getString(0));
-            final PunishmentReport report = AntiCheatCollection.get(hexId);
-
-            if (report == null) {
-                player.sendRichMessage("<rainbow:2>No such report!");
-                player.sendRichMessage("<rainbow:4>No such report!");
-                player.sendRichMessage("<rainbow:6>No such report!");
-                return;
-            }
-
-            player.sendMessage(report.toString());
-        });
-
-        register("testitemwithdefaultattributes", (player, args) ->
-
-        {
-            final Material material = args.get(0).toEnum(Material.class);
-            final boolean hideFlags = args.get(0).toBoolean();
-
-            final ItemBuilder builder = new ItemBuilder(material);
-
-            if (hideFlags) {
-                builder.hideFlag(ItemFlag.values());
-            }
-
-            player.getInventory().addItem(builder.toItemStack());
-        });
-
-
-        register("testoptional", (player, args) ->
-
-        {
-            final IOptional<Object> nullOptional = IOptional.of(null);
-            final IOptional<Player> playerOptional = IOptional.of(player);
-
-            nullOptional.ifPresent(__ -> {
-                player.sendMessage("nullOptional ifPresent");
-            }).orElse(() -> {
-                player.sendMessage("nullOptional orElse");
-            }).always(() -> {
-                player.sendMessage("nullOptional always");
-            });
-
-            playerOptional.ifPresent(__ -> {
-                player.sendMessage("playerOptional ifPresent");
-            }).orElse(() -> {
-                player.sendMessage("playerOptional orElse");
-            }).always(() -> {
-                player.sendMessage("playerOptional always");
-            });
-        });
-
-        register("resistcrowncontrol", (player, args) ->
-
-        {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gp -> {
-                        gp.sendMessage("resisted");
-                        gp.hasEffectResistanceAndNotify();
-                    });
-        });
+                {
+                    GamePlayer.getPlayerOptional(player)
+                            .ifPresent(gp -> {
+                                gp.sendMessage("resisted");
+                                gp.hasEffectResistanceAndNotify();
+                            });
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testCacheSet") {
 
@@ -787,43 +856,51 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("playMasteryLevelUpEffect", (player, args) ->
+        register(
+                "playMasteryLevelUpEffect", (player, args) ->
 
-        {
-            final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
-            final Hero hero = Manager.current().getSelectedLobbyHero(player);
-            final int level = entry.getLevel(hero);
+                {
+                    final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
+                    final Hero hero = Manager.current().getSelectedLobbyHero(player);
+                    final int level = entry.getLevel(hero);
 
-            entry.playMasteryLevelUpEffect(hero, Math.max(level - 1, 0), level);
-        });
+                    entry.playMasteryLevelUpEffect(hero, Math.max(level - 1, 0), level);
+                }
+        );
 
         register("masteryExp", (player, args) -> HeroMastery.dumpExpMap(player));
 
-        register("giveHideTooltipsItem", (player, args) ->
+        register(
+                "giveHideTooltipsItem", (player, args) ->
 
-        {
-            player.getInventory().addItem(new ItemBuilder(Material.IRON_PICKAXE).asIcon());
-        });
+                {
+                    player.getInventory().addItem(new ItemBuilder(Material.IRON_PICKAXE).asIcon());
+                }
+        );
 
-        register("showSeasonalDecoration", (player, args) ->
+        register(
+                "showSeasonalDecoration", (player, args) ->
 
-        {
-            final Season season = args.get(0).toEnum(Season.class);
+                {
+                    final Season season = args.get(0).toEnum(Season.class);
 
-            if (season == null) {
-                Notifier.error(player, "Invalid season!");
-                return;
-            }
+                    if (season == null) {
+                        Notifier.error(player, "Invalid season!");
+                        return;
+                    }
 
-            player.sendMessage(season.toString());
-        });
+                    player.sendMessage(season.toString());
+                }
+        );
 
-        register("nextNotification", (player, args) ->
+        register(
+                "nextNotification", (player, args) ->
 
-        {
-            player.sendMessage(ChatColor.YELLOW + "Triggered next notification!");
-            Main.getPlugin().getNotifier().run();
-        });
+                {
+                    player.sendMessage(ChatColor.YELLOW + "Triggered next notification!");
+                    Main.getPlugin().getNotifier().run();
+                }
+        );
 
         register(new SimplePlayerAdminCommand("invokePlayerMethod") {
 
@@ -883,279 +960,319 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        registerDebug("particleFollow", (player, args) ->
+        registerDebug(
+                "particleFollow", (player, args) ->
 
-        {
-            new EntityFollowingParticle(1, player.getLocation().add(0, 5, 0), player) {
-                @Override
-                public void draw(int tick, @Nonnull Location location) {
-                    PlayerLib.spawnParticle(location, Particle.FLAME, 1);
+                {
+                    new EntityFollowingParticle(1, player.getLocation().add(0, 5, 0), player) {
+                        @Override
+                        public void draw(int tick, @Nonnull Location location) {
+                            PlayerLib.spawnParticle(location, Particle.FLAME, 1);
+                        }
+                    }.runTaskTimer(0, 2);
                 }
-            }.runTaskTimer(0, 2);
-        });
+        );
 
-        registerDebug("maxChaosStacks", (player, args) ->
+        registerDebug(
+                "maxChaosStacks", (player, args) ->
 
-        {
-            final NyxData data = HeroRegistry.NYX.getPlayerData(player);
-            data.incrementChaosStacks(NyxData.MAX_CHAOS_STACKS);
+                {
+                    final NyxData data = HeroRegistry.NYX.getPlayerData(player);
+                    data.incrementChaosStacks(NyxData.MAX_CHAOS_STACKS);
 
-            player.sendMessage("&aDone!");
-        });
-
-        register("debugScript", (player, args) ->
-
-        {
-            final String id = args.getString(0);
-            final Script script = Scripts.byId(id);
-
-            if (script == null) {
-                Chat.sendMessage(player, "&cInvalid script!");
-                return;
-            }
-
-            final LinkedList<ScriptAction> actions = script.copyActions();
-
-            int index = 1;
-            ChatColor color = ChatColor.AQUA;
-
-            for (ScriptAction action : actions) {
-                Chat.sendMessage(player, "%s [%s] %s: %s".formatted(color, index++, action.getClass().getSimpleName(), action.toString()));
-
-                color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
-            }
-        });
-
-        register("clearGarbageEntities", (player, args) ->
-
-        {
-            final int cleared = SynchronizedGarbageEntityCollector.clearInAllWorlds();
-
-            Chat.sendMessage(player, "Removed %s entities.".formatted(cleared));
-        });
-
-        register("launchIcicles", (player, args) ->
-
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNo handle!");
-                return;
-            }
-
-            TalentRegistry.ICY_SHARDS.launchIcicles(gamePlayer);
-        });
-
-        register("toStringRarity", (player, args) ->
-
-        {
-            final Rarity rarity = args.get(0).toEnum(Rarity.class);
-            final String string = args.makeStringArray(1);
-
-            if (rarity == null) {
-                Chat.sendMessage(player, "&cInvalid rarity!");
-                return;
-            }
-
-            final String value = rarity.toString(string);
-
-            Chat.sendMessage(player, "&aOutput:");
-            Chat.sendMessage(player, value);
-        });
-
-        register("adminSkin", (player, args) ->
-
-        {
-            // adminSkin equip SKIN
-            // adminSkin set HERO SKIN
-            // adminSkin remove HERO SKIN
-            // adminSkin give HERO SKIN
-
-            if (args.length == 2 && args.getString(0).equalsIgnoreCase("equip")) {
-                final Skins skin = args.get(1).toEnum(Skins.class);
-
-                if (skin == null) {
-                    Notifier.error(player, "Invalid skin!");
-                    return;
+                    player.sendMessage("&aDone!");
                 }
+        );
 
-                skin.getSkin().equip(player);
-                Notifier.success(player, "Equipped {%s} skin!".formatted(skin.getSkin().getName()));
-                return;
-            }
+        register(
+                "debugScript", (player, args) ->
 
-            final String string = args.get(0).toString().toLowerCase();
-            final Hero hero = HeroRegistry.ofString(args.get(1).toString());
-            final Skins skin = args.get(2).toEnum(Skins.class);
+                {
+                    final String id = args.getString(0);
+                    final Script script = Scripts.byId(id);
 
-            final PlayerDatabase database = CF.getDatabase(player);
-            final SkinEntry skinEntry = database.skinEntry;
-
-            switch (string) {
-                case "set" -> {
-                    skinEntry.setSelected(hero, skin);
-
-                    Chat.sendMessage(player, "&aSet selected skin to %s.".formatted(skin));
-                }
-                case "remove" -> {
-                    if (skin == null) {
-                        Chat.sendMessage(player, "&cCannot remove null skin!");
+                    if (script == null) {
+                        Chat.sendMessage(player, "&cInvalid script!");
                         return;
                     }
 
-                    skinEntry.setOwned(skin, false);
-                    Chat.sendMessage(player, "&aRemove %s skin!".formatted(skin));
-                }
+                    final LinkedList<ScriptAction> actions = script.copyActions();
 
-                case "give" -> {
-                    if (skin == null) {
-                        Chat.sendMessage(player, "&cCannnot give null skin!");
+                    int index = 1;
+                    ChatColor color = ChatColor.AQUA;
+
+                    for (ScriptAction action : actions) {
+                        Chat.sendMessage(
+                                player,
+                                "%s [%s] %s: %s".formatted(color, index++, action.getClass().getSimpleName(), action.toString())
+                        );
+
+                        color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
+                    }
+                }
+        );
+
+        register(
+                "clearGarbageEntities", (player, args) ->
+
+                {
+                    final int cleared = SynchronizedGarbageEntityCollector.clearInAllWorlds();
+
+                    Chat.sendMessage(player, "Removed %s entities.".formatted(cleared));
+                }
+        );
+
+        register(
+                "launchIcicles", (player, args) ->
+
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNo handle!");
                         return;
                     }
 
-                    skinEntry.setOwned(skin, true);
-                    Chat.sendMessage(player, "&aGave %s skin!".formatted(skin));
+                    TalentRegistry.ICY_SHARDS.launchIcicles(gamePlayer);
                 }
+        );
+
+        register(
+                "toStringRarity", (player, args) ->
+
+                {
+                    final Rarity rarity = args.get(0).toEnum(Rarity.class);
+                    final String string = args.makeStringArray(1);
+
+                    if (rarity == null) {
+                        Chat.sendMessage(player, "&cInvalid rarity!");
+                        return;
+                    }
+
+                    final String value = rarity.toString(string);
+
+                    Chat.sendMessage(player, "&aOutput:");
+                    Chat.sendMessage(player, value);
+                }
+        );
+
+        register(
+                "adminSkin", (player, args) ->
+
+                {
+                    // adminSkin equip SKIN
+                    // adminSkin set HERO SKIN
+                    // adminSkin remove HERO SKIN
+                    // adminSkin give HERO SKIN
+
+                    if (args.length == 2 && args.getString(0).equalsIgnoreCase("equip")) {
+                        final Skins skin = args.get(1).toEnum(Skins.class);
+
+                        if (skin == null) {
+                            Notifier.error(player, "Invalid skin!");
+                            return;
+                        }
+
+                        skin.getSkin().equip(player);
+                        Notifier.success(player, "Equipped {%s} skin!".formatted(skin.getSkin().getName()));
+                        return;
+                    }
+
+                    final String string = args.get(0).toString().toLowerCase();
+                    final Hero hero = HeroRegistry.ofString(args.get(1).toString());
+                    final Skins skin = args.get(2).toEnum(Skins.class);
+
+                    final PlayerDatabase database = CF.getDatabase(player);
+                    final SkinEntry skinEntry = database.skinEntry;
+
+                    switch (string) {
+                        case "set" -> {
+                            skinEntry.setSelected(hero, skin);
+
+                            Chat.sendMessage(player, "&aSet selected skin to %s.".formatted(skin));
+                        }
+                        case "remove" -> {
+                            if (skin == null) {
+                                Chat.sendMessage(player, "&cCannot remove null skin!");
+                                return;
+                            }
+
+                            skinEntry.setOwned(skin, false);
+                            Chat.sendMessage(player, "&aRemove %s skin!".formatted(skin));
+                        }
+
+                        case "give" -> {
+                            if (skin == null) {
+                                Chat.sendMessage(player, "&cCannnot give null skin!");
+                                return;
+                            }
+
+                            skinEntry.setOwned(skin, true);
+                            Chat.sendMessage(player, "&aGave %s skin!".formatted(skin));
+                        }
+                    }
+                }
+        );
+
+        register(
+                "awardMe", (player, args) ->
+
+                {
+                    final Award award = args.get(0).toEnum(Award.class);
+
+                    if (award == null) {
+                        Chat.sendMessage(player, "&cInvalid award!");
+                        return;
+                    }
+
+                    award.award(CF.getProfile(player));
+                }
+        );
+
+        register(new SimpleAdminCommand("allowEveryoneGoldenGg") {
+            @Override
+            protected void execute(CommandSender sender, String[] args) {
+                Manager.current().allowEveryoneGoldenGg();
+                Chat.sendMessage(sender, "&6Done!");
             }
         });
 
-        register("awardMe", (player, args) ->
+        register(
+                "resetBonds", (player, args) ->
 
-        {
-            final Award award = args.get(0).toEnum(Award.class);
+                {
+                    CF.getProfile(player).getChallengeList().resetBonds();
+                }
+        );
 
-            if (award == null) {
-                Chat.sendMessage(player, "&cInvalid award!");
-                return;
-            }
+        register(
+                "progressChallenge", (player, args) ->
 
-            award.award(CF.getProfile(player));
-        });
+                {
+                    final ChallengeType type = args.get(0).toEnum(ChallengeType.class);
 
-        register("allowMeToGoldenGg", (player, args) -> {
-            Manager.current().allowGoldenGg(player);
-            Chat.sendMessage(player, "&6Done!");
-        });
+                    if (type == null) {
+                        Chat.sendMessage(player, "&cInvalid type!");
+                        return;
+                    }
 
-        register("resetBonds", (player, args) ->
+                    final PlayerProfile profile = CF.getProfile(player);
+                    final PlayerChallengeList challengeList = profile.getChallengeList();
 
-        {
-            CF.getProfile(player).getChallengeList().resetBonds();
-        });
+                    if (!challengeList.hasOfType(type)) {
+                        Chat.sendMessage(player, "&cYou don't have %s challenge!".formatted(type));
+                        return;
+                    }
 
-        register("progressChallenge", (player, args) ->
+                    type.progress(profile);
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
-        {
-            final ChallengeType type = args.get(0).toEnum(ChallengeType.class);
+        register(
+                "stopGuessWho", (player, args) ->
 
-            if (type == null) {
-                Chat.sendMessage(player, "&cInvalid type!");
-                return;
-            }
+                {
+                    Manager.current().stopGuessWhoGame();
+                }
+        );
 
-            final PlayerProfile profile = CF.getProfile(player);
-            final PlayerChallengeList challengeList = profile.getChallengeList();
+        register(
+                "spawnBlastPackWallEntity", (player, args) ->
 
-            if (!challengeList.hasOfType(type)) {
-                Chat.sendMessage(player, "&cYou don't have %s challenge!".formatted(type));
-                return;
-            }
+                {
+                    final float yaw = args.get(0).toFloat();
+                    final float pitch = args.get(1).toFloat();
 
-            type.progress(profile);
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    final Location location = player.getLocation();
+                    location.setYaw(yaw);
+                    location.setPitch(pitch);
 
-        register("stopGuessWho", (player, args) ->
+                    final DisplayEntity entity = BlastPackEntity.data.spawn(location);
 
-        {
-            Manager.current().stopGuessWhoGame();
-        });
+                    Chat.sendMessage(player, "&aSpawned with %s yaw and %s pitch!".formatted(yaw, pitch));
+                }
+        );
 
-        register("spawnBlastPackWallEntity", (player, args) ->
+        register(
+                "debugCosmetic", (player, args) ->
 
-        {
-            final float yaw = args.get(0).toFloat();
-            final float pitch = args.get(1).toFloat();
+                {
+                    final Cosmetic cosmetic = Registries.getCosmetics().get(args.getString(0));
 
-            final Location location = player.getLocation();
-            location.setYaw(yaw);
-            location.setPitch(pitch);
+                    if (cosmetic == null) {
+                        Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
+                        return;
+                    }
 
-            final DisplayEntity entity = BlastPackEntity.data.spawn(location);
+                    Chat.sendMessage(player, "&bKey: " + cosmetic.getKey());
+                    Chat.sendMessage(player, "&3Class: " + cosmetic.getClass().getSimpleName());
+                    Chat.sendMessage(player, "&bIs Valid: " + cosmetic.isNotDisabledNorExclusive());
+                    Chat.sendMessage(player, "&3Name: " + cosmetic.getName());
+                    Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
+                    Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
+                    Chat.sendMessage(player, "&bIs Exclusive: " + cosmetic.isExclusive());
+                    Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof Disabled));
+                }
+        );
 
-            Chat.sendMessage(player, "&aSpawned with %s yaw and %s pitch!".formatted(yaw, pitch));
-        });
+        register(
+                "later", (player, args) ->
 
-        register("debugCosmetic", (player, args) ->
+                {
+                    final int delay = args.get(0).toInt();
+                    final String command = Chat.arrayToString(args.array, 1);
 
-        {
-            final Cosmetic cosmetic = Registries.getCosmetics().get(args.getString(0));
+                    if (command.contains("later")) {
+                        Chat.sendMessage(player, "&cThis command is not allowed to be scheduled.");
+                        return;
+                    }
 
-            if (cosmetic == null) {
-                Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
-                return;
-            }
+                    if (delay <= 0) {
+                        Chat.sendMessage(player, "&cDelay cannot be negative or 0.");
+                        return;
+                    }
 
-            Chat.sendMessage(player, "&bKey: " + cosmetic.getKey());
-            Chat.sendMessage(player, "&3Class: " + cosmetic.getClass().getSimpleName());
-            Chat.sendMessage(player, "&bIs Valid: " + cosmetic.isNotDisabledNorExclusive());
-            Chat.sendMessage(player, "&3Name: " + cosmetic.getName());
-            Chat.sendMessage(player, "&bRarity: " + cosmetic.getRarity());
-            Chat.sendMessage(player, "&3Type: " + cosmetic.getType());
-            Chat.sendMessage(player, "&bIs Exclusive: " + cosmetic.isExclusive());
-            Chat.sendMessage(player, "&3Is Disabled: " + (cosmetic instanceof Disabled));
-        });
+                    Chat.sendMessage(player, "&aRunning '%s' in %s ticks.".formatted(command, delay));
 
-        register("later", (player, args) ->
+                    GameTask.runLater(
+                            () -> {
+                                player.performCommand(command);
 
-        {
-            final int delay = args.get(0).toInt();
-            final String command = Chat.arrayToString(args.array, 1);
+                                Chat.sendMessage(player, "&aRan '%s'!".formatted(command));
+                            }, delay
+                    );
+                }
+        );
 
-            if (command.contains("later")) {
-                Chat.sendMessage(player, "&cThis command is not allowed to be scheduled.");
-                return;
-            }
+        register(
+                "stunMe", (player, args) ->
 
-            if (delay <= 0) {
-                Chat.sendMessage(player, "&cDelay cannot be negative or 0.");
-                return;
-            }
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
+                    final int duration = args.get(0).toInt(30);
 
-            Chat.sendMessage(player, "&aRunning '%s' in %s ticks.".formatted(command, delay));
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNo handle.");
+                        return;
+                    }
 
-            GameTask.runLater(() -> {
-                player.performCommand(command);
+                    TalentRegistry.AKCIY.stun(gamePlayer, gamePlayer, duration);
+                    Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
+                }
+        );
 
-                Chat.sendMessage(player, "&aRan '%s'!".formatted(command));
-            }, delay);
-        });
+        register(
+                "anchorMe", (player, args) ->
 
-        register("stunMe", (player, args) ->
+                {
+                    final Location location = BukkitUtils.anchorLocation(player.getLocation());
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
-            final int duration = args.get(0).toInt(30);
+                    player.teleport(location);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNo handle.");
-                return;
-            }
-
-            TalentRegistry.AKCIY.stun(gamePlayer, gamePlayer, duration);
-            Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
-        });
-
-        register("anchorMe", (player, args) ->
-
-        {
-            final Location location = BukkitUtils.anchorLocation(player.getLocation());
-
-            player.teleport(location);
-
-            PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
-        });
+                    PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
+                }
+        );
 
         register(new SimplePlayerCommand("teammsg") {
             @Override
@@ -1165,84 +1282,94 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("scaleAttribute", (player, args) ->
+        register(
+                "scaleAttribute", (player, args) ->
 
-        {
-            final AttributeType attribute = args.get(0).toEnum(AttributeType.class);
-            final double value = args.get(1).toDouble();
-            final String operation = args.get(2).toString();
+                {
+                    final AttributeType attribute = args.get(0).toEnum(AttributeType.class);
+                    final double value = args.get(1).toDouble();
+                    final String operation = args.get(2).toString();
 
-            if (attribute == null) {
-                Chat.sendMessage(player, "&cInvalid attribute!");
-                return;
-            }
+                    if (attribute == null) {
+                        Chat.sendMessage(player, "&cInvalid attribute!");
+                        return;
+                    }
 
-            switch (operation.toLowerCase()) {
-                case "up" -> {
-                    final double scaled = attribute.scaleUp(value);
+                    switch (operation.toLowerCase()) {
+                        case "up" -> {
+                            final double scaled = attribute.scaleUp(value);
 
-                    Chat.sendMessage(player, "&aScaled value: " + scaled);
+                            Chat.sendMessage(player, "&aScaled value: " + scaled);
+                        }
+                        case "down" -> {
+                            final double scaled = attribute.scaleDown(value);
+
+                            Chat.sendMessage(player, "&aScaled value: " + scaled);
+                        }
+                        default -> {
+                            Chat.sendMessage(player, "&cInvalid operation! Must be either 'up' or 'down', not " + operation + "!");
+                        }
+                    }
                 }
-                case "down" -> {
-                    final double scaled = attribute.scaleDown(value);
+        );
 
-                    Chat.sendMessage(player, "&aScaled value: " + scaled);
+        register(
+                "damageMeDaddy", (player, args) ->
+
+                {
+                    final double damage = args.get(0).toDouble();
+                    final EnumDamageCause cause = args.get(1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
+
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
+
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&c⊬↸⚍⚐⚙ \uD801\uDC69⚍ \uD801\uDC69↸⚐⍀!");
+                        return;
+                    }
+
+                    gamePlayer.damage(damage, cause);
+                    gamePlayer.sendMessage("&a⚑↸⚑⍀⚐⚐⚍⚑⚙!");
                 }
-                default -> {
-                    Chat.sendMessage(player, "&cInvalid operation! Must be either 'up' or 'down', not " + operation + "!");
+        );
+
+        register(
+                "debugDamageCause", (player, args) ->
+
+                {
+                    final EnumDamageCause cause = args.get(0).toEnum(EnumDamageCause.class);
+
+                    if (cause == null) {
+                        Chat.sendMessage(player, "&cInvalid cause!");
+                        return;
+                    }
+
+                    Chat.sendMessage(player, "Name: " + cause.name());
+                    Chat.sendMessage(player, "Flags:");
+
+                    cause.getFlags().forEach(flag -> {
+                        Chat.sendMessage(player, "+ " + flag.name());
+                    });
+
                 }
-            }
-        });
+        );
 
-        register("damageMeDaddy", (player, args) ->
+        register(
+                "calculateGlobalStats", (player, args) ->
 
-        {
-            final double damage = args.get(0).toDouble();
-            final EnumDamageCause cause = args.get(1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
+                {
+                    HeroRegistry.calculateGlobalStats();
 
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&c⊬↸⚍⚐⚙ \uD801\uDC69⚍ \uD801\uDC69↸⚐⍀!");
-                return;
-            }
+        register(
+                "promptHeroRate", (player, args) ->
 
-            gamePlayer.damage(damage, cause);
-            gamePlayer.sendMessage("&a⚑↸⚑⍀⚐⚐⚍⚑⚙!");
-        });
-
-        register("debugDamageCause", (player, args) ->
-
-        {
-            final EnumDamageCause cause = args.get(0).toEnum(EnumDamageCause.class);
-
-            if (cause == null) {
-                Chat.sendMessage(player, "&cInvalid cause!");
-                return;
-            }
-
-            Chat.sendMessage(player, "Name: " + cause.name());
-            Chat.sendMessage(player, "Flags:");
-
-            cause.getFlags().forEach(flag -> {
-                Chat.sendMessage(player, "+ " + flag.name());
-            });
-
-        });
-
-        register("calculateGlobalStats", (player, args) ->
-
-        {
-            HeroRegistry.calculateGlobalStats();
-
-            Chat.sendMessage(player, "&aDone!");
-        });
-
-        register("promptHeroRate", (player, args) ->
-
-        {
-            RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, Manager.current().getSelectedLobbyHero(player));
-        });
+                {
+                    RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, Manager.current().getSelectedLobbyHero(player));
+                }
+        );
 
         register(new SimplePlayerAdminCommand("adminRateHero") {
             @Override
@@ -1270,44 +1397,48 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final HeroStatsCollection stats = hero.getStats();
+                final HeroStatsAsynchronousDocument stats = hero.getStats();
                 final PlayerRating averageRating = stats.getAverageRating();
 
                 Chat.sendMessage(player, "%s's average rating is: %s".formatted(hero.getName(), averageRating));
             }
         });
 
-        register("testLosBlocks", (player, args) ->
+        register(
+                "testLosBlocks", (player, args) ->
 
-        {
-            final RayTraceResult result = player.rayTraceBlocks(50);
-            final org.bukkit.entity.Entity hitEntity = result.getHitEntity();
-            final LivingGameEntity entity = CF.getEntity(hitEntity);
+                {
+                    final RayTraceResult result = player.rayTraceBlocks(50);
+                    final org.bukkit.entity.Entity hitEntity = result.getHitEntity();
+                    final LivingGameEntity entity = CF.getEntity(hitEntity);
 
-            if (hitEntity == null) {
-                Chat.sendMessage(player, "&cNo entity hit!");
-                return;
-            }
+                    if (hitEntity == null) {
+                        Chat.sendMessage(player, "&cNo entity hit!");
+                        return;
+                    }
 
-            Chat.sendMessage(player, "&aHit: " + entity.toString());
-        });
+                    Chat.sendMessage(player, "&aHit: " + entity.toString());
+                }
+        );
 
-        register("testContributors", (player, args) ->
+        register(
+                "testContributors", (player, args) ->
 
-        {
-            final List<Contributor> contributors = Contributors.getContributors();
+                {
+                    final List<Contributor> contributors = Contributors.getContributors();
 
-            if (contributors.isEmpty()) {
-                Chat.sendMessage(player, "&cStill loading!");
-                return;
-            }
+                    if (contributors.isEmpty()) {
+                        Chat.sendMessage(player, "&cStill loading!");
+                        return;
+                    }
 
-            Chat.sendMessage(player, "&aContributors:");
+                    Chat.sendMessage(player, "&aContributors:");
 
-            for (Contributor contributor : contributors) {
-                Chat.sendMessage(player, contributor.toString());
-            }
-        });
+                    for (Contributor contributor : contributors) {
+                        Chat.sendMessage(player, contributor.toString());
+                    }
+                }
+        );
 
         register(new SimplePlayerCommand("delivery") {
             @Override
@@ -1316,27 +1447,31 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("spawnEntityWithGameEffects", (player, args) ->
+        register(
+                "spawnEntityWithGameEffects", (player, args) ->
 
-        {
-            LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
+                {
+                    LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
-            entity.addEffect(Effects.IMMOVABLE, 10000, true);
-        });
+                    entity.addEffect(Effects.IMMOVABLE, 10000, true);
+                }
+        );
 
-        register("whenLastMoved", (player, args) ->
+        register(
+                "whenLastMoved", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNot in a game.");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNot in a game.");
+                        return;
+                    }
 
-            gamePlayer.sendMessage("Mouse=" + MoveType.MOUSE.getLastMoved(gamePlayer));
-            gamePlayer.sendMessage("Keyboard=" + MoveType.KEYBOARD.getLastMoved(gamePlayer));
-        });
+                    gamePlayer.sendMessage("Mouse=" + MoveType.MOUSE.getLastMoved(gamePlayer));
+                    gamePlayer.sendMessage("Keyboard=" + MoveType.KEYBOARD.getLastMoved(gamePlayer));
+                }
+        );
 
         register(new SimplePlayerAdminCommand("resetMetadata") {
             @Override
@@ -1433,39 +1568,47 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAnchor", (player, args) ->
+        register(
+                "testAnchor", (player, args) ->
 
-        {
-            final Location location = BukkitUtils.findRandomLocationAround(player.getLocation(), 5.0d);
+                {
+                    final Location location = BukkitUtils.findRandomLocationAround(player.getLocation(), 5.0d);
 
-            player.teleport(location);
-            Debug.info(BukkitUtils.locationToString(location));
-        });
+                    player.teleport(location);
+                    Debug.info(BukkitUtils.locationToString(location));
+                }
+        );
 
-        register("spawnMoonwalkerBlob", (player, args) ->
+        register(
+                "spawnMoonwalkerBlob", (player, args) ->
 
-        {
-            HeroRegistry.MOONWALKER.getUltimate().createBlob(player.getLocation(), false);
-        });
+                {
+                    HeroRegistry.MOONWALKER.getUltimate().createBlob(player.getLocation(), false);
+                }
+        );
 
-        register("whoami", (player, args) ->
+        register(
+                "whoami", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cYou are not in a game!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cYou are not in a game!");
+                        return;
+                    }
 
-            gamePlayer.sendMessage("Your state: " + gamePlayer.getState());
-        });
+                    gamePlayer.sendMessage("Your state: " + gamePlayer.getState());
+                }
+        );
 
-        register("forceAutoSyncDatabase", (player, args) ->
+        register(
+                "forceAutoSyncDatabase", (player, args) ->
 
-        {
-            Manager.current().getAutoSave().save();
-        });
+                {
+                    Manager.current().getAutoSave().save();
+                }
+        );
 
         register(new SimplePlayerAdminCommand("hex") {
             @Override
@@ -1593,15 +1736,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 for (int i = 0; i < blockCount; i++) {
                     boolean glow = i % 2 == 0;
-                    blocks.add(Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
-                        self.setSilent(true);
-                        self.setInvisible(true);
-                        self.setGravity(false);
-                        self.setHelmet(new ItemStack(Material.STONE));
-                        if (glow) {
-                            self.setGlowing(true);
-                        }
-                    }));
+                    blocks.add(Entities.ARMOR_STAND_MARKER.spawn(
+                            location, self -> {
+                                self.setSilent(true);
+                                self.setInvisible(true);
+                                self.setGravity(false);
+                                self.setHelmet(new ItemStack(Material.STONE));
+                                if (glow) {
+                                    self.setGlowing(true);
+                                }
+                            }
+                    ));
                 }
 
                 final double spread = Math.PI * 2 / Math.max(blockCount, 1);
@@ -1636,15 +1781,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("clearCachedTalentItems", (player, args) ->
+        register(
+                "clearCachedTalentItems", (player, args) ->
 
-        {
-            TalentRegistry.values().forEach(talent -> {
-                talent.nullifyItem();
-            });
+                {
+                    TalentRegistry.values().forEach(talent -> {
+                        talent.nullifyItem();
+                    });
 
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testTalentLock") {
             @Override
@@ -1689,11 +1836,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                display = Entities.BLOCK_DISPLAY.spawn(player.getLocation(), self -> {
-                    self.setBlock(Material.STONE.createBlockData());
-                    //self.setItemStack(ItemBuilder.playerHeadUrl("f4cabec18394f48191526d9059e458e0116fe84b79c645ca54649377b68f543b")
-                    //        .asIcon());
-                });
+                display = Entities.BLOCK_DISPLAY.spawn(
+                        player.getLocation(), self -> {
+                            self.setBlock(Material.STONE.createBlockData());
+                            //self.setItemStack(ItemBuilder.playerHeadUrl("f4cabec18394f48191526d9059e458e0116fe84b79c645ca54649377b68f543b")
+                            //        .asIcon());
+                        }
+                );
 
                 display.setInterpolationDuration(100);
                 display.setInterpolationDelay(0);
@@ -1764,28 +1913,34 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("viewLegacyAchievementGUI", (player, args) ->
+        register(
+                "viewLegacyAchievementGUI", (player, args) ->
 
-        {
-            new LegacyAchievementGUI(player);
-        });
+                {
+                    new LegacyAchievementGUI(player);
+                }
+        );
 
-        register("getLobbyItems", (player, args) ->
+        register(
+                "getLobbyItems", (player, args) ->
 
-        {
-            LobbyItems.giveAll(player);
-            Chat.sendMessage(player, "&aThere you go!");
-        });
+                {
+                    LobbyItems.giveAll(player);
+                    Chat.sendMessage(player, "&aThere you go!");
+                }
+        );
 
-        register("startAndCancelCountdown", (player, args) ->
+        register(
+                "startAndCancelCountdown", (player, args) ->
 
-        {
-            final Manager manager = Manager.current();
-            manager.createStartCountdown(DebugData.FORCE);
-            manager.stopStartCountdown(player);
+                {
+                    final Manager manager = Manager.current();
+                    manager.createStartCountdown();
+                    manager.stopStartCountdown(player);
 
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("entity") {
             @Override
@@ -1809,22 +1964,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testKnockback360", (player, args) -> {
-            final TickingGameTask task = new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick >= 360) {
-                        Chat.sendMessage(player, "&aFinished!");
-                        cancel();
-                        return;
-                    }
+        register(
+                "testKnockback360", (player, args) -> {
+                    final TickingGameTask task = new TickingGameTask() {
+                        @Override
+                        public void run(int tick) {
+                            if (tick >= 360) {
+                                Chat.sendMessage(player, "&aFinished!");
+                                cancel();
+                                return;
+                            }
 
-                    player.sendHurtAnimation(tick);
+                            player.sendHurtAnimation(tick);
+                        }
+                    };
+                    task.setIncrement(15);
+                    task.runTaskTimer(0, 1);
                 }
-            };
-            task.setIncrement(15);
-            task.runTaskTimer(0, 1);
-        });
+        );
 
         register(new SimplePlayerAdminCommand("testGuardianBeams") {
 
@@ -1875,22 +2032,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("damageSelf", (player, args) ->
+        register(
+                "damageSelf", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNo handle!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNo handle!");
+                        return;
+                    }
 
-            final double damage = args.get(0).toDouble(1.0d);
+                    final double damage = args.get(0).toDouble(1.0d);
 
-            gamePlayer.setLastDamager(gamePlayer);
-            gamePlayer.damage(damage, EnumDamageCause.ENTITY_ATTACK);
-            Chat.sendMessage(player, "&aDamaged!");
-        });
+                    gamePlayer.setLastDamager(gamePlayer);
+                    gamePlayer.damage(damage, EnumDamageCause.ENTITY_ATTACK);
+                    Chat.sendMessage(player, "&aDamaged!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testBatCloud") {
 
@@ -1911,91 +2070,95 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("deleteGamePlayer", (player, args) ->
+        register(
+                "deleteGamePlayer", (player, args) ->
 
-        {
-            final PlayerProfile profile = CF.getProfile(player);
-            if (profile == null) {
-                return;
-            }
-
-            profile.resetGamePlayer();
-            Chat.sendMessage(player, "&aDone!");
-        });
-
-        register("dumpColor", (player, args) ->
-
-        {
-            final ItemStack item = player.getInventory().getItemInMainHand();
-            final ItemMeta meta = item.getItemMeta();
-
-            final StringBuilder commandCopy = new StringBuilder();
-            final net.kyori.adventure.text.TextComponent.Builder component = Component.text();
-
-            org.bukkit.Color color = null;
-            ArmorTrim trim = null;
-
-            if (meta instanceof LeatherArmorMeta colorMeta) {
-                color = colorMeta.getColor();
-                final int red = color.getRed();
-                final int green = color.getGreen();
-                final int blue = color.getBlue();
-
-                commandCopy.append(red).append(", ").append(green).append(", ").append(blue);
-                component.append(
-                        Component.text("Color: ").color(NamedTextColor.GREEN),
-                        Component.text("⬛⬛⬛").color(TextColor.color(color.asRGB()))
-                );
-            }
-
-            if (meta instanceof ArmorMeta armorMeta) {
-                trim = armorMeta.getTrim();
-
-                if (trim != null) {
-                    final TrimPattern pattern = trim.getPattern();
-                    final TrimMaterial material = trim.getMaterial();
-
-                    final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
-                    final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
-
-                    if (color != null) { // add comma YEP
-                        commandCopy.append(", ");
-                        component.append(Component.text(", ").color(NamedTextColor.GRAY));
+                {
+                    final PlayerProfile profile = CF.getProfile(player);
+                    if (profile == null) {
+                        return;
                     }
 
-                    commandCopy.append("TrimPattern.").append(patternKey).append(", TrimMaterial.").append(materialKey);
-                    component.append(
-                            Component.text("Trim: ").color(NamedTextColor.AQUA),
-                            Component.text("%s, %s".formatted(
-                                            KeyedToString.of(trim.getPattern())
-                                                    .stripMinecraft()
-                                                    .capitalize()
-                                                    .toString(),
-                                            KeyedToString.of(trim.getMaterial())
-                                                    .stripMinecraft()
-                                                    .capitalize()
-                                                    .toString()
-                                    ))
-                                    .color(NamedTextColor.DARK_AQUA)
-                    );
+                    profile.resetGamePlayer();
+                    Chat.sendMessage(player, "&aDone!");
                 }
-            }
+        );
 
-            if (commandCopy.isEmpty()) {
-                Chat.sendMessage(player, "&cNo color nor trim applied to this item!");
-                return;
-            }
+        register(
+                "dumpColor", (player, args) ->
 
-            component.append(Component.text(" "))
-                    .append(Component.text("COPY")
-                            .color(NamedTextColor.GOLD)
-                            .decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
-                            .hoverEvent(Component.text("Click to copy!").color(NamedTextColor.YELLOW))
-                            .clickEvent(ClickEvent.suggestCommand(commandCopy.toString()))
-                    );
+                {
+                    final ItemStack item = player.getInventory().getItemInMainHand();
+                    final ItemMeta meta = item.getItemMeta();
 
-            player.sendMessage(component);
-        });
+                    final StringBuilder commandCopy = new StringBuilder();
+                    final net.kyori.adventure.text.TextComponent.Builder component = Component.text();
+
+                    org.bukkit.Color color = null;
+                    ArmorTrim trim = null;
+
+                    if (meta instanceof LeatherArmorMeta colorMeta) {
+                        color = colorMeta.getColor();
+                        final int red = color.getRed();
+                        final int green = color.getGreen();
+                        final int blue = color.getBlue();
+
+                        commandCopy.append(red).append(", ").append(green).append(", ").append(blue);
+                        component.append(
+                                Component.text("Color: ").color(NamedTextColor.GREEN),
+                                Component.text("⬛⬛⬛").color(TextColor.color(color.asRGB()))
+                        );
+                    }
+
+                    if (meta instanceof ArmorMeta armorMeta) {
+                        trim = armorMeta.getTrim();
+
+                        if (trim != null) {
+                            final TrimPattern pattern = trim.getPattern();
+                            final TrimMaterial material = trim.getMaterial();
+
+                            final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
+                            final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
+
+                            if (color != null) { // add comma YEP
+                                commandCopy.append(", ");
+                                component.append(Component.text(", ").color(NamedTextColor.GRAY));
+                            }
+
+                            commandCopy.append("TrimPattern.").append(patternKey).append(", TrimMaterial.").append(materialKey);
+                            component.append(
+                                    Component.text("Trim: ").color(NamedTextColor.AQUA),
+                                    Component.text("%s, %s".formatted(
+                                                    KeyedToString.of(trim.getPattern())
+                                                            .stripMinecraft()
+                                                            .capitalize()
+                                                            .toString(),
+                                                    KeyedToString.of(trim.getMaterial())
+                                                            .stripMinecraft()
+                                                            .capitalize()
+                                                            .toString()
+                                            ))
+                                            .color(NamedTextColor.DARK_AQUA)
+                            );
+                        }
+                    }
+
+                    if (commandCopy.isEmpty()) {
+                        Chat.sendMessage(player, "&cNo color nor trim applied to this item!");
+                        return;
+                    }
+
+                    component.append(Component.text(" "))
+                            .append(Component.text("COPY")
+                                    .color(NamedTextColor.GOLD)
+                                    .decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
+                                    .hoverEvent(Component.text("Click to copy!").color(NamedTextColor.YELLOW))
+                                    .clickEvent(ClickEvent.suggestCommand(commandCopy.toString()))
+                            );
+
+                    player.sendMessage(component);
+                }
+        );
 
         register(new SwiftTeleportCommand());
 
@@ -2014,26 +2177,30 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("debugCollection", (player, args) ->
+        register(
+                "debugCollection", (player, args) ->
 
-        {
-            final CosmeticCollection collection = args.get(0).toEnum(CosmeticCollection.class);
+                {
+                    final CosmeticCollection collection = args.get(0).toEnum(CosmeticCollection.class);
 
-            if (collection == null) {
-                Notifier.error(player, "Invalid collection.");
-                return;
-            }
+                    if (collection == null) {
+                        Notifier.error(player, "Invalid collection.");
+                        return;
+                    }
 
-            Notifier.info(player, collection.getItems().toString());
-        });
+                    Notifier.info(player, collection.getItems().toString());
+                }
+        );
 
-        register("debugExpTreeMap", (player, args) ->
+        register(
+                "debugExpTreeMap", (player, args) ->
 
-        {
-            final Experience experience = Main.getPlugin().getExperience();
+                {
+                    final Experience experience = Main.getPlugin().getExperience();
 
-            experience.getLevelEnoughExp(10000);
-        });
+                    experience.getLevelEnoughExp(10000);
+                }
+        );
 
         register(new SkinCommand());
 
@@ -2054,26 +2221,30 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("cstr", (player, args) ->
+        register(
+                "cstr", (player, args) ->
 
-        {
-            final String string = Chat.arrayToString(args.array, 0);
+                {
+                    final String string = Chat.arrayToString(args.array, 0);
 
-            Chat.sendCenterMessage(player, string);
-        });
+                    Chat.sendCenterMessage(player, string);
+                }
+        );
 
-        register("debugCrate", (player, args) ->
+        register(
+                "debugCrate", (player, args) ->
 
-        {
-            final Crates crate = args.get(0).toEnum(Crates.class);
+                {
+                    final Crates crate = args.get(0).toEnum(Crates.class);
 
-            if (crate == null) {
-                Notifier.error(player, "Cannot find crate named {%s}.".formatted(args.getString(0)));
-                return;
-            }
+                    if (crate == null) {
+                        Notifier.error(player, "Cannot find crate named {%s}.".formatted(args.getString(0)));
+                        return;
+                    }
 
-            Notifier.info(player, crate.getCrate().toString());
-        });
+                    Notifier.info(player, crate.getCrate().toString());
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testOrbiting") {
             private Orbiting orbiting;
@@ -2141,68 +2312,74 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("dumpEntities", (player, args) ->
+        register(
+                "dumpEntities", (player, args) ->
 
-        {
-            final Set<GameEntity> entities = CF.getEntities();
+                {
+                    final Set<GameEntity> entities = CF.getEntities();
 
-            Chat.sendMessage(player, "&aEntity Dump (%s)".formatted(entities.size()));
+                    Chat.sendMessage(player, "&aEntity Dump (%s)".formatted(entities.size()));
 
-            boolean lighterColor = true;
-            for (GameEntity entity : entities) {
-                final String className = entity.getClass().getSimpleName();
-                final String name = entity.getName();
+                    boolean lighterColor = true;
+                    for (GameEntity entity : entities) {
+                        final String className = entity.getClass().getSimpleName();
+                        final String name = entity.getName();
 
-                Chat.sendMessage(player, (lighterColor ? "&b " : "&3 ") + className + ":" + name);
-                lighterColor = !lighterColor;
+                        Chat.sendMessage(player, (lighterColor ? "&b " : "&3 ") + className + ":" + name);
+                        lighterColor = !lighterColor;
 
-                // Glow duh
-                if (entity instanceof LivingGameEntity livingGameEntity) {
-                    livingGameEntity.addEffect(Effects.GLOWING, 60);
+                        // Glow duh
+                        if (entity instanceof LivingGameEntity livingGameEntity) {
+                            livingGameEntity.addEffect(Effects.GLOWING, 60);
+                        }
+                    }
                 }
-            }
-        });
+        );
 
-        register("rechargeIron", (player, args) ->
+        register(
+                "rechargeIron", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNot in a game!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNot in a game!");
+                        return;
+                    }
 
-            HeroRegistry.ENGINEER.getPlayerData(gamePlayer).setIron(100);
-            Chat.sendMessage(player, "&aRecharged!");
-        });
+                    HeroRegistry.ENGINEER.getPlayerData(gamePlayer).setIron(100);
+                    Chat.sendMessage(player, "&aRecharged!");
+                }
+        );
 
-        register("setHeroSkin", (player, args) ->
+        register(
+                "setHeroSkin", (player, args) ->
 
-        {
-            if (args.length == 0) {
-                CF.getProfile(player).resetSkin();
-                Chat.sendMessage(player, "&eReset!");
-                return;
-            }
+                {
+                    if (args.length == 0) {
+                        CF.getProfile(player).resetSkin();
+                        Chat.sendMessage(player, "&eReset!");
+                        return;
+                    }
 
-            final Hero hero = HeroRegistry.ofStringOrNull(args.getString(0));
+                    final Hero hero = HeroRegistry.ofStringOrNull(args.getString(0));
 
-            if (hero == null) {
-                Chat.sendMessage(player, "&cInvalid skin!");
-                return;
-            }
+                    if (hero == null) {
+                        Chat.sendMessage(player, "&cInvalid skin!");
+                        return;
+                    }
 
-            final PlayerSkin skin = hero.getSkin();
+                    final PlayerSkin skin = hero.getSkin();
 
-            if (skin == null) {
-                Chat.sendMessage(player, "&cThis hero doesn't have a skin!");
-                return;
-            }
+                    if (skin == null) {
+                        Chat.sendMessage(player, "&cThis hero doesn't have a skin!");
+                        return;
+                    }
 
-            skin.apply(player);
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    skin.apply(player);
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testLaunchProjectile") {
             @Override
@@ -2244,21 +2421,23 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAddSucculence", (player, args) ->
+        register(
+                "testAddSucculence", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cNo handle.");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cNo handle.");
+                        return;
+                    }
 
-            final BloodfiendData data = HeroRegistry.BLOODFIEND.getData(gamePlayer);
+                    final BloodfiendData data = HeroRegistry.BLOODFIEND.getData(gamePlayer);
 
-            data.addSucculence(gamePlayer);
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    data.addSucculence(gamePlayer);
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("debugCooldown") {
             @Override
@@ -2312,79 +2491,90 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testTransformationRotation", (player, args) ->
+        register(
+                "testTransformationRotation", (player, args) ->
 
-        {
-            if (args.length != 8) {
-                Chat.sendMessage(
-                        player,
-                        "&cInvalid usage! /testTransformationRotation (double0) (double1) (double2) (double3) (double4) (double5) (double6) (double7)"
-                );
-                return;
-            }
+                {
+                    if (args.length != 8) {
+                        Chat.sendMessage(
+                                player,
+                                "&cInvalid usage! /testTransformationRotation (double0) (double1) (double2) (double3) (double4) (double5) (double6) (double7)"
+                        );
+                        return;
+                    }
 
-            final double a = Numbers.getDouble(args.array[0]);
-            final double b = Numbers.getDouble(args.array[1]);
-            final double c = Numbers.getDouble(args.array[2]);
-            final double d = Numbers.getDouble(args.array[3]);
+                    final double a = Numbers.getDouble(args.array[0]);
+                    final double b = Numbers.getDouble(args.array[1]);
+                    final double c = Numbers.getDouble(args.array[2]);
+                    final double d = Numbers.getDouble(args.array[3]);
 
-            final double e = Numbers.getDouble(args.array[4]);
-            final double f = Numbers.getDouble(args.array[5]);
-            final double g = Numbers.getDouble(args.array[6]);
-            final double h = Numbers.getDouble(args.array[7]);
+                    final double e = Numbers.getDouble(args.array[4]);
+                    final double f = Numbers.getDouble(args.array[5]);
+                    final double g = Numbers.getDouble(args.array[6]);
+                    final double h = Numbers.getDouble(args.array[7]);
 
-            Entities.ITEM_DISPLAY.spawn(player.getLocation(), self -> {
-                self.setItemStack(ItemBuilder.playerHeadUrl("2c8c8f382667bf59f164106849c00e6dfd9ad00a72670b9de99589e4dcd00900").asIcon());
-                self.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.HEAD);
-                self.setTransformation(new Transformation
-                        (
-                                new Vector3f(0, 0, 0),
-                                new Quaternionf(a, b, c, d),
-                                new Vector3f(1, 1, 1),
-                                new Quaternionf(e, f, g, h)
-                        ));
+                    Entities.ITEM_DISPLAY.spawn(
+                            player.getLocation(), self -> {
+                                self.setItemStack(ItemBuilder.playerHeadUrl(
+                                        "2c8c8f382667bf59f164106849c00e6dfd9ad00a72670b9de99589e4dcd00900").asIcon());
+                                self.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.HEAD);
+                                self.setTransformation(new Transformation
+                                        (
+                                                new Vector3f(0, 0, 0),
+                                                new Quaternionf(a, b, c, d),
+                                                new Vector3f(1, 1, 1),
+                                                new Quaternionf(e, f, g, h)
+                                        ));
 
-                self.setCustomName("(%s, %s, %s, %s) (%s, %s, %s, %s)".formatted(a, b, c, d, e, f, g, h));
-                self.setCustomNameVisible(true);
-            });
+                                self.setCustomName("(%s, %s, %s, %s) (%s, %s, %s, %s)".formatted(a, b, c, d, e, f, g, h));
+                                self.setCustomNameVisible(true);
+                            }
+                    );
 
-            Chat.sendMessage(player, "&aSpawned!");
-        });
+                    Chat.sendMessage(player, "&aSpawned!");
+                }
+        );
 
-        register("testHoverText", (player, args) ->
+        register(
+                "testHoverText", (player, args) ->
 
-        {
-            final TextComponent text = new TextComponent("Hover me");
+                {
+                    final TextComponent text = new TextComponent("Hover me");
 
-            text.setHoverEvent(ChatUtils.showText(args.array));
-            player.spigot().sendMessage(text);
-        });
+                    text.setHoverEvent(ChatUtils.showText(args.array));
+                    player.spigot().sendMessage(text);
+                }
+        );
 
-        register("spawnHuskWithCCResist", (player, args) ->
+        register(
+                "spawnHuskWithCCResist", (player, args) ->
 
-        {
-            final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.HUSK);
+                {
+                    final LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.HUSK);
 
-            entity.getAttributes().set(AttributeType.EFFECT_RESISTANCE, 1);
+                    entity.getAttributes().set(AttributeType.EFFECT_RESISTANCE, 1);
 
-            Chat.sendMessage(player, "&dDone!");
-        });
+                    Chat.sendMessage(player, "&dDone!");
+                }
+        );
 
-        register("spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) ->
+        register(
+                "spawnEntityWithMaxDodgeToTestTheDodgeAttributeBecauseIHaveNoFriendsToTestItWith", (player, args) ->
 
-        {
-            final Pig pig = Entities.PIG.spawn(player.getLocation());
-            final LivingGameEntity entity = CF.getEntity(pig);
+                {
+                    final Pig pig = Entities.PIG.spawn(player.getLocation());
+                    final LivingGameEntity entity = CF.getEntity(pig);
 
-            if (entity == null) {
-                Chat.sendMessage(player, "&1Entity handle is null!");
-                return;
-            }
+                    if (entity == null) {
+                        Chat.sendMessage(player, "&1Entity handle is null!");
+                        return;
+                    }
 
-            entity.getAttributes().set(AttributeType.DODGE, AttributeType.DODGE.maxValue());
+                    entity.getAttributes().set(AttributeType.DODGE, AttributeType.DODGE.maxValue());
 
-            Chat.sendMessage(player, "&1There you go!");
-        });
+                    Chat.sendMessage(player, "&1There you go!");
+                }
+        );
 
         register(new SimplePlayerCommand("viewAchievementGUI") {
             @Override
@@ -2411,70 +2601,80 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("recipes", (player, args) ->
+        register(
+                "recipes", (player, args) ->
 
-        {
-            if (args.length == 0) {
-                Chat.sendMessage(player, "&cMissing argument, either 'reset' or 'clear'.");
-                return;
-            }
-
-            final String arg = args.getString(0);
-
-            if (arg.equalsIgnoreCase("reset")) {
-                Bukkit.resetRecipes();
-                Chat.broadcast("&aReset recipes!");
-            }
-            else if (arg.equalsIgnoreCase("clear")) {
-                Bukkit.clearRecipes();
-                Chat.broadcast("&aCleared recipes!");
-            }
-            else {
-                Chat.sendMessage(player, "&cInvalid usage!");
-            }
-        });
-
-        register("dumpBlockNamesCSV", (player, args) ->
-
-        {
-            Runnables.runAsync(() -> {
-                final File path = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
-
-                try (FileWriter writer = new FileWriter(path)) {
-                    for (Material material : Material.values()) {
-                        if (material.isBlock()) {
-                            writer.append(material.name().toUpperCase()).append(",").append("NULL");
-                            writer.append("\n");
-                        }
+                {
+                    if (args.length == 0) {
+                        Chat.sendMessage(player, "&cMissing argument, either 'reset' or 'clear'.");
+                        return;
                     }
 
-                    Runnables.runSync(() -> {
-                        Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(path.getAbsolutePath()));
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    final String arg = args.getString(0);
+
+                    if (arg.equalsIgnoreCase("reset")) {
+                        Bukkit.resetRecipes();
+                        Chat.broadcast("&aReset recipes!");
+                    }
+                    else if (arg.equalsIgnoreCase("clear")) {
+                        Bukkit.clearRecipes();
+                        Chat.broadcast("&aCleared recipes!");
+                    }
+                    else {
+                        Chat.sendMessage(player, "&cInvalid usage!");
+                    }
                 }
-            });
-        });
+        );
 
-        register("testEternaItemBuilderAddTrim", (player, args) ->
+        register(
+                "dumpBlockNamesCSV", (player, args) ->
 
-        {
-            player.getInventory()
-                    .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE).setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND).asIcon());
-        });
+                {
+                    Runnables.runAsync(() -> {
+                        final File path = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
 
-        register("getUuidName", (player, args) ->
+                        try (FileWriter writer = new FileWriter(path)) {
+                            for (Material material : Material.values()) {
+                                if (material.isBlock()) {
+                                    writer.append(material.name().toUpperCase()).append(",").append("NULL");
+                                    writer.append("\n");
+                                }
+                            }
 
-        {
-            try {
-                final UUID uuid = UUID.fromString(args.getString(0));
+                            Runnables.runSync(() -> {
+                                Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(path.getAbsolutePath()));
+                            });
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+        );
 
-                Chat.sendMessage(player, "&a%s belongs to %s".formatted(uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName()));
-            } catch (Exception e) {
-                Chat.sendMessage(player, "&cProvide a valid uuid!");
-            }
-        });
+        register(
+                "testEternaItemBuilderAddTrim", (player, args) ->
+
+                {
+                    player.getInventory()
+                            .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE)
+                                    .setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND)
+                                    .asIcon());
+                }
+        );
+
+        register(
+                "getUuidName", (player, args) ->
+
+                {
+                    try {
+                        final UUID uuid = UUID.fromString(args.getString(0));
+
+                        Chat.sendMessage(player, "&a%s belongs to %s".formatted(uuid.toString(), Bukkit.getOfflinePlayer(uuid).getName()));
+                    } catch (Exception e) {
+                        Chat.sendMessage(player, "&cProvide a valid uuid!");
+                    }
+                }
+        );
 
         register(new SimplePlayerAdminCommand("nextTrim") {
 
@@ -2545,103 +2745,109 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("readElementTypesCSV", (player, args) ->
+        register(
+                "readElementTypesCSV", (player, args) ->
 
-        {
-            Runnables.runAsync(() -> {
-                final File file = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
+                {
+                    Runnables.runAsync(() -> {
+                        final File file = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
 
-                if (!file.exists()) {
-                    Chat.sendMessage(player, "&cFile 'element_types.csv' doesn't exists!");
-                    return;
-                }
-
-                final Map<ElementType, Set<Material>> mapped = Maps.newHashMap();
-
-                try (var reader = new Scanner(file)) {
-                    int index = 1;
-
-                    while (reader.hasNextLine()) {
-                        final String line = reader.nextLine();
-                        final String[] split = line.split(",");
-
-                        final Material material = Enums.byName(Material.class, split[0]);
-                        final ElementType elementType = Enums.byName(ElementType.class, split[1]);
-
-                        if (material == null) {
-                            Chat.sendMessage(player, "&4ERROR @ %s! &cMaterial %s is invalid!".formatted(index, split[0]));
-                            reader.close();
+                        if (!file.exists()) {
+                            Chat.sendMessage(player, "&cFile 'element_types.csv' doesn't exists!");
                             return;
                         }
 
-                        if (elementType == null) {
-                            Chat.sendMessage(player, "&4ERROR @ %s! &cType %s is invalid!".formatted(index, split[1]));
-                            reader.close();
-                            return;
+                        final Map<ElementType, Set<Material>> mapped = Maps.newHashMap();
+
+                        try (var reader = new Scanner(file)) {
+                            int index = 1;
+
+                            while (reader.hasNextLine()) {
+                                final String line = reader.nextLine();
+                                final String[] split = line.split(",");
+
+                                final Material material = Enums.byName(Material.class, split[0]);
+                                final ElementType elementType = Enums.byName(ElementType.class, split[1]);
+
+                                if (material == null) {
+                                    Chat.sendMessage(player, "&4ERROR @ %s! &cMaterial %s is invalid!".formatted(index, split[0]));
+                                    reader.close();
+                                    return;
+                                }
+
+                                if (elementType == null) {
+                                    Chat.sendMessage(player, "&4ERROR @ %s! &cType %s is invalid!".formatted(index, split[1]));
+                                    reader.close();
+                                    return;
+                                }
+
+                                // Don't care about null
+                                if (elementType == ElementType.NULL) {
+                                    continue;
+                                }
+
+                                mapped.compute(
+                                        elementType, (t, set) -> {
+                                            if (set == null) {
+                                                set = Sets.newHashSet();
+                                            }
+
+                                            set.add(material);
+
+                                            return set;
+                                        }
+                                );
+
+                                index++;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
-                        // Don't care about null
-                        if (elementType == ElementType.NULL) {
-                            continue;
-                        }
+                        // Write to file
+                        final File fileOut = new File(Main.getPlugin().getDataFolder(), "element_types.mapped");
 
-                        mapped.compute(elementType, (t, set) -> {
-                            if (set == null) {
-                                set = Sets.newHashSet();
+                        try (var writer = new FileWriter(fileOut)) {
+                            for (ElementType type : ElementType.values()) {
+                                final Set<Material> materials = mapped.getOrDefault(type, Sets.newHashSet());
+
+                                writer.append("//").append(String.valueOf(type)).append("\n");
+
+                                int index = 0;
+                                for (Material material : materials) {
+                                    if (index++ != 0) {
+                                        writer.append(",\n");
+                                    }
+                                    writer.append("     Material.").append(material.name());
+                                }
+
+                                writer.append("\n");
                             }
 
-                            set.add(material);
-
-                            return set;
-                        });
-
-                        index++;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                // Write to file
-                final File fileOut = new File(Main.getPlugin().getDataFolder(), "element_types.mapped");
-
-                try (var writer = new FileWriter(fileOut)) {
-                    for (ElementType type : ElementType.values()) {
-                        final Set<Material> materials = mapped.getOrDefault(type, Sets.newHashSet());
-
-                        writer.append("//").append(String.valueOf(type)).append("\n");
-
-                        int index = 0;
-                        for (Material material : materials) {
-                            if (index++ != 0) {
-                                writer.append(",\n");
-                            }
-                            writer.append("     Material.").append(material.name());
+                            Runnables.runSync(() -> Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(fileOut.getAbsolutePath())));
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
-                        writer.append("\n");
+                    });
+                }
+        );
+
+        register(
+                "debugLevelUpConstruct", (player, args) ->
+
+                {
+                    final Construct construct = HeroRegistry.ENGINEER.getConstruct(CF.getPlayer(player));
+
+                    if (construct == null) {
+                        Chat.sendMessage(player, "&cNo construct!");
+                        return;
                     }
 
-                    Runnables.runSync(() -> Chat.sendMessage(player, "&aDumped into &e%s&a!".formatted(fileOut.getAbsolutePath())));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    construct.levelUp();
+                    Chat.sendMessage(player, "&aLevelled up!");
                 }
-
-            });
-        });
-
-        register("debugLevelUpConstruct", (player, args) ->
-
-        {
-            final Construct construct = HeroRegistry.ENGINEER.getConstruct(CF.getPlayer(player));
-
-            if (construct == null) {
-                Chat.sendMessage(player, "&cNo construct!");
-                return;
-            }
-
-            construct.levelUp();
-            Chat.sendMessage(player, "&aLevelled up!");
-        });
+        );
 
         register(new SimplePlayerCommand("resourcePack") {
             @Override
@@ -2657,10 +2863,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testAchievementToast", (player, args) ->
+        register(
+                "testAchievementToast", (player, args) ->
 
-        {
-        });
+                {
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testSplashText") {
 
@@ -2710,15 +2918,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 final float transformation = getArgument(args, 0).toFloat();
 
-                display = Entities.BLOCK_DISPLAY.spawn(player.getLocation(), self -> {
-                    self.setBlock(Material.STONE.createBlockData());
-                    self.setTransformation(new Transformation(
-                            new Vector3f(transformation, transformation, transformation),
-                            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f),
-                            new Vector3f(0.25f, 0.25f, 0.25f),
-                            new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f)
-                    ));
-                });
+                display = Entities.BLOCK_DISPLAY.spawn(
+                        player.getLocation(), self -> {
+                            self.setBlock(Material.STONE.createBlockData());
+                            self.setTransformation(new Transformation(
+                                    new Vector3f(transformation, transformation, transformation),
+                                    new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f),
+                                    new Vector3f(0.25f, 0.25f, 0.25f),
+                                    new AxisAngle4f(0.0f, 0.0f, 0.0f, 0.0f)
+                            ));
+                        }
+                );
 
                 Chat.sendMessage(player, "&aSpawned with %s.".formatted(transformation));
             }
@@ -2738,12 +2948,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 for (var ref = new Object() {
                     byte i = Byte.MIN_VALUE;
                 }; ref.i < Byte.MAX_VALUE; ref.i++) {
-                    Entities.TEXT_DISPLAY.spawn(location, self -> {
-                        self.setBillboard(Display.Billboard.CENTER);
-                        self.setSeeThrough(true);
-                        self.setTextOpacity(ref.i);
-                        self.setText("&a" + ref.i);
-                    });
+                    Entities.TEXT_DISPLAY.spawn(
+                            location, self -> {
+                                self.setBillboard(Display.Billboard.CENTER);
+                                self.setSeeThrough(true);
+                                self.setTextOpacity(ref.i);
+                                self.setText("&a" + ref.i);
+                            }
+                    );
 
                     location.add(0.0d, 0.25d, 0.0d);
                 }
@@ -2752,33 +2964,35 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testRotatingCircle", (player, args) ->
+        register(
+                "testRotatingCircle", (player, args) ->
 
-        {
-            final Location location = player.getLocation();
+                {
+                    final Location location = player.getLocation();
 
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick > 360) {
-                        cancel();
-                        Chat.sendMessage(player, "&aDone!");
-                        return;
-                    }
+                    new TickingGameTask() {
+                        @Override
+                        public void run(int tick) {
+                            if (tick > 360) {
+                                cancel();
+                                Chat.sendMessage(player, "&aDone!");
+                                return;
+                            }
 
-                    final double rad = Math.toRadians(tick);
-                    final Vector vector = new Vector(Math.sin(rad) * 3, 0, Math.cos(rad) * 3);
+                            final double rad = Math.toRadians(tick);
+                            final Vector vector = new Vector(Math.sin(rad) * 3, 0, Math.cos(rad) * 3);
 
-                    vector.rotateAroundX(tick);
-                    vector.rotateAroundY(tick);
-                    vector.rotateAroundZ(tick);
+                            vector.rotateAroundX(tick);
+                            vector.rotateAroundY(tick);
+                            vector.rotateAroundZ(tick);
 
-                    location.add(vector);
-                    PlayerLib.spawnParticle(location, Particle.ENCHANTED_HIT, 1);
-                    location.subtract(vector);
+                            location.add(vector);
+                            PlayerLib.spawnParticle(location, Particle.ENCHANTED_HIT, 1);
+                            location.subtract(vector);
+                        }
+                    }.runTaskTimer(0, 1);
                 }
-            }.runTaskTimer(0, 1);
-        });
+        );
 
         register(new SimplePlayerAdminCommand("testParticleRot") {
             @Override
@@ -2876,11 +3090,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 new Cuboid(
                         BukkitUtils.defLocation(-9, 64, -271),
                         BukkitUtils.defLocation(-5, 66, -269)
-                ).cloneBlocksTo(BukkitUtils.defLocation(
-                        -2,
-                        64,
-                        -270
-                ), true);
+                ).cloneBlocksTo(
+                        BukkitUtils.defLocation(
+                                -2,
+                                64,
+                                -270
+                        ), true
+                );
 
                 Chat.sendMessage(player, "<color=#359751>Done!</>");
             }
@@ -3224,20 +3440,22 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("accelerateGamePackSpawn", (player, args) ->
+        register(
+                "accelerateGamePackSpawn", (player, args) ->
 
-        {
-            final GameInstance gameInstance = Manager.current().getGameInstance();
+                {
+                    final GameInstance gameInstance = Manager.current().getGameInstance();
 
-            if (gameInstance == null) {
-                Chat.sendMessage(player, "&cCannot accelerate outside a game!");
-                return;
-            }
+                    if (gameInstance == null) {
+                        Chat.sendMessage(player, "&cCannot accelerate outside a game!");
+                        return;
+                    }
 
-            gameInstance.getEnumMap().getLevel().getGamePacks().forEach(GamePack::accelerate);
+                    gameInstance.getEnumMap().getLevel().getGamePacks().forEach(GamePack::accelerate);
 
-            Chat.sendMessage(player, "&aDone!");
-        });
+                    Chat.sendMessage(player, "&aDone!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("testAttackSpeed") {
             @Override
@@ -3258,27 +3476,29 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("testTradeGUi", ((player, strings) ->
+        register(
+                "testTradeGUi", ((player, strings) ->
 
-        {
-            final PlayerGUI gui = new PlayerGUI(player, 6);
+                {
+                    final PlayerGUI gui = new PlayerGUI(player, 6);
 
-            gui.fillColumn(4, ItemBuilder.of(Material.BLACK_WOOL).asIcon());
-            gui.setEventListener(new EventListener() {
-                @Override
-                public void listen(Player player, GUI gui, InventoryClickEvent event) {
-                    final int clickedSlot = event.getRawSlot();
-                    final int module = clickedSlot % 9;
+                    gui.fillColumn(4, ItemBuilder.of(Material.BLACK_WOOL).asIcon());
+                    gui.setEventListener(new EventListener() {
+                        @Override
+                        public void listen(Player player, GUI gui, InventoryClickEvent event) {
+                            final int clickedSlot = event.getRawSlot();
+                            final int module = clickedSlot % 9;
 
-                    boolean leftSide = module < 4;
-                    boolean rightSide = module > 4;
+                            boolean leftSide = module < 4;
+                            boolean rightSide = module > 4;
 
-                    Chat.sendMessage(player, "&aSide: " + (leftSide ? "LEFT" : rightSide ? "RIGHT" : "MIDDLE"));
-                }
-            });
+                            Chat.sendMessage(player, "&aSide: " + (leftSide ? "LEFT" : rightSide ? "RIGHT" : "MIDDLE"));
+                        }
+                    });
 
-            gui.openInventory();
-        }));
+                    gui.openInventory();
+                })
+        );
 
         register(new PluginsCommandOverride());
 
@@ -3310,9 +3530,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 final HumanNPC npc = new HumanNPC(location.clone().subtract(0.0, GVar.get("riptide", 1d), 0.0), "", player.getName());
-                entity = toSpawn.spawn(location.clone().subtract(0.0, GVar.get("riptide2", 0.0d), 0.0d), self -> {
-                    self.setGravity(false);
-                });
+                entity = toSpawn.spawn(
+                        location.clone().subtract(0.0, GVar.get("riptide2", 0.0d), 0.0d), self -> {
+                            self.setGravity(false);
+                        }
+                );
 
                 npc.bukkitEntity().setInvisible(true);
                 npc.setCollision(false);
@@ -3350,10 +3572,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 Glowing.glowInfinitely(spawn, ChatColor.GOLD, player);
 
-                Runnables.runLater(() -> {
-                    Glowing.stopGlowing(player, spawn);
-                    Chat.sendMessage(player, "Stop glowing");
-                }, 60);
+                Runnables.runLater(
+                        () -> {
+                            Glowing.stopGlowing(player, spawn);
+                            Chat.sendMessage(player, "Stop glowing");
+                        }, 60
+                );
             }
         });
 
@@ -3364,18 +3588,20 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("commitSuicideButDontTriggerModeWinCondition", (player, args) ->
+        register(
+                "commitSuicideButDontTriggerModeWinCondition", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cI'm actually tired of typing this, but you must be in THE FUCKING GAME TO USE THIS!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cI'm actually tired of typing this, but you must be in THE FUCKING GAME TO USE THIS!");
+                        return;
+                    }
 
-            gamePlayer.setState(EntityState.DEAD);
-        });
+                    gamePlayer.setState(EntityState.DEAD);
+                }
+        );
 
         register(new SimpleAdminCommand("debugTeams") {
             @Override
@@ -3386,44 +3612,50 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("leaveTeam", (player, args) ->
+        register(
+                "leaveTeam", (player, args) ->
 
-        {
-            final Entry entry = Entry.of(player);
-            final GameTeam team = GameTeam.getEntryTeam(entry);
+                {
+                    final Entry entry = Entry.of(player);
+                    final GameTeam team = GameTeam.getEntryTeam(entry);
 
-            if (team == null) {
-                Chat.sendMessage(player, "&cNot in a team!!!");
-                GameTeam.getSmallestTeam();
-                return;
-            }
+                    if (team == null) {
+                        Chat.sendMessage(player, "&cNot in a team!!!");
+                        GameTeam.getSmallestTeam();
+                        return;
+                    }
 
-            team.removeEntry(entry);
-            Chat.sendMessage(player, "&aRemoved you from the team!");
-            Chat.sendMessage(
-                    player,
-                    "&e&lKeep in mind that having no team is not intentional and errors might appear! Use this for testing only!!!"
-            );
-        });
+                    team.removeEntry(entry);
+                    Chat.sendMessage(player, "&aRemoved you from the team!");
+                    Chat.sendMessage(
+                            player,
+                            "&e&lKeep in mind that having no team is not intentional and errors might appear! Use this for testing only!!!"
+                    );
+                }
+        );
 
-        register("spawnAlliedEntity", (player, args) ->
+        register(
+                "spawnAlliedEntity", (player, args) ->
 
-        {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+                {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&cCannot spawn outside a game!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&cCannot spawn outside a game!");
+                        return;
+                    }
 
-            final LivingGameEntity entity = gamePlayer.spawnAlliedLivingEntity(player.getLocation(), Entities.HUSK, self -> {
-                self.setGlowing(gamePlayer, ChatColor.GREEN, 60);
-            });
+                    final LivingGameEntity entity = gamePlayer.spawnAlliedLivingEntity(
+                            player.getLocation(), Entities.HUSK, self -> {
+                                self.setGlowing(gamePlayer, ChatColor.GREEN, 60);
+                            }
+                    );
 
-            entity.getEntity().setSilent(true);
+                    entity.getEntity().setSilent(true);
 
-            gamePlayer.sendMessage("&aSpawned!");
-        });
+                    gamePlayer.sendMessage("&aSpawned!");
+                }
+        );
 
         register(new SimplePlayerAdminCommand("dumpBlockHardness") {
             @Override
@@ -3589,7 +3821,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
             @Override
             protected void execute(Player player, String[] args) {
-                final MongoCollection<Document> collection = getPlugin().getDatabase().getPlayers();
+                final MongoCollection<Document> collection = getPlugin().getDatabase().collection(NamedCollection.PLAYERS);
                 document = collection.find(FILTER).first();
 
                 if (document == null) {
@@ -3698,34 +3930,38 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         // these are small shortcuts not feeling creating a class D:
 
-        register("start", (player, args) ->
+        register(
+                "start", (player, args) ->
 
-        {
-            player.performCommand("cf start " + Chat.arrayToString(args.array, 0));
-        });
+                {
+                    player.performCommand("cf start " + Chat.arrayToString(args.array, 0));
+                }
+        );
 
         register(new TestNpcDeathAnimationCommand("testNpcDeathAnimation"));
 
-        register("testNpcTeleport", (player, args) ->
+        register(
+                "testNpcTeleport", (player, args) ->
 
-        {
-            final Human human = HumanNPC.create(player.getLocation());
-            human.showAll();
+                {
+                    final Human human = HumanNPC.create(player.getLocation());
+                    human.showAll();
 
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick >= 100) {
-                        human.remove();
-                        cancel();
-                        Chat.sendMessage(player, "&cRemoved!");
-                        return;
-                    }
+                    new TickingGameTask() {
+                        @Override
+                        public void run(int tick) {
+                            if (tick >= 100) {
+                                human.remove();
+                                cancel();
+                                Chat.sendMessage(player, "&cRemoved!");
+                                return;
+                            }
 
-                    human.teleport(player.getLocation());
+                            human.teleport(player.getLocation());
+                        }
+                    }.runTaskTimer(0, 1);
                 }
-            }.runTaskTimer(0, 1);
-        });
+        );
 
         register(new SimpleAdminCommand("stop") {
             // true -> stop server, false -> stop game instance
@@ -3760,38 +3996,42 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
 
-        register("showCommands", (player, args) ->
+        register(
+                "showCommands", (player, args) ->
 
-        {
-            Debug.info("Here is a list of commands:");
+                {
+                    Debug.info("Here is a list of commands:");
 
-            ChatColor color = ChatColor.AQUA;
+                    ChatColor color = ChatColor.AQUA;
 
-            for
-            (String command : commands) {
-                Debug.info(" " + color + command);
-                color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
-            }
-        });
+                    for
+                    (String command : commands) {
+                        Debug.info(" " + color + command);
+                        color = color == ChatColor.AQUA ? ChatColor.DARK_AQUA : ChatColor.AQUA;
+                    }
+                }
+        );
 
     }
 
     private void registerDebug(String name, BiConsumer<GamePlayer, ArgumentList> consumer) {
-        register(name, (player, args) -> {
-            final GamePlayer gamePlayer = CF.getPlayer(player);
+        register(
+                name, (player, args) -> {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
 
-            if (gamePlayer == null) {
-                Chat.sendMessage(player, "&4You must be in game to use this command!");
-                return;
-            }
+                    if (gamePlayer == null) {
+                        Chat.sendMessage(player, "&4You must be in game to use this command!");
+                        return;
+                    }
 
-            if (!Manager.current().isDebug()) {
-                Chat.sendMessage(player, "&4You must be in debug mode to use this command!");
-                return;
-            }
+                    if (!Manager.current().isDebug()) {
+                        Chat.sendMessage(player, "&4You must be in debug mode to use this command!");
+                        return;
+                    }
 
-            consumer.accept(gamePlayer, args);
-        });
+                    consumer.accept(gamePlayer, args);
+                }
+        );
     }
 
     private void register(String name, BiConsumer<Player, ArgumentList> consumer) {

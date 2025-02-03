@@ -213,6 +213,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(105, new Relic(Type.ROSE_QUARTZ, 0, 59, 39).setBlockFace(BlockFace.WEST_NORTH_WEST));
         registerRelic(TheEyeNPC.RELIC_ID, new Relic(Type.SAPPHIRE, -9, 61, 6));
         registerRelic(StoreOwnerNPC.RELIC_ID, new Relic(Type.DIAMOND, 22, 66, 5).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(108, new Relic(Type.DIAMOND, 34, 66, -11).setBlockFace(BlockFace.SOUTH_WEST));
 
         // Arena
         registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(EnumLevel.ARENA));
@@ -245,14 +246,16 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {
-        map.compute(key, (ref, list) -> {
-            if (list == null) {
-                list = Lists.newArrayList();
-            }
+        map.compute(
+                key, (ref, list) -> {
+                    if (list == null) {
+                        list = Lists.newArrayList();
+                    }
 
-            consumer.accept(list);
-            return list;
-        });
+                    consumer.accept(list);
+                    return list;
+                }
+        );
     }
 
     private void createRelics() {

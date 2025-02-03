@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.util.Compute;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.stats.StatType;
 
 import javax.annotation.Nonnull;
@@ -19,8 +19,8 @@ public class GlobalHeroStats {
     public GlobalHeroStats() {
         this.values = Maps.newLinkedHashMap();
 
-        for (Hero hero : HeroRegistry.playable()) {
-            final HeroStatsCollection stats = hero.getStats();
+        for (Hero hero : HeroRegistry.values()) {
+            final HeroStatsAsynchronousDocument stats = hero.getStats();
 
             for (StatType stat : StatType.values()) {
                 values.compute(stat, Compute.listAdd(new StatValue(hero, stat, stats.getStat(stat))));

@@ -6,9 +6,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
-import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.vampire.VampireData;
-import me.hapyl.fight.game.heroes.vampire.VampireState;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -40,7 +37,7 @@ public class Bloodshift extends Talent {
                 
                 While in this state, convert &b%.0f%%&7 of the &cdamage&7 dealt into &ahealing&7.
                 """.formatted(
-                Chat.capitalize(VampireState.SUSTAIN),
+                Chat.capitalize("s"),
                 healingFromDamage * 100
         ));
 
@@ -61,13 +58,9 @@ public class Bloodshift extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final VampireData data = HeroRegistry.VAMPIRE.getPlayerData(player);
-
-        data.setState(VampireState.SUSTAIN);
         player.setOutline(Outline.RED);
 
         player.schedule(() -> {
-            data.setState(VampireState.DAMAGE);
             player.setOutline(Outline.CLEAR);
         }, getDuration());
 

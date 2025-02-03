@@ -99,13 +99,13 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         setUltimate(new RogueUltimate());
     }
 
-    @EventHandler()
+    @EventHandler
     public void handleDeath(GameDeathEvent ev) {
         if (!(ev.getEntity() instanceof GamePlayer player)) {
             return;
         }
 
-        if (!validatePlayer(player)) {
+        if (player.isDeadOrRespawning() || !validatePlayer(player)) {
             return;
         }
 
@@ -173,7 +173,8 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         player.setShield(shield);
         player.setOutline(Outline.RED);
 
-        temperInstance.temper(player, passiveDuration);
+        temperInstance.temper(player, passiveDuration, player);
+
         player.schedule(() -> {
             // If the state ended and still have shield, heal.
             if (player.getShield() == shield) {
@@ -193,8 +194,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 1.75f);
 
         player.spawnWorldParticle(Particle.TOTEM_OF_UNDYING, 15, 0.1, 0.3, 0.1, 0.75f);
-
-        //player.playEffect(EntityEffect.TOTEM_RESURRECT); Too obstructive
     }
 
     @Nonnull
@@ -211,8 +210,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         @DisplayField private final double explosionRadius = 4.0d;
         @DisplayField private final double explosionDamage = 30.0d;
         @DisplayField private final int maxExplosionDelay = Tick.fromSecond(3);
-        @DisplayField private final double magnitude = 0.75d;
-        @DisplayField private final double yMagnitude = 0.21d;
+        @DisplayField private final double magnitude = 1.3d;
         @DisplayField private final int bleedDuration = 60;
 
         public RogueUltimate() {
@@ -237,12 +235,12 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
             return execute(() -> {
                 final World world = player.getWorld();
-                final Location location = player.getMidpointLocation();
+                final Location location = player.getEyeLocation();
                 final Item item = world.dropItem(location, ItemStackRandomizedData.of(Material.LIGHTNING_ROD));
 
                 item.setPickupDelay(10000);
                 item.setUnlimitedLifetime(true);
-                item.setVelocity(location.getDirection().normalize().multiply(magnitude).setY(yMagnitude));
+                item.setVelocity(location.getDirection().normalize().multiply(magnitude));
 
                 // Explode
                 new TickingGameTask() {

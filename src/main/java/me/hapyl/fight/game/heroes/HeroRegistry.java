@@ -214,7 +214,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     @Nonnull
     public static List<Hero> playable() {
-        return new ArrayList<>(playable);
+        return CF.environment().allowDisabledHeroes.isEnabled() ? values() :  new ArrayList<>(playable);
     }
 
     @Nonnull

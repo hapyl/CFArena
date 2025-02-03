@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.util.Described;
 import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 public class HeroPlayerItemMaker {
 
     private final Hero hero;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
 
     public HeroPlayerItemMaker(Hero hero) {
         this.hero = hero;

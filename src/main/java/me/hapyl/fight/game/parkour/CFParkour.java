@@ -3,10 +3,10 @@ package me.hapyl.fight.game.parkour;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.parkour.*;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -17,14 +17,14 @@ import java.util.UUID;
 
 public class CFParkour extends Parkour implements ParkourHandler {
 
-    private ParkourLeaderboard leaderboard;
     protected final ParkourDatabase database;
+    private ParkourLeaderboard leaderboard;
 
     public CFParkour(String name, int startX, int startY, int startZ, float yaw, float pitch, int finishX, int finishY, int finishZ) {
         super(
                 name,
-                new Location(Bukkit.getWorlds().get(0), startX, startY, startZ, yaw, pitch),
-                new Location(Bukkit.getWorlds().get(0), finishX, finishY, finishZ)
+                BukkitUtils.defLocation(startX, startY, startZ, yaw, pitch),
+                BukkitUtils.defLocation(finishX, finishY, finishZ)
         );
 
         this.database = new ParkourDatabase(this);
@@ -103,6 +103,10 @@ public class CFParkour extends Parkour implements ParkourHandler {
         });
     }
 
+    public CFParkour(String name, int startX, int startY, int startZ, int finishX, int finishY, int finishZ) {
+        this(name, startX, startY, startZ, 0.0f, 0.0f, finishX, finishY, finishZ);
+    }
+
     public void updateLeaderboardIfExists() {
         if (leaderboard != null) {
             leaderboard.update();
@@ -121,12 +125,8 @@ public class CFParkour extends Parkour implements ParkourHandler {
         this.leaderboard = leaderboard;
     }
 
-    public CFParkour(String name, int startX, int startY, int startZ, int finishX, int finishY, int finishZ) {
-        this(name, startX, startY, startZ, 0.0f, 0.0f, finishX, finishY, finishZ);
-    }
-
     public void addCheckpoint(int x, int y, int z, float yaw, float pitch) {
-        super.addCheckpoint(Bukkit.getWorlds().get(0), x, y, z, yaw, pitch);
+        super.addCheckpoint(Bukkit.getWorlds().getFirst(), x, y, z, yaw, pitch);
     }
 
     public String parkourPath() {
@@ -203,5 +203,15 @@ public class CFParkour extends Parkour implements ParkourHandler {
     @Override
     public Response onCheckpoint(Player player, Data data, ParkourPosition position, Type type) {
         return null;
+    }
+
+    public void reload() {
+        removeWorldEntities();
+
+        if (leaderboard != null) {
+            leaderboard.update();
+        }
+
+        spawnWorldEntities();
     }
 }

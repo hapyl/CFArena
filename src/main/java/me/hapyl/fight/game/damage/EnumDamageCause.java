@@ -159,6 +159,7 @@ public enum EnumDamageCause implements Named {
     ECHO(DamageCause.nonCrit("lost their body in the monochrome world", "of")),
     RONIN_HIT(DamageCause.nonCrit("lost in the duel", "to")),
     DEFLECT(DamageCause.nonCrit("was killed by {damager}'s deflected attack")),
+    BAT_BITE(DamageCause.nonCrit("was bitten", "by")),
 
     ;
 

@@ -183,7 +183,7 @@ public enum ChatChannel {
                 message = matcher.replaceFirst(match -> {
                     final String group = match.group();
 
-                    return "&6" + group + profile.getRank().getFormat().textColor();
+                    return ChatColor.GOLD + group + profile.getRank().getFormat().textColor();
                 });
             }
         }

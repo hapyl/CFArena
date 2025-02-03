@@ -44,7 +44,7 @@ public class RoninWeapon extends Weapon {
         super(Material.IRON_SWORD, Key.ofString("kensei"));
 
         setName("Kensei");
-        setDamage(10.0d);
+        setDamage(8.0d);
 
         setAbility(AbilityType.RIGHT_CLICK, new DeflectAbility());
 
@@ -202,7 +202,7 @@ public class RoninWeapon extends Weapon {
             this.entity.teleport(getDisplayLocation());
 
             // Add slowness
-            this.player.addEffect(Effects.SLOW, 3, 2);
+            this.player.addEffect(Effects.MOVEMENT_CONTAINMENT, 2, true);
         }
 
         private Location getDisplayLocation() {

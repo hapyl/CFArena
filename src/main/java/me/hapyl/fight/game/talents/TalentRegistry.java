@@ -151,10 +151,7 @@ import me.hapyl.fight.game.talents.techie.*;
 import me.hapyl.fight.game.talents.troll.LastLaughPassive;
 import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
-import me.hapyl.fight.game.talents.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.vampire.Bloodshift;
-import me.hapyl.fight.game.talents.vampire.VampirePassive;
-import me.hapyl.fight.game.talents.vampire.VampirePet;
+import me.hapyl.fight.game.talents.vampire.*;
 import me.hapyl.fight.game.talents.vortex.*;
 import me.hapyl.fight.game.talents.witcher.*;
 import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
@@ -405,8 +402,11 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      * {@link Vampire}
      */
     @Deprecated public static final VampirePet VAMPIRE_PET;
-    public static final Bloodshift BLOODSHIFT;
-    public static final BatSwarm BAT_SWARM;
+    @Deprecated public static final Bloodshift BLOODSHIFT;
+    @Deprecated public static final BatSwarm BAT_SWARM;
+
+    public static final BloodDebtTalent BLOOD_DEBT;
+    public static final BatTransferTalent BAT_TRANSFER;
     public static final VampirePassive VANPIRE_PASSIVE;
 
     /**
@@ -647,7 +647,9 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
         VAMPIRE_PET = register("vampire_pet", VampirePet::new);
         BLOODSHIFT = register("bloodshift", Bloodshift::new);
+        BLOOD_DEBT = register("blood_debt", BloodDebtTalent::new);
         BAT_SWARM = register("bat_swarm", BatSwarm::new);
+        BAT_TRANSFER = register("bat_transfer", BatTransferTalent::new);
         VANPIRE_PASSIVE = register("vampire_passive", VampirePassive::new);
 
         SHORTY = register("shorty", ShortyShotgun::new);

@@ -24,9 +24,9 @@ public class BrokenHeartRadiation extends Talent {
     @DisplayField private final double beamLength = 5;
     @DisplayField private final double beamDamage = 5.0d;
 
-    @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
+    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false)
     private final double mendingReduction = 0.25d;
-    @DisplayField(scaleFactor = 100.0d, suffix = "%", suffixSpace = false)
+    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false)
     private final double defenseReduction = 0.33d;
 
     @DisplayField private final int effectDuration = 180;

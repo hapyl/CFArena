@@ -96,7 +96,6 @@ public final class Manager extends BukkitRunnable {
 
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
-    private DebugData debugData;
     private Tournament competitive;
     private GuessWho guessWhoGame;
     private FairMode fairMode;
@@ -124,8 +123,6 @@ public final class Manager extends BukkitRunnable {
 
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinute(10));
-
-        debugData = DebugData.EMPTY;
 
         fairMode = FairMode.UNFAIR;
 
@@ -187,13 +184,8 @@ public final class Manager extends BukkitRunnable {
             }
         });
     }
-
     public void createStartCountdown() {
-        createStartCountdown(DebugData.EMPTY);
-    }
-
-    public void createStartCountdown(DebugData debug) {
-        if (!canStartGame(debug)) {
+        if (!canStartGame()) {
             return;
         }
 
@@ -496,12 +488,7 @@ public final class Manager extends BukkitRunnable {
     }
 
     public boolean isDebug() {
-        return debugData.is(DebugData.Flag.DEBUG);
-    }
-
-    @Nonnull
-    public DebugData getDebug() {
-        return debugData;
+        return CF.environment().debug.isEnabled();
     }
 
     public EnumGameType getCurrentMode() {
@@ -520,13 +507,9 @@ public final class Manager extends BukkitRunnable {
         Main.getPlugin().setConfigValue("current-mode", mode.name().toLowerCase(Locale.ROOT));
     }
 
-    public void createNewGameInstance() {
-        createNewGameInstance(DebugData.EMPTY);
-    }
-
-    public boolean canStartGame(DebugData debug) {
+    public boolean canStartGame() {
         // Pre-game start checks
-        if ((!currentMap.isPlayable() || !currentMap.getLevel().hasLocation()) && !debug.is(DebugData.Flag.DEBUG)) {
+        if ((!currentMap.isPlayable() || !currentMap.getLevel().hasLocation()) && !isDebug()) {
             displayError("illegal map");
             return false;
         }
@@ -545,7 +528,7 @@ public final class Manager extends BukkitRunnable {
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
 
         // Check for minimum players if not in debug
-        if (!debug.is(DebugData.Flag.DEBUG) && debug.not(DebugData.Flag.FORCE)) {
+        if (!CF.environment().debug.isEnabled()) {
             final List<GameTeam> teams = GameTeam.getPopulatedTeams();
 
             // Check teams
@@ -599,12 +582,10 @@ public final class Manager extends BukkitRunnable {
      * <p>
      * Only one game instance can be active at a time.
      */
-    public void createNewGameInstance(DebugData debug) {
-        if (!canStartGame(debug)) {
+    public void createNewGameInstance() {
+        if (!canStartGame()) {
             return;
         }
-
-        this.debugData = debug;
 
         // Check for team balance
         // todo -> Maybe add config support for unbalanced teams
@@ -664,7 +645,7 @@ public final class Manager extends BukkitRunnable {
             gamePlayer.getTeam().glowTeammates();
         }
 
-        if (!debug.is(DebugData.Flag.DEBUG)) {
+        if (!CF.environment().debug.isEnabled()) {
             Chat.broadcast("&a&l➺ &aAll players have been hidden!");
             Chat.broadcast("&a&l➺ &aThey have &e%ss &ato spread before being revealed.".formatted(
                     BukkitUtils.roundTick(currentMap.getLevel().getTimeBeforeReveal())));
@@ -680,23 +661,19 @@ public final class Manager extends BukkitRunnable {
 
             ElementCaller.CALLER.onPlayersRevealed(gameInstance);
 
-            if (debug.any()) {
-                Chat.broadcast("&c&lDEBUG &fRunning in debug instance.");
-                Chat.broadcast("&c&lDEBUG &fDebugging: " + debug.list());
-            }
-
             CF.getAlivePlayers().forEach(player -> {
                 final World world = player.getWorld();
 
                 player.showPlayer();
 
-                if (!debug.is(DebugData.Flag.DEBUG)) {
+                if (!isDebug()) {
                     world.strikeLightningEffect(player.getLocation().add(0, 2, 0));
                 }
             });
 
             playAnimation();
-        }, debug.or(DebugData.Flag.DEBUG) ? 1 : currentMap.getLevel().getTimeBeforeReveal());
+                }, isDebug() ? 1 : currentMap.getLevel().getTimeBeforeReveal()
+        );
 
     }
 
@@ -742,7 +719,7 @@ public final class Manager extends BukkitRunnable {
         entities.forEach((uuid, entity) -> entity.onStop(gameInstance));
         entities.clear();
 
-        if (debugData.or(DebugData.Flag.DEBUG)) {
+        if (isDebug()) {
             onStop();
             return;
         }
@@ -1086,6 +1063,10 @@ public final class Manager extends BukkitRunnable {
         }
 
         createStartCountdown();
+    }
+
+    public void allowEveryoneGoldenGg() {
+        Bukkit.getOnlinePlayers().forEach(this::allowGoldenGg);
     }
 
     private void playAnimation() {

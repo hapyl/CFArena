@@ -1,8 +1,9 @@
-package me.hapyl.fight.database.collection;
+package me.hapyl.fight.database.async;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
@@ -14,12 +15,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class HeroStatsCollection extends AsynchronousDatabase implements Keyed {
+public class HeroStatsAsynchronousDocument extends AsynchronousDocument implements Keyed {
 
     private final Key key;
 
-    public HeroStatsCollection(@Nonnull Key key) {
-        super(CF.getPlugin().getDatabase().getHeroStats(), new Document("hero", key.getKey()));
+    public HeroStatsAsynchronousDocument(@Nonnull Key key) {
+        super(CF.getServerDatabase().collection(NamedCollection.HERO_STATS), new Document("hero", key.getKey()));
 
         this.key = key;
     }

@@ -12,7 +12,7 @@ import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
@@ -72,7 +72,7 @@ public abstract class Hero
         Rankable, DisplayFieldProvider, Formatted {
 
     private final Key key;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
     private final HeroAttributes attributes;
     private final HeroProfile profile;
 
@@ -99,7 +99,7 @@ public abstract class Hero
     public Hero(@Nonnull Key key, @Nonnull String name) {
         this.key = key;
         this.name = name;
-        this.stats = new HeroStatsCollection(key);
+        this.stats = new HeroStatsAsynchronousDocument(key);
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.PLAYER_HEAD);
         this.weapon = Weapon.builder(Material.WOODEN_SWORD, Key.ofString("default_weapon")).build();
@@ -172,7 +172,7 @@ public abstract class Hero
     }
 
     @Nonnull
-    public HeroStatsCollection getStats() {
+    public HeroStatsAsynchronousDocument getStats() {
         return stats;
     }
 

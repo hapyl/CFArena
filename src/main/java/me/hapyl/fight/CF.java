@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.anticheat.AntiCheat;
+import me.hapyl.fight.config.Environment;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
@@ -545,6 +546,11 @@ public final class CF {
     @Nonnull
     public static CFQuestHandler getQuestHandler() {
         return plugin.getQuestHandler();
+    }
+
+    @Nonnull
+    public static Environment environment() {
+        return plugin.environment();
     }
 
 }

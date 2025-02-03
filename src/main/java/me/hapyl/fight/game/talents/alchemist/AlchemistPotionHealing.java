@@ -40,8 +40,6 @@ public class AlchemistPotionHealing extends AlchemistPotion {
 
     public class ExtraHealing extends ActivePotion {
 
-        public boolean tookDamage;
-
         public ExtraHealing(AlchemistData data, GamePlayer player, AlchemistPotion potion) {
             super(data, player, potion);
         }
@@ -51,7 +49,7 @@ public class AlchemistPotionHealing extends AlchemistPotion {
             super.run(tick);
 
             // Extra healing
-            if (tick == extraHealingThreshold && !tookDamage) {
+            if (tick == extraHealingThreshold) {
                 player.heal(extraHealing);
 
                 // Fx
@@ -63,11 +61,7 @@ public class AlchemistPotionHealing extends AlchemistPotion {
         }
 
         public void cancelExtraHealing() {
-            if (tookDamage) {
-                return;
-            }
-
-            tookDamage = true;
+            data.cancelActivePotion();
 
             player.sendTitle("&4\uD83D\uDC9E", "&cʜᴇᴀʟɪɴɢ ᴄᴀɴᴄᴇʟʟᴇᴅ, ʏᴏᴜ ᴛᴏᴏᴋ ᴅᴀᴍᴀɢᴇ!", 2, 8, 2);
             player.playWorldSound(Sound.ENTITY_WITCH_HURT, 1.25f);

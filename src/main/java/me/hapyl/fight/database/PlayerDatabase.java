@@ -191,7 +191,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
                 entry.onSave();
             }
 
-            final MongoCollection<Document> players = this.mongo.getPlayers();
+            final MongoCollection<Document> players = this.mongo.collection(NamedCollection.PLAYERS);
             players.replaceOne(this.filter, this.document);
 
             getLogger().info("Saved %s for %s!".formatted(getDatabaseName(), playerName));
@@ -209,10 +209,10 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         final String playerName = player.getName();
 
         try {
-            document = mongo.getPlayers().find(filter).first();
+            document = mongo.collection(NamedCollection.PLAYERS).find(filter).first();
 
             if (document == null) {
-                final MongoCollection<Document> players = mongo.getPlayers();
+                final MongoCollection<Document> players = mongo.collection(NamedCollection.PLAYERS);
                 final Document document = new Document("uuid", uuid.toString());
 
                 if (!Bukkit.getServer().getOnlineMode()) {

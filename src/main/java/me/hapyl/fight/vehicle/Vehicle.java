@@ -1,7 +1,8 @@
 package me.hapyl.fight.vehicle;
 
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.reflect.packet.wrapped.WrappedPacketPlayInSteerVehicle;
+import me.hapyl.eterna.module.player.input.InputKey;
+import me.hapyl.eterna.module.player.input.PlayerInput;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.CF;
@@ -14,12 +15,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.Set;
 
-public class Vehicle implements Removable {
+public class Vehicle extends BukkitRunnable implements Removable {
 
     protected final Player passenger;
     protected final Entity vehicle;
@@ -44,39 +47,12 @@ public class Vehicle implements Removable {
         this.speed = new Property<>(1.0d);
         this.smoothness = new Property<>(0.5d);
         this.maxHeight = new Property<>(255.0d);
+
+        runTaskTimer(CF.getPlugin(), 0, 2);
     }
 
     @Event
     public void onMove() {
-    }
-
-    public void move(@Nonnull ImmutableList<WrappedPacketPlayInSteerVehicle.WrappedInputDirection> directions) {
-        // Make sure the player is still riding the vehicle
-        if (!vehicle.getPassengers().contains(passenger)) {
-            vehicle.addPassenger(passenger);
-        }
-
-        final Vector direction = passenger.getLocation().getDirection();
-        direction.setY(0.0d).normalize();
-
-        final Vector rightVector = direction.clone().crossProduct(Vectors.UP).normalize();
-        final Vector vector = new Vector(0, 0, 0);
-
-        directions.apply(vector)
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.FORWARD, vec -> vector.add(direction))
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.BACKWARD, v -> v.subtract(direction))
-
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.LEFT, v -> v.subtract(rightVector))
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.RIGHT, v -> v.add(rightVector))
-
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.JUMP, v -> v.setY(1))
-                .when(WrappedPacketPlayInSteerVehicle.WrappedInputDirection.SHIFT, v -> v.setY(-1));
-
-        if (vector.lengthSquared() > 0) {
-            vector.normalize().multiply(speed.get());
-        }
-
-        move(vector);
     }
 
     public void move(@Nonnull Vector vector) {
@@ -113,7 +89,44 @@ public class Vehicle implements Removable {
     @Override
     @OverridingMethodsMustInvokeSuper
     public void remove() {
-        // Remove the entity
+        // Remove the entity and cancel the task
         vehicle.remove();
+        this.cancel();
+    }
+
+    @Override
+    public void run() {
+        // Make sure the player is still riding the vehicle
+        if (!vehicle.getPassengers().contains(passenger)) {
+            vehicle.addPassenger(passenger);
+        }
+
+        final Set<InputKey> heldKeys = PlayerInput.getHeldKeys(passenger);
+
+        if (heldKeys.isEmpty()) {
+            return;
+        }
+
+        final Vector direction = passenger.getLocation().getDirection();
+        direction.setY(0.0d).normalize();
+
+        final Vector rightVector = direction.clone().crossProduct(Vectors.UP).normalize();
+        final Vector vector = new Vector(0, 0, 0);
+
+        ImmutableList.of(heldKeys).apply(vector)
+                .when(InputKey.W, vec -> vector.add(direction))
+                .when(InputKey.S, v -> v.subtract(direction))
+
+                .when(InputKey.A, v -> v.subtract(rightVector))
+                .when(InputKey.D, v -> v.add(rightVector))
+
+                .when(InputKey.SPACE, v -> v.setY(1))
+                .when(InputKey.SHIFT, v -> v.setY(-1));
+
+        if (vector.lengthSquared() > 0) {
+            vector.normalize().multiply(speed.get());
+        }
+
+        move(vector);
     }
 }

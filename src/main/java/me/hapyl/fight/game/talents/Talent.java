@@ -443,19 +443,13 @@ public abstract class Talent
     }
 
     public final void startCd(@Nonnull GamePlayer player, int cooldown) {
-        if (cooldown <= 0) {
+        if (cooldown <= 0 || CF.environment().ignoreCooldowns.isEnabled()) {
             return;
         }
 
         // If a player has slowing aura, modify cooldown
         if (player.hasEffect(Effects.SLOWING_AURA)) {
             cooldown *= ((SlowingAuraEffect) Effects.SLOWING_AURA.getEffect()).cooldownModifier;
-        }
-
-        // Don't start CD if in debug
-        final DebugData debug = Manager.current().getDebug();
-        if (debug.is(DebugData.Flag.IGNORE_COOLDOWN)) {
-            return;
         }
 
         player.cooldownManager.setCooldown(this, cooldown);

@@ -79,6 +79,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             Attribute.ATTACK_DAMAGE, 1.0d,
             Attribute.ARMOR, -100.0d
     );
+    private static final String BLOOD_DEBT_CHAR = "&4&l🩸";
 
     public final EntityRandom random;
     public final EntityTicker ticker;
@@ -95,6 +96,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     protected double health;
     protected Shield shield;
     protected Decay decay;
+    protected BloodDebt bloodDebt;
     private AI ai;
     private boolean informImmune = true;
     private boolean canMove = true;
@@ -115,6 +117,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         this.ticker = new EntityTicker(this);
 
         this.health = attributes.getMaxHealth();
+        this.bloodDebt = new BloodDebt(this);
 
         super.base = false;
 
@@ -717,6 +720,20 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         amount = attributes.calculateIncomingHealing(amount);
 
+        // Check for debt
+        final double bloodDebtAmount = bloodDebt.amount();
+
+        if (bloodDebtAmount > 0.0d) {
+            final double bloodDebtDecrement = Math.max(0, Math.min(amount, bloodDebtAmount));
+            amount -= bloodDebtDecrement;
+
+            bloodDebt.decrement(bloodDebtDecrement);
+
+            // Fx
+            playSound(Sound.ENTITY_ZOMBIE_INFECT, 2);
+            spawnDebuffDisplay("&c- &l%.0f &4%s".formatted(bloodDebtDecrement, BLOOD_DEBT_CHAR), 20);
+        }
+
         final double maxHealth = getMaxHealth();
         final double healthAfterHealing = Math.clamp(health + amount, getMinHealth(), maxHealth);
         final double actualHealing = healthAfterHealing - health;
@@ -878,11 +895,21 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         cooldown.stopCooldowns();
         state = EntityState.DEAD;
+        bloodDebt.reset();
 
         shield = null;
         decay = null;
 
         onDeath();
+    }
+
+    @Nonnull
+    public BloodDebt bloodDebt() {
+        return bloodDebt;
+    }
+
+    public double bloodDebtAmount() {
+        return bloodDebt.amount();
     }
 
     @Override
@@ -1007,13 +1034,15 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Nonnull
     public String getHealthFormatted() {
         final double health = Math.max(0, Math.ceil(getFinalHealth()));
+        String healthString = decay != null
+                ? "&7&l%.0f &8❤".formatted(health)
+                : "&c&l%.0f &c❤".formatted(health);
 
-        if (decay != null) {
-            return "&7&l%.0f &8❤".formatted(health);
+        if (bloodDebt.hasDebt()) {
+            healthString += " &4&l%.0f %s".formatted(bloodDebt.amount(), BLOOD_DEBT_CHAR);
         }
-        else {
-            return "&c&l%.0f &c❤".formatted(health);
-        }
+
+        return healthString;
     }
 
     @Nullable

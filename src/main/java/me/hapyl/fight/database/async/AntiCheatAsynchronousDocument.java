@@ -1,8 +1,9 @@
-package me.hapyl.fight.database.collection;
+package me.hapyl.fight.database.async;
 
 import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.anticheat.PunishmentReport;
+import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.database.serialize.MongoSerializer;
 import me.hapyl.fight.infraction.HexID;
 import org.bson.Document;
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
  * <br>
  * This is meant to be used statically.
  */
-public class AntiCheatCollection {
+public class AntiCheatAsynchronousDocument {
 
     private static MongoCollection<Document> COLLECTION;
 
@@ -82,7 +83,7 @@ public class AntiCheatCollection {
 
     private static MongoCollection<Document> collection() {
         if (COLLECTION == null) {
-            COLLECTION = Main.getPlugin().getDatabase().getAntiCheat();
+            COLLECTION = Main.getPlugin().getDatabase().collection(NamedCollection.ANTI_CHEAT);
         }
 
         return COLLECTION;

@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes.spark;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -16,8 +17,10 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 
@@ -26,6 +29,7 @@ import javax.annotation.Nonnull;
 public class Spark extends Hero {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
+    @DisplayField private final double inWaterDamage = 3d;
 
     public Spark(@Nonnull Key key) {
         super(key, "Spark");
@@ -102,6 +106,21 @@ public class Spark extends Hero {
         switch (cause) {
             case FIRE, FIRE_TICK, LAVA -> instance.setCancelled(true);
         }
+    }
+
+    @Override
+    public void onStart(@Nonnull GameInstance instance) {
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                getAlivePlayers().forEach(player -> {
+                    if (player.isInWater()) {
+                        player.damage(inWaterDamage, EnumDamageCause.WATER);
+                        player.playWorldSound(Sound.ENTITY_PLAYER_HURT_DROWN, 0.75f);
+                    }
+                });
+            }
+        }.runTaskTimer(10, 10);
     }
 
     @Override

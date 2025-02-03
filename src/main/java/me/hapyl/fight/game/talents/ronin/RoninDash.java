@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ronin;
 
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.Response;
@@ -12,7 +13,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.LocationHelper2;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Axis;
 import org.bukkit.Location;
@@ -31,6 +31,8 @@ public class RoninDash extends Talent {
 
     @DisplayField private final double speedDecrease = 20;
     @DisplayField private final int speedDecreaseDuration = 50;
+
+    @DisplayField private final int maxDuration = 30;
 
     public RoninDash(@Nonnull Key key) {
         super(key, "Ronin Dash");
@@ -64,9 +66,9 @@ public class RoninDash extends Talent {
 
             @Override
             public boolean tick(int tick, int step) {
-                final double distance = LocationHelper2.distanceSquared(player.getLocation(), location, Axis.X, Axis.Z);
+                final double distance = LocationHelper.distanceSquared(player.getLocation(), location, Axis.X, Axis.Z);
 
-                if (distance >= maxDistance) {
+                if (tick >= maxDuration || distance >= maxDistance) {
                     player.setInvulnerable(false);
                     return true;
                 }

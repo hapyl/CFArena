@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.Notifier;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
@@ -53,7 +53,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
             return;
         }
 
-        final HeroStatsCollection stats = hero.getStats();
+        final HeroStatsAsynchronousDocument stats = hero.getStats();
         final UUID uuid = player.getUniqueId();
         final boolean hasRated = stats.hasRated(uuid);
         final Hero canRateHero = RateHeroCommand.canRate.get(player);

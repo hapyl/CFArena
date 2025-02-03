@@ -7,6 +7,7 @@ import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
+import me.hapyl.fight.config.Environment;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
 import me.hapyl.fight.fastaccess.FastAccessHandler;
@@ -34,10 +35,8 @@ import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.store.Store;
 import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.fight.vehicle.VehicleManager;
-import me.hapyl.fight.vehicle.VehiclePacketHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
-import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -76,6 +75,7 @@ public class Main extends JavaPlugin {
     private Registries registries;
     private Store store;
     private CFQuestHandler questHandler;
+    private Environment environment;
 
     @Override
     public void onEnable() {
@@ -100,6 +100,7 @@ public class Main extends JavaPlugin {
 
         // Register a task list before manager
         taskList = new TaskList(this);
+        environment = new Environment(this);
 
         // Register the main manager
         manager = CF.manager = new Manager(this);
@@ -110,7 +111,7 @@ public class Main extends JavaPlugin {
         experience = new Experience(this);
         boosters = new BoosterController(this);
         notificationManager = new NotificationManager(this);
-        parkourManager = new CFParkourManager(this);
+        parkourManager = new CFParkourManager();
         relicHunt = new RelicHunt(this);
         persistentNPCManager = new PersistentNPCManager(this);
         crateManager = new CrateManager(this);
@@ -118,7 +119,6 @@ public class Main extends JavaPlugin {
         vehicleManager = new VehicleManager(this);
         store = new Store(this);
         questHandler = new CFQuestHandler(this);
-
         //new LampGame(this);
 
         // Register events listeners
@@ -150,7 +150,8 @@ public class Main extends JavaPlugin {
         }
 
         // Remove recipes and achievements
-        Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+        // todo - Use resourse pack for this the new ignore thingy
+        Bukkit.advancementIterator().forEachRemaining(advancement -> {
             Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
         });
 
@@ -168,19 +169,20 @@ public class Main extends JavaPlugin {
         this.reloadChecker.check(20);
 
         // Delayed operations
-        GameTask.runLater(() -> {
-            // We have teo re-create profiles in case of /reload
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                manager.createProfile(player);
+        GameTask.runLater(
+                () -> {
+                    // We have teo re-create profiles in case of /reload
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        manager.createProfile(player);
 
-                // Fix quests
-                Eterna.getManagers().quest.simulateOnJoin(player);
-            });
+                        // Fix quests
+                        Eterna.getManagers().quest.simulateOnJoin(player);
+                    });
 
-
-            // Clear old entities, most likely because of /reload
-            SynchronizedGarbageEntityCollector.clearInAllWorlds();
-        }, 1); // Sped up the profile creation, why was it 20 ticks anyway?
+                    // Clear old entities, most likely because of /reload
+                    SynchronizedGarbageEntityCollector.clearInAllWorlds();
+                }, 1
+        ); // Sped up the profile creation, why was it 20 ticks anyway?
 
         // Load contributors
         //Contributors.loadContributors();
@@ -193,35 +195,43 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        runSafe(() -> {
-            for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getProfile(player).getDatabase().save();
-            }
-        }, "Player database save.");
+        runSafe(
+                () -> {
+                    for (final Player player : Bukkit.getOnlinePlayers()) {
+                        Manager.current().getProfile(player).getDatabase().save();
+                    }
+                }, "Player database save."
+        );
 
         runSafe(database::stopConnection, "Database connection stop.");
 
-        runSafe(() -> {
-            //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
-        }, "Snake removal");
+        runSafe(
+                () -> {
+                    //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
+                }, "Snake removal"
+        );
 
-        runSafe(() -> {
-            if (this.manager.isGameInProgress()) {
-                this.manager.stopCurrentGame();
-            }
-        }, "Game instance stop.");
+        runSafe(
+                () -> {
+                    if (this.manager.isGameInProgress()) {
+                        this.manager.stopCurrentGame();
+                    }
+                }, "Game instance stop."
+        );
 
         runSafe(this::saveConfig, "Config save.");
 
-        runSafe(() -> {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                final Tablist oldTablist = Tablist.getPlayerTabList(player);
+        runSafe(
+                () -> {
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        final Tablist oldTablist = Tablist.getPlayerTabList(player);
 
-                if (oldTablist != null) {
-                    oldTablist.destroy();
-                }
-            });
-        }, "Tablist removal.");
+                        if (oldTablist != null) {
+                            oldTablist.destroy();
+                        }
+                    });
+                }, "Tablist removal."
+        );
     }
 
     // *=* Getters *=* //
@@ -317,6 +327,11 @@ public class Main extends JavaPlugin {
         return enumValue;
     }
 
+    @Nonnull
+    public Environment environment() {
+        return environment;
+    }
+
     private void registerEvents() {
         CF.registerEvents(List.of(
                 new PlayerHandler(),
@@ -335,10 +350,8 @@ public class Main extends JavaPlugin {
                 new ArcaneMutePacketHandler(),
                 new DismountPacketHandler(),
                 new CandlebanePacketHandler(),
-                new CameraPacketHandler(),
                 new PlayerClickAtEntityPacketHandler(),
-                new MotDPacketHandler(),
-                new VehiclePacketHandler()
+                new MotDPacketHandler()
         ));
     }
 

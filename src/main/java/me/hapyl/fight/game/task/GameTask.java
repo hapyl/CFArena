@@ -130,7 +130,8 @@ public abstract class GameTask implements Runnable, BukkitTask {
     }
 
     /**
-     * @deprecated Don't use this directly, see {@link GameTask#cancel}
+     * @deprecated Do not call unless you know what you're doing, use {@link GameTask#cancel} instead.
+     * @see GameTask#cancel()
      */
     @Deprecated
     public void cancel0() {

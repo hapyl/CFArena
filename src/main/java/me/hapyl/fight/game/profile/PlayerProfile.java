@@ -205,7 +205,7 @@ public class PlayerProfile {
     }
 
     /**
-     * @see CF#getProfile(Player)
+     * @see CF#getDatabase(Player)
      * @deprecated {@link PlayerDatabase} can exist without {@link PlayerProfile}
      */
     @Nonnull
@@ -237,7 +237,7 @@ public class PlayerProfile {
     public GamePlayer createGamePlayer() {
         this.gamePlayer = Manager.current().registerGamePlayer(new GamePlayer(this));
 
-        if (Manager.current().getDebug().any()) {
+        if (CF.environment().debug.isEnabled()) {
             CFUtils.dumpStackTrace();
         }
 
