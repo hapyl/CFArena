@@ -78,6 +78,7 @@ public abstract class Construct extends TickingGameTask {
         return upgradeCost;
     }
 
+
     public void setUpgradeCost(int upgradeCost) {
         this.upgradeCost = upgradeCost;
     }
