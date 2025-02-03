@@ -55,7 +55,7 @@ public class LuckyDay extends Talent {
         // 1 > Check if Himari talent is set
         HimariTalent currentTalent = data.getTalent();
         if (currentTalent != null) {
-            return Response.error("Can't use that again until the new talent is used..");
+            return Response.error("Can't use that again until the new talent is used.");
         }
 
 
@@ -164,6 +164,6 @@ public class LuckyDay extends Talent {
 
     public void resultRemembering(GamePlayer player) {
         int talentChoiceResult = talentChoice(player);
-        effectPicked(talentChoiceResult, player);
+        effectPicked(5, player);
     }
 }

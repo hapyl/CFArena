@@ -2,11 +2,13 @@ package me.hapyl.fight.game.talents.himari;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,14 +41,45 @@ public class DeadEye extends HimariTalent {
     public @Nullable Response executeHimari(@NotNull GamePlayer player) {
         new TickingGameTask() {
             private final int chargeTime = 3;
+            private int currentChar = 0;
 
             @Override
             public void run(int tick) {
                 if (tick >= chargeTime) {
-
+                    deadShot(player);
+                    cancel();
+                    return;
+                }
+                if (currentChar < charge.length) {
+                    player.sendSubtitle(Character.toString(charge[currentChar]), 1, 5, 2);
+                    player.playSound(Sound.BLOCK_LEVER_CLICK, 2);
+                    currentChar++;
                 }
             }
-        };
-        return Response.OK;
+        }.runTaskTimer(0, 9);
+        return Response.ok();
     }
+
+    public void deadShot(@NotNull GamePlayer player) {
+        GameEntity target = player.getTargetEntity();
+        if (!isTargetInSight(player, target)) {
+            player.sendMessage("&cThe target is no longer in your sight!");
+            return;
+        }
+
+        // 1 > Calculate damage
+
+        // 2 > Apply the damage
+
+        // 3 > Play hit sound or whatever you want
+        player.playSound(Sound.ENTITY_ARROW_HIT_PLAYER, 2);
+
+    }
+
+    private boolean isTargetInSight(GamePlayer player, GameEntity target) {
+        // Logic to check if the target is in the player's line of sight
+
+        return false;
+    }
+
 }

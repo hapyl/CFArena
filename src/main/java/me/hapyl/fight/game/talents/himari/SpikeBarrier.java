@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.himari;
 
-import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
@@ -64,11 +63,8 @@ public class SpikeBarrier extends HimariTalent implements Listener {
     public @Nullable Response executeHimari(@NotNull GamePlayer player) {
         Debug.info("Executing Spike Barrier for player: " + player.getName());
 
-        // Mock an incoming damage event to simulate Spike Barrier activation
-        DamageInstance damageInstance = new DamageInstance(player, 5);
-        GameDamageEvent mockEvent = new GameDamageEvent(damageInstance);
 
-      //  handleGameDamageEvent(mockEvent, player);
+    //    handleGameDamageEvent(omfg, player);
 
         // Start the cooldown after activation
         setCooldown(9999);
