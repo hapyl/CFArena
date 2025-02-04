@@ -372,7 +372,7 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
                     .setOption(2, DialogOptionEntry
                             .builder()
                             .advanceDialog(true)
-                            .prompt("How many coins how I spent?")
+                            .prompt("How many coins have I spent?")
                             .add(StoreOwnerNPC.this, "Hmm...")
                             .add(StoreOwnerNPC.this, "Let me do some accounting...")
                             .add(StoreOwnerNPC.this, dialog -> {

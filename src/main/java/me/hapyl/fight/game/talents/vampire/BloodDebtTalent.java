@@ -58,7 +58,7 @@ public class BloodDebtTalent extends Talent {
         setType(TalentType.ENHANCE);
         setItem(Material.FLINT);
 
-        setCooldownSec(15);
+        setCooldownSec(30); // The cooldown is big because the ultimate refreshes it
     }
 
     @Override

@@ -158,7 +158,7 @@ public class BatTransferTalent extends Talent {
             }
 
             // Fx
-            if (tick % 20 == 0 || Math.random() < 0.05) {
+            if (tick % 20 == 0 || player.random.next() < 0.025) {
                 player.playWorldSound(location, Sound.ENTITY_BAT_AMBIENT, 0.5f);
             }
         }

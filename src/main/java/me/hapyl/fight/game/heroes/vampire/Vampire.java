@@ -6,6 +6,7 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.NPCPose;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.CollectionUtils;
@@ -125,21 +126,26 @@ public class Vampire extends Hero implements Listener {
         @DisplayField private final int batsDuration = Tick.fromSecond(20);
 
         @DisplayField private final double homingSpeed = 0.5d;
+        @DisplayField(suffix = "blocks") private final double homingRadius = 5;
         @DisplayField private final double damage = 10;
 
-        @DisplayField(percentage = true) private final double bloodDebtAmount = 0.2;
+        @DisplayField(percentage = true) private final double bloodDebtAmount = 0.2d;
+        @DisplayField(percentage = true) private final double healingPercentOfBloodDebt = 0.35d;
+        @DisplayField(percentage = true) private final double bloodDebtHealingThreshold = 0.2d;
 
         private final double biteThreshold = 1.0d;
 
         public VampireUltimate() {
-            super(Vampire.this, "Legion!", 75);
+            super(Vampire.this, "Legion", 75);
 
             setDescription("""
-                    Blow into the war horn summoning a vampire army.
+                    Blow into the war horn summoning a vampire army behind you.
                     
-                    After a short delay, the army transforms into bats and rushes forward, dealing damage and applying %1$s to hit enemies.
+                    After a short delay, the army &ntransforms&7 into &0bats&7 and rushes forward, dealing &cdamage&7 and applying %1$s to hit enemies.
                     
-                    Also clear your own %1$s, heal based on the amount cleared and refresh %2$s cooldown.
+                    If your own %1$s if &a&ngreater&7 than &b{bloodDebtHealingThreshold}&7 of max health, clear it and:
+                    &8• &7Heal for &b{healingPercentOfBloodDebt}&7 of the cleared debt.
+                    &8• &7Refresh &a%2$s&7 cooldown.
                     """.formatted(Named.BLOOD_DEBT, getFirstTalent().getName()));
 
             setItem(Material.GOAT_HORN);
@@ -185,13 +191,38 @@ public class Vampire extends Hero implements Listener {
         }
 
         @Override
+        public void onCastTick(int tick) {
+            // Move a little forward for fx
+            army.forEach(soldier -> {
+                final Location location = soldier.getLocation();
+                final Vector vector = location.getDirection().multiply(0.025d);
+
+                location.add(vector);
+                soldier.teleport(location);
+
+                // Swing randomly
+                if (player.random.next() < 0.04f) {
+                    if (player.random.next() < 0.1f) {
+                        soldier.swingOffHand();
+                    }
+                    else {
+                        soldier.swingMainHand();
+                    }
+                }
+            });
+        }
+
+        @Override
         public void onExecute() {
             final Set<Bat> bats = Sets.newHashSet();
 
+            // Transform into bats
             CollectionUtils.forEachAndClear(
                     army, soldier -> {
+                        soldier.setPose(NPCPose.CROUCHING);
+
                         bats.add(Entities.BAT.spawn(
-                                soldier.getLocation(), self -> {
+                                soldier.getLocation().add(0, 1, 0), self -> {
                                     self.setInvulnerable(true);
                                     self.setAwake(true);
                                     self.setAI(false);
@@ -204,6 +235,7 @@ public class Vampire extends Hero implements Listener {
                     }
             );
 
+            // Bat task
             new TickingGameTask() {
                 @Override
                 public void onTaskStop() {
@@ -216,7 +248,9 @@ public class Vampire extends Hero implements Listener {
                     entity.damage(ultimate.damage, player, EnumDamageCause.BAT_BITE_NO_TICK);
                     entity.bloodDebt().incrementOfMaxHealth(ultimate.bloodDebtAmount);
 
-                    // TODO (Tue, Feb 4 2025 @xanyjl): Add fx
+                    final Location location = bat.getLocation();
+
+                    player.playWorldSound(location, Sound.ENTITY_FOX_BITE, 0.0f);
                 }
 
                 @Override
@@ -233,7 +267,7 @@ public class Vampire extends Hero implements Listener {
                         final Location location = bat.getLocation();
 
                         // Bats home towards closest enemies because it would be impossible to hit otherwise
-                        final LivingGameEntity nearestEntity = Collect.nearestEntity(location, 5, player::isNotSelfOrTeammate);
+                        final LivingGameEntity nearestEntity = Collect.nearestEntity(location, ultimate.homingRadius, player::isNotSelfOrTeammate);
                         final Vector direction;
 
                         if (nearestEntity != null) {
@@ -250,17 +284,34 @@ public class Vampire extends Hero implements Listener {
                             direction = location.getDirection();
                         }
 
-                        // TODO (Tue, Feb 4 2025 @xanyjl): Block collision
-
                         // Transfer
                         location.add(direction.multiply(ultimate.homingSpeed));
+
+                        // Collision detection
+                        if (!location.getBlock().isEmpty()) {
+                            bat.remove();
+                            player.spawnWorldParticle(location, Particle.POOF, 3, 0.1, 0.2, 0.1, 0.05f);
+                            return;
+                        }
+
                         bat.teleport(location);
                     });
                 }
             }.runTaskTimer(0, 1);
 
+            // Apply effects
+            final BloodDebt bloodDebt = player.bloodDebt();
+            final double bloodDebtAmount = bloodDebt.amount();
+
+            if (bloodDebtAmount >= (player.getMaxHealth() * ultimate.bloodDebtHealingThreshold)) {
+                bloodDebt.reset();
+
+                player.heal(bloodDebtAmount * ultimate.healingPercentOfBloodDebt);
+                Vampire.this.getFirstTalent().stopCd(player);
+            }
+
             // Fx
-            player.playWorldSound(Sound.ENTITY_ENDER_DRAGON_GROWL, 2.0f);
+            player.playWorldSound(Sound.ENTITY_SNIFFER_DEATH, 0.0f);
         }
 
         private void summonArmy() {
