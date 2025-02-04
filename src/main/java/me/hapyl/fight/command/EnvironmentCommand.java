@@ -64,7 +64,7 @@ public class EnvironmentCommand extends CFCommand {
                     Notifier.broadcastStaff("{%s} set the environment value of {%s} to {%s}!".formatted(
                             player.getName(),
                             propertyName,
-                            valueToSet
+                            property.value()
                     ));
                 }
                 else {

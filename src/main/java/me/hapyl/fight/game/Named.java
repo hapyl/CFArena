@@ -38,6 +38,7 @@ public enum Named {
     THE_JOKER("\uD83D\uDE08", "The Joker", Color.SOFT_PINK),
     ECHO_WORLD("\uD83D\uDD18", "Echo World", Color.ECHO_WORLD),
     DECAY("\uD83D\uDC94", "Decay", Color.GRAYER),
+    BLOOD_DEBT("&l🩸", "Blood Debt", Color.BLOOD),
 
     ;
 

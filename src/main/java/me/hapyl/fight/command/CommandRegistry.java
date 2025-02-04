@@ -161,10 +161,12 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
@@ -182,6 +184,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URL;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -257,6 +260,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new StoryCommand("story"));
         register(new StoreCommand("store"));
         register(new EnvironmentCommand("environment"));
+        register(new DumpColorCommand("dumpColor"));
 
         // *=* Inner commands *=* //
         register(
@@ -2071,9 +2075,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register(
-                "deleteGamePlayer", (player, args) ->
-
-                {
+                "deleteGamePlayer", (player, args) -> {
                     final PlayerProfile profile = CF.getProfile(player);
                     if (profile == null) {
                         return;
@@ -2081,82 +2083,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                     profile.resetGamePlayer();
                     Chat.sendMessage(player, "&aDone!");
-                }
-        );
-
-        register(
-                "dumpColor", (player, args) ->
-
-                {
-                    final ItemStack item = player.getInventory().getItemInMainHand();
-                    final ItemMeta meta = item.getItemMeta();
-
-                    final StringBuilder commandCopy = new StringBuilder();
-                    final net.kyori.adventure.text.TextComponent.Builder component = Component.text();
-
-                    org.bukkit.Color color = null;
-                    ArmorTrim trim = null;
-
-                    if (meta instanceof LeatherArmorMeta colorMeta) {
-                        color = colorMeta.getColor();
-                        final int red = color.getRed();
-                        final int green = color.getGreen();
-                        final int blue = color.getBlue();
-
-                        commandCopy.append(red).append(", ").append(green).append(", ").append(blue);
-                        component.append(
-                                Component.text("Color: ").color(NamedTextColor.GREEN),
-                                Component.text("⬛⬛⬛").color(TextColor.color(color.asRGB()))
-                        );
-                    }
-
-                    if (meta instanceof ArmorMeta armorMeta) {
-                        trim = armorMeta.getTrim();
-
-                        if (trim != null) {
-                            final TrimPattern pattern = trim.getPattern();
-                            final TrimMaterial material = trim.getMaterial();
-
-                            final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
-                            final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
-
-                            if (color != null) { // add comma YEP
-                                commandCopy.append(", ");
-                                component.append(Component.text(", ").color(NamedTextColor.GRAY));
-                            }
-
-                            commandCopy.append("TrimPattern.").append(patternKey).append(", TrimMaterial.").append(materialKey);
-                            component.append(
-                                    Component.text("Trim: ").color(NamedTextColor.AQUA),
-                                    Component.text("%s, %s".formatted(
-                                                    KeyedToString.of(trim.getPattern())
-                                                            .stripMinecraft()
-                                                            .capitalize()
-                                                            .toString(),
-                                                    KeyedToString.of(trim.getMaterial())
-                                                            .stripMinecraft()
-                                                            .capitalize()
-                                                            .toString()
-                                            ))
-                                            .color(NamedTextColor.DARK_AQUA)
-                            );
-                        }
-                    }
-
-                    if (commandCopy.isEmpty()) {
-                        Chat.sendMessage(player, "&cNo color nor trim applied to this item!");
-                        return;
-                    }
-
-                    component.append(Component.text(" "))
-                            .append(Component.text("COPY")
-                                    .color(NamedTextColor.GOLD)
-                                    .decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED)
-                                    .hoverEvent(Component.text("Click to copy!").color(NamedTextColor.YELLOW))
-                                    .clickEvent(ClickEvent.suggestCommand(commandCopy.toString()))
-                            );
-
-                    player.sendMessage(component);
                 }
         );
 

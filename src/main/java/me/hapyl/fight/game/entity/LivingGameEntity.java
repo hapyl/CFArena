@@ -893,12 +893,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        cooldown.stopCooldowns();
         state = EntityState.DEAD;
-        bloodDebt.reset();
-
-        shield = null;
-        decay = null;
 
         onDeath();
     }
@@ -916,6 +911,13 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @OverridingMethodsMustInvokeSuper
     public void onDeath() {
         super.onDeath();
+
+        cooldown.stopCooldowns();
+        bloodDebt.reset();
+
+        shield = null;
+        decay = null;
+
         memory.forgetEverything();
     }
 

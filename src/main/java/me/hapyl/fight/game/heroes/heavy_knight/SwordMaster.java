@@ -9,10 +9,10 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.Equipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
@@ -23,6 +23,8 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 
@@ -52,7 +54,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         attributes.setAttackSpeed(20);
 
         final Equipment equipment = getEquipment();
-        equipment.setChestPlate(Material.NETHERITE_CHESTPLATE);
+        equipment.setChestPlate(Material.NETHERITE_CHESTPLATE, TrimPattern.HOST, TrimMaterial.NETHERITE);
         equipment.setLeggings(Material.IRON_LEGGINGS);
         equipment.setBoots(Material.NETHERITE_BOOTS);
 

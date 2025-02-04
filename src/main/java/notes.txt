@@ -1,6 +1,8 @@
 ###############################
 
 - MAKE MASTERY WORK RIGHT ( should it? def no lazy )
+- Blood debt should be removed on death
+- Changes to onDeath might break something
 
 ======= IMPORTANT =======
 

@@ -111,7 +111,7 @@ public class Main extends JavaPlugin {
         experience = new Experience(this);
         boosters = new BoosterController(this);
         notificationManager = new NotificationManager(this);
-        parkourManager = new CFParkourManager();
+        parkourManager = new CFParkourManager(this);
         relicHunt = new RelicHunt(this);
         persistentNPCManager = new PersistentNPCManager(this);
         crateManager = new CrateManager(this);

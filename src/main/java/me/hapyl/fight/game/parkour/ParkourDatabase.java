@@ -3,8 +3,9 @@ package me.hapyl.fight.game.parkour;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.parkour.Data;
 import me.hapyl.eterna.module.parkour.Stats;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.collection.AsynchronousDatabase;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.database.NamedCollection;
+import me.hapyl.fight.database.async.AsynchronousDocument;
 import me.hapyl.fight.game.Debug;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -16,12 +17,12 @@ import java.util.Set;
 import java.util.UUID;
 
 // This is handled async so whatever not putting using DatabaseCollection.
-public class ParkourDatabase extends AsynchronousDatabase {
+public class ParkourDatabase extends AsynchronousDocument {
 
     private final CFParkour parkour;
 
     public ParkourDatabase(CFParkour parkour) {
-        super(Main.getPlugin().getDatabase().getParkour(), new Document("parkour", parkour.parkourPath()));
+        super(CF.getServerDatabase().collection(NamedCollection.PARKOUR), new Document("parkour", parkour.parkourPath()));
         this.parkour = parkour;
 
         // Remove invalid entries

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.himari;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Debug;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,6 +38,9 @@ public class SpikeBarrier extends HimariTalent implements Listener {
 
     @EventHandler
     public void handleGameDamageEvent(GameDamageEvent event) {
+        if (true) {
+            return;
+        }
 
         Debug.info("Spike shield parameters setup");
 

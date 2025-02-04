@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.himari;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -13,7 +14,6 @@ import me.hapyl.fight.game.heroes.himari.HimariData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -21,8 +21,6 @@ import org.bukkit.Sound;
 import javax.annotation.Nonnull;
 
 public class LuckyDay extends Talent {
-
-
 
     private final char[] chars = {'ᛚ', 'ᚢ', 'ᚲ', 'ᚲ'};
 
@@ -46,7 +44,6 @@ public class LuckyDay extends Talent {
         setCooldownSec(18);
     }
 
-
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         // Preconditions
@@ -57,7 +54,6 @@ public class LuckyDay extends Talent {
         if (currentTalent != null) {
             return Response.error("Can't use that again until the new talent is used..");
         }
-
 
         // The dice-rolling and effect application logic will run in the task
 
@@ -73,7 +69,6 @@ public class LuckyDay extends Talent {
                     cancel();
                     return;  // Exit the method after canceling the task.
                 }
-
 
                 if (currentIndex < chars.length) {
                     player.sendSubtitle(Character.toString(chars[currentIndex]), 1, 5, 2);

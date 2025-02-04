@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.heroes.GlobalHeroStats;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -26,7 +26,7 @@ public class HeroStatisticGUI extends StyledGUI {
 
     private final Hero hero;
     private final int index;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
     private final GlobalHeroStats globalStats;
 
     public HeroStatisticGUI(Player player, Hero heroes, int index) {

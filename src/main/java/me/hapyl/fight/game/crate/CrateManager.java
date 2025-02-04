@@ -11,8 +11,6 @@ import me.hapyl.fight.event.ProfileInitializationEvent;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.fight.globalconfig.Configurable;
-import me.hapyl.fight.globalconfig.Configuration;
 import me.hapyl.fight.gui.CrateGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,11 +24,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CrateManager extends DependencyInjector<Main> implements Listener, Configurable {
+public class CrateManager extends DependencyInjector<Main> implements Listener {
 
     private static final double NEARBY_DISTANCE = 3.0d;
     private static final boolean ARE_CRATES_HAS_BEEN_DISCONTINUED = true;
@@ -151,7 +148,7 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
     }
 
     public void openCrate(Player player, CrateLocation chest) {
-        if (checkDisabledAndSendError(player)) {
+        if (true) { // fixme
             return;
         }
 
@@ -173,9 +170,4 @@ public class CrateManager extends DependencyInjector<Main> implements Listener, 
         return null;
     }
 
-    @Nonnull
-    @Override
-    public Configuration getConfiguration() {
-        return Configuration.CRATE;
-    }
 }

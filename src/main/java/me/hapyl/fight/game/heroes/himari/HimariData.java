@@ -16,7 +16,6 @@ public class HimariData extends PlayerData {
         super(player);
 
         this.himari = himari;
-
     }
 
     @Nonnull

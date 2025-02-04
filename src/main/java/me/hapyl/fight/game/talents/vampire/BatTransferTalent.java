@@ -99,7 +99,7 @@ public class BatTransferTalent extends Talent {
         public void onTaskStop() {
             this.bat.remove();
 
-            this.player.setGameMode(GameMode.ADVENTURE);
+            this.player.setGameMode(GameMode.SURVIVAL);
             this.player.addEffect(Effects.SLOW_FALLING, 10, true);
             this.player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100, true);
 

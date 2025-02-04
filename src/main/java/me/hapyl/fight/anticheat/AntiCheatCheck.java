@@ -1,7 +1,7 @@
 package me.hapyl.fight.anticheat;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.fight.database.collection.AntiCheatCollection;
+import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.infraction.HexID;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.entity.Player;
@@ -59,7 +59,7 @@ public enum AntiCheatCheck {
             );
 
             punish(player, report);
-            AntiCheatCollection.post(report);
+            AntiCheatAsynchronousDocument.post(report);
         }
 
         public void punish(Player player, PunishmentReport report) {

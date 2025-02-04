@@ -5,6 +5,7 @@ import me.hapyl.fight.CF;
 
 import javax.annotation.Nonnull;
 
+// FIXME (Tue, Feb 4 2025 @xanyjl): Maybe cache the value because this is reading every time it's called
 public class EnvironmentProperty<T> {
 
     private final String name;

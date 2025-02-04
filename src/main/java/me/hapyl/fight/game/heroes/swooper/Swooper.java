@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.swooper;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -276,7 +275,6 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
             return builder()
                     .onCastStart(() -> {
-                        Debug.info("castStart");
                         final WorldBorder border = Bukkit.createWorldBorder();
 
                         border.setCenter(player.getLocation());
@@ -291,7 +289,6 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
 
                     })
                     .onCastEnd(() -> {
-                        Debug.info("castEnd");
                         player.setWorldBorder(null);
 
                         final int enemyCount = Collect.enemyPlayers(player).size();
@@ -311,4 +308,5 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
                     });
         }
     }
+
 }

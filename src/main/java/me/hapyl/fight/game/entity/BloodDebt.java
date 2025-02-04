@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import org.bukkit.Sound;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 
@@ -41,5 +42,9 @@ public class BloodDebt {
 
     public void reset() {
         this.amount = 0.0d;
+    }
+
+    public void incrementOfMaxHealth(@Range(from = 0, to = 1) double percentage) {
+        increment(entity.getMaxHealth() * percentage);
     }
 }

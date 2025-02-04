@@ -19,8 +19,8 @@ public class QuadrantBeam {
             final PacketSquid squid = new PacketSquid(location);
             final PacketGuardian guardian = new PacketGuardian(location);
 
-            squid.spawnGlobally();
-            guardian.spawnGlobally();
+            squid.showGlobally();
+            guardian.showGlobally();
 
             guardian.setMarker();
             squid.setMarker();
