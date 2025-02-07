@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.entity.Player;
 
 public class TestWinConditionCommand extends SimplePlayerAdminCommand {

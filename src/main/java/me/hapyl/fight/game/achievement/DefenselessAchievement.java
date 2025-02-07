@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.achievement;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.AttributeChangeEvent;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

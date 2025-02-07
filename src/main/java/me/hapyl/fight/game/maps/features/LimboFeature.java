@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

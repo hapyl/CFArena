@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTargetWitch;
 import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestHealableRaider;
 import org.bukkit.Color;
@@ -29,7 +29,7 @@ public class DrWitch extends TamerPack {
                 Periodically splashes a &ahealing&7 potion on a &eteammate&7 with the lowest health.
                 """, TalentType.SUPPORT);
 
-        attributes.setHealth(30);
+        attributes.setMaxHealth(30);
 
         setDurationSec(30);
     }

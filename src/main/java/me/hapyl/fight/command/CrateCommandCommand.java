@@ -7,9 +7,9 @@ import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
-import me.hapyl.fight.game.cosmetic.crate.CrateManager;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.crate.CrateLocation;
+import me.hapyl.fight.game.crate.CrateManager;
+import me.hapyl.fight.game.crate.Crates;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -64,7 +64,7 @@ public class CrateCommandCommand extends SimplePlayerCommand {
             return;
         }
 
-        final PlayerDatabase database = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase database = CF.getDatabase(target);
         final CrateEntry crates = database.crateEntry;
 
         switch (argument) {

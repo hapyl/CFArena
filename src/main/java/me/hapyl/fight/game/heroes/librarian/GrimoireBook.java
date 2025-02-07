@@ -46,11 +46,11 @@ public enum GrimoireBook {
 
     // static members
     public static boolean hasCooldown(GamePlayer player) {
-        return player.hasCooldown(NORMAL.getBook());
+        return player.hasCooldownInternal(NORMAL.getBook());
     }
 
     public static int getCooldown(GamePlayer player) {
-        return player.getCooldown(NORMAL.getBook());
+        return 888888888;
     }
 
     public static String getCooldownString(GamePlayer player) {
@@ -59,7 +59,7 @@ public enum GrimoireBook {
 
     public static void applyCooldown(GamePlayer player, int cd) {
         for (final GrimoireBook value : values()) {
-            player.setCooldown(value.getBook(), cd);
+            // fixme
         }
     }
 

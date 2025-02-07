@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import org.bukkit.Material;
 
@@ -42,7 +42,7 @@ public class EngineerData extends PlayerData {
 
         // Update iron
         player.setItem(
-                HotbarSlots.HERO_ITEM,
+                HotBarSlot.HERO_ITEM,
                 ItemBuilder.of(Material.IRON_INGOT, "&aIron", "Use the iron to build construct!")
                         .setAmount(Math.max(1, this.iron))
                         .asIcon()
@@ -88,8 +88,8 @@ public class EngineerData extends PlayerData {
 
         mecha = new MechaIndustries(player, hero);
 
-        player.setItemAndSnap(HotbarSlots.TALENT_4, engineer.ironFist.getItem());
-        player.setCooldown(engineer.ironFist.getMaterial(), engineer.ultimateHitCd);
+        player.setItemAndSnap(HotBarSlot.TALENT_4, engineer.ironFist.getItem());
+        player.cooldownManager.setCooldown(engineer.ironFist, engineer.ultimateHitCd);
 
         temperInstance.temper(player, hero.getUltimate().getDuration());
     }
@@ -99,7 +99,7 @@ public class EngineerData extends PlayerData {
             return;
         }
 
-        player.setItem(HotbarSlots.TALENT_4, null);
+        player.setItem(HotBarSlot.TALENT_4, null);
         player.snapToWeapon();
 
         player.getAttributes().resetTemper(Temper.MECHA_INDUSTRY);

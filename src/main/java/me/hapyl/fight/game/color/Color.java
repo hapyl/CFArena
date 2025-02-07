@@ -1,18 +1,18 @@
 package me.hapyl.fight.game.color;
 
-import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.BFormat;
 import me.hapyl.eterna.module.util.Validate;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A custom color formatting.
+ * A named color formatting.
  * Allows creating and using #hex colors.
  */
 public class Color implements TextColor {
@@ -103,12 +103,13 @@ public class Color implements TextColor {
     public static final Color PASTEL_GREEN = new Color("#77DD77", org.bukkit.ChatColor.GREEN);
     public static final Color LAVENDER = new Color("#E6E6FA");
     public static final Color LIGHT_BLUE = new Color("#ADD8E6");
+    public static final Color ECHO_WORLD = new Color("#363a47");
 
     // *-----------------------------------------------------*
 
     public final ChatColor color;
     // Backing 'bukkitChatColor' is needed for teams;
-    // since they cannot have custom colors for
+    // since they cannot have named colors for
     // some reason, maybe mojang just forgot about it,
     // just like they did with the actionbar ¯\_(ツ)_/¯
     /// iTs BeCaUsE oF gLoWiNg!!!
@@ -162,12 +163,11 @@ public class Color implements TextColor {
      * Colors the string and formats with a {@link BFormat}.
      *
      * @param string - String to color.
-     * @param format - Format, if needed.
      * @return the formatted string.
      */
     @Nonnull
-    public String color(@Nonnull Object string, @Nullable Object... format) {
-        return this + BFormat.format(String.valueOf(string), format);
+    public String color(@Nonnull Object string) {
+        return this + string.toString();
     }
 
     /**
@@ -177,8 +177,8 @@ public class Color implements TextColor {
      *               <b>The factor must be between 0 and 2. Where 0 = decrease by 100%, where 2 = increase by 100%.</b>
      * @return The adjusted color.
      */
-    public final Color adjust(@Range(max = 2) float factor) {
-        factor = Numbers.clamp(factor, 0, 2);
+    public final Color adjust(@Range(from = 0, to = 2) float factor) {
+        factor = Math.clamp(factor, 0, 2);
 
         final java.awt.Color javaColor = color.getColor();
 
@@ -217,7 +217,7 @@ public class Color implements TextColor {
      * @param factor01 - Factor by which to adjust the color.
      *                 <b>The factor must be between 0 and 1.</b>
      */
-    public final Color darken(@Range(max = 1) float factor01) {
+    public final Color darken(@Range(from = 0, to = 1) float factor01) {
         return adjust(factor01);
     }
 
@@ -227,7 +227,7 @@ public class Color implements TextColor {
      * @param factor12 - Factor by which to adjust the color.
      *                 <b>The factor must be between 1 and 2.</b>
      */
-    public final Color lighten(@Range(min = 1, max = 2) float factor12) {
+    public final Color lighten(@Range(from = 1, to = 2) float factor12) {
         return adjust(factor12);
     }
 
@@ -290,6 +290,11 @@ public class Color implements TextColor {
     @Nonnull
     public String bold() {
         return color + ChatColor.BOLD.toString();
+    }
+
+    @Nonnull
+    public String underlined() {
+        return color + ChatColor.UNDERLINE.toString();
     }
 
     /**

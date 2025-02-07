@@ -1,0 +1,33 @@
+package me.hapyl.fight.game.skin.bk;
+
+import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.skin.Skin;
+import org.bukkit.Color;
+import org.bukkit.Material;
+
+import javax.annotation.Nonnull;
+
+public class SkinRoyalKnight extends Skin {
+
+    public SkinRoyalKnight(@Nonnull Hero hero) {
+        super(hero);
+
+        setName("Royal Knight");
+        setDescription("""
+                This attire was worn before the modernization of the Kingdom.
+                """);
+
+        setRarity(Rarity.RARE);
+        setRubyPrice(10);
+
+        final HeroEquipment equipment = getEquipment();
+
+        equipment.setTexture("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
+        equipment.setChestPlate(Color.BLUE);
+        equipment.setLeggings(Material.CHAINMAIL_LEGGINGS);
+        equipment.setBoots(Material.IRON_BOOTS);
+    }
+
+}

@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.inventory.gui.ExcludeInFilter;
+import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.Prefixed;
 import org.bukkit.Material;
@@ -7,7 +9,7 @@ import org.bukkit.Material;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public enum Archetype implements Prefixed {
+public enum Archetype implements Prefixed, KeyedEnum {
 
     // keep names kinda short since detailed display stacks prefixes AND names
     // -h
@@ -103,6 +105,7 @@ public enum Archetype implements Prefixed {
             "Provides shields and defenses."
     ),
 
+    @ExcludeInFilter
     NOT_SET; // keep last this is needed for sort
 
     private final Material material;

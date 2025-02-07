@@ -1,66 +1,74 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.gui.ExcludeInFilter;
 import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.eterna.module.util.UpsideDownText;
-import me.hapyl.fight.annotate.ExcludeInSort;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
+import me.hapyl.fight.store.Purchasable;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 
-public enum Rarity implements RandomDrop, FormattedEnum {
+public enum Rarity implements RandomDrop, Purchasable, FormattedEnum {
 
-    @ExcludeInSort
-    UNSET(Color.ERROR, "NOT SET", 0, -1, -1),
+    @ExcludeInFilter
+    UNSET(Color.ERROR, "NOT SET", -1, 0.0f) {
+        @Override
+        public String toString() {
+            return "";
+        }
+    },
 
     COMMON(
             new Color("#b6dbd1"),
             "ᴄᴏᴍᴍᴏɴ",
-            100, 1, 0.35f
+            1_000, 0.35f
     ),
 
     UNCOMMON(
             new Color("#12e63d"),
             "ᴜɴᴄᴏᴍᴍᴏɴ",
-            200, 2, 0.25f
+            2_500, 0.25f
     ),
 
     RARE(
             new Color("#1283db"),
             "ʀᴀʀᴇ",
-            500, 5, 0.20f
+            5_000, 0.20f
     ),
 
     EPIC(
             new GradientColor("#e314b6", "#ad0789").setFlags(ColorFlag.BOLD),
             "ᴇᴘɪᴄ",
-            1_000, 10, 0.10f
+            10_000, 0.10f
     ),
 
     LEGENDARY(
             new GradientColor("#faa61e", "#fa7a1e").setFlags(ColorFlag.BOLD),
             "ʟᴇɢᴇɴᴅᴀʀʏ",
-            2_000, 20, 0.06f
+            20_000, 0.06f
     ),
 
     MYTHIC(
             new GradientColor("#8df7ad", "#02a602").setFlags(ColorFlag.BOLD),
             "ᴍʏᴛʜɪᴄᴀʟ",
-            5_000, 50, 0.03f
+            50_000, 0.03f
     ) {
         private final String PREFIX = new Color("#007d25") + "&k1 ";
         private final String SUFFIX = new Color("#30f26a") + " &k1&r";
 
+        @Nonnull
         @Override
         public String prefix() {
             return PREFIX;
         }
 
+        @Nonnull
         @Override
         public String suffix() {
             return SUFFIX;
@@ -70,7 +78,7 @@ public enum Rarity implements RandomDrop, FormattedEnum {
     CURSED(
             new GradientColor("#a62017", "#cf4b42").setFlags(ColorFlag.BOLD),
             "pǝsɹnɔ",
-            25_000, 100, 0.01f
+            100_000, 0.01f
     ) {
         @Nonnull
         @Override
@@ -78,6 +86,7 @@ public enum Rarity implements RandomDrop, FormattedEnum {
             return "&8&l&k||| ";
         }
 
+        @Nonnull
         @Override
         public String suffix() {
             return " &8&l&k|||";
@@ -101,29 +110,31 @@ public enum Rarity implements RandomDrop, FormattedEnum {
     protected final Color color;
     protected final String name;
 
-    private final long coinCompensation;
-    private final long dustCompensation;
+    private final long defaultPrice;
     private final float dropChance;
 
-    Rarity(Color color, String name, long coinCompensation, long dustCompensation, float dropChance) {
+    Rarity(Color color, String name, long defaultPrice, float dropChance) {
         this.color = color;
         this.name = name;
-        this.coinCompensation = coinCompensation;
-        this.dustCompensation = dustCompensation;
+        this.defaultPrice = defaultPrice;
         this.dropChance = dropChance;
     }
 
     @Override
+    @Deprecated // legacy
     public float getDropChance() {
         return dropChance;
     }
 
-    public long getCoinCompensation() {
-        return coinCompensation;
+    @Nonnull
+    @Override
+    public Currency getCurrency() {
+        return Currency.COINS;
     }
 
-    public long getDustCompensation() {
-        return dustCompensation;
+    @Override
+    public long getPrice() {
+        return defaultPrice;
     }
 
     @Nonnull
@@ -137,10 +148,12 @@ public enum Rarity implements RandomDrop, FormattedEnum {
         return color;
     }
 
+    @Nonnull
     public String prefix() {
         return "";
     }
 
+    @Nonnull
     public String suffix() {
         return "";
     }
@@ -176,13 +189,6 @@ public enum Rarity implements RandomDrop, FormattedEnum {
         return this == EPIC || this == LEGENDARY || this == MYTHIC;
     }
 
-    public String getCompensationString() {
-        return "%s%,d %s &8& %s%,d%s".formatted(
-                Currency.COINS.getColor(), coinCompensation, Currency.COINS.getPrefixColored(),
-                Currency.CHEST_DUST.getColor(), dustCompensation, Currency.CHEST_DUST.getPrefix()
-        );
-    }
-
     @Nonnull
     public ChatColor getBukkitColor() {
         return switch (this) {
@@ -194,5 +200,10 @@ public enum Rarity implements RandomDrop, FormattedEnum {
             case MYTHIC -> ChatColor.GREEN;
             default -> ChatColor.WHITE;
         };
+    }
+
+    @Deprecated
+    public long getCompensation() {
+        return defaultPrice / 10;
     }
 }

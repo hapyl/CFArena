@@ -1,12 +1,12 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.maps.Level;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.HiddenLevelFeature;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

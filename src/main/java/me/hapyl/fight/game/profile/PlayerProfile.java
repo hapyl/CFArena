@@ -2,17 +2,17 @@ package me.hapyl.fight.game.profile;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
-import me.hapyl.fight.dialog.ActiveDialog;
 import me.hapyl.fight.fastaccess.PlayerFastAccess;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.delivery.Deliveries;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.task.GameTask;
@@ -23,13 +23,10 @@ import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -42,25 +39,23 @@ public class PlayerProfile {
     public static final String RESOURCE_PACK_HASH = "38a5079ae119f7159b56de8b22da9de089f82cc2";
 
     private final Player player;
-    private final PlayerDatabase playerDatabase;
-    public ActiveDialog dialog;
 
-    private PlayerSkin originalSkin;
-    private PlayerProfileData playerData;
-    private PlayerInfraction infractions;
-    private PlayerRelationship relationship;
-    private HotbarLoadout hotbarLoadout;
-    private PlayerFastAccess fastAccess;
-    private LocalTeamManager localTeamManager;
-    private PlayerChallengeList challengeList;
-    private PlayerSocialConversation conversation;
+    private final PlayerProfileData playerData;
+    private final PlayerInfraction infractions;
+    private final PlayerRelationship relationship;
+    private final HotBarLoadout hotbarLoadout;
+    private final PlayerFastAccess fastAccess;
+    private final LocalTeamManager localTeamManager;
+    private final PlayerChallengeList challengeList;
+    private final PlayerSocialConversation conversation;
+    private final PlayerUI playerUI;
 
     @Nullable
-    private GamePlayer gamePlayer; // current game player
-    private PlayerUI playerUI;     // ui
-    private Hero selectedHero;    // selected hero
+    private GamePlayer gamePlayer;
+    private Hero selectedHero;
+
+    private PlayerSkin originalSkin;
     private Trial trial;
-    private boolean loaded;
     private boolean resourcePack;
     private boolean buildMode;
 
@@ -68,36 +63,28 @@ public class PlayerProfile {
         this.player = player;
 
         // Init database before anything else
-        this.playerDatabase = PlayerDatabase.instantiate(player);
+        PlayerDatabase.instantiate(player);
 
-        this.loaded = false;
         this.resourcePack = false;
         this.buildMode = false;
-    }
 
-    // #norender
-    public void loadData() {
-        if (loaded) {
-            return;
-        }
-
-        // Check for fullness to not create anything
-        loaded = true;
-
+        // Load data here
         this.localTeamManager = new LocalTeamManager(this);
         this.infractions = new PlayerInfraction(this);
         this.relationship = new PlayerRelationship(this);
         this.playerData = new PlayerProfileData(this);
         this.originalSkin = PlayerSkin.of(player);
-        this.hotbarLoadout = new HotbarLoadout(this);
+        this.hotbarLoadout = new HotBarLoadout(this);
         this.fastAccess = new PlayerFastAccess(this);
         this.challengeList = new PlayerChallengeList(this);
         this.conversation = new PlayerSocialConversation(this);
 
-        // Load some data after init method
-        selectedHero = playerDatabase.heroEntry.getSelectedHero();
+        // Add to a team
         GameTeam.addMemberIfNotInTeam(this);
-        playerUI = new PlayerUI(this);
+
+        // Load some data after init method
+        this.selectedHero = getDatabase().heroEntry.getSelectedHero();
+        this.playerUI = new PlayerUI(this);
 
         // Prompt Resource Pack
         promptResourcePack();
@@ -107,7 +94,6 @@ public class PlayerProfile {
             Deliveries.notify(player);
         }, 20);
     }
-    // #render
 
     @Nonnull
     public PlayerSocialConversation getConversation() {
@@ -153,7 +139,7 @@ public class PlayerProfile {
     }
 
     @Nonnull
-    public HotbarLoadout getHotbarLoadout() {
+    public HotBarLoadout getHotbarLoadout() {
         return hotbarLoadout;
     }
 
@@ -205,7 +191,7 @@ public class PlayerProfile {
 
     @Nonnull
     public PlayerDisplay getDisplay() {
-        return new PlayerDisplay(playerDatabase);
+        return new PlayerDisplay(getDatabase());
     }
 
     @Nonnull
@@ -218,9 +204,14 @@ public class PlayerProfile {
         return player;
     }
 
+    /**
+     * @see CF#getDatabase(Player)
+     * @deprecated {@link PlayerDatabase} can exist without {@link PlayerProfile}
+     */
     @Nonnull
+    @Deprecated
     public PlayerDatabase getDatabase() {
-        return playerDatabase;
+        return CF.getDatabase(player);
     }
 
     @Nullable
@@ -246,7 +237,7 @@ public class PlayerProfile {
     public GamePlayer createGamePlayer() {
         this.gamePlayer = Manager.current().registerGamePlayer(new GamePlayer(this));
 
-        if (Manager.current().getDebug().any()) {
+        if (CF.environment().debug.isEnabled()) {
             CFUtils.dumpStackTrace();
         }
 
@@ -282,20 +273,17 @@ public class PlayerProfile {
 
         if (save) {
             // Store to database here duh
-            playerDatabase.heroEntry.setSelectedHero(hero);
+            getDatabase().heroEntry.setSelectedHero(hero);
         }
     }
 
     public String getSelectedHeroString() {
-        return playerDatabase.randomHeroEntry.isEnabled() ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
+        return getDatabase().randomHeroEntry.isEnabled() ? "&l❓&f ʀᴀɴᴅᴏᴍ" : selectedHero.getFormatted();
     }
 
+    @Nonnull
     public PlayerUI getPlayerUI() {
         return playerUI;
-    }
-
-    public void setPlayerUI(PlayerUI playerUI) {
-        this.playerUI = playerUI;
     }
 
     public void promptResourcePack() {
@@ -304,10 +292,10 @@ public class PlayerProfile {
         }
 
         player.setResourcePack(PlayerProfile.RESOURCE_PACK_URI, null, """
-                                
+                
                 §b§lOPTIONAL
                 §aDownload resource pack for additional features?
-                                    
+                
                 §e§lSome of the features:
                 §bBetter effects
                 §bCustom 3d models
@@ -327,7 +315,7 @@ public class PlayerProfile {
 
     @Nonnull
     public PlayerRank getRank() {
-        return playerDatabase.getRank();
+        return getDatabase().getRank();
     }
 
     @Nullable
@@ -353,33 +341,6 @@ public class PlayerProfile {
 
     public void applyOriginalSkin() {
         originalSkin.apply(player);
-    }
-
-    @CheckForNull
-    public static PlayerProfile getProfile(Player player) {
-        return Manager.current().getProfile(player);
-    }
-
-    @Nonnull
-    public static PlayerProfile getProfileOrThrow(Player player) {
-        final PlayerProfile profile = getProfile(player);
-
-        if (profile != null) {
-            return profile;
-        }
-
-        if (player != null) {
-            player.closeInventory();
-
-            Notifier.error(player, "Error getting your profile, somehow? Report this!");
-        }
-
-        throw new NullPointerException("No profile.");
-    }
-
-    @Nonnull
-    public static Optional<PlayerProfile> getProfileOptional(Player player) {
-        return Optional.ofNullable(getProfile(player));
     }
 
 }

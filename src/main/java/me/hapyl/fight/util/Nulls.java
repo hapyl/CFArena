@@ -1,7 +1,5 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -29,14 +27,6 @@ public class Nulls {
         if (e != null) {
             function.accept(e);
         }
-    }
-
-    public static Cosmetics notNullOr(@Nullable Cosmetics selected, @Nonnull Cosmetics def) {
-        if (selected == null) {
-            return def;
-        }
-
-        return selected;
     }
 
     @Nullable

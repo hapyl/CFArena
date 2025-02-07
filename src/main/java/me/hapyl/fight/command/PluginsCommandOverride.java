@@ -1,9 +1,9 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.database.rank.PlayerRank;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -40,7 +40,7 @@ public class PluginsCommandOverride extends CFCommand {
 
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
-        Chat.sendMessage(player, "&aWe use a combination of public and custom plugins:");
+        Chat.sendMessage(player, "&aWe use a combination of public and named plugins:");
 
         Chat.sendMessage(player, "&bCustom plugins:");
         displayPlugins(player, customPlugins);

@@ -1,12 +1,11 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,7 +45,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final AchievementEntry database = PlayerDatabase.getDatabase(target).achievementEntry;
+        final AchievementEntry database = CF.getDatabase(target).achievementEntry;
 
         switch (args[1].toLowerCase()) {
             case "give" -> {

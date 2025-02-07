@@ -3,8 +3,8 @@ package me.hapyl.fight.game.trial.objecitive;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
@@ -25,7 +25,7 @@ public class TrialObjectiveShock extends TrialObjective {
         super.onStart();
 
         final PlayerProfile profile = trial.getProfile();
-        final HotbarLoadout loadout = profile.getHotbarLoadout();
+        final HotBarLoadout loadout = profile.getHotbarLoadout();
         final GamePlayer player = trial.getPlayer();
 
         player.sendTextBlockMessage("""
@@ -39,7 +39,7 @@ public class TrialObjectiveShock extends TrialObjective {
                 &aPress &l&n%s&a on the keyboard to use the talent!
                                 
                 &bGo electrocute some husks!
-                """.formatted(loadout.getInventorySlotBySlot(HotbarSlots.TALENT_2) + 1));
+                """.formatted(loadout.getInventorySlotBySlot(HotBarSlot.TALENT_2) + 1));
 
         // Normal husks
         spawnHusk(-235, 64, 232, -64, false);
@@ -52,7 +52,7 @@ public class TrialObjectiveShock extends TrialObjective {
         spawnHusk(-226, 69, 224, 25, true);
 
         // Give talent
-        player.giveTalentItem(HotbarSlots.TALENT_2);
+        player.giveTalentItem(HotBarSlot.TALENT_2);
     }
 
     @Nonnull

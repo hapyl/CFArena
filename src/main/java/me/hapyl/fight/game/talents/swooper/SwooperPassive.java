@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.talents.swooper;
 
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

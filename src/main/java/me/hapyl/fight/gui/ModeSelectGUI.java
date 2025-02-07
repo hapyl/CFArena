@@ -1,11 +1,11 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.type.EnumGameType;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledItem;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

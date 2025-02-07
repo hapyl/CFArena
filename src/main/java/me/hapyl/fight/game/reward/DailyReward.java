@@ -10,7 +10,7 @@ import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.crate.Crates;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -46,7 +46,7 @@ public class DailyReward extends CurrencyReward {
     @Nonnull
     public RewardDescription getDescription(@Nonnull Player player) {
         final RewardDescription display = super.getDescription(player);
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
         final DailyRewardEntry entry = database.dailyRewardEntry;
 
         display.addIf(entry.isBonusReward(type), CurrencyType.RUBY.format(bonusRubies) + " &a&lBONUS!");
@@ -60,7 +60,7 @@ public class DailyReward extends CurrencyReward {
 
     @Override
     public void grant(@Nonnull Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
 
         final DailyRewardEntry rewardEntry = database.dailyRewardEntry;
         final CurrencyEntry currencyEntry = database.currencyEntry;

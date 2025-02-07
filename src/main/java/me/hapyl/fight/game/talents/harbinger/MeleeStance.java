@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.harbinger;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -8,11 +8,10 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -31,10 +30,11 @@ public class MeleeStance extends Talent {
 
     private final PlayerMap<StanceData> dataMap = PlayerMap.newMap();
 
-    private final Weapon abilityItem = new Weapon(Material.IRON_SWORD)
-            .setName(Color.STANCE_RANGE + "Raging Blade")
-            .setDescription("A blade forged from pure water.")
-            .setDamage(8.0d);
+    private final Weapon abilityItem = Weapon.builder(Material.IRON_SWORD, Key.ofString("raging_blade"))
+            .name(Color.STANCE_RANGE + "Raging Blade")
+            .description("A blade forged from pure water.")
+            .damage(8.0d)
+            .build();
 
     public MeleeStance(@Nonnull Key key) {
         super(key, "Melee Stance");
@@ -108,8 +108,8 @@ public class MeleeStance extends Talent {
             data.cancelTask();
         }
 
-        dataMap.put(player, new StanceData(this, player, player.getItem(HotbarSlots.WEAPON)));
-        player.setItemAndSnap(HotbarSlots.WEAPON, abilityItem.getItem());
+        dataMap.put(player, new StanceData(this, player, player.getItem(HotBarSlot.WEAPON)));
+        player.setItemAndSnap(HotBarSlot.WEAPON, abilityItem.getItem());
 
         // Fix instant use
         startCd(player, 20);
@@ -130,7 +130,7 @@ public class MeleeStance extends Talent {
         final int cooldown = calculateCooldown(data.getDuration());
 
         startCd(player, cooldown);
-        player.setItemAndSnap(HotbarSlots.WEAPON, data.getOriginalWeapon());
+        player.setItemAndSnap(HotBarSlot.WEAPON, data.getOriginalWeapon());
 
         // Fx
         player.sendMessage("&aMelee Stance is on cooldown for &l%s&a!".formatted(CFUtils.formatTick(cooldown)));

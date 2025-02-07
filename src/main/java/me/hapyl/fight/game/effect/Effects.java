@@ -2,11 +2,11 @@ package me.hapyl.fight.game.effect;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.effect.effects.*;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;

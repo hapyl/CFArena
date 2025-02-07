@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.aurora;
 
 import me.hapyl.eterna.module.math.Tick;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -11,7 +11,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -35,6 +34,8 @@ public class EtherealArrow extends AuroraArrowTalent {
                 &6%s
                 &8▷&7 Increases %s by {critRateBoost}.
                 &8▷&7 Increases %s by {critDamageBoost}.
+                
+                &7&o;;Ethereal arrows home towards nearby teammates.
                 """.formatted(Named.ETHEREAL_SPIRIT, Named.ETHEREAL_SPIRIT.getName(), AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE)
         );
 

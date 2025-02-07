@@ -1,11 +1,12 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimpleCommand;
+import me.hapyl.eterna.module.util.collection.Cache;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.annotate.NowListenToMe;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.util.collection.CacheSet;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.command.SimpleCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -23,7 +24,7 @@ public final class RankCommand extends SimpleCommand {
     private static final int HASH_LENGTH = 12;
 
     private static final long CONFIRM_TIMEOUT = 10_000;
-    private static final CacheSet<RankConfirmation> CONFIRM_CACHE = new CacheSet<>(CONFIRM_TIMEOUT);
+    private static final Cache<RankConfirmation> CONFIRM_CACHE = Cache.ofSet(CONFIRM_TIMEOUT);
     private static final String HASH_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     public RankCommand(String name) {
@@ -55,7 +56,7 @@ public final class RankCommand extends SimpleCommand {
                 return;
             }
 
-            final RankConfirmation rankConfirmation = CONFIRM_CACHE.findFirst(rc -> rc.hash.equals(hash));
+            final RankConfirmation rankConfirmation = CONFIRM_CACHE.match(rc -> rc.hash.equals(hash));
 
             if (rankConfirmation == null) {
                 Notifier.error(sender, "Confirmation for '{%s}' has expired or doesn't exist!".formatted(hash));
@@ -76,7 +77,7 @@ public final class RankCommand extends SimpleCommand {
             return;
         }
 
-        final PlayerDatabase targetDatabase = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase targetDatabase = CF.getDatabase(target);
         final PlayerRank targetRank = targetDatabase.getRank();
 
         if (rankToSet == targetRank) {
@@ -90,7 +91,7 @@ public final class RankCommand extends SimpleCommand {
         }
 
         if (rankToSet.isStaff()) {
-            final RankConfirmation rankConfirmation = CONFIRM_CACHE.findFirst(rc -> rc.target.equals(target));
+            final RankConfirmation rankConfirmation = CONFIRM_CACHE.match(rc -> rc.target.equals(target));
 
             if (rankConfirmation != null) {
                 Notifier.error(sender, "There is already a rank confirmation request for this target!");
@@ -119,7 +120,7 @@ public final class RankCommand extends SimpleCommand {
             return;
         }
 
-        final PlayerDatabase database = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase database = CF.getDatabase(target);
         final PlayerRank oldRank = database.getRank();
 
         database.setRank(rankToSet);

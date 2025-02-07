@@ -1,10 +1,9 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.Action;
+import me.hapyl.fight.util.ItemStacks;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -13,6 +12,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 /**
  * Since both {@link StyledGUI} and {@link StyledPageGUI} have to inherit a different class,
@@ -57,9 +57,9 @@ public final class StaticStyledGUI {
                 gui.getSize() - (9 - slot),
                 StyledTexture.ARROW_LEFT.toBuilder().setName("&aGo Back").addLore("To " + returnData.getName()).asIcon(),
                 player -> {
-                    final Action<Player> action = returnData.getAction();
+                    final Consumer<Player> action = returnData.getAction();
 
-                    action.use(player);
+                    action.accept(player);
                 }
         );
     }

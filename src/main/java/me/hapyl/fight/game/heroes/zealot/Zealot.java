@@ -5,8 +5,8 @@ import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -14,16 +14,16 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 
 public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotData>, UIComponent {
 
-    protected final Equipment abilityEquipment;
+    protected final HeroEquipment abilityEquipment;
     private final PlayerDataMap<ZealotData> zealotData = PlayerMap.newDataMap(ZealotData::new);
 
     public Zealot(@Nonnull Key key) {
@@ -51,10 +51,11 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
                 A space ranger with a single goal of maintaining order.
                 """);
 
-        setArchetypes(Archetype.DAMAGE);
-        setAffiliation(Affiliation.SPACE);
-        setGender(Gender.MALE);
-        setRace(Race.ALIEN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.SPACE);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.ALIEN);
 
         setItem("131530db74bac84ad9e322280c56c4e0199fbe879883b76c9cf3fd8ff19cf025");
         setWeapon(new ZealotWeapon(this));
@@ -62,12 +63,12 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
         final HeroAttributes attributes = getAttributes();
         attributes.setFerocity(25);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
         equipment.setLeggings(Material.DIAMOND_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
         equipment.setBoots(Material.DIAMOND_BOOTS, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
 
-        abilityEquipment = new Equipment();
+        abilityEquipment = new HeroEquipment();
         abilityEquipment.setHelmet(getItem());
         abilityEquipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.GOLD);
         abilityEquipment.setLeggings(Material.GOLDEN_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.GOLD);
@@ -160,83 +161,84 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
             setSound(Sound.ENTITY_WITHER_HURT, 0.0f);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final ZealotData data = hero.getPlayerData(player);
 
             if (data.ferociousHits <= 0) {
-                return UltimateResponse.error("No " + Named.FEROCIOUS_STRIKE + " &cstacks!");
+                return error("No " + Named.FEROCIOUS_STRIKE + " &cstacks!");
             }
 
-            final Location location = player.getLocation();
-            location.setPitch(0.0f);
+            return execute(() -> {
+                final Location location = player.getLocation();
+                location.setPitch(0.0f);
 
-            final Vector direction = location.getDirection().setY(0.0d);
+                final Vector direction = location.getDirection().setY(0.0d);
 
-            location.add(direction.multiply(directionOffset));
+                location.add(direction.multiply(directionOffset));
 
-            final Location landingLocation = BukkitUtils.anchorLocation(location);
-            final DisplayEntity entity = giantSword.spawnInterpolated(landingLocation.clone().add(0, landingOffset, 0));
+                final Location landingLocation = BukkitUtils.anchorLocation(location);
+                final DisplayEntity entity = giantSword.spawnInterpolated(landingLocation.clone().add(0, landingOffset, 0));
 
-            new PlayerTickingGameTask(player) {
-                private final double y = entity.getHead().getLocation().getY();
-                private double traveled = 0.0d;
-                private int landedAt = -1;
+                new PlayerTickingGameTask(player) {
+                    private final double y = entity.getHead().getLocation().getY();
+                    private double traveled = 0.0d;
+                    private int landedAt = -1;
 
-                @Override
-                public void run(int tick) {
-                    // Fx
-                    Geometry.drawPolygon(landingLocation, 5, distance, new WorldParticle(Particle.CRIT));
+                    @Override
+                    public void run(int tick) {
+                        // Fx
+                        Geometry.drawPolygon(landingLocation, 5, distance, new WorldParticle(Particle.CRIT));
 
-                    // Land
-                    if (traveled >= landingOffset) {
-                        if (landedAt == -1) {
-                            landedAt = tick;
+                        // Land
+                        if (traveled >= landingOffset) {
+                            if (landedAt == -1) {
+                                landedAt = tick;
 
-                            // Fx
-                            player.playWorldSound(landingLocation, Sound.ITEM_SHIELD_BREAK, 0.75f);
+                                // Fx
+                                player.playWorldSound(landingLocation, Sound.ITEM_SHIELD_BREAK, 0.75f);
+                            }
+
+                            // Damage
+                            if (tick - landedAt >= impactTime) {
+                                cancel();
+
+                                final int ferociousHits = data.ferociousHits;
+
+                                data.ferociousHits = 0;
+
+                                Collect.nearbyEntities(landingLocation, distance).forEach(entity -> {
+                                    if (player.isSelfOrTeammate(entity)) {
+                                        return;
+                                    }
+
+                                    entity.executeFerocity(baseDamage, player, ferociousHits, true);
+                                });
+
+                                // Fx
+                                player.playWorldSound(landingLocation, Sound.ENTITY_GENERIC_EXPLODE, 0.75f);
+                                player.spawnWorldParticle(landingLocation.add(0, 2.5, 0), Particle.CRIT, 20, 0.1d, 0.5d, 0.1, 1.0f);
+                            }
+                            return;
                         }
 
-                        // Damage
-                        if (tick - landedAt >= impactTime) {
-                            cancel();
+                        final double cos = Math.cos(landingSpeed);
+                        final Location location = entity.getHead().getLocation();
 
-                            final int ferociousHits = data.ferociousHits;
+                        traveled = Math.min(traveled + cos, landingOffset);
 
-                            data.ferociousHits = 0;
-
-                            Collect.nearbyEntities(landingLocation, distance).forEach(entity -> {
-                                if (player.isSelfOrTeammate(entity)) {
-                                    return;
-                                }
-
-                                entity.executeFerocity(baseDamage, player, ferociousHits, true);
-                            });
-
-                            // Fx
-                            player.playWorldSound(landingLocation, Sound.ENTITY_GENERIC_EXPLODE, 0.75f);
-                            player.spawnWorldParticle(landingLocation.add(0, 2.5, 0), Particle.CRIT, 20, 0.1d, 0.5d, 0.1, 1.0f);
-                        }
-                        return;
+                        location.setY(y - traveled);
+                        entity.teleport(location);
                     }
 
-                    final double cos = Math.cos(landingSpeed);
-                    final Location location = entity.getHead().getLocation();
-
-                    traveled = Math.min(traveled + cos, landingOffset);
-
-                    location.setY(y - traveled);
-                    entity.teleport(location);
-                }
-
-                @Override
-                public void onTaskStop() {
-                    entity.remove();
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                    @Override
+                    public void onTaskStop() {
+                        entity.remove();
+                    }
+                }.runTaskTimer(0, 1);
+            });
         }
     }
 }

@@ -1,14 +1,14 @@
 package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.StrictPlayerDatabaseEntry;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
+import me.hapyl.fight.database.PlayerDatabaseEntry;
+import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.heroes.Hero;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class SkinEntry extends StrictPlayerDatabaseEntry {
+public class SkinEntry extends PlayerDatabaseEntry {
 
     public SkinEntry(@Nonnull PlayerDatabase database) {
         super(database, "skins");
@@ -24,11 +24,11 @@ public class SkinEntry extends StrictPlayerDatabaseEntry {
 
     @Nullable
     public Skins getSelected(@Nonnull Hero hero) {
-        return getEnumValue("selected." + hero.getKeyAsString(), Skins.class);
+        return getEnumValue(Skins.class, "selected." + hero.getKeyAsString());
     }
 
     public void setSelected(@Nonnull Hero hero, @Nullable Skins skin) {
-        setEnumValue("selected." + hero.getKeyAsString(), skin);
+        setValue("selected." + hero.getKeyAsString(), skin != null ? skin.getKeyAsString() : null);
     }
 
 }

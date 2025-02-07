@@ -1,9 +1,17 @@
 package me.hapyl.fight.event;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.builtin.manager.ParkourManager;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.parkour.Data;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.GameDamageMonitorEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -11,19 +19,16 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.entity.EntityData;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.MoveType;
+import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -36,13 +41,6 @@ import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.Eterna;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.parkour.Data;
-import me.hapyl.eterna.module.parkour.ParkourRegistry;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.player.PlayerSkin;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -78,7 +76,7 @@ import java.util.Set;
 /**
  * Handles all player related events.
  */
-public class PlayerHandler implements Listener {
+public final class PlayerHandler implements Listener {
 
     public static final double RANGE_KNOCKBACK_RESISTANCE = 0.7d;
     public static final double VELOCITY_MAX_Y = 4.821600093841552d;
@@ -172,13 +170,13 @@ public class PlayerHandler implements Listener {
         }
 
         // Save database
-        manager.getOrCreateProfile(player).getDatabase().save();
+        manager.getProfile(player).getDatabase().save();
 
         // Delete database instance
         PlayerDatabase.uninstantiate(player.getUniqueId());
 
         // Delete profile
-        manager.removeProfile(player);
+        manager.deleteProfile(player);
     }
 
     @EventHandler()
@@ -214,7 +212,7 @@ public class PlayerHandler implements Listener {
         final EntityAttributes attributes = player.getAttributes();
         final int cooldown = attributes.calculateRangeAttackSpeed(bowWeapon.getShotCooldown());
 
-        player.setCooldownIgnoreModifier(weaponItem.getType(), cooldown);
+        player.cooldownManager.setCooldownIgnoreCooldownModifier(weaponItem, cooldown);
     }
 
     // Prevent painting-breaking while the game is in progress
@@ -296,7 +294,7 @@ public class PlayerHandler implements Listener {
 
         ev.setCancelled(true);
 
-        hero.eventHandler.handlePlayerSwapHandItemsEvent(player, ev);
+        hero.getEventHandler().handlePlayerSwapHandItemsEvent(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -324,8 +322,17 @@ public class PlayerHandler implements Listener {
             return;
         }
 
-        // This is what actually stores all the custom data
-        // needed to handle custom damage/causes
+        // Check for vehicle
+        // Player will 100% take either fall or suffocation damage while on vehicle, CANCEL it!
+        if (livingEntity instanceof Player player
+                && CF.getVehicleManager().isRiding(player)
+                && (damageCause == EntityDamageEvent.DamageCause.FALL || damageCause == EntityDamageEvent.DamageCause.SUFFOCATION)) {
+            ev.setCancelled(true);
+            return;
+        }
+
+        // This is what actually stores all the named data
+        // needed to handle named damage/causes
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
 
         // No handle means not in a game
@@ -357,17 +364,6 @@ public class PlayerHandler implements Listener {
         // For some reason this was missing?
         // If something breaks after this update, remove this ig
         instance.setLastDamager(data.getLastDamagerAsLiving());
-
-        if (gameEntity instanceof LivingGameEntity livingGameEntity) {
-            final int noDamageTicks = livingGameEntity.getNoDamageTicks();
-            final EnumDamageCause cause = instance.getCause();
-
-            if ((cause != null && !cause.hasFlag(DamageFlag.IGNORES_DAMAGE_TICKS)) && noDamageTicks > 0) {
-                ev.setDamage(0.0d);
-                ev.setCancelled(true);
-                return;
-            }
-        }
 
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
 
@@ -461,6 +457,17 @@ public class PlayerHandler implements Listener {
             }
         }
 
+        // NO DAMAGE TICKS
+        final LivingGameEntity damager = instance.getDamager();
+        final int noDamageTicks = gameEntity.getNoDamageTicks(damager);
+        final EnumDamageCause cause = instance.getCause();
+
+        if ((cause != null && !cause.hasFlag(DamageFlag.IGNORES_DAMAGE_TICKS)) && noDamageTicks > 0) {
+            ev.setDamage(0.0d);
+            ev.setCancelled(true);
+            return;
+        }
+
         // CALCULATE DAMAGE USING ATTRIBUTES
 
         // Calculate damage before calling events
@@ -481,29 +488,11 @@ public class PlayerHandler implements Listener {
                 instance.setDamage(deflectedProjectile.damage);
                 instance.setLastDamager(deflectedProjectile.damager);
             }
-            else if (gameEntity instanceof GamePlayer gamePlayer) {
-                if (gamePlayer.isDeflecting()) {
-                    final Vector velocity = finalProjectile.getVelocity();
-                    final double length = velocity.length() * 0.75d;
-
-                    // FIXME (hapyl): 027, Mar 27: add dot check
-
-                    final Vector projectileVelocity = gamePlayer.getEyeDirection();
-                    projectileVelocity.multiply(length);
-
-                    final Projectile projectile = gamePlayer.getEntity().launchProjectile(finalProjectile.getClass(), projectileVelocity);
-
-                    deflectedProjectiles.put(projectile, new DeflectedProjectile(projectile, gamePlayer, instance.getDamage()));
-
-                    ev.setCancelled(true);
-                    return;
-                }
-            }
         }
 
         // CALL DAMAGE EVENT
 
-        if (new GameDamageEvent(instance).callAndCheck()) {
+        if (new GameDamageEvent(instance).call()) {
             ev.setCancelled(true);
             return;
         }
@@ -565,42 +554,35 @@ public class PlayerHandler implements Listener {
 
         // Yes, this is a hack before I love everyone
         if (finalProjectile != null && lastDamager != null) {
-            final double kbResist = gameEntity.getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+            final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
 
-            gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, RANGE_KNOCKBACK_RESISTANCE);
+            gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, RANGE_KNOCKBACK_RESISTANCE);
 
             GameTask.runLater(() -> {
-                gameEntity.setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, kbResist);
+                gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, kbResist);
             }, 1);
         }
 
         // Don't damage anything, only visually
         ev.setDamage(ZERO_DAMAGE); // FIXME: 0.0d causes bugs thanks mojang
 
-        // Store data in DamageData
-        data.setLastDamage(instance.damage);
-        data.setCrit(instance.isCrit);
-
         // Process true damage
         if (instance.cause.isTrueDamage()) {
             instance.damage = initialDamage;
-            data.setLastDamage(initialDamage);
         }
 
         // Keep damage in limit
         if (instance.damage > DAMAGE_LIMIT) {
             instance.damage = DAMAGE_LIMIT;
-            data.setLastDamage(DAMAGE_LIMIT);
         }
 
         // Progress stats for damager
         if (lastDamager instanceof GamePlayer player) {
             player.getStats().addValue(StatType.DAMAGE_DEALT, instance.getDamageWithinLimit());
-
-            if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
-                data.notifyChatOutgoing(player);
-            }
         }
+
+        // Call monitor event
+        new GameDamageMonitorEvent(instance).call();
 
         // Decrease entity's health
         gameEntity.decreaseHealth(instance);
@@ -614,16 +596,54 @@ public class PlayerHandler implements Listener {
             // Progress stats for a victim
             player.getStats().addValue(StatType.DAMAGE_TAKEN, instance.getDamageWithinLimit());
 
-            if (Settings.SHOW_DAMAGE_IN_CHAT.isEnabled(player.getPlayer())) {
-                data.notifyChatIncoming(player);
-            }
-
             // Fail-safe just to be sure player does
             // not die. If the player actually died in the game,
             // then the exception was thrown
             if (player.getHealth() <= 0.0d) {
                 ev.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void handleGameDamageMonitorEvent(GameDamageMonitorEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        final GameEntity damager = ev.getDamager();
+        final EnumDamageCause cause = Objects.requireNonNullElse(ev.getCause(), EnumDamageCause.ENTITY_ATTACK);
+
+        final double damage = ev.getDamage();
+
+        // Don't spam 'cheap' damage.
+        if (damage < 1.0d) {
+            return;
+        }
+
+        // Outgoing damage
+        if (damager instanceof GamePlayer player && player.isSettingEnabled(EnumSetting.SHOW_DAMAGE_IN_CHAT)) {
+            final String prefix = "&8[&a⚔&8] &f";
+
+            player.sendMessage(prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
+                    damage,
+                    cause.getName(),
+                    entity.getName(),
+                    ev.isCritical() ? " &b&lCRIT!" : ""
+            ));
+        }
+
+        // Incoming damage
+        if (entity instanceof GamePlayer player && player.isSettingEnabled(EnumSetting.SHOW_DAMAGE_IN_CHAT)) {
+            final String prefix = "&8[&c⚔&8] &f";
+            String message = "&l%.2f &ffrom &l%s".formatted(damage, cause.getName());
+
+            if (damager != null) {
+                message += " &fby &l" + damager.getName();
+            }
+
+            if (ev.isCritical()) {
+                message += " &b&lCRIT!";
+            }
+
+            player.sendMessage(prefix + message);
         }
     }
 
@@ -670,9 +690,9 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void handleInventoryClickEvent(InventoryClickEvent ev) {
         final Player player = (Player) ev.getWhoClicked();
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
 
-        if ((profile != null && profile.hasTrial()) || Manager.current().isGameInProgress()) {
+        if (profile.hasTrial() || Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
         }
     }
@@ -683,10 +703,10 @@ public class PlayerHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handlePlayerClick(PlayerItemHeldEvent ev) {
         final Player player = ev.getPlayer();
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfileOrNull(player);
 
         if (profile == null) {
-            return;
+            return; // fuck the error idc to fix it
         }
 
         final GamePlayer gamePlayer = profile.getGamePlayer();
@@ -705,14 +725,16 @@ public class PlayerHandler implements Listener {
 
         final int newSlot = ev.getNewSlot();
 
-        final HotbarLoadout hotbarLoadout = profile.getHotbarLoadout();
-        final HotbarSlots hotbarSlot = hotbarLoadout.bySlot(newSlot);
+        final HotBarLoadout hotbarLoadout = profile.getHotbarLoadout();
+        final HotBarSlot hotbarSlot = hotbarLoadout.bySlot(newSlot);
 
+        // This can't be null anymore but yes keep it here
         if (hotbarSlot == null) {
             return;
         }
 
-        final boolean shouldCancel = hotbarSlot.get().handle(gamePlayer, newSlot);
+        final boolean shouldCancel = gamePlayer.getHero().getEventHandler().handlePlayerClick(gamePlayer, hotbarSlot);
+
         if (shouldCancel) {
             ev.setCancelled(true);
         }
@@ -842,11 +864,7 @@ public class PlayerHandler implements Listener {
     public void handleResourcePack(PlayerResourcePackStatusEvent ev) {
         final Player player = ev.getPlayer();
         final PlayerResourcePackStatusEvent.Status status = ev.getStatus();
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return;
-        }
+        final PlayerProfile profile = CF.getProfile(player);
 
         switch (status) {
             case ACCEPTED -> {
@@ -878,7 +896,7 @@ public class PlayerHandler implements Listener {
     }
 
     /**
-     * Because of spigots stupid thing where {@link ProjectileLaunchEvent} is actually a spawn event, I have to "re-wire" it to the custom event.
+     * Because of spigots stupid thing where {@link ProjectileLaunchEvent} is actually a spawn event, I have to "re-wire" it to the named event.
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void handleProjectileLaunchRewire(final ProjectileLaunchEvent ev) {
@@ -920,8 +938,8 @@ public class PlayerHandler implements Listener {
 
         ev.setCancelled(true);
 
-        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
-        final Data data = parkourRegistry.getData(player);
+        final ParkourManager parkourManager = (Eterna.getManagers()).parkour;
+        final Data data = parkourManager.getData(player);
 
         if (data == null) {
             return;
@@ -1007,7 +1025,7 @@ public class PlayerHandler implements Listener {
 
         // cooldown check
         if (talent.hasCd(player)) {
-            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
+            if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
                 final int timeLeft = talent.getCdTimeLeft(player);
 
                 if (timeLeft >= Constants.MAX_COOLDOWN) {

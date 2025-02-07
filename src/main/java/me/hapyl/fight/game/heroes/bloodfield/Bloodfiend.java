@@ -7,8 +7,8 @@ import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -22,11 +22,12 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Type;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
@@ -35,7 +36,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -77,10 +77,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public Bloodfiend(@Nonnull Key key) {
         super(key, "Bloodfiend");
 
-        setArchetypes(Archetype.DAMAGE);
-        setAffiliation(Affiliation.CHATEAU);
-        setGender(Gender.MALE);
-        setRace(Race.VAMPIRE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.CHATEAU);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.VAMPIRE);
 
         setDescription("""
                 A vampire prince with a sunscreen.
@@ -93,22 +94,21 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         ));
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(80.0d);
+        attributes.setMaxHealth(80.0d);
         attributes.setAttackSpeed(150);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setChestPlate(99, 8, 16, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(28, 3, 7);
         equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
-        setWeapon(
-                new Weapon(Material.GHAST_TEAR)
-                        .setName("Vampire's Fang")
-                        .setDescription("""
-                                A sharp fang.
-                                """)
-                        .setDamage(5.0d)
+        setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang_bloodfiend"))
+                .name("Vampire's Fang")
+                .description("""
+                        A sharp fang.
+                        """)
+                .damage(5.0d)
         );
 
         final UltimateTalent ultimate = new BloodfiendUltimate();
@@ -427,7 +427,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final BloodfiendData data = getData(player);
             final Set<LivingGameEntity> suckedEntities = data.getSuckedEntities();
             final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
@@ -487,17 +487,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             player.setAllowFlight(true);
             player.setFlying(true);
 
-            // Fx
-            final GameTask batTask = new GameTask() {
-                @Override
-                public void run() {
-                    playerBat.teleport(player.getLocation());
-
-                    // Fx
-                    player.spawnWorldParticle(player.getLocation(), Particle.SMOKE, 2, 0.15d, 0.15d, 0.15d, 0.0f);
-                }
-            }.runTaskTimer(0, 1);
-
             player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
 
             playSoundAtTick(
@@ -508,27 +497,30 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                     0, 2, 3, 5, 6, 9, 10, 12
             );
 
-            return new UltimateResponse() {
-                @Override
-                public void onCastFinished(@Nonnull GamePlayer player) {
-                    getData(player).newImpelInstance(Bloodfiend.this).nextImpel(0);
+            return builder()
+                    .onCastTick(tick -> {
+                        playerBat.teleport(player.getLocation());
 
-                    fxBats.forEach(Bat::remove);
-                    fxBats.clear();
+                        // Fx
+                        player.spawnWorldParticle(player.getLocation(), Particle.SMOKE, 2, 0.15d, 0.15d, 0.15d, 0.0f);
+                    })
+                    .onCastEnd(() -> {
+                        getData(player).newImpelInstance(Bloodfiend.this).nextImpel(0);
 
-                    player.setFlySpeed(flySpeed);
-                    player.setAllowFlight(false);
-                    player.setFlying(false);
+                        fxBats.forEach(Bat::remove);
+                        fxBats.clear();
 
-                    data.cooldownFlight(true);
+                        player.setFlySpeed(flySpeed);
+                        player.setAllowFlight(false);
+                        player.setFlying(false);
 
-                    player.removeEffect(Effects.INVISIBILITY);
+                        data.cooldownFlight(true);
 
-                    npc.remove();
-                    playerBat.remove();
-                    batTask.cancel();
-                }
-            };
+                        player.removeEffect(Effects.INVISIBILITY);
+
+                        npc.remove();
+                        playerBat.remove();
+                    });
         }
     }
 

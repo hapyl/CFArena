@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.Sound;
 
@@ -42,21 +44,22 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
     }
 
     @Nonnull
-    public abstract UltimateResponse useUltimate(@Nonnull GamePlayer player, @Nonnull ChargeType type);
+    public abstract UltimateInstance newInstance(@Nonnull GamePlayer player, @Nonnull ChargeType type);
 
     @Nonnull
     @Override
-    public final UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+    public final UltimateInstance newInstance(@Nonnull GamePlayer player) {
         final double energy = player.getEnergy();
         final boolean isOvercharged = energy >= overchargeCost;
 
-        final UltimateResponse response = useUltimate(player, isOvercharged ? ChargeType.OVERCHARGED : ChargeType.CHARGED);
+        final UltimateInstance instance = newInstance(player, isOvercharged ? ChargeType.OVERCHARGED : ChargeType.CHARGED);
+        final Response response = instance.response();
 
         if (response.isOk()) {
             Registries.getAchievements().OVERCHARGED.complete(player);
         }
 
-        return response;
+        return instance;
     }
 
     @Override

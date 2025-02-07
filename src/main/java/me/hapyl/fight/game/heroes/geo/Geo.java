@@ -1,10 +1,9 @@
 package me.hapyl.fight.game.heroes.geo;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 

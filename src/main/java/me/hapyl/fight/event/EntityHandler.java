@@ -7,12 +7,12 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.named.NamedGameEntity;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -20,6 +20,8 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.function.Consumer;
 
 public class EntityHandler implements Listener {
 
@@ -65,6 +67,12 @@ public class EntityHandler implements Listener {
     public void handleEntitySpawn(EntitySpawnEvent ev) {
         final Entity entity = ev.getEntity();
         final Manager manager = Manager.current();
+
+        // Mark display entities as 'temporary' entities to remove them
+        if (entity instanceof BlockDisplay || entity instanceof ItemDisplay) {
+            SynchronizedGarbageEntityCollector.add(entity);
+            return;
+        }
 
         if (!(entity instanceof LivingEntity living)) {
             return;
@@ -118,6 +126,14 @@ public class EntityHandler implements Listener {
             ev.setTarget(null);
             ev.setCancelled(true);
         }
+    }
+
+    private void forEachNamedEntity(Consumer<NamedGameEntity<?>> consumer) {
+        CF.getEntities().forEach(gameEntity -> {
+            if (gameEntity instanceof NamedGameEntity<?> named) {
+                consumer.accept(named);
+            }
+        });
     }
 
     private void callGameEntityContactPortalEvent(LivingGameEntity entity, GameEntityContactPortalEvent.PortalType type) {

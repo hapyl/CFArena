@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.script.ScriptManager;
 import me.hapyl.fight.script.Scripts;
-import me.hapyl.eterna.module.command.SimpleAdminCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

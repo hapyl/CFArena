@@ -1,10 +1,10 @@
 package me.hapyl.fight.fastaccess;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.util.MaterialCooldown;
 import me.hapyl.fight.util.PlayerItemCreator;
 import org.bukkit.Material;

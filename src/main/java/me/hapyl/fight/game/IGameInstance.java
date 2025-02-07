@@ -1,8 +1,8 @@
 package me.hapyl.fight.game;
 
-import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.GameType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

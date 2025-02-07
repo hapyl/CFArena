@@ -1,6 +1,6 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.eterna.module.util.Action;
+import java.util.function.Consumer;
 
 public class Supplier<E> {
 
@@ -10,8 +10,8 @@ public class Supplier<E> {
 		this.e = e;
 	}
 
-	public E supply(Action<E> action) {
-		action.use(e);
+	public E supply(Consumer<E> action) {
+		action.accept(e);
 		return e;
 	}
 

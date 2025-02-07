@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.fight.database.EnumMappedEntry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
+import me.hapyl.fight.game.crate.Crates;
 import me.hapyl.eterna.module.util.Compute;
 
 import javax.annotation.Nonnull;
@@ -13,11 +13,11 @@ import java.util.Set;
 
 public class CrateEntry extends PlayerDatabaseEntry implements EnumMappedEntry<Crates, Long> {
     public CrateEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+        super(playerDatabase, "crates");
     }
 
     public long getCrates(@Nonnull Crates crate) {
-        return getValue("crates." + crate.name(), 0L);
+        return getValue(crate.getKeyAsString(), 0L);
     }
 
     public boolean hasCrate(@Nonnull Crates crate) {
@@ -25,7 +25,7 @@ public class CrateEntry extends PlayerDatabaseEntry implements EnumMappedEntry<C
     }
 
     public void setCrate(@Nonnull Crates crate, long amount) {
-        setValue("crates." + crate.name(), amount);
+        setValue(crate.getKeyAsString(), amount);
     }
 
     public void addCrate(@Nonnull Crates crate) {

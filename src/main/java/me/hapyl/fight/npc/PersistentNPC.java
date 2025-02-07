@@ -1,86 +1,88 @@
 package me.hapyl.fight.npc;
 
-import me.hapyl.fight.dialog.Placeholder;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.eterna.module.annotate.Super;
-import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.hologram.StringArray;
 import me.hapyl.eterna.module.reflect.npc.ClickType;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.NPCFormat;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.game.Event;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.task.DelegateTask;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.util.Delegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class PersistentNPC extends HumanNPC {
+@AutoRegisteredListener
+public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate {
 
-    private final String name;
+    private static final NPCFormat FORMAT = new NPCFormat(
+            new NPCFormat.TextFormat("&8[&e&lNPC&8] %s{name}: &f{text}".formatted(Color.SUCCESS)),
+            new NPCFormat.NameFormat("%s{name}".formatted(Color.SUCCESS))
+    );
 
-    @Nonnull
-    private NPCSound sound;
+    @Nonnull protected final Key key;
+    @Nonnull protected PersistentNPCSound sound;
 
-    public PersistentNPC(@Nonnull Location location, @Nullable String name) {
-        this(location, name, "", uuid -> ("§8[NPC] " + uuid.toString().replace("-", "")).substring(0, 16));
+    protected int tick;
+
+    public PersistentNPC(@Nonnull Key key, double x, double y, double z, @Nullable String name) {
+        this(key, x, y, z, 0.0f, 0.0f, name);
     }
 
-    public PersistentNPC(double x, double y, double z, @Nullable String name) {
-        this(x, y, z, 0.0f, 0.0f, name);
+    public PersistentNPC(@Nonnull Key key, double x, double y, double z, float yaw, float pitch, @Nullable String name) {
+        this(key, BukkitUtils.defLocation(x, y, z, yaw, pitch), name, uuid -> "§8");
     }
 
-    public PersistentNPC(double x, double y, double z, float yaw, float pitch, @Nullable String name) {
-        this(BukkitUtils.defLocation(x, y, z, yaw, pitch), name);
+    protected PersistentNPC(@Nonnull Key key, @Nonnull Location location, @Nullable String name, @Nonnull Function<UUID, String> hexName) {
+        super(location, name, null, hexName);
+
+        this.key = key;
+        this.sound = new PersistentNPCSound();
+
+        setFormat(FORMAT);
+        setLookAtCloseDist(8);
+
+        // Register listener if needed
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
+
+        // Delegate task
+        DelegateTask.delegate(this, new GameTask() {
+            @Override
+            public void run() {
+                PersistentNPC.this.tick();
+            }
+        }.runTaskTimer(0, 20));
     }
 
-    @Super
-    protected PersistentNPC(Location location, String name, String skinOwner, Function<UUID, String> hexNameFn) {
-        super(location, name == null ? null : Color.BUTTON.bold() + "CLICK", skinOwner, hexNameFn);
+    @Override
+    public final void sendNpcMessage(@Nonnull Player player, @Nonnull String message) {
+        super.sendNpcMessage(player, message);
 
-        this.name = name;
-        this.sound = new NPCSound();
-
-        init();
-    }
-
-    public void sendMessage(@Nonnull Player player, @Nonnull String message, @Nonnull Object... format) {
-        Chat.sendMessage(player, "&e[NPC] %s&f: %s".formatted(getName(), Placeholder.formatAll(message.formatted(format), player, this)));
         sound.play(player);
     }
 
-    @Override
-    public final void onClick(@Nonnull Player player, @Nonnull ClickType type) {
-        onClick(player);
-    }
-
-    public PersistentNPC setInteractionDelay(int interactionDelayTick) {
-        super.setInteractionDelayTick(interactionDelayTick);
-        return this;
+    @Event
+    public void onSpawn(@Nonnull Player player) {
     }
 
     @Event
-    public void onClick(@Nonnull Player player) {
-    }
-
-    public void setSound(@Nonnull NPCSound sound) {
-        this.sound = sound;
-    }
-
-    @Deprecated
-    @Override
-    public void sendNpcMessage(Player player, String msg) {
-        sendMessage(player, msg);
-    }
-
-    @Event
-    public void onSpawn(Player player) {
-    }
-
-    @Event
-    public void onPrepare() {
+    public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
     }
 
     @Override
@@ -89,7 +91,6 @@ public class PersistentNPC extends HumanNPC {
             return;
         }
 
-        stopTalking();
         super.show(player);
         onSpawn(player);
     }
@@ -99,29 +100,35 @@ public class PersistentNPC extends HumanNPC {
         Bukkit.getOnlinePlayers().forEach(this::show);
     }
 
-    public boolean shouldCreate(Player player) {
+    public boolean shouldCreate(@Nonnull Player player) {
         return true;
     }
 
-    @Event
-    public void onCreate(@Nonnull Player player) {
+    @Nonnull
+    @Override
+    public final Key getKey() {
+        return key;
     }
 
     @Override
-    public String getName() {
-        return Color.SUCCESS + name;
+    @OverridingMethodsMustInvokeSuper
+    public void tick() {
+        ++tick;
+
+        // This will update NPC name
+        setBelowHead(player -> {
+            if (!hasName()) {
+                return StringArray.empty();
+            }
+
+            return StringArray.of(Color.BUTTON.bold() + "CLICK");
+        });
     }
 
-    protected void init() {
-        final String displayName = Color.SUCCESS + name;
-
-        if (name != null) {
-            addTextAboveHead(displayName);
-        }
-
-        setLookAtCloseDist(10);
-        setChatPrefix(displayName);
-
-        onPrepare();
+    @Nonnull
+    protected StringArray blink(@Nonnull String message) {
+        return StringArray.of(
+                (tick % 2 <= 0 ? "&6&l" : "&e&l") + message
+        );
     }
 }

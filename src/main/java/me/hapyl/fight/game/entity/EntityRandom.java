@@ -84,6 +84,10 @@ public class EntityRandom extends Random {
         return v >= chance;
     }
 
+    public double next() {
+        return Math.random();
+    }
+
     private RuntimeException illegalArgument(String message) {
         return new IllegalArgumentException(message);
     }

@@ -1,11 +1,12 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -34,7 +35,8 @@ public class MasteryCommand extends CFCommand {
             return;
         }
 
-        final PlayerDatabase database = PlayerDatabase.getDatabase(target);
+        final PlayerDatabase database = CF.getDatabase(target);
+
         if (argument.equalsIgnoreCase("get")) {
             final int lvl = database.masteryEntry.getLevel(hero);
             final long exp = database.masteryEntry.getExp(hero);

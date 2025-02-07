@@ -31,6 +31,18 @@ public enum Terms {
                     """)
             .build()),
 
+    BLOOD_DEBT(
+            Term.builder()
+                .setName("Blood Debt")
+                .setShortDescription("""
+                        A bloody debt that must be repaid by healing.
+                        """)
+                .setDescription("""
+                        A debuff that must be healed before health can be healed.
+                        """)
+                .build()
+    ),
+
     ;
 
     public final Term term;

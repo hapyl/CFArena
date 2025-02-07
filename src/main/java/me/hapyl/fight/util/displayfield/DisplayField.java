@@ -35,7 +35,7 @@ public @interface DisplayField {
     /**
      * Multiplier by which the numeral value will be scaled.
      */
-    double scaleFactor() default 1.0d;
+    double scaleFactor() default 1;
 
     /**
      * Annotates that this field is a percentage and will be scaled by 100 and appended with "%" without a space.
@@ -45,7 +45,7 @@ public @interface DisplayField {
     boolean percentage() default false;
 
     /**
-     * Annotates custom decimal point.
+     * Annotates named decimal point.
      * <br>
      * -1 to dynamically use 1 dp for <code>float</code> and 2 for <code>double</code>.
      *

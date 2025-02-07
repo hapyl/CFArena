@@ -1,13 +1,12 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -44,7 +43,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
 
         setType(TalentType.MOVEMENT);
         setItem(Material.LEAD);
-        setNoChargedMaterial(Material.GOAT_HORN);
+        setNoChargesItem(Material.GOAT_HORN);
     }
 
     @EventHandler()
@@ -99,7 +98,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     @Override
     public void onLastCharge(@Nonnull GamePlayer player) {
         grantAllCharges(player, cooldown);
-        player.setCooldown(getNoChargedMaterial(), cooldown);
+        player.setCooldownInternal(getNoChargesItem().getType(), cooldown);
     }
 
     @EventHandler()

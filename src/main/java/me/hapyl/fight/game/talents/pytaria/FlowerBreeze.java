@@ -1,18 +1,18 @@
 package me.hapyl.fight.game.talents.pytaria;
 
 
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 public class FlowerBreeze extends Talent {
 
-    @DisplayField(scaleFactor = 100.0d) public final double attackIncrease = 0.3d;
-    @DisplayField(scaleFactor = 100.0d) public final double defenseIncrease = 1.5d;
+    @DisplayField(scaleFactor = 100) public final double attackIncrease = 0.3d;
+    @DisplayField(scaleFactor = 100) public final double defenseIncrease = 1.5d;
     @DisplayField private final double healthSacrifice = 15.0d;
 
     private final Material[] flowers = {

@@ -1,16 +1,17 @@
 package me.hapyl.fight.gui.styled.profile;
 
-import me.hapyl.fight.game.cosmetic.gui.CollectionGUI;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.cosmetic.CollectionGUI;
 import me.hapyl.fight.game.experience.ExperienceGUI;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.gui.styled.hotbar.HotbarLoadoutGUI;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.hotbar.HotbarLoadoutGUI;
 import me.hapyl.fight.gui.styled.profile.achievement.AchievementGUI;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -28,11 +29,7 @@ public class PlayerProfileGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return;
-        }
+        final PlayerProfile profile = CF.getProfile(player);
 
         setHeader(new ItemBuilder(Material.PLAYER_HEAD)
                 .setSkullOwner(getPlayer().getName())

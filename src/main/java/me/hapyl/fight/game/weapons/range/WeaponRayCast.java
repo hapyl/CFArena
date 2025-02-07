@@ -152,16 +152,6 @@ public class WeaponRayCast {
             return false;
         }
 
-        // Deflect
-        if (!deflected && target instanceof GamePlayer playerTarget) {
-            if (playerTarget.isDeflecting()) {
-                this.player = playerTarget;
-                this.vector = playerTarget.getDirectionWithMovementError(weapon.movementError);
-                this.deflected = true;
-                return false;
-            }
-        }
-
         final boolean isHeadShot = isHeadShot(location, target);
 
         target.modifyKnockback(PlayerHandler.RANGE_KNOCKBACK_RESISTANCE, then -> {

@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.eterna.module.util.BukkitUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;

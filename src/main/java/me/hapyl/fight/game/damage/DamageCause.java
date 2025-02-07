@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.damage;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Copyable;
 import me.hapyl.fight.game.DamageFormat;
 import me.hapyl.fight.game.DeathMessage;
-import me.hapyl.fight.util.Copyable;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;

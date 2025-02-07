@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.artifact;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.util.Described;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;

@@ -11,42 +11,44 @@ import java.util.Map;
 
 public class CurrencyEntry extends PlayerDatabaseEntry implements EnumMappedEntry<Currency, Long> {
 
-    public CurrencyEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
-        this.setPath("currency");
+    public CurrencyEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "currency");
     }
 
-    public long get(Currency currency) {
-        return fetchFromDocument(document -> document.get(currency.getPath(), 0L));
+    public long get(@Nonnull Currency currency) {
+        return getValue(currency.getKeyAsString(), 0L);
     }
 
-    public void set(Currency currency, long value) {
-        fetchDocument(document -> document.put(currency.getPath(), value));
+    public void set(@Nonnull Currency currency, long value) {
+        setValue(currency.getKeyAsString(), value);
     }
 
-    public void add(Currency currency, long value) {
+    public void add(@Nonnull Currency currency, long value) {
         set(currency, get(currency) + value);
 
         final Player player = getOnlinePlayer();
+
         if (player != null) {
             currency.onIncrease(player, value);
         }
     }
 
-    public void subtract(Currency currency, long value) {
+    public void subtract(@Nonnull Currency currency, long value) {
         set(currency, get(currency) - value);
 
         final Player player = getOnlinePlayer();
+
         if (player != null) {
             currency.onDecrease(player, value);
         }
     }
 
-    public String getFormatted(Currency currency) {
+    @Nonnull
+    public String getFormatted(@Nonnull Currency currency) {
         return String.format("%,d", get(currency));
     }
 
-    public boolean has(Currency currency, long value) {
+    public boolean has(@Nonnull Currency currency, long value) {
         return get(currency) >= value;
     }
 

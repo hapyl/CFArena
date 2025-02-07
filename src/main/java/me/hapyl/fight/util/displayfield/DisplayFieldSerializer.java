@@ -1,10 +1,10 @@
 package me.hapyl.fight.util.displayfield;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.StringReplacer;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -125,7 +125,7 @@ public final class DisplayFieldSerializer {
             else if (value instanceof String string) {
                 stringValue = string;
             }
-            // Default to toString() to custom objects can override the value
+            // Default to toString() to named objects can override the value
             else {
                 stringValue = value.toString();
             }

@@ -19,7 +19,7 @@ public abstract class ShadowAssassinModeSpecificTalent extends Talent {
         final Response execute = execute(player);
 
         if (execute != null && !execute.isError()) {
-            player.setCooldown(parent.getMaterial(), getCooldown());
+            player.cooldownManager.setCooldown(parent, getCooldown());
         }
 
         return execute;

@@ -1,17 +1,78 @@
 package me.hapyl.fight.game.help;
 
+import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.fight.game.NonNullItemCreator;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.util.BrowserLink;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
 
 public class HelpDevelopers extends HelpGUI {
 
-    private static final SlotPattern DEVELOPERS = new SlotPattern(new byte[][] { { 0, 1, 0, 1, 0, 1, 0, 1, 0 } });
-    private static final SlotPattern TESTERS = new SlotPattern(new byte[][] { { 0, 0, 1, 1, 1, 1, 1, 0, 0 } });
+    private static final List<Developer> DEVELOPERS;
+
+    static {
+        DEVELOPERS = Lists.newArrayList();
+
+        addDeveloper(Developer.of(
+                "da8adca36d7756cca2975d1a1f6b5ab56cda82d88f9de0d3de595332c8035cb0",
+                "&4hapyl",
+                "Did Mojang break something again?",
+                DeveloperRole.PROGRAMMER,
+                DeveloperRole.DESIGN_HERO,
+                DeveloperRole.DESIGN_MAP,
+                DeveloperRole.BUILDER
+        ).linkTo("GitHub", "https://github.com/hapyl"));
+
+        addDeveloper(Developer.of(
+                "cebb138d16c9f984a77d85c78aa32ac3f57369ba31972264bcf3f47b9cba4c",
+                "&9sdimas74",
+                "Probably drunk right now.",
+                DeveloperRole.DESIGN_HERO,
+                DeveloperRole.DESIGN_MAP,
+                DeveloperRole.BUILDER,
+                DeveloperRole.LORE_WRITER
+        ));
+
+        addDeveloper(Developer.of(
+                "e96e10d1b43f78f5c8d2aac31ad5985bdce3b2b8b1f54c9446166d8e3f783169",
+                "&6DiDenPro",
+                "Not actually a pro.",
+                DeveloperRole.DESIGN_MAP,
+                DeveloperRole.DESIGN_HERO
+        ));
+
+        addDeveloper(Developer.of(
+                "f1c7656a03abfd8ca1c18635155d8d5df402547121366d018d4b4b12d9e9578b",
+                "&7Dirty&3El",
+                "Haven't been seen in 69 years.",
+                DeveloperRole.DESIGN_MAP,
+                DeveloperRole.BUILDER
+        ));
+
+        addDeveloper(Developer.of(
+                "67576a010e53097b618121c07024799369f688c7e3476dfbea6ea250b2ddf221",
+                "RobCos_",
+                "idk add description yourself", // fixme: @RobCos_
+                DeveloperRole.PROGRAMMER,
+                DeveloperRole.DESIGN_HERO
+        ));
+
+        // Testers
+        addDeveloper(Developer.ofTester("4d39fc14370bafed626ffe9a1f02ed4a7f9d149f94f3e126bf6a2e07976449c6", "Vizmar"));
+        addDeveloper(Developer.ofTester("f1a07bb2d43f6807bdf63dd6c519977c6ba200e857835e70d2f51e196a982041", "AlmostId"));
+        addDeveloper(Developer.ofTester("a579126f0a3b1f77c0bee58e95d2b489ef35acd756ac241fdcd5ff52afb82935", "MisterioMAN"));
+        addDeveloper(Developer.ofTester("e177bb888ea7e98fd0c2ee1b58dc4248b838c35ca7b672d28b324e7ef0921292", "thundda"));
+        addDeveloper(Developer.ofTester("6ae2963cc5baab5edcf41a61aa4abbf545bf7eaa2c114053bf79cc4e0cb46168", "alternativeuser"));
+    }
 
     public HelpDevelopers(Player player) {
         super(player, "Developers");
@@ -20,119 +81,138 @@ public class HelpDevelopers extends HelpGUI {
     @Nonnull
     @Override
     public Material getBorder() {
-        return null;
+        return Material.GREEN_STAINED_GLASS_PANE;
     }
 
     @Override
     public void onUpdate() {
         super.onUpdate();
-        
+
         setItem(4, ItemBuilder.of(Material.BOOK, "Developers", "There we are!").asIcon());
 
         final SmartComponent developers = newSmartComponent();
         final SmartComponent testers = newSmartComponent();
 
-        developers.add(ItemBuilder.playerHead(
-                        "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWU1YjQ5OTRmZmMyZDMyMGQwYTQ2MGM1NzFhZTEzYjU2YzY5NmMzMTk0NjE1ZDMxYTRkN2FkMDUxMDgzOWM0NSJ9fX0=")
-                .setName("&chapyl")
-                .addLore("&8I little bit dumb.")
-                .addLore("")
-                .addLore("&fProgrammer")
-                .addLore("&fHero Designer")
-                .addLore("&fMap Designer")
-                .addLore("&fMap Builder")
-                .addLore("&fTester")
-                .asIcon());
+        for (Developer developer : DEVELOPERS) {
+            final ItemStack item = developer.createItem();
+            final SmartComponent component = !developer.roles.contains(DeveloperRole.TESTER) ? developers : testers;
 
+            component.add(item, player -> {
+                final BrowserLink link = developer.optionalLink;
 
-        developers.add(ItemBuilder
-                .playerHead(
-                        "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2ViYjEzOGQxNmM5Zjk4NGE3N2Q4NWM3OGFhMzJhYzNmNTczNjliYTMxOTcyMjY0YmNmM2Y0N2I5Y2JhNGMifX19"
-                )
-                .setName("&9sdimas74")
-                .addLore("&8Might be drunk right now.")
-                .addLore("")
-                .addLore("&fHero Designer")
-                .addLore("&fMap Designer")
-                .addLore("&fMap Builder")
-                .addLore("&fTester")
-                .asIcon());
+                if (link != null) {
+                    link.openUrl(player);
+                }
+            });
+        }
 
-        developers.add(ItemBuilder
-                .playerHead(
-                        "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTk2ZTEwZDFiNDNmNzhmNWM4ZDJhYWMzMWFkNTk4NWJkY2UzYjJiOGIxZjU0Yzk0NDYxNjZkOGUzZjc4MzE2OSJ9fX0="
-                )
-                .setName("&6DiDenPro")
-                .addLore("&8Not actually a pro.")
+        developers.apply(this, SlotPattern.FANCY, 1);
+        testers.apply(this, SlotPattern.FANCY, 2);
+
+        // You
+        setItem(31, new ItemBuilder(Material.PLAYER_HEAD)
+                .setSkullOwner(player.getName())
+                .setName("&aYou!")
                 .addLore()
-                .addLore("&fHero Designer")
-                .addLore("&fTester")
-                .asIcon());
-
-        developers.add(ItemBuilder
-                .playerHead(
-                        "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjFjNzY1NmEwM2FiZmQ4Y2ExYzE4NjM1MTU1ZDhkNWRmNDAyNTQ3MTIxMzY2ZDAxOGQ0YjRiMTJkOWU5NTc4YiJ9fX0="
-                )
-                .setName("&7Dirty&3El")
-                .addLore("&8Haven't been seen in 69 years.")
-                .addLore()
-                .addLore("&fMap Designer")
-                .addLore("&fMap Builder")
-                .addLore("&fTester")
-                .asIcon());
-
-        testers.add(ItemBuilder
-                .playerHead(
-                        "eyJ0aW1lc3RhbXAiOjE1NTExOTk5NTY2NzEsInByb2ZpbGVJZCI6ImEwOGQ2MTI5MDRlODRkNmNhMWZlOTNhOGI4ODA2NzA5IiwicHJvZmlsZU5hbWUiOiJWaXptYXIiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzRkMzlmYzE0MzcwYmFmZWQ2MjZmZmU5YTFmMDJlZDRhN2Y5ZDE0OWY5NGYzZTEyNmJmNmEyZTA3OTc2NDQ5YzYifX19"
-                )
-                .setName("Vizmar")
-                .addLore()
-                .addLore("&fTester")
+                .addLore("&f• &6A Very Special Person")
                 .asIcon()
         );
+    }
 
-        testers.add(ItemBuilder
-                .playerHead(
-                        "eyJ0aW1lc3RhbXAiOjE1NTExOTk5NzA3NTgsInByb2ZpbGVJZCI6IjE4NTM1YmYzODk3MTQ5OGFiYzBhN2Q3Yjc5Nzg4MTIxIiwicHJvZmlsZU5hbWUiOiJBbG1vc3RJZCIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjFhMDdiYjJkNDNmNjgwN2JkZjYzZGQ2YzUxOTk3N2M2YmEyMDBlODU3ODM1ZTcwZDJmNTFlMTk2YTk4MjA0MSJ9fX0="
-                )
-                .setName("AlmostId")
-                .addLore()
-                .addLore("&fTester")
-                .asIcon()
-        );
+    private static void addDeveloper(Developer developer) {
+        DEVELOPERS.add(developer);
+    }
 
-        testers.add(ItemBuilder
-                .playerHead(
-                        "eyJ0aW1lc3RhbXAiOjE1NTEyMDAwMTYwNzUsInByb2ZpbGVJZCI6IjY3ZWY3MTVlMDE5YjQ4ZjY5NzNkMWQzOWNlOTVjZDFmIiwicHJvZmlsZU5hbWUiOiJNaXN0ZXJpb01BTiIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTU3OTEyNmYwYTNiMWY3N2MwYmVlNThlOTVkMmI0ODllZjM1YWNkNzU2YWMyNDFmZGNkNWZmNTJhZmI4MjkzNSIsIm1ldGFkYXRhIjp7Im1vZGVsIjoic2xpbSJ9fX19"
-                )
-                .setName("MisterioMAN")
-                .addLore()
-                .addLore("&fTester")
-                .asIcon()
-        );
+    private enum DeveloperRole {
+        PROGRAMMER("Programmer"),
+        DESIGN_HERO("Hero Designer"),
+        DESIGN_MAP("Map Designer"),
+        BUILDER("Builder"),
+        LORE_WRITER("Lore Writer"),
+        TESTER("Tester");
 
-        testers.add(ItemBuilder
-                .playerHead(
-                        "eyJ0aW1lc3RhbXAiOjE1NTEyMDAwMjM1ODEsInByb2ZpbGVJZCI6ImQyODFkYmUxY2RhMDRlOWM5ZGFhYTIwZGY0NDNiMjNkIiwicHJvZmlsZU5hbWUiOiJ0aHVuZGRhIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9lMTc3YmI4ODhlYTdlOThmZDBjMmVlMWI1OGRjNDI0OGI4MzhjMzVjYTdiNjcyZDI4YjMyNGU3ZWYwOTIxMjkyIiwibWV0YWRhdGEiOnsibW9kZWwiOiJzbGltIn19fX0="
-                )
-                .setName("thundda")
-                .addLore()
-                .addLore("&fTester")
-                .asIcon()
-        );
+        private final String name;
 
-        testers.add(ItemBuilder
-                .playerHead(
-                        "ewogICJ0aW1lc3RhbXAiIDogMTYxMjQzNTY0ODEzNSwKICAicHJvZmlsZUlkIiA6ICI3ZDNjMmU1NTdkM2M0MDFmYTY0YjE2ODI5MmEzNWQyMSIsCiAgInByb2ZpbGVOYW1lIiA6ICJhbHRlcm5hdGl2ZXVzZXIiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmFlMjk2M2NjNWJhYWI1ZWRjZjQxYTYxYWE0YWJiZjU0NWJmN2VhYTJjMTE0MDUzYmY3OWNjNGUwY2I0NjE2OCIKICAgIH0KICB9Cn0="
-                )
-                .setName("alternativeuser")
-                .addLore()
-                .addLore("&fTester")
-                .asIcon()
-        );
+        DeveloperRole(String name) {
+            this.name = name;
+        }
 
-        developers.apply(this, DEVELOPERS, 1);
-        testers.apply(this, TESTERS, 2);
+        @Nonnull
+        public String getName() {
+            return name;
+        }
+    }
+
+    private static class Developer implements NonNullItemCreator {
+        private final String headTexture;
+        private final String name;
+        private final String description;
+        private final List<DeveloperRole> roles;
+
+        private BrowserLink optionalLink;
+        private ItemStack itemStack;
+
+        private Developer(String headTexture, String name, String description) {
+            this.headTexture = headTexture;
+            this.name = name;
+            this.description = description;
+            this.roles = Lists.newArrayList();
+        }
+
+        public Developer linkTo(@Nonnull String name, @Nonnull String link) {
+            this.optionalLink = new BrowserLink(name, link);
+            return this;
+        }
+
+        @Nonnull
+        @Override
+        public ItemStack getItem() {
+            if (itemStack == null) {
+                return itemStack = createItem();
+            }
+
+            return itemStack;
+        }
+
+        @Override
+        @Nonnull
+        public ItemStack createItem() {
+            final ItemBuilder builder = ItemBuilder.playerHeadUrl(headTexture);
+            builder.setName(name);
+
+            if (description != null) {
+                builder.addLore("&8&o" + description);
+            }
+
+            builder.addLore();
+
+            for (DeveloperRole role : DeveloperRole.values()) {
+                if (roles.contains(role)) {
+                    builder.addLore("&f• &6" + role.getName());
+                }
+            }
+
+            if (optionalLink != null) {
+                builder.addLore();
+                builder.addLore(Color.BUTTON + "Click to open %s's %s!".formatted(name, Color.BUTTON + optionalLink.name()));
+            }
+
+            return builder.asIcon();
+        }
+
+        public static Developer of(@Nonnull String headTexture, @Nonnull String name, @Nonnull String description, @Nonnull DeveloperRole... roles) {
+            final Developer developer = new Developer(headTexture, name, description);
+            developer.roles.addAll(Arrays.asList(roles));
+
+            return developer;
+        }
+
+        public static Developer ofTester(@Nonnull String headTexture, @Nonnull String name) {
+            final Developer developer = new Developer(headTexture, name, null);
+            developer.roles.add(DeveloperRole.TESTER);
+
+            return developer;
+        }
     }
 
 }

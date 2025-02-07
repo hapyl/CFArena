@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.shark;
 
 import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-
 import me.hapyl.fight.fx.Riptide;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -93,11 +92,11 @@ public class Whirlpool extends Talent {
                 final double y = Math.atan(Math.toRadians(tick * 8)) * 1d;
                 final double z = Math.cos(d) * radius;
 
-                LocationHelper.modify(location, x, y, z, then -> {
+                LocationHelper.offset(location, x, y, z, () -> {
                     player.spawnWorldParticle(location, Particle.FLAME, 1);
                 });
 
-                LocationHelper.modify(location, z, y, x, then -> {
+                LocationHelper.offset(location, z, y, x, () -> {
                     player.spawnWorldParticle(location, Particle.FLAME, 1);
                 });
 

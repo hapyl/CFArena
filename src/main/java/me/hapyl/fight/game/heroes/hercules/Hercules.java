@@ -1,25 +1,21 @@
 package me.hapyl.fight.game.heroes.hercules;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -45,8 +41,9 @@ public class Hercules extends Hero implements Listener, Disabled {
     public Hercules(@Nonnull Key key) {
         super(key, "Hercules");
 
-        setArchetypes(Archetype.MOBILITY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY);
+        profile.setGender(Gender.MALE);
 
         setDescription(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."
@@ -54,7 +51,7 @@ public class Hercules extends Hero implements Listener, Disabled {
 
         setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(Color.WHITE);
         equipment.setBoots(Material.LEATHER_BOOTS);
 
@@ -202,7 +199,7 @@ public class Hercules extends Hero implements Listener, Disabled {
                     player.removeTag("plunging");
                     player.removeEffect(Effects.JUMP_BOOST);
 
-                    Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
+                    Registries.getCosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
 
                     Collect.nearbyEntities(player.getLocation(), 4).forEach(target -> {
                         if (target.equals(player)) {
@@ -245,28 +242,8 @@ public class Hercules extends Hero implements Listener, Disabled {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            // Fx
-            new GameTask() {
-                private int tick = 0;
-
-                @Override
-                public void run() {
-                    if (tick % 4 == 0) {
-                        if (tick <= 20) {
-                            player.addEffect(Effects.SLOW, tick / 4, 4);
-                            player.playSound(Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
-                        }
-                        else {
-                            cancel();
-                            player.playSound(Sound.ENTITY_WITHER_HURT, 1.25f);
-                        }
-                    }
-                    ++tick;
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return null;
         }
     }
 }

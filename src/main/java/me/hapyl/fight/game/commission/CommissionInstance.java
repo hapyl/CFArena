@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.commission;
 
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.maps.CommissionLevel;
 import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.type.EnumGameType;
 
 import javax.annotation.Nonnull;
 

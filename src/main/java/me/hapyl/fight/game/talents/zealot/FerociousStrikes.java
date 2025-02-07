@@ -1,17 +1,16 @@
 package me.hapyl.fight.game.talents.zealot;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
 public class FerociousStrikes extends PassiveTalent {
 
-    public static final int maxStrikes = 10;
+    public static final int maxStrikes = 10; // FIXME (Sat, Aug 31 2024 @xanyjl): why static?
 
     public FerociousStrikes(@Nonnull Key key) {
         super(key, "Ferocious Strikes");

@@ -1,25 +1,26 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.eterna.module.util.Named;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.Named;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.skin.Skins;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Locale;
 
 public class HeroPlayerItemMaker {
 
     private final Hero hero;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
 
     public HeroPlayerItemMaker(Hero hero) {
         this.hero = hero;
@@ -34,7 +35,7 @@ public class HeroPlayerItemMaker {
     @Nonnull
     public ItemBuilder makeBuilder(@Nonnull Type type, @Nonnull Player player) {
         final ItemBuilder builder = type.createItem(this, player);
-        final Skins skin = PlayerDatabase.getDatabase(player).skinEntry.getSelected(hero);
+        final Skins skin = CF.getDatabase(player).skinEntry.getSelected(hero);
 
         // FIXME: This was in makeItem() instead of makeBuilder(), if any problems occur put it back ig -h
         if (skin != null) {
@@ -52,51 +53,46 @@ public class HeroPlayerItemMaker {
                 final Hero hero = maker.hero;
                 final PlayerRating averageRating = maker.stats.getAverageRating();
 
+                // Mastery
+                final PlayerDatabase database = CF.getDatabase(player);
+                final MasteryEntry entry = database.masteryEntry;
+                final long exp = entry.getExp(hero);
+
+                final StringBuilder name = new StringBuilder(hero.getName());
+
+                if (averageRating != null) {
+                    name.append(" ").append(averageRating);
+                }
+                if (exp > 0) {
+                    name.append(" ").append("&8(&6%s&8)".formatted(entry.getLevelString(hero)));
+                }
+
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())
-                        .setName(hero.toString())
+                        .setName(name.toString())
                         .addLore("&8/hero " + hero.getKeyAsString())
                         .addLore();
 
                 // Archetypes
-                final ArchetypeList archetypes = hero.getArchetypes();
-                builder.addLore("&7Archetypes: " + archetypes.getSimpleDisplay());
+                final HeroProfile profile = hero.getProfile();
 
-                builder.addLoreIf(
-                                "&7Affiliation: " + hero.getAffiliation(),
-                                hero.getAffiliation() != Affiliation.NOT_SET
-                        )
-                        .addLoreIf("&7Player Rating: " + averageRating, averageRating != null)
-                        .addLore();
+                builder.addLore(Color.DEFAULT.bold() + "ᴘʀᴏꜰɪʟᴇ");
+                builder.addLore(" &7Archetypes: " + profile.getSimpleArchetypesDisplay());
+                builder.addLore(" &7Affiliation: " + profile.getAffiliation());
+                builder.addLore(" &7Gender: " + profile.getGender());
+                builder.addLore(" &7Race: " + profile.getRace());
 
                 final HeroAttributes attributes = hero.getAttributes();
-                builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
+
+                builder.addLore();
+                builder.addLore(Color.DEFAULT.bold() + "ᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
                 builder.addLore(attributes.getLore(AttributeType.MAX_HEALTH));
                 builder.addLore(attributes.getLore(AttributeType.ATTACK));
                 builder.addLore(attributes.getLore(AttributeType.DEFENSE));
                 builder.addLore(attributes.getLore(AttributeType.SPEED));
 
                 builder.addLore();
-                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35);
-
-                if (hero instanceof ComplexHero) {
-                    builder.addTextBlockLore("""
-                            
-                            &6&lComplex Hero!
-                            This hero is more difficult to play than others. Thus is &nnot&7 recommended for newer players.
-                            """);
-                }
-
-                // Mastery
-                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-                final MasteryEntry entry = database.masteryEntry;
-                final long exp = entry.getExp(hero);
-
-                // Don't display mastery if never played this hero
-                if (exp != 0) {
-                    builder.addLore();
-                    builder.addLore(entry.makeMasteryHeader(hero));
-                    builder.addLore(entry.makeProgressBar(hero));
-                }
+                builder.addLore(Color.DEFAULT.bold() + "ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ");
+                builder.addTextBlockLore(hero.getDescription(), "&8&o ", 35);
 
                 // Usage
                 builder.addLore().addLore("&eLeft Click to select").addLore("&6Right Click for details");
@@ -110,51 +106,39 @@ public class HeroPlayerItemMaker {
             @Override
             ItemBuilder createItem(@Nonnull HeroPlayerItemMaker maker, @Nonnull Player player) {
                 final Hero hero = maker.hero;
-                final HeroStatsCollection stats = maker.stats;
-
+                final PlayerRating averageRating = maker.stats.getAverageRating();
                 final ItemBuilder builder = new ItemBuilder(hero.getItem());
-                final ArchetypeList archetypes = hero.getArchetypes();
-                final Affiliation affiliation = hero.getAffiliation();
-                final Gender gender = hero.getGender();
-                final Race race = hero.getRace();
 
-                builder.setName(hero.toString());
+                builder.setName(hero.getName() + (averageRating != null ? " " + averageRating : ""));
                 builder.addLore();
 
                 // Archetypes
-                builder.addLore("&7Archetypes:");
-                archetypes.forEach(archetype -> {
-                    builder.addLore(" " + archetype.toString());
-                    builder.addSmartLore(archetype.getDescription(), "&r  &7&o");
+                final HeroProfile profile = hero.getProfile();
+
+                builder.addLore(Color.DEFAULT.bold() + "ᴘʀᴏꜰɪʟᴇ");
+                builder.addLore(" &7Archetypes:");
+                profile.getArchetypes().forEach(archetype -> {
+                    builder.addLore("  " + archetype.toString());
                 });
 
-                appendLore(builder, "Affiliation", affiliation, Affiliation.NOT_SET);
+                builder.addLore(" &7Affiliation: " + profile.getAffiliation());
+                builder.addLore(" &7Gender: " + profile.getGender());
+                builder.addLore(" &7Race: " + profile.getRace());
 
-                // Player rating
-                final PlayerRating averageRating = stats.getAverageRating();
-                if (averageRating != null) {
-                    builder.addLore();
-                    builder.addLore("&7Player Rating: " + averageRating);
-                    builder.addSmartLore("Player rating is calculated by players voting.", "&8&o");
-                }
-
-                if (gender != Gender.UNKNOWN || race != Race.UNKNOWN) {
-                    builder.addLore();
-                }
-
-                builder.addLoreIf("Gender: " + gender, gender != Gender.UNKNOWN);
-                builder.addLoreIf("Race: " + race, race != Race.UNKNOWN);
 
                 // Attributes
-                builder.addLore().addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
                 final HeroAttributes attributes = hero.getAttributes();
+
+                builder.addLore();
+                builder.addLore(Color.DEFAULT.bold() + "ᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
 
                 attributes.forEachMandatoryAndNonDefault((type, value) -> {
                     builder.addLore(" &7%s: &b%s".formatted(type.getName(), type.getFormatted(attributes)));
                 });
 
                 builder.addLore();
-                builder.addTextBlockLore(hero.getDescription(), "&8&o", 35);
+                builder.addLore(Color.DEFAULT.bold() + "ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ");
+                builder.addTextBlockLore(hero.getDescription(), "&8&o ", 35);
 
                 return builder;
             }

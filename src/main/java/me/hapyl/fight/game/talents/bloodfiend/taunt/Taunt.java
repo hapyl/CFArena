@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
 import me.hapyl.fight.game.entity.GamePlayer;

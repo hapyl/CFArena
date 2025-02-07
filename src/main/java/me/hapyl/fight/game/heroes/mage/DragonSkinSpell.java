@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.mage;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.effect.Effects;
@@ -9,7 +9,6 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 
 import javax.annotation.Nonnull;
 
@@ -25,6 +24,7 @@ public class DragonSkinSpell extends MageSpell {
 
     public DragonSkinSpell() {
         super(
+                Key.ofString("mage_dragons_skin"),
                 "Dragon's Skin",
                 "Consume to gain &cincredible strength&7, but suffer %s and %s reduction.".formatted(
                         AttributeType.SPEED,

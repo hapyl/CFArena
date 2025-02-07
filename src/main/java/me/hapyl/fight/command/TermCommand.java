@@ -1,12 +1,12 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.terminology.Term;
 import me.hapyl.fight.terminology.TermCollectionGUI;
 import me.hapyl.fight.terminology.TermGUI;
 import me.hapyl.fight.terminology.Terms;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

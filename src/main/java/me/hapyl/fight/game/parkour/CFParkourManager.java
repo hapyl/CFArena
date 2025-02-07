@@ -1,11 +1,10 @@
 package me.hapyl.fight.game.parkour;
 
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.builtin.manager.ParkourManager;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.gui.ParkourLeaderboardGUI;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.Eterna;
-import me.hapyl.eterna.EternaPlugin;
-import me.hapyl.eterna.module.parkour.ParkourRegistry;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,10 +18,10 @@ public class CFParkourManager implements Listener {
 
     public CFParkourManager(Main main) {
         main.getServer().getPluginManager().registerEvents(this, main);
-        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
+        final ParkourManager parkourManager = Eterna.getManagers().parkour;
 
         for (ParkourCourse value : ParkourCourse.values()) {
-            parkourRegistry.registerParkour(value.getParkour());
+            parkourManager.register(value.getParkour());
         }
     }
 

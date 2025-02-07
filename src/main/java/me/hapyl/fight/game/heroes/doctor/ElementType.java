@@ -36,7 +36,7 @@ public enum ElementType {
             return ElementType.NULL;
         }
 
-        // Player heads are card-coded for custom heads
+        // Player heads are card-coded for named heads
         if (material == Material.PLAYER_HEAD) {
             return STURDY;
         }

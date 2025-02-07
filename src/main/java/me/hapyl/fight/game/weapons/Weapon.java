@@ -5,7 +5,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.ItemFunction;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Copyable;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
@@ -13,15 +17,13 @@ import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.StaticFormat;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Copyable;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -42,29 +44,28 @@ import java.util.function.Function;
 public class Weapon
         implements
         Described, DisplayFieldProvider, Copyable,
-        ElementHandler, PlayerElementHandler, NonNullItemCreator {
+        ElementHandler, PlayerElementHandler, NonNullItemCreator,
+        Keyed {
 
     public static final int DEFAULT_BOW_COOLDOWN = 15;
 
     private final Map<AbilityType, Ability> abilities;
     private final List<Enchant> enchants;
     private final Material material;
+    private final Key key;
+
     protected double damage;
     private String name;
     private String description;
     private String lore;
-    private String id;
     private ItemStack item;
 
-    public Weapon(@Nonnull Material material) {
-        this(material, "Unnamed weapon.", "No description provided.", 1);
-    }
-
-    public Weapon(@Nonnull Material material, @Nonnull String name, @Nonnull String about, double damage) {
+    protected Weapon(@Nonnull Material material, @Nonnull Key key) {
         this.material = material;
-        this.name = name;
-        this.description = about;
-        this.damage = damage;
+        this.key = key;
+        this.name = "Unnamed weapon.";
+        this.description = "No description provided.";
+        this.damage = 1;
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newLinkedHashMap();
     }
@@ -88,7 +89,7 @@ public class Weapon
 
         // I guess this is fine?
         // FIXME (hapyl): 020, Nov 20: Might break cooldown for weapons that have multiple abilities
-        ability.setCooldownMaterial(material);
+        ability.setCooldownKey(this);
         this.abilities.put(type, ability);
     }
 
@@ -115,22 +116,9 @@ public class Weapon
         return name;
     }
 
-    public Weapon setName(String name) {
+    @Override
+    public void setName(@Nonnull String name) {
         this.name = name;
-        return this;
-    }
-
-    @Nullable
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * ID is required to use abilities.
-     */
-    public Weapon setId(String id) {
-        this.id = id.toUpperCase(Locale.ROOT);
-        return this;
     }
 
     @Nonnull
@@ -144,9 +132,9 @@ public class Weapon
         return description;
     }
 
-    public Weapon setDescription(@Nonnull String description) {
+    @Override
+    public void setDescription(@Nonnull String description) {
         this.description = description;
-        return this;
     }
 
     public double getDamage() {
@@ -181,7 +169,7 @@ public class Weapon
     }
 
     public void give(GamePlayer player) {
-        player.setItem(HotbarSlots.WEAPON, getItem());
+        player.setItem(HotBarSlot.WEAPON, getItem());
     }
 
     public void give(LivingGameEntity entity) {
@@ -201,10 +189,12 @@ public class Weapon
 
     @Nonnull
     public ItemStack createItem() {
-        final ItemBuilder builder = this.id == null ? new ItemBuilder(this.material) : new ItemBuilder(
-                this.material,
-                this.id
-        );
+        final ItemBuilder builder = new ItemBuilder(this.material);
+
+        if (this.key != null) {
+            builder.setKey(this.key);
+            builder.setCooldownGroup(this.key);
+        }
 
         builder.setName(ChatColor.GREEN + notNullStr(this.name, "Standard Weapon"));
         builder.addLore(this instanceof RangeWeapon ? "&8Ranged Weapon" : "&8Weapon");
@@ -241,8 +231,8 @@ public class Weapon
 
             final Action[] clickTypes = type.getClickTypes();
             if (clickTypes != null) {
-                if (id == null) {
-                    throw new IllegalArgumentException("Ability for weapon '%s' is set, but the weapon is missing Id!".formatted(getName()));
+                if (this.key == null) {
+                    throw new IllegalArgumentException("Ability for weapon '%s' is set, but the weapon is missing a key!".formatted(getName()));
                 }
 
                 final ItemFunction function = builder.addFunction(player -> {
@@ -278,7 +268,7 @@ public class Weapon
         // the new system.
         if (!isRanged()) {
             builder.addAttribute(
-                    Attribute.GENERIC_ATTACK_DAMAGE,
+                    Attribute.ATTACK_DAMAGE,
                     damage - 1.0d, // has to be -1 here
                     AttributeModifier.Operation.ADD_NUMBER,
                     EquipmentSlot.HAND
@@ -291,9 +281,9 @@ public class Weapon
         // meaning all weapons work the same with
         // the same attack speed regardless of vanilla attack speed
         builder.modifyMeta(meta -> {
-            meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED);
+            meta.removeAttributeModifier(Attribute.ATTACK_SPEED);
 
-            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(
+            meta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(
                     BukkitUtils.createKey(UUID.randomUUID()),
                     0.0d,
                     AttributeModifier.Operation.ADD_NUMBER,
@@ -332,14 +322,27 @@ public class Weapon
     /**
      * Create a copy of this weapon.
      * <p>
-     * {@link #id} and {@link #abilities} are <b>not</b> copied!
+     * {@link #key} and {@link #abilities} are <b>not</b> copied!
      */
     @Nonnull
+    @Override
     public Weapon createCopy() {
-        return new Weapon(material)
-                .setName(name)
-                .setDescription(description)
-                .setDamage(damage);
+        final Weapon copy = new Weapon(material, key); // have to copy key :/
+        copy.name = this.name;
+        copy.description = this.description;
+        copy.damage = this.damage;
+        copy.enchants.addAll(this.enchants);
+
+        return copy;
+    }
+
+    @Nonnull
+    @Override
+    public Key getKey() {
+        return Objects.requireNonNull(
+                this.key,
+                "Key is not set for " + getName() + "! Whatever you were trying to do is impossible without a key!"
+        );
     }
 
     protected void addDynamicLore(@Nonnull ItemBuilder builder, @Nonnull String string, @Nonnull Number number, Function<Number, String> function) {
@@ -355,5 +358,45 @@ public class Weapon
 
     private String notNullStr(String str, String def) {
         return str == null ? def : str;
+    }
+
+    @Nonnull
+    public static Builder builder(@Nonnull Material material, @Nonnull Key key) {
+        return new Builder(material, key);
+    }
+
+    public static class Builder implements me.hapyl.eterna.module.util.Builder<Weapon> {
+
+        private final Weapon weapon;
+
+        private Builder(@Nonnull Material material, @Nonnull Key key) {
+            this.weapon = new Weapon(material, key);
+        }
+
+        public Builder name(@Nonnull String name) {
+            this.weapon.setName(name);
+            return this;
+        }
+
+        public Builder description(@Nonnull String description) {
+            this.weapon.setDescription(description);
+            return this;
+        }
+
+        public Builder damage(double damage) {
+            this.weapon.setDamage(damage);
+            return this;
+        }
+
+        public Builder enchant(@Nonnull Enchantment enchantment, int level) {
+            this.weapon.addEnchant(enchantment, level);
+            return this;
+        }
+
+        @Nonnull
+        @Override
+        public Weapon build() {
+            return this.weapon;
+        }
     }
 }

@@ -1,9 +1,8 @@
 package me.hapyl.fight.game.challenge;
 
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.color.Color;
 
 import javax.annotation.Nonnull;
 
@@ -89,21 +88,21 @@ public class PlayerChallenge implements Described {
     @Nonnull
     @Override
     public String getDescription() {
-        return type.get().getDescription(this);
+        return type.getWrapped().getDescription(this);
     }
 
     @Nonnull
     public String getRarityName() {
-        return Chat.capitalize(type.get().getRarity());
+        return Chat.capitalize(type.getWrapped().getRarity());
     }
 
     @Nonnull
     public ChallengeRarity getRarity() {
-        return type.get().getRarity();
+        return type.getWrapped().getRarity();
     }
 
     @Nonnull
     public static PlayerChallenge of(@Nonnull ChallengeType type) {
-        return new PlayerChallenge(type, type.get().generateRandomGoal());
+        return new PlayerChallenge(type, type.getWrapped().generateRandomGoal());
     }
 }

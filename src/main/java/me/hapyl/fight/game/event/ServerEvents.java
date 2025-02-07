@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.event;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.fight.event.ProfileInitializationEvent;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.registry.Registries;
+import org.bukkit.event.EventHandler;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDate;
@@ -11,7 +13,7 @@ import java.time.Month;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class ServerEvents  {
+public final class ServerEvents {
 
     /**
      * April Fools week, from <CODE>Apr 1st</CODE> to <CODE>Apr 7th</CODE> (inclusive).
@@ -40,12 +42,18 @@ public final class ServerEvents  {
                 return month == Month.APRIL && dayOfMonth <= 7;
             }
 
-            @Override
-            public void onJoin(@Nonnull PlayerProfile profile) {
+            @EventHandler
+            public void handleProfileInitializationEvent(ProfileInitializationEvent ev) {
+                if (!isActive()) {
+                    return;
+                }
+
+                final PlayerProfile profile = ev.getProfile();
+
                 profile.setOriginalSkin(theSkin);
                 profile.applyOriginalSkin();
 
-                Registries.getAchievements().APRIL_FOOLS.complete(profile.getPlayer());
+                Registries.getAchievements().APRIL_FOOLS.complete(ev.getPlayer());
             }
         });
 

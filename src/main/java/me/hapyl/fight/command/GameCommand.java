@@ -1,10 +1,10 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.DebugData;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimpleCommand;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.Manager;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
@@ -30,15 +30,14 @@ public class GameCommand extends SimpleCommand {
                         return;
                     }
 
-                    final DebugData debug = DebugData.parse(args);
-                    manager.createNewGameInstance(debug);
-
-                    if (debug.any()) {
-                        Debug.info("Creating new debug instance.");
+                    if (CF.environment().debug.isEnabled()) {
+                        Debug.info("Creating a new debug instance...");
                     }
                     else {
-                        Debug.info("Creating new game instance.");
+                        Debug.info("Creating a new game instance...");
                     }
+
+                    manager.createNewGameInstance();
                 }
 
                 case "stop" -> {

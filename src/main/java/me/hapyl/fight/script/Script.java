@@ -1,9 +1,9 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.script.action.ScriptActionBuilder;
 
 import javax.annotation.Nonnull;

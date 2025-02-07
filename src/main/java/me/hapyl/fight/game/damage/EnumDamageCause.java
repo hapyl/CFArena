@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.damage;
 
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.game.DeathMessage;
 import org.bukkit.event.entity.EntityDamageEvent;
 
@@ -153,13 +154,23 @@ public enum EnumDamageCause {
     CHAOS(DamageCause.nonCrit("was chaotically killed", "by").setDamageTicks(1)),
     SHARK_BITE(DamageCause.nonCrit("was bitten", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
     NYX_SPIKE(DamageCause.nonCrit("was pierced to death", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
-    SPIKE_SHIELD(DamageCause.nonCrit("was hit by spikes", "by"))
+    SPIKE_SHIELD(DamageCause.nonCrit("was hit by spikes", "by").addFlags(DamageFlag.TRUE_DAMAGE)),
+    THE_JOKER(DamageCause.nonCrit("'s death was yoinked", "by")),
+    ECHO(DamageCause.nonCrit("lost their body in the monochrome world", "of")),
+    RONIN_HIT(DamageCause.nonCrit("lost in the duel", "to")),
+    DEFLECT(DamageCause.nonCrit("was killed by {damager}'s deflected attack")),
+    BAT_BITE(DamageCause.nonCrit("was bitten", "by")),
+    BAT_BITE_NO_TICK(BAT_BITE.damageCause.createCopy().setDamageTicks(1)),
+    DEAD_EYE(DamageCause.of("was dead eyed", "by")),
+
     ;
 
     private final DamageCause damageCause;
+    private final String name;
 
-    EnumDamageCause(DamageCause damageCause) {
+    EnumDamageCause(@Nonnull DamageCause damageCause) {
         this.damageCause = damageCause;
+        this.name = Chat.capitalize(this);
     }
 
     public DamageCause getDamageCause() {
@@ -208,8 +219,13 @@ public enum EnumDamageCause {
         return damageCause.getDamageTicks();
     }
 
+    @Nonnull
+    public String getName() {
+        return this.name;
+    }
+
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {
-        final EnumDamageCause enumValue = Validate.getEnumValue(EnumDamageCause.class, cause.name());
+        final EnumDamageCause enumValue = Enums.byName(EnumDamageCause.class, cause.name());
         return enumValue == null ? EnumDamageCause.OTHER : enumValue;
     }
 

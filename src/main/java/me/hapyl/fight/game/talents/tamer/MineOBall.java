@@ -1,16 +1,15 @@
 package me.hapyl.fight.game.talents.tamer;
 
 import com.google.common.collect.Lists;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPacks;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayFieldData;

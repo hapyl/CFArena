@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.cache.Caches;
-import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.Notifier;
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -22,8 +22,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SkinCommand extends CFCommand {
+
+    private static final Map<String, PlayerSkin> skinCache = new HashMap<>();
 
     private final String nameToUuidRequest = "https://api.mojang.com/users/profiles/minecraft/%s";
     private final String uuidToProfileRequest = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
@@ -37,12 +41,7 @@ public class SkinCommand extends CFCommand {
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         final String argument = args.get(0).toString();
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            Notifier.error(player, "You don't have a profile somehow! Report this!!!!!!!!!!!");
-            return;
-        }
+        final PlayerProfile profile = CF.getProfile(player);
 
         if (argument.equalsIgnoreCase("reset")) {
             profile.resetSkin();
@@ -50,7 +49,7 @@ public class SkinCommand extends CFCommand {
             return;
         }
 
-        final PlayerSkin cachedSkin = Caches.PLAYER_SKIN.getCached(argument);
+        final PlayerSkin cachedSkin = skinCache.get(argument.toLowerCase());
 
         if (cachedSkin != null) {
             applySkin(player, null, cachedSkin);
@@ -108,7 +107,7 @@ public class SkinCommand extends CFCommand {
         Notifier.success(player, getUsage() + " reset to reset your skin!");
 
         if (skinName != null) {
-            Caches.PLAYER_SKIN.cache(skinName, skin);
+            skinCache.put(skinName.toLowerCase(), skin);
         }
     }
 

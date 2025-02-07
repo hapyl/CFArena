@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes.vortex;
 
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.Compute;
-
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -13,15 +13,14 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.vortex.*;
-import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -45,16 +44,17 @@ public class Vortex extends Hero implements UIComplexComponent {
     public Vortex(@Nonnull Key key) {
         super(key, "Vortex");
 
-        setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);
+        profile.setGender(Gender.MALE);
 
         setDescription("A young boy with the power of speaking to stars...");
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(120);
+        attributes.setMaxHealth(120);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(102, 51, 0);
         equipment.setLeggings(179, 89, 0);
         equipment.setBoots(255, 140, 26);
@@ -230,52 +230,46 @@ public class Vortex extends Hero implements UIComplexComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final double damage = calculateAstralDamage(player, ultimateBaseDamage);
+            final Location location = player.getLocationInFrontFromEyes(0.75f);
 
-            new PlayerTickingGameTask(player) {
-                private final Location location = player.getLocationInFrontFromEyes(0.75f);
+            return builder()
+                    .onExecute(() -> {
 
-                @Override
-                public void run(int tick) {
-                    if (tick >= getUltimateDuration()) {
-                        cancel();
-                        return;
-                    }
+                    })
+                    .onTick(tick -> {
+                        boolean isHit = false;
 
-                    boolean isHit = false;
+                        for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
+                            if (player.isSelfOrTeammate(entity)) {
+                                continue;
+                            }
 
-                    for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
-                        if (player.isSelfOrTeammate(entity)) {
-                            continue;
+                            isHit = true;
+
+                            entity.modifyKnockback(1 - knockback, self -> {
+                                self.damage(damage, player, EnumDamageCause.SOTS);
+                            });
                         }
 
-                        isHit = true;
+                        final Vector vector = player.getEyeLocation().getDirection();
+                        final Vector nextVector = vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed);
 
-                        entity.modifyKnockback(1 - knockback, self -> {
-                            self.damage(damage, player, EnumDamageCause.SOTS);
-                        });
-                    }
+                        location.add(nextVector);
 
-                    final Vector vector = player.getEyeLocation().getDirection();
-                    final Vector nextVector = vector.multiply(isHit ? ultimateSpeedStuck : ultimateSpeed);
+                        if (!location.getBlock().isPassable()) {
+                            location.subtract(nextVector);
+                        }
 
-                    location.add(nextVector);
+                        // Fx
+                        player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.0f);
 
-                    if (!location.getBlock().isPassable()) {
-                        location.subtract(nextVector);
-                    }
-
-                    // Fx
-                    player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0.0f);
-
-                    if (tick % 5 == 0) {
-                        PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
-                    }
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                        if (tick % 5 == 0) {
+                            PlayerLib.playSound(location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
+                        }
+                    });
         }
+
     }
 }

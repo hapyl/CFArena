@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

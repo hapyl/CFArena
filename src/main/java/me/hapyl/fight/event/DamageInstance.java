@@ -28,6 +28,7 @@ public class DamageInstance implements Cancellable {
     private LivingGameEntity damager;
     private boolean cancel;
     private double critIncrease = -1;
+    private int overrideDamageTicks = -1;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity;
@@ -252,11 +253,11 @@ public class DamageInstance implements Cancellable {
             }
         }
 
-        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage));
+        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage, damager));
     }
 
     public double getDamageWithinLimit() {
-        return Math.min(damage, entity.getAttributes().getHealth() + 1);
+        return Math.min(damage, entity.getAttributes().getMaxHealth() + 1);
     }
 
     @Nonnull
@@ -280,6 +281,26 @@ public class DamageInstance implements Cancellable {
      */
     public boolean isDamageLethal() {
         return entity.getHealth() - damage <= 0.0d;
+    }
+
+    /**
+     * Gets the noDamageTicks for this {@link DamageInstance}, or {@code -1} if it doesn't override.
+     *
+     * @return the noDamageTicks or -1.
+     */
+    public int getOverrideDamageTicks() {
+        return overrideDamageTicks;
+    }
+
+    /**
+     * Sets the noDamageTicks for this {@link DamageInstance}.
+     * <br>
+     * If the value of {@link #getOverrideDamageTicks()} is other than {@code -1}, the noDamageTicks will be overridden with the value.
+     *
+     * @param overrideDamageTicks - No damage ticks.
+     */
+    public void setOverrideDamageTicks(int overrideDamageTicks) {
+        this.overrideDamageTicks = overrideDamageTicks;
     }
 
     protected void setLastDamager(@Nullable LivingGameEntity entity) {

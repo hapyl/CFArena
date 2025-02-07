@@ -3,10 +3,10 @@ package me.hapyl.fight.game.heroes.aurora;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameDeathEvent;
@@ -20,18 +20,18 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.aurora.AuroraArrowTalent;
 import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -63,12 +63,17 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     public Aurora(@Nonnull Key key) {
         super(key, "Aurora");
 
-        setArchetypes(Archetype.SUPPORT, Archetype.HEALER);
-        setGender(Gender.FEMALE);
+        setDescription("""
+                An angel-like creature from above the skies.
+                """);
+
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE);
+        profile.setGender(Gender.FEMALE);
 
         setItem("9babb9fbe50a84b31f68e749b438d4c8f7f58618aec3e769243aa660ce4440fb");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(78, 252, 235, TrimPattern.RAISER, TrimMaterial.AMETHYST);
         equipment.setLeggings(73, 161, 171, TrimPattern.SILENCE, TrimMaterial.AMETHYST);
         equipment.setBoots(204, 110, 235, TrimPattern.SILENCE, TrimMaterial.AMETHYST);
@@ -76,10 +81,13 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(80);
         attributes.setSpeed(110);
+        attributes.setCritChance(-100);
 
-        setWeapon(new BowWeapon("Celestial", """
-                A unique bow of celestial origins.
-                """, 2));
+        setWeapon(
+                BowWeapon.of(Key.ofString("celestial"), "Celestial", """
+                        A unique bow of celestial origins.
+                        """, 2)
+        );
 
         setUltimate(new AuroraUltimate());
     }
@@ -117,11 +125,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             return;
         }
 
-        // Ignore and cancel FALL and SUFFOCATION damage
-        switch (cause) {
-            case FALL, SUFFOCATION -> ev.setCancelled(true);
-            default -> data.breakBond("You took damage!");
-        }
+        data.breakBond("You took damage!");
     }
 
     @Override
@@ -261,8 +265,8 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                                 final double y = Math.atan(Math.toRadians(tick) * 10) * 0.5d;
                                 final double z = Math.cos(d) * distance;
 
-                                LocationHelper.modify(teleportLocation, x, y, z, then -> {
-                                    spawnParticles(then, 2, 0.1f, 0.1f, 0.1f);
+                                LocationHelper.offset(teleportLocation, x, y, z, () -> {
+                                    spawnParticles(teleportLocation, 2, 0.1f, 0.1f, 0.1f);
                                 });
                             }
 
@@ -438,7 +442,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         @DisplayField public final double healing = 0.5d;
         @DisplayField public final int cooldown = Tick.fromSecond(25);
-        @DisplayField public final double maxStayDistance = 250;
+        @DisplayField public final double maxStrayDistance = 250;
 
         @DisplayField private final String duration = "Infinite";
 
@@ -464,18 +468,19 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             setSound(Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.0f);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final AuroraData data = getPlayerData(player);
             final LivingGameEntity target = data.target;
 
             if (target == null) {
-                return UltimateResponse.error("Not targeting a teammate!");
+                return error("Not targeting a teammate!");
             }
 
             if (!player.hasLineOfSight(target)) {
-                return UltimateResponse.error("Not in light of sight!");
+                return error("Not in light of sight!");
             }
 
             // Make sure the target isn't already bonded
@@ -483,23 +488,23 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                 final CelestialBond otherBond = otherData.bond;
 
                 if (otherBond != null && otherBond.getEntity().equals(target)) {
-                    return UltimateResponse.error("This teammate is already bonded with %s!".formatted(otherBond.getPlayer().getName()));
+                    return error("This teammate is already bonded with %s!".formatted(otherBond.getPlayer().getName()));
                 }
             }
 
-            // Reset arrow
-            data.setArrow(null);
+            return execute(() -> {
+                // Reset arrow
+                data.setArrow(null);
 
-            // Reset all buffs
-            data.buffMap.clear(EtherealSpirit::remove);
+                // Reset all buffs
+                data.buffMap.clear(EtherealSpirit::remove);
 
-            // Create bond
-            data.bond = new CelestialBond(this, data, player, target);
+                // Create bond
+                data.bond = new CelestialBond(this, data, player, target);
 
-            player.setUsingUltimate(true);
-            startCdIndefinitely(player);
-
-            return UltimateResponse.OK;
+                player.setUsingUltimate(true);
+                startCdIndefinitely(player);
+            });
         }
     }
 

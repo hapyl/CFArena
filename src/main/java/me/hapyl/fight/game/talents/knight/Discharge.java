@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.knight;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.ThreadRandom;
-
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,7 +12,6 @@ import me.hapyl.fight.game.heroes.knight.BlastKnightData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -99,7 +98,9 @@ public class Discharge extends Talent implements Listener {
 
                 // Give shield back
                 player.setItem(EquipmentSlot.OFF_HAND, HeroRegistry.BLAST_KNIGHT.shieldItem);
-                player.setCooldown(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
+
+                // This has to be shield because cooldown prevents player from blocking
+                player.setCooldownInternal(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
 
                 startCd(player);
             }

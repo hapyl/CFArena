@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Represents {@link MongoWrapper}s for custom types that needs to be converted to and from a {@link String}.
+ * Represents {@link MongoWrapper}s for named types that needs to be converted to and from a {@link String}.
  */
 public final class MongoWrappers {
 

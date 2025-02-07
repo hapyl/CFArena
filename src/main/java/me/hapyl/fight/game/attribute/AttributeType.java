@@ -2,9 +2,9 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Described;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -165,7 +165,7 @@ public enum AttributeType implements Described {
                     final boolean isInfiniteSpeed = value == Attributes.INFINITE_ATTACK_SPEED;
 
                     entity.setAttributeValue(
-                            org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED,
+                            org.bukkit.attribute.Attribute.ATTACK_SPEED,
                             isInfiniteSpeed ? 100 : 1 + value
                     );
                 }
@@ -187,7 +187,7 @@ public enum AttributeType implements Described {
             new Attribute("Knockback Resistance", "Multiplier on how much knockback resistance you have.") {
                 @Override
                 public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_KNOCKBACK_RESISTANCE, value);
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.KNOCKBACK_RESISTANCE, value);
                 }
             }
                     .setChar("🦏")
@@ -216,7 +216,7 @@ public enum AttributeType implements Described {
             new Attribute("Height", "Height doesn't matter. Or does it?") {
                 @Override
                 public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_SCALE, value);
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.SCALE, value);
                 }
             }
                     .setChar("\uD83D\uDCCF")
@@ -243,7 +243,7 @@ public enum AttributeType implements Described {
             new Attribute("Jump Strength", "How high you jump.") {
                 @Override
                 public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_JUMP_STRENGTH, value);
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.JUMP_STRENGTH, value);
                 }
             }
                     .setChar("🐇")
@@ -261,6 +261,14 @@ public enum AttributeType implements Described {
             return 222.22222222222223d;
         }
     },
+
+    DEFENSE_IGNORE(
+            new Attribute("Defense Ignore", "The percentage of victim's defense ignored when dealing damage.")
+                    .setChar("∅")
+                    .setColor(ChatColor.GOLD)
+                    .setToString(AttributeType::doubleFormatPercent),
+            0.0d
+    ),
 
     ;
 
@@ -370,6 +378,11 @@ public enum AttributeType implements Described {
         final ChatColor color = attribute.getColor();
 
         return color + attribute.getCharacter() + " " + color + getName() + "&7";
+    }
+
+    @Nonnull
+    public ChatColor getColor() {
+        return attribute.getColor();
     }
 
     @Nonnull

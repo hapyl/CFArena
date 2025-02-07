@@ -2,7 +2,7 @@ package me.hapyl.fight.util;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.util.Tuple;
-import me.hapyl.fight.util.collection.GenericArrayWithExpectedSize;
+import me.hapyl.eterna.module.util.collection.GenericArrayWithExpectedSize;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

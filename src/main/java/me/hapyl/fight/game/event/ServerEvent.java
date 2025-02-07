@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.event;
 
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.util.Described;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.CF;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public abstract class ServerEvent implements Described {
+public abstract class ServerEvent implements Described, Listener {
 
     private final String name;
     private final String description;
@@ -14,13 +14,11 @@ public abstract class ServerEvent implements Described {
     protected ServerEvent(String name, String description) {
         this.name = name;
         this.description = description;
+
+        CF.registerEvents(this);
     }
 
     public abstract boolean isActive();
-
-    @Event
-    public void onJoin(@Nonnull PlayerProfile profile) {
-    }
 
     @Nonnull
     @Override

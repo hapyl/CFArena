@@ -35,7 +35,7 @@ public abstract class EntityFollowingParticle extends TickingStepGameTask {
     }
 
     @Override
-    public boolean tick(int tick) {
+    public boolean tick(int tick, int step) {
         if (tick > MAX_TICK || entity.isDeadOrRespawning()) {
             cancel();
             return true;

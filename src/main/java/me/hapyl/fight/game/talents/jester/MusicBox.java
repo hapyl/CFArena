@@ -1,47 +1,56 @@
 package me.hapyl.fight.game.talents.jester;
 
-import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
-import me.hapyl.fight.game.Response;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.block.display.animation.AnimationFrame;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.jester.JesterData;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.Removable;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 
-public class MusicBox extends Talent {
+public class MusicBox implements Removable {
 
-    private final DisplayData model = BDEngine.parse(
-            "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_glazed_terracotta\",Properties:{facing:\"east\"}},transformation:[0.6875f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,-0.4375f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_glazed_terracotta\",Properties:{facing:\"east\"}},transformation:[0.6875f,0f,0f,-0.6875f,0f,1f,0f,0f,0f,0f,1f,-0.4375f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_glazed_terracotta\",Properties:{facing:\"east\"}},transformation:[0.2578f,0f,0f,-0.125f,0f,0.1875f,0f,1f,0f,0f,1f,-0.8125f,0f,0f,0f,1f]}]}"
-    );
+    private final GamePlayer player;
+    private final Location location;
+    private final DisplayEntity entity;
 
-    public MusicBox(@Nonnull Key key) {
-        super(key, "Music Box");
+    public MusicBox(GamePlayer player, Location location, DisplayData displayData) {
+        this.player = player;
+        this.location = location;
+        this.entity = displayData.spawnInterpolated(location);
 
-        setDescription("""
-                Place a Music Box nearby.
-                
-                
-                """);
+        entity.newAnimation(CF.getPlugin())
+                .addFrame(new AnimationFrame(Math.PI * 2, Math.PI / 16, 2) {
+                    @Override
+                    public void tick(@Nonnull DisplayEntity entity, double theta) {
+                        final Location location = entity.getLocation();
+                        location.add(0, Math.sin(theta) * BukkitUtils.GRAVITY, 0);
+                        location.setYaw((float) (360 * theta / threshold));
 
-        setDurationSec(20.0f);
-        setCooldownSec(15.0f);
+                        entity.teleport(location);
+                    }
+                })
+                .addFrame(new AnimationFrame(Math.PI / 2, Math.PI / 16, 4) {
+                    @Override
+                    public void tick(@Nonnull DisplayEntity entity, double theta) {
+                        entity.setRotation(player.random.nextFloat() * 3, player.random.nextFloat() * 5);
+                    }
+                })
+                .addFrame(new AnimationFrame() {
+                    @Override
+                    public void tick(@Nonnull DisplayEntity entity, double theta) {
+                        entity.teleport(location);
+                    }
+                })
+                .start();
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final JesterData data = HeroRegistry.JESTER.getPlayerData(player);
-
-        // Remove previous music box
-        if (data.musicBox != null) {
-            data.musicBox.remove();
-        }
-
-        data.musicBox = new MusicBoxEntity(player, player.getLocation(), model);
-
-        return Response.OK;
+    public void remove() {
+        entity.remove();
     }
+
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -10,7 +11,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +19,7 @@ public class FrostbiteWeapon extends RangeWeapon {
     @DisplayField private final int slowingAuraDuration = 60;
 
     public FrostbiteWeapon() {
-        super(Material.IRON_SHOVEL, "FrostbiteWeapon");
+        super(Material.IRON_SHOVEL, Key.ofString("frostbite_weapon"));
 
         setName("Snow Shovel");
 
@@ -36,12 +36,7 @@ public class FrostbiteWeapon extends RangeWeapon {
     @Nonnull
     @Override
     public WeaponRayCast newRayCastInstance(@Nonnull GamePlayer player) {
-        final FrostbiteBullet bullet = new FrostbiteBullet(player) {
-            @Override
-            public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
-                remove();
-            }
-        };
+        final FrostbiteBullet bullet = new FrostbiteBullet(player);
 
         return new ProjectileRayCast(this, player, 0.7d, 2) {
 

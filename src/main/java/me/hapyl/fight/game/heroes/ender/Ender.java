@@ -1,21 +1,21 @@
 package me.hapyl.fight.game.heroes.ender;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.registry.Key;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
@@ -28,8 +28,9 @@ public class Ender extends Hero implements Listener {
     public Ender(@Nonnull Key key) {
         super(key, "Ender");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
-        setGender(Gender.UNKNOWN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MOBILITY, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
+        profile.setGender(Gender.UNKNOWN);
 
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
         setMinimumLevel(5);
@@ -39,9 +40,9 @@ public class Ender extends Hero implements Listener {
         );
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(120);
+        attributes.setMaxHealth(120);
 
-        final Equipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestPlate(85, 0, 102);
         equipment.setLeggings(128, 0, 128);
         equipment.setBoots(136, 0, 204);
@@ -111,14 +112,14 @@ public class Ender extends Hero implements Listener {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             if (!getSecondTalent().hasBeacon(player)) {
-                return UltimateResponse.error("The beacon is not placed!");
+                return error("The beacon is not placed!");
             }
 
-            getSecondTalent().teleportToBeacon(player);
-
-            return UltimateResponse.OK;
+            return execute(() -> {
+                getSecondTalent().teleportToBeacon(player);
+            });
         }
     }
 }

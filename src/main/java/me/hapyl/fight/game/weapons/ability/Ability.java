@@ -1,16 +1,17 @@
 package me.hapyl.fight.game.weapons.ability;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,21 +28,21 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     private String description;
     private int cooldown;
     private int duration;
-    private Material cooldownMaterial;
+    private Key cooldownKey;
 
     public Ability(@Nonnull String name, @Nonnull String description) {
         this.name = name;
         this.description = description;
         this.cooldownMap = Maps.newHashMap();
-        this.cooldownMaterial = null;
+        this.cooldownKey = null;
     }
 
     public Ability(@Nonnull String name, @Nonnull String description, @Nullable Object... format) {
         this(name, description.formatted(format));
     }
 
-    public void setCooldownMaterial(@Nullable Material cooldownMaterial) {
-        this.cooldownMaterial = cooldownMaterial;
+    public void setCooldownKey(@Nonnull Keyed keyed) {
+        this.cooldownKey = keyed.getKey();
     }
 
     @Nullable
@@ -49,7 +50,7 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public final void execute0(GamePlayer player, ItemStack item) {
         if (hasCooldown(player)) {
-            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
+            if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
                 sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
             }
             return;
@@ -95,8 +96,9 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public void startCooldown(GamePlayer player, int cooldown) {
         cooldownMap.put(player.getUUID(), new AbilityCooldown(System.currentTimeMillis(), cooldown * 50L));
-        if (cooldownMaterial != null) {
-            player.setCooldown(cooldownMaterial, cooldown);
+
+        if (cooldownKey != null) {
+            player.cooldownManager.setCooldown(cooldownKey, cooldown);
         }
     }
 

@@ -1,10 +1,10 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.eterna.module.chat.Gradient;
+import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;

@@ -1,16 +1,13 @@
 package me.hapyl.fight.script.action;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.ScriptRunner;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.util.BukkitUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 public class ScriptActionTeleport implements ScriptAction {
 

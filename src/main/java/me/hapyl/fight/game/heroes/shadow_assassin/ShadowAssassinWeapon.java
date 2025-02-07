@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.Effects;
@@ -9,7 +11,6 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.game.weapons.ability.DummyAbility;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -27,7 +28,7 @@ public class ShadowAssassinWeapon extends Weapon {
     private final ShadowAssassin hero;
 
     public ShadowAssassinWeapon(ShadowAssassin hero) {
-        super(Material.IRON_SWORD);
+        super(Material.IRON_SWORD, Key.ofString("livid_dagger"));
 
         setName("Livid Dagger");
         setDescription("""
@@ -63,7 +64,7 @@ public class ShadowAssassinWeapon extends Weapon {
         entity.getAttributes().decreaseTemporary(Temper.BACKSTAB, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration, player);
 
         entity.sendMessage("&a%s stabbed you!".formatted(player.getName()));
-        player.setCooldown(getMaterial(), cooldown);
+        player.cooldownManager.setCooldown(this, cooldown);
 
         // Fx
         entity.playWorldSound(Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.65f);

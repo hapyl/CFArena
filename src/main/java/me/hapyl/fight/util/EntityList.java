@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Reference;
 import org.bukkit.entity.Entity;
 
 import javax.annotation.Nonnull;
@@ -130,7 +131,7 @@ public class EntityList<E extends Entity> implements SimpleList<E>, Sizeable {
     }
 
     @Nonnull
-    public E getOrSet(int index, @Nonnull Ref<E> entity)  {
+    public E getOrSet(int index, @Nonnull Reference<E> entity)  {
         if (isIndexOutOfBounds(index)) {
             throw makeIndexOutOfBoundsException(index);
         }
@@ -138,7 +139,7 @@ public class EntityList<E extends Entity> implements SimpleList<E>, Sizeable {
         E e = elements[index];
 
         if (e == null) {
-            e = elements[index] = entity.ref();
+            e = elements[index] = entity.refer();
         }
 
         return e;

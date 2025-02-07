@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.orc;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;

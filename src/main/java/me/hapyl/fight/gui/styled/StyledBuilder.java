@@ -1,7 +1,7 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -37,11 +37,11 @@ public interface StyledBuilder {
 
     @Nonnull
     default ItemStack asButton(@Nonnull String clickTo) {
-        return toBuilder().addLore().addLore(Color.BUTTON.color("Click to {action}!", clickTo)).asIcon();
+        return toBuilder().addLore().addLore(Color.BUTTON.color("Click to %s!".formatted(clickTo))).asIcon();
     }
 
     default ItemStack asButton(@Nonnull String name, @Nonnull String clickTo) {
-        return toBuilder().setName(name).addLore().addLore(Color.BUTTON.color("Click to {action}!", clickTo)).asIcon();
+        return toBuilder().setName(name).addLore().addLore(Color.BUTTON.color("Click to %s!".formatted(clickTo))).asIcon();
     }
 
     @Nonnull

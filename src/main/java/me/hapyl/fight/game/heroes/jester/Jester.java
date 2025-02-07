@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.jester;
 
-
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Disabled;
@@ -12,13 +12,13 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.jester.MusicBoxTalent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -66,7 +66,7 @@ public class Jester extends Hero implements Disabled, UIComponent, PlayerDataHan
     public Jester(@Nonnull Key key) {
         super(key, "Jester");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(212, 11, 11, TrimPattern.SHAPER, TrimMaterial.GOLD);
         equipment.setLeggings(32, 17, 43, TrimPattern.SILENCE, TrimMaterial.REDSTONE);
         equipment.setBoots(32, 17, 43, TrimPattern.SNOUT, TrimMaterial.GOLD);
@@ -126,7 +126,7 @@ public class Jester extends Hero implements Disabled, UIComponent, PlayerDataHan
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public MusicBoxTalent getFirstTalent() {
         return TalentRegistry.MUSIC_BOX;
     }
 
@@ -183,12 +183,12 @@ public class Jester extends Hero implements Disabled, UIComponent, PlayerDataHan
             setSilent(true);
         }
 
+
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            // Fx
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+            });
         }
     }
 }

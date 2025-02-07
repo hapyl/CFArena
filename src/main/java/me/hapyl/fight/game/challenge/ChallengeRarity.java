@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.challenge;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.reward.CurrencyReward;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 

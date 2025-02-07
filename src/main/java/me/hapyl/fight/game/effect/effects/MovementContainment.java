@@ -28,19 +28,19 @@ public class MovementContainment extends Effect {
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
         final EntityMemory memory = entity.getMemory();
-        memory.remember(jumpStrength, entity.getAttributeValue(Attribute.GENERIC_JUMP_STRENGTH));
-        memory.remember(movementSpeed, entity.getAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED));
+        memory.remember(jumpStrength, entity.getAttributeValue(Attribute.JUMP_STRENGTH));
+        memory.remember(movementSpeed, entity.getAttributeValue(Attribute.MOVEMENT_SPEED));
 
-        entity.setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, 0.0d);
-        entity.setAttributeValue(Attribute.GENERIC_JUMP_STRENGTH, 0.0d);
+        entity.setAttributeValue(Attribute.MOVEMENT_SPEED, 0.0d);
+        entity.setAttributeValue(Attribute.JUMP_STRENGTH, 0.0d);
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
         final EntityMemory memory = entity.getMemory();
 
-        entity.setAttributeValue(Attribute.GENERIC_JUMP_STRENGTH, memory.forget(jumpStrength, 0.41999998688697815d));
-        entity.setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, memory.forget(movementSpeed, 0.2d));
+        entity.setAttributeValue(Attribute.JUMP_STRENGTH, memory.forget(jumpStrength, 0.41999998688697815d));
+        entity.setAttributeValue(Attribute.MOVEMENT_SPEED, memory.forget(movementSpeed, 0.2d));
     }
 
     @Override

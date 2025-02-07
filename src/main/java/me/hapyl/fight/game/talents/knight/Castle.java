@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.knight;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;

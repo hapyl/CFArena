@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -51,7 +50,7 @@ public class BloodCup extends Talent {
     public void updateTexture(BloodfiendData data) {
         final GamePlayer player = data.getPlayer();
         final int blood = data.getBlood();
-        final HotbarSlots slot = HeroRegistry.BLOODFIEND.getTalentSlotByHandle(this);
+        final HotBarSlot slot = HeroRegistry.BLOODFIEND.getTalentSlotByHandle(this);
         final ItemStack item = player.getItem(slot);
 
         if (item == null) {

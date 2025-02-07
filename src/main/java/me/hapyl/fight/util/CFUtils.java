@@ -6,7 +6,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.annotate.Range;
 import me.hapyl.eterna.module.annotate.TestedOn;
 import me.hapyl.eterna.module.annotate.Version;
 import me.hapyl.eterna.module.chat.Chat;
@@ -45,6 +44,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Range;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -369,9 +369,9 @@ public class CFUtils {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    @TestedOn(version = Version.V1_20_2)
+    @TestedOn(version = Version.V1_21_3)
     public static void setWitherInvul(Wither wither, int invul) {
-        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
+        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).b(invul);
     }
 
     /**
@@ -507,7 +507,7 @@ public class CFUtils {
     }
 
     public static void modifyKnockback(@Nonnull LivingEntity target, @Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingEntity> consumer) {
-        final AttributeInstance attribute = target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        final AttributeInstance attribute = target.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
 
         if (attribute == null) {
             consumer.accept(target);
@@ -523,7 +523,7 @@ public class CFUtils {
         attribute.setBaseValue(base);
     }
 
-    public static Matrix4f parseMatrix(@Range(min = 16, max = 16) float... matrix) {
+    public static Matrix4f parseMatrix(@Range(from = 16, to = 16) float... matrix) {
         if (matrix.length != 16) {
             throw new IllegalArgumentException("matrix length must be 16, not " + matrix.length);
         }
@@ -850,6 +850,11 @@ public class CFUtils {
         return list != null ? new ArrayList<>(list) : new ArrayList<>();
     }
 
+    @Nonnull
+    public static <K, V> List<V> immutableMapListCopy(@Nonnull Map<K, List<V>> hashMap, @Nonnull K key) {
+        return Collections.unmodifiableList(hashMap.getOrDefault(key, Lists.newArrayList()));
+    }
+
     /**
      * Increments an integer if the <code>condition</code> is <code>true</code> or sets to <code>min</code> otherwise.
      *
@@ -889,7 +894,7 @@ public class CFUtils {
             public void run() {
                 runnable.run();
             }
-        }.runTaskLater(Main.getPlugin(), delay);
+        }.runTaskLater(CF.getPlugin(), delay);
     }
 
     public static void dumpStackTrace() {

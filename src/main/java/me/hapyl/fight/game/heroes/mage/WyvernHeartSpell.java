@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.mage;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.effect.Effects;
@@ -15,7 +16,12 @@ public class WyvernHeartSpell extends MageSpell {
     @DisplayField(scaleFactor = 100) private final double attackDecrease = 0.98d;
 
     public WyvernHeartSpell() {
-        super("Heart of Wyvern", "Consume to &cheal&7 yourself, gain &bspeed&7 boost but suffer %s reduction.".formatted(AttributeType.ATTACK), Material.FERMENTED_SPIDER_EYE);
+        super(
+                Key.ofString("mage_heart_of_wyvern"),
+                "Heart of Wyvern",
+                "Consume to &cheal&7 yourself, gain &bspeed&7 boost but suffer %s reduction.".formatted(AttributeType.ATTACK),
+                Material.FERMENTED_SPIDER_EYE
+        );
 
         setDurationSec(10);
     }

@@ -1,20 +1,20 @@
 package me.hapyl.fight.game.talents.orc;
 
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.math.geometry.Quality;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.Tick;
-import me.hapyl.eterna.module.math.geometry.Quality;
-import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

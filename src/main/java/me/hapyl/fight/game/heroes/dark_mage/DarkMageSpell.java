@@ -107,7 +107,7 @@ public class DarkMageSpell extends PlayerData {
 
     public void markUsed() {
         lastUsed = System.currentTimeMillis();
-        player.setCooldown(HeroRegistry.DARK_MAGE.getWeapon().getMaterial(), 1);
+        player.setCooldownInternal(HeroRegistry.DARK_MAGE.getWeapon().getMaterial(), 1);
     }
 
     private String nonnullButton(SpellButton button) {

@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.entity.packet;
 
+import me.hapyl.eterna.module.reflect.Reflect;
+import me.hapyl.eterna.module.reflect.packet.Packets;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
-import me.hapyl.eterna.module.reflect.Reflect;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
 import org.bukkit.Bukkit;
 
 import javax.annotation.Nonnull;
@@ -51,7 +51,7 @@ public class EntityPacketFactory implements PacketFactory {
 
     @Nonnull
     public Packet<?> createTeleportPacket() {
-        return new PacketPlayOutEntityTeleport(entity.getNMSEntity());
+        return Packets.Clientbound.teleportEntity(entity.getNMSEntity()).packet();
     }
 
 }

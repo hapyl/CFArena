@@ -5,10 +5,11 @@ import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.anticheat.AntiCheat;
+import me.hapyl.fight.config.Environment;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.cosmetic.crate.CrateManager;
+import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -16,6 +17,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
@@ -64,7 +66,7 @@ public final class CF {
      * @return the database.
      */
     @Nonnull
-    public static Database getDatabase() {
+    public static Database getServerDatabase() {
         return plugin.getDatabase();
     }
 
@@ -477,7 +479,7 @@ public final class CF {
         int onlineCount = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
+            final PlayerProfile profile = CF.getProfileOrNull(player);
 
             if (profile == null || profile.isHidden()) {
                 continue;
@@ -525,6 +527,30 @@ public final class CF {
     @Nonnull
     public static VehicleManager getVehicleManager() {
         return plugin.getVehicleManager();
+    }
+
+    @Nullable
+    public static PlayerProfile getProfileOrNull(@Nonnull Player player) {
+        return manager.getProfileOrNull(player);
+    }
+
+    @Nonnull
+    public static PlayerProfile getProfile(@Nonnull Player player) {
+        return manager.getProfile(player);
+    }
+
+    public static boolean hasProfile(@Nonnull Player player) {
+        return manager.hasProfile(player);
+    }
+
+    @Nonnull
+    public static CFQuestHandler getQuestHandler() {
+        return plugin.getQuestHandler();
+    }
+
+    @Nonnull
+    public static Environment environment() {
+        return plugin.environment();
     }
 
 }

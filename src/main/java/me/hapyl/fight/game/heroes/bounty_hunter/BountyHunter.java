@@ -3,9 +3,9 @@ package me.hapyl.fight.game.heroes.bounty_hunter;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -13,17 +13,17 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
 import me.hapyl.fight.game.talents.nightmare.ShadowShift;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -43,7 +43,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     private final double smokeRadiusScaled = (smokeRadius * smokeRadius) / 8.0d;
     private final int smokeDuration = Tick.fromSecond(5);
 
-    public final ItemStack smokeBomb = new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, "bounty_hunter_smoke_bomb")
+    public final ItemStack smokeBomb = new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, Key.ofString("bounty_hunter_smoke_bomb"))
             .setName("💣💣💣 " + Color.BUTTON + " (Right Click)")
             .addClickEvent(player -> {
                 final GamePlayer gamePlayer = CF.getPlayer(player);
@@ -61,9 +61,10 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     public BountyHunter(@Nonnull Key key) {
         super(key, "Bounty Hunter");
 
-        setAffiliation(Affiliation.MERCENARY);
-        setArchetypes(Archetype.MOBILITY);
-        setGender(Gender.FEMALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY);
+        profile.setAffiliation(Affiliation.MERCENARY);
+        profile.setGender(Gender.FEMALE);
 
         setDescription("""
                 She is a skilled bounty hunter.
@@ -72,14 +73,13 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                 """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 
-        setWeapon(
-                new Weapon(Material.IRON_SWORD)
-                        .setName("Bloodweep")
-                        .setDescription("A handy sword that appeared in her dream.")
-                        .setDamage(6.0d)
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("bloodweep"))
+                .name("Bloodweep")
+                .description("A handy sword that appeared in her dream.")
+                .damage(6.0d)
         );
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(80, 97, 68);
         equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
@@ -96,7 +96,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
         // FIXME (hapyl): 008, Mar 8: what the fuck
         if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
-            player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
+            player.setItem(HotBarSlot.HERO_ITEM, smokeBomb);
             player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);
         }
     }
@@ -126,7 +126,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
     }
 
     private void useSmokeBomb(GamePlayer player, Location location) {
-        player.setItem(HotbarSlots.HERO_ITEM, null);
+        player.setItem(HotBarSlot.HERO_ITEM, null);
         player.addEffect(Effects.SPEED, 2, smokeDuration);
 
         player.snapToWeapon();
@@ -180,33 +180,33 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
 
             if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
-                return UltimateResponse.error(targetOutput.getError().getErrorMessage());
+                return error(targetOutput.getError().getErrorMessage());
             }
 
-            final Location playerLocation = player.getLocation();
-            final Location location = targetOutput.getLocation();
-            final LivingGameEntity target = targetOutput.getEntity();
+            return execute(() -> {
+                final Location playerLocation = player.getLocation();
+                final Location location = targetOutput.getLocation();
+                final LivingGameEntity target = targetOutput.getEntity();
 
-            player.teleport(location);
-            target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
+                player.teleport(location);
+                target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
 
-            // Fx
-            player.sendMessage("&aBackstabbed &7%s&a!".formatted(target.getName()));
-            target.sendMessage("&cYou were backstabbed by &7%s&c!".formatted(player.getName()));
+                // Fx
+                player.sendMessage("&aBackstabbed &7%s&a!".formatted(target.getName()));
+                target.sendMessage("&cYou were backstabbed by &7%s&c!".formatted(player.getName()));
 
-            player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-            player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+                player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
+                player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
 
-            player.swingMainHand();
+                player.swingMainHand();
 
-            spawnPoofParticle(playerLocation);
-            spawnPoofParticle(location);
-
-            return UltimateResponse.OK;
+                spawnPoofParticle(playerLocation);
+                spawnPoofParticle(location);
+            });
         }
     }
 }

@@ -1,21 +1,22 @@
 package me.hapyl.fight.game.challenge;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.util.EnumWrapper;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.Enums;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nonnull;
 
-public enum ChallengeType implements EnumWrapper<Challenge> {
+public enum ChallengeType implements EnumWrapper<Challenge>, KeyedEnum {
 
     KILL_ENEMIES(
             new Challenge("Swift Slayer", "Eliminate {} players.")
@@ -53,6 +54,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
 
     // Archetype related bonds, have to be hard codded because bonds are enums
     PLAY_HERO_DAMAGE(new ArchetypeChallenge("Brute Force", Archetype.DAMAGE)),
+    PLAY_HERO_MELEE(new ArchetypeChallenge("Warrior", Archetype.MELEE)),
     PLAY_HERO_RANGE(new ArchetypeChallenge("Bullseye", Archetype.RANGE)),
     PLAY_HERO_MOBILITY(new ArchetypeChallenge("I'm Fast Boi", Archetype.MOBILITY)),
     PLAY_HERO_STRATEGY(new ArchetypeChallenge("The Thinker", Archetype.STRATEGY)),
@@ -60,12 +62,6 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     PLAY_HERO_HEXBANE(new ArchetypeChallenge("Black Widow", Archetype.HEXBANE)),
 
     // *=* Uncommon *=* //
-
-    OPEN_CRATE(
-            new Challenge("Gambler", "Open {} crates.")
-                    .setRarity(ChallengeRarity.UNCOMMON)
-                    .setMax(3)
-    ),
 
     FIRST_BLOOD(
             new Challenge("First Blood!", "Cause first blood in a game.")
@@ -106,7 +102,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
 
     @Nonnull
     @Override
-    public Challenge get() {
+    public Challenge getWrapped() {
         return challenge;
     }
 
@@ -151,7 +147,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     }
 
     public void progress(@Nonnull Player player) {
-        progress(PlayerProfile.getProfileOrThrow(player));
+        progress(CF.getProfile(player));
     }
 
     public void progress(@Nonnull GamePlayer player) {
@@ -177,6 +173,7 @@ public enum ChallengeType implements EnumWrapper<Challenge> {
     public static void progressArchetypeBond(@Nonnull Player player, @Nonnull Archetype heroArchetype) {
         switch (heroArchetype) {
             case DAMAGE -> PLAY_HERO_DAMAGE.progress(player);
+            case MELEE -> PLAY_HERO_MELEE.progress(player);
             case RANGE -> PLAY_HERO_RANGE.progress(player);
             case MOBILITY -> PLAY_HERO_MOBILITY.progress(player);
             case STRATEGY -> PLAY_HERO_STRATEGY.progress(player);

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Main;
+import me.hapyl.fight.CF;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -19,7 +19,7 @@ public class GameEventListener {
         LISTENERS.add(this);
 
         if (this instanceof Listener listener) {
-            Bukkit.getPluginManager().registerEvents(listener, Main.getPlugin());
+            Bukkit.getPluginManager().registerEvents(listener, CF.getPlugin());
         }
     }
 

@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.type.types;
 
-import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.type.GameType;
-import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.eterna.module.util.Comparators;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.GameType;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

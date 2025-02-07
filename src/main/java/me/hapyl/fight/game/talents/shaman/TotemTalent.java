@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import com.google.common.collect.Lists;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.resonance.ResonanceType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;

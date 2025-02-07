@@ -1,20 +1,23 @@
 package me.hapyl.fight.game.cosmetic;
 
+import me.hapyl.eterna.module.registry.Key;
 import org.bukkit.Material;
+
+import javax.annotation.Nonnull;
 
 public class HatCosmetic extends Cosmetic {
 
-    public HatCosmetic(String name, String description, long cost, Type type, Rarity rarity, Material icon) {
-        super(name, description, type, rarity, icon);
+    public HatCosmetic(@Nonnull Key key, @Nonnull String name, @Nonnull Type type) {
+        super(key, name, type);
     }
 
     @Override
-    public final Cosmetic setIcon(Material icon) {
-        return super.setIcon(Material.PLAYER_HEAD);
+    public final void setIcon(@Nonnull Material icon) {
+        // TODO (Fri, Aug 30 2024 @xanyjl):
     }
 
     @Override
-    public void onDisplay(Display display) {
+    public void onDisplay(@Nonnull Display display) {
 
     }
 }

@@ -1,5 +1,8 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -7,8 +10,6 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import org.bukkit.entity.Player;
 
 public class CooldownCommand extends SimplePlayerAdminCommand {
@@ -55,6 +56,8 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
 
         gamePlayer.getUltimate().stopCd(gamePlayer);
         gamePlayer.setUsingUltimate(false);
+
+        PlayerLib.stopCooldowns(player);
 
         gamePlayer.sendMessage("&aReset cooldowns!");
     }

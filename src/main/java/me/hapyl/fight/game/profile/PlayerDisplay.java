@@ -9,9 +9,9 @@ import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.PrefixCosmetic;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.cosmetic.prefix.PrefixCosmetic;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
@@ -162,8 +162,9 @@ public class PlayerDisplay {
 
     @Nonnull
     private String getStatus() {
-        final Cosmetics cosmetic = cosmeticEntry.getSelected(Type.PREFIX);
-        return cosmetic == null ? "" : ((PrefixCosmetic) cosmetic.getCosmetic()).getPrefix();
+        final Cosmetic cosmetic = cosmeticEntry.getSelected(Type.PREFIX);
+
+        return cosmetic != null ? ((PrefixCosmetic) cosmetic).getPrefix() : "";
     }
 
     private String formatPing() {

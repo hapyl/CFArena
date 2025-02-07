@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.stats;
 
-public enum StatType {
+import me.hapyl.eterna.module.registry.KeyedEnum;
+
+public enum StatType implements KeyedEnum {
     COINS("&7You've earned &e&l%s &7coins this game!", "&7You haven't earned any coins this game."),
     KILLS("&7You've killed &e&l%s &7opponents this game!", "&7You haven't killed anyone this game."),
     ASSISTS("&7You've assisted &e&l%s &7opponents this game!", "&7You haven't assisted anyone this game."),

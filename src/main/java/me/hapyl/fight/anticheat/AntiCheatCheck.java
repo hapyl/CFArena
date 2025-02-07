@@ -1,7 +1,7 @@
 package me.hapyl.fight.anticheat;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.fight.database.collection.AntiCheatCollection;
+import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.infraction.HexID;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.entity.Player;
@@ -13,7 +13,6 @@ public enum AntiCheatCheck {
     CPS(5, FailAction.kick("You're clicking way too fast!")),
 
     ;
-
 
     private final int maxFails;
     private final FailAction failAction;
@@ -35,7 +34,7 @@ public enum AntiCheatCheck {
         KICK,
 
         /**
-         * @deprecated not implemented needs custom ban system DB and shit -h
+         * @deprecated not implemented needs named ban system DB and shit -h
          */
         @Deprecated
         BAN
@@ -60,18 +59,18 @@ public enum AntiCheatCheck {
             );
 
             punish(player, report);
-            AntiCheatCollection.post(report);
+            AntiCheatAsynchronousDocument.post(report);
         }
 
         public void punish(Player player, PunishmentReport report) {
             player.kickPlayer(Chat.format("""
                     %s
-                                        
+                    
                     &c&lYou have been kicked!
-                                        
+                    
                     &cReason:
                     &7&o%s
-                                        
+                    
                     &8Punishment Id: %s
                     """.formatted(
                     AntiCheat.PREFIX,

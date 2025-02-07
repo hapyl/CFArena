@@ -1,31 +1,106 @@
 package me.hapyl.fight.database.entry;
 
+import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.registry.Key;
+import org.bson.Document;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MetadataEntry extends PlayerDatabaseEntry {
 
-    public static final String PARENT = "metadata.";
+    @Deprecated
+    public final MetadataParent NULL;
+    public final MetadataParent DIALOG;
+    public final MetadataParent POI;
 
-    public MetadataEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
-    }
+    private final Map<String, MetadataParent> parents;
 
-    public <T> void set(@Nonnull Key key, @Nullable T value) {
-        setValue(PARENT + key.getKey(), value);
+    public MetadataEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "metadata");
+
+        this.parents = new HashMap<>();
+
+        this.NULL = new MetadataParent(null); // don't cache null
+
+        this.DIALOG = getParent("dialog");
+        this.POI = getParent("poi");
     }
 
     @Nonnull
-    public <T> T get(@Nonnull Key key, @Nonnull T def) {
-        return getValue(PARENT + key.getKey(), def);
+    public MetadataParent getParent(@Nonnull String string) {
+        final String lowerCase = string.toLowerCase();
+
+        return parents.computeIfAbsent(lowerCase, MetadataParent::new);
     }
 
-    public boolean has(@Nonnull Key key) {
-        return getValue(PARENT + key.getKey(), null) != null;
+    public static <T> void set(@Nonnull Player player, @Nonnull Key key, @Nullable T value) {
+        CF.getDatabase(player).metadataEntry.NULL.set(key, value);
+    }
+
+    public static <T> T get(@Nonnull Player player, @Nonnull Key key, T def) {
+        return CF.getDatabase(player).metadataEntry.NULL.get(key, def);
+    }
+
+    public static boolean has(@Nonnull Player player, @Nonnull Key key) {
+        return CF.getDatabase(player).metadataEntry.NULL.has(key);
+    }
+
+    @Nonnull
+    public static Map<String, Object> map(Player player) {
+        final Map<String, Object> metadata = Maps.newHashMap();
+        final Document document = CF.getDatabase(player).metadataEntry.getDocument();
+
+        traverseDocument("", document, metadata);
+        return metadata;
+    }
+
+    private static void traverseDocument(String parent, Document document, Map<String, Object> metadata) {
+        for (Map.Entry<String, Object> entry : document.entrySet()) {
+            final String key = entry.getKey();
+            final Object value = entry.getValue();
+
+            final String newKey = parent.isEmpty() ? key : parent + "." + key;
+
+            if (value instanceof Document) {
+                traverseDocument(newKey, (Document) value, metadata);
+            }
+            else {
+                metadata.put(newKey, value);
+            }
+        }
+    }
+
+    public class MetadataParent {
+
+        private final String parent;
+
+        MetadataParent(@Nullable String parent) {
+            this.parent = parent;
+        }
+
+        public <T> void set(@Nonnull Key key, @Nullable T value) {
+            setValue(makeKey(key), value);
+        }
+
+        public <T> T get(@Nonnull Key key, T def) {
+            return getValue(makeKey(key), def);
+        }
+
+        public boolean has(@Nonnull Key key) {
+            return getValue(makeKey(key), null) != null;
+        }
+
+        private String makeKey(@Nonnull Key key) {
+            return parent != null ? "%s.%s".formatted(parent, key.getKey()) : key.getKey();
+        }
+
     }
 
 }

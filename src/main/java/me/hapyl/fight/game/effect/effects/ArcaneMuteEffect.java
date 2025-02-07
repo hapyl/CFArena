@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.effect.effects;
 
-import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -21,7 +21,7 @@ public class ArcaneMuteEffect extends Effect implements Listener {
     }
 
     @EventHandler()
-    public void handlePrecondition(PlayerPreconditionEvent ev) {
+    public void handlePrecondition(TalentPreconditionEvent ev) {
         final GamePlayer player = ev.getPlayer();
 
         if (player.hasEffect(this)) {

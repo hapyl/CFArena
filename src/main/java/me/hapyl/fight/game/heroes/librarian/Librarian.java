@@ -4,32 +4,26 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.KeepNull;
-
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.librarian.EntityDarkness;
 import me.hapyl.fight.game.talents.librarian.LibrarianTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -66,8 +60,8 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
                 Mislead by the &0void&7, sacrifices were made.
                 """);
 
-        setItem(Material.BOOK);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setGender(Gender.MALE);
 
         talentMap.put(1, TalentRegistry.BLACK_HOLE);
         talentMap.put(2, TalentRegistry.ENTITY_DARKNESS);
@@ -76,13 +70,12 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
 
         setItem("a88b1cd9574672e8e3262f210c0dddbc082ea7569e8e70f0c07b4bee75e32f62");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(47, 32, 40, TrimPattern.WARD, TrimMaterial.GOLD);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS);
         equipment.setBoots(84, 37, 62);
 
-        setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
-
+        //setWeapon(new Weapon(Material.NETHERITE_SHOVEL).setName("Staff").setDamage(7.5d));
     }
 
     @Override
@@ -134,40 +127,6 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
         return grimoireMap.getOrDefault(player, new Grimoire(player)).getUsedAtLevel();
     }
 
-    public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-        final Location castLocation = player.getLocation().add(0.0d, 0.5d, 0.0d);
-        PlayerLib.playSound(castLocation, Sound.ENTITY_SQUID_SQUIRT, 0.0f);
-
-        new GameTask() {
-            private int tick = getUltimateDuration();
-
-            @Override
-            public void run() {
-                if ((tick -= 10) <= 0) {
-                    this.cancel();
-                    return;
-                }
-
-                PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 50, 5, 1.5, 5, 0.05f);
-                PlayerLib.spawnParticle(castLocation, Particle.SQUID_INK, 10, 5, 1.5, 5, 2.0f);
-
-                Collect.nearbyEntities(castLocation, 20).forEach(entity -> {
-                    if (entity.equals(player)) {
-                        player.addEffect(Effects.SPEED, 1, 20);
-                        // fixme -> Strength was here replace with attack in 2034 when you finally decide to fix this hero
-                    }
-                    else {
-                        entity.addEffect(Effects.GLOWING, 1, 30);
-                    }
-                    entity.addEffect(Effects.BLINDNESS, 1, 30);
-                });
-
-            }
-        }.runTaskTimer(0, 10);
-
-        return UltimateResponse.OK;
-    }
-
     @Override
     public Talent getFirstTalent() {
         return TalentRegistry.BLACK_HOLE;
@@ -216,11 +175,10 @@ public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
     }
 
     public boolean hasICD(GamePlayer player) {
-        return player.hasCooldown(getItem().getType());
+        return true;
     }
 
     public void applyICD(GamePlayer player) {
-        player.setCooldown(getItem().getType(), 10);
     }
 
     public void removeSpellItems(GamePlayer player, LibrarianTalent talent) {

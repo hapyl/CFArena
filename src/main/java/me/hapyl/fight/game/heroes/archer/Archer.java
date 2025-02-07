@@ -1,28 +1,28 @@
 package me.hapyl.fight.game.heroes.archer;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.cosmetic.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
+import me.hapyl.fight.game.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.archer.HawkeyePassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.terminology.Terms;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
@@ -47,13 +47,17 @@ import java.util.Set;
 
 public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherData> {
 
-    protected final Weapon boomBow = new Weapon(Material.BOW).setDamage(1.0d).setName("&6&lBOOM BOW");
+    protected final Weapon boomBow = Weapon.builder(Material.BOW, Key.ofString("boom_bow"))
+            .damage(1.0)
+            .name("&6&lBOOM BOW!")
+            .build();
 
     private final Set<Arrow> boomArrows = new HashSet<>();
     private final PlayerDataMap<ArcherData> playerData;
 
     private final double explosionRadius = 3.0d;
     private final double explosionDamage = 40.0d;
+
     private final int boomBowPerShotCd = 5;
 
     private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
@@ -61,21 +65,25 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
     public Archer(@Nonnull Key key) {
         super(key, "Archer");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
-        setGender(Gender.MALE);
-        setRace(Race.HUMAN);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.HUMAN);
 
         setDescription("One of the best archers joins the fight! Not alone though but with his &3&ocustom-made &8&obow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
-        setWeapon(new BowWeapon("Bow of Destiny", "A custom-made bow with some unique abilities!", 5.0d).setShotCooldown(7));
+        setWeapon(BowWeapon
+                .of(Key.ofString("destiny_bow"), "Bow of Destiny", "A named-made bow with some unique abilities!", 5.0d)
+                .setShotCooldown(7)
+        );
 
         final HeroAttributes attributes = getAttributes();
         attributes.set(AttributeType.MAX_HEALTH, 100.0d);
         attributes.set(AttributeType.SPEED, 0.23d);
         attributes.set(AttributeType.DEFENSE, 0.7d);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(86, 86, 87);
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);
@@ -168,7 +176,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
             if (player.isUsingUltimate() && color == null) {
                 boomArrows.add(arrow);
 
-                player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+                player.cooldownManager.setCooldown(boomBow, boomBowPerShotCd);
 
                 // Decrement fuse
                 final ArcherData data = getPlayerDataOrNull(player);
@@ -181,7 +189,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
             }
 
             // Handle hawkeye arrows
-            if (!player.isHeldSlot(HotbarSlots.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
+            if (!player.isHeldSlot(HotBarSlot.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
                 return;
             }
 
@@ -290,6 +298,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
             setItem(Material.BLAZE_POWDER);
             setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f);
 
+            setManualDuration();
             setCooldownSec(20);
 
             addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
@@ -298,39 +307,39 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setUsingUltimate(true);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                player.setUsingUltimate(true);
 
-            player.setItemAndSnap(HotbarSlots.HERO_ITEM, boomBow.getItem());
-            player.setCooldown(boomBow.getMaterial(), boomBowPerShotCd);
+                player.setItemAndSnap(HotBarSlot.HERO_ITEM, boomBow.getItem());
+                player.cooldownManager.setCooldown(boomBow, boomBowPerShotCd);
 
-            final ProgressBarBuilder progressBuild = new ProgressBarBuilder("\uD83D\uDD25", ChatColor.GOLD, 10);
-            final ArcherData playerData = getPlayerData(player);
+                final ProgressBarBuilder progressBuild = new ProgressBarBuilder("\uD83D\uDD25", ChatColor.GOLD, 10);
+                final ArcherData playerData = getPlayerData(player);
 
-            final float maxFuse = getMastery().getMaxFuse(player);
-            playerData.fuse = maxFuse;
+                final float maxFuse = getMastery().getMaxFuse(player);
+                playerData.fuse = maxFuse;
 
-            new PlayerTickingGameTask(player) {
-                @Override
-                public void run(int tick) {
-                    if (playerData.fuse <= 0) {
-                        player.setItem(HotbarSlots.HERO_ITEM, null);
-                        player.snapToWeapon();
-                        player.setUsingUltimate(false);
+                new PlayerTickingGameTask(player) {
+                    @Override
+                    public void run(int tick) {
+                        if (playerData.fuse <= 0) {
+                            player.setItem(HotBarSlot.HERO_ITEM, null);
+                            player.snapToWeapon();
+                            player.setUsingUltimate(false);
 
-                        removePlayerData(player);
-                        cancel();
-                        return;
+                            removePlayerData(player);
+                            cancel();
+                            return;
+                        }
+
+                        // Display fuse
+                        player.sendTitle(" ", progressBuild.build((int) playerData.fuse, (int) maxFuse), 0, 5, 0);
+
+                        playerData.fuse--;
                     }
-
-                    // Display fuse
-                    player.sendTitle(" ", progressBuild.build((int) playerData.fuse, (int) maxFuse), 0, 5, 0);
-
-                    playerData.fuse--;
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                }.runTaskTimer(0, 1);
+            });
         }
     }
 

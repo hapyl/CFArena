@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
-
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -71,8 +70,8 @@ public class HealingAura extends DarkMageTalent {
                 final double y = Math.sin(Math.toRadians(tick) * 16) * 0.4;
                 final double z = Math.cos(theta) * radius;
 
-                LocationHelper.modify(location, x, y, z, then -> {
-                    player.spawnWorldParticle(then, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
+                LocationHelper.offset(location, x, y, z, () -> {
+                    player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
                 });
 
                 theta += Math.PI / 26;

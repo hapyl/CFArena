@@ -1,10 +1,11 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.util.ArgumentList;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -34,13 +35,8 @@ public class PersonalMessageCommand extends CFCommand {
             return;
         }
 
-        final PlayerProfile playerProfile = PlayerProfile.getProfile(player);
-        final PlayerProfile targetProfile = PlayerProfile.getProfile(target);
-
-        if (playerProfile == null || targetProfile == null) {
-            Notifier.error(player, "Error sending message!");
-            return;
-        }
+        final PlayerProfile playerProfile = CF.getProfile(player);
+        final PlayerProfile targetProfile = CF.getProfile(target);
 
         PlayerSocialConversation.talk(playerProfile, targetProfile, message);
     }

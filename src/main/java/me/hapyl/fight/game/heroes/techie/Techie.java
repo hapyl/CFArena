@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.techie;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerSkin;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
@@ -15,17 +15,17 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.TalentLock;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.techie.DeviceHack;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -58,10 +58,11 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     public Techie(@Nonnull Key key) {
         super(key, "Cryptshade");
 
-        setArchetypes(Archetype.HEXBANE);
-        setAffiliation(Affiliation.UNKNOWN);
-        setGender(Gender.UNKNOWN);
-        setRace(Race.CYBERNETIC);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.HEXBANE);
+        profile.setAffiliation(Affiliation.UNKNOWN);
+        profile.setGender(Gender.UNKNOWN);
+        profile.setRace(Race.CYBERNETIC);
 
         setDescription("""
                 Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies talents.
@@ -77,18 +78,18 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         final HeroAttributes attributes = getAttributes();
         attributes.setSpeed(110);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(245, 245, 245, TrimPattern.TIDE, TrimMaterial.NETHERITE);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.WARD, TrimMaterial.NETHERITE);
 
-        setWeapon(new Weapon(Material.IRON_SWORD)
-                .setName("Nano Sword")
-                .setDescription("""
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("nano_sword"))
+                .name("Nano Sword")
+                .description("""
                         A sword made with nano energy.
                         """)
-                .setDamage(4.0d)
-                .addEnchant(Enchantment.KNOCKBACK, 1)
+                .enchant(Enchantment.KNOCKBACK, 1)
+                .damage(4.0d)
         );
 
         setUltimate(new TechieUltimate());
@@ -219,76 +220,76 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            new DeviceHack() {
-                private double distance = 1;
-                private final double distancePerTick = (ultimateDistance - distance) / getCastingTime();
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                new DeviceHack() {
+                    private double distance = 1;
+                    private final double distancePerTick = (ultimateDistance - distance) / getCastingTime();
 
-                @Override
-                public void onHack(@Nonnull GamePlayer player) {
-                    final TechieData data = getPlayerData(player);
+                    @Override
+                    public void onHack(@Nonnull GamePlayer player) {
+                        final TechieData data = getPlayerData(player);
 
-                    data.forEachAndRemove((entity) -> {
-                        boolean shouldRemove = entity.getLocation().distance(player.getLocation()) <= distance;
+                        data.forEachAndRemove((entity) -> {
+                            boolean shouldRemove = entity.getLocation().distance(player.getLocation()) <= distance;
 
-                        if (!shouldRemove) {
-                            return false;
-                        }
+                            if (!shouldRemove) {
+                                return false;
+                            }
 
-                        temperInstance.temper(entity, lockdownTalentLockDuration, player);
+                            temperInstance.temper(entity, lockdownTalentLockDuration, player);
 
-                        if (!(entity instanceof GamePlayer entityPlayer)) {
+                            if (!(entity instanceof GamePlayer entityPlayer)) {
+                                return true;
+                            }
+
+                            final TalentLock talentLock = entityPlayer.getTalentLock();
+                            talentLock.setLockAll(lockdownTalentLockDuration);
+
+                            entityPlayer.getEntityData().addAssistingPlayer(player); // Mark assist
+                            entityPlayer.setEnergy((int) (entityPlayer.getEnergy() * (1 - ultimateLosePercent)));
+
+                            // Fx
+                            entityPlayer.sendSubtitle("&4&lʟᴏᴄᴋᴅᴏᴡɴ", 5, 20, 5);
+                            entityPlayer.playSound(Sound.BLOCK_ANVIL_LAND, 0.0f);
+
                             return true;
-                        }
-
-                        final TalentLock talentLock = entityPlayer.getTalentLock();
-                        talentLock.setLockAll(lockdownTalentLockDuration);
-
-                        entityPlayer.getEntityData().addAssistingPlayer(player); // Mark assist
-                        entityPlayer.setEnergy((int) (entityPlayer.getEnergy() * (1 - ultimateLosePercent)));
-
-                        // Fx
-                        entityPlayer.sendSubtitle("&4&lʟᴏᴄᴋᴅᴏᴡɴ", 5, 20, 5);
-                        entityPlayer.playSound(Sound.BLOCK_ANVIL_LAND, 0.0f);
-
-                        return true;
-                    });
-                }
-
-                @Override
-                public void onTick(@Nonnull GamePlayer player, int tick) {
-                    final Location location = player.getLocation();
-
-                    // Area Fx
-                    for (double d = 0; d < Math.PI * 2; d += Math.PI / (tick + 2)) {
-                        final double x = Math.sin(d) * distance;
-                        final double y = Math.sin(Math.toRadians(tick / 2.0d)) * 0.2;
-                        final double z = Math.cos(d) * distance;
-
-                        location.add(x, y, z);
-
-                        player.spawnWorldParticle(location, Particle.WITCH, 1);
-                        player.spawnWorldParticle(location, Particle.EFFECT, 1);
-
-                        location.subtract(x, y, z);
+                        });
                     }
 
-                    // Player Fx
-                    player.spawnWorldParticle(Particle.WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
-                    player.spawnWorldParticle(Particle.ENCHANTED_HIT, 10, 0.1d, 0.6d, 0.1d, 1);
+                    @Override
+                    public void onTick(@Nonnull GamePlayer player, int tick) {
+                        final Location location = player.getLocation();
 
-                    player.playWorldSound(Sound.ENTITY_IRON_GOLEM_HURT, (float) (1.0f + (1.0f / ultimateDistance * distance)));
+                        // Area Fx
+                        for (double d = 0; d < Math.PI * 2; d += Math.PI / (tick + 2)) {
+                            final double x = Math.sin(d) * distance;
+                            final double y = Math.sin(Math.toRadians(tick / 2.0d)) * 0.2;
+                            final double z = Math.cos(d) * distance;
 
-                    distance += distancePerTick;
-                }
+                            location.add(x, y, z);
 
-                @Override
-                public int getCastingTime() {
-                    return 40;
-                }
-            }.startDevice(player);
+                            player.spawnWorldParticle(location, Particle.WITCH, 1);
+                            player.spawnWorldParticle(location, Particle.EFFECT, 1);
 
-            return UltimateResponse.OK;
+                            location.subtract(x, y, z);
+                        }
+
+                        // Player Fx
+                        player.spawnWorldParticle(Particle.WITCH, 10, 0.1d, 0.6d, 0.1d, 1);
+                        player.spawnWorldParticle(Particle.ENCHANTED_HIT, 10, 0.1d, 0.6d, 0.1d, 1);
+
+                        player.playWorldSound(Sound.ENTITY_IRON_GOLEM_HURT, (float) (1.0f + (1.0f / ultimateDistance * distance)));
+
+                        distance += distancePerTick;
+                    }
+
+                    @Override
+                    public int getCastingTime() {
+                        return 40;
+                    }
+                }.startDevice(player);
+            });
         }
     }
 }

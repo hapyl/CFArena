@@ -1,5 +1,11 @@
 package me.hapyl.fight.game.ui;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.nn.IntInt;
+import me.hapyl.eterna.module.player.song.Song;
+import me.hapyl.eterna.module.player.song.SongPlayer;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -13,19 +19,15 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.eterna.Eterna;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.nn.IntInt;
-import me.hapyl.eterna.module.player.song.Song;
-import me.hapyl.eterna.module.player.song.SongPlayer;
-import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -46,13 +48,15 @@ public class PlayerUI extends TickingGameTask {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yy");
 
     protected final PlayerProfile profile;
+
     private final Player player;
     private final Scoreboarder builder;
     private final UIFormat format = UIFormat.DEFAULT;
     private final PlayerTablist tablist;
     private final Manager manager;
+    private final BossBar bossBar;
 
-    public PlayerUI(PlayerProfile profile) {
+    public PlayerUI(@Nonnull PlayerProfile profile) {
         this.profile = profile;
         this.player = profile.getPlayer();
         this.manager = Manager.current();
@@ -64,11 +68,13 @@ public class PlayerUI extends TickingGameTask {
         this.updateScoreboard();
         this.builder.addPlayer(player);
 
+        this.bossBar = BossBar.bossBar(Component.text(), 1.0f, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS);
+
         // Create tablist
         this.tablist = new PlayerTablist(this);
         this.tablist.show(player);
 
-        if (Settings.HIDE_UI.isEnabled(player)) {
+        if (EnumSetting.HIDE_UI.isEnabled(player)) {
             hideScoreboard();
         }
 
@@ -116,16 +122,16 @@ public class PlayerUI extends TickingGameTask {
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
         // Update UI if enabled
-        if (Settings.HIDE_UI.isDisabled(player)) {
+        if (EnumSetting.HIDE_UI.isDisabled(player)) {
             animateScoreboard();
             updateScoreboard();
 
             if (gamePlayer != null) {
-                sendInGameUI(mod40 < 20 ? GamePlayer.UltimateColor.PRIMARY : GamePlayer.UltimateColor.SECONDARY);
+                sendInGameUI(mod40 < 20 ? UltimateColor.PRIMARY : UltimateColor.SECONDARY);
             }
         }
 
-        if (Settings.SPECTATE.isEnabled(player)) {
+        if (EnumSetting.SPECTATE.isEnabled(player)) {
             Chat.sendActionbar(
                     player,
                     gamePlayer == null
@@ -150,7 +156,7 @@ public class PlayerUI extends TickingGameTask {
         final ItemStack passiveItem = getItemFromTalent(hero.getPassiveTalent());
 
         // Design changes if debug is enabled
-        if (Settings.SEE_DEBUG_DATA.isEnabled(player)) {
+        if (EnumSetting.SEE_DEBUG_DATA.isEnabled(player)) {
             final EntityAttributes attributes = gamePlayer.getAttributes();
             final Attributes baseAttributes = attributes.getBaseAttributes();
 
@@ -191,7 +197,7 @@ public class PlayerUI extends TickingGameTask {
         }
     }
 
-    public void sendInGameUI(@Nonnull GamePlayer.UltimateColor ultimateColor) {
+    public void sendInGameUI(@Nonnull UltimateColor ultimateColor) {
         final GamePlayer gamePlayer = profile.getGamePlayer();
 
         if (gamePlayer == null) {
@@ -229,6 +235,7 @@ public class PlayerUI extends TickingGameTask {
             );
 
             final long rubyCount = currency.get(Currency.RUBIES);
+
             if (rubyCount > 0) {
                 final String rubyCountFormatted = Currency.RUBIES.getFormatted(player);
                 builder.addLine((rubyCount == 1 ? " &7ʀᴜʙʏ: " : " &7ʀᴜʙɪᴇs: ") + rubyCountFormatted);
@@ -349,7 +356,7 @@ public class PlayerUI extends TickingGameTask {
         }
 
         // Display NBS player if playing a song
-        final SongPlayer songPlayer = Eterna.getRegistry().songPlayer;
+        final SongPlayer songPlayer = SongPlayer.DEFAULT_PLAYER;
 
         if (songPlayer.getCurrentSong() != null) {
             final Song song = songPlayer.getCurrentSong();

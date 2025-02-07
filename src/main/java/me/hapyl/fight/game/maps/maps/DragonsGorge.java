@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.maps.maps;
 
+import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.util.ProgressBarBuilder;
-import me.hapyl.eterna.module.math.Numbers;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;

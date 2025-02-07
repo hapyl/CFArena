@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.type;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
@@ -7,11 +9,9 @@ import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.GameResultType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -84,7 +84,7 @@ public abstract class GameType {
     public boolean isPlayerRequirementsMet() {
         final int readyPlayers = Bukkit.getOnlinePlayers()
                 .stream()
-                .filter(player -> !Settings.SPECTATE.isEnabled(player))
+                .filter(player -> !EnumSetting.SPECTATE.isEnabled(player))
                 .collect(Collectors.toSet()).size();
 
         final int populatedTeams = GameTeam.getPopulatedTeams().size();
@@ -144,12 +144,7 @@ public abstract class GameType {
      * @param player   - Player, who left.
      */
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return;
-        }
-
+        final PlayerProfile profile = CF.getProfile(player);
         final GamePlayer gamePlayer = profile.getOrCreateGamePlayer();
 
         gamePlayer.setSpectator(true);

@@ -1,5 +1,8 @@
 package me.hapyl.fight.registry;
 
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.registry.Registry;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
@@ -76,7 +79,7 @@ public abstract class AbstractStaticRegistry<T extends Keyed> {
     @Nullable
     protected static <T extends Keyed> T ofStringOrNull(@Nonnull Set<T> values, @Nonnull String string) {
         for (T value : values) {
-            if (value.getKey().isKeyMatchesIgnoreCase(string)) {
+            if (value.getKey().isKeyMatches(string)) {
                 return value;
             }
         }

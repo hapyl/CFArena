@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.Described;
-import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
 

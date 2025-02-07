@@ -1,16 +1,18 @@
 package me.hapyl.fight.game.talents.km;
 
 
+import me.hapyl.eterna.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.particle.ParticleBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,44 +22,57 @@ import javax.annotation.Nonnull;
 
 public class LaserEye extends Talent {
 
+    @DisplayField private final double damage = 1.5d;
+    @DisplayField private final short maxDistance = 30;
+
+    private final ParticleBuilder particleMove = ParticleBuilder.redstoneDust(Color.RED, 1);
+    private final ParticleBuilder particleHit = ParticleBuilder.particle(Particle.LAVA);
+
     public LaserEye(@Nonnull Key key) {
         super(key, "Laser Eye");
 
         setDescription("""
-                Become immovable and activate laser for {duration} that rapidly damages enemies.
+                Become immovable and activate a deadly laser for {duration} that rapidly damages enemies.
                 """);
 
-        setDuration(60);
+        setType(TalentType.DAMAGE);
         setItem(Material.ENDER_EYE);
-        setCooldownSec(15);
+
+        setDurationSec(2);
+        setCooldownSec(12);
     }
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(Effects.IMMOVABLE, duration, true);
-        player.addEffect(Effects.JUMP_BOOST, 250, duration);
-        player.addEffect(Effects.SLOW, 255, duration);
+        player.addEffect(Effects.MOVEMENT_CONTAINMENT, duration, true);
 
-        GameTask.runTaskTimerTimes((task, tick) -> {
-            CFUtils.rayTraceLine(player, 50, 0.5d, 0.0d, move -> {
-                if (move.getBlock().isPassable()) {
-                    ParticleBuilder.redstoneDust(Color.RED, 1).display(move);
+        new PlayerTickingGameTask(player) {
+            @Override
+            public void run(int tick) {
+                if (tick >= duration) {
+                    PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
+                    cancel();
+                    return;
                 }
-            }, entity -> {
-                entity.damage(1.0d, player, EnumDamageCause.LASER);
-                PlayerLib.spawnParticle(entity.getLocation(), Particle.LAVA, 2, 0, 0, 0, 0);
-            });
 
-            if (tick == 0) {
-                PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
+                CFUtils.rayTraceLine(player, maxDistance, 0.75d, 0.0d,
+                        location -> {
+                            if (location.getBlock().isPassable()) {
+                                particleMove.display(location);
+                            }
+                        },
+                        entity -> {
+                            entity.damage(damage, player, EnumDamageCause.LASER);
+                            particleHit.display(entity.getMidpointLocation());
+                        }
+                );
             }
-        }, 1, duration);
+        }.runTaskTimer(0, 1);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.25f);
-
         return Response.OK;
     }
 }

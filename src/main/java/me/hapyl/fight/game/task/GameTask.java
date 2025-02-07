@@ -1,20 +1,23 @@
 package me.hapyl.fight.game.task;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * Represents a task automatically canceled when the game ends.
  */
-public abstract class GameTask implements Runnable {
+public abstract class GameTask implements Runnable, BukkitTask {
 
     private ShutdownAction shutdownAction;
     private BukkitTask bukkitTask;
@@ -79,7 +82,7 @@ public abstract class GameTask implements Runnable {
         }
 
         this.validateDoesNotExists();
-        return this.setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(Main.getPlugin(), this, delay, period));
+        return this.setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(CF.getPlugin(), this, delay, period));
     }
 
     public synchronized GameTask runTask() {
@@ -87,12 +90,12 @@ public abstract class GameTask implements Runnable {
             return this;
         }
         this.validateDoesNotExists();
-        return this.setupTask(Bukkit.getScheduler().runTask(Main.getPlugin(), this));
+        return this.setupTask(Bukkit.getScheduler().runTask(CF.getPlugin(), this));
     }
 
     public synchronized void deepCancel() {
         if (atCancel != null) {
-            atCancel.runTask(Main.getPlugin());
+            atCancel.runTask(CF.getPlugin());
         }
         this.cancel();
     }
@@ -126,6 +129,10 @@ public abstract class GameTask implements Runnable {
         return bukkitTask.isCancelled();
     }
 
+    /**
+     * @deprecated Do not call unless you know what you're doing, use {@link GameTask#cancel} instead.
+     * @see GameTask#cancel()
+     */
     @Deprecated
     public void cancel0() {
         if (bukkitTask == null) {
@@ -136,14 +143,30 @@ public abstract class GameTask implements Runnable {
         Bukkit.getScheduler().cancelTask(getId());
     }
 
+    @Override
+    public final int getTaskId() {
+        return bukkitTask.getTaskId();
+    }
+
+    @Override
+    @Nonnull
+    public final Plugin getOwner() {
+        return CF.getPlugin();
+    }
+
+    @Override
+    public final boolean isSync() {
+        return bukkitTask.isSync();
+    }
+
     private void validateDoesNotExists() {
         if (bukkitTask != null) {
-            throw new IllegalStateException("Tried to register already registered task! Id = " + getId());
+            throw Debug.exception(IllegalStateException.class, "Tried to register an already registered task with id %s!".formatted(getId()));
         }
     }
 
     private synchronized GameTask setupTask(BukkitTask task) {
-        final Main plugin = Main.getPlugin();
+        final Main plugin = CF.getPlugin();
 
         if (!plugin.isEnabled()) {
             Debug.severe("Cannot schedule a task while the plugin is disabled!");
@@ -157,7 +180,7 @@ public abstract class GameTask implements Runnable {
     }
 
     private boolean canExecute() {
-        return Main.getPlugin().isEnabled();
+        return CF.getPlugin().isEnabled();
     }
 
     /**
@@ -188,12 +211,10 @@ public abstract class GameTask implements Runnable {
         }.runTaskTimer(delay, period);
     }
 
-    // see above
     public static void runDuration(Timed talent, Consumer<Integer> runnable, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), 0, period);
     }
 
-    // see above
     public static void runDuration(Timed talent, Consumer<Integer> runnable, int delay, int period) {
         runDuration(talent, (task, i) -> runnable.accept(i), delay, period);
     }

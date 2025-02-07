@@ -25,7 +25,7 @@ public class ArchetypeChallenge extends Challenge {
     public boolean canGenerate(@Nonnull PlayerProfile profile) {
         final List<Hero> playable = HeroRegistry.playable();
 
-        playable.removeIf(hero -> hero.getArchetypes().excludes(archetype));
+        playable.removeIf(hero -> !hero.getProfile().getArchetypes().contains(archetype));
         playable.removeIf(hero -> hero.isLocked(profile.getPlayer()));
 
         return !playable.isEmpty();

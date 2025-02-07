@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.heroes.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.util.Described;
-import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

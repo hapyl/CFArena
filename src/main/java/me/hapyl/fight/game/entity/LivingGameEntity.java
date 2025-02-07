@@ -17,7 +17,6 @@ import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.InverseOf;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
@@ -38,6 +37,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.entity.packet.EntityPacketFactory;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -61,6 +61,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -72,24 +73,30 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     private static final int FEROCITY_HIT_CD = 9;
     private static final double ACTUAL_ENTITY_HEALTH = 0.1d;
     private static final String CC_SMALL_CAPS_NAME = SmallCaps.format(AttributeType.EFFECT_RESISTANCE.getName());
+    private static final Map<Attribute, Double> DEFAULT_ATTRIBUTE_VALUES = Map.of(
+            Attribute.KNOCKBACK_RESISTANCE, 0.0d,
+            Attribute.ATTACK_SPEED, 2.0d,
+            Attribute.ATTACK_DAMAGE, 1.0d,
+            Attribute.ARMOR, -100.0d
+    );
+    private static final String BLOOD_DEBT_CHAR = "&4&l🩸";
 
     public final EntityRandom random;
     public final EntityTicker ticker;
-
     protected final EntityData entityData;
-
     private final Set<EnumDamageCause> immunityCauses = Sets.newHashSet();
     private final EntityCooldown cooldown;
     private final EntityPacketFactory packetFactory;
     private final EntityMemory memory;
-
     @Nonnull
     protected EntityAttributes attributes;
-    protected boolean wasHit; // Used to check if an entity was hit by custom damage
-    protected double health;
     @Nonnull
     protected EntityState state;
-
+    protected int overrideNoDamageTicks = -1; // protected to only allow impl to override
+    protected double health;
+    protected Shield shield;
+    protected Decay decay;
+    protected BloodDebt bloodDebt;
     private AI ai;
     private boolean informImmune = true;
     private boolean canMove = true;
@@ -100,16 +107,17 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public LivingGameEntity(@Nonnull LivingEntity entity, @Nonnull Attributes attributes) {
         super(entity);
-        this.entityData = new EntityData(this);
         this.attributes = new EntityAttributes(this, attributes);
-        this.wasHit = false;
-        this.health = attributes.get(AttributeType.MAX_HEALTH);
+        this.entityData = new EntityData(this);
         this.state = EntityState.ALIVE;
         this.cooldown = new EntityCooldown(this);
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
         this.random = new EntityRandom();
         this.ticker = new EntityTicker(this);
+
+        this.health = attributes.getMaxHealth();
+        this.bloodDebt = new BloodDebt(this);
 
         super.base = false;
 
@@ -120,7 +128,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entity.setMaxHealth(ACTUAL_ENTITY_HEALTH);
         entity.setHealth(entity.getMaxHealth());
 
-        // Default no damage cause because we're using the custom system now!
+        // Default no damage cause because we're using the named system now!
         entity.setMaximumNoDamageTicks(0);
 
         applyAttributes();
@@ -331,8 +339,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             entityData.setLastDamageCause(cause);
         }
 
-        entityData.setLastDamage(damage);
-
         // Call the damage event
         entityData.wasHit = true; // This tag is VERY important for calculations
         entity.damage(damage, damager == null ? null : damager.getEntity());
@@ -379,7 +385,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     public double scaleAttribute(@Nonnull AttributeType attributeType, double mul) {
         final double v = attributes.get(attributeType);
-
         return v * mul;
     }
 
@@ -421,7 +426,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @param player - Player.
      */
     public void hide(@Nonnull Player player) {
-        player.hideEntity(Main.getPlugin(), entity);
+        player.hideEntity(CF.getPlugin(), entity);
     }
 
     /**
@@ -437,7 +442,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @param player - Player.
      */
     public void show(@Nonnull Player player) {
-        player.showEntity(Main.getPlugin(), entity);
+        player.showEntity(CF.getPlugin(), entity);
     }
 
     public void createExplosion(@Nonnull Location location, double explosionRadius, double explosionDamage, @Nullable EnumDamageCause cause) {
@@ -529,20 +534,42 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Override
     @OverridingMethodsMustInvokeSuper
     public void tick() {
-        // Tick effects
-        entityData.getGameEffects().values().forEach(ActiveGameEffect::tick);
+        // Tick entity data
+        entityData.tick();
+
+        // Tick decay
+        if (decay != null) {
+            decay.tick();
+
+            final double decayAmount = decay.getDecay();
+
+            if (decayAmount <= 0.0d) {
+                decay = null;
+            }
+
+            // Fx here because wither hits if it's a lot
+            addPotionEffect(PotionEffectType.WITHER, 0, 5);
+        }
+
+        // Tick shield
+        if (shield != null) {
+            shield.tick();
+        }
 
         // Tick
         ticker.tick();
     }
 
-    @Override
-    public int getNoDamageTicks() {
-        return ticker.noDamageTicks.getTick();
+    public int getNoDamageTicks(@Nullable GameEntity entity) {
+        return entityData.getNoDamageTicks(entity);
     }
 
-    public void setNoDamageTicks(int i) {
-        entity.setNoDamageTicks(i);
+    public int getNoDamageTicks() {
+        return entityData.getNoDamageTicks(null);
+    }
+
+    public void setNoDamageTicks(@Nullable GameEntity entity, int ticks) {
+        entityData.setNoDamageTicks(entity, ticks);
     }
 
     /**
@@ -651,7 +678,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public void setGlowingColor(@Nonnull GamePlayer player, @Nonnull ChatColor color) {
-        final Glowing glowing = Eterna.getRegistry().glowingRegistry.getGlowing(player.getPlayer(), entity);
+        final Glowing glowing = Eterna.getManagers().glowing.getGlowing(player.getPlayer(), entity);
 
         if (glowing != null) {
             glowing.setColor(color);
@@ -685,15 +712,27 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return The {@link HealingOutcome}.
      */
     @Nonnull
-    public HealingOutcome heal(double amount, @Nullable LivingGameEntity healer) {
-        final EntityAttributes attributes = getAttributes();
-
-        if (healer != null && !healer.equals(this)) {
-            // Don't increase "outgoing" healing towards yourself
+    public HealingOutcome heal(double amount, LivingGameEntity healer) {
+        // Don't increase "outgoing" healing towards yourself
+        if (healer != null && !healer.equals(entity)) {
             amount = healer.getAttributes().calculateOutgoingHealing(amount);
         }
 
         amount = attributes.calculateIncomingHealing(amount);
+
+        // Check for debt
+        final double bloodDebtAmount = bloodDebt.amount();
+
+        if (bloodDebtAmount > 0.0d) {
+            final double bloodDebtDecrement = Math.max(0, Math.min(amount, bloodDebtAmount));
+            amount -= bloodDebtDecrement;
+
+            bloodDebt.decrement(bloodDebtDecrement);
+
+            // Fx
+            playSound(Sound.ENTITY_ZOMBIE_INFECT, 2);
+            spawnDebuffDisplay("&c- &l%.0f &4%s".formatted(bloodDebtDecrement, BLOOD_DEBT_CHAR), 20);
+        }
 
         final double maxHealth = getMaxHealth();
         final double healthAfterHealing = Math.clamp(health + amount, getMinHealth(), maxHealth);
@@ -708,7 +747,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
                 excessHealing,
                 health,
                 healthAfterHealing
-        ).callAndCheck()) {
+        ).call()) {
             return HealingOutcome.ofCancelled(actualHealing, excessHealing);
         }
 
@@ -723,10 +762,23 @@ public class LivingGameEntity extends GameEntity implements Ticking {
                     0.44, 0.2, 0.44, 0.015f
             );
 
-            new AscendingDisplay("&a+ &l%.0f".formatted(actualHealing), 15).display(getLocation());
+            new AscendingDisplay("&a+ &l%.0f".formatted(actualHealing), 15).display(entity.getLocation());
         }
 
         return HealingOutcome.of(actualHealing, excessHealing);
+    }
+
+    public final double getFinalHealth() {
+        double health = this.health;
+
+        // Decay
+        if (decay != null) {
+            health -= decay.getDecay();
+        }
+
+        // Overheal // TODO
+
+        return Math.max(1, health); // Don't die from decay or overheal
     }
 
     /**
@@ -738,11 +790,39 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return; // Don't decrease health if already dead or respawning
         }
 
+        final EnumDamageCause cause = instance.getCause();
+
+        // Shield
+        if (shield != null && shield.canShield(cause)) {
+            final double damage = instance.getDamage();
+            final double damageMitigated = damage * shield.shieldStrength();
+            final double damageTaken = Math.max(0, damage - damageMitigated);
+            final double capacityAfterHit = shield.takeDamage0(damageMitigated, instance);
+
+            // Always display shield damage
+            if (damageMitigated > 0) {
+                shield.display(damageMitigated, this.getEyeLocation());
+            }
+
+            // Shield took damage
+            if (capacityAfterHit > 0) {
+                instance.setDamage(0 + damageTaken);
+            }
+            // Shield broke
+            else {
+                instance.setDamage(-capacityAfterHit + damageTaken);
+
+                shield.onBreak0();
+                shield = null;
+            }
+        }
+
+        // Process damage
         final double damage = instance.getDamage();
-        final boolean willDie = health - damage <= 0.0d;
+        final boolean willDie = getFinalHealth() - damage <= 0.0d;
 
         // GameDeathEvent here to not decrease health below lethal
-        if (willDie && new GameDeathEvent(instance).callAndCheck()) {
+        if (willDie && new GameDeathEvent(instance).call()) {
             return;
         }
 
@@ -761,6 +841,19 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         // Damage indicator
         displayDamage(instance);
+    }
+
+    @Nullable
+    public Decay getDecay() {
+        return decay;
+    }
+
+    public void setDecay(@Nonnull Decay decay) {
+        this.decay = decay;
+
+        // Fx
+        playSound(Sound.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH, 0.5f);
+        spawnParticle(getLocation(), Particle.RAID_OMEN, 10, 0.3, 0.6, 0.3, 0.02f);
     }
 
     public void displayDamage(@Nonnull DamageInstance instance) {
@@ -797,21 +890,38 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        // Don't kill if entity shouldn't die
-        if (!shouldDie()) {
-            return;
-        }
+        // FIXME (Tue, Feb 4 2025 @xanyjl): Make this DEAD but like why doesn't it work for gp?
+        state = deathState();
 
         cooldown.stopCooldowns();
-        state = EntityState.DEAD;
+        bloodDebt.reset();
+
+        shield = null;
+        decay = null;
+
+        memory.forgetEverything();
+
         onDeath();
+    }
+
+    @Nonnull
+    protected EntityState deathState() {
+        return EntityState.DEAD;
+    }
+
+    @Nonnull
+    public BloodDebt bloodDebt() {
+        return bloodDebt;
+    }
+
+    public double bloodDebtAmount() {
+        return bloodDebt.amount();
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onDeath() {
         super.onDeath();
-        memory.forgetEverything();
     }
 
     /**
@@ -860,7 +970,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     @PreprocessingMethod
-    public final void onDamageTaken0(@Nonnull DamageInstance instance) {
+    public void onDamageTaken0(@Nonnull DamageInstance instance) {
         // Ignore cancelled instance
         // Should really be done automatically using like annotations but whatever
         if (instance.isCancelled()) {
@@ -868,9 +978,9 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         }
 
         final EnumDamageCause cause = instance.getCause();
+        final GameEntity damager = instance.getDamager();
 
         if (cause != null && immunityCauses.contains(cause)) {
-            final GameEntity damager = instance.getDamager();
 
             if (damager != null && informImmune) {
                 damager.sendMessage(ChatColor.RED + getNameUnformatted() + " is immune to this kind of damage!");
@@ -880,8 +990,24 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        ticker.noDamageTicks.setInt(cause != null ? cause.getDamageTicks() : DamageCause.DEFAULT_DAMAGE_TICKS);
         onDamageTaken(instance);
+
+        final int noDamageTicks;
+
+        // Check entity override
+        if (this.overrideNoDamageTicks != -1) {
+            noDamageTicks = this.overrideNoDamageTicks;
+        }
+        // Else check instance of apply damage or default no damage ticks
+        else {
+            final int overrideNoDamageTicks = instance.getOverrideDamageTicks();
+
+            noDamageTicks = overrideNoDamageTicks != -1
+                    ? overrideNoDamageTicks
+                    : cause != null ? cause.getDamageTicks() : DamageCause.DEFAULT_DAMAGE_TICKS;
+        }
+
+        setNoDamageTicks(damager, noDamageTicks);
     }
 
     @Event
@@ -897,10 +1023,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public void onDamageDealt(@Nonnull DamageInstance instance) {
     }
 
-    public boolean shouldDie() {
-        return true;
-    }
-
     @Nonnull
     public EnumDamageCause getLastDamageCause() {
         return entityData.getLastDamageCauseNonNull();
@@ -912,7 +1034,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     @Nonnull
     public String getHealthFormatted() {
-        return "&c&l%.0f".formatted(Math.max(0, Math.ceil(health))) + " &c❤";
+        final double health = Math.max(0, Math.ceil(getFinalHealth()));
+        String healthString = decay != null
+                ? "&7&l%.0f &8❤".formatted(health)
+                : "&c&l%.0f &c❤".formatted(health);
+
+        if (bloodDebt.hasDebt()) {
+            healthString += " &4&l%.0f %s".formatted(bloodDebt.amount(), BLOOD_DEBT_CHAR);
+        }
+
+        return healthString;
     }
 
     @Nullable
@@ -930,6 +1061,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return health;
     }
 
+    /**
+     * @deprecated {@link #getEntityData}
+     */
+    @Deprecated
     public void setHealth(double health) {
         this.health = health;
     }
@@ -958,11 +1093,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public float getWalkSpeed() {
-        return (float) getAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED);
+        return (float) getAttributeValue(Attribute.MOVEMENT_SPEED);
     }
 
     public void setWalkSpeed(double value) {
-        setAttributeValue(Attribute.GENERIC_MOVEMENT_SPEED, value);
+        setAttributeValue(Attribute.MOVEMENT_SPEED, value);
     }
 
     public void setAttributeValue(@Nonnull Attribute attribute, double value) {
@@ -1058,11 +1193,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
 
     public double getKnockback() {
-        return getAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        return getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
     }
 
     public void setKnockback(double d) {
-        setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, d);
+        setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, d);
     }
 
     public void modifyKnockback(double d, @Nonnull Consumer<LivingGameEntity> consumer) {
@@ -1094,6 +1229,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         final LivingEntity target = creature.getTarget();
         return target != null ? CF.getEntity(target) : null;
     }
+    // this spawns globally
 
     public void setTarget(@Nullable LivingGameEntity entity) {
         if (this.entity instanceof Creature creature) {
@@ -1110,7 +1246,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public void spawnWorldParticle(Particle particle, int amount) {
         spawnWorldParticle(particle, amount, 0, 0, 0, 0);
     }
-    // this spawns globally
 
     /**
      * Spawns a particle at this entity location for everyone to see.
@@ -1190,14 +1325,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Override
     public LivingGameEntity getGameEntity() {
         return this;
-    }
-
-    public boolean isType(@Nonnull GameEntities type) {
-        if (this instanceof NamedGameEntity<?> named) {
-            return named.type.equals(type.type);
-        }
-
-        return false;
     }
 
     public void spawnBuffDisplay(@Nonnull String string, int duration) {
@@ -1362,22 +1489,47 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return getHealth() >= getMaxHealth();
     }
 
+    @Nullable
+    public Shield getShield() {
+        return shield;
+    }
+
+    public void setShield(@Nullable Shield shield) {
+        if (this.shield != null) {
+            this.shield.onRemove0();
+        }
+
+        this.shield = shield;
+
+        if (shield != null) {
+            shield.onCreate0();
+        }
+    }
+
+    public void resetAttributeValue(@Nonnull Attribute attribute) {
+        setAttributeValue(attribute, DEFAULT_ATTRIBUTE_VALUES.getOrDefault(attribute, 0.0d));
+    }
+
+    public void playHurtAnimation(float yaw) {
+        getEntity().playHurtAnimation(yaw);
+    }
+
     protected boolean isInvalidForFerocity() {
         return isDeadOrRespawning();
     }
 
-    // This defaults vanilla attributes and applies the custom ones.
+    // This defaults vanilla attributes and applies the named ones.
     // YES, I FORGOT TO CALL UPDATE ATTRIBUTE FOR PLAYERS
     protected void applyAttributes() {
-        setAttributeValue(Attribute.GENERIC_KNOCKBACK_RESISTANCE, 0.0d);
-        setAttributeValue(Attribute.GENERIC_ATTACK_SPEED, 2.0d);
-        setAttributeValue(Attribute.GENERIC_ATTACK_DAMAGE, 1.0d);
-        setAttributeValue(Attribute.GENERIC_ARMOR, -100.0d); // Remove armor bars
+        resetAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
+        resetAttributeValue(Attribute.ATTACK_SPEED);
+        resetAttributeValue(Attribute.ATTACK_DAMAGE);
+        resetAttributeValue(Attribute.ARMOR); // Remove armor bars
 
         updateAttributes();
     }
 
-    private boolean shouldSimulateDamage() {
+    private boolean shouldSimulateDamage() { // wtf is this
         return hasPotionEffect(PotionEffectType.LEVITATION);
     }
 

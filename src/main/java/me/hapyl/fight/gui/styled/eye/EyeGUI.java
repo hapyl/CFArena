@@ -1,5 +1,10 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -8,10 +13,6 @@ import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -25,7 +26,7 @@ public class EyeGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(getPlayer());
+        final PlayerDatabase database = CF.getDatabase(getPlayer());
         final PlayerRank playerRank = database.getRank();
 
         setHeader(StyledTexture.THE_EYE.asIcon());

@@ -2,11 +2,11 @@ package me.hapyl.fight.game.heroes.nyx;
 
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
-import me.hapyl.fight.util.Iterators;
 import me.hapyl.fight.util.Mth;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -18,6 +18,7 @@ public class NyxData extends PlayerData implements Ticking {
 
     public static final int MAX_CHAOS_STACKS = 6;
     public static final int INITIAL_CHAOS_STACKS = 1;
+
     private static final double DROPLET_COLLISION_THRESHOLD = 0.75d;
 
     protected final Set<ChaosDroplet> droplets;
@@ -63,7 +64,7 @@ public class NyxData extends PlayerData implements Ticking {
     @Override
     public void tick() {
         // Tick droplets
-        Iterators.iterate(droplets, (iterator, droplet) -> {
+        CollectionUtils.iterate(droplets, (iterator, droplet) -> {
             final Location location = droplet.getLocation().add(0.0d, 0.25d, 0.0d);
 
             // Animate
@@ -80,7 +81,9 @@ public class NyxData extends PlayerData implements Ticking {
                 final boolean isTeammate = this.player.isSelfOrTeammate(player);
 
                 // Test collision and effect
-                if (player.getLocation().distance(location) <= DROPLET_COLLISION_THRESHOLD) {
+                final double distanceSquared = player.getLocation().distanceSquared(location);
+
+                if (distanceSquared <= DROPLET_COLLISION_THRESHOLD) {
                     // Check if the droplet can affect the player
                     if (droplet.affect(player, this)) {
                         iterator.remove();

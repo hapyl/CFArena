@@ -1,12 +1,12 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.parkour.LeaderboardData;
-import me.hapyl.fight.game.parkour.ParkourCourse;
-import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.eterna.module.parkour.Stats;
+import me.hapyl.fight.game.parkour.LeaderboardData;
+import me.hapyl.fight.game.parkour.ParkourCourse;
+import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

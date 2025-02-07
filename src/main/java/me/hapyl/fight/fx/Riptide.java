@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx;
 
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

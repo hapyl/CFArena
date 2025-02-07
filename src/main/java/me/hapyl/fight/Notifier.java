@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.SoundEffect;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -73,12 +72,19 @@ public interface Notifier {
                 return false;
             }
 
-            final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-            return profile != null && profile.getRank().isStaff();
+            return CF.getProfile(player).getRank().isStaff();
         }
 
     };
+
+    static void title(@Nonnull CommandSender sender, @Nonnull String title, @Nonnull String subtitle) {
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        Chat.sendTitle(player, title, subtitle, 10, 30, 5);
+        PlayerLib.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.25f);
+    }
 
     static void info(@Nonnull CommandSender sender, @Nonnull String message) {
         INFO.send(sender, message);

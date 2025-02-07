@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
@@ -7,7 +8,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.LivingGenericGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Guardian;
@@ -27,7 +27,7 @@ public class LaserZombie extends TamerPack {
                 Lasers target enemy, reducing their %s.
                 """.formatted(AttributeType.DEFENSE), TalentType.IMPAIR);
 
-        attributes.setHealth(20);
+        attributes.setMaxHealth(20);
         attributes.setSpeed(50);
         attributes.setKnockbackResistance(1.0d);
 

@@ -1,24 +1,26 @@
 package me.hapyl.fight.game.heroes.spark;
 
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 
@@ -27,17 +29,19 @@ import javax.annotation.Nonnull;
 public class Spark extends Hero {
 
     private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
+    @DisplayField private final double inWaterDamage = 3d;
 
     public Spark(@Nonnull Key key) {
         super(key, "Spark");
 
-        setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);
+        profile.setGender(Gender.MALE);
 
         setDescription("Strikes with fire! ...literally.");
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
-        final Equipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestPlate(Color.ORANGE);
         equipment.setLeggings(Color.RED);
         equipment.setBoots(Color.ORANGE);
@@ -105,6 +109,21 @@ public class Spark extends Hero {
     }
 
     @Override
+    public void onStart(@Nonnull GameInstance instance) {
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                getAlivePlayers().forEach(player -> {
+                    if (player.isInWater()) {
+                        player.damage(inWaterDamage, EnumDamageCause.WATER);
+                        player.playWorldSound(Sound.ENTITY_PLAYER_HURT_DROWN, 0.75f);
+                    }
+                });
+            }
+        }.runTaskTimer(10, 10);
+    }
+
+    @Override
     public void onStart(@Nonnull GamePlayer player) {
         player.addEffect(Effects.FIRE_RESISTANCE, 1, 999999);
     }
@@ -165,45 +184,39 @@ public class Spark extends Hero {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final Location location = getSafeLocation(player.getLocation());
 
             if (location == null) {
-                return UltimateResponse.error("Location is not safe!");
+                return error("Location is not safe!");
             }
 
             final double health = player.getHealth();
 
-            markerLocation.put(player, new RunInBackData(player, location, health));
-            player.setVisualFire(true);
+            return builder()
+                    .onExecute(() -> {
+                        markerLocation.put(player, new RunInBackData(player, location, health));
+                        player.setVisualFire(true);
+                    })
+                    .onTick(tick -> {
+                        if (getMarker(player) == null) {
+                            player.setVisualFire(false);
+                            return;
+                        }
 
-            new TimedGameTask(getUltimateDuration()) {
-                @Override
-                public void run(int tick) {
-                    if (getMarker(player) == null) {
-                        player.setVisualFire(false);
-                        cancel();
-                        return;
-                    }
+                        final int percent = tick * 10 / getDuration();
+                        player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
 
-                    final int percent = tick * 10 / maxTick;
-                    player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
+                        // Fx
+                        player.spawnWorldParticle(player.getLocation().add(0.0d, 0.5d, 0.0d), Particle.FLAME, 1, 1.0d, 0.5d, 1.0d, 0.05f);
 
-                    // Fx
-                    player.spawnWorldParticle(player.getLocation().add(0.0d, 0.5d, 0.0d), Particle.FLAME, 1, 1.0d, 0.5d, 1.0d, 0.05f);
-
-                    // Fx at marker
-                    player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-                    player.spawnWorldParticle(location, Particle.DRIPPING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
-                }
-
-                @Override
-                public void onLastTick() {
-                    rebirthPlayer(player);
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+                        // Fx at marker
+                        player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+                        player.spawnWorldParticle(location, Particle.DRIPPING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
+                    })
+                    .onEnd(() -> {
+                        rebirthPlayer(player);
+                    });
         }
     }
 }

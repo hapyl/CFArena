@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.achievement;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 

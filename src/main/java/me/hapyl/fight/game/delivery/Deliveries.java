@@ -1,12 +1,11 @@
 package me.hapyl.fight.game.delivery;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.LazyEvent;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -16,25 +15,8 @@ import java.util.List;
 /**
  * Deliveries are automatically given to players upon login.
  */
+// FIXME (Fri, Aug 30 2024 @xanyjl):
 public enum Deliveries implements Handle<Delivery> {
-
-    LEGACY_CRATES(new Delivery("10 x Legacy Crates", "Since cosmetics are no longer purchasable, please take these crates!") {
-        @Override
-        public void deliver(@Nonnull Player player) {
-            final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-
-            database.crateEntry.addCrate(Crates.LEGACY, 10);
-        }
-    }),
-
-    PREFIX_CRATES(new Delivery("10 x Prefix Crates", "Due to prefix changes, please take these crates!") {
-        @Override
-        public void deliver(@Nonnull Player player) {
-            final PlayerDatabase database = PlayerDatabase.getDatabase(player);
-
-            database.crateEntry.addCrate(Crates.TITLE, 10);
-        }
-    }),
 
 
     ;
@@ -46,7 +28,7 @@ public enum Deliveries implements Handle<Delivery> {
     }
 
     public boolean isDelivered(@Nonnull Player player) {
-        return PlayerDatabase.getDatabase(player).deliveryEntry.isDelivered(this);
+        return CF.getDatabase(player).deliveryEntry.isDelivered(this);
     }
 
     public void deliver(@Nonnull Player player) {
@@ -57,7 +39,7 @@ public enum Deliveries implements Handle<Delivery> {
         }
 
         delivery.deliver(player);
-        PlayerDatabase.getDatabase(player).deliveryEntry.setDelivered(this);
+        CF.getDatabase(player).deliveryEntry.setDelivered(this);
 
         // Fx
         Chat.sendMessage(player, "&b&lᴅᴇʟɪᴠᴇʀʏ " + Color.SUCCESS + "Successfully claimed %s!".formatted(delivery.getName()));

@@ -13,7 +13,6 @@ import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -185,7 +184,7 @@ public class BloodfiendData implements Ticking {
         final BloodfiendPassive talent = TalentRegistry.SUCCULENCE;
         final int cooldown = respawn ? talent.flightCooldown / 2 : talent.flightCooldown;
 
-        player.setCooldown(talent.getMaterial(), cooldown);
+        player.cooldownManager.setCooldown(talent, cooldown);
 
         if (cooldownTask != null) {
             cooldownTask.cancel();
@@ -200,8 +199,7 @@ public class BloodfiendData implements Ticking {
     }
 
     public int getFlightCooldown() {
-        final Material material = TalentRegistry.SUCCULENCE.getMaterial();
-        return player.getCooldown(material);
+        return player.cooldownManager.getCooldown(TalentRegistry.SUCCULENCE);
     }
 
     public int getDistanceToGround() {

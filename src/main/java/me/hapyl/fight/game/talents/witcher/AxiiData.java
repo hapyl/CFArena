@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

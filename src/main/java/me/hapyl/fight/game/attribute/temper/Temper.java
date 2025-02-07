@@ -67,8 +67,12 @@ public enum Temper implements SmallCapsDescriber {
     VOID_SHIELD,
     NYX(false),
     LEGION(false),
-    SWARM,
+    SWARM(false),
+    RONIN,
+
     LUCKINESS,
+    DEAD_EYE(false),
+
     /* Keep semicolon on this line for easier addition. */;
 
     private final String smallCaps;

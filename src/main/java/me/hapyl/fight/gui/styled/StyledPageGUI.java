@@ -1,8 +1,8 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -47,7 +47,8 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
                     pl -> openInventory(page - 1)
             );
         }
-        else if (page < getMaxPage()) {
+
+        if (page < getMaxPage()) {
             setItem(
                     getSize() - 3,
                     StyledTexture.ARROW_RIGHT.asIcon("&aNext Page", Color.BUTTON + "Click to open the next page!"),

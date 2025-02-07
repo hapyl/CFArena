@@ -1,28 +1,35 @@
 package me.hapyl.fight.game.talents.echo;
 
-
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.registry.Key;
 
 import javax.annotation.Nonnull;
 
-public class EchoTalent extends Talent {
-
-    public EchoTalent(@Nonnull Key key) {
-        super(key, "Echo");
-
-        setDescription("""
-                Create an echo at your current location.
-                
-                Use again while deployed to change form between echoes.
-                """);
-
+public abstract class EchoTalent extends Talent {
+    protected EchoTalent(@Nonnull Key key, @Nonnull String name) {
+        super(key, name);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        return null;
+    public void setDescription(@Nonnull String description) {
+        super.setDescription("""
+                While in the %s, %s
+                """.formatted(Named.ECHO_WORLD, description));
+    }
+
+    @Nonnull
+    public abstract Response executeEcho(@Nonnull GamePlayer player);
+
+    @Override
+    public final Response execute(@Nonnull GamePlayer player) {
+        if (!HeroRegistry.ECHO.getPlayerData(player).isInEchoWorld()) {
+            return Response.error("Cannot use this in the \"real\" world!");
+        }
+
+        return executeEcho(player);
     }
 }

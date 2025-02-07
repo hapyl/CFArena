@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.pytaria;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.PlayerLib;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -13,16 +13,15 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
@@ -46,8 +45,9 @@ public class Pytaria extends Hero {
     public Pytaria(@Nonnull Key key) {
         super(key, "Pytaria");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);
-        setGender(Gender.FEMALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);
+        profile.setGender(Gender.FEMALE);
 
         setDescription(
                 "Beautiful, yet deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."
@@ -55,7 +55,7 @@ public class Pytaria extends Hero {
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(120);
+        attributes.setMaxHealth(120);
         attributes.setAttack(80);
         attributes.setCritChance(20);
         attributes.setCritDamage(50);
@@ -65,13 +65,13 @@ public class Pytaria extends Hero {
         this.critChanceScale = maxCritChance - attributes.get(AttributeType.CRIT_CHANCE);
         this.defenseScale = attributes.get(AttributeType.DEFENSE) - minDefense;
 
-        setWeapon(new Weapon(Material.ALLIUM)
-                .setName("Annihilallium")
-                .setDescription("A beautiful flower, nothing more.")
-                .setDamage(8.0)
+        setWeapon(Weapon.builder(Material.ALLIUM, Key.ofString("annihilallium"))
+                .name("Annihilallium")
+                .description("A beautiful flower, nothing more.")
+                .damage(8.0)
         );
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(222, 75, 85);
         equipment.setLeggings(54, 158, 110, TrimPattern.SILENCE, TrimMaterial.IRON);
         equipment.setBoots(179, 204, 204, TrimPattern.SILENCE, TrimMaterial.IRON);
@@ -165,9 +165,6 @@ public class Pytaria extends Hero {
         public PytariaUltimate() {
             super(Pytaria.this, "Feel the Breeze", 60);
 
-            setCooldownSec(50);
-            setDuration(60);
-
             setDescription("""
                     Summon a blooming &6Bee&7 in front of &aPytaria&7.
                     
@@ -179,14 +176,17 @@ public class Pytaria extends Hero {
                     """
             );
 
-            setCastDuration(50);
-            setSound(Sound.ENTITY_BEE_DEATH, 0.0f);
             setTexture("d4579f1ea3864269c2148d827c0887b0c5ed43a975b102a01afb644efb85ccfd");
+
+            setSound(Sound.ENTITY_BEE_DEATH, 0.0f);
+
+            setCastDuration(50);
+            setCooldownSec(50);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final Location location = player.getLocation();
             final Vector vector = location.getDirection();
 
@@ -203,46 +203,36 @@ public class Pytaria extends Hero {
 
             player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
-            new TickingGameTask() {
-                @Override
-                public void run(int tick) {
-                    if (tick >= getUltimate().getCastDuration()) {
-                        cancel();
-                        return;
-                    }
+            return builder()
+                    .onCastTick(tick -> {
+                        getLockLocation(bee, entity);
+                    })
+                    .onExecute(() -> {
+                        final Location lockLocation = getLockLocation(bee, entity);
+                        bee.remove();
 
-                    getLockLocation(bee, entity);
-                }
-            }.runTaskTimer(0, 1);
+                        Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
+                            victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
+                        });
 
-            return new UltimateResponse() {
-                @Override
-                public void onCastFinished(@Nonnull GamePlayer player) {
-                    final Location lockLocation = getLockLocation(bee, entity);
-                    bee.remove();
+                        // Heal
+                        final double health = player.getHealth();
+                        final double maxHealth = player.getMaxHealth();
+                        final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
 
-                    Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
-                        victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
+                        player.heal(healingAmount);
+                        player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!".formatted(healingAmount));
+
+                        // Fx
+                        PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
+
+                        player.spawnWorldParticle(location, Particle.EXPLOSION, 5, 0.2, 0.2, 0.2, 0.1f);
+                        player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
+
+                        player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_EMITTER, 3, 0.5, 0, 0.5, 0);
+                        player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
                     });
 
-                    // Heal
-                    final double health = player.getHealth();
-                    final double maxHealth = player.getMaxHealth();
-                    final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
-
-                    player.heal(healingAmount);
-                    player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!".formatted(healingAmount));
-
-                    // Fx
-                    PlayerLib.stopSound(Sound.ENTITY_BEE_LOOP_AGGRESSIVE);
-
-                    player.spawnWorldParticle(location, Particle.EXPLOSION, 5, 0.2, 0.2, 0.2, 0.1f);
-                    player.playWorldSound(location, Sound.ENTITY_BEE_DEATH, 1.5f);
-
-                    player.spawnWorldParticle(lockLocation, Particle.EXPLOSION_EMITTER, 3, 0.5, 0, 0.5, 0);
-                    player.playWorldSound(lockLocation, Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, 1.25f);
-                }
-            };
         }
     }
 }

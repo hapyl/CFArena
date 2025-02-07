@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.taker;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -9,7 +9,6 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.taker.SpiritualBones;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -25,6 +24,7 @@ public class DeathSwap extends Talent implements Listener {
     @DisplayField protected final double shift = 0.55d;
     @DisplayField(suffix = "%", suffixSpace = false) protected final double damagePercent = 10.0d;
     @DisplayField private final short spiritualBoneCost = 1;
+    @DisplayField(percentage = true) private final double cooldownReduction = 0.5;
 
     private final PlayerMap<TakerHook> playerHooks = PlayerMap.newMap();
 
@@ -38,7 +38,7 @@ public class DeathSwap extends Talent implements Listener {
                 
                 If an opponent is hit, they will be retracted &nwith the chain&7, take &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7, will be &3slowed&7 and &8withered&7 for short duration.
                 
-                &8;;Additionally, the cooldown is reduced by 50%%.
+                &8;;Additionally, the cooldown is reduced by {cooldownReduction}.
                 """.formatted(Named.SPIRITUAL_BONES)
         );
 
@@ -87,7 +87,7 @@ public class DeathSwap extends Talent implements Listener {
     }
 
     public void reduceCooldown(GamePlayer player) {
-        player.setCooldown(getMaterial(), getCdTimeLeft(player) / 2);
+        player.cooldownManager.setCooldown(this, (int) (getCdTimeLeft(player) * cooldownReduction));
     }
 
     private void removeHook(GamePlayer player) {

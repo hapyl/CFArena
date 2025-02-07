@@ -4,12 +4,14 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.annotate.PreprocessingMethod;
-import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
+import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.challenge.ChallengeType;
@@ -18,9 +20,8 @@ import me.hapyl.fight.game.effect.effects.SlowingAuraEffect;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.stats.StatContainer;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Condition;
 import me.hapyl.fight.util.Nulls;
@@ -282,6 +283,9 @@ public abstract class Talent
             builderItem.addSmartLore(altUsage, "&8&o");
         }
 
+        // cooldown
+        builderItem.setCooldown(cd -> cd.setCooldownGroup(key.asNamespacedKey()));
+
         if (this instanceof UltimateTalent) {
             builderItem.glow();
         }
@@ -306,7 +310,7 @@ public abstract class Talent
         if (cd > 0) {
             builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(
                     this instanceof ChargedTalent ? " between charges" : "",
-                    BukkitUtils.roundTick(this.cd)
+                    this.cd >= Constants.INDEFINITE_COOLDOWN ? "∞" : BukkitUtils.roundTick(this.cd)
             ));
         }
         else if (cd <= -1) {
@@ -439,7 +443,7 @@ public abstract class Talent
     }
 
     public final void startCd(@Nonnull GamePlayer player, int cooldown) {
-        if (cooldown <= 0) {
+        if (cooldown <= 0 || CF.environment().ignoreCooldowns.isEnabled()) {
             return;
         }
 
@@ -448,13 +452,7 @@ public abstract class Talent
             cooldown *= ((SlowingAuraEffect) Effects.SLOWING_AURA.getEffect()).cooldownModifier;
         }
 
-        // Don't start CD if in debug
-        final DebugData debug = Manager.current().getDebug();
-        if (debug.is(DebugData.Flag.IGNORE_COOLDOWN)) {
-            return;
-        }
-
-        player.setCooldown(material, cooldown);
+        player.cooldownManager.setCooldown(this, cooldown);
     }
 
     public void startCd(@Nonnull GamePlayer player) {
@@ -462,15 +460,15 @@ public abstract class Talent
     }
 
     public final void stopCd(@Nonnull GamePlayer player) {
-        player.setCooldown(getMaterial(), 0);
+        player.cooldownManager.setCooldown(this, 0);
     }
 
     public final boolean hasCd(@Nonnull GamePlayer player) {
         return getCdTimeLeft(player) > 0L;
     }
 
-    public final int getCdTimeLeft(GamePlayer player) {
-        return player.getCooldown(this.material);
+    public final int getCdTimeLeft(@Nonnull GamePlayer player) {
+        return player.cooldownManager.getCooldown(this);
     }
 
     @Override
@@ -543,7 +541,7 @@ public abstract class Talent
     }
 
     public final void startCdIndefinitely(@Nonnull GamePlayer player) {
-        player.setCooldown(material, Constants.INDEFINITE_COOLDOWN);
+        player.cooldownManager.setCooldown(this, Constants.INDEFINITE_COOLDOWN);
     }
 
     private String formatIfPossible(@Nonnull String toFormat, @Nullable Object... format) {
@@ -581,9 +579,9 @@ public abstract class Talent
      */
     @Nonnull
     public static Response precondition(@Nonnull GamePlayer player) {
-        final PlayerPreconditionEvent event = new PlayerPreconditionEvent(player);
+        final TalentPreconditionEvent event = new TalentPreconditionEvent(player);
 
-        if (event.callAndCheck()) {
+        if (event.call()) {
             return Response.error(event.getReason());
         }
 

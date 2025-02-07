@@ -11,6 +11,11 @@ import javax.annotation.Nullable;
  */
 public enum Named {
 
+    // Global terms //
+    ENERGY("※", "Energy", Color.AQUA),
+    ACHIEVEMENT_POINT("\uD83C\uDF1F", "Achievement Points", Color.ROYAL_BLUE),
+
+    // Hero-specific terms //
     BERSERK("💢", "Berserk", Color.DARK_RED),
     CURSE_OF_GREED("\uD83E\uDDFF", "Curse of Greed", Color.GOLD),
     SHADOW_ENERGY("🕳", "Shadow Energy", Color.PURPLE_SHADOW),
@@ -21,7 +26,6 @@ public enum Named {
     STANCE_MELEE("⚔", "Melee Stance", Color.STANCE_MELEE),
     RIPTIDE(ChatColor.BOLD + "\uD83D\uDCA6", "Riptide", Color.RIPTIDE),
     BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
-    ENERGY("※", "Energy", Color.AQUA),
     OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
     SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
     FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
@@ -32,6 +36,9 @@ public enum Named {
     THE_CHAOS(ChatColor.BOLD + "\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
     BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
     THE_JOKER("\uD83D\uDE08", "The Joker", Color.SOFT_PINK),
+    ECHO_WORLD("\uD83D\uDD18", "Echo World", Color.ECHO_WORLD),
+    DECAY("\uD83D\uDC94", "Decay", Color.GRAYER),
+    BLOOD_DEBT("&l🩸", "Blood Debt", Color.BLOOD),
 
     ;
 

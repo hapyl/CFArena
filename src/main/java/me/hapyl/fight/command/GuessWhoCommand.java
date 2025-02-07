@@ -1,5 +1,9 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Notifier;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.GuessWhoEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -7,9 +11,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.util.PlayerInvite;
-import me.hapyl.fight.Notifier;
-import me.hapyl.eterna.module.command.SimplePlayerCommand;
-import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -53,7 +54,7 @@ public class GuessWhoCommand extends SimplePlayerCommand {
             final String stringArgument = getArgument(args, 0).toString();
 
             if (stringArgument.equals("stats")) {
-                final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+                final PlayerDatabase database = CF.getDatabase(player);
                 final GuessWhoEntry entry = database.guessWhoEntry;
 
                 Notifier.success(player, "Your GuessWho stats:");

@@ -1,49 +1,53 @@
 package me.hapyl.fight;
 
+import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.EternaAPI;
 import me.hapyl.eterna.module.player.tablist.Tablist;
-import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
+import me.hapyl.fight.config.Environment;
 import me.hapyl.fight.database.Database;
 import me.hapyl.fight.event.*;
-import me.hapyl.fight.fastaccess.FastAccessListener;
+import me.hapyl.fight.fastaccess.FastAccessHandler;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.CosmeticsListener;
-import me.hapyl.fight.game.cosmetic.crate.CrateManager;
-import me.hapyl.fight.game.entity.event.EntityEventHandler;
-import me.hapyl.fight.game.entity.overlay.OverlayListener;
+import me.hapyl.fight.game.cosmetic.CosmeticHandler;
+import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.experience.Experience;
+import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.fight.game.maps.gamepack.GamePackListener;
+import me.hapyl.fight.game.maps.gamepack.GamePackHandler;
 import me.hapyl.fight.game.parkour.CFParkourManager;
-import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneListener;
+import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebanePacketHandler;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TaskList;
 import me.hapyl.fight.game.trial.TrialListener;
-import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.notifier.NotificationManager;
-import me.hapyl.fight.npc.HumanManager;
-import me.hapyl.fight.npc.runtime.RuntimeNPCManager;
-import me.hapyl.fight.protocol.*;
+import me.hapyl.fight.npc.PersistentNPCManager;
+import me.hapyl.fight.protocol.ArcaneMutePacketHandler;
+import me.hapyl.fight.protocol.DismountPacketHandler;
+import me.hapyl.fight.protocol.MotDPacketHandler;
+import me.hapyl.fight.protocol.PlayerClickAtEntityPacketHandler;
+import me.hapyl.fight.quest.CFQuestHandler;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
+import me.hapyl.fight.store.Store;
 import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.fight.vehicle.VehicleManager;
-import me.hapyl.fight.vehicle.VehiclePacketListener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
-import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 
 public class Main extends JavaPlugin {
@@ -51,17 +55,17 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = Color.GOLD.bold() +
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
-    public static final UpdateTopic updateTopic = new UpdateTopic("&d1.21 Awaits!");
+    public static final UpdateTopic updateTopic = new UpdateTopic("&4He's Back, isn't he?");
 
-    public static final String requireEternaVersion = "4.2.0";
-    public static final String requireMinecraftVersion = "1.21";
+    public static final String requireEternaVersion = "4.6.1";
+    public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete
 
     private static long start;
     private static Main plugin;
 
     private ScriptManager scriptManager;
     private Manager manager;
-    private HumanManager humanManager;
+    private PersistentNPCManager persistentNPCManager;
     private TaskList taskList;
     private BoosterController boosters;
     private Experience experience;
@@ -70,9 +74,12 @@ public class Main extends JavaPlugin {
     private CFParkourManager parkourManager;
     private RelicHunt relicHunt;
     private CrateManager crateManager;
-    private RuntimeNPCManager npcManager;
     private ReloadChecker reloadChecker;
     private VehicleManager vehicleManager;
+    private Registries registries;
+    private Store store;
+    private CFQuestHandler questHandler;
+    private Environment environment;
 
     @Override
     public void onEnable() {
@@ -97,21 +104,25 @@ public class Main extends JavaPlugin {
 
         // Register a task list before manager
         taskList = new TaskList(this);
+        environment = new Environment(this);
 
         // Register the main manager
         manager = CF.manager = new Manager(this);
+
+        // Registry must have priority!
+        registries = new Registries(this);
 
         experience = new Experience(this);
         boosters = new BoosterController(this);
         notificationManager = new NotificationManager(this);
         parkourManager = new CFParkourManager(this);
         relicHunt = new RelicHunt(this);
-        humanManager = new HumanManager(this);
+        persistentNPCManager = new PersistentNPCManager(this);
         crateManager = new CrateManager(this);
         scriptManager = new ScriptManager(this);
-        npcManager = new RuntimeNPCManager(this);
         vehicleManager = new VehicleManager(this);
-
+        store = new Store(this);
+        questHandler = new CFQuestHandler(this);
         //new LampGame(this);
 
         // Register events listeners
@@ -143,7 +154,8 @@ public class Main extends JavaPlugin {
         }
 
         // Remove recipes and achievements
-        Registry.ADVANCEMENT.iterator().forEachRemaining(advancement -> {
+        // todo - Use resourse pack for this the new ignore thingy
+        Bukkit.advancementIterator().forEachRemaining(advancement -> {
             Bukkit.getUnsafe().removeAdvancement(advancement.getKey());
         });
 
@@ -161,13 +173,23 @@ public class Main extends JavaPlugin {
         this.reloadChecker.check(20);
 
         // Delayed operations
-        GameTask.runLater(() -> {
-            // We have teo re-create profiles in case of /reload
-            Bukkit.getOnlinePlayers().forEach(player -> manager.createProfile(player));
+        GameTask.runLater(
+                () -> {
+                    // We have teo re-create profiles in case of /reload
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        manager.createProfile(player);
 
-            // Clear old entities, most likely because of /reload
-            CFGarbageCollector.clearInAllWorlds();
-        }, 20);
+                        // Fix quests
+                        Eterna.getManagers().quest.simulateOnJoin(player);
+                    });
+
+                    // Clear old entities, most likely because of /reload
+                    SynchronizedGarbageEntityCollector.clearInAllWorlds();
+
+                    // Load lobby items
+                    LobbyItems.values();
+                }, 1
+        ); // Sped up the profile creation, why was it 20 ticks anyway?
 
         // Load contributors
         //Contributors.loadContributors();
@@ -175,50 +197,51 @@ public class Main extends JavaPlugin {
         // Load update hack
         //new UpdateBlockHackReplacer();
 
-        new TrialListener();
-
         StrictValidator.validateAll(this);
     }
 
     @Override
     public void onDisable() {
-        runSafe(() -> {
-            for (final Player player : Bukkit.getOnlinePlayers()) {
-                Manager.current().getOrCreateProfile(player).getDatabase().save();
-            }
-        }, "Player database save.");
+        runSafe(
+                () -> {
+                    for (final Player player : Bukkit.getOnlinePlayers()) {
+                        Manager.current().getProfile(player).getDatabase().save();
+                    }
+                }, "Player database save."
+        );
 
         runSafe(database::stopConnection, "Database connection stop.");
 
-        runSafe(() -> {
-            //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
-        }, "Snake removal");
+        runSafe(
+                () -> {
+                    //((SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour()).getSnake().stop();
+                }, "Snake removal"
+        );
 
-        runSafe(() -> {
-            if (this.manager.isGameInProgress()) {
-                this.manager.stopCurrentGame();
-            }
-        }, "Game instance stop.");
+        runSafe(
+                () -> {
+                    if (this.manager.isGameInProgress()) {
+                        this.manager.stopCurrentGame();
+                    }
+                }, "Game instance stop."
+        );
 
         runSafe(this::saveConfig, "Config save.");
 
-        runSafe(() -> {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                final Tablist oldTablist = Tablist.getPlayerTabList(player);
+        runSafe(
+                () -> {
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        final Tablist oldTablist = Tablist.getPlayerTabList(player);
 
-                if (oldTablist != null) {
-                    oldTablist.destroy();
-                }
-            });
-        }, "Tablist removal.");
+                        if (oldTablist != null) {
+                            oldTablist.destroy();
+                        }
+                    });
+                }, "Tablist removal."
+        );
     }
 
     // *=* Getters *=* //
-
-    @Nonnull
-    public RuntimeNPCManager getNpcManager() {
-        return npcManager;
-    }
 
     @Nonnull
     public ScriptManager getScriptManager() {
@@ -261,8 +284,8 @@ public class Main extends JavaPlugin {
     }
 
     @Nonnull
-    public HumanManager getHumanManager() {
-        return humanManager;
+    public PersistentNPCManager getHumanManager() {
+        return persistentNPCManager;
     }
 
     @Nonnull
@@ -280,6 +303,21 @@ public class Main extends JavaPlugin {
         return vehicleManager;
     }
 
+    @Nonnull
+    public Registries getRegistries() {
+        return registries;
+    }
+
+    @Nonnull
+    public Store getStore() {
+        return store;
+    }
+
+    @Nonnull
+    public CFQuestHandler getQuestHandler() {
+        return questHandler;
+    }
+
     public void setConfigValue(@Nonnull String path, @Nullable Object value) {
         getConfig().set(path, value);
         saveConfig();
@@ -287,7 +325,7 @@ public class Main extends JavaPlugin {
 
     public <T extends Enum<T>> T getConfigEnumValue(String path, Class<T> clazz, T def) {
         final String string = getConfig().getString(path, "");
-        final T enumValue = Validate.getEnumValue(clazz, string);
+        final T enumValue = Enums.byName(clazz, string);
 
         if (enumValue == null) {
             return def;
@@ -296,29 +334,32 @@ public class Main extends JavaPlugin {
         return enumValue;
     }
 
+    @Nonnull
+    public Environment environment() {
+        return environment;
+    }
+
     private void registerEvents() {
-        final PluginManager pluginManager = Bukkit.getServer().getPluginManager();
+        CF.registerEvents(List.of(
+                new PlayerHandler(),
+                new EntityHandler(),
+                new ChatHandler(),
+                new EnderPearlHandler(),
+                new CosmeticHandler(),
+                new GamePackHandler(),
+                new SnowFormHandler(),
+                new ServerHandler(),
+                new SynchronizedGarbageEntityCollector.Handler(),
+                new FastAccessHandler(),
+                new TrialListener(),
 
-        pluginManager.registerEvents(new PlayerHandler(), this);
-        pluginManager.registerEvents(new EntityHandler(), this);
-        pluginManager.registerEvents(new EntityEventHandler(), this);
-        pluginManager.registerEvents(new ChatHandler(), this);
-        pluginManager.registerEvents(new EnderPearlHandler(), this);
-        pluginManager.registerEvents(new CosmeticsListener(), this);
-        pluginManager.registerEvents(new GamePackListener(), this);
-        pluginManager.registerEvents(new SnowFormHandler(), this);
-        pluginManager.registerEvents(new ServerHandler(), this);
-        pluginManager.registerEvents(new OverlayListener(), this);
-        pluginManager.registerEvents(new CFGarbageCollector(), this);
-        pluginManager.registerEvents(new FastAccessListener(), this);
-        pluginManager.registerEvents(new ArcaneMuteListener(), this);
-
-        pluginManager.registerEvents(new DismountProtocol(), this);
-        pluginManager.registerEvents(new CandlebaneListener(), this);
-        pluginManager.registerEvents(new CameraListener(), this);
-        pluginManager.registerEvents(new PlayerClickAtEntityProtocol(), this);
-        pluginManager.registerEvents(new MotDProtocol(), this);
-        pluginManager.registerEvents(new VehiclePacketListener(), this);
+                // Packet Listeners
+                new ArcaneMutePacketHandler(),
+                new DismountPacketHandler(),
+                new CandlebanePacketHandler(),
+                new PlayerClickAtEntityPacketHandler(),
+                new MotDPacketHandler()
+        ));
     }
 
     private void runSafe(Runnable runnable, String handler) {
@@ -330,7 +371,11 @@ public class Main extends JavaPlugin {
         }
     }
 
+    /**
+     * @deprecated {@link CF#getPlugin()}
+     */
     @Nonnull
+    @Deprecated
     public static Main getPlugin() {
         return Objects.requireNonNull(plugin);
     }

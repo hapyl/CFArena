@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.experience;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
+import me.hapyl.fight.Main;
+import me.hapyl.fight.game.reward.Reward;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

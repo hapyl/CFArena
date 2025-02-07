@@ -1,8 +1,11 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
 
 public class ChargedTalentData {
 
@@ -11,14 +14,14 @@ public class ChargedTalentData {
 
     private GameTask currentTask;
     private int queueTask;
-    private int lastKnownSlot;
+    private HotBarSlot lastKnownSlot;
     private int chargesAvailable;
 
     public ChargedTalentData(GamePlayer player, ChargedTalent talent) {
         this.player = player;
         this.talent = talent;
         this.chargesAvailable = talent.getMaxCharges();
-        this.lastKnownSlot = -1;
+        this.lastKnownSlot = null;
     }
 
     public Player getPlayer() {
@@ -33,11 +36,12 @@ public class ChargedTalentData {
         this.queueTask = queueTask;
     }
 
-    public int getLastKnownSlot() {
+    @Nullable
+    public HotBarSlot getLastKnownSlot() {
         return lastKnownSlot;
     }
 
-    public void setLastKnownSlot(int lastKnownSlot) {
+    public void setLastKnownSlot(@Nullable HotBarSlot lastKnownSlot) {
         this.lastKnownSlot = lastKnownSlot;
     }
 
@@ -53,7 +57,7 @@ public class ChargedTalentData {
 
         queueTask = 0;
         chargesAvailable = talent.getMaxCharges();
-        lastKnownSlot = -1;
+        lastKnownSlot = null;
     }
 
     public void removeCharge() {

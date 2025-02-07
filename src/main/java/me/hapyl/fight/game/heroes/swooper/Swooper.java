@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.swooper;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -9,15 +9,15 @@ import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
 import me.hapyl.fight.game.ui.UIComplexComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
@@ -48,9 +48,10 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     public Swooper(@Nonnull Key key) {
         super(key, "Swooper");
 
-        setArchetypes(Archetype.RANGE, Archetype.DAMAGE);
-        setAffiliation(Affiliation.MERCENARY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.RANGE, Archetype.DAMAGE);
+        profile.setAffiliation(Affiliation.MERCENARY);
+        profile.setGender(Gender.MALE);
 
         setDescription("""
                 A mercenary sniper with a slow firing rifle.
@@ -61,7 +62,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         final HeroAttributes attributes = getAttributes();
         attributes.set(AttributeType.SPEED, 0.23d);
 
-        final Equipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestPlate(25, 53, 82);
         equipment.setLeggings(25, 53, 92);
         equipment.setBoots(25, 53, 102);
@@ -131,7 +132,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         final SwooperPassive passiveTalent = getPassiveTalent();
 
         getAlivePlayers().forEach(player -> {
-            if (player.hasCooldown(passiveTalent)) {
+            if (player.cooldownManager.hasCooldown(passiveTalent)) {
                 return;
             }
 
@@ -166,8 +167,8 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             }
 
             // Zoom check
-            final HotbarSlots heldSlot = player.getHeldSlot();
-            if (heldSlot != HotbarSlots.WEAPON) {
+            final HotBarSlot heldSlot = player.getHeldSlot();
+            if (heldSlot != HotBarSlot.WEAPON) {
                 player.removePotionEffect(PotionEffectType.SLOWNESS);
             }
         });
@@ -199,7 +200,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             return;
         }
 
-        if (player.getHeldSlot() != HotbarSlots.WEAPON) {
+        if (player.getHeldSlot() != HotBarSlot.WEAPON) {
             return;
         }
 
@@ -261,54 +262,51 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             setType(TalentType.ENHANCE);
             setItem(Material.PURPLE_GLAZED_TERRACOTTA);
             setSound(Sound.ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f);
+
+            setManualDuration();
             setCastDuration(20);
-
-        }
-
-        @Override
-        public int getDuration() {
-            return -1; // because of casting time
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             player.setUsingUltimate(true);
-
-            final WorldBorder border = Bukkit.createWorldBorder();
             final SwooperData data = getPlayerData(player);
 
-            border.setCenter(player.getLocation());
-            border.setSize(2.0d);
-            border.setSize(ultimateRadius * 2, TimeUnit.MILLISECONDS, getUltimate().getCastDuration() * 50L);
+            return builder()
+                    .onCastStart(() -> {
+                        final WorldBorder border = Bukkit.createWorldBorder();
 
-            player.setWorldBorder(border);
+                        border.setCenter(player.getLocation());
+                        border.setSize(2.0d);
+                        border.setSize(ultimateRadius * 2, TimeUnit.MILLISECONDS, getUltimate().getCastDuration() * 50L);
 
-            // Fx
-            player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
-            player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
-
-            return new UltimateResponse() {
-                @Override
-                public void onCastFinished(@Nonnull GamePlayer player) {
-                    player.setWorldBorder(null);
-
-                    final int enemyCount = Collect.enemyPlayers(player).size();
-
-                    data.ultimateShots = enemyCount <= 1 ? 2 : 3;
-
-                    Collect.nearbyEntities(player.getLocation(), ultimateRadius).forEach(entity -> {
-                        if (player.isSelfOrTeammate(entity)) {
-                            return;
-                        }
-
-                        data.addHighlighted(entity);
+                        player.setWorldBorder(border);
 
                         // Fx
-                        player.playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+                        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);
+                        player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
+
+                    })
+                    .onCastEnd(() -> {
+                        player.setWorldBorder(null);
+
+                        final int enemyCount = Collect.enemyPlayers(player).size();
+
+                        data.ultimateShots = enemyCount <= 1 ? 2 : 3;
+
+                        Collect.nearbyEntities(player.getLocation(), ultimateRadius).forEach(entity -> {
+                            if (player.isSelfOrTeammate(entity)) {
+                                return;
+                            }
+
+                            data.addHighlighted(entity);
+
+                            // Fx
+                            player.playSound(entity.getLocation(), Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+                        });
                     });
-                }
-            };
         }
     }
+
 }

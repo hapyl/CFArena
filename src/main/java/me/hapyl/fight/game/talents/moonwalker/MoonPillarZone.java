@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.moonwalker.MoonZone;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.eterna.module.block.display.DisplayEntity;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -25,7 +25,7 @@ public class MoonPillarZone extends MoonZone {
         centre.getBlock().getRelative(BlockFace.UP).setType(Material.BARRIER, false);
         centre.getBlock().getRelative(BlockFace.UP, 2).setType(Material.BARRIER, false);
 
-        this.entity = LocationHelper.modify(centre, -0.5, -3, -0.5, loc -> {
+        this.entity = LocationHelper.offset(centre, -0.5, -3, -0.5, loc -> {
             return talent.displayData.spawnInterpolated(centre);
         });
 

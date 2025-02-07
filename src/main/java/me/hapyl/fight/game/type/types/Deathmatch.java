@@ -1,17 +1,20 @@
 package me.hapyl.fight.game.type.types;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.type.GameType;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.collection.LinkedValue2IntegerReverseMap;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.nn.IntInt;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.eterna.module.util.BFormat;
+import me.hapyl.eterna.module.util.collection.LinkedValue2IntegerReverseMap;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.game.EntityState;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.GameResult;
+import me.hapyl.fight.game.IGameInstance;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.GameType;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -100,12 +103,8 @@ public class Deathmatch extends GameType {
 
     @Override
     public void onJoin(@Nonnull GameInstance instance, @Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
         final String playerName = player.getName();
-
-        if (profile == null) {
-            return;
-        }
 
         GamePlayer gamePlayer = CF.getPlayer(player);
 
@@ -125,7 +124,8 @@ public class Deathmatch extends GameType {
         }
         // Player re-joined
         else {
-            gamePlayer.setHandle(player);
+            gamePlayer.setHandle(profile, player);
+
             profile.setGamePlayer(gamePlayer);
 
             Chat.broadcast("");

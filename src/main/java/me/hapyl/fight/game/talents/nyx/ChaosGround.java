@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.Drawable;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -16,7 +16,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.game.task.TickingStepGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.EntityList;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -42,6 +41,7 @@ public class ChaosGround extends Talent {
 
     @DisplayField private final double duration = durationRaw / speed;
     @DisplayField private final double damage = 5.0d;
+    @DisplayField private final double energyDecrease = 7.0d;
 
     public final DropletHealing healing = new DropletHealing(7.0d, 5.0d, 3.0d);
 
@@ -53,7 +53,8 @@ public class ChaosGround extends Talent {
                 
                 After a short casting time, creates an &4explosion&7 in &clarge AoE&7, dealing &cdamage&7 and &eimpairing&7 enemies within.
                 
-                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7 and &cdeals damage&7 and decreases &cenemy's&7 %s.
+                Also spawn &b%s &4chaos droplets&7, that &a&nheal&7 &ateammates&7.
+                If an &cenemy&7 picks up a droplet, you &c&ntake&7 &c&ndamage&7 in exchange for that enemy's %s.
                 &8&o;;The healing decreases with each droplet.
                 """.formatted(dropletCount, Named.ENERGY)
         );
@@ -67,11 +68,15 @@ public class ChaosGround extends Talent {
 
         setItem(Material.CHORUS_FRUIT);
 
-        setCooldownSec(15.0f);
+        setCooldownSec(20.0f);
     }
 
     public double getDamage() {
         return damage;
+    }
+
+    public double getEnergyDecrease() {
+        return energyDecrease;
     }
 
     @Override
@@ -88,7 +93,7 @@ public class ChaosGround extends Talent {
             private int lastSfxTick = 0;
 
             @Override
-            public boolean tick(int tick) {
+            public boolean tick(int tick, int step) {
                 if (tick >= duration || player.isDeadOrRespawning()) {
                     orbs.clear();
                     return true;
@@ -190,6 +195,7 @@ public class ChaosGround extends Talent {
                 return false;
             }
         }.runTaskTimer(0, 1);
+
         return Response.OK;
     }
 

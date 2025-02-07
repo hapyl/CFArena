@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.entity.named.NamedGameEntity;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -42,7 +43,7 @@ public enum EntityType {
         }
     },
     /**
-     * A mini-boss entity, usually with custom abilities.
+     * A mini-boss entity, usually with named abilities.
      */
     MINIBOSS {
         @Nonnull

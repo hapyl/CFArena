@@ -1,7 +1,7 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
-import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 

@@ -12,7 +12,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.util.CFUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
@@ -158,7 +158,7 @@ public class GameEntity {
         }
 
         // garbage entities are not valid
-        if (CFGarbageCollector.isGarbageEntity(entity)) {
+        if (SynchronizedGarbageEntityCollector.isGarbageEntity(entity)) {
             return false;
         }
 
@@ -226,10 +226,6 @@ public class GameEntity {
         entity.setFreezeTicks(tick);
     }
 
-    public int getNoDamageTicks() {
-        return entity.getNoDamageTicks();
-    }
-
     public void setFireTicks(int tick) {
         entity.setFireTicks(tick);
     }
@@ -269,10 +265,6 @@ public class GameEntity {
         if (clazz.isInstance(entity)) {
             consumer.accept(clazz.cast(entity));
         }
-    }
-
-    public void sendWarning(@Nonnull String warning, int stay) {
-        asPlayer(player -> Chat.sendTitle(player, "&4&l⚠", warning, 0, stay, 5));
     }
 
     public void sendMessage(@Nonnull String message) {
@@ -528,5 +520,14 @@ public class GameEntity {
 
     public boolean isOnGround() {
         return entity.isOnGround();
+    }
+
+    @Nonnull
+    public Location getLocationWithoutRotation() {
+        final Location location = getLocation();
+        location.setYaw(0.0f);
+        location.setPitch(0.0f);
+
+        return location;
     }
 }

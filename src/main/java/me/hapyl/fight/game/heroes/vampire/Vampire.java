@@ -1,72 +1,85 @@
 package me.hapyl.fight.game.heroes.vampire;
 
-import me.hapyl.eterna.module.util.MapMaker;
-
+import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.Equipment;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.entity.BloodDebt;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.HealingOutcome;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.vampire.BatSwarm;
-import me.hapyl.fight.game.talents.vampire.Bloodshift;
+import me.hapyl.fight.game.talents.vampire.BatTransferTalent;
+import me.hapyl.fight.game.talents.vampire.BloodDebtTalent;
 import me.hapyl.fight.game.talents.vampire.VampirePassive;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.util.collection.player.PlayerDataMap;
-import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
+import java.util.Set;
 
-public class Vampire extends Hero implements Listener, PlayerDataHandler<VampireData> {
-
-    private final PlayerDataMap<VampireData> vampireData = PlayerMap.newDataMap(VampireData::new);
+public class Vampire extends Hero implements Listener {
 
     public Vampire(@Nonnull Key key) {
         super(key, "Vorath");
 
         setDescription("""
-                One of the royal guards at the %s&8&o, believes that with enough fire power, &oeverything&8&o is possible.
+                One of the royal guards at the %s&8&o, believes that with enough firepower, &oeverything&8&o is possible.
                 
                 Prefers NoSunBurn™ sunscreen.
                 """.formatted(Affiliation.CHATEAU));
 
-        setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
-        setGender(Gender.MALE);
-        setRace(Race.VAMPIRE);
-        setAffiliation(Affiliation.CHATEAU);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);
+        profile.setAffiliation(Affiliation.CHATEAU);
+        profile.setGender(Gender.MALE);
+        profile.setRace(Race.VAMPIRE);
 
-        setItem("8d44756e0b4ece8d746296a3d5e297e1415f4ba17647ffe228385383d161a9");
+        setItem("25a7007007d5a396d6049c71ab6ff5fedb6ca3e1753b3fd6f13bb6946a7e0daf");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setHealth(90);
+        attributes.setMaxHealth(90);
 
-        final Equipment equipment = getEquipment();
-        equipment.setChestPlate(25, 25, 25, TrimPattern.RIB, TrimMaterial.NETHERITE);
-        equipment.setLeggings(254, 253, 252, TrimPattern.SILENCE, TrimMaterial.IRON);
-        equipment.setBoots(25, 25, 25, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        final HeroEquipment equipment = getEquipment();
+        equipment.setChestPlate(191, 57, 66, TrimPattern.COAST, TrimMaterial.NETHERITE);
+        equipment.setLeggings(191, 57, 66, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(new Weapon(Material.GHAST_TEAR)
-                .setName("Vampire's Fang")
-                .setDescription("""
-                        A very sharp fang.
-                        """)
-                .setDamage(5.0d)
+        setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang"))
+                        .name("Vampire's Fang")
+                        .description("""
+                                A very sharp fang.
+                                """)
+                        .damage(5.0d)
         );
 
         setUltimate(new VampireUltimate());
@@ -75,60 +88,34 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
     @EventHandler
     public void handleGameDamageEvent(GameDamageEvent ev) {
         final GameEntity damager = ev.getDamager();
-        final double damage = ev.getDamage();
 
         if (!(damager instanceof GamePlayer player) || !validatePlayer(player)) {
             return;
         }
 
-        final VampireData data = getPlayerData(player);
-        final VampireState state = data.getState();
-        final Bloodshift bloodshift = getFirstTalent();
+        final BloodDebt bloodDebt = player.bloodDebt();
 
-        if (state == VampireState.DAMAGE) {
-            // Make sure we have enough health to deal damage
-            final double health = player.getHealth();
-            final double healthDrain = damage * bloodshift.healthDrainPerOneDamage;
-
-            if (health <= healthDrain) {
-                player.sendSubtitle("&cNot enough health to deal damage!", 0, 10, 0);
-                ev.setCancelled(true);
-                return;
-            }
-
-            // Drain health
-            player.setHealth(health - healthDrain);
-
-            // Multiple damage
-            ev.multiplyDamage(bloodshift.calculateDamage(player));
-
-            // Fx
+        if (!bloodDebt.hasDebt()) {
+            return;
         }
-        else {
-            // Regenerate health
-            final double healthRegen = damage * bloodshift.healthRegenPerOneDamage;
-            final HealingOutcome healingOutcome = player.heal(healthRegen);
 
-            ev.setCancelled(true);
+        // Increase damage based on blood debt
+        final double bloodDebtAmount = bloodDebt.amount();
+        final double decrement = Math.min(bloodDebtAmount, player.getMaxHealth() * 0.15d);
+        final double damageIncrease = 1 + bloodDebtAmount * TalentRegistry.BLOOD_DEBT.damageIncreaseMultiplier;
 
-            // Fx (Only play if actually healed)
-            if (healingOutcome.type() != HealingOutcome.Type.HEALED) {
-                return;
-            }
-
-            player.playWorldSound(Sound.ENTITY_WITCH_DRINK, 1.25f);
-            player.playWorldSound(Sound.ENTITY_GENERIC_DRINK, 1.25f);
-        }
+        bloodDebt.decrement(decrement);
+        ev.multiplyDamage(damageIncrease);
     }
 
     @Override
-    public Bloodshift getFirstTalent() {
-        return TalentRegistry.BLOODSHIFT;
+    public BloodDebtTalent getFirstTalent() {
+        return TalentRegistry.BLOOD_DEBT;
     }
 
     @Override
-    public BatSwarm getSecondTalent() {
-        return TalentRegistry.BAT_SWARM;
+    public BatTransferTalent getSecondTalent() {
+        return TalentRegistry.BAT_TRANSFER;
     }
 
     @Override
@@ -136,81 +123,242 @@ public class Vampire extends Hero implements Listener, PlayerDataHandler<Vampire
         return TalentRegistry.VANPIRE_PASSIVE;
     }
 
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        vampireData.remove(player);
-    }
-
-    @Nonnull
-    @Override
-    public PlayerDataMap<VampireData> getDataMap() {
-        return vampireData;
-    }
-
     private class VampireUltimate extends UltimateTalent {
 
-        private final Map<AttributeType, Double> legionAttributes = MapMaker.<AttributeType, Double>ofLinkedHashMap()
-                .put(AttributeType.MAX_HEALTH, 5.0d)
-                .put(AttributeType.ATTACK, 10.0d)
-                .put(AttributeType.CRIT_DAMAGE, 1.0d)
-                .put(AttributeType.SPEED, 5.0d)
-                .put(AttributeType.ATTACK_SPEED, 3.0d)
-                .makeMap();
+        @DisplayField private final int batsDuration = Tick.fromSecond(20);
 
-        @DisplayField private final double healing = 15.0d;
+        @DisplayField private final int armyCount = 11;
+        @DisplayField private final double homingSpeed = 0.5d;
+        @DisplayField(suffix = "blocks") private final double homingRadius = 5;
+        @DisplayField private final double damage = 10;
+
+        @DisplayField(percentage = true) private final double bloodDebtAmount = 0.2d;
+        @DisplayField(percentage = true) private final double healingPercentOfBloodDebt = 0.35d;
+        @DisplayField(percentage = true) private final double bloodDebtHealingThreshold = 0.2d;
+
+        private final double biteThreshold = 1.0d;
 
         public VampireUltimate() {
-            super(Vampire.this, "Legion", 50);
+            super(Vampire.this, "Legion", 75);
 
             setDescription("""
-                    Gather the &fspirit&7 of the warriors of %1$s&7, providing you with a temporary &abuff&7 and heals you.
+                    Blow into the war horn summoning a vampire army behind you.
                     
-                    Each hero from the %1$s&7 in &a&nyour&7 &a&nteam&7 increases the following attributes for {duration}:
-                    %2$s
-                    """.formatted(Affiliation.CHATEAU, formatAttributeIncrease()));
+                    After a short delay, the army &ntransforms&7 into &0bats&7 and rushes forward, dealing &cdamage&7 and applying %1$s to hit enemies.
+                    
+                    If your own %1$s if &a&ngreater&7 than &b{bloodDebtHealingThreshold}&7 of max health, clear it and:
+                    &8• &7Heal for &b{healingPercentOfBloodDebt}&7 of the cleared debt.
+                    &8• &7Refresh &a%2$s&7 cooldown.
+                    """.formatted(Named.BLOOD_DEBT, getFirstTalent().getName()));
 
-            legionAttributes.forEach(((attribute, value) -> {
-                addAttributeDescription(attribute.getName() + " Increase", value);
-            }));
+            setItem(Material.GOAT_HORN);
+            setType(TalentType.DAMAGE);
 
-            setType(TalentType.ENHANCE);
-            setItem(Material.TOTEM_OF_UNDYING);
-            setSound(Sound.ENTITY_BAT_LOOP, 0.75f);
-
-            setDurationSec(8.0f);
+            setCooldownSec(35);
+            setCastDurationSec(2.5f);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final int legionCount = (int) player.getTeam().getPlayers().stream()
-                    .filter(p -> p.getHero().getAffiliation() == Affiliation.CHATEAU)
-                    .count();
-
-            final EntityAttributes attributes = player.getAttributes();
-
-            legionAttributes.forEach((type, value) -> {
-                attributes.increaseTemporary(Temper.LEGION, type, type.scaleDown(value * legionCount), getDuration());
-            });
-
-            // Heal
-            player.heal(healing * legionCount);
-
-            // Fx
-            player.spawnBuffDisplay("&4&l🦇 LEGION &c(%s)".formatted(legionCount), 30);
-            player.sendMessage("&4&l🦇 LEGION! &cGathered spirit of %s warriors!".formatted(legionCount));
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return new VampireUltimateInstance(this, player);
         }
 
-        private String formatAttributeIncrease() {
-            final StringBuilder builder = new StringBuilder();
+    }
 
-            legionAttributes.forEach((attribute, value) -> {
-                builder.append(" &8› ").append(attribute.toString()).append("\n");
+    private class VampireUltimateInstance extends UltimateInstance {
+
+        private static final PlayerSkin SOLDIER_SKIN = PlayerSkin.of(
+                "ewogICJ0aW1lc3RhbXAiIDogMTY0NzMyMzUzNDEwOSwKICAicHJvZmlsZUlkIiA6ICI4YjgyM2E1YmU0Njk0YjhiOTE0NmE5MWRhMjk4ZTViNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTZXBoaXRpcyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS84OTY5ZmYxN2Q5ZmMzNDlkNGEzMDViMDY1NjM2MDI4ZGI5MDBlMDMyMjMyN2QyYzQ3ZDZmNjI2MmYyYjBkMGYxIgogICAgfQogIH0KfQ==",
+                "ZCT1O4LhteyDt6H7YKr3zxx3ElcCb/Xf2A65UNgL++00b8I7dKeWGotUnyjfVQRALux7LSEFgctpIZjvnpZj3dVBvQkOoEmpbcqDkMEpMbYehCjmKgOuUmwjEHuNblU8pf30rsOSFPP+my/ojdzOuT7FPq8nv4VHq4PZk66DivNKOA84I6jj2vnzag0oEaiCSgJZTYW3kukFkTdWYOI8WOG+qsoRDFC6wXZ2gL6eQYt43lg6ozk6AORS3aMWo3Fa4XK6LikcV5BvpqW18Dsdf94v2AO5HTO0Lz7bTWPFF9+Pxru11LWAiARGsbQmsrCd4hKzkMhzZMVgmVJe5E9zF3ORheZcbtYX5mIwepO1MJiQ8U9R42g+p/z/xkP0sKEh7oj6k6HGjgtrJkqL/Co1RFmL6E97Q58H93PGOX55CMW6nPP+JevXOa20oyu/TwjQ15xVNSJuABCyUxLy56xqbQXZGp8KHaKJShpfMQYfEE0W5sktOZfJ/2R4uqfL/kkZ+lF9/luR3p5MaY87B9oi0U7K8JykbOz8sOeC6DIOc82mm9FX1cFmokCGJ4ucI6qAzkU7+pA53XeOw7hz+9trCIRMXAzU8bSUeJ6xS0bgs94eu5hzRUWLkRtYIROeMGEwMOe1JB3QjdHT8l/63BZqqHEmXpqAMxoygnMvbyodbsk="
+        );
+        private static final EntityEquipment[] EQUIPMENT = {
+                Equipment.builder().mainHand(Material.IRON_SWORD).build(),
+                Equipment.builder().mainHand(Material.BOW).build(),
+                Equipment.builder().mainHand(Material.NETHERITE_SWORD).build(),
+                Equipment.builder().mainHand(Material.MACE).build(),
+        };
+        private static final int SNEAK_TICK_THRESHOLD = 5;
+
+        private final VampireUltimate ultimate;
+        private final GamePlayer player;
+        private final Set<HumanNPC> army;
+
+        private VampireUltimateInstance(VampireUltimate ultimate, GamePlayer player) {
+            this.ultimate = ultimate;
+            this.player = player;
+            this.army = Sets.newHashSet();
+        }
+
+        @Override
+        public void onCastStart() {
+            // Summon army
+            summonArmy();
+
+            // Fx
+            player.playWorldSound(Sound.ITEM_GOAT_HORN_SOUND_2, 1.25f);
+        }
+
+        @Override
+        public void onCastTick(int tick) {
+            final int castDuration = ultimate.getCastDuration() - SNEAK_TICK_THRESHOLD;
+
+            // Move a little forward for fx
+            army.forEach(soldier -> {
+                final Location location = soldier.getLocation();
+                final Vector vector = location.getDirection().multiply(0.025d);
+
+                location.add(vector);
+                soldier.teleport(location);
+
+                // Swing randomly
+                if (player.random.next() < 0.04f) {
+                    soldier.swingMainHand();
+                }
+
+                // Sneak
+                if (tick >= castDuration && soldier.getPose() != NPCPose.CROUCHING) {
+                    float chance = (float) ((1d / SNEAK_TICK_THRESHOLD) * (SNEAK_TICK_THRESHOLD - ultimate.getCastDuration() - tick));
+
+                    if (player.random.next() <= chance) {
+                        soldier.setPose(NPCPose.CROUCHING);
+                    }
+                }
             });
+        }
 
-            return builder.toString();
+        @Override
+        public void onExecute() {
+            final Set<Bat> bats = Sets.newHashSet();
+
+            // Transform into bats
+            CollectionUtils.forEachAndClear(
+                    army, soldier -> {
+                        bats.add(Entities.BAT.spawn(
+                                soldier.getLocation().add(0, 1, 0), self -> {
+                                    self.setInvulnerable(true);
+                                    self.setAwake(true);
+                                    self.setAI(false);
+
+                                    // Fx
+                                }
+                        ));
+
+                        soldier.remove();
+                    }
+            );
+
+            // Bat task
+            new TickingGameTask() {
+                @Override
+                public void onTaskStop() {
+                    CollectionUtils.forEachAndClear(bats, Entity::remove);
+                }
+
+                private void doDamage(Bat bat, LivingGameEntity entity) {
+                    bat.remove();
+
+                    entity.damage(ultimate.damage, player, EnumDamageCause.BAT_BITE_NO_TICK);
+                    entity.bloodDebt().incrementOfMaxHealth(ultimate.bloodDebtAmount);
+
+                    final Location location = bat.getLocation();
+
+                    player.playWorldSound(location, Sound.ENTITY_FOX_BITE, 0.0f);
+                }
+
+                @Override
+                public void run(int tick) {
+                    bats.removeIf(Bat::isDead);
+
+                    if (tick >= ultimate.batsDuration || bats.isEmpty()) {
+                        cancel();
+                        return;
+                    }
+
+                    // Push bats
+                    bats.forEach(bat -> {
+                        final Location location = bat.getLocation();
+
+                        // Bats home towards closest enemies because it would be impossible to hit otherwise
+                        final LivingGameEntity nearestEntity = Collect.nearestEntity(location, ultimate.homingRadius, player::isNotSelfOrTeammate);
+                        final Vector direction;
+
+                        if (nearestEntity != null) {
+                            direction = nearestEntity.getMidpointLocation().toVector().subtract(location.toVector()).normalize();
+
+                            final double distance = nearestEntity.getEyeLocation().distanceSquared(location);
+
+                            if (distance <= ultimate.biteThreshold) {
+                                doDamage(bat, nearestEntity);
+                                return;
+                            }
+                        }
+                        else {
+                            direction = location.getDirection();
+                        }
+
+                        // Transfer
+                        location.add(direction.multiply(ultimate.homingSpeed));
+
+                        // Collision detection
+                        if (!location.getBlock().isEmpty()) {
+                            bat.remove();
+                            player.spawnWorldParticle(location, Particle.POOF, 3, 0.1, 0.2, 0.1, 0.05f);
+                            return;
+                        }
+
+                        bat.teleport(location);
+                    });
+                }
+            }.runTaskTimer(0, 1);
+
+            // Apply effects
+            final BloodDebt bloodDebt = player.bloodDebt();
+            final double bloodDebtAmount = bloodDebt.amount();
+
+            if (bloodDebtAmount >= (player.getMaxHealth() * ultimate.bloodDebtHealingThreshold)) {
+                bloodDebt.reset();
+
+                player.heal(bloodDebtAmount * ultimate.healingPercentOfBloodDebt);
+                Vampire.this.getFirstTalent().stopCd(player);
+            }
+
+            // Fx
+            player.playWorldSound(Sound.ENTITY_SNIFFER_DEATH, 0.0f);
+        }
+
+        private void summonArmy() {
+            for (int i = 0; i < ultimate.armyCount; i++) {
+                final Location location = pickRandomLocationBehindPlayer();
+                final HumanNPC soldier = new HumanNPC(location, "");
+
+                // Give random equipment
+                soldier.setEquipment(CollectionUtils.randomElementOrFirst(EQUIPMENT));
+                soldier.setSkin(SOLDIER_SKIN.getTexture(), SOLDIER_SKIN.getSignature());
+                soldier.showAll();
+
+                location.add(0, 1, 0);
+
+                // Fx
+                player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 5, 0.1, 0.2, 0.1, 0.025f);
+                player.spawnWorldParticle(location, Particle.SMOKE, 5, 0.1, 0.2, 0.1, 0.025f);
+
+                army.add(soldier);
+            }
+        }
+
+        private Location pickRandomLocationBehindPlayer() {
+            final double zOffset = player.random.nextDouble(3, 6);
+            final double xOffsetPositive = player.random.nextDoubleBool(3);
+            final double xOffsetNegative = player.random.nextDoubleBool(3);
+
+            Location location = player.getLocationBehindFromEyes(zOffset);
+            location.setPitch(0.0f);
+
+            location = LocationHelper.getToTheLeft(location, xOffsetPositive);
+            location = LocationHelper.getToTheRight(location, xOffsetNegative);
+
+            return BukkitUtils.anchorLocation(location);
         }
     }
 }

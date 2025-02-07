@@ -1,12 +1,14 @@
 package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.FunctionalInterfaces;
 import me.hapyl.eterna.module.util.ThreadRandom;
+import me.hapyl.fight.game.setting.EnumSetting;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -37,75 +39,47 @@ public class Display {
 
     @Nonnull
     public Location getLocation() {
-        return new Location(location.getWorld(), location.getX(), location.getY(), location.getZ());
+        return BukkitUtils.newLocation(location);
     }
 
     @Nonnull
     public World getWorld() {
-        if (location.getWorld() == null) {
-            throw new IllegalStateException("Location's world is null!");
-        }
         return location.getWorld();
     }
 
-    private <T> void particle0(Location location, Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nullable T data, @Nullable Player... force) {
-        particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null, data, force);
-    }
-
-    public <T> void particle0(Location location, Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nullable Predicate<Player> filter, @Nullable T data, @Nullable Player... force) {
-        // Force players are NOT checked for visibility
-        if (force != null) {
-            for (Player player : force) {
-                if (data != null) {
-                    player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed, data);
-                }
-                else {
-                    player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed);
-                }
-            }
-        }
-
+    public <T> void particle0(@Nonnull Location location, @Nonnull Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nullable Predicate<Player> filter, @Nullable T data) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player != this.player && (filter != null && filter.test(player))) {
-                continue;
-            }
-
-            if (data != null) {
+            if (player == this.player || (FunctionalInterfaces.test(filter, player))) {
                 player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed, data);
             }
-            else {
-                player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed);
-            }
         }
     }
 
-    @SuppressWarnings("all")
-    public <T> void particle(Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, T data) {
-        particle0(getLocation(), particle, amount, offsetX, offsetY, offsetZ, speed, data);
+    public <T> void particle(@Nonnull Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nonnull T data) {
+        particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null, data);
     }
 
-    @SuppressWarnings("all")
-    public <T> void particle(Particle particle, int amount, float speed, T data) {
-        particle(particle, amount, 0.0d, 0.0d, 0.0d, speed, data);
+    public <T> void particle(@Nonnull Particle particle, int amount, float speed, @Nonnull T data) {
+        particle0(location, particle, amount, 0.0d, 0.0d, 0.0d, speed, null, data);
     }
 
-    public void particle(Particle particle, int amount, float speed) {
-        particle0(getLocation(), particle, amount, 0.0d, 0.0d, 0.0d, speed, null);
+    public void particle(@Nonnull Particle particle, int amount, float speed) {
+        particle0(location, particle, amount, 0.0d, 0.0d, 0.0d, speed, null, null);
     }
 
-    public void particle(Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed) {
-        particle0(getLocation(), particle, amount, offsetX, offsetY, offsetZ, speed, null);
+    public void particle(@Nonnull Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed) {
+        particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null, null);
     }
 
-    public void particle(Location location, Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed) {
-        particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null);
+    public void particle(@Nonnull Location location, @Nonnull Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed) {
+        particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null, null);
     }
 
-    public void sound(Sound sound, float pitch) {
+    public void sound(@Nonnull Sound sound, float pitch) {
         PlayerLib.playSound(location, sound, pitch);
     }
 
-    public void repeat(int maxTicks, int period, BiConsumer<Runnable, Integer> consumer) {
+    public void repeat(int maxTicks, int period, @Nonnull BiConsumer<Runnable, Integer> consumer) {
         new GameTask() {
             private int tick = 0;
 
@@ -122,17 +96,13 @@ public class Display {
     }
 
     @Nonnull
-    public Item item(Material material, int lifeTicks) {
-        if (location.getWorld() == null) {
-            throw new IllegalStateException("unloaded world");
-        }
-
+    public Item dropItem(@Nonnull Material material, int lifeTicks) {
         final Item item = location.getWorld().dropItemNaturally(
                 location,
                 new ItemBuilder(material).setName(String.valueOf(ThreadRandom.nextFloat())).toItemStack()
         );
 
-        Entities.getEntities().add(item);
+        SynchronizedGarbageEntityCollector.add(item);
 
         item.setPickupDelay(Short.MAX_VALUE);
         item.setTicksLived(Math.max(6000 - lifeTicks, 1));
@@ -140,10 +110,12 @@ public class Display {
         return item;
     }
 
+    @Nonnull
     public String getName() {
         return player == null ? "Someone" : player.getName();
     }
 
+    @Nonnull
     public List<Player> getPlayersWhoCanSeeContrail() {
         final List<Player> list = Lists.newArrayList();
 
@@ -152,11 +124,12 @@ public class Display {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player == this.player || Settings.SEE_OTHERS_CONTRAIL.isEnabled(player)) {
+            if (player == this.player || EnumSetting.SEE_OTHERS_CONTRAIL.isEnabled(player)) {
                 list.add(player);
             }
         }
 
         return list;
     }
+
 }

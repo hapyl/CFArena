@@ -1,23 +1,23 @@
 package me.hapyl.fight.game.heroes.mage;
 
-import me.hapyl.eterna.module.math.Numbers;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -37,8 +37,9 @@ public class Mage extends Hero implements UIComponent {
     public Mage(@Nonnull Key key) {
         super(key, "Mage");
 
-        setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.RANGE, Archetype.MOBILITY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.RANGE, Archetype.MOBILITY);
+        profile.setGender(Gender.MALE);
 
         setDescription("""
                 Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&l&oSoul Eater&8&o.
@@ -46,7 +47,7 @@ public class Mage extends Hero implements UIComponent {
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");
 
-        final Equipment equipment = this.getEquipment();
+        final HeroEquipment equipment = this.getEquipment();
         equipment.setChestPlate(82, 12, 135, TrimPattern.VEX, TrimMaterial.AMETHYST);
         equipment.setLeggings(82, 12, 135, TrimPattern.TIDE, TrimMaterial.AMETHYST);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.TIDE, TrimMaterial.AMETHYST);
@@ -73,7 +74,7 @@ public class Mage extends Hero implements UIComponent {
     }
 
     public void addSouls(GamePlayer player, int amount) {
-        this.soulsCharge.put(player, Numbers.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
+        this.soulsCharge.put(player, Math.clamp(getSouls(player) + amount, 0, maxSoulsAmount));
     }
 
     public int getSouls(GamePlayer player) {
@@ -121,19 +122,21 @@ public class Mage extends Hero implements UIComponent {
 
             setItem(Material.WRITABLE_BOOK);
             setType(TalentType.ENHANCE);
-            setCooldownSec(-1);
+
+            setManualDuration();
+            setCooldown(Constants.INFINITE_DURATION);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setUsingUltimate(true);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                player.setUsingUltimate(true);
 
-            player.setItem(HotbarSlots.TALENT_3, spellWyvernHeart.getSpellItem());
-            player.setItem(HotbarSlots.TALENT_5, spellDragonSkin.getSpellItem());
-            player.snapTo(HotbarSlots.TALENT_4);
-
-            return UltimateResponse.OK;
+                player.setItem(HotBarSlot.TALENT_3, spellWyvernHeart.getSpellItem());
+                player.setItem(HotBarSlot.TALENT_5, spellDragonSkin.getSpellItem());
+                player.snapTo(HotBarSlot.TALENT_4);
+            });
         }
     }
 }

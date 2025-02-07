@@ -5,35 +5,36 @@ import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.Keyed;
+import me.hapyl.fight.story.HeroStory;
 import me.hapyl.fight.util.Catchers;
 import me.hapyl.fight.util.Formatted;
 import me.hapyl.fight.util.NullSafeList;
@@ -71,24 +72,23 @@ public abstract class Hero
         Rankable, DisplayFieldProvider, Formatted {
 
     private final Key key;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
     private final HeroAttributes attributes;
-    private final Equipment equipment;
+    private final HeroProfile profile;
+
+    private final HeroEquipment equipment;
     private final String name;
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
-    private final Map<Talent, HotbarSlots> talentsMapped;
-    private final ArchetypeList archetypes;
-    @Nonnull public HeroEventHandler eventHandler;
+    private final Map<Talent, HotBarSlot> talentsMapped;
+    @Nonnull private HeroEventHandler eventHandler;
 
     protected HeroMastery mastery;
     protected UltimateTalent ultimate;
+    protected HeroStory story;
 
-    private Affiliation affiliation;
-    private Gender gender;
-    private Race race;
     private String description;
-    private ItemStack guiTexture;
+    @Nonnull private ItemStack guiTexture;
     private Weapon weapon;
     private long minimumLevel;
     private PlayerSkin skin;
@@ -99,32 +99,27 @@ public abstract class Hero
     public Hero(@Nonnull Key key, @Nonnull String name) {
         this.key = key;
         this.name = name;
-        this.stats = new HeroStatsCollection(key);
+        this.stats = new HeroStatsAsynchronousDocument(key);
         this.description = "No description provided.";
-        this.guiTexture = new ItemStack(Material.RED_BED);
-        this.weapon = new Weapon(Material.WOODEN_SWORD);
-        this.equipment = new Equipment();
+        this.guiTexture = new ItemStack(Material.PLAYER_HEAD);
+        this.weapon = Weapon.builder(Material.WOODEN_SWORD, Key.ofString("default_weapon")).build();
+        this.equipment = new HeroEquipment();
         this.attributes = new HeroAttributes(this);
-        this.affiliation = Affiliation.NOT_SET;
-        this.archetypes = new ArchetypeList(this);
+        this.profile = new HeroProfile(this);
         this.minimumLevel = 0;
         this.itemMaker = new HeroPlayerItemMaker(this);
         this.ultimate = null;
         this.skin = null;
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
-        this.gender = Gender.UNKNOWN;
-        this.race = Race.HUMAN; // defaulted to human
         this.mastery = new HeroMastery(this);
 
         // Map talents
-        mapTalent(HotbarSlots.TALENT_1);
-        mapTalent(HotbarSlots.TALENT_2);
-        mapTalent(HotbarSlots.TALENT_3);
-        mapTalent(HotbarSlots.TALENT_4);
-        mapTalent(HotbarSlots.TALENT_5);
-
-        setItem("null"); // default to null because I don't like exceptions
+        mapTalent(HotBarSlot.TALENT_1);
+        mapTalent(HotBarSlot.TALENT_2);
+        mapTalent(HotBarSlot.TALENT_3);
+        mapTalent(HotBarSlot.TALENT_4);
+        mapTalent(HotBarSlot.TALENT_5);
 
         // Register listener if needed
         if (this instanceof Listener listener) {
@@ -138,27 +133,32 @@ public abstract class Hero
     }
 
     @Nonnull
+    public HeroEventHandler getEventHandler() {
+        return eventHandler;
+    }
+
+    protected void setEventHandler(@Nonnull HeroEventHandler eventHandler) {
+        this.eventHandler = eventHandler;
+    }
+
+    @Nullable
+    public HeroStory getStory() {
+        return story;
+    }
+
+    protected void setStory(@Nonnull HeroStory story) {
+        this.story = story;
+    }
+
+    @Nonnull
     @Override
     public final Key getKey() {
         return key;
     }
 
     @Nonnull
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(@Nonnull Gender sex) {
-        this.gender = sex;
-    }
-
-    @Nonnull
-    public Race getRace() {
-        return race;
-    }
-
-    public void setRace(@Nonnull Race race) {
-        this.race = race;
+    public HeroProfile getProfile() {
+        return profile;
     }
 
     @Override
@@ -172,7 +172,7 @@ public abstract class Hero
     }
 
     @Nonnull
-    public HeroStatsCollection getStats() {
+    public HeroStatsAsynchronousDocument getStats() {
         return stats;
     }
 
@@ -213,33 +213,6 @@ public abstract class Hero
         this.minimumLevel = minimumLevel;
     }
 
-    @Nonnull
-    public ArchetypeList getArchetypes() {
-        return archetypes;
-    }
-
-    public void setArchetypes(@Nonnull Archetype... archetype) {
-        archetypes.set(archetype);
-    }
-
-    /**
-     * Returns the origin of this hero.
-     *
-     * @return the origin of this hero.
-     */
-    public Affiliation getAffiliation() {
-        return affiliation;
-    }
-
-    /**
-     * Sets the origin for this hero.
-     *
-     * @param affiliation - New origin.
-     */
-    public void setAffiliation(Affiliation affiliation) {
-        this.affiliation = affiliation;
-    }
-
     /**
      * Gets hero's attributes.
      *
@@ -256,7 +229,7 @@ public abstract class Hero
      * @return this hero's weapon.
      */
     @Nonnull
-    public Equipment getEquipment() {
+    public HeroEquipment getEquipment() {
         return equipment;
     }
 
@@ -295,7 +268,7 @@ public abstract class Hero
      * @return millis left until player can use their ultimate again.
      */
     public long getUltimateDurationLeft(GamePlayer player) {
-        final int duration = getUltimateDuration() * 50;
+        final int duration = (ultimate.getDuration() + ultimate.getCastDuration()) * 50;
 
         if (duration == 0) {
             return 0;
@@ -351,12 +324,7 @@ public abstract class Hero
 
     @Nonnull
     public ItemStack getItem(@Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return getItem();
-        }
-
+        final PlayerProfile profile = CF.getProfile(player);
         final PlayerDatabase database = profile.getDatabase();
         final Skins skin = database.skinEntry.getSelected(this);
 
@@ -368,37 +336,17 @@ public abstract class Hero
     }
 
     /**
-     * Returns this hero GUI item, defaults to RED_BED.
+     * Gets the GUI texture for the {@link Hero}.
      *
-     * @return this hero GUI item, defaults to RED_BED.
+     * @return the GUI texture for the {@link Hero}.
      */
     @Nonnull
     public ItemStack getItem() {
-        return (guiTexture.getType() == Material.RED_BED) ? getEquipment().getItem(Slot.HELMET) : guiTexture;
+        return guiTexture;
     }
 
     /**
-     * Heroes are required to have a player-head in GUI now.
-     *
-     * @deprecated Use {@link this#setItem(String)} instead.
-     */
-    @Deprecated
-    public void setItem(ItemStack guiTexture) {
-        this.guiTexture = guiTexture;
-    }
-
-    /**
-     * Heroes are required to have a player-head in GUI now.
-     *
-     * @deprecated Use {@link this#setItem(String)} instead.
-     */
-    @Deprecated
-    public void setItem(Material material) {
-        this.guiTexture = new ItemBuilder(material).hideFlags().toItemStack();
-    }
-
-    /**
-     * Sets this hero's GUI item from a texture link.
+     * Sets the {@link Hero}'s GUI texture.
      * <p>
      * <b>
      * This link must be 'Minecraft-URL' from <a href="https://minecraft-heads.com/custom-heads">here</a>.
@@ -434,7 +382,7 @@ public abstract class Hero
      */
     @Nonnull
     public UltimateTalent getUltimate() {
-        Catchers.catchNull(ultimate, "Ultimate is not set for %s!");
+        Catchers.catchNull(ultimate, "Ultimate MUST be set for %s!");
         return ultimate;
     }
 
@@ -603,8 +551,12 @@ public abstract class Hero
     /**
      * Sets this hero weapon.
      *
-     * @param weapon - Weapon.
+     * @see Weapon.Builder
      */
+    public void setWeapon(@Nonnull Weapon.Builder builder) {
+        this.weapon = builder.build();
+    }
+
     public void setWeapon(@Nonnull Weapon weapon) {
         this.weapon = weapon;
     }
@@ -654,7 +606,7 @@ public abstract class Hero
     }
 
     public final boolean isLocked(@Nonnull Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
 
         final boolean purchased = database.heroEntry.isPurchased(this);
         final boolean hasLevel = database.experienceEntry.get(ExperienceEntry.Type.LEVEL) >= getMinimumLevel();
@@ -663,13 +615,7 @@ public abstract class Hero
     }
 
     public final void setFavourite(@Nonnull Player player, boolean isFavourite) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return;
-        }
-
-        profile.getDatabase().heroEntry.setFavourite(this, isFavourite);
+        CF.getDatabase(player).heroEntry.setFavourite(this, isFavourite);
     }
 
     @Nonnull
@@ -685,7 +631,7 @@ public abstract class Hero
 
     @Nonnull
     public final String getPrefix() {
-        return getArchetypes().getFirst().getPrefix();
+        return getProfile().getArchetypes().getFirst().getPrefix();
     }
 
     public final boolean isValidHero() {
@@ -693,20 +639,20 @@ public abstract class Hero
     }
 
     public final boolean isFavourite(@Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
 
-        return profile != null && profile.getDatabase().heroEntry.isFavourite(this);
+        return profile.getDatabase().heroEntry.isFavourite(this);
     }
 
     @Nullable
-    public ItemStack getTalentItem(@Nonnull HotbarSlots slot) {
+    public ItemStack getTalentItem(@Nonnull HotBarSlot slot) {
         final Talent talent = getTalent(slot);
 
         return talent != null ? talent.getItem() : null;
     }
 
     @Nullable
-    public Talent getTalent(@Nonnull HotbarSlots slot) {
+    public Talent getTalent(@Nonnull HotBarSlot slot) {
         return switch (slot) {
             case TALENT_1 -> getFirstTalent();
             case TALENT_2 -> getSecondTalent();
@@ -754,15 +700,15 @@ public abstract class Hero
     }
 
     /**
-     * Gets a {@link HotbarSlots} for a talent by its handle.
+     * Gets a {@link HotBarSlot} for a talent by its handle.
      *
      * @param talent - Talent.
      * @return the slot for this talent.
      * @throws IllegalArgumentException - If the given talent does not belong to this hero.
      */
     @Nonnull
-    public HotbarSlots getTalentSlotByHandle(@Nonnull Talent talent) {
-        final HotbarSlots slot = talentsMapped.get(talent);
+    public HotBarSlot getTalentSlotByHandle(@Nonnull Talent talent) {
+        final HotBarSlot slot = talentsMapped.get(talent);
 
         if (slot == null) {
             throw new IllegalArgumentException("talent '%s' does not belong to this hero!".formatted(talent));
@@ -772,7 +718,7 @@ public abstract class Hero
     }
 
     @Nullable
-    public HotbarSlots getTalentSlotByHandleOrNull(@Nonnull Talent talent) {
+    public HotBarSlot getTalentSlotByHandleOrNull(@Nonnull Talent talent) {
         return talentsMapped.get(talent);
     }
 
@@ -846,7 +792,7 @@ public abstract class Hero
         return Objects.hashCode(key);
     }
 
-    private void mapTalent(HotbarSlots slot) {
+    private void mapTalent(HotBarSlot slot) {
         final Talent talent = getTalent(slot);
 
         if (talent == null) {

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.Notifier;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.Notifier;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

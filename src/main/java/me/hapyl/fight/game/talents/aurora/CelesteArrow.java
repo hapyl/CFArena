@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.talents.aurora;
 
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.particle.ParticleDrawer;
 import me.hapyl.fight.util.particle.Particles;
@@ -81,11 +80,11 @@ public class CelesteArrow extends AuroraArrowTalent {
                 final double y = tick / 20d;
                 final double z = Math.cos(d) * 0.9d;
 
-                LocationHelper.modify(location, x, y, z, loc -> {
+                LocationHelper.offset(location, x, y, z, loc -> {
                     fxParticle.draw(loc);
                 });
 
-                LocationHelper.modify(location, z, y, x, loc -> {
+                LocationHelper.offset(location, z, y, x, loc -> {
                     fxParticle.draw(loc);
                 });
 

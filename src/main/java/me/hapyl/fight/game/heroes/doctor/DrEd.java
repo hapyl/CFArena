@@ -3,25 +3,22 @@ package me.hapyl.fight.game.heroes.doctor;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Location;
@@ -40,8 +37,9 @@ public class DrEd extends Hero implements UIComponent {
     public DrEd(@Nonnull Key key) {
         super(key, "Dr. Ed");
 
-        setArchetypes(Archetype.STRATEGY, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.STRATEGY, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.MALE);
 
         setDescription("Simply named scientist with not so simple inventions...");
         setItem("3b51e96bddd177992d68278c9d5f1e685b60fbb94aaa709259e9f2781c76f8");
@@ -50,7 +48,7 @@ public class DrEd extends Hero implements UIComponent {
         attributes.setSpeed(115);
         attributes.setDefense(125);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(237, 235, 235, TrimPattern.VEX, TrimMaterial.IRON);
         equipment.setLeggings(Material.IRON_LEGGINGS, TrimPattern.VEX, TrimMaterial.IRON);
         equipment.setBoots(71, 107, 107);
@@ -168,15 +166,14 @@ public class DrEd extends Hero implements UIComponent {
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            player.setItemAndSnap(HotbarSlots.HERO_ITEM, ultimateWeapon.getItem());
-
-            return new UltimateResponse() {
-                @Override
-                public void onUltimateEnd(@Nonnull GamePlayer player) {
-                    ultimateWeapon.stop(player);
-                }
-            };
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return builder()
+                    .onExecute(() -> {
+                        player.setItemAndSnap(HotBarSlot.HERO_ITEM, ultimateWeapon.getItem());
+                    })
+                    .onEnd(() -> {
+                        ultimateWeapon.stop(player);
+                    });
         }
     }
 }

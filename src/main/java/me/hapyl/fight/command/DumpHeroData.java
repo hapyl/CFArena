@@ -1,16 +1,17 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimpleAdminCommand;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -95,9 +96,10 @@ public class DumpHeroData extends SimpleAdminCommand {
             }
 
             final LocalDate now = LocalDate.now();
+            final HeroProfile profile = hero.getProfile();
 
             try (MdFileWriter writer = new MdFileWriter(this)) {
-                writer.comment("Shaman ; v%s ; %s".formatted(CF.getVersionNoSnapshot(), now.toString()));
+                writer.comment("%s ; v%s ; %s".formatted(hero.getKey(), CF.getVersionNoSnapshot(), now.toString()));
 
                 writer.header("Name:");
                 writer.append(hero.getName());
@@ -106,11 +108,11 @@ public class DumpHeroData extends SimpleAdminCommand {
                 writer.append(hero.getDescription());
 
                 writer.header("Archetype");
-                writer.append(hero.getArchetypes().toString());
+                writer.append(profile.getArchetypes().toString());
 
-                final Affiliation affiliation = hero.getAffiliation();
-                final Race race = hero.getRace();
-                final Gender gender = hero.getGender();
+                final Affiliation affiliation = profile.getAffiliation();
+                final Race race = profile.getRace();
+                final Gender gender = profile.getGender();
 
                 if (affiliation != Affiliation.NOT_SET) {
                     writer.header("Affiliation");

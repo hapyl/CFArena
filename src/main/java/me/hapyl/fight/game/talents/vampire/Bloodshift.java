@@ -2,16 +2,12 @@ package me.hapyl.fight.game.talents.vampire;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.sound.SoundQueue;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
-import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.vampire.VampireData;
-import me.hapyl.fight.game.heroes.vampire.VampireState;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -23,7 +19,8 @@ public class Bloodshift extends Talent {
     @DisplayField public final double healthDrainPerOneDamage = 1.0d;
     @DisplayField public final double damageBoostPercent = 0.75d;
 
-    @DisplayField public final double healthRegenPerOneDamage = 1.5d;
+    @DisplayField public final double healingFromDamage = 0.75d;
+    @DisplayField public final double damageReduction = 1 - healingFromDamage;
 
     private final SoundQueue soundFx = new SoundQueue()
             .appendSameSound(
@@ -38,15 +35,16 @@ public class Bloodshift extends Talent {
         setDescription("""
                 Enter &c%s&7 state for {duration}.
                 
-                While in this state, &ninstead&7 of &cdealing damage&7, your attacks will &a&nheal&7 &a&nyourself&7 based on the damage dealt.
+                While in this state, convert &b%.0f%%&7 of the &cdamage&7 dealt into &ahealing&7.
                 """.formatted(
-                Chat.capitalize(VampireState.SUSTAIN)
+                Chat.capitalize("s"),
+                healingFromDamage * 100
         ));
 
         setType(TalentType.ENHANCE);
         setItem(Material.BEETROOT);
 
-        setDurationSec(3.5f);
+        setDurationSec(5.0f);
         setCooldownSec(10.0f);
     }
 
@@ -60,13 +58,9 @@ public class Bloodshift extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final VampireData data = HeroRegistry.VAMPIRE.getPlayerData(player);
-
-        data.setState(VampireState.SUSTAIN);
         player.setOutline(Outline.RED);
 
         player.schedule(() -> {
-            data.setState(VampireState.DAMAGE);
             player.setOutline(Outline.CLEAR);
         }, getDuration());
 

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.artifact;
 
-import me.hapyl.fight.registry.SimpleRegistry;
+import me.hapyl.eterna.module.registry.SimpleRegistry;
 
 public class ArtifactRegistry extends SimpleRegistry<Artifact> {
 

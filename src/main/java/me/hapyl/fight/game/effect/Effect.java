@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.effect;
 
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import me.hapyl.fight.util.Described;
 import org.bukkit.Location;
 import org.bukkit.event.Listener;
 

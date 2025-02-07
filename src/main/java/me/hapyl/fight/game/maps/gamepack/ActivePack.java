@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.maps.gamepack;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.garbage.CFGarbageCollector;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.math.Tick;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,7 +38,7 @@ public class ActivePack extends TickingGameTask {
                     self.setGravity(false);
                     self.setHelmet(new ItemStack(Material.SMOOTH_STONE_SLAB));
 
-                    CFGarbageCollector.add(self);
+                    SynchronizedGarbageEntityCollector.add(self);
                     CFUtils.lockArmorStand(self);
                 }
         );
@@ -109,7 +109,7 @@ public class ActivePack extends TickingGameTask {
             self.setSmall(true);
             self.setVisible(false);
             CFUtils.setEquipment(self, equipment -> equipment.setHelmet(pack.getTexture()));
-            CFGarbageCollector.add(self);
+            SynchronizedGarbageEntityCollector.add(self);
         });
     }
 

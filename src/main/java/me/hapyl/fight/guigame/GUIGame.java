@@ -1,6 +1,6 @@
 package me.hapyl.fight.guigame;
 
-import me.hapyl.fight.util.Described;
+import me.hapyl.eterna.module.util.Described;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

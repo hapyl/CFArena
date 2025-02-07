@@ -1,7 +1,7 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.collectible.relic.Type;
 
 import javax.annotation.Nonnull;
 

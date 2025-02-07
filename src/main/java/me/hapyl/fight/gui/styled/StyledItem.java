@@ -1,7 +1,7 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -36,6 +36,12 @@ public class StyledItem implements StyledBuilder {
             Material.DIAMOND_BLOCK,
             "Tiered Achievements",
             "These achievements can be completed multiple times!"
+    );
+
+    public static final StyledItem ICON_ACHIEVEMENTS_HERO_RELATED = new StyledItem(
+            Material.PLAYER_HEAD,
+            "Hero-Specific Achievements",
+            "Hero specifc "
     );
 
     public static final StyledItem ICON_SETTINGS = new StyledItem(
@@ -100,9 +106,25 @@ public class StyledItem implements StyledBuilder {
 
     public static final StyledItem ICON_MASTERY = new StyledItem(
             Material.GOLDEN_HELMET,
-            "Hero Mastery",
+            "Hero Mastery &4&lPRE ALPHA PRE BETA NOT FINISHED!!!",
             """
                     Master a hero by winning and unlock additional abilities and exclusive cosmetics!
+                    """
+    );
+
+    public static final StyledItem ICON_STORY = new StyledItem(
+            Material.WRITABLE_BOOK,
+            "Story",
+            """
+                    Learn the story of this hero!
+                    """
+    );
+
+    public static final StyledItem ICON_STORE = new StyledItem(
+            "d3e0d25542317d9a7be70d7ef4cb5b2c257b53aec0fc3dfde2885a3a121b0a83",
+            "Store",
+            """
+                    Do purchase my items~
                     """
     );
 

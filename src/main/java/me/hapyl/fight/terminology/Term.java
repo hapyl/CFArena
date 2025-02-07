@@ -25,7 +25,8 @@ public class Term implements ContextQuery {
         return strings[0];
     }
 
-    protected void setName(@Nonnull String name) {
+    @Override
+    public void setName(@Nonnull String name) {
         this.strings[0] = name;
     }
 
@@ -43,7 +44,8 @@ public class Term implements ContextQuery {
         return strings[2];
     }
 
-    protected void setDescription(@Nonnull String description) {
+    @Override
+    public void setDescription(@Nonnull String description) {
         this.strings[2] = description;
     }
 
@@ -74,7 +76,7 @@ public class Term implements ContextQuery {
         return new Builder();
     }
 
-    public static class Builder implements me.hapyl.fight.util.Builder<Term> {
+    public static class Builder implements me.hapyl.eterna.module.util.Builder<Term> {
 
         private final Term term;
 

@@ -1,5 +1,49 @@
 ###############################
 
+- MAKE MASTERY WORK RIGHT ( should it? def no lazy )
+- Blood debt should be removed on death
+- Changes to onDeath might break something
+- Attribute cooldown should show ♾️ for infinite cooldowns instead of 9999999
+- Raffle
+- Cd too much
+- bats should not crit
+- Npc dialog fix
+- Bleed ronin
+- Bloodfiend needs either a buff or range increase or idk
+- Fix spectral form
+- Quick Access
+- Remove knockback from fang
+
+java.lang.IllegalStateException: Illegal profile grab! If you /reload the server, ignore this. Otherwise this is a bug!
+	at CFArena.jar/me.hapyl.fight.game.Manager.getProfile(Manager.java:246) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.CF.getProfile(CF.java:539) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.game.cosmetic.prefix.PrefixCosmetic.getPrefixPreview(PrefixCosmetic.java:49) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.game.cosmetic.prefix.PrefixCosmetic.createItem(PrefixCosmetic.java:39) ~[CFArena.jar:?]
+	at CFArena.jar/me.hapyl.fight.store.StoreOffer.lambda$new$0(StoreOffer.java:27) ~[CFArena.jar:?]
+
+======= IMPORTANT =======
+
+# Ronin Changes:
+
+- Weapon damage decreased 10 >> 8
+
+
+- Fixes a bug where dashing into a wall would result in soft lock
+
+# Vampire Rework ( again, hes kinda like arlechino now )
+
+
+###############################
+
+- Accelerate dialog is not implemented for the new dialog system
+- Remove CLICK from null names
+- Add checkmark when purcharsed store offer
+- REmove hereso from game tab
+- Vampire still too weak (how about perma legion, ult bakes it better or buff teammates? )
+- GOlden gg is still bugged?
+
+###############################
+
 - [x] Aurora is AFK while using the ultimate
 - [x] Aurora add max distance
 

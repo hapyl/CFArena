@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.shaman;
 
 import me.hapyl.eterna.module.math.Tick;
-
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameEntityHealEvent;
 import me.hapyl.fight.game.Named;
@@ -13,15 +13,15 @@ import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.shaman.TotemTalent;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.ui.UIComponent;
-import me.hapyl.fight.registry.Key;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -46,9 +46,10 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
     public Shaman(@Nonnull Key key) {
         super(key, "Shaman");
 
-        setAffiliation(Affiliation.THE_JUNGLE);
-        setArchetypes(Archetype.SUPPORT);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setAffiliation(Affiliation.THE_JUNGLE);
+        profile.setArchetypes(Archetype.SUPPORT);
+        profile.setGender(Gender.MALE);
 
         setDescription("""
                 An orc from the jungle. Always rumbles about something.
@@ -60,14 +61,14 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
 
         final HeroAttributes attributes = getAttributes();
 
-        attributes.setHealth(75);
+        attributes.setMaxHealth(75);
         attributes.setAttack(50);
         attributes.setDefense(75);
         attributes.setVitality(50); // to balance self-healing
         attributes.setMending(200);
         attributes.setEffectResistance(30);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(110, 94, 74);
         equipment.setLeggings(57, 40, 90);
 
@@ -199,37 +200,38 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            Collect.nearbyEntities(player.getLocation(), increaseRadius).forEach(entity -> {
-                if (!player.isSelfOrTeammate(entity)) {
-                    return;
-                }
+        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            return execute(() -> {
+                Collect.nearbyEntities(player.getLocation(), increaseRadius).forEach(entity -> {
+                    if (!player.isSelfOrTeammate(entity)) {
+                        return;
+                    }
 
-                // Remove effects
-                player.removeEffectsByType(EffectType.NEGATIVE);
+                    // Remove effects
+                    player.removeEffectsByType(EffectType.NEGATIVE);
 
-                temperInstance.temper(entity, effectResIncreaseDuration);
+                    temperInstance.temper(entity, effectResIncreaseDuration);
+
+                    // Fx
+                    final Location location = entity.getLocation();
+
+                    entity.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.5d, 0.25d, 0.7f);
+                    entity.playWorldSound(Sound.ENTITY_WITCH_DRINK, 0.0f);
+
+                    if (player == entity) {
+                        player.sendMessage(AttributeType.EFFECT_RESISTANCE.getCharacter() + " You cleansed yourself!");
+                    }
+                    else {
+                        entity.sendMessage(AttributeType.EFFECT_RESISTANCE.getCharacter() + " &d%s cleansed you!".formatted(player.getName()));
+                    }
+
+                });
 
                 // Fx
-                final Location location = entity.getLocation();
-
-                entity.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.5d, 0.25d, 0.7f);
-                entity.playWorldSound(Sound.ENTITY_WITCH_DRINK, 0.0f);
-
-                if (player == entity) {
-                    player.sendMessage(AttributeType.EFFECT_RESISTANCE.getCharacter() + " You cleansed yourself!");
-                }
-                else {
-                    entity.sendMessage(AttributeType.EFFECT_RESISTANCE.getCharacter() + " &d%s cleansed you!".formatted(player.getName()));
-                }
+                player.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+                player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
 
             });
-
-            // Fx
-            player.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
-            player.playWorldSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
-
-            return UltimateResponse.OK;
         }
     }
 }

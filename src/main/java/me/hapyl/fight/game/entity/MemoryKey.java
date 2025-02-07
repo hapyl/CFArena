@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.fight.annotate.ForceLowercase;
+import me.hapyl.eterna.module.annotate.ForceLowercase;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

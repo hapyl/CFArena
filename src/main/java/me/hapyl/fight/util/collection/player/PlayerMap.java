@@ -118,15 +118,4 @@ public interface PlayerMap<V> extends Map<GamePlayer, V> {
         };
     }
 
-    static int clearAll(@Nonnull PlayerMap<?>... maps) {
-        int cleared = 0;
-
-        for (PlayerMap<?> map : maps) {
-            map.clear();
-            cleared++;
-        }
-
-        return maps.length - cleared;
-    }
-
 }

@@ -31,7 +31,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             final Attributes attributes = new Attributes();
             final Engineer.EngineerUltimate ultimate = engineer.getUltimate();
 
-            attributes.setHealth(ultimate.mechaHealth);
+            attributes.setMaxHealth(ultimate.mechaHealth);
             attributes.setDefense(ultimate.mechaDefense);
 
             player.hideEntity(self);

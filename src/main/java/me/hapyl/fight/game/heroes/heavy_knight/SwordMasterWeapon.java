@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -18,13 +19,12 @@ import javax.annotation.Nullable;
 
 public class SwordMasterWeapon extends Weapon {
     public SwordMasterWeapon() {
-        super(Material.NETHERITE_SWORD);
-        setName("Basta");
-        setId("basta");
+        super(Material.NETHERITE_SWORD, Key.ofString("shaman_weapon"));
 
+        setName("Basta");
         setDescription("""
                 A royal claymore.
-                                        
+                
                 &7&o;;This thing was too big to be called a sword.
                 """);
 

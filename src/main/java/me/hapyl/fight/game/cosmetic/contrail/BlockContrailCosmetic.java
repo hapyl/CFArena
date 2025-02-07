@@ -1,21 +1,18 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.IGameInstance;
-import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.State;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,18 +23,11 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     private final List<Material> materials;
     private int stay;
 
-    public BlockContrailCosmetic(String name, String description, Rarity rarity) {
-        super(name, description, rarity);
+    public BlockContrailCosmetic(@Nonnull Key key, @Nonnull String name, @Nonnull String description, @Nonnull Rarity rarity) {
+        super(key, name, description, rarity, Tuple.of("block", "It will convert blocks you're walking on."));
 
         this.materials = Lists.newArrayList();
         this.stay = 20;
-    }
-
-    @Override
-    public void addExtraLore(@Nonnull ItemBuilder builder, @Nonnull Player player) {
-        builder.addLore();
-        builder.addLore("&6This is a block contrail!");
-        builder.addSmartLore("It will convert blocks you're walking on.", "&e");
     }
 
     public void addMaterials(Material... materials) {
@@ -86,7 +76,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     }
 
     @Override
-    public void onMove(Display display) {
+    public void onMove(@Nonnull Display display) {
         final Location location = display.getLocation().subtract(0.0d, 1.0d, 0.0);
         final Block block = location.getBlock();
         final Player player = display.getPlayer();
@@ -107,9 +97,9 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
 
     private Material randomElement() {
         if (materials.size() == 1) {
-            return materials.get(0);
+            return materials.getFirst();
         }
 
-        return CollectionUtils.randomElement(materials, materials.get(0));
+        return CollectionUtils.randomElement(materials, materials.getFirst());
     }
 }

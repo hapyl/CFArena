@@ -3,10 +3,11 @@ package me.hapyl.fight.game.weapons.range;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.PackedParticle;
@@ -44,12 +45,11 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
     private Sound sound;
     private float pitch;
 
-    public RangeWeapon(Material material, String id) {
-        super(material);
+    public RangeWeapon(@Nonnull Material material, @Nonnull Key key) {
+        super(material, key);
         this.cooldown = 0;
         this.shift = 0.5d;
         this.maxDistance = 40.0d;
-        this.setId(id);
 
         this.playerAmmo = PlayerMap.newMap();
         this.maxAmmo = 8;
@@ -188,24 +188,6 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
         return this;
     }
 
-    public int getCooldown(GamePlayer player) {
-        return player.getCooldown(getMaterial());
-    }
-
-    public void startCooldown(GamePlayer player) {
-        if (this.cooldown > 0) {
-            startCooldown(player, this.cooldown);
-        }
-    }
-
-    public void startCooldown(GamePlayer player, int cd) {
-        player.setCooldown(getMaterial(), cd);
-    }
-
-    public boolean hasCooldown(GamePlayer player) {
-        return getCooldown(player) > 0;
-    }
-
     public RangeWeapon setSound(Sound sound, float pitch) {
         this.sound = sound;
         this.pitch = pitch;
@@ -217,7 +199,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
     }
 
     public void reload(@Nonnull GamePlayer player) {
-        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
+        final ItemStack item = player.getItem(HotBarSlot.WEAPON);
         final int reloadTimeScaled = player.scaleCooldown(reloadTime);
 
         // force reload
@@ -257,7 +239,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
             }
         }.runTaskTimer(0, 1);
 
-        startCooldown(player, reloadTime);
+        player.cooldownManager.setCooldown(this, reloadTime);
     }
 
     public int getPlayerAmmo(@Nonnull GamePlayer player) {
@@ -303,7 +285,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
         @Nullable
         @Override
         public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            if (player.hasCooldown(getMaterial())) {
+            if (player.cooldownManager.hasCooldown(RangeWeapon.this)) {
                 return null;
             }
 
@@ -321,7 +303,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
             else {
                 final int weaponCooldownScale = getWeaponCooldownScale(player);
 
-                player.setCooldownIgnoreModifier(getMaterial(), weaponCooldownScale);
+                player.cooldownManager.setCooldownIgnoreCooldownModifier(RangeWeapon.this, weaponCooldownScale);
             }
 
             return Response.OK;

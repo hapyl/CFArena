@@ -1,15 +1,17 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.util.WeakCopy;
+import me.hapyl.eterna.module.util.Copyable;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class Attributes implements WeakCopy {
+public class Attributes implements Copyable {
 
     public static final double INFINITE_ATTACK_SPEED = 9.99d;
 
@@ -21,7 +23,7 @@ public class Attributes implements WeakCopy {
 
     public Attributes(LivingEntity entity) {
         this();
-        setHealth(entity.getHealth());
+        setMaxHealth(entity.getHealth());
     }
 
     public Attributes() {
@@ -66,11 +68,16 @@ public class Attributes implements WeakCopy {
      *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
      * </pre>
      *
-     * @param damage - Damage.
+     * @param damage  - Damage.
+     * @param damager - The damager.
      * @return the calculated incoming damage.
      */
-    public final double calculateIncomingDamage(double damage) {
-        final double defense = get(AttributeType.DEFENSE);
+    public final double calculateIncomingDamage(double damage, @Nullable LivingGameEntity damager) {
+        double defense = get(AttributeType.DEFENSE);
+
+        if (damager != null) {
+            defense *= (1 - damager.getAttributes().get(AttributeType.DEFENSE_IGNORE));
+        }
 
         return calculateDefense(damage, defense);
     }
@@ -144,7 +151,7 @@ public class Attributes implements WeakCopy {
      *
      * @return the max health.
      */
-    public double getHealth() {
+    public double getMaxHealth() {
         return get(AttributeType.MAX_HEALTH);
     }
 
@@ -153,7 +160,7 @@ public class Attributes implements WeakCopy {
      *
      * @param value - New value.
      */
-    public void setHealth(double value) {
+    public void setMaxHealth(double value) {
         setValueScaled(AttributeType.MAX_HEALTH, value);
     }
 
@@ -397,7 +404,7 @@ public class Attributes implements WeakCopy {
 
     @Nonnull
     @Override
-    public Attributes weakCopy() {
+    public Attributes createCopy() {
         final Attributes copy = new Attributes();
         copy.mapped.putAll(mapped);
 

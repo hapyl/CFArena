@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.reward;
 
+import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.Notifier;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.util.Named;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -84,7 +84,7 @@ public interface Reward extends Named {
      * @return a new cosmetics reward with the given name.
      */
     @Nonnull
-    static CosmeticsReward cosmetics(@Nonnull String name, @Nonnull Cosmetics... cosmetics) {
+    static CosmeticsReward cosmetics(@Nonnull String name, @Nonnull Cosmetic... cosmetics) {
         return new CosmeticsReward(name, cosmetics);
     }
 

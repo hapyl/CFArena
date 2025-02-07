@@ -1,7 +1,7 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.registry.Key;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.script.scripts.WineryLiftScript;
 
 import javax.annotation.Nonnull;

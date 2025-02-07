@@ -1,7 +1,10 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.KeyFunction;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.HeroEntry;
 import me.hapyl.fight.game.heroes.alchemist.Alchemist;
 import me.hapyl.fight.game.heroes.archer.Archer;
@@ -51,8 +54,6 @@ import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.registry.AbstractStaticRegistry;
-import me.hapyl.fight.registry.Key;
-import me.hapyl.fight.registry.KeyFunction;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -65,9 +66,9 @@ import java.util.*;
 public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     public static final Archer ARCHER;
-    public static final Alchemist ALCHEMIST;
-    public static final Moonwalker MOONWALKER;
-    public static final Hercules HERCULES;
+    @MarkedAsIncomplete public static final Alchemist ALCHEMIST;
+    @MarkedAsIncomplete public static final Moonwalker MOONWALKER;
+    @MarkedAsIncomplete public static final Hercules HERCULES;
     public static final Mage MAGE;
     public static final Pytaria PYTARIA;
     public static final Troll TROLL;
@@ -100,7 +101,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Orc ORC;
     public static final Bloodfiend BLOODFIEND;
     public static final Zealot ZEALOT;
-    @MarkedAsIncomplete public static final Ronin RONIN;
+    public static final Ronin RONIN;
     @MarkedAsIncomplete public static final Jester JESTER;
     public static final Rogue ROGUE;
     @MarkedAsIncomplete public static final Geo GEO;
@@ -216,17 +217,13 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     @Nonnull
     public static List<Hero> playable() {
-        return new ArrayList<>(playable);
+        return CF.environment().allowDisabledHeroes.isEnabled() ? values() :  new ArrayList<>(playable);
     }
 
     @Nonnull
     public static List<Hero> playableRespectFavourites(@Nonnull Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
         final List<Hero> playable = playable();
-
-        if (profile == null) {
-            return playable;
-        }
 
         playable.sort((a, b) -> {
             final HeroEntry heroEntry = profile.getDatabase().heroEntry;
@@ -282,7 +279,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
             playable.add(hero);
         }
 
-        hero.getArchetypes().forEach(archetype -> {
+        hero.getProfile().getArchetypes().forEach(archetype -> {
             byArchetype.compute(archetype, Compute.listAdd(hero));
         });
 
