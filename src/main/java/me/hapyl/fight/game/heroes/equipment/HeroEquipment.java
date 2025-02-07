@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  * Represents armor equipment that can be equipped to entities.
  * Weapons can only be applied to entities, not players.
  */
-public class Equipment implements Described, Lore {
+public class HeroEquipment implements Described, Lore {
 
     private final ItemStack[] items;
     private String name;
@@ -30,7 +30,7 @@ public class Equipment implements Described, Lore {
     private String flavorText;
     private String helmetTexture;
 
-    public Equipment() {
+    public HeroEquipment() {
         this.items = new ItemStack[6];
         this.name = "";
         this.description = "";
@@ -73,28 +73,28 @@ public class Equipment implements Described, Lore {
     }
 
     @Super
-    public Equipment setItem(@Nonnull Slot slot, @Nullable ItemStack item) {
+    public HeroEquipment setItem(@Nonnull Slot slot, @Nullable ItemStack item) {
         items[slot.getId()] = item;
         return this;
     }
 
-    public Equipment setHandItem(@Nonnull Material material) {
+    public HeroEquipment setHandItem(@Nonnull Material material) {
         return setItem(Slot.HAND, new ItemBuilder(material).cleanToItemSack());
     }
 
-    public Equipment setOffHandItem(@Nonnull Material material) {
+    public HeroEquipment setOffHandItem(@Nonnull Material material) {
         return setItem(Slot.OFFHAND, new ItemBuilder(material).asIcon());
     }
 
-    public Equipment setChestPlate(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
+    public HeroEquipment setChestPlate(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
         return setItem(Slot.CHESTPLATE, new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack());
     }
 
-    public Equipment setLeggings(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
+    public HeroEquipment setLeggings(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
         return setItem(Slot.LEGGINGS, new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack());
     }
 
-    public Equipment setBoots(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
+    public HeroEquipment setBoots(@Nonnull Material material, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial trimMaterial) {
         return setItem(Slot.BOOTS, new ItemBuilder(material).setArmorTrim(pattern, trimMaterial).cleanToItemSack());
     }
 
@@ -104,82 +104,82 @@ public class Equipment implements Described, Lore {
         setHelmet(ItemBuilder.playerHeadUrl(texture64).cleanToItemSack());
     }
 
-    public Equipment setHelmet(int red, int green, int blue) {
+    public HeroEquipment setHelmet(int red, int green, int blue) {
         return setHelmet(ItemBuilder.leatherHat(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public Equipment setChestPlate(int red, int green, int blue) {
+    public HeroEquipment setChestPlate(int red, int green, int blue) {
         return setChestPlate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public Equipment setLeggings(int red, int green, int blue) {
+    public HeroEquipment setLeggings(int red, int green, int blue) {
         return setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public Equipment setBoots(int red, int green, int blue) {
+    public HeroEquipment setBoots(int red, int green, int blue) {
         return setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).cleanToItemSack());
     }
 
-    public Equipment setChestPlate(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
+    public HeroEquipment setChestPlate(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
         return setChestPlate(ItemBuilder.leatherTunic(Color.fromRGB(red, green, blue))
                 .setArmorTrim(pattern, material)
                 .cleanToItemSack());
     }
 
-    public Equipment setLeggings(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
+    public HeroEquipment setLeggings(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
         return setLeggings(ItemBuilder.leatherPants(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
     }
 
-    public Equipment setBoots(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
+    public HeroEquipment setBoots(int red, int green, int blue, @Nonnull TrimPattern pattern, @Nonnull TrimMaterial material) {
         return setBoots(ItemBuilder.leatherBoots(Color.fromRGB(red, green, blue)).setArmorTrim(pattern, material).cleanToItemSack());
     }
 
-    public Equipment setHelmet(@Nullable ItemStack stack) {
+    public HeroEquipment setHelmet(@Nullable ItemStack stack) {
         return setItem(Slot.HELMET, stack);
     }
 
     @Deprecated
-    public Equipment setHelmet(@Nonnull Material material) {
+    public HeroEquipment setHelmet(@Nonnull Material material) {
         return setItem(Slot.HELMET, new ItemBuilder(material).cleanToItemSack());
     }
 
-    public Equipment setHelmet(@Nonnull Color color) {
+    public HeroEquipment setHelmet(@Nonnull Color color) {
         return setHelmet(color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public Equipment setChestPlate(@Nullable ItemStack stack) {
+    public HeroEquipment setChestPlate(@Nullable ItemStack stack) {
         return setItem(Slot.CHESTPLATE, stack);
     }
 
-    public Equipment setChestPlate(@Nonnull Material material) {
+    public HeroEquipment setChestPlate(@Nonnull Material material) {
         return setItem(Slot.CHESTPLATE, new ItemBuilder(material).cleanToItemSack());
     }
 
-    public Equipment setChestPlate(@Nonnull Color color) {
+    public HeroEquipment setChestPlate(@Nonnull Color color) {
         return setChestPlate(color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public Equipment setLeggings(@Nullable ItemStack stack) {
+    public HeroEquipment setLeggings(@Nullable ItemStack stack) {
         return setItem(Slot.LEGGINGS, stack);
     }
 
-    public Equipment setLeggings(@Nonnull Material material) {
+    public HeroEquipment setLeggings(@Nonnull Material material) {
         return setLeggings(new ItemBuilder(material).cleanToItemSack());
     }
 
-    public Equipment setLeggings(@Nonnull Color color) {
+    public HeroEquipment setLeggings(@Nonnull Color color) {
         return setLeggings(color.getRed(), color.getGreen(), color.getBlue());
     }
 
-    public Equipment setBoots(@Nullable ItemStack stack) {
+    public HeroEquipment setBoots(@Nullable ItemStack stack) {
         return setItem(Slot.BOOTS, stack);
     }
 
-    public Equipment setBoots(@Nonnull Material material) {
+    public HeroEquipment setBoots(@Nonnull Material material) {
         return setBoots(new ItemBuilder(material).cleanToItemSack());
     }
 
-    public Equipment setBoots(@Nonnull Color color) {
+    public HeroEquipment setBoots(@Nonnull Color color) {
         return setBoots(color.getRed(), color.getGreen(), color.getBlue());
     }
 
@@ -229,7 +229,7 @@ public class Equipment implements Described, Lore {
         equip(gamePlayer.getPlayer());
     }
 
-    public void setFromEquipment(@Nonnull Equipment equipment) {
+    public void setFromEquipment(@Nonnull HeroEquipment equipment) {
         for (int i = 0; i < this.items.length; i++) {
             this.items[i] = equipment.items[i];
         }

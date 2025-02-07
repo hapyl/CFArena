@@ -71,6 +71,8 @@ public enum Temper implements SmallCapsDescriber {
     RONIN,
 
     LUCKINESS,
+    DEAD_EYE(false),
+
     /* Keep semicolon on this line for easier addition. */;
 
     private final String smallCaps;

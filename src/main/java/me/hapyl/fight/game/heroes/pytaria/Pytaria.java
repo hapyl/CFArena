@@ -14,7 +14,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroProfile;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -71,7 +71,7 @@ public class Pytaria extends Hero {
                 .damage(8.0)
         );
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(222, 75, 85);
         equipment.setLeggings(54, 158, 110, TrimPattern.SILENCE, TrimMaterial.IRON);
         equipment.setBoots(179, 204, 204, TrimPattern.SILENCE, TrimMaterial.IRON);

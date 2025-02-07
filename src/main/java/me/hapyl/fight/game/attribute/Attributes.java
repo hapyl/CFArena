@@ -2,10 +2,12 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.util.Copyable;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -66,11 +68,16 @@ public class Attributes implements Copyable {
      *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
      * </pre>
      *
-     * @param damage - Damage.
+     * @param damage  - Damage.
+     * @param damager - The damager.
      * @return the calculated incoming damage.
      */
-    public final double calculateIncomingDamage(double damage) {
-        final double defense = get(AttributeType.DEFENSE);
+    public final double calculateIncomingDamage(double damage, @Nullable LivingGameEntity damager) {
+        double defense = get(AttributeType.DEFENSE);
+
+        if (damager != null) {
+            defense *= (1 - damager.getAttributes().get(AttributeType.DEFENSE_IGNORE));
+        }
 
         return calculateDefense(damage, defense);
     }

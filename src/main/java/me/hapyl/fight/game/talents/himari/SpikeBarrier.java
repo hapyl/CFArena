@@ -1,24 +1,23 @@
 package me.hapyl.fight.game.talents.himari;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class SpikeBarrier extends HimariTalent implements Listener {
+public class SpikeBarrier extends HimariTalent {
+
+    @DisplayField private final double shieldStrength = 0.5d;
+
     public SpikeBarrier(@Nonnull Key key) {
         super(key,"Spike Barrier");
         setDescription("""
@@ -30,53 +29,40 @@ public class SpikeBarrier extends HimariTalent implements Listener {
                 """);
 
         setItem(Material.SHIELD);
-        setDurationSec(20);
-        setCooldownSec(99999); //since not unlocked yet
         setType(TalentType.DEFENSE);
+        setDurationSec(20);
     }
 
-
-    @EventHandler
-    public void handleGameDamageEvent(GameDamageEvent event) {
-        if (true) {
-            return;
-        }
-
-        Debug.info("Spike shield parameters setup");
-
-        // Get the target player
-        GamePlayer targetPlayer = (GamePlayer) event.getEntity();
-        final GameEntity damager = event.getDamager();
-        final double damage = event.getDamage();
-        Debug.info("Damage and damager fetched successfully!");
-
-        // Absorb half the damage
-        double reducedDamage = damage * 0.5;
-        event.multiplyDamage(0.5d);
-        Debug.info("Damage reduced by 50%.");
-
-        // Reflect half of the reduced damage back to the attacker
-        if (damager instanceof LivingGameEntity) {
-            LivingGameEntity dealer = (LivingGameEntity) damager;
-            dealer.damage(reducedDamage, targetPlayer, EnumDamageCause.SPIKE_SHIELD);
-            Debug.info("Spike Shield - Reflected " + reducedDamage + " damage back to attacker.");
-        }
-    }
-
+    @Nonnull
     @Override
-    public @Nullable Response executeHimari(@NotNull GamePlayer player) {
-        Debug.info("Executing Spike Barrier for player: " + player.getName());
-
-        // Mock an incoming damage event to simulate Spike Barrier activation
-        DamageInstance damageInstance = new DamageInstance(player, 5);
-        GameDamageEvent mockEvent = new GameDamageEvent(damageInstance);
-
-      //  handleGameDamageEvent(mockEvent, player);
-
-        // Start the cooldown after activation
-        setCooldown(9999);
-        Debug.info("Spike Barrier activated for 20 seconds.");
+    public Response executeHimari(@NotNull GamePlayer player) {
+        player.setShield(new SpikeShield(player));
+        player.schedule(
+                () -> {
+                    player.setShield(null);
+                    player.sendMessage("&eSpike Shield is gone!");
+                }, getDuration()
+        );
 
         return Response.ok();
-    } //FIXME: Stuff above doesn't work at all, look into it when you can.
+    }
+
+    private class SpikeShield extends Shield {
+
+        public SpikeShield(@Nonnull GamePlayer player) {
+            super(player, INFINITE_SHIELD, INFINITE_SHIELD, SpikeBarrier.this.shieldStrength);
+        }
+
+        @Override
+        public void onHit(double amount, @Nullable LivingGameEntity damager) {
+            if (damager == null || player.isSelfOrTeammate(damager)) {
+                return;
+            }
+
+            damager.damage(amount, player, EnumDamageCause.SPIKE_SHIELD);
+
+            // Fx
+        }
+    }
+
 }

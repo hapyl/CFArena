@@ -13,7 +13,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
 
 public class ShadowAssassin extends Hero implements Listener, UIComponent {
 
-    public final Equipment furyEquipment = new Equipment();
+    public final HeroEquipment furyEquipment = new HeroEquipment();
     public final double attackIncrease;
     public final double speedDecrease;
     private final int nevermissCd = 20;
@@ -69,7 +69,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         this.attackIncrease = AttributeType.ATTACK.getDefaultValue() - attributes.get(AttributeType.ATTACK);
         this.speedDecrease = attributes.get(AttributeType.SPEED) - AttributeType.SPEED.getDefaultValue();
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(14, 23, 41);
         equipment.setLeggings(7, 12, 23);
         equipment.setBoots(Color.BLACK);

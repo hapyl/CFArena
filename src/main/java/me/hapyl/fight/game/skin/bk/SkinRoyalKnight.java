@@ -2,7 +2,7 @@ package me.hapyl.fight.game.skin.bk;
 
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.skin.Skin;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -22,7 +22,7 @@ public class SkinRoyalKnight extends Skin {
         setRarity(Rarity.RARE);
         setRubyPrice(10);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setTexture("e2dfde6c2c8f0a7adf7ae4e949a804fedf95c6b9562767eae6c22a401cd02cbd");
         equipment.setChestPlate(Color.BLUE);

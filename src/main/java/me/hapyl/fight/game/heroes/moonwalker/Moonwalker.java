@@ -14,7 +14,7 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.WarningType;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -59,7 +59,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
         final HeroAttributes attributes = getAttributes();
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(255, 255, 255);
         equipment.setLeggings(186, 186, 186);
         equipment.setBoots(45, 28, 77);

@@ -14,7 +14,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.ChargeType;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
@@ -59,7 +59,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         attributes.setDefense(80);
         attributes.setAttackSpeed(85);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setChestPlate(38, 22, 38, TrimPattern.RAISER, TrimMaterial.NETHERITE);
         equipment.setLeggings(22, 28, 28, TrimPattern.DUNE, TrimMaterial.NETHERITE);

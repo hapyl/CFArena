@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.entity.shield;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.annotate.PreprocessingMethod;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.EnumDamageCause;
@@ -10,15 +12,20 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
 import org.bukkit.Location;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-// TODO (Wed, Sep 4 2024 @xanyjl): Add shield % like before
 public class Shield implements Ticking {
 
+    public static final double DEFAULT_SHIELD_STRENGTH = 1.0d;
+    public static final double INFINITE_SHIELD = Integer.MAX_VALUE;
+    public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
+
     protected final GamePlayer player;
-    private final double maxCapacity;
+    protected final double maxCapacity;
+    protected final double shieldStrength;
 
     protected double capacity;
 
@@ -27,9 +34,18 @@ public class Shield implements Ticking {
     }
 
     public Shield(@Nonnull GamePlayer player, double maxCapacity, double initialCapacity) {
+        this(player, maxCapacity, initialCapacity, DEFAULT_SHIELD_STRENGTH);
+    }
+
+    public Shield(@Nonnull GamePlayer player, double maxCapacity, double initialCapacity, @Range(from = 0, to = 1) double strength) {
         this.player = player;
         this.maxCapacity = maxCapacity;
         this.capacity = initialCapacity;
+        this.shieldStrength = strength;
+    }
+
+    public double shieldStrength() {
+        return shieldStrength;
     }
 
     /**
@@ -61,18 +77,23 @@ public class Shield implements Ticking {
     }
 
     @PreprocessingMethod
-    public final double takeDamage0(double damage) {
+    public final double takeDamage0(double damage, @Nonnull DamageInstance instance) {
         takeDamage(damage);
 
         // Only call onHit if the shield is still active after hitting it
         if (capacity > 0.0d) {
-            onHit(damage);
+            onHit(damage, instance.getDamager());
         }
 
         return capacity;
     }
 
     public void takeDamage(double damage) {
+        // Check for infinite shield
+        if (capacity >= INFINITE_SHIELD) {
+            return;
+        }
+
         capacity -= damage;
     }
 
@@ -94,17 +115,18 @@ public class Shield implements Ticking {
      *
      * @param amount - Amount of capacity regenerated.
      */
-    @Event
+    @EventLike
     public void onRegenerate(double amount) {
     }
 
     /**
      * Called upon shield taking a hit.
      *
-     * @param amount - Amount of damage taken.
+     * @param amount   - Amount of damage taken.
+     * @param damager - The entity who dealt the damage to the shield. {@code null} if self-damage.
      */
-    @Event
-    public void onHit(double amount) {
+    @EventLike
+    public void onHit(double amount, @Nullable LivingGameEntity damager) {
         updateShield();
     }
 
@@ -118,14 +140,14 @@ public class Shield implements Ticking {
     /**
      * Called upon shield being removed, be it because of a new shield or time limit or anything except breaking.
      */
-    @Event
+    @EventLike
     public void onRemove() {
     }
 
     /**
      * Called upon this shield being applied to a player.
      */
-    @Event
+    @EventLike
     public void onCreate() {
     }
 
@@ -157,6 +179,15 @@ public class Shield implements Ticking {
 
     @Override
     public void tick() {
+    }
+
+    public boolean isInfiniteShield() {
+        return this.capacity >= INFINITE_SHIELD;
+    }
+
+    @Nonnull
+    public String getCapacityFormatted() {
+        return isInfiniteShield() ? "&e∞ &e🛡" : SHIELD_FORMAT.formatted(this.capacity);
     }
 
     private void updateShield() {

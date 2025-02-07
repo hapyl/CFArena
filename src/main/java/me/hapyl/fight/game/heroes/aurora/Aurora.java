@@ -20,7 +20,7 @@ import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -73,7 +73,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         setItem("9babb9fbe50a84b31f68e749b438d4c8f7f58618aec3e769243aa660ce4440fb");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(78, 252, 235, TrimPattern.RAISER, TrimMaterial.AMETHYST);
         equipment.setLeggings(73, 161, 171, TrimPattern.SILENCE, TrimMaterial.AMETHYST);
         equipment.setBoots(204, 110, 235, TrimPattern.SILENCE, TrimMaterial.AMETHYST);

@@ -9,7 +9,7 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -23,6 +23,8 @@ import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 
@@ -41,12 +43,12 @@ public class WitcherClass extends Hero implements ComplexHero, UIComponent {
         profile.setGender(Gender.MALE);
 
         setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");
-        setItem("910905be4f67e2fcad291cdf8aeb2e9ff55fe93f27b8c1f0959024a3cb4a7052");
+        setItem("2552312aa1879e7f7a0fb1526a459add07f3983e90a1457404e505173dcac6fe");
 
-        final Equipment equipment = getEquipment();
-        equipment.setChestPlate(44, 48, 101);
-        equipment.setLeggings(60, 66, 69);
-        equipment.setBoots(29, 29, 33);
+        final HeroEquipment equipment = getEquipment();
+        equipment.setChestPlate(59, 58, 77, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setLeggings(60, 66, 69, TrimPattern.RIB, TrimMaterial.COPPER);
+        equipment.setBoots(102, 55, 38, TrimPattern.SILENCE, TrimMaterial.COPPER);
 
         setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("aerondight"))
                 .name("Aerondight")

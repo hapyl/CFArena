@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.talents.himari;
 
+import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.Debug;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -19,10 +20,15 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class LuckyDay extends Talent {
 
-    private final char[] chars = {'ᛚ', 'ᚢ', 'ᚲ', 'ᚲ'};
+    @DisplayField
+    private final double damageBuff = 7.0d;
+
+    private final List<HimariAction> actions = Lists.newArrayList();
+    private final char[] chars = { 'ᛚ', 'ᚢ', 'ᚲ', 'ᚲ' };
 
     public LuckyDay(@Nonnull Key key) {
         super(key, "Lucky Day");
@@ -37,11 +43,54 @@ public class LuckyDay extends Talent {
                 If you're lucky enough, you will unlock one of your talents.
                 1 Talent or effect at once!
                 """.formatted(AttributeType.DEFENSE, AttributeType.MAX_HEALTH, AttributeType.ATTACK, AttributeType.ENERGY_RECHARGE));
-                //shortly: you do gambling, you win or die
+        //shortly: you do gambling, you win or die
 
         setItem(Material.BOOK);
         setDuration(4);
         setCooldownSec(18);
+
+        actions.add(player -> {
+            player.addEffect(Effects.WITHER, 4, 115);
+            player.addEffect(Effects.BLINDNESS, 2, 100);
+            player.sendSubtitle("&lFeel the cost.", 2, 110, 6);
+        });
+
+        actions.add(GamePlayer::chargeUltimate);
+        actions.add(player -> {
+            //Healing / Increasing Max HP
+            player.sendSubtitle("&lYou feel easier on your soul.", 2, 90, 6);
+
+            if (player.getHealth() != player.getMaxHealth()) {
+                player.heal(80);
+            }
+            else {
+                player.getAttributes().increaseTemporary(Temper.LUCKINESS, AttributeType.MAX_HEALTH, 180, 130);
+                player.heal(80);
+            }
+        });
+
+        actions.add(player -> {
+            final EntityAttributes attributes = player.getAttributes();
+
+            //damage buff
+            attributes.increaseTemporary(Temper.LUCKINESS, AttributeType.ATTACK, damageBuff, 120);
+            player.sendSubtitle("&lYou feel stronger right away.", 2, 100, 6);
+        });
+
+        actions.add(player -> {
+            final HimariData data = getHero().getPlayerData(player);
+
+            //unlock talent 2
+            data.setTalent(TalentRegistry.DEAD_EYE);
+            player.sendSubtitle("&lYou got a new Talent to use!", 2, 70, 6);
+        });
+        actions.add(player -> {
+            final HimariData data = getHero().getPlayerData(player);
+
+            //unlock talent 3
+            data.setTalent(TalentRegistry.SPIKE_BARRIER);
+            player.sendSubtitle("&lYou got a new Talent to use!", 2, 70, 6);
+        });
     }
 
     @Override
@@ -57,14 +106,13 @@ public class LuckyDay extends Talent {
 
         // The dice-rolling and effect application logic will run in the task
 
-        new TickingGameTask(){
+        new TickingGameTask() {
             private final int maxRollTime = getDuration();
             private int currentIndex = 0;
 
             @Override
             public void run(int tick) {
-                if(tick >= maxRollTime){
-                    resultRemembering(player);
+                if (tick >= maxRollTime) {
                     talentChoice(player);
                     cancel();
                     return;  // Exit the method after canceling the task.
@@ -84,81 +132,14 @@ public class LuckyDay extends Talent {
         return HeroRegistry.HIMARI;
     }
 
-
-    public int talentChoice(GamePlayer player) {
+    public void talentChoice(GamePlayer player) {
         // This thing will be activated  upon generating a number and giving it out.
         // it's main purpose is to choice which talent or effect will the player receive.
 
-        int randomNumber = player.random.nextInt(6);
-        return randomNumber;
-    }
+        final HimariAction action = CollectionUtils.randomElement(actions);
 
-
-
-    @DisplayField
-    private final double damageBuff = 7.0d;
-
-    public void effectPicked(int talentChoiceResult, GamePlayer player) {
-        final EntityAttributes attributes = player.getAttributes();
-        final HimariData data = getHero().getPlayerData(player);
-
-        switch (talentChoiceResult) {
-            case 0:
-                //Punishment for gambling too much
-                player.addEffect(Effects.WITHER, 4, 115);
-                player.addEffect(Effects.BLINDNESS,2,100);
-                player.sendSubtitle("&lFeel the cost.", 2, 110, 6);
-                Debug.info("0");
-                break;
-
-            case 1:
-                //Increase ult Energy to it's maximum
-                player.addEnergy(60);
-                Debug.info("1");
-                break;
-
-             case 2:
-                 //Healing / Increasing Max HP
-                player.sendSubtitle("&lYou feel easier on your soul.",2,90,6);
-
-                if (player.getHealth() != player.getMaxHealth()){
-                    player.heal(80);
-                } else {
-                    player.getAttributes().increaseTemporary(Temper.LUCKINESS, AttributeType.MAX_HEALTH, 180, 130);
-                    player.heal(80);
-                }
-                Debug.info("2");
-                break;
-
-            case 3:
-                //damage buff
-                attributes.increaseTemporary(Temper.LUCKINESS, AttributeType.ATTACK, damageBuff, 120);
-                player.sendSubtitle("&lYou feel stronger right away.",2,100,6);
-                Debug.info("3");
-                break;
-
-            case 4:
-                //unlock talent 2
-                data.setTalent(TalentRegistry.DEAD_EYE);
-                player.sendSubtitle("&lYou got a new Talent to use!",2,70,6);
-                Debug.info("4");
-                break;
-
-            case 5:
-                //unlock talent 3
-                data.setTalent(TalentRegistry.SPIKE_BARRIER);
-                player.sendSubtitle("&lYou got a new Talent to use!",2,70,6);
-                Debug.info("5");
-                break;
-
-            default: //if default you're a dumbass
-                player.sendSubtitle("No effect...",2,7,1);
-                break;
+        if (action != null) {
+            action.execute(player);
         }
-    }
-
-    public void resultRemembering(GamePlayer player) {
-        int talentChoiceResult = talentChoice(player);
-        effectPicked(talentChoiceResult, player);
     }
 }

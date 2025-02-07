@@ -1,13 +1,17 @@
 package me.hapyl.fight.game.heroes.himari;
 
+import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.himari.DeadEye;
+import me.hapyl.fight.game.talents.himari.LuckyDay;
+import me.hapyl.fight.game.talents.himari.SpikeBarrier;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -18,6 +22,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 
 public class Himari extends Hero implements Listener, PlayerDataHandler<HimariData> {
 
@@ -37,7 +42,7 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
         setItem("23172927c6518ee184a1466d5f1ea81b989ced61a5d5159e3643bb9caf9c189f");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(128, 128, 128, TrimPattern.FLOW, TrimMaterial.NETHERITE);
         equipment.setLeggings(59, 59, 57, TrimPattern.FLOW, TrimMaterial.NETHERITE);
         equipment.setBoots(51, 49, 49, TrimPattern.FLOW, TrimMaterial.NETHERITE);
@@ -58,16 +63,16 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
 
     @Override
-    public Talent getFirstTalent() {
+    public LuckyDay getFirstTalent() {
         return TalentRegistry.LUCKY_DAY;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public DeadEye getSecondTalent() {
         return TalentRegistry.DEAD_EYE;
     }
 
-    public Talent getThirdTalent(){
+    public SpikeBarrier getThirdTalent(){
         return TalentRegistry.SPIKE_BARRIER;
     }
 
@@ -82,6 +87,9 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
     }
 
     private class HimariUltimate extends UltimateTalent {
+
+        private final Map<Integer, Runnable> actions = Maps.newHashMap();
+
         public HimariUltimate() {
             super(Himari.this,"A message to Behold", 60);
             setDescription("""
@@ -95,6 +103,10 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
             setCooldownSec(30);
         //    setSound(Sound.BLOCK_ANVIL_USE, 0.25f);
 
+            actions.put(0, () -> {
+
+            });
+
         }
 
         @Nonnull
@@ -104,4 +116,5 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
             });
         }
     }
+
 }

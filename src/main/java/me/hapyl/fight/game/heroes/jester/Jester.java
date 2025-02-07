@@ -12,7 +12,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -66,7 +66,7 @@ public class Jester extends Hero implements Disabled, UIComponent, PlayerDataHan
     public Jester(@Nonnull Key key) {
         super(key, "Jester");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(212, 11, 11, TrimPattern.SHAPER, TrimMaterial.GOLD);
         equipment.setLeggings(32, 17, 43, TrimPattern.SILENCE, TrimMaterial.REDSTONE);
         equipment.setBoots(32, 17, 43, TrimPattern.SNOUT, TrimMaterial.GOLD);

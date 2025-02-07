@@ -134,10 +134,6 @@ import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.Scripts;
 import me.hapyl.fight.util.*;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import org.bson.Document;
@@ -160,13 +156,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
@@ -184,7 +177,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.Queue;
 import java.util.*;
@@ -263,6 +255,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new DumpColorCommand("dumpColor"));
 
         // *=* Inner commands *=* //
+        register(
+                "triggerHimariLuckyDay", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  final int index = args.getInt(0);
+
+                                  gamePlayer.sendMessage("Triggered option %s!".formatted(index));
+                                  TalentRegistry.LUCKY_DAY.effectPicked(index, gamePlayer);
+                              });
+                }
+        );
+
         register(
                 "respawnSnakeParkour", (player, args) -> {
                     final SnakeParkour parkour = (SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour();
@@ -1644,17 +1648,14 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("testShield") {
             @Override
             protected void execute(Player player, String[] args) {
-                final GamePlayer gamePlayer = CF.getPlayer(player);
+                CF.getPlayerOptional(player)
+                  .ifPresent(gp -> {
+                      final double capacity = getArgument(args, 0).toDouble(20);
+                      final double strength = getArgument(args, 1).toDouble();
 
-                if (gamePlayer == null) {
-                    Chat.sendMessage(player, "&cMust be in game.");
-                    return;
-                }
-
-                final double capacity = getArgument(args, 0).toDouble(20);
-
-                gamePlayer.setShield(new Shield(gamePlayer, capacity));
-                Chat.sendMessage(player, "&aApplied shield with %s capacity.".formatted(capacity));
+                      gp.setShield(new Shield(gp, capacity, capacity, strength));
+                      Chat.sendMessage(player, "&aApplied shield with %s capacity and %s strength.".formatted(capacity, strength));
+                  });
             }
         });
 
@@ -3448,7 +3449,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 location.setYaw(90f);
                 location.setPitch(90f);
 
-                final Entities<? extends org.bukkit.entity.Entity> toSpawn = Entities.byName(args[0]);
+                final Entities<? extends org.bukkit.entity.Entity> toSpawn = Entities.ZOMBIE;
 
                 if (toSpawn == null) {
                     Chat.sendMessage(player, "&cInvalid entity = " + args[0]);

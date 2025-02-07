@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
@@ -50,7 +50,7 @@ public class Echo extends Hero implements Disabled, PlayerDataHandler<EchoData>,
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.HEXBANE, Archetype.POWERFUL_ULTIMATE);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(28, 34, 38, TrimPattern.RAISER, TrimMaterial.IRON);
         equipment.setLeggings(28, 34, 38, TrimPattern.SNOUT, TrimMaterial.IRON);
 

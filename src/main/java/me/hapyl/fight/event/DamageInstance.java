@@ -253,7 +253,7 @@ public class DamageInstance implements Cancellable {
             }
         }
 
-        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage));
+        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage, damager));
     }
 
     public double getDamageWithinLimit() {

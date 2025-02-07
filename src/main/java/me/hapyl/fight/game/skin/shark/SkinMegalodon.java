@@ -3,7 +3,7 @@ package me.hapyl.fight.game.skin.shark;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.skin.trait.SkinTraitOnMove;
 import me.hapyl.fight.game.skin.trait.SkinTraitType;
 import org.bukkit.Location;
@@ -22,7 +22,7 @@ public class SkinMegalodon extends AbstractSkinShark implements Disabled {
         setRarity(Rarity.LEGENDARY);
         setRubyPrice(100);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setTexture("b86df01f51556ba8c8e781b0bb0f8d69496bf40a8845a9a3d456638d9b242ee6");
         equipment.setChestPlate(76, 103, 145);

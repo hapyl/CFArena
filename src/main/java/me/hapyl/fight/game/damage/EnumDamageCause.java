@@ -154,13 +154,14 @@ public enum EnumDamageCause {
     CHAOS(DamageCause.nonCrit("was chaotically killed", "by").setDamageTicks(1)),
     SHARK_BITE(DamageCause.nonCrit("was bitten", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
     NYX_SPIKE(DamageCause.nonCrit("was pierced to death", "by").addFlags(DamageFlag.PIERCING_DAMAGE)),
-    SPIKE_SHIELD(DamageCause.nonCrit("was hit by spikes", "by")),
+    SPIKE_SHIELD(DamageCause.nonCrit("was hit by spikes", "by").addFlags(DamageFlag.TRUE_DAMAGE)),
     THE_JOKER(DamageCause.nonCrit("'s death was yoinked", "by")),
     ECHO(DamageCause.nonCrit("lost their body in the monochrome world", "of")),
     RONIN_HIT(DamageCause.nonCrit("lost in the duel", "to")),
     DEFLECT(DamageCause.nonCrit("was killed by {damager}'s deflected attack")),
     BAT_BITE(DamageCause.nonCrit("was bitten", "by")),
     BAT_BITE_NO_TICK(BAT_BITE.damageCause.createCopy().setDamageTicks(1)),
+    DEAD_EYE(DamageCause.of("was dead eyed", "by")),
 
     ;
 

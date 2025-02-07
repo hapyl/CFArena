@@ -262,6 +262,14 @@ public enum AttributeType implements Described {
         }
     },
 
+    DEFENSE_IGNORE(
+            new Attribute("Defense Ignore", "The percentage of victim's defense ignored when dealing damage.")
+                    .setChar("∅")
+                    .setColor(ChatColor.GOLD)
+                    .setToString(AttributeType::doubleFormatPercent),
+            0.0d
+    ),
+
     ;
 
     private static final List<String> NAMES;

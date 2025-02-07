@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import me.hapyl.fight.Notifier;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.skin.Skin;
@@ -27,7 +27,7 @@ public class PlayerSkinPreview extends TickingGameTask {
     public final Player player;
     public final Hero hero;
     public final me.hapyl.eterna.module.player.PlayerSkin skin;
-    public final Equipment equipment;
+    public final HeroEquipment equipment;
 
     protected HumanNPC npc;
     private double rotation = 0;
@@ -40,7 +40,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         );
     }
 
-    PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Equipment equipment) {
+    PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable HeroEquipment equipment) {
         this.player = player;
         this.hero = hero;
 

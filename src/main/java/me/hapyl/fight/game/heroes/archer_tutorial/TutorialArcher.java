@@ -10,7 +10,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.archer.Archer;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -36,7 +36,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
         final HeroAttributes attributes = getAttributes();
         attributes.setCooldownModifier(25);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setFromEquipment(archer.getEquipment());
 
         setWeapon(archer.getWeapon());

@@ -795,20 +795,22 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         // Shield
         if (shield != null && shield.canShield(cause)) {
             final double damage = instance.getDamage();
-            final double capacityAfterHit = shield.takeDamage0(damage);
+            final double damageMitigated = damage * shield.shieldStrength();
+            final double damageTaken = Math.max(0, damage - damageMitigated);
+            final double capacityAfterHit = shield.takeDamage0(damageMitigated, instance);
 
             // Always display shield damage
-            if (damage > 0) {
-                shield.display(damage, this.getEyeLocation());
+            if (damageMitigated > 0) {
+                shield.display(damageMitigated, this.getEyeLocation());
             }
 
             // Shield took damage
             if (capacityAfterHit > 0) {
-                instance.setDamage(0);
+                instance.setDamage(0 + damageTaken);
             }
             // Shield broke
             else {
-                instance.setDamage(-capacityAfterHit);
+                instance.setDamage(-capacityAfterHit + damageTaken);
 
                 shield.onBreak0();
                 shield = null;
@@ -888,14 +890,23 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
 
-        // Don't kill if entity shouldn't die
-        if (!shouldDie()) {
-            return;
-        }
+        // FIXME (Tue, Feb 4 2025 @xanyjl): Make this DEAD but like why doesn't it work for gp?
+        state = deathState();
 
-        state = EntityState.DEAD;
+        cooldown.stopCooldowns();
+        bloodDebt.reset();
+
+        shield = null;
+        decay = null;
+
+        memory.forgetEverything();
 
         onDeath();
+    }
+
+    @Nonnull
+    protected EntityState deathState() {
+        return EntityState.DEAD;
     }
 
     @Nonnull
@@ -911,14 +922,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @OverridingMethodsMustInvokeSuper
     public void onDeath() {
         super.onDeath();
-
-        cooldown.stopCooldowns();
-        bloodDebt.reset();
-
-        shield = null;
-        decay = null;
-
-        memory.forgetEverything();
     }
 
     /**
@@ -1018,10 +1021,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
     @Event
     public void onDamageDealt(@Nonnull DamageInstance instance) {
-    }
-
-    public boolean shouldDie() {
-        return true;
     }
 
     @Nonnull

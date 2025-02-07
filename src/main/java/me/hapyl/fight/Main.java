@@ -18,6 +18,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticHandler;
 import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.experience.Experience;
+import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.features.BoosterController;
 import me.hapyl.fight.game.maps.gamepack.GamePackHandler;
 import me.hapyl.fight.game.parkour.CFParkourManager;
@@ -28,7 +29,10 @@ import me.hapyl.fight.game.trial.TrialListener;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.notifier.NotificationManager;
 import me.hapyl.fight.npc.PersistentNPCManager;
-import me.hapyl.fight.protocol.*;
+import me.hapyl.fight.protocol.ArcaneMutePacketHandler;
+import me.hapyl.fight.protocol.DismountPacketHandler;
+import me.hapyl.fight.protocol.MotDPacketHandler;
+import me.hapyl.fight.protocol.PlayerClickAtEntityPacketHandler;
 import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
@@ -51,7 +55,7 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = Color.GOLD.bold() +
             "&6&lᴄғ &eᴀʀᴇɴᴀ";
 
-    public static final UpdateTopic updateTopic = new UpdateTopic("&dRonin is Out!");
+    public static final UpdateTopic updateTopic = new UpdateTopic("&4He's Back, isn't he?");
 
     public static final String requireEternaVersion = "4.6.1";
     public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete
@@ -181,6 +185,9 @@ public class Main extends JavaPlugin {
 
                     // Clear old entities, most likely because of /reload
                     SynchronizedGarbageEntityCollector.clearInAllWorlds();
+
+                    // Load lobby items
+                    LobbyItems.values();
                 }, 1
         ); // Sped up the profile creation, why was it 20 ticks anyway?
 

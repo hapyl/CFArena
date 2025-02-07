@@ -25,8 +25,12 @@ import org.bukkit.profile.PlayerTextures;
 
 import javax.annotation.Nonnull;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DumpColorCommand extends CFCommand {
+
+    private static final Pattern TEXTURE_PATTERN = Pattern.compile("https?://textures\\.minecraft\\.net/texture/([a-fA-F0-9]+)");
 
     public DumpColorCommand(@Nonnull String name) {
         super(name, PlayerRank.ADMIN);
@@ -59,12 +63,14 @@ public class DumpColorCommand extends CFCommand {
                 return;
             }
 
-            final String urlString = skin.toString().replace("https://textures.minecraft.net/texture/", "");
+            final String urlString = skin.toString();
+            final Matcher matcher = TEXTURE_PATTERN.matcher(urlString);
+            final String texture = matcher.find() ? matcher.group(1) : urlString;
 
-            command.append(urlString);
+            command.append(texture);
             component.append(
                     Component.text("Skin Texture: ").color(NamedTextColor.DARK_GREEN),
-                    Component.text(urlString).color(NamedTextColor.GREEN)
+                    Component.text(texture).color(NamedTextColor.GREEN)
             );
         }
         // Else handle color and/or trim

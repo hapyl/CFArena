@@ -5,12 +5,13 @@ import me.hapyl.fight.CF;
 
 import javax.annotation.Nonnull;
 
-// FIXME (Tue, Feb 4 2025 @xanyjl): Maybe cache the value because this is reading every time it's called
 public class EnvironmentProperty<T> {
 
     private final String name;
     private final Class<T> clazz;
     private final T defaultValue;
+
+    private T value;
 
     private EnvironmentProperty(@Nonnull String name, @Nonnull Class<T> clazz, @Nonnull T defaultValue) {
         this.clazz = clazz;
@@ -41,9 +42,14 @@ public class EnvironmentProperty<T> {
 
     @Nonnull
     public T value() {
-        return CF.environment().document.getValue(this);
+        if (this.value == null) {
+            this.value = CF.environment().document.getValue(this);
+        }
+
+        return this.value;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean value(@Nonnull Object object) {
         final Object toSet;
 
@@ -63,10 +69,11 @@ public class EnvironmentProperty<T> {
         }
 
         // Don't change the environment is not needed, this ACTUALLY writes in the database right away, be it async
-        if (toSet == value()) {
+        if (toSet == this.value) {
             return false;
         }
 
+        this.value = (T) toSet;
         CF.environment().document.setValue(this, toSet);
         return true;
     }

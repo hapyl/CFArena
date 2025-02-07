@@ -1,14 +1,18 @@
 package me.hapyl.fight.game.parkour.storage;
 
 import com.mongodb.client.model.Updates;
+import me.hapyl.eterna.module.parkour.Data;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.BoundingBox;
+
+import javax.annotation.Nullable;
 
 public class SlimeParkour extends CFParkour {
 
@@ -32,6 +36,15 @@ public class SlimeParkour extends CFParkour {
 
     public int getFails() {
         return database.read("fails", 0);
+    }
+
+    @Nullable
+    @Override
+    public Response onStart(Player player, Data data) {
+        Registries.getNPCs().UNDEAD_WATCHER.sendNpcMessage(player, "This parkour is way too dangerous!");
+
+        player.teleport(getQuitLocation());
+        return Response.CANCEL;
     }
 
     @Override

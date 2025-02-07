@@ -23,7 +23,7 @@ import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
@@ -76,7 +76,7 @@ public abstract class Hero
     private final HeroAttributes attributes;
     private final HeroProfile profile;
 
-    private final Equipment equipment;
+    private final HeroEquipment equipment;
     private final String name;
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
@@ -103,7 +103,7 @@ public abstract class Hero
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.PLAYER_HEAD);
         this.weapon = Weapon.builder(Material.WOODEN_SWORD, Key.ofString("default_weapon")).build();
-        this.equipment = new Equipment();
+        this.equipment = new HeroEquipment();
         this.attributes = new HeroAttributes(this);
         this.profile = new HeroProfile(this);
         this.minimumLevel = 0;
@@ -229,7 +229,7 @@ public abstract class Hero
      * @return this hero's weapon.
      */
     @Nonnull
-    public Equipment getEquipment() {
+    public HeroEquipment getEquipment() {
         return equipment;
     }
 

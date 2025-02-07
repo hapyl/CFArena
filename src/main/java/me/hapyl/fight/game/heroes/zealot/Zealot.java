@@ -14,7 +14,7 @@ import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 
 public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotData>, UIComponent {
 
-    protected final Equipment abilityEquipment;
+    protected final HeroEquipment abilityEquipment;
     private final PlayerDataMap<ZealotData> zealotData = PlayerMap.newDataMap(ZealotData::new);
 
     public Zealot(@Nonnull Key key) {
@@ -63,12 +63,12 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
         final HeroAttributes attributes = getAttributes();
         attributes.setFerocity(25);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
         equipment.setLeggings(Material.DIAMOND_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
         equipment.setBoots(Material.DIAMOND_BOOTS, TrimPattern.SILENCE, TrimMaterial.DIAMOND);
 
-        abilityEquipment = new Equipment();
+        abilityEquipment = new HeroEquipment();
         abilityEquipment.setHelmet(getItem());
         abilityEquipment.setChestPlate(104, 166, 232, TrimPattern.SILENCE, TrimMaterial.GOLD);
         abilityEquipment.setLeggings(Material.GOLDEN_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.GOLD);

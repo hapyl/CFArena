@@ -22,7 +22,7 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Impel;
 import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Type;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -97,7 +97,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         attributes.setMaxHealth(80.0d);
         attributes.setAttackSpeed(150);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setChestPlate(99, 8, 16, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(28, 3, 7);

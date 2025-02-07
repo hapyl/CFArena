@@ -9,7 +9,7 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -41,7 +41,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
 
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(5, 2, 41, TrimPattern.SNOUT, TrimMaterial.GOLD);
         equipment.setLeggings(Material.NETHERITE_LEGGINGS, TrimPattern.SHAPER, TrimMaterial.NETHERITE);
         equipment.setBoots(5, 2, 41, TrimPattern.TIDE, TrimMaterial.GOLD);

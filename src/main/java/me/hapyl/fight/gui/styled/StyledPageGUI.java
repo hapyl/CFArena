@@ -47,7 +47,8 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
                     pl -> openInventory(page - 1)
             );
         }
-        else if (page < getMaxPage()) {
+
+        if (page < getMaxPage()) {
             setItem(
                     getSize() - 3,
                     StyledTexture.ARROW_RIGHT.asIcon("&aNext Page", Color.BUTTON + "Click to open the next page!"),

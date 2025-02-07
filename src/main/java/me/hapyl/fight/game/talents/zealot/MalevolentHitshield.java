@@ -6,6 +6,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.HitShield;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -40,7 +41,7 @@ public class MalevolentHitshield extends Talent {
 
         player.setShield(new HitShield(player, shieldStrength) {
             @Override
-            public void onHit(double amount) {
+            public void onHit(double amount, @Nullable LivingGameEntity damager) {
                 // Fx
                 player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, (float) (2.0f - (1.5f / shieldStrength * capacity)));
                 player.spawnWorldParticle(Particle.PORTAL, 10, 0, 0, 0, 1.0f);

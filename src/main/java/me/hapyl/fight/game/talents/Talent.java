@@ -310,7 +310,7 @@ public abstract class Talent
         if (cd > 0) {
             builderAttributes.addLore("Cooldown%s: &f&l%ss".formatted(
                     this instanceof ChargedTalent ? " between charges" : "",
-                    BukkitUtils.roundTick(this.cd)
+                    this.cd >= Constants.INDEFINITE_COOLDOWN ? "∞" : BukkitUtils.roundTick(this.cd)
             ));
         }
         else if (cd <= -1) {

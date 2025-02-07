@@ -105,7 +105,7 @@ public class StringDisplay {
             self.setViewRange(viewRange);
 
             onPrepare(self);
-        }, false);
+        });
 
         onStart(text);
 

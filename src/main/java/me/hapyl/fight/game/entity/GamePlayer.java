@@ -30,11 +30,12 @@ import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
+import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.entity.task.PlayerTaskList;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
@@ -96,7 +97,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public static final double HEALING_AT_KILL = 0.3d;
     public static final double ASSIST_DAMAGE_PERCENT = 0.5d;
     public static final long COMBAT_TAG_DURATION = 5000L;
-    public static final String SHIELD_FORMAT = "&e&l%.0f &e🛡";
 
     private static final double MAX_HEARTS = 40.0d;
     private static final ItemStack HIDE_HAND_ITEM = new ItemBuilder(Material.STONE)
@@ -274,19 +274,13 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     @Override
-    public boolean shouldDie() {
-        // players do not die, they're put in spectator
-        return false;
-    }
-
-    @Override
     public void onStop(@Nonnull GameInstance instance) {
         final Hero hero = getHero();
         final StatContainer stats = getStats();
         final Player player = getEntity();
 
         Glowing.stopGlowing(player);
-        //resetPlayer(); // maybe don't reset player here actually
+        resetPlayer();
 
         // Reset skin if was applied
         final PlayerSkin skin = hero.getSkin();
@@ -628,6 +622,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         updateHealth();
     }
 
+    @Nonnull
+    @Override
+    protected EntityState deathState() {
+        return EntityState.ALIVE;
+    }
+
     // Update player visual health
     public void updateHealth() {
         final double maxHealth = getMaxHealth();
@@ -647,10 +647,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public String getHealthFormatted(@Nonnull Player player) {
         if (shield != null) {
             if (EnumSetting.SHOW_HEALTH_AND_SHIELD_SEPARATELY.isEnabled(player)) {
-                return super.getHealthFormatted() + " " + SHIELD_FORMAT.formatted(shield.getCapacity());
+                return super.getHealthFormatted() + " " + shield.getCapacityFormatted();
             }
             else {
-                return SHIELD_FORMAT.formatted(getHealth() + shield.getCapacity());
+                return Shield.SHIELD_FORMAT.formatted(getHealth() + shield.getCapacity());
             }
         }
 
@@ -1230,7 +1230,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         setGameMode(GameMode.SURVIVAL);
 
         final PlayerSkin skin = hero.getSkin();
-        final Equipment equipment = hero.getEquipment();
+        final HeroEquipment equipment = hero.getEquipment();
 
         // Apply equipment
         if (skin == null || EnumSetting.USE_SKINS_INSTEAD_OF_ARMOR.isDisabled(getPlayer())) {
@@ -1687,6 +1687,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     @SuppressWarnings("UnstableApiUsage")
     public Input input() {
         return getPlayer().getCurrentInput();
+    }
+
+    public void chargeUltimate() {
+        addEnergy(getUltimateCost());
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

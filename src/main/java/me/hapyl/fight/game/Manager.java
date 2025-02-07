@@ -711,7 +711,7 @@ public final class Manager extends BukkitRunnable {
         }
 
         // Remove entities
-        Entities.killSpawned();
+        Entities.defaultCache().dispose();
 
         // Remove garbage entities
         SynchronizedGarbageEntityCollector.clearInAllWorlds();
@@ -830,7 +830,7 @@ public final class Manager extends BukkitRunnable {
                 return;
             }
 
-            if (!force) {
+            if (!force && !CF.environment().allowDisabledHeroes.isEnabled()) {
                 Chat.sendMessage(player, "&cNot selecting a disabled hero without &e-IKnowItsDisabledHeroAndWillBreakTheGame&c argument!");
                 PlayerLib.villagerNo(player);
                 return;

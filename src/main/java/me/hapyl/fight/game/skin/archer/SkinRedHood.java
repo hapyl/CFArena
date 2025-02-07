@@ -3,7 +3,7 @@ package me.hapyl.fight.game.skin.archer;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 
@@ -32,7 +32,7 @@ public class SkinRedHood extends AbstractSkinArcher {
         setRarity(Rarity.EPIC);
         setRubyPrice(50);
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
 
         equipment.setTexture("c6336c4bef7f74a147e872e721fc536eddc2ffd01a7e48d0b6f3f419fc7d2a");
         equipment.setChestPlate(161, 118, 84);
