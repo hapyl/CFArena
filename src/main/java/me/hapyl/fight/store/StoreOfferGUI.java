@@ -3,7 +3,7 @@ package me.hapyl.fight.store;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.dialog.Dialog;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -66,7 +66,7 @@ public class StoreOfferGUI extends StyledGUI {
             }
 
             if (hasPurchased) {
-                Notifier.ERROR.sendWithSound(player, "You have already purchased this!");
+                Message.ERROR.sendWithSound(player, "You have already purchased this!");
                 return;
             }
 

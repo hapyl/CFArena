@@ -2,7 +2,7 @@ package me.hapyl.fight.chat;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
@@ -43,7 +43,7 @@ public class ChatHandler implements Listener {
         final PlayerProfileData playerData = profile.getPlayerData();
 
         if (!rank.isStaff() && playerData.isLastMessageSimilarTo(message)) {
-            Notifier.error(player, "You cannot say the same message twice!");
+            Message.error(player, "You cannot say the same message twice!");
             return;
         }
 

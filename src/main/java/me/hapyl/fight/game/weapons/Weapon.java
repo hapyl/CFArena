@@ -13,6 +13,7 @@ import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -59,6 +60,7 @@ public class Weapon
     private String description;
     private String lore;
     private ItemStack item;
+    private EnumDamageCause damageCause;
 
     protected Weapon(@Nonnull Material material, @Nonnull Key key) {
         this.material = material;
@@ -68,6 +70,16 @@ public class Weapon
         this.damage = 1;
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newLinkedHashMap();
+        this.damageCause = null;
+    }
+
+    @Nullable
+    public EnumDamageCause damageCause() {
+        return damageCause;
+    }
+
+    public void damageCause(@Nonnull EnumDamageCause damageCause) {
+        this.damageCause = damageCause;
     }
 
     public void removeAbility(@Nonnull AbilityType type) {
@@ -390,6 +402,11 @@ public class Weapon
 
         public Builder enchant(@Nonnull Enchantment enchantment, int level) {
             this.weapon.addEnchant(enchantment, level);
+            return this;
+        }
+
+        public Builder damageCause(@Nonnull EnumDamageCause cause) {
+            this.weapon.damageCause(cause);
             return this;
         }
 

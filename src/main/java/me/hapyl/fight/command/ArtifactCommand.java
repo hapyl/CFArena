@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.ArtifactEntry;
 import me.hapyl.fight.game.artifact.Artifact;
@@ -37,7 +37,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
         // artifact <player> <get>              <type>
 
         if (args.length != 3) {
-            Notifier.error(player, "Invalid usage!");
+            Message.error(player, "Invalid usage!");
             return;
         }
 
@@ -45,7 +45,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
         final String argument = getArgument(args, 1).toString();
 
         if (target == null) {
-            Notifier.error(player, "This player is not online!");
+            Message.error(player, "This player is not online!");
             return;
         }
 
@@ -56,17 +56,17 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
             final Type type = getArgument(args, 2).toEnum(Type.class);
 
             if (type == null) {
-                Notifier.error(player, "Invalid type!");
+                Message.error(player, "Invalid type!");
                 return;
             }
 
             final Artifact selected = entry.getSelected(type);
 
             if (selected == null) {
-                Notifier.success(player, "{%s} doesn't have any {%s} selected.".formatted(target.getName(), type.name()));
+                Message.success(player, "{%s} doesn't have any {%s} selected.".formatted(target.getName(), type.name()));
             }
             else {
-                Notifier.success(player, "{%s} has {%s} {%s} selected.".formatted(target.getName(), selected.getName(), type.name()));
+                Message.success(player, "{%s} has {%s} {%s} selected.".formatted(target.getName(), selected.getName(), type.name()));
             }
 
             return;
@@ -76,7 +76,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
         final Artifact artifact = Registries.getArtifacts().get(artifactId);
 
         if (artifact == null) {
-            Notifier.error(player, "Could not find that artifact!");
+            Message.error(player, "Could not find that artifact!");
             return;
         }
 
@@ -84,31 +84,31 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
             case "has" -> {
                 final boolean isOwned = entry.isOwned(artifact);
 
-                Notifier.info(player, "{%s} {%s} this artifact!".formatted(target.getName(), isOwned ? "owns" : "does not own"));
+                Message.info(player, "{%s} {%s} this artifact!".formatted(target.getName(), isOwned ? "owns" : "does not own"));
             }
 
             case "add" -> {
                 if (entry.isOwned(artifact)) {
-                    Notifier.error(player, "{%s} already owns this artifact!".formatted(target.getName()));
+                    Message.error(player, "{%s} already owns this artifact!".formatted(target.getName()));
                     return;
                 }
 
                 entry.setOwned(artifact, true);
-                Notifier.success(player, "Gave {%s} artifact to {%s}!".formatted(artifact.getName(), target.getName()));
+                Message.success(player, "Gave {%s} artifact to {%s}!".formatted(artifact.getName(), target.getName()));
             }
 
             case "remove" -> {
                 if (!entry.isOwned(artifact)) {
-                    Notifier.error(player, "{%s} does not own this artifact!".formatted(target.getName()));
+                    Message.error(player, "{%s} does not own this artifact!".formatted(target.getName()));
                     return;
                 }
 
                 entry.setOwned(artifact, false);
-                Notifier.success(player, "Removed {%s} from {%s}!".formatted(artifact.getName(), target.getName()));
+                Message.success(player, "Removed {%s} from {%s}!".formatted(artifact.getName(), target.getName()));
             }
 
             default -> {
-                Notifier.error(player, "Invalid operation!");
+                Message.error(player, "Invalid operation!");
             }
         }
     }

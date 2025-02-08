@@ -3,9 +3,8 @@ package me.hapyl.fight.game.heroes.mastery;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.MapWrap;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.MapGuide;
-import me.hapyl.fight.game.FairMode;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -20,7 +19,6 @@ import java.util.*;
 public class HeroMastery implements Iterable<HeroMasteryLevel> {
 
     public static final int MAX_LEVEL;
-    public static final long INCREMENT;
     public static final int UNFAIR_LEVEL;
 
     public static final long EXP_WIN;
@@ -33,8 +31,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
     private static final Map<Integer, LevelDisplay> MASTERY_STRING_MAP;
 
     static {
-        MAX_LEVEL = 10;
-        INCREMENT = 25;
+        MAX_LEVEL = 5;
         UNFAIR_LEVEL = -1;
 
         EXP_WIN = 10;
@@ -52,22 +49,18 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         for (int i = 1; i <= MAX_LEVEL; i++) {
             EXP_MAP.put(i, exp);
 
-            exp += INCREMENT * i + 100;
+            exp += (int) (i * (Math.pow(i, 2) + 250));
+            exp -= exp % 50;
         }
 
         // Mastery Strings
         MASTERY_STRING_MAP = Map.ofEntries(
                 Map.entry(0, new LevelDisplay("&8", "Rookie")),
-                Map.entry(1, new LevelDisplay("&a", "I")),
-                Map.entry(2, new LevelDisplay("&a", "II")),
-                Map.entry(3, new LevelDisplay("&2", "III")),
-                Map.entry(4, new LevelDisplay("&2", "IV")),
-                Map.entry(5, new LevelDisplay("&e", "V")),
-                Map.entry(6, new LevelDisplay("&e", "VI")),
-                Map.entry(7, new LevelDisplay("&6", "VII")),
-                Map.entry(8, new LevelDisplay("&6", "VIII")),
-                Map.entry(9, new LevelDisplay("&c", "IX")),
-                Map.entry(10, new LevelDisplay("&4&l", "Master"))
+                Map.entry(1, new LevelDisplay("&a", "I, Noob")),
+                Map.entry(2, new LevelDisplay("&e", "II, Not Pro")),
+                Map.entry(3, new LevelDisplay("&6", "III, Almost Pro")),
+                Map.entry(4, new LevelDisplay("&c", "IV, Pro")),
+                Map.entry(5, new LevelDisplay("&4", "V, Master"))
         );
     }
 
@@ -105,23 +98,9 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
     }
 
     protected int getLevel(@Nonnull GamePlayer player) {
-        final Manager manager = Manager.current();
+        final GameInstance gameInstance = Manager.current().getGameInstance();
 
-        // The 'fair' level system exists where all players
-        // will be considered to have a certain mastery level for each hero.
-        if (manager.isGameInProgress()) {
-            final FairMode fairMode = manager.getFairMode();
-            final int value = fairMode.getValue();
-
-            if (value != HeroMastery.UNFAIR_LEVEL) {
-                return value;
-            }
-        }
-
-        // In truth, this method should only while IN the game, hence it takes GamePlayer,
-        // meaning GameInstance would have to exist, but just in case it doesn't somehow,
-        // the default value will be returned
-        return CF.getDatabase(player.getPlayer()).masteryEntry.getLevel(hero);
+        return gameInstance != null ? gameInstance.heroMastery().getMastery(player) : 0;
     }
 
     /**
@@ -178,8 +157,6 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
 
         final Hero playerHero = player.getHero();
 
-        player.getDatabase().masteryEntry.addExp(playerHero, earnedExp);
-
         player.sendMessage(PREFIX + "&aEarned %s &6Mastery Exp&a for %s!".formatted(earnedExp, playerHero.getNameSmallCaps()));
     }
 
@@ -194,27 +171,31 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
     }
 
     public static void dumpExpMap(Player player) {
-        Chat.sendMessage(player, CollectionUtils.wrapToString(EXP_MAP, new MapWrap<>() {
-            @Override
-            public String keyToValue(Integer key, Long value) {
-                return key + "=" + value;
-            }
+        Chat.sendMessage(
+                player, CollectionUtils.wrapToString(
+                        EXP_MAP, new MapWrap<>() {
+                            @Override
+                            public String keyToValue(Integer key, Long value) {
+                                return key + "=" + value;
+                            }
 
-            @Override
-            public String start() {
-                return "{";
-            }
+                            @Override
+                            public String start() {
+                                return "{";
+                            }
 
-            @Override
-            public String between() {
-                return ", ";
-            }
+                            @Override
+                            public String between() {
+                                return ", ";
+                            }
 
-            @Override
-            public String end() {
-                return "}";
-            }
-        }));
+                            @Override
+                            public String end() {
+                                return "}";
+                            }
+                        }
+                )
+        );
     }
 
     public record LevelDisplay(String color, String string) {

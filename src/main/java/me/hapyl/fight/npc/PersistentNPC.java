@@ -13,7 +13,7 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.task.DelegateTask;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.task.PersistentTask;
 import me.hapyl.fight.util.Delegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,7 +62,7 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
         }
 
         // Delegate task
-        DelegateTask.delegate(this, new GameTask() {
+        DelegateTask.delegate(this, new PersistentTask() {
             @Override
             public void run() {
                 PersistentNPC.this.tick();

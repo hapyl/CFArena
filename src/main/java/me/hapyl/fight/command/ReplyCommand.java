@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
@@ -26,14 +26,14 @@ public class ReplyCommand extends CFCommand {
         final Player lastMessenger = conversation.getLastMessenger();
 
         if (lastMessenger == null) {
-            Notifier.error(player, "No one to reply to!");
+            Message.error(player, "No one to reply to!");
             return;
         }
 
         final PlayerProfile targetProfile = CF.getProfileOrNull(player);
 
         if (targetProfile == null) {
-            Notifier.error(player, "The player you're trying to reply is no longer online.");
+            Message.error(player, "The player you're trying to reply is no longer online.");
             conversation.lastMessenger = null;
             return;
         }

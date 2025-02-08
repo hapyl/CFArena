@@ -6,6 +6,6 @@ import javax.annotation.Nonnull;
 
 public interface HimariAction {
 
-    void execute(@Nonnull GamePlayer player);
+    boolean execute(@Nonnull GamePlayer player);
 
 }

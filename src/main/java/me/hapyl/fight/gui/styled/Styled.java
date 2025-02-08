@@ -1,6 +1,6 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.SoundEffect;
 import org.bukkit.entity.Player;
@@ -39,8 +39,8 @@ public interface Styled {
 
     default boolean checkCanOpen(@Nonnull Player player) {
         if (Manager.current().isGameInProgress()) {
-            Notifier.error(player, "You cannot open this GUI in a game!");
-            Notifier.sound(player, SoundEffect.ERROR);
+            Message.error(player, "You cannot open this GUI in a game!");
+            Message.sound(player, SoundEffect.ERROR);
             return true;
         }
 

@@ -68,12 +68,21 @@ public final class StyledTexture extends StyledItem {
             "31f7cdfea2d21cd5f6ebbf48481761c6cbdf36d00fe64083686e9aeaa3f1f217"
     );
 
+    public static final StyledTexture TNT = new StyledTexture(
+            "94f90c7bd60bfd0dfc31808d0484d8c2db9959f68df91fbf29423a3da62429a6"
+    );
+
     public StyledTexture(String texture) {
         this(texture, null, null);
     }
 
     private StyledTexture(String texture, String name, String description) {
         super(texture, name, description);
+    }
+
+    @Nonnull
+    public ItemBuilder toBuilderClean() {
+        return ItemBuilder.playerHeadUrl(texture);
     }
 
     @Nonnull

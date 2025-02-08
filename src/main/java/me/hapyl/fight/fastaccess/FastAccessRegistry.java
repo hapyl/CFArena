@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.SimpleRegistry;
 import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -17,10 +18,10 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -48,23 +49,34 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
                 @Nonnull
                 @Override
-                public ItemBuilder create(@Nonnull Player player) {
+                public ItemStack getMaterial(@Nonnull Player player) {
+                    return hero.getItem(player);
+                }
+
+                @Nonnull
+                @Override
+                public String getName() {
+                    return "Select %s".formatted(hero.getName());
+                }
+
+                @Override
+                public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
                     final PlayerProfile profile = CF.getProfile(player);
                     final Hero currentHero = profile.getHero();
 
-                    return new ItemBuilder(hero.getItem(player))
-                            .setName("Select " + hero.getName())
-                            .addLore()
-                            .addSmartLore("Changes the current hero of yours.", "&8&o")
-                            .addLore()
-                            .addLore("Change the hero to: " + Color.GOLD + hero.getNameSmallCaps())
-                            .addLore("Current hero: " + Color.GOLD + currentHero.getNameSmallCaps());
+                    builder.addLore("Change the hero to: %s".formatted(Color.GOLD + hero.getNameSmallCaps()))
+                           .addLore("Current hero: %s".formatted(Color.GOLD + currentHero.getNameSmallCaps()));
                 }
+
             });
         }
 
         // Map select
         for (EnumLevel enumMap : EnumLevel.getPlayableMaps()) {
+            if (!enumMap.isPlayable()) {
+                continue;
+            }
+
             register(new FastAccess("select_map_" + enumMap.getKeyAsString(), Category.SELECT_MAP) {
                 @Override
                 public void onClick(@Nonnull Player player) {
@@ -73,42 +85,35 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
                 @Nonnull
                 @Override
-                public ItemBuilder create(@Nonnull Player player) {
-                    return new ItemBuilder(enumMap.getLevel().getMaterial())
-                            .setName("Select " + enumMap.getName())
-                            .addLore()
-                            .addSmartLore("Changes the current map.", "&8&o")
-                            .addLore()
-                            .addLore("Change map to: " + Color.GOLD + enumMap.getName())
-                            .addLore("Current map: " + Color.GOLD + Manager.current().getCurrentMap().getName());
-                }
-            });
-        }
-
-        // Mode select
-        for (EnumGameType enumMode : EnumGameType.values()) {
-            register(new FastAccess("select_mode_" + enumMode.getKeyAsString(), Category.SELECT_MODE) {
-                @Override
-                public void onClick(@Nonnull Player player) {
-                    enumMode.select(player);
+                public ItemStack getMaterial(@Nonnull Player player) {
+                    return ItemStack.of(enumMap.getLevel().getMaterial());
                 }
 
                 @Nonnull
                 @Override
-                public ItemBuilder create(@Nonnull Player player) {
-                    return new ItemBuilder(enumMode.getMode().getMaterial())
-                            .setName("Select " + enumMode.getName())
-                            .addLore()
-                            .addSmartLore("Changes the current mode.", "&8&o")
-                            .addLore()
-                            .addLore("Change mode to: " + Color.GOLD + enumMode.getName())
-                            .addLore("Current mode: " + Color.GOLD + Manager.current().getCurrentMode().getName());
+                public String getName() {
+                    return "Select %s".formatted(enumMap.getName());
+                }
+
+                @Override
+                public boolean shouldDisplayTo(@Nonnull Player player) {
+                    return CF.getProfile(player).getRank().isOrHigher(PlayerRank.GAME_MANAGER);
+                }
+
+                @Override
+                public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+                    builder.addLore("Change map to: %s".formatted(Color.GOLD + enumMap.getName()))
+                           .addLore("Current map: %s".formatted(Color.GOLD + Manager.current().getCurrentMap().getName()));
                 }
             });
         }
 
         // Team select
         for (GameTeam enumTeam : GameTeam.values()) {
+            if (!enumTeam.isAllowJoin()) {
+                continue;
+            }
+
             register(new FastAccess("join_team_" + enumTeam.getKeyAsString(), Category.JOIN_TEAM) {
                 @Override
                 public void onClick(@Nonnull Player player) {
@@ -117,17 +122,24 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
                 @Nonnull
                 @Override
-                public ItemBuilder create(@Nonnull Player player) {
+                public ItemStack getMaterial(@Nonnull Player player) {
+                    return ItemStack.of(enumTeam.getMaterial());
+                }
+
+                @Nonnull
+                @Override
+                public String getName() {
+                    return "Join %s Team".formatted(enumTeam.getName());
+                }
+
+                @Override
+                public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
                     final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
-                    return new ItemBuilder(enumTeam.getMaterial())
-                            .setName("Join " + enumTeam.getName() + " Team")
-                            .addLore()
-                            .addSmartLore("Changes the current team of yours.", "&8&o")
-                            .addLore()
-                            .addLore("Change team to: " + enumTeam.getNameSmallCapsColorized())
-                            .addLore("Your current team: " + (playerTeam != null ? playerTeam.getNameSmallCapsColorized() : "None"));
+                    builder.addLore("Change team to: " + enumTeam.getNameSmallCapsColorized())
+                           .addLore("Your current team: " + (playerTeam != null ? playerTeam.getNameSmallCapsColorized() : "None"));
                 }
+
             });
         }
 
@@ -141,19 +153,27 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
                 @Nonnull
                 @Override
-                public ItemBuilder create(@Nonnull Player player) {
-                    final boolean enabled = enumSetting.isEnabled(player);
-
-                    return new ItemBuilder(enumSetting.getMaterial())
-                            .setName("Toggle " + enumSetting.getName())
-                            .addLore()
-                            .addSmartLore("Toggles the setting value.", "&8&o")
-                            .addLore()
-                            .addLore("Setting: " + Color.GOLD + enumSetting.getName())
-                            .addSmartLore(enumSetting.getDescription(), " &7&o")
-                            .addLore()
-                            .addLore((enabled ? "&aCurrently Enabled!" : "&cCurrently Disabled!"));
+                public ItemStack getMaterial(@Nonnull Player player) {
+                    return ItemStack.of(enumSetting.getMaterial());
                 }
+
+                @Nonnull
+                @Override
+                public String getName() {
+                    return "Toggle %s Setting".formatted(enumSetting.getName());
+                }
+
+                @Override
+                public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+                    final boolean isEnabled = enumSetting.isEnabled(player);
+
+                    builder.addLore("Setting: " + Color.GOLD + enumSetting.getName())
+                           .addLore()
+                           .addTextBlockLore(enumSetting.getDescription(), "&7&o ")
+                           .addLore()
+                           .addLore((isEnabled ? Color.SUCCESS.bold() + "Currently Enabled!" : Color.ERROR.bold() + "Currently Disabled!"));
+                }
+
             });
         }
 
@@ -171,25 +191,31 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                     cosmetic.select(player);
                 }
 
+                @Nonnull
+                @Override
+                public ItemStack getMaterial(@Nonnull Player player) {
+                    return ItemStack.of(cosmetic.getIcon());
+                }
+
+                @Nonnull
+                @Override
+                public String getName() {
+                    return "Select %s Gadget".formatted(cosmetic.getName());
+                }
+
+                @Override
+                public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
+                    final Cosmetic selectedGadget = CF.getDatabase(player).cosmeticEntry.getSelected(Type.GADGET);
+
+                    builder.addLore("Gadget to select: " + Color.GOLD + cosmetic.getName())
+                           .addLore("Selected gadget: " + (selectedGadget != null ? Color.GOLD + selectedGadget.getName() : "&8None!"));
+                }
+
                 @Override
                 public boolean shouldDisplayTo(@Nonnull Player player) {
                     return cosmetic.isUnlocked(player);
                 }
 
-                @Nonnull
-                @Override
-                public ItemBuilder create(@Nonnull Player player) {
-                    final Cosmetic selectedGadget = CF.getDatabase(player).cosmeticEntry.getSelected(Type.GADGET);
-
-                    return new ItemBuilder(cosmetic.getIcon())
-                            .setName("Select " + cosmetic.getName() + " Gadget")
-                            .addLore()
-                            .addSmartLore("Select a gadget.", "&8&o")
-                            .addLore()
-                            .addLore("Gadget to select: " + Color.GOLD + cosmetic.getName())
-                            .addLore("Selected gadget: " +
-                                    (selectedGadget != null ? Color.GOLD + selectedGadget.getName() : "&8None!"));
-                }
             });
         }
     }

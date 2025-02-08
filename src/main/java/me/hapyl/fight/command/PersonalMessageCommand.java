@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerSocialConversation;
@@ -31,7 +31,7 @@ public class PersonalMessageCommand extends CFCommand {
         final String message = args.makeStringArray(1);
 
         if (target == null) {
-            Notifier.error(player, "This player is not online!");
+            Message.error(player, "This player is not online!");
             return;
         }
 

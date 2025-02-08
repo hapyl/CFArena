@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.store.Store;
 import org.bukkit.entity.Player;
@@ -25,10 +25,10 @@ public class StoreCommand extends CFCommand {
                 store.removeOffers(player);
                 store.getOffers(player);
 
-                Notifier.success(player, "Respawned store items!");
+                Message.success(player, "Respawned store items!");
             }
             default -> {
-                Notifier.error(player, "Invalid usage!");
+                Message.error(player, "Invalid usage!");
             }
         }
 

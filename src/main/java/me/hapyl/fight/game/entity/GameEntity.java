@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.Effects;
@@ -279,7 +279,7 @@ public class GameEntity {
         entity.sendRichMessage(message);
     }
 
-    public void sendMessage(@Nonnull Notifier.Channel sender, @Nonnull String message) {
+    public void sendMessage(@Nonnull Message.Channel sender, @Nonnull String message) {
         asPlayer(player -> sender.send(player, message));
     }
 

@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -45,7 +45,7 @@ public class SkinCommand extends CFCommand {
 
         if (argument.equalsIgnoreCase("reset")) {
             profile.resetSkin();
-            Notifier.success(player, "Reset your skin!");
+            Message.success(player, "Reset your skin!");
             return;
         }
 
@@ -53,11 +53,11 @@ public class SkinCommand extends CFCommand {
 
         if (cachedSkin != null) {
             applySkin(player, null, cachedSkin);
-            Notifier.success(player, "Applied skin!");
+            Message.success(player, "Applied skin!");
             return;
         }
 
-        Notifier.info(player, ChatColor.ITALIC + "Fetching skin...");
+        Message.info(player, ChatColor.ITALIC + "Fetching skin...");
 
         new BukkitRunnable() {
             @Override
@@ -65,28 +65,28 @@ public class SkinCommand extends CFCommand {
                 final JsonObject uuidJson = getJson(nameToUuidRequest.formatted(argument));
 
                 if (uuidJson == null) {
-                    Notifier.error(player, "Invalid username!");
+                    Message.error(player, "Invalid username!");
                     return;
                 }
 
                 final JsonElement uuid = uuidJson.get("id");
 
                 if (uuid == null) {
-                    Notifier.error(player, "Invalid username!");
+                    Message.error(player, "Invalid username!");
                     return;
                 }
 
                 final JsonObject profileObject = getJson(uuidToProfileRequest.formatted(uuid.getAsString()));
 
                 if (profileObject == null) {
-                    Notifier.error(player, "Could not get profile, try again in a minute.");
+                    Message.error(player, "Could not get profile, try again in a minute.");
                     return;
                 }
 
                 final JsonArray jsonArray = profileObject.get("properties").getAsJsonArray();
 
                 if (jsonArray.isEmpty()) {
-                    Notifier.error(player, "Somehow there are no textures for {%s}!".formatted(argument));
+                    Message.error(player, "Somehow there are no textures for {%s}!".formatted(argument));
                     return;
                 }
 
@@ -103,8 +103,8 @@ public class SkinCommand extends CFCommand {
     private void applySkin(Player player, String skinName, PlayerSkin skin) {
         skin.apply(player);
 
-        Notifier.success(player, "Applied skin!");
-        Notifier.success(player, getUsage() + " reset to reset your skin!");
+        Message.success(player, "Applied skin!");
+        Message.success(player, getUsage() + " reset to reset your skin!");
 
         if (skinName != null) {
             skinCache.put(skinName.toLowerCase(), skin);

@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.talents.himari;
 
-import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -20,14 +18,13 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 public class LuckyDay extends Talent {
 
     @DisplayField
     private final double damageBuff = 7.0d;
 
-    private final List<HimariAction> actions = Lists.newArrayList();
+    private final HimariActionList actionList = new HimariActionList();
     private final char[] chars = { 'ᛚ', 'ᚢ', 'ᚲ', 'ᚲ' };
 
     public LuckyDay(@Nonnull Key key) {
@@ -49,14 +46,20 @@ public class LuckyDay extends Talent {
         setDuration(4);
         setCooldownSec(18);
 
-        actions.add(player -> {
+        actionList.append(player -> {
             player.addEffect(Effects.WITHER, 4, 115);
             player.addEffect(Effects.BLINDNESS, 2, 100);
             player.sendSubtitle("&lFeel the cost.", 2, 110, 6);
+
+            return true;
         });
 
-        actions.add(GamePlayer::chargeUltimate);
-        actions.add(player -> {
+        actionList.append(player -> {
+            player.chargeUltimate();
+            return true;
+        });
+
+        actionList.append(player -> {
             //Healing / Increasing Max HP
             player.sendSubtitle("&lYou feel easier on your soul.", 2, 90, 6);
 
@@ -67,29 +70,37 @@ public class LuckyDay extends Talent {
                 player.getAttributes().increaseTemporary(Temper.LUCKINESS, AttributeType.MAX_HEALTH, 180, 130);
                 player.heal(80);
             }
+
+            return true;
         });
 
-        actions.add(player -> {
+        actionList.append(player -> {
             final EntityAttributes attributes = player.getAttributes();
 
             //damage buff
             attributes.increaseTemporary(Temper.LUCKINESS, AttributeType.ATTACK, damageBuff, 120);
             player.sendSubtitle("&lYou feel stronger right away.", 2, 100, 6);
+
+            return true;
         });
 
-        actions.add(player -> {
+        actionList.append(player -> {
             final HimariData data = getHero().getPlayerData(player);
 
             //unlock talent 2
             data.setTalent(TalentRegistry.DEAD_EYE);
             player.sendSubtitle("&lYou got a new Talent to use!", 2, 70, 6);
+
+            return true;
         });
-        actions.add(player -> {
+        actionList.append(player -> {
             final HimariData data = getHero().getPlayerData(player);
 
             //unlock talent 3
             data.setTalent(TalentRegistry.SPIKE_BARRIER);
             player.sendSubtitle("&lYou got a new Talent to use!", 2, 70, 6);
+
+            return true;
         });
     }
 
@@ -136,10 +147,6 @@ public class LuckyDay extends Talent {
         // This thing will be activated  upon generating a number and giving it out.
         // it's main purpose is to choice which talent or effect will the player receive.
 
-        final HimariAction action = CollectionUtils.randomElement(actions);
-
-        if (action != null) {
-            action.execute(player);
-        }
+        actionList.randomActionAndExecute(player);
     }
 }

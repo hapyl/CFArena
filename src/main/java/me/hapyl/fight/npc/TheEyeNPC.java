@@ -7,19 +7,21 @@ import me.hapyl.eterna.module.player.quest.*;
 import me.hapyl.eterna.module.player.quest.objective.TalkToNpcQuestObjective;
 import me.hapyl.eterna.module.reflect.npc.ClickType;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.CollectibleEntry;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.quest.FindRelicQuestObjective;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.Predicate;
 
 public class TheEyeNPC extends PersistentNPC implements QuestRegister {
 
     public static final int RELIC_ID = 106;
+    public static final Key HAS_UNLOCKED_REMOTE_GUI = Key.ofString("has_unlocked_remote_the_eye");
 
     private final QuestChain questChain = new QuestChain(Key.ofString("the_eye"));
 
@@ -37,40 +39,30 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
         new EyeGUI(player);
     }
 
+    @Nullable
+    public EyeNotification getFirstEyeNotification(@Nonnull Player player) {
+        // The order is very important!
+        for (EyeNotification notification : EyeNotification.values()) {
+            if (notification.predicate.test(player)) {
+                return notification;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void tick() {
         super.tick();
 
         setAboveHead(player -> {
-            final PlayerProfile profile = CF.getProfile(player);
-            final PlayerDatabase database = CF.getDatabase(player);
-
             if (!questChain.hasCompletedAllQuests(player)) {
                 return blink("ᴏ̨ᴜᴇsᴛ ᴀᴠᴀɪʟᴀʙʟᴇ"); // Yeah the Q looks goofy ignore that 🤣
             }
 
-            // Check for daily reward
-            if (database.dailyRewardEntry.canClaimAny()) {
-                return blink("ᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ");
-            }
+            final EyeNotification notification = getFirstEyeNotification(player);
 
-            // Check for bonds
-            if (profile.getChallengeList().hasCompleteAndNonClaimed()) {
-                return blink("ᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ");
-            }
-
-            // Check for relic rewards
-            final CollectibleEntry collectibleEntry = database.collectibleEntry;
-
-            if (collectibleEntry.canClaimAnyTier()) {
-                return blink("ᴄᴀɴ ᴄʟᴀɪᴍ ʀᴇʟɪᴄ ʀᴇᴡᴀʀᴅs");
-            }
-
-            if (collectibleEntry.canLevelUpStabilizer()) {
-                return blink("ᴄᴀɴ ʟᴇᴠᴇʟ ᴜᴘ ʀᴇʟɪᴄ sᴛᴀʙɪʟɪᴢᴇʀ");
-            }
-
-            return StringArray.empty();
+            return notification != null ? blink(notification.aboveHead) : StringArray.empty();
         });
     }
 
@@ -79,6 +71,47 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
         questChain.addQuest(new QuestFirstMeeting());
 
         handler.register(questChain);
+    }
+
+    public enum EyeNotification {
+        DAILY_REWARD_AVAILABLE(
+                player -> CF.getDatabase(player).dailyRewardEntry.canClaimAny(),
+                "ᴅᴀɪʟʏ ʀᴇᴡᴀʀᴅ ᴀᴠᴀɪʟᴀʙʟᴇ",
+                List.of("Remember to claim your daily reward!", "You can still claim a daily reward!")
+        ),
+
+        DAILY_BOND_COMPLETE(
+                player -> CF.getProfile(player).getChallengeList().hasCompleteAndNonClaimed(),
+                "ᴅᴀɪʟʏ ʙᴏɴᴅ ᴄᴏᴍᴘʟᴇᴛᴇ",
+                List.of("You have completed a bond but yet to claim it!", "A bond has been experienced, your reward awaits.")
+        ),
+
+        CAN_CLAIM_RELIC_REWARDS(
+                player -> CF.getDatabase(player).collectibleEntry.canClaimAnyTier(),
+                "ᴄᴀɴ ᴄʟᴀɪᴍ ʀᴇʟɪᴄ ʀᴇᴡᴀʀᴅs",
+                List.of("You found some relics, come claim the rewards!", "You have shown my the relics, get your rewards.")
+        ),
+
+        CAN_LEVEL_UP_STABILIZER(
+                player -> CF.getDatabase(player).collectibleEntry.canLevelUpStabilizer(),
+                "ᴄᴀɴ ʟᴇᴠᴇʟ ᴜᴘ ʀᴇʟɪᴄ sᴛᴀʙɪʟɪᴢᴇʀ",
+                List.of("There are enough relics for the stabilizer!", "Relic stabilizer can be leveled up.")
+        );
+
+        private final Predicate<Player> predicate;
+        private final String aboveHead;
+        private final List<String> chatStrings;
+
+        EyeNotification(Predicate<Player> predicate, String aboveHead, List<String> chatStrings) {
+            this.predicate = predicate;
+            this.aboveHead = aboveHead;
+            this.chatStrings = chatStrings;
+        }
+
+        @Nonnull
+        public String randomChatString() {
+            return CollectionUtils.randomElementOrFirst(chatStrings);
+        }
     }
 
     private class QuestFirstMeeting extends Quest {
@@ -93,7 +126,8 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
 
             addStartBehaviour(QuestStartBehaviour.onJoin());
 
-            addObjective(new TalkToNpcQuestObjective(TheEyeNPC.this, new Dialog()
+            addObjective(new TalkToNpcQuestObjective(
+                    TheEyeNPC.this, new Dialog()
                     .addEntry(
                             TheEyeNPC.this,
                             "Hello and welcome, {player}!",
@@ -102,29 +136,31 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
                             "Tell me, outlander, is there anything you wish to know?"
                     )
                     .addEntry(new DialogOptionEntry()
-                            .setOption(1, DialogOptionEntry
-                                    .builder()
-                                    .prompt("Tell me about Relics")
-                                    .add(
-                                            TheEyeNPC.this,
-                                            "Relics...",
-                                            "Relics are hidden gems, scattered all around the world.",
-                                            "I used to be able to see them, all of them...",
-                                            "But now, I can barely feel their presence...",
-                                            "Help me by reminding of their location, so I can see them again, would you?",
-                                            "I will reward you plenty!"
-                                    )
+                            .setOption(
+                                    1, DialogOptionEntry
+                                            .builder()
+                                            .prompt("Tell me about Relics")
+                                            .add(
+                                                    TheEyeNPC.this,
+                                                    "Relics...",
+                                                    "Relics are hidden gems, scattered all around the world.",
+                                                    "I used to be able to see them, all of them...",
+                                                    "But now, I can barely feel their presence...",
+                                                    "Help me by reminding of their location, so I can see them again, would you?",
+                                                    "I will reward you plenty!"
+                                            )
                             )
-                            .setOption(2, DialogOptionEntry
-                                    .builder()
-                                    .prompt("Tell me about Bonds")
-                                    .add(
-                                            TheEyeNPC.this,
-                                            "Bonds...",
-                                            "I know it's the first time we've met, but I can sense...",
-                                            "That you and I have bonds.",
-                                            "You must experience them to gain wisdom!"
-                                    )
+                            .setOption(
+                                    2, DialogOptionEntry
+                                            .builder()
+                                            .prompt("Tell me about Bonds")
+                                            .add(
+                                                    TheEyeNPC.this,
+                                                    "Bonds...",
+                                                    "I know it's the first time we've met, but I can sense...",
+                                                    "That you and I have bonds.",
+                                                    "You must experience them to gain wisdom!"
+                                            )
                             )
                     )
                     .addEntry(
@@ -149,7 +185,8 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
                 }
             });
 
-            addObjective(new TalkToNpcQuestObjective(TheEyeNPC.this, new Dialog()
+            addObjective(new TalkToNpcQuestObjective(
+                    TheEyeNPC.this, new Dialog()
                     .addEntry(
                             TheEyeNPC.this,
                             "Oh, yes!",

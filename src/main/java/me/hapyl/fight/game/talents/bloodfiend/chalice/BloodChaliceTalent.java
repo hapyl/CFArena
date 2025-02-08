@@ -16,7 +16,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @DisplayField(percentage = true) public final double healingPercent = 0.6d;
 
     public BloodChaliceTalent(@Nonnull Key key) {
-        super(key, "Blood Chalice", 6, -1);
+        super(key, "Blood Chalice", 8, -1);
 
         setType(TalentType.SUPPORT);
         setItem(Material.SKELETON_SKULL);
@@ -27,9 +27,8 @@ public class BloodChaliceTalent extends TauntTalent {
     @Nonnull
     @Override
     public String getDescription() {
-        // FIXME (Tue, Aug 27 2024 @xanyjl): The chalice doesn't actually convert the damage, it just heals n% of the damage, kinda misleading
         return """
-                The chalice will convert &c{healingPercent}&7 of damage dealt into healing.
+                The chalice will heal for &c{healingPercent}&7 of damage dealt.
                 &8&o;;Only against taunted entities.
                 """;
     }

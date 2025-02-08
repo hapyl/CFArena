@@ -1,7 +1,7 @@
 package me.hapyl.fight.store.escrow;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
@@ -43,33 +43,33 @@ public abstract class Escrow {
 
         try {
             if (!purchasable.isPurchasable()) {
-                Notifier.error(player, "This item is not purchasable!");
+                Message.error(player, "This item is not purchasable!");
                 return;
             }
 
             // Escrow should not be created if a player doesn't have enough currency, the check is a fail-safe
             if (!entry.has(currency, price)) {
-                Notifier.error(player, "&oYou don't have enough {%s}!".formatted(currency.getName()));
+                Message.error(player, "&oYou don't have enough {%s}!".formatted(currency.getName()));
                 return;
             }
 
             // Put goods in escrow
-            Notifier.info(player, "&oCollecting payment...");
+            Message.info(player, "&oCollecting payment...");
             entry.subtract(currency, price);
 
-            Notifier.info(player, "&oDelivering product...");
+            Message.info(player, "&oDelivering product...");
             deliverProduct();
 
             productDelivered();
-            Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
+            Message.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
         } catch (EscrowException e) {
             // Refund if failed to deliver the product
             entry.add(currency, price);
 
-            Notifier.error(player, "&oSomething went wrong! {%s}".formatted(e.getMessage()));
-            Notifier.info(player, "&oEscrow refunded {%s}.".formatted(currency.formatProduct(price)));
+            Message.error(player, "&oSomething went wrong! {%s}".formatted(e.getMessage()));
+            Message.info(player, "&oEscrow refunded {%s}.".formatted(currency.formatProduct(price)));
 
-            Notifier.sound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
+            Message.sound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
         } finally {
             player.closeInventory();
         }

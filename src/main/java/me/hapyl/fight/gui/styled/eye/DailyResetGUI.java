@@ -3,7 +3,7 @@ package me.hapyl.fight.gui.styled.eye;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
@@ -89,7 +89,7 @@ public class DailyResetGUI extends StyledGUI {
                     setItem(slot, builder
                             .addLore(Color.ERROR + "Not enough rubies!")
                             .asIcon(), player -> {
-                        Notifier.error(player, "You don't have enough rubies!");
+                        Message.error(player, "You don't have enough rubies!");
                         PlayerLib.villagerNo(player);
                     });
                 }
@@ -147,7 +147,7 @@ public class DailyResetGUI extends StyledGUI {
                     .addLore(Color.BUTTON + "Click to reset!")
                     .asIcon(), player -> {
                 if (!entry.has(Currency.RUBIES, rubyPriceTotal)) {
-                    Notifier.error(player, "You somehow don't have the rubies anymore!");
+                    Message.error(player, "You somehow don't have the rubies anymore!");
                     player.closeInventory();
                     return;
                 }
@@ -160,8 +160,8 @@ public class DailyResetGUI extends StyledGUI {
                 player.closeInventory();
 
                 // Fx
-                Notifier.success(player, "Reset bonds!");
-                Notifier.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
+                Message.success(player, "Reset bonds!");
+                Message.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
 
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);

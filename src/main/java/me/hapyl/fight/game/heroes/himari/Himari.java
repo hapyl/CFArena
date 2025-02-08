@@ -1,8 +1,11 @@
 package me.hapyl.fight.game.heroes.himari;
 
-import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
@@ -10,11 +13,13 @@ import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.himari.DeadEye;
+import me.hapyl.fight.game.talents.himari.HimariActionList;
 import me.hapyl.fight.game.talents.himari.LuckyDay;
 import me.hapyl.fight.game.talents.himari.SpikeBarrier;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -22,14 +27,13 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 public class Himari extends Hero implements Listener, PlayerDataHandler<HimariData> {
 
-  private final PlayerDataMap<HimariData> playerData = PlayerMap.newDataMap(player -> new HimariData(player, this));
+    private final PlayerDataMap<HimariData> playerData = PlayerMap.newDataMap(player -> new HimariData(player, this));
 
     public Himari(@Nonnull Key key) {
-        super(key,"Himari");
+        super(key, "Himari");
 
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.DAMAGE);
@@ -72,7 +76,7 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         return TalentRegistry.DEAD_EYE;
     }
 
-    public SpikeBarrier getThirdTalent(){
+    public SpikeBarrier getThirdTalent() {
         return TalentRegistry.SPIKE_BARRIER;
     }
 
@@ -88,31 +92,64 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
     private class HimariUltimate extends UltimateTalent {
 
-        private final Map<Integer, Runnable> actions = Maps.newHashMap();
+        private final HimariActionList actionList = new HimariActionList();
+
+        @DisplayField private final short witherAmplifier = 4;
+        @DisplayField private final int witherDuration = 155;
 
         public HimariUltimate() {
-            super(Himari.this,"A message to Behold", 60);
+            super(Himari.this, "All in", 60);
             setDescription("""
-                    Instantly charges a shot, which draws a circle in a large area.
-                    At the end of the timer, a huge damage will go through the circle 3 times, before stopping.
-                    Keep out. It damages you too.
+                    Throw a cube that gives out a random number from 1 to 4, which will result in the effect.
                     """);
 
             setItem(Material.IRON_SWORD);
             setDurationSec(5);
             setCooldownSec(30);
-        //    setSound(Sound.BLOCK_ANVIL_USE, 0.25f);
 
-            actions.put(0, () -> {
+            actionList.append(player -> {
+                //move speed
+                // FIXME (Sat, Feb 8 2025 @xanyjl): Use attributes
+                player.addEffect(Effects.SPEED, 5, 100);
 
+                return true;
             });
 
+            actionList.append(player -> {
+                final GameEntity lastAttacker = player.getLastDamager();
+
+                if (lastAttacker instanceof LivingGameEntity livingAttacker) {
+                    livingAttacker.addEffect(Effects.WITHER, witherAmplifier, witherDuration);
+                    return true;
+                }
+
+                return false;
+            });
+
+            actionList.append(player -> {
+                //Self-damage (haram!!)
+                player.damage(20, player, EnumDamageCause.ENTITY_ATTACK);
+                return true;
+            });
+
+            actionList.append(player -> {
+                //heal player if low on health. If they are good enough on hp - they're not (damage)
+                if (player.getHealth() < player.getMaxHealth() * 0.3) {
+                    player.heal(40);
+                    return true;
+                }
+
+                return false;
+            });
         }
 
         @Nonnull
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             return execute(() -> {
+                actionList.randomActionAndExecute(player);
+
+                // Fx todo
             });
         }
     }

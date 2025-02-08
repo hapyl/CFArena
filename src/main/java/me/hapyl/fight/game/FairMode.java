@@ -14,11 +14,6 @@ public enum FairMode implements Described {
     MASTERY_II,
     MASTERY_III,
     MASTERY_IV,
-    MASTERY_V,
-    MASTERY_VI,
-    MASTERY_VII,
-    MASTERY_VIII,
-    MASTERY_IX,
     MASTERY_MASTER;
 
     private final String name;
@@ -28,7 +23,7 @@ public enum FairMode implements Described {
     FairMode(boolean unfair) {
         this.name = "Unfair";
         this.description = """
-                &7&oAll players have their own Mastery Level.
+                &7&oAll players use their own Mastery Level.
                 """;
         this.mastery = "Unfair";
     }
@@ -37,9 +32,9 @@ public enum FairMode implements Described {
         final int value = getValue();
 
         this.mastery = HeroMastery.getLevelString(value);
-        this.name = "&aFair! &6Mastery " + mastery;
+        this.name = mastery;
         this.description = """
-                &7&oAll players will be &6Mastery %s&7&o while in the game.
+                &7&oAll players will use %s&7&o Mastery while in the game.
                 """.formatted(mastery);
     }
 

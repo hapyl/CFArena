@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 public class MasteryGUI extends StyledGUI {
 
     private static final int[] SLOTS = {
-            11, 13, 15, 19, 21, 23, 25, 29, 31, 33
+            20, 21, 22, 23, 24
     };
 
     private final Hero hero;
@@ -57,7 +57,7 @@ public class MasteryGUI extends StyledGUI {
         for (HeroMasteryLevel masteryLevel : mastery) {
             final int slot = SLOTS[index++];
 
-            final ItemBuilder builder = new ItemBuilder(Material.HONEYCOMB)
+            final ItemBuilder builder = new ItemBuilder(Material.HONEYCOMB) // FIXME (Sat, Feb 8 2025 @xanyjl): Why is this honey
                     .setName(masteryLevel.getName())
                     .setAmount(index)
                     .addLore(ChatColor.DARK_GRAY + HeroMastery.getLevelDisplay(index).string())

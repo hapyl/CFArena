@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.eterna.module.util.Enums;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.maps.features.CloudFeatures;
@@ -229,7 +229,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     @Override
     public void select(@Nonnull Player player) {
         if (Manager.current().getCurrentMap() == this) {
-            Notifier.error(player, "This map is already selected!");
+            Message.error(player, "This map is already selected!");
             return;
         }
 

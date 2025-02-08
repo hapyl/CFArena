@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
@@ -24,10 +23,10 @@ import me.hapyl.fight.game.heroes.bloodfield.impel.ImpelInstance;
 import me.hapyl.fight.game.heroes.bloodfield.impel.Type;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
@@ -104,11 +103,12 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
         setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang_bloodfiend"))
-                .name("Vampire's Fang")
-                .description("""
-                        A sharp fang.
-                        """)
-                .damage(5.0d)
+                        .name("Vampire's Fang")
+                        .description("""
+                                A sharp fang.
+                                """)
+                        .damage(5.0d)
+                        .damageCause(EnumDamageCause.VAMPIRE_BITE)
         );
 
         final UltimateTalent ultimate = new BloodfiendUltimate();
@@ -145,11 +145,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
-    public void onPlayersRevealed(@Nonnull GamePlayer player) {
-        getData(player).cooldownFlight(true);
-    }
-
-    @Override
     public void onRespawn(@Nonnull GamePlayer player) {
         onPlayersRevealed(player);
     }
@@ -163,9 +158,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public void handleTalentUse(TalentUseEvent ev) {
         final GamePlayer player = ev.getPlayer();
 
-        workImpel(player, (impel, gp) -> {
-            impel.complete(player, Type.USE_ABILITY);
-        });
+        workImpel(
+                player, (impel, gp) -> {
+                    impel.complete(player, Type.USE_ABILITY);
+                }
+        );
     }
 
     @Override
@@ -174,11 +171,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         final LivingGameEntity entity = instance.getEntity();
         final EnumDamageCause cause = instance.getCause();
 
-        if (player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (player == null || cause != EnumDamageCause.VAMPIRE_BITE) {
             return;
         }
-
-        entity.addEffect(Effects.IMMOVABLE, 1);
 
         final BloodfiendData data = getData(player);
 
@@ -232,6 +227,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @Override
+    public Talent getFourthTalent() {
+        return TalentRegistry.SPECTRAL_FORM;
+    }
+
+    @Override
     public Talent getPassiveTalent() {
         return TalentRegistry.SUCCULENCE;
     }
@@ -247,14 +247,16 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         final float pitch = player.getLocation().getPitch();
 
-        workImpel(player, (impel, gamePlayer) -> {
-            if (pitch <= -50) {
-                impel.complete(gamePlayer, Type.CLICK_UP);
-            }
-            else if (pitch >= 40) {
-                impel.complete(gamePlayer, Type.CLICK_DOWN);
-            }
-        });
+        workImpel(
+                player, (impel, gamePlayer) -> {
+                    if (pitch <= -50) {
+                        impel.complete(gamePlayer, Type.CLICK_UP);
+                    }
+                    else if (pitch >= 40) {
+                        impel.complete(gamePlayer, Type.CLICK_DOWN);
+                    }
+                }
+        );
 
     }
 
@@ -266,9 +268,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             return;
         }
 
-        workImpel(player, (impel, gamePlayer) -> {
-            impel.complete(gamePlayer, Type.SNEAK);
-        });
+        workImpel(
+                player, (impel, gamePlayer) -> {
+                    impel.complete(gamePlayer, Type.SNEAK);
+                }
+        );
     }
 
     @EventHandler()
@@ -281,9 +285,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             return;
         }
 
-        workImpel(player, (impel, gamePlayer) -> {
-            impel.complete(gamePlayer, Type.JUMP);
-        });
+        workImpel(
+                player, (impel, gamePlayer) -> {
+                    impel.complete(gamePlayer, Type.JUMP);
+                }
+        );
     }
 
     @Nullable
@@ -324,33 +330,12 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public void handleFlight(PlayerToggleFlightEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (player == null) {
-            return;
-        }
-
-        final BloodfiendData data = getData(player);
-
         if (!validatePlayer(player)) {
             return;
         }
 
-        // Ultimate bat
-        if (player.isUsingUltimate()) {
-            ev.setCancelled(true);
-            return;
-        }
-
-        if (data.isFlying()) {
-            data.stopFlying();
-            return;
-        }
-
-        if (data.hasFlightCooldown()) {
-            ev.setCancelled(true);
-            return;
-        }
-
-        data.startFlying();
+        // Don't allow changing flight
+        ev.setCancelled(true);
     }
 
     @Nullable
@@ -358,7 +343,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public List<String> getStrings(@Nonnull GamePlayer player) {
         final BloodfiendData data = getData(player);
         final int succulencePlayers = data.getSuckedCount();
-        final int flightCooldown = data.getFlightCooldown();
 
         final CandlebaneTalent twinClaws = getSecondTalent();
         final BloodChaliceTalent bloodChalice = getThirdTalent();
@@ -368,7 +352,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
         return List.of(
                 succulencePlayers > 0 ? "&c&l🦇 &f" + succulencePlayers : "",
-                flightCooldown > 0 ? "&2&l\uD83D\uDD4A &f" + CFUtils.formatTick(flightCooldown) : "",
                 pillar != null ? "&6&lⅡ &f" + CFUtils.formatTick(pillar.getTimeLeft()) : "",
                 chalice != null ? "&4&l🍷 &f" + CFUtils.formatTick(chalice.getTimeLeft()) : ""
         );
@@ -432,12 +415,6 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             final Set<LivingGameEntity> suckedEntities = data.getSuckedEntities();
             final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
 
-            final HumanNPC npc = new HumanNPC(player.getLocation(), "", player.getName());
-
-            npc.showAll();
-            npc.setEquipment(player.getEquipment());
-            npc.setSitting(true);
-
             // Draw particles
             suckedEntities.forEach(entity -> {
                 new EntityFollowingParticle(2, location, entity) {
@@ -464,20 +441,24 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
             final Location eyeLocation = player.getEyeLocation();
 
             for (int i = 0; i < 10; i++) {
-                fxBats.add(Entities.BAT.spawn(eyeLocation, self -> {
-                    self.setAwake(true);
-                    self.setInvulnerable(true);
-                }));
+                fxBats.add(Entities.BAT.spawn(
+                        eyeLocation, self -> {
+                            self.setAwake(true);
+                            self.setInvulnerable(true);
+                        }
+                ));
             }
 
             player.addEffect(Effects.INVISIBILITY, 10000, true);
 
-            final Bat playerBat = Entities.BAT.spawn(eyeLocation, self -> {
-                self.setAwake(true);
-                self.setInvulnerable(true);
+            final Bat playerBat = Entities.BAT.spawn(
+                    eyeLocation, self -> {
+                        self.setAwake(true);
+                        self.setInvulnerable(true);
 
-                EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player.getPlayer());
-            });
+                        EntityUtils.setCollision(self, EntityUtils.Collision.DENY, player.getPlayer());
+                    }
+            );
 
             final float flySpeed = player.getFlySpeed();
 
@@ -514,11 +495,8 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                         player.setAllowFlight(false);
                         player.setFlying(false);
 
-                        data.cooldownFlight(true);
-
                         player.removeEffect(Effects.INVISIBILITY);
 
-                        npc.remove();
                         playerBat.remove();
                     });
         }

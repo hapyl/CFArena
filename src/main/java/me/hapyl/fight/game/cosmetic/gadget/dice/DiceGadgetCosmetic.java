@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 public class DiceGadgetCosmetic extends Dice {
     public DiceGadgetCosmetic(@Nonnull Key key) {
-        super(key, "Dice", Rarity.EPIC, 1_000, Reward.currency("Dice Reward").withCoins(100_000));
+        super(key, "Dice", Rarity.EPIC, 1_000, Reward.ofRepeatableResource("Dice Reward", 100_000));
 
         setSide(1, "6e22c298e7c6336af17909ac1f1ee6834b58b1a3cc99aba255ca7eaeb476173", 24);
         setSide(2, "71b7a73fc934c9de9160c0fd59df6e42efd5d0378e342b68612cfec3e894834a", 24);

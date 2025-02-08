@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
@@ -144,7 +144,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             final long crateCount = enumCrate.getProduct(database);
 
             if (crateCount < CrateLocation.MIN_TO_OPEN_TEN) {
-                Notifier.error(player, "You don't have enough crates!");
+                Message.error(player, "You don't have enough crates!");
                 return;
             }
 
@@ -237,7 +237,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         return;
                     }
 
-                    Notifier.error(player, "Cannot open the crates!");
+                    Message.error(player, "Cannot open the crates!");
                 }
         );
 

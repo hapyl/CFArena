@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Copyable;
 import me.hapyl.fight.game.DamageFormat;
 import me.hapyl.fight.game.DeathMessage;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -21,12 +22,23 @@ public class DamageCause implements Copyable {
 
     private DamageFormat damageFormat;
     private int damageTicks;
+    private double knockBack;
 
     private DamageCause(@Nonnull DeathMessage message) {
         this.deathMessage = message;
         this.flags = Sets.newHashSet(DamageFlag.CAN_CRIT, DamageFlag.CUSTOM);
         this.damageFormat = DamageFormat.DEFAULT;
         this.damageTicks = DEFAULT_DAMAGE_TICKS;
+        this.knockBack = 1.0d;
+    }
+
+    public double knockBack() {
+        return knockBack;
+    }
+
+    public DamageCause knockBack(@Range(from = 0, to = 1) double knockBack) {
+        this.knockBack = knockBack;
+        return this;
     }
 
     private DamageCause(String string, String suffix) {

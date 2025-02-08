@@ -57,6 +57,7 @@ import me.hapyl.fight.game.talents.aurora.EtherealArrow;
 import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.talents.bloodfiend.BloodCup;
 import me.hapyl.fight.game.talents.bloodfiend.BloodfiendPassive;
+import me.hapyl.fight.game.talents.bloodfiend.SpectralForm;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
@@ -449,6 +450,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     public static final TwinClaws TWIN_CLAWS;
     public static final CandlebaneTalent CANDLEBANE;
     public static final BloodChaliceTalent BLOOD_CHALICE;
+    public static final SpectralForm SPECTRAL_FORM;
     public static final BloodCup BLOOD_CUP;
     public static final BloodfiendPassive SUCCULENCE;
 
@@ -686,6 +688,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         TWIN_CLAWS = register("twin_claws", TwinClaws::new);
         CANDLEBANE = register("candlebane", CandlebaneTalent::new);
         BLOOD_CHALICE = register("blood_chalice", BloodChaliceTalent::new);
+        SPECTRAL_FORM = register("spectral_form", SpectralForm::new);
         BLOOD_CUP = register("blood_cup", BloodCup::new);
         SUCCULENCE = register("succulence", BloodfiendPassive::new);
 

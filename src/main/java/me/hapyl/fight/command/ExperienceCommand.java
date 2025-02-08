@@ -41,7 +41,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
             switch (arg) {
                 case "fix" -> {
-                    experience.fixRewards(target);
+                    experience.updatePlayerRewards(target);
                     Chat.sendMessage(player, "&aFixing rewards for %s...".formatted(target.getName()));
                 }
 

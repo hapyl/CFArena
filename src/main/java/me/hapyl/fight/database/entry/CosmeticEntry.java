@@ -2,7 +2,7 @@ package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -36,7 +36,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         final Player player = getOnlinePlayer();
 
         if (player != null && !cosmetic.canObtain(player)) {
-            Notifier.error(player, "You cannot select this cosmetic!");
+            Message.error(player, "You cannot select this cosmetic!");
             return;
         }
 
@@ -59,7 +59,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
         final Player player = getOnlinePlayer();
 
         if (player != null && !cosmetic.canObtain(player)) {
-            Notifier.error(player, "You cannot own this cosmetic!");
+            Message.error(player, "You cannot own this cosmetic!");
             return;
         }
 

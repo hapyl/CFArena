@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.inventory.gui.StrictAction;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.SoundEffect;
@@ -84,8 +84,8 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
             @Override
             public void onLeftClick(@Nonnull Player player) {
                 if (!hasRank) {
-                    Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, prefix);
-                    Notifier.sound(player, SoundEffect.ERROR);
+                    Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, prefix);
+                    Message.sound(player, SoundEffect.ERROR);
                     return;
                 }
 

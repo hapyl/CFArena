@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.util.ArgumentList;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.util.CFUtils;
@@ -44,7 +44,7 @@ public abstract class CFCommand extends SimplePlayerCommand {
         final PlayerRank playerRank = PlayerRank.getRank(player);
 
         if (!playerRank.isOrHigher(rank)) {
-            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
             return;
         }
 

@@ -80,6 +80,7 @@ public class Vampire extends Hero implements Listener {
                                 A very sharp fang.
                                 """)
                         .damage(5.0d)
+                        .damageCause(EnumDamageCause.VAMPIRE_BITE)
         );
 
         setUltimate(new VampireUltimate());

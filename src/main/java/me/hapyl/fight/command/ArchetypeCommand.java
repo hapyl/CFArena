@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.heroes.Archetype;
 import org.bukkit.entity.Player;
 
@@ -19,12 +19,12 @@ public class ArchetypeCommand extends SimplePlayerCommand {
         final Archetype archetype = getArgument(strings, 0).toEnum(Archetype.class);
 
         if (archetype == null) {
-            Notifier.error(player, "Invalid archetype!");
+            Message.error(player, "Invalid archetype!");
             return;
         }
 
-        Notifier.info(player, "About %s archetype:");
-        Notifier.info(player, archetype.getDescription());
+        Message.info(player, "About %s archetype:");
+        Message.info(player, archetype.getDescription());
     }
 
 }

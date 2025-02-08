@@ -3,7 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.cosmetic.*;
@@ -52,19 +52,19 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     final Cosmetic cosmetic = registry.get(args[1]);
 
                     if (cosmetic == null) {
-                        Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args[1]));
+                        Message.error(player, "Unknown cosmetic: {%s}".formatted(args[1]));
                         return;
                     }
 
                     cosmetic.onDisplay0(new Display(player, player.getLocation()));
 
-                    Notifier.success(player, "Displaying cosmetic: {%s}".formatted(cosmetic.getName()));
+                    Message.success(player, "Displaying cosmetic: {%s}".formatted(cosmetic.getName()));
                 }
                 case "giveall" -> {
                     final Player target = Bukkit.getPlayer(args[1]);
 
                     if (target == null) {
-                        Notifier.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
+                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
                         return;
                     }
 
@@ -72,14 +72,14 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetic.setUnlocked(target, true);
                     }
 
-                    Notifier.success(player, "Gave all cosmetics to {%s}.".formatted(target.getName()));
-                    Notifier.success(target, "An admin gave you all the cosmetics. Wow!");
+                    Message.success(player, "Gave all cosmetics to {%s}.".formatted(target.getName()));
+                    Message.success(target, "An admin gave you all the cosmetics. Wow!");
                 }
                 case "removeall" -> {
                     final Player target = Bukkit.getPlayer(args[1]);
 
                     if (target == null) {
-                        Notifier.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
+                        Message.Error.PLAYER_NOT_ONLINE.send(player, args[1]);
                         return;
                     }
 
@@ -87,8 +87,8 @@ public class CosmeticCommand extends SimplePlayerCommand {
                         cosmetic.setUnlocked(target, false);
                     }
 
-                    Notifier.success(player, "Removed all cosmetics from {%s}.".formatted(target.getName()));
-                    Notifier.success(target, "An admin took away all your cosmetics!");
+                    Message.success(player, "Removed all cosmetics from {%s}.".formatted(target.getName()));
+                    Message.success(target, "An admin took away all your cosmetics!");
                 }
             }
         }
@@ -98,12 +98,12 @@ public class CosmeticCommand extends SimplePlayerCommand {
             final Cosmetic cosmetic = registry.get(args[2]);
 
             if (target == null) {
-                Notifier.error(player, "Unknown player: {%s}".formatted(args[1]));
+                Message.error(player, "Unknown player: {%s}".formatted(args[1]));
                 return;
             }
 
             if (cosmetic == null) {
-                Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args[2]));
+                Message.error(player, "Unknown cosmetic: {%s}".formatted(args[2]));
                 return;
             }
 
@@ -120,13 +120,13 @@ public class CosmeticCommand extends SimplePlayerCommand {
                     if (entry.getSelected(cosmeticType) == cosmetic) {
                         entry.unsetSelected(cosmeticType);
 
-                        Notifier.success(player, "Unset {%s}'s {%s} cosmetic!".formatted(targetName, cosmeticTypeName));
+                        Message.success(player, "Unset {%s}'s {%s} cosmetic!".formatted(targetName, cosmeticTypeName));
                         return;
                     }
 
                     entry.setSelected(cosmeticType, cosmetic);
 
-                    Notifier.success(
+                    Message.success(
                             player,
                             "Set {%s}'s {%s} cosmetic to {%s}!".formatted(targetName, cosmeticTypeName, cosmeticName)
                     );
@@ -135,7 +135,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
                 case "has" -> {
                     final boolean hasCosmetic = entry.isUnlocked(cosmetic);
 
-                    Notifier.success(
+                    Message.success(
                             player,
                             "{%s} {%s} {%s}!".formatted(targetName, hasCosmetic ? "has" : "does not have", cosmeticName)
                     );
@@ -143,27 +143,27 @@ public class CosmeticCommand extends SimplePlayerCommand {
 
                 case "give" -> {
                     if (entry.isUnlocked(cosmetic)) {
-                        Notifier.error(player, "{%s} already has {%s}!".formatted(targetName, cosmeticName));
+                        Message.error(player, "{%s} already has {%s}!".formatted(targetName, cosmeticName));
                         return;
                     }
 
                     entry.setUnlocked(cosmetic, true);
 
-                    Notifier.success(player, "Gave {%s} to {%s}!".formatted(cosmeticName, targetName));
+                    Message.success(player, "Gave {%s} to {%s}!".formatted(cosmeticName, targetName));
                 }
 
                 case "remove" -> {
                     if (!entry.isUnlocked(cosmetic)) {
-                        Notifier.error(player, "{%s} doesn't have {%s}!".formatted(targetName, cosmeticName));
+                        Message.error(player, "{%s} doesn't have {%s}!".formatted(targetName, cosmeticName));
                         return;
                     }
 
                     entry.setUnlocked(cosmetic, false);
 
-                    Notifier.success(player, "Removed {%s} from {%s}!".formatted(cosmeticName, targetName));
+                    Message.success(player, "Removed {%s} from {%s}!".formatted(cosmeticName, targetName));
                 }
 
-                default -> Notifier.error(player, "Invalid usage!");
+                default -> Message.error(player, "Invalid usage!");
             }
         }
     }

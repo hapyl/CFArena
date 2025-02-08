@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 
@@ -18,7 +18,7 @@ public class PassiveTalent extends Talent {
 
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
-        player.sendMessage(Notifier.ERROR, "Do not execute passive talents!");
+        player.sendMessage(Message.ERROR, "Do not execute passive talents!");
         return Response.OK;
     }
 

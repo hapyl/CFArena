@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.eterna.module.registry.Keyed;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.cosmetic.Type;
@@ -35,17 +35,17 @@ public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
             final String hostName = InetAddress.getLocalHost().getHostName();
 
             if (busy) {
-                Notifier.error(player, "The fixer is currently busy!");
+                Message.error(player, "The fixer is currently busy!");
                 return;
             }
 
             if (!hostName.equals("hapyl")) {
-                Notifier.error(player, "This can only be used on a localhost server!");
+                Message.error(player, "This can only be used on a localhost server!");
                 return;
             }
 
             busy = true;
-            Notifier.info(player, "Working on it...");
+            Message.info(player, "Working on it...");
 
             final Path path = Path.of(getArgument(args, 0).toString());
             final List<String> lines = Files.readAllLines(path);
@@ -64,14 +64,14 @@ public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
             }
 
             if (fixedCount < 0) {
-                Notifier.error(player, "Nothing to fix!");
+                Message.error(player, "Nothing to fix!");
                 return;
             }
 
             Files.write(path, lines);
-            Notifier.success(player, "Successfully fixed {%s} occurrences.".formatted(fixedCount));
+            Message.success(player, "Successfully fixed {%s} occurrences.".formatted(fixedCount));
         } catch (Exception e) {
-            Notifier.error(player, "Error occurred! {%s}".formatted(e.getClass() + ":" + e.getMessage()));
+            Message.error(player, "Error occurred! {%s}".formatted(e.getClass() + ":" + e.getMessage()));
         } finally {
             busy = false;
         }

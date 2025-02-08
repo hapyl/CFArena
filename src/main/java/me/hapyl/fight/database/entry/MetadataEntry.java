@@ -16,9 +16,11 @@ import java.util.Map;
 public class MetadataEntry extends PlayerDatabaseEntry {
 
     @Deprecated
-    public final MetadataParent NULL;
-    public final MetadataParent DIALOG;
-    public final MetadataParent POI;
+    public final MetadataParent noParent;
+
+    public final MetadataParent dialog;
+    public final MetadataParent poi;
+    public final MetadataParent claimedRewards;
 
     private final Map<String, MetadataParent> parents;
 
@@ -27,10 +29,12 @@ public class MetadataEntry extends PlayerDatabaseEntry {
 
         this.parents = new HashMap<>();
 
-        this.NULL = new MetadataParent(null); // don't cache null
+        // Init parents
+        this.noParent = new MetadataParent(null); // don't cache null
 
-        this.DIALOG = getParent("dialog");
-        this.POI = getParent("poi");
+        this.dialog = getParent("dialog");
+        this.poi = getParent("poi");
+        this.claimedRewards = getParent("claimed_rewards");
     }
 
     @Nonnull
@@ -41,15 +45,19 @@ public class MetadataEntry extends PlayerDatabaseEntry {
     }
 
     public static <T> void set(@Nonnull Player player, @Nonnull Key key, @Nullable T value) {
-        CF.getDatabase(player).metadataEntry.NULL.set(key, value);
+        CF.getDatabase(player).metadataEntry.noParent.set(key, value);
     }
 
     public static <T> T get(@Nonnull Player player, @Nonnull Key key, T def) {
-        return CF.getDatabase(player).metadataEntry.NULL.get(key, def);
+        return CF.getDatabase(player).metadataEntry.noParent.get(key, def);
+    }
+
+    public static boolean isTrue(@Nonnull Player player, @Nonnull Key key) {
+        return get(player, key, false);
     }
 
     public static boolean has(@Nonnull Player player, @Nonnull Key key) {
-        return CF.getDatabase(player).metadataEntry.NULL.has(key);
+        return CF.getDatabase(player).metadataEntry.noParent.has(key);
     }
 
     @Nonnull

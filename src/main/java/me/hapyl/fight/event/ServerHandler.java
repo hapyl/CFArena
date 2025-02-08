@@ -3,7 +3,7 @@ package me.hapyl.fight.event;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,7 +39,7 @@ public class ServerHandler implements Listener {
             return;
         }
 
-        Notifier.error(player, "Unknown or incomplete command! ({%s})".formatted(message));
+        Message.error(player, "Unknown or incomplete command! ({%s})".formatted(message));
         ev.setCancelled(true);
     }
 

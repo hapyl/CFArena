@@ -3,20 +3,21 @@ package me.hapyl.fight.game;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.builtin.manager.DialogManager;
 import me.hapyl.eterna.builtin.manager.ParkourManager;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.player.dialog.DialogInstance;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Compute;
-import me.hapyl.eterna.module.util.Runnables;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.annotate.ProgrammerShouldPreferCFCallInsteadOfCallingThisMethod;
 import me.hapyl.fight.annotate.SensitiveParameter;
 import me.hapyl.fight.command.RateHeroCommand;
@@ -48,6 +49,7 @@ import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.guesswho.GuessWho;
+import me.hapyl.fight.npc.TheEyeNPC;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.*;
@@ -184,6 +186,7 @@ public final class Manager extends BukkitRunnable {
             }
         });
     }
+
     public void createStartCountdown() {
         if (!canStartGame()) {
             return;
@@ -242,7 +245,7 @@ public final class Manager extends BukkitRunnable {
         final PlayerProfile profile = profiles.get(player.getUniqueId());
 
         if (profile == null) {
-            Notifier.error(player, "There was an error grabbing your profile! This should not have happened!");
+            Message.error(player, "There was an error grabbing your profile! This should not have happened!");
             throw new IllegalStateException("Illegal profile grab! If you /reload the server, ignore this. Otherwise this is a bug!");
         }
 
@@ -336,13 +339,15 @@ public final class Manager extends BukkitRunnable {
     public <E extends LivingEntity, T extends GameEntity> T createEntity(@Nonnull Location location, @Nonnull Entities<E> type, @Nonnull ConsumerFunction<E, T> consumer) {
         final AtomicReference<T> reference = new AtomicReference<>();
 
-        type.spawn(location, self -> {
-            // Register the entity and supply to reference
-            final T entity = consumer.apply(self);
+        type.spawn(
+                location, self -> {
+                    // Register the entity and supply to reference
+                    final T entity = consumer.apply(self);
 
-            registerEntity(entity, consumer::andThen);
-            reference.set(entity);
-        });
+                    registerEntity(entity, consumer::andThen);
+                    reference.set(entity);
+                }
+        );
 
         return reference.get();
     }
@@ -559,8 +564,9 @@ public final class Manager extends BukkitRunnable {
                         players.forEach(player -> {
                             final List<Player> others = players.stream().filter(p -> player != p).toList();
 
-                            Notifier.error(player, "Only one hero is allowed per one team!");
-                            Notifier.error(player, "You and {%s} have the same here selected.".formatted(Chat.makeStringCommaAnd(
+                            Message.error(player, "Only one hero is allowed per one team!");
+                            Message.error(
+                                    player, "You and {%s} have the same here selected.".formatted(Chat.makeStringCommaAnd(
                                             others,
                                             Player::getName
                                     ))
@@ -608,11 +614,17 @@ public final class Manager extends BukkitRunnable {
         // Stop GuessWho
         stopGuessWhoGame();
 
-        // Stop parkour
         final ParkourManager parkourManager = Eterna.getManagers().parkour;
+        final DialogManager dialogManager = Eterna.getManagers().dialog;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             parkourManager.quit(player);
+
+            final DialogInstance dialog = dialogManager.get(player);
+
+            if (dialog != null) {
+                dialog.cancel();
+            }
         }
 
         // Create new instance and call onStart methods
@@ -655,23 +667,24 @@ public final class Manager extends BukkitRunnable {
         }
 
         // On reveal
-        GameTask.runLater(() -> {
-            Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
-            gameInstance.setGameState(State.IN_GAME);
+        GameTask.runLater(
+                () -> {
+                    Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
+                    gameInstance.setGameState(State.IN_GAME);
 
-            ElementCaller.CALLER.onPlayersRevealed(gameInstance);
+                    ElementCaller.CALLER.onPlayersRevealed(gameInstance);
 
-            CF.getAlivePlayers().forEach(player -> {
-                final World world = player.getWorld();
+                    CF.getAlivePlayers().forEach(player -> {
+                        final World world = player.getWorld();
 
-                player.showPlayer();
+                        player.showPlayer();
 
-                if (!isDebug()) {
-                    world.strikeLightningEffect(player.getLocation().add(0, 2, 0));
-                }
-            });
+                        if (!isDebug()) {
+                            world.strikeLightningEffect(player.getLocation().add(0, 2, 0));
+                        }
+                    });
 
-            playAnimation();
+                    playAnimation();
                 }, isDebug() ? 1 : currentMap.getLevel().getTimeBeforeReveal()
         );
 
@@ -792,8 +805,16 @@ public final class Manager extends BukkitRunnable {
             // Give lobby items
             LobbyItems.giveAll(player);
 
+            // Delay the eye text
+            final TheEyeNPC theEye = Registries.getNPCs().THE_EYE;
+            final TheEyeNPC.EyeNotification notification = theEye.getFirstEyeNotification(player);
+
+            if (notification != null) {
+                GameTask.runLater(() -> theEye.sendNpcMessage(player, notification.randomChatString()), 20);
+            }
+
             // Delay rating because too much text
-            Runnables.runLater(() -> RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero), 60);
+            GameTask.runLater(() -> RateHeroCommand.allowRatingHeroIfHasNotRatedAlready(player, hero), 60);
         }
 
         if (autoSave.scheduleSave) {
@@ -853,7 +874,7 @@ public final class Manager extends BukkitRunnable {
         player.closeInventory();
 
         PlayerLib.villagerYes(player);
-        Notifier.success(player, "Selected %s!".formatted(hero.getFormatted(Color.SUCCESS)));
+        Message.success(player, "Selected %s!".formatted(hero.getFormatted(Color.SUCCESS)));
 
         final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
 
@@ -861,7 +882,7 @@ public final class Manager extends BukkitRunnable {
             entry.setEnabled(false);
             entry.setLastSelectedHero(null); // Forget last hero because yes
 
-            Notifier.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
+            Message.info(player, "&b&lRandom Hero Select &bwas &c&ndisabled&b because you selected a hero manually!");
         }
     }
 
@@ -1035,22 +1056,22 @@ public final class Manager extends BukkitRunnable {
 
     public void setFairMode(@Nonnull Player player, @Nonnull FairMode fairMode) {
         if (this.fairMode == fairMode) {
-            Notifier.error(player, "Already set!");
+            Message.error(player, "Already set!");
             return;
         }
 
         this.fairMode = fairMode;
 
-        Notifier.INFO.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
+        Message.INFO.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
                 player.getName(),
                 fairMode.getName()
         ));
-        Notifier.INFO.broadcast(fairMode.getDescription());
+        Message.INFO.broadcast(fairMode.getDescription());
     }
 
     public void doStartOrCancelCountdown(@Nonnull Player player) {
         if (isGameInProgress()) {
-            Notifier.error(player, "Cannot use this right now!");
+            Message.error(player, "Cannot use this right now!");
             return;
         }
 
@@ -1074,12 +1095,12 @@ public final class Manager extends BukkitRunnable {
     }
 
     private void displayError(@Nonnull String message) {
-        Notifier.ERROR.broadcast("Unable to start the game because {%s}!".formatted(message));
+        Message.ERROR.broadcast("Unable to start the game because {%s}!".formatted(message));
     }
 
     private Collection<Player> getNonSpectatorPlayers() {
         return Bukkit.getOnlinePlayers().stream().filter(player -> !EnumSetting.SPECTATE.isEnabled(player))
-                .collect(Collectors.toSet());
+                     .collect(Collectors.toSet());
     }
 
     /**

@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Hero;
@@ -23,7 +23,7 @@ public class MasteryCommand extends CFCommand {
         final Player target = args.get(0).toPlayer();
 
         if (target == null) {
-            Notifier.Error.PLAYER_NOT_ONLINE.send(player, args.get(0).toString());
+            Message.Error.PLAYER_NOT_ONLINE.send(player, args.get(0).toString());
             return;
         }
 
@@ -31,7 +31,7 @@ public class MasteryCommand extends CFCommand {
         final String argument = args.get(2).toString();
 
         if (hero == null) {
-            Notifier.error(player, "Invalid hero!");
+            Message.error(player, "Invalid hero!");
             return;
         }
 
@@ -41,20 +41,23 @@ public class MasteryCommand extends CFCommand {
             final int lvl = database.masteryEntry.getLevel(hero);
             final long exp = database.masteryEntry.getExp(hero);
 
-            Notifier.success(player, "{%s}'s mastery level for {%s} is: {%s} with a total of {%s} exp.".formatted(target.getName(), hero.getName(), lvl, exp));
+            Message.success(player, "{%s}'s mastery level for {%s} is: {%s} with a total of {%s} exp.".formatted(target.getName(), hero.getName(), lvl, exp));
         } else if (argument.equalsIgnoreCase("set")) {
             final long newExp = args.get(3).toLong(-1);
 
             if (newExp <= -1) {
-                Notifier.error(player, "Invalid amount.");
+                Message.error(player, "Invalid amount.");
                 return;
             }
 
-            database.masteryEntry.setExp(hero, newExp);
+            if (!false) {
+                Message.error(player, "Unable to set mastery exp!");
+                return;
+            }
 
-            Notifier.success(player, "Set {%s} mastery exp for {%s} to {%s}.".formatted(target.getName(), hero.getName(), newExp));
+            Message.success(player, "Set {%s} mastery exp for {%s} to {%s}.".formatted(target.getName(), hero.getName(), newExp));
         } else {
-            Notifier.error(player, "Invalid argument: " + argument);
+            Message.error(player, "Invalid argument: " + argument);
         }
 
     }

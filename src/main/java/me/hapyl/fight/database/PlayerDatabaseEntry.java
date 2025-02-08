@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.registry.Registry;
 import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bson.Document;
@@ -78,7 +78,7 @@ public class PlayerDatabaseEntry {
         return getPlayer().getPlayer();
     }
 
-    public void sendMessage(@Nonnull Notifier.Channel channel, @Nonnull String message) {
+    public void sendMessage(@Nonnull Message.Channel channel, @Nonnull String message) {
         final Player player = getOnlinePlayer();
 
         if (player != null) {

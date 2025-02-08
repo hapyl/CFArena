@@ -4,10 +4,12 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.event.BloodDebtChangeEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -19,12 +21,14 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class BloodDebtTalent extends Talent {
+public class BloodDebtTalent extends Talent implements Listener {
 
     private static final double TWO_PI = Math.PI * 2;
 
@@ -43,6 +47,12 @@ public class BloodDebtTalent extends Talent {
     @DisplayField(suffix = "% of max health", scaleFactor = 100, suffixSpace = false)
     private final double maxBloodDebt = 0.9d;
 
+    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false)
+    private final double percentClearForCooldownReduction = 0.01;
+
+    @DisplayField
+    private final int cooldownDecreasePerOnePercentBloodDebtDecreased = 5;
+
     private final int fxBatCount = 6;
     private final double castingTime = Math.PI * 1.5;
 
@@ -53,12 +63,35 @@ public class BloodDebtTalent extends Talent {
                 Command several bats to swirl around the battlefield to &bmark&7 and &epull nearby&7 &cenemies&7 towards you.
                 
                 Apply %s to yourself based on the number of &bmarked&7 enemies.
+                &8;;Each {percentClearForCooldownReduction} of blood debt cleared reduces the cooldown of this ability by {cooldownDecreasePerOnePercentBloodDebtDecreased}.
                 """.formatted(Named.BLOOD_DEBT));
 
         setType(TalentType.ENHANCE);
         setItem(Material.FLINT);
 
         setCooldownSec(30); // The cooldown is big because the ultimate refreshes it
+    }
+
+    @EventHandler
+    public void handleBloodDebtChangeEvent(BloodDebtChangeEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (!(entity instanceof GamePlayer player) || !HeroRegistry.VAMPIRE.validatePlayer(player)) {
+            return;
+        }
+
+        if (!ev.isDecrement()) {
+            return;
+        }
+
+        // Calculate the percent
+        final double percentDifferentOfMaxHealth = (ev.previousValue() - ev.newValue()) / player.getMaxHealth();
+        final double decreasedTotal = percentDifferentOfMaxHealth / percentClearForCooldownReduction;
+
+        final int cooldownDecrease = (int) Math.floor(decreasedTotal * cooldownDecreasePerOnePercentBloodDebtDecreased);
+
+        // This one is kinda weird because minecraft doesn't allow decreasing the cooldown
+        startCd(player, getCdTimeLeft(player) - cooldownDecrease + 1);
     }
 
     @Override

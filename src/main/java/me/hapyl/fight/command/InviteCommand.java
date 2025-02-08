@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.util.PlayerInvite;
 import org.bukkit.entity.Player;
 
@@ -21,19 +21,19 @@ public class InviteCommand extends SimplePlayerCommand {
             final UUID uuid = BukkitUtils.getUUIDfromString(stringUUID);
 
             if (uuid == null) {
-                Notifier.error(player, "Invalid UUID!");
+                Message.error(player, "Invalid UUID!");
                 return;
             }
 
             final PlayerInvite invite = PlayerInvite.byUUID(uuid);
 
             if (invite == null) {
-                Notifier.error(player, "Could not find the invite you're trying to interact with!");
+                Message.error(player, "Could not find the invite you're trying to interact with!");
                 return;
             }
 
             if (!invite.isInvited(player)) {
-                Notifier.error(player, "You are not invited!");
+                Message.error(player, "You are not invited!");
                 return;
             }
 
@@ -43,12 +43,12 @@ public class InviteCommand extends SimplePlayerCommand {
                 case "accept" -> invite.accept(player);
                 case "decline" -> invite.decline(player);
                 default -> {
-                    Notifier.error(player, "Invalid argument, expected either 'accept' or 'decline', got '%s'!".formatted(argument));
+                    Message.error(player, "Invalid argument, expected either 'accept' or 'decline', got '%s'!".formatted(argument));
                 }
             }
             return;
         }
 
-        Notifier.error(player, "Invalid usage!");
+        Message.error(player, "Invalid usage!");
     }
 }

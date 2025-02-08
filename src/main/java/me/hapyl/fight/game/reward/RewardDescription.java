@@ -10,27 +10,30 @@ import java.util.List;
 
 public class RewardDescription implements IterableOver<Player, String> {
 
-    public static final RewardDescription EMPTY = new RewardDescription();
-
     private final List<String> description;
 
-    public RewardDescription() {
+    protected RewardDescription() {
         this.description = Lists.newArrayList();
     }
 
-    public RewardDescription addEmptyLine() {
+    public RewardDescription appendNl() {
         this.description.add("");
         return this;
     }
 
-    public RewardDescription add(@Nonnull String string) {
+    public RewardDescription append(@Nonnull String string) {
         this.description.add(Reward.BULLET + string);
         return this;
     }
 
-    public RewardDescription addIf(boolean condition, @Nonnull String s) {
+    public RewardDescription append(@Nonnull RewardDescription other) {
+        this.description.addAll(other.description);
+        return this;
+    }
+
+    public RewardDescription appendIf(boolean condition, @Nonnull String s) {
         if (condition) {
-            add(s);
+            append(s);
         }
 
         return this;
@@ -40,16 +43,5 @@ public class RewardDescription implements IterableOver<Player, String> {
     @Override
     public Iterator<String> iterator() {
         return description.iterator();
-    }
-
-    @Nonnull
-    public static RewardDescription of(@Nonnull String... strings) {
-        final RewardDescription display = new RewardDescription();
-
-        for (String string : strings) {
-            display.add(string);
-        }
-
-        return display;
     }
 }

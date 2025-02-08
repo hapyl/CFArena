@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.inventory.gui.EventListener;
 import me.hapyl.eterna.module.inventory.gui.GUI;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
@@ -121,13 +121,13 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
 
         if (!event.getClick().isLeftClick()) {
             wrongClicks++;
-            Notifier.error(player, (wrongClicks > 0 && wrongClicks % 5 == 0) ? "LEFT CLICK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" : "Left click!");
+            Message.error(player, (wrongClicks > 0 && wrongClicks % 5 == 0) ? "LEFT CLICK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" : "Left click!");
             event.setCancelled(true);
             return;
         }
 
         if (slot == UNMODIFIABLE_SLOT) {
-            Notifier.error(player, "This slot cannot be modified!");
+            Message.error(player, "This slot cannot be modified!");
             event.setCancelled(true);
             return;
         }
@@ -170,19 +170,19 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
                 continue;
             }
 
-            Notifier.error(player, "Cannot save! Loadout is missing '{%s}'!".formatted(value.getName()));
+            Message.error(player, "Cannot save! Loadout is missing '{%s}'!".formatted(value.getName()));
             PlayerLib.villagerNo(player);
             return;
         }
 
         if (loadout.isIdentical(newLoadout)) {
-            Notifier.error(player, "The provided layout is identical to the current one!");
+            Message.error(player, "The provided layout is identical to the current one!");
             PlayerLib.villagerNo(player);
             return;
         }
 
         loadout.setLoadout(newLoadout);
-        Notifier.success(player, "Successfully set new loadout!");
+        Message.success(player, "Successfully set new loadout!");
 
         player.closeInventory();
     }

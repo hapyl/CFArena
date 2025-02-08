@@ -15,7 +15,7 @@ public class ArcherMastery extends HeroMastery {
 
         setLevel(new MasteryLevelLucky(1));
         setLevel(new MasteryLevelLucky(2));
-        setLevel(new MasteryLevelFusion(10));
+        setLevel(new MasteryLevelFusion(5));
     }
 
     @Nonnull

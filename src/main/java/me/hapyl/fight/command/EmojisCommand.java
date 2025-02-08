@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.emoji.Emojis;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.entity.Player;
@@ -20,13 +20,13 @@ public class EmojisCommand extends SimplePlayerCommand {
         final List<Emojis> emojis = Emojis.getAvailable(profile);
 
         if (emojis.isEmpty()) {
-            Notifier.error(player, "There are no emojis available to you!");
+            Message.error(player, "There are no emojis available to you!");
         }
         else {
-            Notifier.success(player, "There are %s emojis available to you:".formatted(emojis.size()));
+            Message.success(player, "There are %s emojis available to you:".formatted(emojis.size()));
 
             emojis.forEach(emoji -> {
-                Notifier.info(player, " %s &8-> %s".formatted(emoji.getText(), emoji.getEmoji()));
+                Message.info(player, " %s &8-> %s".formatted(emoji.getText(), emoji.getEmoji()));
             });
         }
 

@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.Currency;
@@ -103,7 +103,7 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
 
         if (this instanceof Disabled) {
             if (player != null) {
-                Notifier.ERROR.send(player, "This cosmetic is currently disabled, sorry!");
+                Message.ERROR.send(player, "This cosmetic is currently disabled, sorry!");
             }
             return;
         }
