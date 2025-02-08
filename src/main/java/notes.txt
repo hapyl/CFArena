@@ -1,7 +1,6 @@
 ###############################
 
 - s card
-- Rework Quick Access
 - Don't allow going far from NPCs when talking to them
 - Change the fucking mastery messages my eyes are fucking dying
 

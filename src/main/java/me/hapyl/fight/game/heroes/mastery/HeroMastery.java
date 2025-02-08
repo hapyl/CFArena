@@ -77,7 +77,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
     }
 
     @Nonnull
-    public Hero getHero() {
+    public Hero hero() {
         return this.hero;
     }
 
@@ -93,8 +93,18 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         return Arrays.asList(this.levels).subList(0, level);
     }
 
-    protected void setLevel(@Nonnull HeroMasteryLevel masteryLevel) {
-        this.levels[masteryLevel.getLevel() - 1] = masteryLevel;
+    protected void setLevels(
+            @Nonnull HeroMasteryLevel level1,
+            @Nonnull HeroMasteryLevel level2,
+            @Nonnull HeroMasteryLevel level3,
+            @Nonnull HeroMasteryLevel level4,
+            @Nonnull HeroMasteryLevel level5
+    ) {
+        this.levels[0] = level1;
+        this.levels[1] = level2;
+        this.levels[2] = level3;
+        this.levels[3] = level4;
+        this.levels[4] = level5;
     }
 
     protected int getLevel(@Nonnull GamePlayer player) {

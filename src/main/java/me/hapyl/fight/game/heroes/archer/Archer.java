@@ -16,9 +16,10 @@ import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.skin.archer.AbstractSkinArcher;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.archer.HawkeyePassive;
+import me.hapyl.fight.game.talents.archer.ShockDart;
+import me.hapyl.fight.game.talents.archer.TripleShot;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.weapons.BowWeapon;
@@ -251,12 +252,12 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public TripleShot getFirstTalent() {
         return TalentRegistry.TRIPLE_SHOT;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public ShockDart getSecondTalent() {
         return TalentRegistry.SHOCK_DART;
     }
 

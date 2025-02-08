@@ -254,17 +254,31 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ViewTheEyeGuiCommand("viewtheeyegui"));
 
         // *=* Inner commands *=* //
-        register("setSelectedHeroWins", (player, args) -> {
-            final Hero hero = CF.getProfile(player).getHero();
-            final StatisticEntry entry = CF.getDatabase(player).statisticEntry;
+        register(
+                "hurricane", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  final int amount = args.getInt(0);
 
-            final int newWins = args.getInt(0);
-            final double previousWins = entry.getHeroStat(hero, StatType.WINS);
+                                  HeroRegistry.ARCHER.getFirstTalent().shoot(gamePlayer, amount);
+                                  gamePlayer.sendMessage("Shoot %s arrows!".formatted(amount));
+                              });
+                }
+        );
 
-            entry.setHeroStat(hero, StatType.WINS, newWins);
+        register(
+                "setSelectedHeroWins", (player, args) -> {
+                    final Hero hero = CF.getProfile(player).getHero();
+                    final StatisticEntry entry = CF.getDatabase(player).statisticEntry;
 
-            Message.success(player, "Set your %s wins to {%s}! (Was {%s})".formatted(hero.getName(), newWins, previousWins));
-        });
+                    final int newWins = args.getInt(0);
+                    final double previousWins = entry.getHeroStat(hero, StatType.WINS);
+
+                    entry.setHeroStat(hero, StatType.WINS, newWins);
+
+                    Message.success(player, "Set your %s wins to {%s}! (Was {%s})".formatted(hero.getName(), newWins, previousWins));
+                }
+        );
 
         register(
                 "debugMasteryExp", (player, args) -> {

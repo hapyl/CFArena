@@ -108,7 +108,7 @@ public class StyledItem implements StyledBuilder {
             Material.GOLDEN_HELMET,
             "Hero Mastery &4&lPRE ALPHA PRE BETA NOT FINISHED!!!",
             """
-                    Master a hero by winning and unlock additional abilities and exclusive cosmetics!
+                    Master a hero by winning and slaying your enemies to unlock additional abilities and become a Master!
                     """
     );
 
