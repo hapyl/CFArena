@@ -6,6 +6,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
+import me.hapyl.fight.game.stats.StatType;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -21,6 +22,7 @@ public class MasteryEntry extends PlayerDatabaseEntry {
     }
 
     public final int getLevel(@Nonnull Hero hero) {
+        // Hero mastery is now retroactive, calculate based on wins and kills
         return HeroMastery.getLevel(getExp(hero));
     }
 
@@ -29,24 +31,15 @@ public class MasteryEntry extends PlayerDatabaseEntry {
     }
 
     public final long getExp(@Nonnull Hero hero) {
-        return getValue("%s.exp".formatted(hero.getKeyAsString()), 0L);
-    }
+        int exp = 0;
 
-    public void addExp(@Nonnull Hero hero, long expToAdd) {
-        setExp(hero, getExp(hero) + Math.abs(expToAdd));
-    }
+        final double wins = database.statisticEntry.getHeroStat(hero, StatType.WINS);
+        final double kills = database.statisticEntry.getHeroStat(hero, StatType.KILLS);
 
-    public void setExp(@Nonnull Hero hero, long newExp) {
-        final long currentExp = getExp(hero);
-        final int currentLevel = HeroMastery.getLevel(currentExp);
-        final int newLevel = HeroMastery.getLevel(newExp);
+        exp += (int) Math.ceil(wins * HeroMastery.EXP_WIN);
+        exp += (int) Math.ceil(kills * HeroMastery.EXP_ELIMINATION);
 
-        // Play level up animation
-        if (newLevel > currentLevel) {
-            playMasteryLevelUpEffect(hero, currentLevel, newLevel);
-        }
-
-        setValue("%s.exp".formatted(hero.getKeyAsString()), newExp);
+        return exp;
     }
 
     public void playMasteryLevelUpEffect(@Nonnull Hero hero, int currentLevel, int newLevel) {
@@ -59,10 +52,12 @@ public class MasteryEntry extends PlayerDatabaseEntry {
         Chat.sendMessage(player, "");
         Chat.sendCenterMessage(player, HeroMastery.PREFIX);
         Chat.sendCenterMessage(player, ChatColor.GOLD + hero.getNameSmallCaps());
-        Chat.sendCenterMessage(player, "&8[&7%s&8] &f➠&7 &7[&a&l%s&7]".formatted(
-                HeroMastery.getLevelString(currentLevel),
-                HeroMastery.getLevelString(newLevel)
-        ));
+        Chat.sendCenterMessage(
+                player, "&8[&7%s&8] &f➠&7 &7[&a&l%s&7]".formatted(
+                        HeroMastery.getLevelString(currentLevel),
+                        HeroMastery.getLevelString(newLevel)
+                )
+        );
         Chat.sendMessage(player, "");
 
         PlayerLib.playSound(player, Sound.UI_TOAST_CHALLENGE_COMPLETE, 2.0f);

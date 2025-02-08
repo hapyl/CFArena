@@ -52,10 +52,7 @@ import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
-import me.hapyl.fight.database.entry.DailyRewardEntry;
-import me.hapyl.fight.database.entry.MasteryEntry;
-import me.hapyl.fight.database.entry.MetadataEntry;
-import me.hapyl.fight.database.entry.SkinEntry;
+import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.EntityFollowingParticle;
@@ -105,6 +102,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.skin.Skins;
+import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
@@ -256,6 +254,33 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ViewTheEyeGuiCommand("viewtheeyegui"));
 
         // *=* Inner commands *=* //
+        register("setSelectedHeroWins", (player, args) -> {
+            final Hero hero = CF.getProfile(player).getHero();
+            final StatisticEntry entry = CF.getDatabase(player).statisticEntry;
+
+            final int newWins = args.getInt(0);
+            final double previousWins = entry.getHeroStat(hero, StatType.WINS);
+
+            entry.setHeroStat(hero, StatType.WINS, newWins);
+
+            Message.success(player, "Set your %s wins to {%s}! (Was {%s})".formatted(hero.getName(), newWins, previousWins));
+        });
+
+        register(
+                "debugMasteryExp", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  final GameInstance instance = Manager.current().getGameInstance();
+                                  assert instance != null;
+
+                                  final int inGameMastery = instance.heroMastery().getMastery(gamePlayer);
+                                  final int totalLevel = gamePlayer.getDatabase().masteryEntry.getLevel(gamePlayer.getHero());
+
+                                  gamePlayer.sendMessage("inGameMastery=" + inGameMastery);
+                                  gamePlayer.sendMessage("totalLevel=" + totalLevel);
+                              });
+                }
+        );
         register(
                 "respawnSnakeParkour", (player, args) -> {
                     final SnakeParkour parkour = (SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour();

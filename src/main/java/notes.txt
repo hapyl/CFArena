@@ -2,11 +2,9 @@
 
 - MAKE MASTERY WORK RIGHT ( should it? def no lazy )
 - s card
-- Fix spectral form
-    - IT'S STILL BUGGED AND SOMETIMES DOESN'T REFRESH AFTER DEATH WHAT THE FUCK
 - Rework Quick Access
 - Don't allow going far from NPCs when talking to them
-- NPC task called twice? (Might be /reload bug)
+- Change the fucking mastery messages my eyes are fucking dying
 
 ======= IMPORTANT =======
 

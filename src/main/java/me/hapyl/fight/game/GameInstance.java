@@ -42,16 +42,15 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     private final String hexCode;
     private final long startedAt;
-    //private final Map<UUID, GamePlayer> players;
-    //private final Map<LivingEntity, EntityData> entityData;
+
     private final EnumLevel currentMap;
     private final GameType mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
+    private final GamePlayerHeroMastery heroMastery;
 
     private long timeLimitInTicks;
     private State gameState;
-    private Set<Hero> activeHeroes;
 
     public GameInstance(@Nonnull GameType mode, @Nonnull EnumLevel map) {
         this.startedAt = System.currentTimeMillis();
@@ -62,8 +61,10 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
         this.createGamePlayers();
 
-        this.gameResult = new GameResult(this);
         this.gameReport = new GameReport(this);
+        this.gameResult = new GameResult(this);
+        this.heroMastery = new GamePlayerHeroMastery(this);
+
         this.gameState = State.PRE_GAME;
         this.hexCode = generateHexCode();
         this.currentMap = map;
@@ -74,6 +75,11 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     public GameInstance(@Nonnull EnumGameType mode, @Nonnull EnumLevel map) {
         this(mode.getMode(), map);
+    }
+
+    @Nonnull
+    public GamePlayerHeroMastery heroMastery() {
+        return heroMastery;
     }
 
     public void increaseTimeLimit(int increase) {
@@ -112,10 +118,12 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
 
     @Override
     public void calculateEverything() {
-        GameTask.runLater(() -> {
-            gameResult.calculate();
-            gameResult.awardWinners();
-        }, 10).setShutdownAction(ShutdownAction.IGNORE);
+        GameTask.runLater(
+                () -> {
+                    gameResult.calculate();
+                    gameResult.awardWinners();
+                }, 10
+        ).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     public void executeWinCosmetic() {
@@ -146,10 +154,12 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         winCosmetic.onDisplay0(new Display(winner, location));
 
         final Location finalLocation = location;
-        GameTask.runLater(() -> {
-            winCosmetic.onStop(finalLocation);
-            Manager.current().onStop();
-        }, delay);
+        GameTask.runLater(
+                () -> {
+                    winCosmetic.onStop(finalLocation);
+                    Manager.current().onStop();
+                }, delay
+        );
     }
 
     public long getTimeLimitMillis() {

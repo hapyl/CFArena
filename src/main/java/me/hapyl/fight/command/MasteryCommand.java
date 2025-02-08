@@ -50,7 +50,10 @@ public class MasteryCommand extends CFCommand {
                 return;
             }
 
-            database.masteryEntry.setExp(hero, newExp);
+            if (!false) {
+                Message.error(player, "Unable to set mastery exp!");
+                return;
+            }
 
             Message.success(player, "Set {%s} mastery exp for {%s} to {%s}.".formatted(target.getName(), hero.getName(), newExp));
         } else {

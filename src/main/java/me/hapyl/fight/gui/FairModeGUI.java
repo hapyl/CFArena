@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 public class FairModeGUI extends StyledGUI {
 
     private static final int[] SLOTS = {
-            13, 19, 28, 29, 30, 21, 22, 23, 32, 33, 34, 25
+            21, 23, 29, 30, 31, 32, 33
     };
 
     private final Manager manager;
@@ -44,7 +44,11 @@ public class FairModeGUI extends StyledGUI {
             final FairMode fairMode = FairMode.values()[i];
             final boolean isCurrent = currentMode == fairMode;
 
-            final ItemBuilder builder = new ItemBuilder(fairMode.isUnfair() ? Material.FILLED_MAP : Material.PAPER)
+            final ItemBuilder builder = new ItemBuilder(
+                    fairMode.isUnfair()
+                            ? Material.FILLED_MAP
+                            : fairMode == FairMode.MASTERY_ROOKIE ? Material.PAPER : Material.MAP
+            )
                     .setName(fairMode.getName())
                     .setAmount(Math.max(1, i - 1))
                     .addLore()
