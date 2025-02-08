@@ -167,6 +167,7 @@ public enum EnumDamageCause {
     BAT_BITE_NO_TICK(BAT_BITE.damageCause.createCopy().setDamageTicks(1)),
     DEAD_EYE(DamageCause.of("was dead eyed", "by")),
     VAMPIRE_BITE(DamageCause.of("was bitten to death", "by").knockBack(0.0d)),
+    GAMBLE(DamageCause.nonCrit("gambled their way to grave", "by")),
 
     ;
 

@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.heroes.himari;
 
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GameEntity;
@@ -29,8 +32,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public class Himari extends Hero implements Listener, PlayerDataHandler<HimariData> {
+    @DisplayField private final double speedAmplify = 0.4d;
 
     private final PlayerDataMap<HimariData> playerData = PlayerMap.newDataMap(player -> new HimariData(player, this));
+    private final TemperInstance temperInstance = Temper.LUCKINESS.newInstance()
+            .increase(AttributeType.SPEED, speedAmplify);
 
     public Himari(@Nonnull Key key) {
         super(key, "Himari");
@@ -40,8 +46,9 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         profile.setGender(Gender.FEMALE);
 
         setDescription("""
-                (Make description later)
-                (remind me to pay off those xp bottles to hapyl)
+                A girl who LOVES to gamble. No matter if it's for money, results, dares, or even her life!
+                She's pretty cute if you know her well.
+                However, Doctor Ed doesn't like her that much...
                 """);
 
         setItem("23172927c6518ee184a1466d5f1ea81b989ced61a5d5159e3643bb9caf9c189f");
@@ -101,44 +108,46 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
             super(Himari.this, "All in", 60);
             setDescription("""
                     Throw a cube that gives out a random number from 1 to 4, which will result in the effect.
-                    """);
+                    
+                    You can get increased %s, poison your last offender, heal yourself or get punished for your impudence.
+                    """.formatted(AttributeType.SPEED));
 
             setItem(Material.IRON_SWORD);
-            setDurationSec(5);
+            setDurationSec(3);
             setCooldownSec(30);
 
             actionList.append(player -> {
                 //move speed
-                // FIXME (Sat, Feb 8 2025 @xanyjl): Use attributes
-                player.addEffect(Effects.SPEED, 5, 100);
-
+                temperInstance.temper(player, 100);
+                player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lMove..", 2, 100, 6);
                 return true;
             });
 
             actionList.append(player -> {
                 final GameEntity lastAttacker = player.getLastDamager();
-
+                //poison last entity who hurt Himari
                 if (lastAttacker instanceof LivingGameEntity livingAttacker) {
                     livingAttacker.addEffect(Effects.WITHER, witherAmplifier, witherDuration);
+                    player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lThey will regret...", 2, 60, 6);
                     return true;
                 }
-
                 return false;
             });
 
             actionList.append(player -> {
                 //Self-damage (haram!!)
-                player.damage(20, player, EnumDamageCause.ENTITY_ATTACK);
+                player.damage(20, player, EnumDamageCause.GAMBLE);
+                player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lJudgement.",2, 80, 6);
                 return true;
             });
 
             actionList.append(player -> {
-                //heal player if low on health. If they are good enough on hp - they're not (damage)
+                //heal player if low on health.
                 if (player.getHealth() < player.getMaxHealth() * 0.3) {
                     player.heal(40);
+                    player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lBack in action..",2, 60, 6);
                     return true;
                 }
-
                 return false;
             });
         }
@@ -149,7 +158,11 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
             return execute(() -> {
                 actionList.randomActionAndExecute(player);
 
-                // Fx todo
+                // Fx
+
+                // ^ Fx is not needed here, since CF already uses dragon roar
+                // or what fucking ever that sound is
+                // anyway, it fits good enough
             });
         }
     }
