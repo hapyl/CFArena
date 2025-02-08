@@ -18,10 +18,10 @@ public class CandlebaneTalent extends TauntTalent {
     @DisplayField(suffix = "❤") protected final double damagePerInterval = 5.0d;
 
     public CandlebaneTalent(@Nonnull Key key) {
-        super(key, "Candlebane Pillar", 10, 50);
+        super(key, "Candlebane Pillar", 12, 50);
 
         setItem(Material.RED_CANDLE);
-        setDurationSec(60);
+        setDurationSec(40);
         setCooldownSec(20);
     }
 

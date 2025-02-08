@@ -10,8 +10,7 @@ public enum Type {
     SNEAK("SNEAK!"),
     CLICK_UP("CLICK UP!"),
     CLICK_DOWN("CLICK DOWN!"),
-    USE_ABILITY("USE TALENT!"),
-    ;
+    USE_ABILITY("USE TALENT!");
 
     private final String name;
 

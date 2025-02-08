@@ -10,6 +10,14 @@
 
 ======= IMPORTANT =======
 
+# Bloodfiend Changes:
+
+- Spectral Form is not a talent instead of passive.
+- Spectral Form duration 2s >> 3s
+- Blood Chalice radius 6 >> 8
+- Candlebane Pillar radius 10 >> 12
+- Candlebane Pillar duration 60s >> 40s
+
 # Ronin Changes:
 
 - Weapon damage decreased 10 >> 8
