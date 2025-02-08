@@ -1,7 +1,7 @@
 package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.util.ArgumentList;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -23,21 +23,21 @@ public class StoryCommand extends CFCommand {
         final int index = args.getInt(1);
 
         if (hero == null) {
-            Notifier.error(player, "Invalid hero {%s}!".formatted(args.getString(0)));
+            Message.error(player, "Invalid hero {%s}!".formatted(args.getString(0)));
             return;
         }
 
         final HeroStory story = hero.getStory();
 
         if (story == null) {
-            Notifier.error(player, "{%s} doesn't have any story at the moment!".formatted(hero.getName()));
+            Message.error(player, "{%s} doesn't have any story at the moment!".formatted(hero.getName()));
             return;
         }
 
         final Chapter chapter = story.getChapter(index);
 
         if (chapter == null) {
-            Notifier.error(player, "There is not chapter {%s}!".formatted(index));
+            Message.error(player, "There is not chapter {%s}!".formatted(index));
             return;
         }
 

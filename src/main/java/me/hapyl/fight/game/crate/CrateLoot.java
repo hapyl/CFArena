@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.crate;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -51,7 +51,7 @@ public final class CrateLoot {
 
     public void createLoot() {
         if (loot != null) {
-            Notifier.error(player, "Loot already generated!");
+            Message.error(player, "Loot already generated!");
             return;
         }
 
@@ -60,20 +60,20 @@ public final class CrateLoot {
         final Rarity randomRarity = (Rarity) crate.getSchema().random();
 
         if (randomRarity == null) {
-            Notifier.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomRarity");
+            Message.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomRarity");
             return;
         }
 
         final Cosmetic randomItem = contents.randomItem(randomRarity);
 
         if (randomItem == null) {
-            Notifier.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomItem");
+            Message.Error.CANNOT_FETCH_CRATE_ITEM.send(player, "randomItem");
             return;
         }
 
         // Check if player still has a crate
         if (!database.crateEntry.hasCrate(enumCrate)) {
-            Notifier.Error.CANNOT_FIND_CRATE.send(player, enumCrate.getCrate().getName());
+            Message.Error.CANNOT_FIND_CRATE.send(player, enumCrate.getCrate().getName());
             return;
         }
 

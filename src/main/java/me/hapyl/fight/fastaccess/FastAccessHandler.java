@@ -3,7 +3,7 @@ package me.hapyl.fight.fastaccess;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
@@ -50,7 +50,7 @@ public class FastAccessHandler implements Listener {
         ev.setCancelled(true);
 
         if (!playerRank.isOrHigher(rankToAccess)) {
-            Notifier.error(player, "You must be {%s} or higher to use this slot!".formatted(rankToAccess.getPrefixWithFallback()));
+            Message.error(player, "You must be {%s} or higher to use this slot!".formatted(rankToAccess.getPrefixWithFallback()));
             PlayerLib.villagerNo(player);
             return;
         }

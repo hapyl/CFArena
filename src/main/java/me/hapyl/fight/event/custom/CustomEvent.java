@@ -22,4 +22,9 @@ public abstract class CustomEvent extends Event {
         return false;
     }
 
+    @Override
+    @Deprecated(forRemoval = true)
+    public boolean callEvent() {
+        throw new IllegalStateException("paper callEvent is dogshit use #call");
+    }
 }

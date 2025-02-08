@@ -1,7 +1,7 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.eterna.module.inventory.gui.StrictAction;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public abstract class RankClickAction implements StrictAction {
 
     protected boolean checkRank(CommandSender sender) {
         if (!rank.isOrHigher(sender)) {
-            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, rank.getPrefixWithFallback());
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, rank.getPrefixWithFallback());
             return false;
         }
 

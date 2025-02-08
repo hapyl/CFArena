@@ -2,7 +2,7 @@ package me.hapyl.fight.gui.styled.profile.achievement;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
@@ -74,7 +74,7 @@ public class AchievementGUI extends StyledGUI {
     }
 
     private void comingSoon(Player player) {
-        Notifier.ERROR.send(player, "This feature is coming soon!");
-        Notifier.ERROR.sound(player);
+        Message.ERROR.send(player, "This feature is coming soon!");
+        Message.ERROR.sound(player);
     }
 }

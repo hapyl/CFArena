@@ -2,7 +2,7 @@ package me.hapyl.fight.command;
 
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
@@ -19,19 +19,19 @@ public class TrialCommand extends SimplePlayerCommand {
     @Override
     protected void execute(Player player, String[] args) {
         if (true) {
-            Notifier.error(player, "Trial is currently disabled, sorry!");
+            Message.error(player, "Trial is currently disabled, sorry!");
             return;
         }
 
         final PlayerProfile profile = CF.getProfile(player);
 
         if (Manager.current().isGameInProgress()) {
-            Notifier.error(player, "Cannot start trial while the game is in progress!");
+            Message.error(player, "Cannot start trial while the game is in progress!");
             return;
         }
 
         if (profile == null) {
-            Notifier.error(player, "No profile somehow.");
+            Message.error(player, "No profile somehow.");
             return;
         }
 
@@ -39,12 +39,12 @@ public class TrialCommand extends SimplePlayerCommand {
 
         if (trial != null) {
             profile.stopTrial();
-            Notifier.success(player, "Stopped the trial!");
+            Message.success(player, "Stopped the trial!");
             return;
         }
 
         profile.newTrial();
-        Notifier.success(player, "Starting new trial...");
+        Message.success(player, "Starting new trial...");
     }
 
 }

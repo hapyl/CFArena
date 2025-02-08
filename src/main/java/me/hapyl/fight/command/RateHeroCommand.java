@@ -6,13 +6,13 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimplePlayerCommand;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
-import me.hapyl.fight.game.reward.EnumReward;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.StaticReward;
 import me.hapyl.fight.game.setting.EnumSetting;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -44,12 +44,12 @@ public class RateHeroCommand extends SimplePlayerCommand {
         final PlayerRating playerRating = PlayerRating.fromInt(rating);
 
         if (hero == null) {
-            Notifier.error(player, "Invalid hero!");
+            Message.error(player, "Invalid hero!");
             return;
         }
 
         if (playerRating == null) {
-            Notifier.error(player, "Invalid rating!");
+            Message.error(player, "Invalid rating!");
             return;
         }
 
@@ -60,13 +60,13 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
         if (!hasRated) {
             if (canRateHero == null) {
-                Notifier.error(player, "You cannot rate this hero yet!");
+                Message.error(player, "You cannot rate this hero yet!");
                 return;
             }
         }
 
         if (hero != canRateHero) {
-            Notifier.error(player, "&cThis is not the hero you are allowed to rate!");
+            Message.error(player, "&cThis is not the hero you were allowed to rate!");
             return;
         }
 
@@ -74,21 +74,21 @@ public class RateHeroCommand extends SimplePlayerCommand {
         stats.setPlayerRating(uuid, playerRating);
 
         if (hasRated) {
-            Notifier.success(player, "Changed {%s} rating to {%s}!".formatted(hero.getName(), playerRating.getName()));
+            Message.success(player, "Changed {%s} rating to {%s}!".formatted(hero.getName(), playerRating.getName()));
         }
         else {
-            Notifier.success(player, "Rated {%s} as {%s}!".formatted(hero.getName(), playerRating.getName()));
-            Notifier.success(player, "Thank you for rating this hero, your feedback is appreciated!");
+            Message.success(player, "Rated {%s} as {%s}!".formatted(hero.getName(), playerRating.getName()));
+            Message.success(player, "Thank you for rating this hero, your feedback is appreciated!");
 
-            final Reward reward = EnumReward.HERO_RATING_FIRST_TIME;
+            final Reward reward = StaticReward.HERO_RATING_FIRST_TIME;
 
             reward.grant(player);
             reward.sendRewardMessage(player);
 
-            Notifier.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+            Message.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
         }
 
-        Notifier.sound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
+        Message.sound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
     }
 
     public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Hero hero) {

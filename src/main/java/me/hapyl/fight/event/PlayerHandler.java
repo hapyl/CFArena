@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.parkour.Data;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameDamageMonitorEvent;
@@ -78,7 +78,7 @@ import java.util.Set;
  */
 public final class PlayerHandler implements Listener {
 
-    public static final double RANGE_KNOCKBACK_RESISTANCE = 0.7d;
+    public static final double RANGE_KNOCKBACK = 0.3d;
     public static final double VELOCITY_MAX_Y = 4.821600093841552d;
     public static final double ZERO_DAMAGE = 0.00001d;
 
@@ -122,7 +122,7 @@ public final class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Notifier.broadcastStaff("{%s} joined.".formatted(player.getName()));
+            Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
         }
 
         LocalTeamManager.updateAll();
@@ -166,7 +166,7 @@ public final class PlayerHandler implements Listener {
         }
 
         if (profile.getRank().isStaff()) {
-            Notifier.broadcastStaff("{%s} left.".formatted(player.getName()));
+            Message.broadcastStaff("{%s} left.".formatted(player.getName()));
         }
 
         // Save database
@@ -459,6 +459,17 @@ public final class PlayerHandler implements Listener {
 
         // NO DAMAGE TICKS
         final LivingGameEntity damager = instance.getDamager();
+
+        // Reassign cause from the weapon if applicable
+        if (damager instanceof GamePlayer playerDamager) {
+            final Weapon weapon = playerDamager.getHero().getWeapon();
+            final EnumDamageCause customWeaponCause = weapon.damageCause();
+
+            if (playerDamager.getHeldSlot() == HotBarSlot.WEAPON && customWeaponCause != null) {
+                instance.setCause(customWeaponCause);
+            }
+        }
+
         final int noDamageTicks = gameEntity.getNoDamageTicks(damager);
         final EnumDamageCause cause = instance.getCause();
 
@@ -466,6 +477,15 @@ public final class PlayerHandler implements Listener {
             ev.setDamage(0.0d);
             ev.setCancelled(true);
             return;
+        }
+
+        // Apply damage cause knockback
+        if (cause != null) {
+            final double knockBack = (finalProjectile != null && damager != null) ? RANGE_KNOCKBACK : cause.getDamageCause().knockBack();
+            final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
+
+            gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, 1 - knockBack);
+            GameTask.runLater(() -> gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, kbResist), 1);
         }
 
         // CALCULATE DAMAGE USING ATTRIBUTES
@@ -554,13 +574,7 @@ public final class PlayerHandler implements Listener {
 
         // Yes, this is a hack before I love everyone
         if (finalProjectile != null && lastDamager != null) {
-            final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
 
-            gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, RANGE_KNOCKBACK_RESISTANCE);
-
-            GameTask.runLater(() -> {
-                gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, kbResist);
-            }, 1);
         }
 
         // Don't damage anything, only visually

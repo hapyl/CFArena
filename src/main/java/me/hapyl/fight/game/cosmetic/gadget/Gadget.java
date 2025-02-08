@@ -3,7 +3,7 @@ package me.hapyl.fight.game.cosmetic.gadget;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
@@ -64,7 +64,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
 
     public void give(@Nonnull Player player) {
         if (Manager.current().isGameInProgress()) {
-            Notifier.error(player, "&cCannot get gadgets while in game!");
+            Message.error(player, "&cCannot get gadgets while in game!");
             return;
         }
 
@@ -86,12 +86,12 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
 
     public void execute0(Player player) {
         if (Manager.current().isGameInProgress()) {
-            Notifier.error(player, "&cCannot use gadgets while in game!");
+            Message.error(player, "&cCannot use gadgets while in game!");
             return;
         }
 
         if (player.hasCooldown(icon)) {
-            Notifier.error(player, "This gadget is on cooldown!");
+            Message.error(player, "This gadget is on cooldown!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }
@@ -99,7 +99,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
         final Response response = execute(player);
 
         if (!response.isOk()) {
-            Notifier.error(player, "Cannot use gadget! " + response.getReason());
+            Message.error(player, "Cannot use gadget! " + response.getReason());
             return;
         }
 

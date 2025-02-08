@@ -3,7 +3,7 @@ package me.hapyl.fight.command;
 import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.annotate.NowListenToMe;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -38,12 +38,12 @@ public final class RankCommand extends SimpleCommand {
         final PlayerRank rank = PlayerRank.getRank(sender);
 
         if (!rank.isOrHigher(MIN_RANK)) {
-            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, MIN_RANK.getPrefixWithFallback());
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(sender, MIN_RANK.getPrefixWithFallback());
             return;
         }
 
         if (args.length == 0) {
-            Notifier.success(sender, "Your rank is {%s}!".formatted(rank.getPrefixWithFallback()));
+            Message.success(sender, "Your rank is {%s}!".formatted(rank.getPrefixWithFallback()));
             return;
         }
 
@@ -52,14 +52,14 @@ public final class RankCommand extends SimpleCommand {
             final String hash = getArgument(args, 0).toString();
 
             if (hash.length() != HASH_LENGTH) {
-                Notifier.error(sender, "Invalid usage!");
+                Message.error(sender, "Invalid usage!");
                 return;
             }
 
             final RankConfirmation rankConfirmation = CONFIRM_CACHE.match(rc -> rc.hash.equals(hash));
 
             if (rankConfirmation == null) {
-                Notifier.error(sender, "Confirmation for '{%s}' has expired or doesn't exist!".formatted(hash));
+                Message.error(sender, "Confirmation for '{%s}' has expired or doesn't exist!".formatted(hash));
                 return;
             }
 
@@ -73,7 +73,7 @@ public final class RankCommand extends SimpleCommand {
         final PlayerRank rankToSet = getArgument(args, 1).toEnum(PlayerRank.class);
 
         if (target == null) {
-            Notifier.error(sender, "{%s} is not online!".formatted(args[0]));
+            Message.error(sender, "{%s} is not online!".formatted(args[0]));
             return;
         }
 
@@ -81,12 +81,12 @@ public final class RankCommand extends SimpleCommand {
         final PlayerRank targetRank = targetDatabase.getRank();
 
         if (rankToSet == targetRank) {
-            Notifier.error(sender, "{%s}'s rank is already {%s}!".formatted(target.getName(), targetRank.getPrefixWithFallback()));
+            Message.error(sender, "{%s}'s rank is already {%s}!".formatted(target.getName(), targetRank.getPrefixWithFallback()));
             return;
         }
 
         if (rankToSet == null) {
-            Notifier.success(sender, "{%s}'s rank is {%s}.".formatted(target.getName(), targetRank.getPrefixWithFallback()));
+            Message.success(sender, "{%s}'s rank is {%s}.".formatted(target.getName(), targetRank.getPrefixWithFallback()));
             return;
         }
 
@@ -94,7 +94,7 @@ public final class RankCommand extends SimpleCommand {
             final RankConfirmation rankConfirmation = CONFIRM_CACHE.match(rc -> rc.target.equals(target));
 
             if (rankConfirmation != null) {
-                Notifier.error(sender, "There is already a rank confirmation request for this target!");
+                Message.error(sender, "There is already a rank confirmation request for this target!");
                 return;
             }
 
@@ -102,12 +102,12 @@ public final class RankCommand extends SimpleCommand {
 
             CONFIRM_CACHE.add(confirmation);
 
-            Notifier.success(
+            Message.success(
                     sender,
                     "Created request to set &e{%s}'s rank to &c{%s}.".formatted(target.getName(), rankToSet.getPrefixWithFallback())
             );
-            Notifier.success(sender, "Because it's a staff rank, it requires a confirmation.");
-            Notifier.success(sender, "Run &e/rank &e{%s} within &b{%s}s to confirm!".formatted(confirmation.hash, CONFIRM_TIMEOUT / 1000L));
+            Message.success(sender, "Because it's a staff rank, it requires a confirmation.");
+            Message.success(sender, "Run &e/rank &e{%s} within &b{%s}s to confirm!".formatted(confirmation.hash, CONFIRM_TIMEOUT / 1000L));
             return;
         }
 
@@ -116,7 +116,7 @@ public final class RankCommand extends SimpleCommand {
 
     private static void doSetRankNowSkipChecks(CommandSender sender, Player target, PlayerRank rankToSet) {
         if (target == null || !target.isOnline()) {
-            Notifier.error(sender, "Target is no longer online!");
+            Message.error(sender, "Target is no longer online!");
             return;
         }
 
@@ -125,10 +125,10 @@ public final class RankCommand extends SimpleCommand {
 
         database.setRank(rankToSet);
 
-        Notifier.success(sender, "Set &a{%s}'s rank to {%s}!".formatted(target.getName(), rankToSet.getPrefixWithFallback()));
-        Notifier.success(target, "You are now {%s}!".formatted(rankToSet.getPrefixWithFallback()));
+        Message.success(sender, "Set &a{%s}'s rank to {%s}!".formatted(target.getName(), rankToSet.getPrefixWithFallback()));
+        Message.success(target, "You are now {%s}!".formatted(rankToSet.getPrefixWithFallback()));
 
-        Notifier.broadcastStaff("{%s} changed {%s}'s rank '{%s}' » '{%s}'.".formatted(
+        Message.broadcastStaff("{%s} changed {%s}'s rank '{%s}' » '{%s}'.".formatted(
                 sender.getName(),
                 target.getName(),
                 oldRank.getPrefixWithFallback(),

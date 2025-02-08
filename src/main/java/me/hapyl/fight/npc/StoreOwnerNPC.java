@@ -118,6 +118,7 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
                 ev.setCancelled(true);
                 return;
             }
+            return;
         }
 
         // Only show dialog if the quest wasn't completed

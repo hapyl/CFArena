@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.RomanNumber;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
@@ -107,7 +107,7 @@ public class RelicRewardGUI extends StyledGUI {
                             reward.grant(player);
                             entry.setClaimed(type, finalIndex, true);
 
-                            Notifier.success(player, "Claimed!");
+                            Message.success(player, "Claimed!");
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_LOCKED, 0.75f);
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_CLOSE, 1.25f);
 
@@ -117,7 +117,7 @@ public class RelicRewardGUI extends StyledGUI {
                     else {
                         builder.addLore(Color.ERROR + "Cannot claim yet!");
                         setItem(tierSlot, builder.asIcon(), click -> {
-                            Notifier.error(player, "Cannot claim yet!");
+                            Message.error(player, "Cannot claim yet!");
                             PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                         });
                     }
@@ -142,7 +142,7 @@ public class RelicRewardGUI extends StyledGUI {
             builder.addLore(Color.SUCCESS + "Already claimed!");
 
             setItem(25, builder.asIcon(), click -> {
-                Notifier.error(player, "Already claimed!");
+                Message.error(player, "Already claimed!");
                 PlayerLib.villagerNo(player);
             });
         }
@@ -154,7 +154,7 @@ public class RelicRewardGUI extends StyledGUI {
                 setItem(25, builder.asIcon(), click -> {
                     cosmetic.setUnlocked(player, true);
 
-                    Notifier.success(player, "Claimed!");
+                    Message.success(player, "Claimed!");
                     PlayerLib.villagerYes(player);
                     PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
 
@@ -165,7 +165,7 @@ public class RelicRewardGUI extends StyledGUI {
                 builder.addLore(Color.ERROR + "Cannot claim yet!");
 
                 setItem(25, builder.asIcon(), click -> {
-                    Notifier.error(player, "Cannot claim yet!");
+                    Message.error(player, "Cannot claim yet!");
                     PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                 });
             }
@@ -196,7 +196,7 @@ public class RelicRewardGUI extends StyledGUI {
             );
 
             setItem(34, exchangeBuilder.asIcon(), click -> {
-                Notifier.error(player, "Cannot exchange!");
+                Message.error(player, "Cannot exchange!");
                 PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
             });
         }
@@ -207,7 +207,7 @@ public class RelicRewardGUI extends StyledGUI {
                 reward.grant(player);
                 entry.incrementPermanentExchangeCount(CollectibleEntry.PERMANENT_EXCHANGE_RATE);
 
-                Notifier.success(player, "Successfully exchanged!");
+                Message.success(player, "Successfully exchanged!");
                 PlayerLib.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 2.0f);
 
                 update();

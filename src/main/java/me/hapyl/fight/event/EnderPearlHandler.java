@@ -1,7 +1,7 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -39,7 +39,7 @@ public final class EnderPearlHandler implements Listener {
         ev.setCancelled(true);
 
         if (!isSafeLocation(location)) {
-            gamePlayer.sendMessage(Notifier.ERROR, "You cannot travel there using Ender Pearls!");
+            gamePlayer.sendMessage(Message.ERROR, "You cannot travel there using Ender Pearls!");
             gamePlayer.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }

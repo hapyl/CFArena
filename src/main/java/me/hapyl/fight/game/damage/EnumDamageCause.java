@@ -13,6 +13,10 @@ import java.util.Set;
  * <p>
  * ToDo -> add many more, for each ability at least
  * ToDo -> add custom gradient colors (:
+ * <p>
+ * <p>
+ * <p>
+ * FIXME: If you make one more fucking enum registry I'm going to jump out of the window
  */
 public enum EnumDamageCause {
 
@@ -33,9 +37,9 @@ public enum EnumDamageCause {
     ENTITY_EXPLOSION(DamageCause.minecraft("exploded", "by")),
     VOID(DamageCause.minecraft("fell into the void", "with help from")),
     POISON(DamageCause.minecraft("poisoned to death", "by")
-            .setDamageFormat(instance -> {
-                return "&a%.0f ☣".formatted(instance.getDamage());
-            })),
+                      .setDamageFormat(instance -> {
+                          return "&a%.0f ☣".formatted(instance.getDamage());
+                      })),
     MAGIC(DamageCause.minecraft("magically died", "with help from")),
     WITHER(DamageCause.minecraft("withered to death", "by")),
     FALLING_BLOCK(DamageCause.minecraft("should've been wearing a helmet", "and {damager} knew that")),
@@ -56,7 +60,7 @@ public enum EnumDamageCause {
     SONIC_BOOM(DamageCause.minecraft("BOOM BOOM BAKUDAN'ed", "and {damager} is the one to blame")),
 
     FEROCITY(DamageCause.nonCrit("was ferociously killed", "by")
-            .addFlags(DamageFlag.IGNORES_DAMAGE_TICKS)),      // this is used to indicate ferocity hits
+                        .addFlags(DamageFlag.IGNORES_DAMAGE_TICKS)),      // this is used to indicate ferocity hits
     NONE(DamageCause.minecraft("mysteriously died", "with help from")), // this used as default return,
     CUSTOM(DamageCause.EMPTY), // should not be used
     OTHER(DamageCause.EMPTY),  // this used if there is no other damage
@@ -140,8 +144,8 @@ public enum EnumDamageCause {
     HACK(DamageCause.nonCrit("was hacked", "by")),
     BLADE_BARRAGE(DamageCause.nonCrit("fell before {damager}'s swords")),
     PIERCING(DamageCause.of("was pierced to death", "by")
-            .addFlags(DamageFlag.PIERCING_DAMAGE)
-            .setDamageFormat(instance -> "&b%.0f ⚡".formatted(instance.getDamage()))),
+                        .addFlags(DamageFlag.PIERCING_DAMAGE)
+                        .setDamageFormat(instance -> "&b%.0f ⚡".formatted(instance.getDamage()))),
     TOTEM(DamageCause.of("was stomped on", "by").setDamageTicks(1)),
     RAY_OF_DEATH(DamageCause.of("was doomed to fail", "and {damager} knew that").setDamageTicks(2)),
     ROGUE_ATTACK(ENTITY_ATTACK.damageCause.createCopy().setDamageTicks(7)),
@@ -159,9 +163,10 @@ public enum EnumDamageCause {
     ECHO(DamageCause.nonCrit("lost their body in the monochrome world", "of")),
     RONIN_HIT(DamageCause.nonCrit("lost in the duel", "to")),
     DEFLECT(DamageCause.nonCrit("was killed by {damager}'s deflected attack")),
-    BAT_BITE(DamageCause.nonCrit("was bitten", "by")),
+    BAT_BITE(DamageCause.nonCrit("was bitten", "by").setCanCrit(false)),
     BAT_BITE_NO_TICK(BAT_BITE.damageCause.createCopy().setDamageTicks(1)),
     DEAD_EYE(DamageCause.of("was dead eyed", "by")),
+    VAMPIRE_BITE(DamageCause.of("was bitten to death", "by").knockBack(0.0d)),
 
     ;
 

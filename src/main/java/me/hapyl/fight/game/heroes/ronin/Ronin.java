@@ -60,11 +60,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         final LivingGameEntity damager = instance.getDamager();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (!(damager instanceof GamePlayer player)) {
-            return;
-        }
-
-        if (!validatePlayer(player)) {
+        if (!(damager instanceof GamePlayer player) || !validatePlayer(player) || !instance.isEntityAttack()) {
             return;
         }
 

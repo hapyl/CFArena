@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.KeyedToString;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -51,7 +51,7 @@ public class DumpColorCommand extends CFCommand {
             final com.destroystokyo.paper.profile.PlayerProfile profile = skullMeta.getPlayerProfile();
 
             if (profile == null) {
-                Notifier.error(player, "There is no texture applied to this player's head!");
+                Message.error(player, "There is no texture applied to this player's head!");
                 return;
             }
 
@@ -59,7 +59,7 @@ public class DumpColorCommand extends CFCommand {
             final URL skin = textures.getSkin();
 
             if (skin == null) {
-                Notifier.error(player, "There isn't a skin somehow!");
+                Message.error(player, "There isn't a skin somehow!");
                 return;
             }
 

@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.chat.messagebuilder.MessageBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.entity.Player;
@@ -45,7 +45,7 @@ public abstract class PlayerInvite extends BukkitRunnable {
         invitees.forEach(player -> this.states.put(player, State.NEUTRAL));
 
         // Notify
-        Notifier.success(inviter, "Invite has been sent!");
+        Message.success(inviter, "Invite has been sent!");
 
         final String playerMessage = "&b[&3✉&b] %s &ahas invited you to &2%s&a!".formatted(CF.getProfile(inviter)
                 .getDisplay()
@@ -92,7 +92,7 @@ public abstract class PlayerInvite extends BukkitRunnable {
         }
 
         // Notify players
-        Notifier.error(inviter, "Your invite has expired!");
+        Message.error(inviter, "Your invite has expired!");
     }
 
     @Nonnull

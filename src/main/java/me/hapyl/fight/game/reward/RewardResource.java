@@ -7,15 +7,11 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-/**
- * This cannot be {@link Currency} because exp is not a currency.
- */
-public enum CurrencyType {
+public enum RewardResource {
 
     COINS(Currency.COINS),
     RUBY(Currency.RUBIES),
-    CHEST_DUST(Currency.CHEST_DUST),
-    EXPERIENCE(null) {
+    EXPERIENCE {
         @Override
         public void increment(@Nonnull Player player, long value) {
             if (value <= 0) {
@@ -47,8 +43,12 @@ public enum CurrencyType {
 
     private final Currency currency;
 
-    CurrencyType(Currency currency) {
+    RewardResource(Currency currency) {
         this.currency = currency;
+    }
+
+    RewardResource() {
+        this(null);
     }
 
     public void increment(@Nonnull Player player, long value) {

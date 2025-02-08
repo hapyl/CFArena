@@ -2,8 +2,9 @@ package me.hapyl.fight.game.cosmetic.gadget.dice;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Rarity;
-import me.hapyl.fight.game.reward.CurrencyReward;
+import me.hapyl.fight.game.reward.RepeatableReward;
 import me.hapyl.fight.game.reward.RewardDescription;
+import me.hapyl.fight.game.reward.RewardResource;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.entity.Player;
 
@@ -21,28 +22,24 @@ public class HighClassDiceCosmetic extends Dice {
         setSide(6, "586b745566284a05366baff2807d9d8f8344612aabddeb012c47c7252e34e731", 1);
     }
 
-    private static class DiceReward extends CurrencyReward {
+    private static class DiceReward extends RepeatableReward {
 
         protected DiceReward() {
             super("High Class Dice");
 
-            withCoins(1_000_000);
-            withExp(10_000);
-            withRubies(100);
-        }
-
-        @Nonnull
-        @Override
-        public RewardDescription getDescription(@Nonnull Player player) {
-            final RewardDescription display = super.getDescription(player);
-
-            display.add(Registries.getCosmetics().DICE_STATUS.getFormatted());
-            return display;
+            withResource(RewardResource.COINS, 1_000_000);
+            withResource(RewardResource.EXPERIENCE, 10_000);
+            withResource(RewardResource.RUBY, 100);
         }
 
         @Override
-        public void grant(@Nonnull Player player) {
-            super.grant(player);
+        public void appendDescription(@Nonnull Player player, @Nonnull RewardDescription description) {
+            description.append(Registries.getCosmetics().DICE_STATUS.getFormatted());
+        }
+
+        @Override
+        public void doGrant(@Nonnull Player player) {
+            super.doGrant(player);
 
             Registries.getCosmetics().DICE_STATUS.setUnlocked(player, true);
         }

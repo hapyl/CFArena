@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.experience;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.game.reward.RepeatableReward;
 import me.hapyl.fight.game.reward.Reward;
 
 import javax.annotation.Nonnull;
@@ -19,14 +20,17 @@ public class ExperienceLevel {
         this.reward = Lists.newArrayList();
     }
 
-    public ExperienceLevel addReward(Reward reward) {
+    public ExperienceLevel addReward(@Nonnull Reward reward) {
+        if (reward instanceof RepeatableReward) {
+            throw new IllegalArgumentException("Experience reward must not be repeatable!");
+        }
+
+        if (this.reward.contains(reward)) {
+            throw new IllegalArgumentException("Reward '%s' is already set!");
+        }
+
         this.reward.add(reward);
         return this;
-    }
-
-    public void setReward(List<Reward> reward) {
-        this.reward.clear();
-        this.reward.addAll(reward);
     }
 
     public long getLevel() {

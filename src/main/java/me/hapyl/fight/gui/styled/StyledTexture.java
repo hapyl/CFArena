@@ -77,6 +77,11 @@ public final class StyledTexture extends StyledItem {
     }
 
     @Nonnull
+    public ItemBuilder toBuilderClean() {
+        return ItemBuilder.playerHeadUrl(texture);
+    }
+
+    @Nonnull
     public ItemBuilder toBuilder() {
         final ItemBuilder builder = ItemBuilder.playerHeadUrl(texture);
 

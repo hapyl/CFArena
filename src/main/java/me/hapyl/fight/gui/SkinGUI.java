@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.gui.GUIClick;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
@@ -133,8 +133,8 @@ public class SkinGUI extends StyledGUI {
             builder.addLore(Color.SUCCESS + "Currently selected!");
 
             click.setAction(ClickType.LEFT, player -> {
-                Notifier.error(player, "Already selected!");
-                Notifier.sound(player, SoundEffect.FAILURE);
+                Message.error(player, "Already selected!");
+                Message.sound(player, SoundEffect.FAILURE);
 
                 update();
             });
@@ -145,8 +145,8 @@ public class SkinGUI extends StyledGUI {
                 builder.addLore(Color.BUTTON + "Click to select!");
 
                 click.setAction(ClickType.LEFT, player -> {
-                    Notifier.success(player, "Selected %s skin!".formatted(enumSkin == null ? "default" : enumSkin.getSkin().getName()));
-                    Notifier.sound(player, SoundEffect.SUCCESS);
+                    Message.success(player, "Selected %s skin!".formatted(enumSkin == null ? "default" : enumSkin.getSkin().getName()));
+                    Message.sound(player, SoundEffect.SUCCESS);
 
                     skinEntry.setSelected(this.hero, enumSkin);
                     update();
@@ -161,8 +161,8 @@ public class SkinGUI extends StyledGUI {
                     builder.addLore(Color.ERROR + "This skin is not purchasable!");
 
                     click.setAction(ClickType.LEFT, player -> {
-                        Notifier.error(player, "This skin is not purchasable!");
-                        Notifier.sound(player, SoundEffect.FAILURE);
+                        Message.error(player, "This skin is not purchasable!");
+                        Message.sound(player, SoundEffect.FAILURE);
                     });
                 }
                 else {
@@ -176,8 +176,8 @@ public class SkinGUI extends StyledGUI {
                         builder.addLore(Color.ERROR + "Cannot afford!");
 
                         click.setAction(ClickType.LEFT, player -> {
-                            Notifier.error(player, "You cannot afford this!");
-                            Notifier.sound(player, SoundEffect.FAILURE);
+                            Message.error(player, "You cannot afford this!");
+                            Message.sound(player, SoundEffect.FAILURE);
 
                             update();
                         });
@@ -212,8 +212,8 @@ public class SkinGUI extends StyledGUI {
                                     currencyEntry.subtract(Currency.RUBIES, rubyPrice);
                                     skinEntry.setOwned(enumSkin, true);
 
-                                    Notifier.success(player, "Purchased %s skin!".formatted(skin.getName()));
-                                    Notifier.sound(player, SoundEffect.SUCCESS);
+                                    Message.success(player, "Purchased %s skin!".formatted(skin.getName()));
+                                    Message.sound(player, SoundEffect.SUCCESS);
 
                                     SkinGUI.this.update();
                                 }
@@ -249,8 +249,8 @@ public class SkinGUI extends StyledGUI {
 
     private boolean validateHasCoinsOrCloseGUI(long price) {
         if (!database.currencyEntry.has(Currency.RUBIES, price)) {
-            Notifier.error(player, "Somehow you don't have enough rubies!");
-            Notifier.sound(player, SoundEffect.ERROR);
+            Message.error(player, "Somehow you don't have enough rubies!");
+            Message.sound(player, SoundEffect.ERROR);
 
             closeInventory();
             return true;

@@ -6,11 +6,11 @@ import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.fight.event.ProfileInitializationEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ public class Store extends DependencyInjector<Main> implements Listener {
     }
 
     @EventHandler
-    public void handlePlayerJoinEvent(PlayerJoinEvent ev) {
+    public void handlePlayerJoinEvent(ProfileInitializationEvent ev) {
         getOffers(ev.getPlayer());
     }
 

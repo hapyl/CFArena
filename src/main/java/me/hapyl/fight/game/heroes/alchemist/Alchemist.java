@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.alchemist;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Disabled;
@@ -220,7 +220,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         final AlchemistData data = getPlayerData(player);
 
         if (data.state == state) {
-            player.sendMessage(Notifier.ERROR, "Already in this state!");
+            player.sendMessage(Message.ERROR, "Already in this state!");
             return;
         }
 

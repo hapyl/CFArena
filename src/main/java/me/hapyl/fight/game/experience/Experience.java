@@ -1,25 +1,31 @@
 package me.hapyl.fight.game.experience;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.ExperienceEntry;
+import me.hapyl.fight.database.entry.MetadataEntry;
 import me.hapyl.fight.event.ProfileInitializationEvent;
 import me.hapyl.fight.game.cosmetic.CosmeticRegistry;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.reward.CurrencyReward;
-import me.hapyl.fight.game.reward.CurrencyType;
 import me.hapyl.fight.game.reward.HeroUnlockReward;
 import me.hapyl.fight.game.reward.Reward;
+import me.hapyl.fight.game.reward.RewardResource;
+import me.hapyl.fight.game.reward.StackedReward;
+import me.hapyl.fight.npc.TheEyeNPC;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,6 +36,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 public final class Experience extends DependencyInjector<Main> implements Listener {
 
@@ -92,33 +99,32 @@ public final class Experience extends DependencyInjector<Main> implements Listen
         return totalExp >= getExpRequired(nextLevel);
     }
 
-    /**
-     * This iterating through all rewards and grants
-     * or revoking them depending on player level.
-     * <p>
-     * Needed in case of new reward to grant, or admin
-     * manipulations.
-     * <br>
-     * This method is kinda wacky, soo I'm deprecating it -h
-     */
-    @Deprecated
-    public void fixRewards(@Nonnull Player player) {
+    public void updatePlayerRewards(@Nonnull Player player) {
         final ExperienceEntry entry = getDatabaseEntry(player);
-        final long playerLvl = entry.get(ExperienceEntry.Type.LEVEL);
+        final long playerLevel = entry.get(ExperienceEntry.Type.LEVEL);
+        final List<Reward> unclaimedRewards = Lists.newArrayList();
 
-        // Give all previous rewards
-        for (long lvl = playerLvl; lvl > 0; lvl--) {
-            final List<Reward> rewards = getRewards(lvl);
+        for (long i = 1; i <= playerLevel; i++) {
+            final List<Reward> rewards = getRewards(i);
 
-            for (Reward reward : rewards) {
-                // Don't re-give currency
-                if (reward instanceof CurrencyReward) {
-                    continue;
+            rewards.forEach(reward -> {
+                if (!reward.hasClaimed(player)) {
+                    unclaimedRewards.add(reward);
                 }
-
-                reward.grant(player);
-            }
+            });
         }
+
+        if (unclaimedRewards.isEmpty()) {
+            return;
+        }
+
+        Message.info(player, "");
+        Message.success(player, "There were new rewards for your reached level, and the following were credited to you:");
+        Message.sound(player, Sound.ENTITY_VILLAGER_AMBIENT, 1.0f);
+
+        new StackedReward(unclaimedRewards).grantAll(player);
+
+        Message.info(player, "");
     }
 
     @Nonnull
@@ -158,12 +164,9 @@ public final class Experience extends DependencyInjector<Main> implements Listen
             final List<Reward> rewards = getRewards(level);
 
             for (Reward reward : rewards) {
-                reward.grant(player);
+                reward.grant(player, false); // Reward message is sent separately
             }
         }
-
-        // Fix rewards
-        fixRewards(player);
 
         // Fix achievement
         Registries.getAchievements().LEVEL_TIERED.setCompleteCount(player, (int) toLevel);
@@ -198,7 +201,14 @@ public final class Experience extends DependencyInjector<Main> implements Listen
         Chat.sendCenterMessage(player, LEVEL_UP_GRADIENT);
         Chat.sendCenterMessage(player, "&eYou are now level %s!".formatted(level));
 
-        final List<Reward> rewards = getRewards(level);
+        // Display rewards
+        final List<Reward> rewards = Lists.newArrayList(getRewards(level));
+        rewards.removeIf(reward -> reward.hasClaimed(player));
+
+        if (!rewards.isEmpty()) {
+            Reward.sendRewardsHeader(player);
+            rewards.forEach(reward -> reward.sendRewardMessage(player));
+        }
 
         Chat.sendMessage(player, "");
     }
@@ -221,6 +231,7 @@ public final class Experience extends DependencyInjector<Main> implements Listen
      */
     public void triggerUpdate(Player player) {
         updateProgressBar(player);
+        updatePlayerRewards(player);
     }
 
     /**
@@ -230,7 +241,7 @@ public final class Experience extends DependencyInjector<Main> implements Listen
      * @return progress from 0 to 1.
      */
     public float getProgress(Player player) {
-        return Numbers.clamp((float) (getExpScaled(player)) / (float) (getExpScaledNext(player)), 0.0f, 1.0f);
+        return Math.clamp((float) (getExpScaled(player)) / (float) (getExpScaledNext(player)), 0.0f, 1.0f);
     }
 
     /**
@@ -347,7 +358,10 @@ public final class Experience extends DependencyInjector<Main> implements Listen
             final ExperienceLevel experienceLevel = new ExperienceLevel(level, currentExp);
 
             if (isPrestige) {
-                experienceLevel.addReward(Reward.display("Prestige Color", color + " &7prestige color"));
+                experienceLevel.addReward(Reward.of(
+                        Key.ofString("prestige_color_%s".formatted(color.name().toLowerCase())), "Prestige Color", color + " &7prestige color", player -> {
+                        }
+                ));
             }
 
             experienceLevelMap.put(level, experienceLevel);
@@ -355,14 +369,14 @@ public final class Experience extends DependencyInjector<Main> implements Listen
     }
 
     private void setupRewards() {
-        // Coins rewards
+        // Resource rewards
         experienceLevelMap.forEach((lvl, level) -> {
-            final CurrencyReward reward = Reward.currency("Level %s Rewards".formatted(lvl));
+            final Reward reward = new Reward(Key.ofString("level_%s_reward_resource".formatted(lvl)), "Level %s Rewards".formatted(lvl));
 
-            reward.with(CurrencyType.COINS, 1000 * lvl);
+            reward.withResource(RewardResource.COINS, 1000 * lvl);
 
             if (level.isPrestige()) {
-                reward.with(CurrencyType.RUBY, 1);
+                reward.withResource(RewardResource.RUBY, 1);
             }
 
             level.addReward(reward);
@@ -373,6 +387,7 @@ public final class Experience extends DependencyInjector<Main> implements Listen
             final long minLevel = hero.getMinimumLevel();
             if (minLevel > 0) {
                 final ExperienceLevel level = experienceLevelMap.get(minLevel);
+
                 if (level != null) {
                     level.addReward(new HeroUnlockReward(hero));
                 }
@@ -383,8 +398,16 @@ public final class Experience extends DependencyInjector<Main> implements Listen
         // Keep manual rewards last for consistency
         final CosmeticRegistry cosmetics = Registries.getCosmetics();
 
-        addReward(1, Reward.cosmetics("Level 1 Rewards", cosmetics.PEACE));
-        addReward(2, Reward.cosmetics("Level 2 Rewards", cosmetics.EMERALD_EXPLOSION));
+        addReward(1, levelReward(1).withCosmetic(cosmetics.PEACE));
+        addReward(2, levelReward(2).withCosmetic(cosmetics.EMERALD_EXPLOSION));
+
+        addReward(
+                5, Reward.of(
+                        Key.ofString("the_eye_remote_communication"), "The Eye Remote Communication", player -> {
+                            MetadataEntry.set(player, TheEyeNPC.HAS_UNLOCKED_REMOTE_GUI, true);
+                        }
+                )
+        );
     }
 
     private void addReward(int level, @Nonnull Reward reward) {
@@ -403,4 +426,27 @@ public final class Experience extends DependencyInjector<Main> implements Listen
         player.setLevel((int) getLevel(player));
         player.setExp(progress);
     }
+
+    private static Reward levelReward(int level, String name, Consumer<Player> consumer) {
+        return new Reward(Key.ofString("level_%s_reward".formatted(level)), name) {
+            @Override
+            public void doGrant(@Nonnull Player player) {
+                super.doGrant(player);
+                consumer.accept(player);
+            }
+        };
+    }
+
+    private static Reward levelReward(int level, Consumer<Player> consumer) {
+        return levelReward(level, "Level %s Rewards".formatted(level), consumer);
+    }
+
+    private static Reward levelReward(int level) {
+        return levelReward(
+                level, player -> {
+                }
+        );
+    }
+
+
 }

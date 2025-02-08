@@ -154,7 +154,7 @@ public class WeaponRayCast {
 
         final boolean isHeadShot = isHeadShot(location, target);
 
-        target.modifyKnockback(PlayerHandler.RANGE_KNOCKBACK_RESISTANCE, then -> {
+        target.modifyKnockback(1 - PlayerHandler.RANGE_KNOCKBACK, then -> {
             onHit(then, isHeadShot);
         });
 

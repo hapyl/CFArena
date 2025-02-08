@@ -109,6 +109,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                         A sharp fang.
                         """)
                 .damage(5.0d)
+                .damageCause(EnumDamageCause.VAMPIRE_BITE)
         );
 
         final UltimateTalent ultimate = new BloodfiendUltimate();
@@ -174,11 +175,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
         final LivingGameEntity entity = instance.getEntity();
         final EnumDamageCause cause = instance.getCause();
 
-        if (player == null || cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (player == null || cause != EnumDamageCause.VAMPIRE_BITE) {
             return;
         }
-
-        entity.addEffect(Effects.IMMOVABLE, 1);
 
         final BloodfiendData data = getData(player);
 

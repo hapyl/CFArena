@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -45,7 +45,7 @@ public class EyeGUI extends StyledGUI {
             final PlayerRank rankRequired = type.rank;
 
             if (reward == null) {
-                Notifier.error(player, "Error loading rewards, try again before reporting this!");
+                Message.error(player, "Error loading rewards, try again before reporting this!");
                 closeInventory();
                 return;
             }
@@ -89,7 +89,7 @@ public class EyeGUI extends StyledGUI {
             if (canClaim) {
                 setClick(slot, click -> {
                     if (!playerRank.isOrHigher(rankRequired)) {
-                        Notifier.error(player, lowRankString);
+                        Message.error(player, lowRankString);
                         PlayerLib.villagerNo(player);
                     }
                     else {

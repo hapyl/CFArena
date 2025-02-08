@@ -3,7 +3,7 @@ package me.hapyl.fight.chat;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.emoji.Emojis;
@@ -37,7 +37,7 @@ public enum ChatChannel {
             final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
             if (playerTeam == null) {
-                Notifier.error(player, "You are not in a team!");
+                Message.error(player, "You are not in a team!");
                 return;
             }
 
@@ -70,7 +70,7 @@ public enum ChatChannel {
 
         @Override
         public void processMessage(@Nonnull PlayerProfile profile, @Nonnull String message) {
-            Notifier.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
+            Message.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
         }
     };
 

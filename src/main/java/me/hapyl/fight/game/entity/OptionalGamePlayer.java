@@ -2,7 +2,7 @@ package me.hapyl.fight.game.entity;
 
 import me.hapyl.eterna.module.util.IOptional;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -22,7 +22,7 @@ public class OptionalGamePlayer extends IOptional<GamePlayer> {
     @Override
     public IOptionalCallback ifPresent(@Nonnull Consumer<GamePlayer> action) {
         if (!isPresent() && bukkitPlayer != null) {
-            Notifier.error(bukkitPlayer, "You must be in a game to use this!");
+            Message.error(bukkitPlayer, "You must be in a game to use this!");
         }
 
         return super.ifPresent(action);

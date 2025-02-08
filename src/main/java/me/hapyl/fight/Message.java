@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  *     }</pre>
  * </ul>
  */
-public interface Notifier {
+public interface Message {
 
     /**
      * A prefix for staff.

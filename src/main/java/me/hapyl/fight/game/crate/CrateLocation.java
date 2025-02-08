@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -70,7 +70,7 @@ public class CrateLocation extends Location {
     }
 
     public void sendOccupiedMessage(@Nonnull Player player) {
-        Notifier.error(player, "{%s} already opening a crate!".formatted(occupiedBy == player ? "You are" : occupiedBy.getName() + " is"));
+        Message.error(player, "{%s} already opening a crate!".formatted(occupiedBy == player ? "You are" : occupiedBy.getName() + " is"));
     }
 
     public boolean checkOccupiedAndSendError(@Nonnull Player player) {

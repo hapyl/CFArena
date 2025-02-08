@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.command.DisabledCommand;
 import me.hapyl.eterna.module.util.ArgumentList;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.profile.PlayerDisplay;
@@ -33,7 +33,7 @@ public class NickCommand extends CFCommand implements DisabledCommand {
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         if (!ProfanityFilter.isInstantiated()) {
-            Notifier.error(player, "This feature cannot be used yet, try again in a moment!");
+            Message.error(player, "This feature cannot be used yet, try again in a moment!");
             return;
         }
 
@@ -43,31 +43,31 @@ public class NickCommand extends CFCommand implements DisabledCommand {
 
         if (newNick.isEmpty() || newNick.equalsIgnoreCase("reset")) {
             display.resetNick();
-            Notifier.success(player, "Reset your nick!");
+            Message.success(player, "Reset your nick!");
             return;
         }
 
         if (!namePattern.matcher(newNick).matches()) {
-            Notifier.error(player, "Invalid nick!");
+            Message.error(player, "Invalid nick!");
             return;
         }
 
         if (disallowedNames.contains(newNick) && !rank.isOrHigher(PlayerRank.ADMIN)) {
-            Notifier.error(player, "This nick is disallowed!");
+            Message.error(player, "This nick is disallowed!");
             return;
         }
 
         if (ProfanityFilter.isProfane(newNick)) {
-            Notifier.error(player, "You cannot use that as a nick!");
+            Message.error(player, "You cannot use that as a nick!");
             return;
         }
 
         display.setNick(newNick);
 
-        Notifier.success(player, "Set your nick to: {%s}!".formatted(newNick));
-        Notifier.error(player, "Keep in mind abusing the nick system is a bannable offense!");
+        Message.success(player, "Set your nick to: {%s}!".formatted(newNick));
+        Message.error(player, "Keep in mind abusing the nick system is a bannable offense!");
 
-        Notifier.broadcastStaff("{%s} changed their name to {%s}.".formatted(player.getName(), newNick));
+        Message.broadcastStaff("{%s} changed their name to {%s}.".formatted(player.getName(), newNick));
     }
 
 }

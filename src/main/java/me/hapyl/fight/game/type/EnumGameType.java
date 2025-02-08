@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.type;
 
 import me.hapyl.eterna.module.registry.KeyedEnum;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.Selectable;
@@ -54,18 +54,18 @@ public enum EnumGameType implements Selectable, KeyedEnum {
     @Override
     public void select(@Nonnull Player player) {
         if (!canBeSelected()) {
-            Notifier.ERROR.send(player, "This mode cannot be directly selected!");
+            Message.ERROR.send(player, "This mode cannot be directly selected!");
             return;
         }
 
         if (isSelected(player)) {
-            Notifier.ERROR.send(player, "This mode is already selected!");
+            Message.ERROR.send(player, "This mode is already selected!");
             return;
         }
 
         Manager.current().setCurrentMode(this);
 
-        Notifier.SUCCESS.broadcast("{%s} has selected {%s} mode!".formatted(player.getName(), getName()));
+        Message.SUCCESS.broadcast("{%s} has selected {%s} mode!".formatted(player.getName(), getName()));
     }
 
     public boolean testWinCondition(@Nonnull GameInstance instance) {

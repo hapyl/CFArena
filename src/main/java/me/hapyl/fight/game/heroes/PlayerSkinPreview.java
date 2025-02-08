@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.reflect.npc.ItemSlot;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.setting.EnumSetting;
@@ -63,7 +63,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         location.setDirection(directionTowardsPlayer);
 
         if (!location.getBlock().isEmpty()) {
-            Notifier.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
+            Message.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
             return;
         }
 

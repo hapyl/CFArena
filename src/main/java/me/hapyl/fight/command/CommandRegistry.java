@@ -43,7 +43,7 @@ import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.anticheat.PunishmentReport;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.chat.ChatChannel;
@@ -253,20 +253,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new StoreCommand("store"));
         register(new EnvironmentCommand("environment"));
         register(new DumpColorCommand("dumpColor"));
+        register(new ViewTheEyeGuiCommand("viewtheeyegui"));
 
         // *=* Inner commands *=* //
-        register(
-                "triggerHimariLuckyDay", (player, args) -> {
-                    GamePlayer.getPlayerOptional(player)
-                              .ifPresent(gamePlayer -> {
-                                  final int index = args.getInt(0);
-
-                                  gamePlayer.sendMessage("Triggered option %s!".formatted(index));
-                                  TalentRegistry.LUCKY_DAY.effectPicked(index, gamePlayer);
-                              });
-                }
-        );
-
         register(
                 "respawnSnakeParkour", (player, args) -> {
                     final SnakeParkour parkour = (SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour();
@@ -318,17 +307,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final PlayerInventory inventory = player.getInventory();
 
                     final ItemStack test1 = ItemBuilder.playerHeadUrl("2104f13c719f0c8af92f536dbd109285e6e3d21af3158ed91f603f7ecf7359b0")
-                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_1")))
-                            .toItemStack();
+                                                       .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_1")))
+                                                       .toItemStack();
                     final ItemStack test2 = ItemBuilder.playerHeadUrl("ce50e2e418b9d955837177ba643d2f75d4e7f593c3e1db6ee9d410741f43535e")
-                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_2")))
-                            .toItemStack();
+                                                       .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_2")))
+                                                       .toItemStack();
                     final ItemStack test3 = ItemBuilder.playerHeadUrl("ac964ed0f717ae671cdf0ed0e0341887ae8ccbd282c0058dc11276ef3cd78cc7")
-                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_3")))
-                            .toItemStack();
+                                                       .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_3")))
+                                                       .toItemStack();
                     final ItemStack test4 = ItemBuilder.playerHeadUrl("70fa3d8c2bad7be6196a21d43708e41454bc986a10856d604bbc2a0c21c2b91e")
-                            .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_4")))
-                            .toItemStack();
+                                                       .setCooldown(cd -> cd.setCooldownGroup(BukkitUtils.createKey("test_4")))
+                                                       .toItemStack();
 
                     inventory.clear();
                     inventory.addItem(test1);
@@ -346,18 +335,18 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(
                 "testDecay", (player, args) -> {
                     CF.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                final double amount = args.get(0).toDouble();
-                                final int duration = args.get(1).toInt();
+                      .ifPresent(gp -> {
+                          final double amount = args.get(0).toDouble();
+                          final int duration = args.get(1).toInt();
 
-                                if (amount <= 0.0d) {
-                                    gp.sendMessage("&cAmount cannot be zero or negative!");
-                                    return;
-                                }
+                          if (amount <= 0.0d) {
+                              gp.sendMessage("&cAmount cannot be zero or negative!");
+                              return;
+                          }
 
-                                gp.setDecay(new Decay(amount, duration));
-                                gp.sendMessage("&aApplied %s decay for %s!".formatted(amount, duration));
-                            });
+                          gp.setDecay(new Decay(amount, duration));
+                          gp.sendMessage("&aApplied %s decay for %s!".formatted(amount, duration));
+                      });
                 }
         );
 
@@ -379,7 +368,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Key key = Key.ofStringOrNull(stringKey);
 
                     if (key == null) {
-                        Notifier.error(player, "Invalid key {%s}.".formatted(stringKey));
+                        Message.error(player, "Invalid key {%s}.".formatted(stringKey));
                         return;
                     }
 
@@ -387,12 +376,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Quest quest = questHandler.get(key);
 
                     if (quest == null) {
-                        Notifier.error(player, "Invalid quest {%s}.".formatted(key.getKey()));
+                        Message.error(player, "Invalid quest {%s}.".formatted(key.getKey()));
                         return;
                     }
 
                     CF.getDatabase(player).questEntry.resetQuest(quest);
-                    Notifier.success(player, "Reset quest {%s}!".formatted(quest.getName()));
+                    Message.success(player, "Reset quest {%s}!".formatted(quest.getName()));
                 }
         );
 
@@ -401,7 +390,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Block targetBlock = player.getTargetBlockExact(10);
 
                     if (targetBlock == null) {
-                        Notifier.error(player, "No block in los!");
+                        Message.error(player, "No block in los!");
                         return;
                     }
 
@@ -411,7 +400,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final double distanceSquared = blockLocation.distanceSquared(location);
                     final double distance = blockLocation.distance(location);
 
-                    Notifier.success(
+                    Message.success(
                             player,
                             "Distance to {%s} is {%.2f} (√{%.2f})".formatted(
                                     targetBlock.getType().name().toLowerCase(),
@@ -460,12 +449,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         key = Key.ofStringOrNull(keyString = keySplits[1]);
                     }
                     else {
-                        parent = entry.NULL;
+                        parent = entry.noParent;
                         key = Key.ofStringOrNull(keyString = argument);
                     }
 
                     if (key == null) {
-                        Notifier.error(player, "Illegal key; " + keyString);
+                        Message.error(player, "Illegal key: " + keyString);
                         return;
                     }
 
@@ -474,16 +463,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     if (isRemove) {
                         parent.set(key, null);
 
-                        Notifier.success(player, "Removed metadata for key {%s}.".formatted(key));
+                        Message.success(player, "Removed metadata for key {%s}.".formatted(key));
                     }
                     else {
                         final Object value = parent.get(key, null);
 
                         if (value == null) {
-                            Notifier.error(player, "There is no metadata for key {%s}!".formatted(key));
+                            Message.error(player, "There is no metadata for key {%s}!".formatted(key));
                         }
                         else {
-                            Notifier.success(player, "Metadata for key {%s}: {%s}".formatted(key, value.toString()));
+                            Message.success(player, "Metadata for key {%s}: {%s}".formatted(key, value.toString()));
                         }
                     }
                 }
@@ -498,12 +487,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Key key = Key.ofStringOrNull(id);
 
                     if (key == null) {
-                        Notifier.error(player, "Invalid key: " + id);
+                        Message.error(player, "Invalid key: " + id);
                         return;
                     }
 
-                    database.metadataEntry.DIALOG.set(key, !value ? null : true);
-                    Notifier.success(player, "Set dialog metadata for dialog '{%s}' to {%s}.".formatted(key, value));
+                    database.metadataEntry.dialog.set(key, !value ? null : true);
+                    Message.success(player, "Set dialog metadata for dialog '{%s}' to {%s}.".formatted(key, value));
                 }
         );
 
@@ -512,12 +501,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final DialogInstance dialog = Eterna.getManagers().dialog.get(player);
 
                     if (dialog == null) {
-                        Notifier.error(player, "You're not in a dialog!");
+                        Message.error(player, "You're not in a dialog!");
                         return;
                     }
 
                     dialog.cancel();
-                    Notifier.success(player, "Skipped.");
+                    Message.success(player, "Skipped.");
                 }
         );
 
@@ -529,7 +518,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Relic relic = CF.getPlugin().getRelicHunt().byId(id);
 
                     if (relic == null) {
-                        Notifier.error(player, "Invalid relic: " + id);
+                        Message.error(player, "Invalid relic: " + id);
                         return;
                     }
 
@@ -548,13 +537,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Achievement achievement = registry.get(query);
 
                     if (achievement == null) {
-                        Notifier.error(player, "Invalid achievement: {%s}".formatted(query));
+                        Message.error(player, "Invalid achievement: {%s}".formatted(query));
                         return;
                     }
 
                     final int reward = achievement.getPointRewardForCompleting(completeCount);
 
-                    Notifier.success(
+                    Message.success(
                             player,
                             "Completing {%s} {%s} times grants {%s} points.".formatted(achievement.getName(), completeCount, reward)
                     );
@@ -570,10 +559,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 if (testLoot == null) {
                     testLoot = new Loot();
 
-                    testLoot.add(Reward.currency("test1").withCoins(1), 500);
-                    testLoot.add(Reward.currency("test2").withCoins(20), 500);
-                    testLoot.add(Reward.currency("test3").withCoins(30), 400);
-                    testLoot.add(Reward.currency("test4").withCoins(100), 1);
+                    testLoot.add(Reward.ofRepeatableResource("test1", 1), 500);
+                    testLoot.add(Reward.ofRepeatableResource("test2", 20), 500);
+                    testLoot.add(Reward.ofRepeatableResource("test3", 30), 400);
+                    testLoot.add(Reward.ofRepeatableResource("test4", 100), 1);
                 }
 
                 Debug.info("Loot info:");
@@ -595,8 +584,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 final Set<Map.Entry<Reward, Integer>> entries = testedLoot.entrySet();
                 final List<Map.Entry<Reward, Integer>> testedLootSorted = entries.stream()
-                        .sorted(Map.Entry.comparingByValue())
-                        .toList();
+                                                                                 .sorted(Map.Entry.comparingByValue())
+                                                                                 .toList();
 
                 Debug.info("Results:");
                 for (Map.Entry<Reward, Integer> entry : testedLootSorted) {
@@ -626,9 +615,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                gp.ui(GamePlayer.class, "Test from game player yay!");
-                            });
+                              .ifPresent(gp -> {
+                                  gp.ui(GamePlayer.class, "Test from game player yay!");
+                              });
                 }
         );
 
@@ -654,9 +643,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
-                            });
+                              .ifPresent(gp -> {
+                                  HeroRegistry.AURORA.getPlayerData(gp).buff(gp);
+                              });
                 }
         );
 
@@ -700,10 +689,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                TalentRegistry.BLINDING_CURSE.scaryWither(gp);
-                                gp.sendMessage("&8Boo!");
-                            });
+                              .ifPresent(gp -> {
+                                  TalentRegistry.BLINDING_CURSE.scaryWither(gp);
+                                  gp.sendMessage("&8Boo!");
+                              });
                 }
         );
 
@@ -712,21 +701,21 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                final double energy = gp.getEnergy();
-                                final UltimateTalent ultimate = gp.getUltimate();
+                              .ifPresent(gp -> {
+                                  final double energy = gp.getEnergy();
+                                  final UltimateTalent ultimate = gp.getUltimate();
 
-                                gp.sendMessage("&aYour energy: %s".formatted(energy));
+                                  gp.sendMessage("&aYour energy: %s".formatted(energy));
 
-                                if (ultimate instanceof OverchargeUltimateTalent overcharge) {
-                                    gp.sendMessage("&bUltimate cost: %s/%s".formatted(overcharge.getMinCost(), overcharge.getCost()));
-                                }
-                                else {
-                                    gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
-                                }
+                                  if (ultimate instanceof OverchargeUltimateTalent overcharge) {
+                                      gp.sendMessage("&bUltimate cost: %s/%s".formatted(overcharge.getMinCost(), overcharge.getCost()));
+                                  }
+                                  else {
+                                      gp.sendMessage("&bUltimate cost: %s".formatted(ultimate.getCost()));
+                                  }
 
-                                gp.sendMessage("&cString: " + gp.getUltimateString(UltimateColor.PRIMARY));
-                            });
+                                  gp.sendMessage("&cString: " + gp.getUltimateString(UltimateColor.PRIMARY));
+                              });
                 }
         );
 
@@ -758,10 +747,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
-                                gp.sendMessage("Increase health!");
-                            });
+                              .ifPresent(gp -> {
+                                  gp.getAttributes().increaseTemporary(Temper.COMMAND, AttributeType.MAX_HEALTH, 50, 100);
+                                  gp.sendMessage("Increase health!");
+                              });
                 }
         );
 
@@ -839,10 +828,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     GamePlayer.getPlayerOptional(player)
-                            .ifPresent(gp -> {
-                                gp.sendMessage("resisted");
-                                gp.hasEffectResistanceAndNotify();
-                            });
+                              .ifPresent(gp -> {
+                                  gp.sendMessage("resisted");
+                                  gp.hasEffectResistanceAndNotify();
+                              });
                 }
         );
 
@@ -893,7 +882,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Season season = args.get(0).toEnum(Season.class);
 
                     if (season == null) {
-                        Notifier.error(player, "Invalid season!");
+                        Message.error(player, "Invalid season!");
                         return;
                     }
 
@@ -1077,12 +1066,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         final Skins skin = args.get(1).toEnum(Skins.class);
 
                         if (skin == null) {
-                            Notifier.error(player, "Invalid skin!");
+                            Message.error(player, "Invalid skin!");
                             return;
                         }
 
                         skin.getSkin().equip(player);
-                        Notifier.success(player, "Equipped {%s} skin!".formatted(skin.getSkin().getName()));
+                        Message.success(player, "Equipped {%s} skin!".formatted(skin.getSkin().getName()));
                         return;
                     }
 
@@ -1209,7 +1198,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Cosmetic cosmetic = Registries.getCosmetics().get(args.getString(0));
 
                     if (cosmetic == null) {
-                        Notifier.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
+                        Message.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
                         return;
                     }
 
@@ -1285,8 +1274,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerCommand("teammsg") {
             @Override
             protected void execute(Player player, String[] args) {
-                Notifier.error(player, "To send a team message, prefix your message with a '" + ChatChannel.TEAM + "'!");
-                Notifier.error(player, "Like this: " + ChatChannel.TEAM + " " + Chat.arrayToString(args, 0).trim());
+                Message.error(player, "To send a team message, prefix your message with a '" + ChatChannel.TEAM + "'!");
+                Message.error(player, "Like this: " + ChatChannel.TEAM + " " + Chat.arrayToString(args, 0).trim());
             }
         });
 
@@ -1502,16 +1491,16 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final Key key = Key.ofStringOrNull(stringKey);
 
                 if (key == null) {
-                    Notifier.error(player, "Invalid key: " + stringKey);
+                    Message.error(player, "Invalid key: " + stringKey);
                     return;
                 }
 
-                if (!entry.NULL.has(key)) {
+                if (!entry.noParent.has(key)) {
                     Chat.sendMessage(player, "&cMetadata value is already null!");
                     return;
                 }
 
-                entry.NULL.set(key, null);
+                entry.noParent.set(key, null);
                 Chat.sendMessage(player, "&aDone!");
             }
         });
@@ -1954,12 +1943,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final NamedEntityType type = Registries.getEntities().get(stringArg);
 
                 if (type == null) {
-                    Notifier.error(player, "Invalid entity type: {%s}!".formatted(stringArg));
+                    Message.error(player, "Invalid entity type: {%s}!".formatted(stringArg));
                     return;
                 }
 
                 type.create(player.getLocation());
-                Notifier.success(player, "Spawned {%s}!".formatted(type.getName()));
+                Message.success(player, "Spawned {%s}!".formatted(type.getName()));
             }
 
             @Nullable
@@ -2111,11 +2100,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final CosmeticCollection collection = args.get(0).toEnum(CosmeticCollection.class);
 
                     if (collection == null) {
-                        Notifier.error(player, "Invalid collection.");
+                        Message.error(player, "Invalid collection.");
                         return;
                     }
 
-                    Notifier.info(player, collection.getItems().toString());
+                    Message.info(player, collection.getItems().toString());
                 }
         );
 
@@ -2165,11 +2154,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final Crates crate = args.get(0).toEnum(Crates.class);
 
                     if (crate == null) {
-                        Notifier.error(player, "Cannot find crate named {%s}.".formatted(args.getString(0)));
+                        Message.error(player, "Cannot find crate named {%s}.".formatted(args.getString(0)));
                         return;
                     }
 
-                    Notifier.info(player, crate.getCrate().toString());
+                    Message.info(player, crate.getCrate().toString());
                 }
         );
 
@@ -2373,27 +2362,27 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final long duration = getArgument(args, 1).toLong();
 
                 if (cooldown == null) {
-                    Notifier.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Cooldown.values()));
+                    Message.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Cooldown.values()));
                     return;
                 }
 
                 final GamePlayer gamePlayer = CF.getPlayer(player);
 
                 if (gamePlayer == null) {
-                    Notifier.error(player, "Cannot use outside a game.");
+                    Message.error(player, "Cannot use outside a game.");
                     return;
                 }
 
                 if (duration > 0) {
                     gamePlayer.startCooldown(cooldown, duration);
-                    Notifier.success(player, "Started cooldown!");
+                    Message.success(player, "Started cooldown!");
                     return;
                 }
 
                 final CooldownData data = gamePlayer.getCooldown().getData(cooldown);
 
                 if (data == null) {
-                    Notifier.error(player, "&cYou don't have this cooldown!");
+                    Message.error(player, "&cYou don't have this cooldown!");
                     return;
                 }
 
@@ -2409,7 +2398,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double z = getArgument(args, 2).toDouble();
 
                 if (x == 0 && y == 0 && z == 0) {
-                    Notifier.error(player, "At least one vector must be positive!");
+                    Message.error(player, "At least one vector must be positive!");
                     return;
                 }
 
@@ -2583,9 +2572,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 {
                     player.getInventory()
-                            .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE)
-                                    .setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND)
-                                    .asIcon());
+                          .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE)
+                                              .setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND)
+                                              .asIcon());
                 }
         );
 
@@ -2972,12 +2961,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final int duration = getArgument(args, 3).toInt(100);
 
                 if (attributeType == null) {
-                    Notifier.error(player, "Invalid type!");
+                    Message.error(player, "Invalid type!");
                     return;
                 }
 
                 if (temper == null) {
-                    Notifier.error(player, "Invalid temper!");
+                    Message.error(player, "Invalid temper!");
                     return;
                 }
 
@@ -3317,29 +3306,29 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final Block targetBlock = player.getTargetBlockExact(10);
 
                 if (targetBlock == null) {
-                    Notifier.error(player, "Not looking at a block.");
+                    Message.error(player, "Not looking at a block.");
                     return;
                 }
 
                 final Material type = targetBlock.getType();
 
                 if (type != Material.CHEST && type != Material.TRAPPED_CHEST && type != Material.ENDER_CHEST) {
-                    Notifier.error(player, "Not looking at a chest!");
+                    Message.error(player, "Not looking at a chest!");
                     return;
                 }
 
                 switch (argument) {
                     case "open" -> {
                         CFUtils.playChestAnimation(targetBlock, true);
-                        Notifier.success(player, "Playing open animation.");
+                        Message.success(player, "Playing open animation.");
                     }
 
                     case "close" -> {
                         CFUtils.playChestAnimation(targetBlock, false);
-                        Notifier.success(player, "Playing close animation.");
+                        Message.success(player, "Playing close animation.");
                     }
 
-                    default -> Notifier.error(player, "Invalid argument! Must be either 'open' or 'close'!");
+                    default -> Message.error(player, "Invalid argument! Must be either 'open' or 'close'!");
                 }
             }
         });
@@ -3597,9 +3586,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     }
 
                     final LinkedHashMap<String, Float> sorted = hardness.entrySet()
-                            .stream()
-                            .sorted(Map.Entry.comparingByValue())
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+                                                                        .stream()
+                                                                        .sorted(Map.Entry.comparingByValue())
+                                                                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
                     final Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     final String json = gson.toJson(sorted);
@@ -3912,13 +3901,13 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 final double defense = getArgument(args, 1).toDouble();
 
                 if (damage == 0 && defense == 0) {
-                    Notifier.Error.INVALID_USAGE.send(player, "/calcDef (Damage) (Defense)");
+                    Message.Error.INVALID_USAGE.send(player, "/calcDef (Damage) (Defense)");
                     return;
                 }
 
                 final double calcDamage = damage / (defense * Attributes.DEFENSE_SCALING + (1 - Attributes.DEFENSE_SCALING));
 
-                Notifier.success(player, "Done!");
+                Message.success(player, "Done!");
                 Chat.sendMessage(player, "&a%.1f &8= %s DMG & %s DEF".formatted(calcDamage, damage, defense));
             }
         });

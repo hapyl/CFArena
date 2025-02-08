@@ -1,7 +1,7 @@
 package me.hapyl.fight.build;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
@@ -45,7 +45,7 @@ public class ReplacerData {
         final Player player = Bukkit.getPlayer(uuid);
 
         if (player != null) {
-            Notifier.success(player, "Changed material to %s!".formatted(data == null ? "None!" : Chat.capitalize(data.getMaterial())));
+            Message.success(player, "Changed material to %s!".formatted(data == null ? "None!" : Chat.capitalize(data.getMaterial())));
         }
     }
 

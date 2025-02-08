@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
@@ -33,7 +33,7 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
 
         registry = Registries.getAchievements();
 
-        Notifier.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
+        Message.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 
         setCategory(category);
         openInventory(1);

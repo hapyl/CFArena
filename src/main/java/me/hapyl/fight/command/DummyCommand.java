@@ -9,7 +9,7 @@ import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Notifier;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -53,7 +53,7 @@ public class DummyCommand extends SimplePlayerAdminCommand {
             return new DummyEntity(self);
         });
 
-        Notifier.success(player, "Spawned a new dummy!");
+        Message.success(player, "Spawned a new dummy!");
     }
 
     private class DummyEntity extends LivingGameEntity {

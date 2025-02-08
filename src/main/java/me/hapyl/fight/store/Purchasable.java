@@ -1,24 +1,24 @@
 package me.hapyl.fight.store;
 
 import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.fight.game.reward.CurrencyType;
+import me.hapyl.fight.game.reward.RewardResource;
 
 import javax.annotation.Nonnull;
 
 public interface Purchasable {
 
     /**
-     * Gets the {@link CurrencyType} of this {@link Purchasable}.
+     * Gets the {@link RewardResource} of this {@link Purchasable}.
      *
-     * @return the {@link CurrencyType} of this {@link Purchasable}.
+     * @return the {@link RewardResource} of this {@link Purchasable}.
      */
     @Nonnull
     Currency getCurrency();
 
     /**
-     * Gets the amount of {@link CurrencyType} required to purchase this item.
+     * Gets the amount of {@link RewardResource} required to purchase this item.
      *
-     * @return the amount of {@link CurrencyType} required to purchase this item.
+     * @return the amount of {@link RewardResource} required to purchase this item.
      */
     long getPrice();
 
