@@ -20,7 +20,7 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
 
     //////////////
     // Gameplay //
-    //////////////
+    /// ///////////
     SPECTATE(
             Material.ENDER_EYE,
             "Spectate", """
@@ -59,7 +59,7 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
 
     //////////
     // Chat //
-    //////////
+    /// ///////
     CHAT_PING(
             Material.GOLD_INGOT,
             "Chat Notification", """
@@ -108,7 +108,7 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
 
     ////////
     // UI //
-    ////////
+    /// /////
     HIDE_UI(
             Material.GLASS_PANE,
             "Hide Game UI", """
@@ -153,7 +153,7 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
 
     ///////////
     // Other //
-    ///////////
+    /// ////////
     SEE_OTHERS_CONTRAIL(
             Material.FIREWORK_ROCKET,
             "See Others Contrail", """

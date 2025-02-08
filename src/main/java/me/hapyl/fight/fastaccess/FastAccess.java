@@ -32,6 +32,7 @@ public abstract class FastAccess implements Keyed, MaterialCooldown, PlayerItemC
 
     private final Key key;
     private final Category category;
+    private String firstWord;
 
     public FastAccess(@Nonnull String id, Category category) {
         this.key = Key.ofString(id);
@@ -50,6 +51,14 @@ public abstract class FastAccess implements Keyed, MaterialCooldown, PlayerItemC
 
     public abstract void onClick(@Nonnull Player player);
 
+    @Nonnull
+    public abstract ItemStack getMaterial(@Nonnull Player player);
+
+    @Nonnull
+    public abstract String getName();
+
+    public abstract void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder);
+
     public boolean shouldDisplayTo(@Nonnull Player player) {
         return true;
     }
@@ -66,11 +75,19 @@ public abstract class FastAccess implements Keyed, MaterialCooldown, PlayerItemC
     }
 
     @Nonnull
-    public ItemBuilder create(@Nonnull Player player) {
-        return new ItemBuilder(Material.STONE);
-    }
+    public final ItemBuilder create(@Nonnull Player player) {
+        final ItemStack material = getMaterial(player);
+        final String name = getName();
 
-    private String firstWord;
+        final ItemBuilder builder = new ItemBuilder(material)
+                .setName(name)
+                .addLore()
+                .addTextBlockLore(category.getDescription(), "&8&o")
+                .addLore();
+
+        appendBuilder(player, builder);
+        return builder;
+    }
 
     @Nonnull
     public ItemStack createAsButton(Player player) {

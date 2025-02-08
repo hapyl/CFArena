@@ -1,6 +1,5 @@
 ###############################
 
-- MAKE MASTERY WORK RIGHT ( should it? def no lazy )
 - s card
 - Rework Quick Access
 - Don't allow going far from NPCs when talking to them

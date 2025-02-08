@@ -9,6 +9,7 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -58,7 +59,7 @@ public class FastAccessHandler implements Listener {
         final FastAccess fastAccess = playerFastAccess.getFastAccess(index);
 
         if (fastAccess == null) {
-            new FastAccessGUI(profile, index);
+            new FastAccessCategoryGUI(profile, index);
             return;
         }
 
@@ -75,12 +76,15 @@ public class FastAccessHandler implements Listener {
             fastAccess.onClick(player);
             fastAccess.startCooldown(player);
 
+            // Fx
+            Message.sound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f);
+
             // Needed to update lore
             playerFastAccess.update();
         }
         // Edit
         else {
-            new FastAccessGUI(profile, index);
+            new FastAccessCategoryGUI(profile, index);
         }
 
     }
