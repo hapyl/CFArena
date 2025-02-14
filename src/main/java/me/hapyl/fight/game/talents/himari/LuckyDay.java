@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 public class LuckyDay extends Talent {
 
     @DisplayField
-    private final double damageBuff = 7.0d;
+    private final double damageBuff = 4.5d;
 
     private final HimariActionList actionList = new HimariActionList();
     private final char[] chars = { 'ᛚ', 'ᚢ', 'ᚲ', 'ᚲ' };
