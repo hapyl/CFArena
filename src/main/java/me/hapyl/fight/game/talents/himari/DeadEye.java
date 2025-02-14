@@ -87,6 +87,7 @@ public class DeadEye extends HimariTalent {
                 target.damage(baseDamage, player, EnumDamageCause.DEAD_EYE);
 
                 // Fx
+                player.playWorldSound(Sound.ENTITY_ZOMBIE_INFECT, 0.34f);
             }
 
         }.runTaskTimer(0, 1);
