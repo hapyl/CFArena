@@ -21,16 +21,18 @@ import javax.annotation.Nonnull;
 public class SpectralForm extends Talent {
 
     @DisplayField public final double maxFlightHeight = 6;
-    @DisplayField(scaleFactor = 500) public final float flightSpeed = 0.08f;
+    @DisplayField(scaleFactor = 500, dp = 3) public final float flightSpeed = 0.06f;
 
     public SpectralForm(@Nonnull Key key) {
         super(key, "Spectral Form");
 
         setDescription("""
                 Call upon a swarm of bats and ride them, allowing to move swiftly for a short duration.
+                &8&o;;Sneak to dismount the bats early.
                 
                 You &ccannot&7 transfer vertically.
                 You &acan&7 use talents, deal and take damage.
+                
                 """
         );
 
@@ -61,10 +63,13 @@ public class SpectralForm extends Talent {
                     return;
                 }
 
-                if (tick >= getDuration()) {
+                final boolean isManualLeave = tick >= 15 && player.input().isSneak();
+
+                if (tick >= getDuration() || isManualLeave) {
                     stopFlying();
                     return;
                 }
+
 
                 player.sendSubtitle("&2\uD83D\uDD4A &l" + CFUtils.formatTick(getDuration() - tick), 0, 5, 0);
                 batCloud.tick();

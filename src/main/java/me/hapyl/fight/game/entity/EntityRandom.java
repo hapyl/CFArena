@@ -20,7 +20,7 @@ public class EntityRandom extends Random {
      * @return positive or negative pseudo random float value within the bound.
      */
     public float nextFloatBool(float bound) {
-        return nextFloat(-bound + 1, bound);
+        return nextFloat(bound * -1, bound);
     }
 
     /**
@@ -37,7 +37,7 @@ public class EntityRandom extends Random {
      * @return either a positive or negative pseudo random double value within the bound.
      */
     public double nextDoubleBool(double bound) {
-        return nextDouble(-bound + 1, bound);
+        return nextDouble(bound * -1, bound);
     }
 
     /**

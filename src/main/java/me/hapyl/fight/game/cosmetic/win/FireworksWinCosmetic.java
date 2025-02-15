@@ -48,7 +48,7 @@ public class FireworksWinCosmetic extends WinCosmetic {
     }
 
     @Override
-    public void tickTask(@Nonnull Display display, int tick) {
+    public void onTick(@Nonnull Display display, int tick) {
         final Location location = display.getLocation();
 
         final int randomX = new Random().nextInt(10);

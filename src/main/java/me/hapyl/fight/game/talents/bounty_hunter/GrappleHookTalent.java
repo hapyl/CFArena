@@ -26,7 +26,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     @DisplayField(suffix = "blocks") protected final double maxDistance = 30.0d;
     @DisplayField private final int cooldown = 200;
 
-    protected final PlayerMap<GrappleHook> playerHooks = PlayerMap.newMap();
+    protected final PlayerMap<GrappleHook> playerHooks = PlayerMap.newConcurrentMap();
 
     public GrappleHookTalent(@Nonnull Key key) {
         super(key, "Grappling Hook", 3);

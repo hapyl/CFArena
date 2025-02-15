@@ -3,31 +3,36 @@ package me.hapyl.fight.game.heroes.alchemist;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.alchemist.AlchemistPotion;
-import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
 public class AlchemistData extends PlayerData {
 
-    public AlchemistState state;
-    public ActivePotion activePotion;
+    protected AlchemistState state;
+    protected ActivePotion activePotion;
+    protected double toxin;
 
     public AlchemistData(GamePlayer player) {
         super(player);
 
         this.state = AlchemistState.NORMAL;
         this.activePotion = null;
+        this.toxin = 0.0d;
     }
 
     @Override
     public void remove() {
         cancelActivePotion();
+        toxin = 0.0d;
     }
 
     public void setActivePotion(@Nonnull GamePlayer player, @Nonnull AlchemistPotion potion) {
         cancelActivePotion();
 
         activePotion = potion.use(this, player);
+        toxin += potion.intoxication();
+
+        // Fx
     }
 
     public void cancelActivePotion() {

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.alchemist;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.alchemist.ActivePotion;
 import me.hapyl.fight.game.heroes.alchemist.AlchemistData;
@@ -62,13 +63,20 @@ public abstract class AlchemistPotion implements Timed, Described {
         if (potionItem == null) {
             potionItem = new ItemBuilder(Material.POTION)
                     .setName(name)
+                    .addLore("&8Abyssal Potion")
                     .addLore()
                     .addTextBlockLore(description)
+                    .addLore()
+                    .addLore("%s: &c+%s".formatted(Named.ABYSS_CORROSION, intoxication))
                     .setPotionColor(potionColor)
                     .asIcon();
         }
 
         return potionItem;
+    }
+
+    public int intoxication() {
+        return intoxication;
     }
 
     @Nonnull

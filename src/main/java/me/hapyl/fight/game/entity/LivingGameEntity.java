@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.module.ai.AI;
 import me.hapyl.eterna.module.ai.MobAI;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
@@ -756,7 +757,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
 
         // Fx
         if (actualHealing >= 1) {
-            spawnWorldParticle(entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
+            spawnWorldParticle(
+                    entity.getEyeLocation().add(0.0d, 0.5d, 0.0d),
                     Particle.HEART,
                     (int) Math.clamp(actualHealing / 5, 1, 10),
                     0.44, 0.2, 0.44, 0.015f
@@ -821,9 +823,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         final double damage = instance.getDamage();
         final boolean willDie = getFinalHealth() - damage <= 0.0d;
 
+        // Make sure the cause actually CAN kill
         // GameDeathEvent here to not decrease health below lethal
-        if (willDie && new GameDeathEvent(instance).call()) {
-            return;
+        if (willDie) {
+            if (cause != null && !cause.canKill()) {
+                return;
+            }
+
+            if (new GameDeathEvent(instance).call()) {
+                return;
+            }
         }
 
         this.health -= damage;
@@ -922,6 +931,10 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @OverridingMethodsMustInvokeSuper
     public void onDeath() {
         super.onDeath();
+    }
+
+    @EventLike
+    public void onInteract(@Nonnull GamePlayer player) {
     }
 
     /**
@@ -1372,13 +1385,15 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         playWorldSound(getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 0.0f);
 
         for (int i = 0; i < ferocityStrikes; i++) {
-            GameTask.runLater(() -> {
-                if (isInvalidForFerocity()) {
-                    return;
-                }
+            GameTask.runLater(
+                    () -> {
+                        if (isInvalidForFerocity()) {
+                            return;
+                        }
 
-                damageFerocity(damage, damager);
-            }, i * 3 + FEROCITY_HIT_CD);
+                        damageFerocity(damage, damager);
+                    }, i * 3 + FEROCITY_HIT_CD
+            );
         }
 
         startCooldown(Cooldown.FEROCITY);

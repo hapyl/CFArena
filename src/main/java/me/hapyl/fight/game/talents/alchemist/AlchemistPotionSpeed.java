@@ -6,7 +6,7 @@ import org.bukkit.Color;
 public class AlchemistPotionSpeed extends AlchemistAttributePotion {
 
     public AlchemistPotionSpeed() {
-        super("Potion of Speed", 15, Color.fromRGB(78, 160, 204), AttributeType.SPEED, 0.06d);
+        super("Potion of Speed", 15, Color.fromRGB(78, 160, 204), AttributeType.SPEED, 0.08d);
     }
 
 }

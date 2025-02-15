@@ -49,6 +49,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
                     .addLore("&8Gadget")
                     .addLore()
                     .addTextBlockLore(description)
+                    .setCooldownGroup(getKey())
                     .addClickEvent(this::execute0);
 
             if (texture != null) {
@@ -90,7 +91,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
             return;
         }
 
-        if (player.hasCooldown(icon)) {
+        if (PlayerLib.isOnCooldown(player, getKey())) {
             Message.error(player, "This gadget is on cooldown!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
@@ -103,7 +104,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
             return;
         }
 
-        player.setCooldown(icon, cooldown);
+        PlayerLib.setCooldown(player, getKey(), cooldown);
         Registries.getAchievements().USE_GADGETS.complete(player);
     }
 

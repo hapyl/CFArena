@@ -30,6 +30,8 @@ import org.bukkit.WorldBorder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
@@ -63,9 +65,9 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         attributes.set(AttributeType.SPEED, 0.23d);
 
         final HeroEquipment equipment = this.getEquipment();
-        equipment.setChestPlate(25, 53, 82);
-        equipment.setLeggings(25, 53, 92);
-        equipment.setBoots(25, 53, 102);
+        equipment.setChestPlate(59, 58, 77, TrimPattern.RAISER, TrimMaterial.NETHERITE);
+        equipment.setLeggings(21, 34, 48, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setBoots(102, 55, 38, TrimPattern.HOST, TrimMaterial.NETHERITE);
 
         setWeapon(new SwooperWeapon(this));
         setUltimate(new SwooperUltimate());

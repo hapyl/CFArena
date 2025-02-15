@@ -117,12 +117,12 @@ public class PlayerDisplay {
 
     @Nonnull
     public String toString() {
-        return toString(DEFAULT_BITMASK);
+        return getNamePrefixed();
     }
 
     @Nonnull
     public String toStringTab() {
-        return Chat.format("%s %s".formatted(this, formatPing()));
+        return Chat.format("%s %s".formatted(toString((byte) (LEVEL | STATUS | PREFIX | NAME)), formatPing()));
     }
 
     @Nonnull

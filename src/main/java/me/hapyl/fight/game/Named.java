@@ -39,6 +39,8 @@ public enum Named {
     ECHO_WORLD("\uD83D\uDD18", "Echo World", Color.ECHO_WORLD),
     DECAY("\uD83D\uDC94", "Decay", Color.GRAYER),
     BLOOD_DEBT("&l🩸", "Blood Debt", Color.BLOOD),
+    ABYSS_CORROSION("&5&l☣", "Abyssal Corrosion", Color.ABYSS),
+    ABYSSAL_CURSE("&5&l\uD83D\uDDEF", "Abyssal Curse", Color.ABYSS),
 
     ;
 

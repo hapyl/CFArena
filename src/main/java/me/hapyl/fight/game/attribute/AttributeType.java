@@ -42,6 +42,11 @@ public enum AttributeType implements Described {
         }
 
         @Override
+        public double minValue() {
+            return 0.5d;
+        }
+
+        @Override
         public double getScale() {
             return 1;
         }

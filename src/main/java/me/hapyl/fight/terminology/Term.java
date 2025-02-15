@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 public class Term implements ContextQuery {
 
     public static final Styler TERM_STYLER = new Styler()
-            .setPrefix("&8&l⌈&f&n")
-            .setSuffix("&8&l⌋&7");
+            .setPrefix("&f&n")
+            .setSuffix("&7");
 
     private final String[] strings;
 

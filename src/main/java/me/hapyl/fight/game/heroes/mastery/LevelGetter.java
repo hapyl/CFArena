@@ -1,77 +1,56 @@
 package me.hapyl.fight.game.heroes.mastery;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Function;
 
-public final class LevelGetter {
+public class LevelGetter {
 
-    private final GamePlayer player;
-    private final HeroMastery mastery;
+    private final List<HeroMasteryLevel> levels;
 
-    LevelGetter(GamePlayer player, HeroMastery mastery) {
-        this.player = player;
-        this.mastery = mastery;
+    LevelGetter(List<HeroMasteryLevel> levels) {
+        this.levels = levels;
     }
 
-    public <M extends HeroMasteryLevel & NumberProvider<Integer>> int getInt(@Nonnull Class<M> provider) {
-        int number = 0;
-
-        for (HeroMasteryLevel level : mastery.unlockedLevels(player)) {
-            number += getNumberOrDefault(level, provider, 0);
-        }
-
-        return number;
+    public <C extends HeroMasteryLevel> double getDouble(@Nonnull Class<C> clazz, @Nonnull Function<C, Double> fn) {
+        return getOrDefault(clazz, fn, 0.0d);
     }
 
-    public <M extends HeroMasteryLevel & NumberProvider<Double>> double getDouble(@Nonnull Class<M> provider) {
-        double number = 0;
-
-        for (HeroMasteryLevel level : mastery.unlockedLevels(player)) {
-            number += getNumberOrDefault(level, provider, 0.0d);
-        }
-
-        return number;
+    public <C extends HeroMasteryLevel & NumberProvider<Double>> double getDouble(@Nonnull Class<C> clazz) {
+        return getDouble(clazz, NumberProvider::provideNumber);
     }
 
-    public <M extends HeroMasteryLevel & NumberProvider<Float>> float getFloat(@Nonnull Class<M> provider) {
-        float number = 0;
-
-        for (HeroMasteryLevel level : mastery.unlockedLevels(player)) {
-            number += getNumberOrDefault(level, provider, 0.0f);
-        }
-
-        return number;
+    public <C extends HeroMasteryLevel> float getFloat(@Nonnull Class<C> clazz, @Nonnull Function<C, Float> fn) {
+        return getOrDefault(clazz, fn, 0.0f);
     }
 
-    public <M extends HeroMasteryLevel & NumberProvider<Long>> long getLong(@Nonnull Class<M> provider) {
-        long number = 0;
-
-        for (HeroMasteryLevel level : mastery.unlockedLevels(player)) {
-            number += getNumberOrDefault(level, provider, 0L);
-        }
-
-        return number;
+    public <C extends HeroMasteryLevel & NumberProvider<Float>> float getFloat(@Nonnull Class<C> clazz) {
+        return getFloat(clazz, NumberProvider::provideNumber);
     }
 
-    @Nullable
-    public <M extends HeroMasteryLevel, T> T getObject(@Nonnull Class<M> clazz, @Nonnull Function<M, T> fn) {
-        for (HeroMasteryLevel level : mastery.unlockedLevels(player)) {
+    public <C extends HeroMasteryLevel> int getInteger(@Nonnull Class<C> clazz, @Nonnull Function<C, Integer> fn) {
+        return getOrDefault(clazz, fn, 0);
+    }
+
+    public <C extends HeroMasteryLevel & NumberProvider<Integer>> int getInteger(@Nonnull Class<C> clazz) {
+        return getInteger(clazz, NumberProvider::provideNumber);
+    }
+
+    public <C extends HeroMasteryLevel> short getShort(@Nonnull Class<C> clazz, @Nonnull Function<C, Short> fn) {
+        return getOrDefault(clazz, fn, (short) 0);
+    }
+
+    public <C extends HeroMasteryLevel & NumberProvider<Short>> short getShort(@Nonnull Class<C> clazz) {
+        return getShort(clazz, NumberProvider::provideNumber);
+    }
+
+    public <C extends HeroMasteryLevel, T> T getOrDefault(@Nonnull Class<C> clazz, @Nonnull Function<C, T> fn, T defaultValue) {
+        for (HeroMasteryLevel level : levels) {
             if (clazz.isInstance(level)) {
                 return fn.apply(clazz.cast(level));
             }
         }
 
-        return null;
-    }
-
-    private static <N extends Number, T extends NumberProvider<N>> N getNumberOrDefault(Object obj, Class<T> clazz, N def) {
-        if (clazz.isInstance(obj)) {
-            return clazz.cast(obj).getNumber();
-        }
-
-        return def;
+        return defaultValue;
     }
 }

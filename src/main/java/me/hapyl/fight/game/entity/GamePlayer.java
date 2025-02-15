@@ -1032,7 +1032,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public String toString() {
-        return "GamePlayer{" + getName() + "}";
+        return getName(); // Stop following stupid spigot shit
     }
 
     @Nonnull

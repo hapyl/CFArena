@@ -2,7 +2,6 @@ package me.hapyl.fight.game;
 
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
-import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.LivingEntity;
@@ -30,11 +29,8 @@ public record DeathMessage(String message, String damagerSuffix) {
                 this.damagerSuffix = damagerSuffix;
             }
             else {
-                if (damagerSuffix.isEmpty() || damagerSuffix.isBlank()) {
-                    Debug.warn("A death message is missing a suffix! Fixing by suffixing with 'by'! See the console for details.");
-                    Main.getPlugin().getLogger().warning("Missing death message: '%s'".formatted(message));
-
-                    damagerSuffix = "by";
+                if (damagerSuffix.isBlank()) {
+                    throw new IllegalArgumentException("Damage cause is missing a damager suffix! It must either contain %s or contain a suffix!".formatted(DAMAGER_PLACEHOLDER));
                 }
 
                 this.damagerSuffix = damagerSuffix + " " + DAMAGER_PLACEHOLDER;
@@ -74,7 +70,7 @@ public record DeathMessage(String message, String damagerSuffix) {
             string = "%s %s %s".formatted(playerName, message, suffix + longDistanceSuffix);
         }
 
-        return "&4☠ " + new Gradient(string)
+        return "&4 ☠ " + new Gradient(string)
                 .rgb(
                         new Color(160, 0, 0),
                         new Color(255, 51, 51),

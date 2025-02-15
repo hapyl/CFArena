@@ -8,7 +8,9 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.contrail.*;
 import me.hapyl.fight.game.cosmetic.death.*;
+import me.hapyl.fight.game.cosmetic.gadget.BalloonGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.FireworkGadgetCosmetic;
+import me.hapyl.fight.game.cosmetic.gadget.SnowballGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.dice.DiceGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.dice.HighClassDiceCosmetic;
 import me.hapyl.fight.game.cosmetic.kill.*;
@@ -77,6 +79,8 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
     public final FireworkGadgetCosmetic FIREWORK;
     public final DiceGadgetCosmetic DICE;
     public final HighClassDiceCosmetic DICE_HIGH_CLASS;
+    public final SnowballGadgetCosmetic SNOWBALL_GADGET;
+    public final BalloonGadgetCosmetic BALLOON;
 
     //////////////////////////////
     // *=* Prefix Cosmetics *=* //
@@ -166,7 +170,8 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
         FIREWORK = register("firework", FireworkGadgetCosmetic::new);
         DICE = register("dice", DiceGadgetCosmetic::new);
         DICE_HIGH_CLASS = register("dice_high_class", HighClassDiceCosmetic::new);
-        // TODO (Sat, Aug 31 2024 @xanyjl): snowball gadget
+        SNOWBALL_GADGET = register("snowball_gadget", SnowballGadgetCosmetic::new);
+        BALLOON = register("balloon", BalloonGadgetCosmetic::new);
 
         //////////////////////////////
         // *=* Prefix Cosmetics *=* //

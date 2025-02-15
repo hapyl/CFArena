@@ -25,8 +25,8 @@ public class EngineerTurret extends EngineerTalent {
     @DisplayField private final double damage = 3;
     @DisplayField private final double radius = 32;
 
-    @DisplayField private int delayBetweenShots = 20;
-    @DisplayField private double damageIncreasePerLevel = 1.5d;
+    @DisplayField private final int delayBetweenShots = 20;
+    @DisplayField private final double damageIncreasePerLevel = 1.5d;
 
     // This is the base of the turret (the bottom side)
     // It will be spawned with the main block display.

@@ -10,6 +10,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.archer.ArcherMastery;
 import me.hapyl.fight.game.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -44,7 +46,9 @@ public class ShockDart extends Talent implements Listener {
         super(key, "Shock Dart");
 
         setDescription("""
-                Shoots an arrow infused with &oshocking &7power. Upon hit, charges and explodes dealing damage based on distance.
+                Shoot an arrow infused with &b&oshocking&7 power.
+                
+                Upon hit, &ncharges&7 and &cexplodes&7, dealing damage based on distance.
                 """
         );
 
@@ -85,9 +89,11 @@ public class ShockDart extends Talent implements Listener {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        final Arrow arrow = player.launchProjectile(Arrow.class, self -> {
-            self.setColor(player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getShockDartArrowColor, arrowColor));
-        });
+        final Arrow arrow = player.launchProjectile(
+                Arrow.class, self -> {
+                    self.setColor(player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getShockDartArrowColor, arrowColor));
+                }
+        );
 
         shockArrows.add(arrow);
 
@@ -108,6 +114,11 @@ public class ShockDart extends Talent implements Listener {
                 AbstractSkinArcher::getShockDartRedColor,
                 this.redColor
         );
+
+        final ArcherMastery mastery = HeroRegistry.ARCHER.getMastery();
+
+        final int explosionWindup = mastery.getShockDartChargingSpeed(player, this.explosionWindup);
+        final double explosionRadius = mastery.getShockDartRadius(player, this.explosionRadius);
 
         Geometry.drawSphere(location, sphereRings, explosionRadius, blueColor::display);
         playAndCut(location, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2f, explosionWindup);

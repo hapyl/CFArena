@@ -195,7 +195,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
             }
 
             final ArcherMastery mastery = getMastery();
-            final double passiveChance = mastery.getPassiveChance(player);
+            final double passiveChance = mastery.getPassiveChance(player, getPassiveTalent().chance);
 
             if (!player.random.checkBound(1 - passiveChance)) {
                 return;
@@ -318,7 +318,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
                 final ProgressBarBuilder progressBuild = new ProgressBarBuilder("\uD83D\uDD25", ChatColor.GOLD, 10);
                 final ArcherData playerData = getPlayerData(player);
 
-                final float maxFuse = getMastery().getMaxFuse(player);
+                final float maxFuse = getMastery().getMaxFuse(player, baseFuse);
                 playerData.fuse = maxFuse;
 
                 new PlayerTickingGameTask(player) {

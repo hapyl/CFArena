@@ -1,8 +1,10 @@
 ###############################
 
-- s card
-- Don't allow going far from NPCs when talking to them
-- Change the fucking mastery messages my eyes are fucking dying
+- Scratch cards
+- Leaderboard
+- Add 'environment reset'
+- Potion display
+- Dwarf Lava can't kill
 
 ======= IMPORTANT =======
 
@@ -22,8 +24,6 @@
 ###############################
 
 - Remove CLICK from null names
-- Add checkmark when purcharsed store offer
-- Remove heroes from game tab in game
 - Vampire still too weak (how about perma legion, ult bakes it better or buff teammates? )
 
 ###############################

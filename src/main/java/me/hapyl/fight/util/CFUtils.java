@@ -812,14 +812,14 @@ public class CFUtils {
     @Nonnull
     public static <K> Cache<K, Boolean> createCache(long expireAfter) {
         return CacheBuilder.newBuilder()
-                .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
-                .build(new CacheLoader<K, Boolean>() {
-                    @Nonnull
-                    @Override
-                    public Boolean load(@Nonnull K key) throws Exception {
-                        return true;
-                    }
-                });
+                           .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
+                           .build(new CacheLoader<K, Boolean>() {
+                               @Nonnull
+                               @Override
+                               public Boolean load(@Nonnull K key) throws Exception {
+                                   return true;
+                               }
+                           });
     }
 
     @Nonnull
@@ -1112,6 +1112,10 @@ public class CFUtils {
         }
 
         return null;
+    }
+
+    public static void showEntity(@Nonnull LivingEntity entity) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.showEntity(CF.getPlugin(), entity));
     }
 
     private static class Helper {

@@ -17,7 +17,7 @@ import me.hapyl.fight.database.entry.Metadata;
 import me.hapyl.fight.database.entry.StoreEntry;
 import me.hapyl.fight.event.custom.RelicFindEvent;
 import me.hapyl.fight.game.collectible.relic.Relic;
-import me.hapyl.fight.quest.CFDialog;
+import me.hapyl.fight.quest.NpcBoundDialog;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.store.PlayerStoreOffers;
 import me.hapyl.fight.store.Store;
@@ -173,7 +173,7 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
         }
     }
 
-    private class DialogFirstMeeting extends CFDialog {
+    private class DialogFirstMeeting extends NpcBoundDialog {
 
         private final DialogEntry[] entryRude = DialogEntry.of(
                 StoreOwnerNPC.this,
@@ -185,6 +185,8 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
         private final String tagIsRude = "is_rude";
 
         public DialogFirstMeeting() {
+            super(StoreOwnerNPC.this);
+
             addEntry(StoreOwnerNPC.this, "Welcome to my store, dear customer.");
 
             addEntry(new DialogOptionEntry()
@@ -326,9 +328,11 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
         }
     }
 
-    private class DialogLoop extends CFDialog {
+    private class DialogLoop extends NpcBoundDialog {
         public DialogLoop() {
-            addEntry(StoreOwnerNPC.this, "Sup!");
+            super(StoreOwnerNPC.this);
+
+            entry("Sup!");
 
             addEntry(new DialogOptionEntry()
                     .setOption(1, DialogOptionEntry

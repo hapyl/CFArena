@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.util.*;
+import java.util.function.Function;
 
 public class HeroMastery implements Iterable<HeroMasteryLevel> {
 
@@ -57,23 +58,33 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         MASTERY_STRING_MAP = Map.ofEntries(
                 Map.entry(0, new LevelDisplay("&8", "Rookie")),
                 Map.entry(1, new LevelDisplay("&a", "I, Noob")),
-                Map.entry(2, new LevelDisplay("&e", "II, Not Pro")),
-                Map.entry(3, new LevelDisplay("&6", "III, Almost Pro")),
-                Map.entry(4, new LevelDisplay("&c", "IV, Pro")),
-                Map.entry(5, new LevelDisplay("&4", "V, Master"))
+                Map.entry(2, new LevelDisplay("&e", "II, Apprentice")),
+                Map.entry(3, new LevelDisplay("&6", "III, Adept")),
+                Map.entry(4, new LevelDisplay("&c", "IV, Expert")),
+                Map.entry(5, new LevelDisplay("&4&l", "V, Master"))
         );
     }
 
     private final Hero hero;
     private final HeroMasteryLevel[] levels;
 
-    public HeroMastery(Hero hero) {
+    public HeroMastery(@Nonnull Hero hero) {
         this.hero = hero;
-        this.levels = new HeroMasteryLevel[MAX_LEVEL];
+        this.levels = emptyMastery();
+    }
 
-        for (int i = 0; i < this.levels.length; i++) {
-            this.levels[i] = new HeroMasteryLevel(i + 1, "Does Nothing", "Does Nothing");
-        }
+    protected void setLevels(
+            @Nonnull Function<Integer, HeroMasteryLevel> level1,
+            @Nonnull Function<Integer, HeroMasteryLevel> level2,
+            @Nonnull Function<Integer, HeroMasteryLevel> level3,
+            @Nonnull Function<Integer, HeroMasteryLevel> level4,
+            @Nonnull Function<Integer, HeroMasteryLevel> level5
+    ) {
+        this.levels[0] = level1.apply(1);
+        this.levels[1] = level2.apply(2);
+        this.levels[2] = level3.apply(3);
+        this.levels[3] = level4.apply(4);
+        this.levels[4] = level5.apply(5);
     }
 
     @Nonnull
@@ -87,40 +98,16 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         return List.of(this.levels).iterator();
     }
 
-    protected List<HeroMasteryLevel> unlockedLevels(GamePlayer player) {
+    protected LevelGetter unlockedLevels(@Nonnull GamePlayer player) {
         final int level = getLevel(player);
 
-        return Arrays.asList(this.levels).subList(0, level);
-    }
-
-    protected void setLevels(
-            @Nonnull HeroMasteryLevel level1,
-            @Nonnull HeroMasteryLevel level2,
-            @Nonnull HeroMasteryLevel level3,
-            @Nonnull HeroMasteryLevel level4,
-            @Nonnull HeroMasteryLevel level5
-    ) {
-        this.levels[0] = level1;
-        this.levels[1] = level2;
-        this.levels[2] = level3;
-        this.levels[3] = level4;
-        this.levels[4] = level5;
+        return new LevelGetter(Arrays.asList(this.levels).subList(0, level));
     }
 
     protected int getLevel(@Nonnull GamePlayer player) {
         final GameInstance gameInstance = Manager.current().getGameInstance();
 
         return gameInstance != null ? gameInstance.heroMastery().getMastery(player) : 0;
-    }
-
-    /**
-     * Gets a {@link LevelGetter} for the given player.
-     *
-     * @param player - Player.
-     * @return a level getter.
-     */
-    protected LevelGetter levels(@Nonnull GamePlayer player) {
-        return new LevelGetter(player, this);
     }
 
     @Nonnull
@@ -206,6 +193,16 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
                         }
                 )
         );
+    }
+
+    private static HeroMasteryLevel[] emptyMastery() {
+        return new HeroMasteryLevel[] {
+                new HeroMasteryLevel(1, "Nothing", "Does absolutely nothing."),
+                new HeroMasteryLevel(2, "Nothing", "Does absolutely nothing."),
+                new HeroMasteryLevel(3, "Nothing", "Does absolutely nothing."),
+                new HeroMasteryLevel(4, "Nothing", "Does absolutely nothing."),
+                new HeroMasteryLevel(5, "Nothing", "Does absolutely nothing.")
+        };
     }
 
     public record LevelDisplay(String color, String string) {

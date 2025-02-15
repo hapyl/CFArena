@@ -742,9 +742,13 @@ public final class Manager extends BukkitRunnable {
     }
 
     public boolean goldenGg(@Nonnull Player player) {
-        if (!goldenGg.remove(player.getUniqueId())) {
+        final UUID uuid = player.getUniqueId();
+
+        if (!goldenGg.contains(uuid)) {
             return false;
         }
+
+        goldenGg.remove(uuid);
 
         CFUtils.later(() -> Award.GG.award(CF.getProfile(player)), 1);
         return true;
@@ -1088,6 +1092,10 @@ public final class Manager extends BukkitRunnable {
 
     public void allowEveryoneGoldenGg() {
         Bukkit.getOnlinePlayers().forEach(this::allowGoldenGg);
+    }
+
+    public boolean isLobby() {
+        return gameInstance == null;
     }
 
     private void playAnimation() {

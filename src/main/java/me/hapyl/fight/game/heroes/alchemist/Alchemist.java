@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.heroes.alchemist;
 
-import me.hapyl.eterna.module.chat.Chat;
+import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.Message;
-import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.EffectFlag;
 import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -25,31 +26,40 @@ import me.hapyl.fight.game.talents.alchemist.*;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.util.collection.RandomTable;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.Set;
 
 import static org.bukkit.Sound.*;
 
-public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<AlchemistData>, Listener, Disabled {
+public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<AlchemistData>, Listener {
+
+    public final Weapon stickMissing = Weapon.builder(Material.CLAY_BALL, Key.ofString("alchemist_stick_missing"))
+                                             .name("&4Stick is Missing!")
+                                             .description("""
+                                                     Your stick is currently brewing a potion!
+                                                     &8&o;;Click the cauldron to pause the brewing process and get your stick back.
+                                                     """)
+                                             .damage(1)
+                                             .build();
 
     private final PlayerDataMap<AlchemistData> playerData = PlayerMap.newDataMap(AlchemistData::new);
+    private final Set<AbyssalCurse> curseSet = Sets.newHashSet();
 
-    private final RandomTable<MadnessEffect> positiveEffects = new RandomTable<>();
-    private final RandomTable<MadnessEffect> negativeEffects = new RandomTable<>();
-    private final Map<GamePlayer, Integer> toxinLevel = new HashMap<>();
-    private final Map<UUID, CauldronEffect> cauldronEffectMap = new HashMap<>();
+    private final int alchemicalMadnessPositiveDuration = Tick.fromSecond(20);
+    private final int alchemicalMadnessNegativeDuration = alchemicalMadnessPositiveDuration / 2;
+
+    private final AlchemistEffect[][] alchemicalMadnessEffects;
 
     public Alchemist(@Nonnull Key key) {
         super(key, "Alchemist");
@@ -63,12 +73,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         );
         setItem("661691fb01825b9d9ec1b8f04199443146aa7d5627aa745962c0704b6a236027");
 
-        setWeapon(Weapon.builder(Material.STICK, Key.ofString("alchemist_stick"))
-                .name("Stick")
-                .description("Turns out that a stick used in brewing can also be used in battle.")
-                .enchant(Enchantment.KNOCKBACK, 1)
-                .damage(8.0d)
-        );
+        setWeapon(new AlchemistWeapon());
 
         final HeroAttributes attributes = getAttributes();
         attributes.set(AttributeType.MAX_HEALTH, 125);
@@ -77,87 +82,85 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(31, 5, 3, TrimPattern.SHAPER, TrimMaterial.COPPER);
+        equipment.setBoots(102, 55, 38, TrimPattern.SILENCE, TrimMaterial.COPPER);
 
         setEventHandler(new AlchemistEventHandler());
-
         setUltimate(new AlchemistUltimate());
+
+        // Init alchemical madness effects
+        alchemicalMadnessEffects = new AlchemistEffect[][] {
+                // Positive
+                new AlchemistEffect[] {
+                        AlchemistEffect.ofStatTemper("made you &4&lStronger", Color.fromRGB(99, 5, 14), AttributeType.ATTACK, 0.5d, alchemicalMadnessPositiveDuration),
+                        AlchemistEffect.ofStatTemper("made you &b&lFaster", Color.fromRGB(99, 191, 247), AttributeType.SPEED, 0.05d, alchemicalMadnessPositiveDuration),
+                        AlchemistEffect.ofStatTemper("made you &3&lJump Higher", Color.fromRGB(47, 139, 196), AttributeType.JUMP_STRENGTH, 0.2d, alchemicalMadnessPositiveDuration),
+                        AlchemistEffect.ofStatTemper("&2&lProtected&e you", Color.fromRGB(22, 150, 8), AttributeType.DEFENSE, 0.5d, alchemicalMadnessPositiveDuration),
+                        AlchemistEffect.of(
+                                "&a&lHealed&e you!", Color.fromRGB(93, 245, 76), (entity, player) -> {
+                                    final double missingHealth = player.getMaxHealth() - player.getHealth();
+
+                                    player.heal(missingHealth * 0.5d);
+                                }
+                        )
+                },
+
+                // Negative
+                new AlchemistEffect[] {
+                        AlchemistEffect.ofStatTemper("made you &4&lWeaker", Color.fromRGB(99, 5, 14), AttributeType.ATTACK, -0.3d, alchemicalMadnessNegativeDuration),
+                        AlchemistEffect.ofStatTemper("made you &b&lSlower", Color.fromRGB(99, 191, 247), AttributeType.SPEED, -0.05d, alchemicalMadnessNegativeDuration),
+                        AlchemistEffect.ofStatTemper("made you &3&lJump Lower", Color.fromRGB(47, 139, 196), AttributeType.JUMP_STRENGTH, -0.1d, alchemicalMadnessNegativeDuration),
+                        AlchemistEffect.ofStatTemper("took your &2&lProtection&e away", Color.fromRGB(22, 150, 8), AttributeType.DEFENSE, -0.5d, alchemicalMadnessNegativeDuration),
+                        AlchemistEffect.of(
+                                "&c&lHurt&e you", Color.fromRGB(196, 39, 63), (entity, player) -> {
+                                    entity.damage(entity.getMaxHealth() * 0.3d, player, EnumDamageCause.MAGIC);
+                                }
+                        ),
+                        AlchemistEffect.of(
+                                "&8&lblinded&e you", Color.fromRGB(46, 40, 41), (entity, player) -> {
+                                    entity.addEffect(Effects.BLINDNESS, alchemicalMadnessNegativeDuration, true);
+                                }
+                        )
+                }
+        };
     }
 
-    @Override
-    public void processDamageAsDamager(@Nonnull DamageInstance instance) {
-        final LivingGameEntity victim = instance.getEntity();
-        final LivingGameEntity player = instance.getDamagerAsPlayer();
-
-        if (player == null) {
-            return;
-        }
-
-        final CauldronEffect effect = cauldronEffectMap.get(player.getUUID());
-
-        if (!instance.isEntityAttack() || effect == null || effect.getEffectHits() <= 0) {
-            return;
-        }
-
-        final Effects randomEffect = getRandomEffect();
-
-        victim.addEffect(randomEffect, 3, 20);
-        effect.decrementEffectPotions();
-
-        player.sendMessage("&c¤ &eVenom Touch applied &l%s &eto %s. &l%s &echarges left.".formatted(
-                Chat.capitalize(randomEffect.getName()),
-                victim.getName(),
-                effect.getEffectHits()
-        ));
-
-        player.playWorldSound(player.getLocation(), ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f);
+    public AlchemistEffect randomAlchemicalEffect(boolean positive) {
+        return CollectionUtils.randomElementOrFirst(alchemicalMadnessEffects[positive ? 0 : 1]);
     }
 
-    public CauldronEffect getEffect(GamePlayer player) {
-        return this.cauldronEffectMap.get(player.getUUID());
-    }
-
-    public void startCauldronBoost(GamePlayer player) {
-        this.cauldronEffectMap.put(player.getUUID(), new CauldronEffect());
-    }
-
-    @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        toxinLevel.put(player, 0);
-    }
-
-    @Override
-    public void onStop(@Nonnull GameInstance instance) {
-        toxinLevel.clear();
-        cauldronEffectMap.clear();
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        cauldronEffectMap.remove(player.getUUID());
-        toxinLevel.remove(player);
+    public void removeCurse(@Nonnull AbyssalCurse curse) {
+        curseSet.remove(curse);
     }
 
     @Override
     public void onStart(@Nonnull GameInstance instance) {
+        final IntoxicationPassive passiveTalent = getPassiveTalent();
+
         new GameTask() {
             @Override
             public void run() {
-                getAlivePlayers().forEach(gamePlayer -> {
-                    if (isToxinLevelBetween(gamePlayer, 50, 75)) {
-                        gamePlayer.addEffect(Effects.POISON, 2, 20);
+                getAlivePlayers().forEach(player -> {
+                    if (isToxinLevelBetween(player, 60, 80)) {
+                        player.addEffect(Effects.POISON, 20, true);
                     }
-                    else if (isToxinLevelBetween(gamePlayer, 75, 90)) {
-                        gamePlayer.addEffect(Effects.WITHER, 1, 20);
+                    else if (isToxinLevelBetween(player, 80, 99)) {
+                        player.damage(1, EnumDamageCause.TOXIN);
+                        player.addEffect(Effects.DARKNESS, 20, true);
+                        player.addEffect(Effects.NAUSEA, 20, true);
+
+                        player.removeEnergy(1, player);
                     }
-                    else if (getToxinLevel(gamePlayer) >= 100) {
-                        gamePlayer.dieBy(EnumDamageCause.TOXIN);
+                    else if (getToxinLevel(player) >= 100) {
+                        player.dieBy(EnumDamageCause.TOXIN);
                     }
 
-                    setToxinLevel(gamePlayer, getToxinLevel(gamePlayer) - 1);
+                    // Decrement toxin
+                    setToxinLevel(player, getToxinLevel(player) - passiveTalent.corrosionDecrement);
                 });
             }
-        }.runTaskTimer(0, 10);
+        }.runTaskTimer(0, passiveTalent.corrosionDecrementPeriod);
     }
+
 
     @Override
     public RandomPotion getFirstTalent() {
@@ -174,10 +177,6 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         return TalentRegistry.INTOXICATION;
     }
 
-    public void addToxin(GamePlayer player, int value) {
-        setToxinLevel(player, getToxinLevel(player) + value);
-    }
-
     @Override
     public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
         player.removeEffect(Effects.INVISIBILITY);
@@ -187,7 +186,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
     }
 
     @EventHandler
-    public void handleGameDamageEvent(GameDamageEvent ev) {
+    public void handleExtraHealing(GameDamageEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
 
         if (!(entity instanceof GamePlayer player)) {
@@ -203,11 +202,52 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         }
     }
 
+    @EventHandler
+    public void handleAbyssCurse(GameDamageEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        final GameEntity damager = ev.getDamager();
+
+        if (!(entity instanceof GamePlayer playerEntity) || !(damager instanceof GamePlayer playerDamager)) {
+            return;
+        }
+
+        final EnumDamageCause cause = ev.getCause();
+
+        if (cause == null || !cause.isMelee()) {
+            return;
+        }
+
+        final AbyssalCurse curse = getCurse(playerDamager);
+
+        if (curse == null) {
+            return;
+        }
+
+        if (isCursed(playerEntity)) {
+            playerDamager.sendMessage(Message.ERROR, "This player is already cursed!");
+            return;
+        }
+
+        curse.transfer(playerEntity);
+    }
+
+    public boolean isCursed(@Nonnull GamePlayer player) {
+        for (AbyssalCurse curse : curseSet) {
+            if (curse.player().equals(player)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     @Nonnull
     public String getString(@Nonnull GamePlayer player) {
-        final int toxinLevel = getToxinLevel(player);
-        return getToxinColor(player) + "☠ &l" + toxinLevel + "%";
+        final double toxinLevel = getToxinLevel(player);
+        final String toxinColor = getToxinColor(player);
+
+        return "%1$s&l%2$s %1$s%3$.0f%%".formatted(toxinColor, Named.ABYSS_CORROSION.getCharacter(), toxinLevel);
     }
 
     @Nonnull
@@ -228,22 +268,32 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         data.state.apply(player);
     }
 
-    // some effects aren't really allowed so
-    // replaced with EffectType because bukkit effects aren't enums
-    private Effects getRandomEffect() {
-        return Effects.getRandomEffect(EffectFlag.VANILLA);
+    @Override
+    public void onStop(@Nonnull GameInstance instance) {
+        curseSet.clear();
     }
 
-    private int getToxinLevel(GamePlayer player) {
-        return toxinLevel.getOrDefault(player, 0);
+    @Nullable
+    private AbyssalCurse getCurse(@Nonnull GamePlayer bearer) {
+        for (AbyssalCurse curse : curseSet) {
+            if (curse.player().equals(bearer)) {
+                return curse;
+            }
+        }
+
+        return null;
     }
 
-    private void setToxinLevel(GamePlayer player, int i) {
-        toxinLevel.put(player, Math.clamp(i, 0, 100));
+    private void setToxinLevel(@Nonnull GamePlayer player, double newValue) {
+        getPlayerData(player).toxin = Math.max(0, newValue);
+    }
+
+    private double getToxinLevel(@Nonnull GamePlayer player) {
+        return getPlayerData(player).toxin;
     }
 
     private boolean isToxinLevelBetween(GamePlayer player, int a, int b) {
-        final int toxinLevel = getToxinLevel(player);
+        final double toxinLevel = getToxinLevel(player);
         return toxinLevel >= a && toxinLevel < b;
     }
 
@@ -252,13 +302,13 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
             return "&e";
         }
         else if (isToxinLevelBetween(player, 50, 75)) {
-            return "&6";
+            return "&d";
         }
         else if (isToxinLevelBetween(player, 75, 90)) {
-            return "&c";
+            return "&5";
         }
-        else if (isToxinLevelBetween(player, 90, 100)) {
-            return "&4";
+        else if (getToxinLevel(player) >= 90) {
+            return "&5&l";
         }
 
         return "&a";
@@ -295,12 +345,14 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
                 setState(player, AlchemistState.NORMAL);
                 talent.startCd(player, talent.getCooldown() + talent.castDuration);
 
-                player.schedule(() -> {
-                    data.setActivePotion(player, potion);
+                player.schedule(
+                        () -> {
+                            data.setActivePotion(player, potion);
 
-                    // Fx
-                    player.playWorldSound(ENTITY_WITCH_DRINK, 1.0f);
-                }, talent.castDuration);
+                            // Fx
+                            player.playWorldSound(ENTITY_WITCH_DRINK, 1.0f);
+                        }, talent.castDuration
+                );
                 return true;
             }
 
@@ -308,25 +360,52 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         }
     }
 
+    private int getCurseDuration(@Nonnull GamePlayer player, int baseDuration) {
+        final double toxinLevel = getToxinLevel(player);
+        final IntoxicationPassive passiveTalent = getPassiveTalent();
+
+        return (int) (baseDuration * (1 - toxinLevel * passiveTalent.curseDecrementPerOneCorrosion));
+    }
+
     private class AlchemistUltimate extends UltimateTalent {
         public AlchemistUltimate() {
-            super(Alchemist.this, "Alchemical Madness", 50);
+            super(Alchemist.this, "Abyssal Curse", 60);
 
             setDescription("""
-                    Call upon the darkest spells to cast random &c&lNegative &7effect on your foes for &b15s &7and random &a&lPositive &7effect on yourself for &b30s&7.
+                    Apply &5Abyssal Curse&7 to yourself that gradually becomes &4u&kn&4s&4ta&kbl&4e&7.
+                    
+                    Hit a &nplayer&7 to transfer the curse to that player.
+                    &8&o;;Other players can also transfer the curse.
+                    
+                    After the curse becomes &4unstable&7, it explodes, instantly &ckilling&7 the bearer.
                     """);
 
-            setType(TalentType.ENHANCE);
+            setType(TalentType.DAMAGE);
             setItem(Material.FERMENTED_SPIDER_EYE);
-            setSound(ENTITY_WITCH_AMBIENT, 0.5f);
+
+            setCastDurationSec(1.2f);
+            setDurationSec(15);
             setCooldownSec(30);
         }
 
         @Nonnull
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player) {
-            return null;
+            return builder()
+                    .onCastStart(() -> {
+                        // Fx
+                        player.spawnWorldParticle(player.getMidpointLocation(), Particle.ENCHANT, 100, 0, 0, 0, 1.0f);
+                        player.playWorldSound(ENTITY_EVOKER_PREPARE_ATTACK, 2.0f);
+                    })
+                    .onExecute(() -> {
+                        final int duration = getCurseDuration(player, getDuration());
+                        curseSet.add(new AbyssalCurse(player, duration));
+
+                        // Fx
+                        player.playWorldSound(ENTITY_ELDER_GUARDIAN_AMBIENT, 2.0f);
+                    });
         }
 
     }
+
 }

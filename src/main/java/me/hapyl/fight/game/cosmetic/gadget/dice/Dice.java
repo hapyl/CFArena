@@ -55,7 +55,7 @@ public class Dice extends Gadget {
         builder.setHeadTextureUrl(sideWeight.getRandomElement().getTexture());
 
         builder.addLore();
-        builder.addLore("But &close&7 this gadget.");
+        builder.addLore("But &4lose&7 this gadget.");
 
         return builder;
     }

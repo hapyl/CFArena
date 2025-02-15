@@ -41,13 +41,13 @@ public class RandomPotion extends Talent {
                 
                 Shake the bottle again to store the potions back.
                 
-                &6Available Potions
+                &6Available Potions:
                 """);
 
         setType(TalentType.ENHANCE);
         setItem(Material.OMINOUS_BOTTLE);
 
-        setCooldownSec(16.0f);
+        setCooldownSec(10f);
     }
 
     @Override

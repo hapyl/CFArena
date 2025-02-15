@@ -106,9 +106,9 @@ public class StyledItem implements StyledBuilder {
 
     public static final StyledItem ICON_MASTERY = new StyledItem(
             Material.GOLDEN_HELMET,
-            "Hero Mastery &4&lPRE ALPHA PRE BETA NOT FINISHED!!!",
+            "Hero Mastery &4&lαʟᴘʜᴀ",
             """
-                    Master a hero by winning and slaying your enemies to unlock additional abilities and become a Master!
+                    Master a hero by &awinning&7 and &cslaying&7 your enemies to unlock &badditional&7 abilities and become the &4&lMaster&7!
                     """
     );
 

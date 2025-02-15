@@ -17,10 +17,9 @@ public class BloodfiendPassive extends PassiveTalent {
         super(key, "Vampire's Bite");
 
         setDescription("""
-                &b&l&nVampire's Bite
-                Your hits will inflict &csucculence&7 for &b{biteDuration}&7.
+                Biting your enemies inflicts &4succulence&7 for &b{biteDuration}&7.
                 
-                &cBitten &7players will suffer health reduction and can be affected by your talents.
+                &4Bitten &cenemies&7 suffer health reduction and can be affected by your talents.
                 """
         );
 

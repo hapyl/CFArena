@@ -24,9 +24,10 @@ public enum EnumDamageCause {
      * System damage causes, <b>do not</b> modify the order.
      */
     // Have to consider entity_attack as custom damage for display purpose
-    ENTITY_ATTACK(DamageCause.of("was killed", "by")),
+    ENTITY_ATTACK(DamageCause.of("was killed", "by").melee(true)),
     // Use this for normal attacks that should not crit if too lazy to create a custom damage cause
-    ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.createCopy().setCanCrit(false)),
+    ENTITY_ATTACK_NON_CRIT(ENTITY_ATTACK.damageCause.createCopy().melee(true).setCanCrit(false)),
+
     PROJECTILE(DamageCause.minecraft("was shot", "by").setProjectile(true)),
     FALL(DamageCause.minecraft("fell to their death", "while escaping from").addFlags(DamageFlag.PIERCING_DAMAGE)),
     FIRE(DamageCause.minecraft("was toasted", "with help from").setDamageFormat(instance -> "&6%.0f 🔥".formatted(instance.getDamage()))),
@@ -78,7 +79,7 @@ public enum EnumDamageCause {
     FROZEN_WEAPON(DamageCause.of("has been frozen to death", "by")),
     LEASHED(DamageCause.of("leashed to death", "by")),
     SOUL_WHISPER(DamageCause.nonCrit("has entered {damager}'s souls collection")),
-    TOXIN(DamageCause.nonCrit("drunk too many potions", "while trying to fight")),
+    TOXIN(DamageCause.nonCrit("drunk too many potions", "while trying to fight").canKill(false)),
     METEORITE(DamageCause.nonCrit("felt the wrath of the rock", "of")),
     MOON_PILLAR(DamageCause.of("couldn't handle the beat", "of")),
     WITHER_SKULLED(DamageCause.of("was scared to death", "by")),
@@ -166,8 +167,11 @@ public enum EnumDamageCause {
     BAT_BITE(DamageCause.nonCrit("was bitten", "by").setCanCrit(false)),
     BAT_BITE_NO_TICK(BAT_BITE.damageCause.createCopy().setDamageTicks(1)),
     DEAD_EYE(DamageCause.of("was dead eyed", "by")),
-    VAMPIRE_BITE(DamageCause.of("was bitten to death", "by").knockBack(0.0d)),
+    VAMPIRE_BITE(DamageCause.of("was bitten to death", "by").knockBack(0.0d).melee(true)),
     GAMBLE(DamageCause.nonCrit("gambled their way to grave", "by")),
+    POTION(DamageCause.nonCrit("was splashes by {damager}'s potion").setDamageTicks(1)),
+    MADNESS(DamageCause.nonCrit("was killed by mad {damager}")),
+    ABYSS_CURSE(DamageCause.nonCrit("was killed by {damager}'s curse")),
 
     ;
 
@@ -205,7 +209,7 @@ public enum EnumDamageCause {
     }
 
     public boolean isMelee() {
-        return this == ENTITY_ATTACK || this == ENTITY_ATTACK_NON_CRIT;
+        return damageCause.melee();
     }
 
     public boolean isAllowedForFerocity() {
@@ -228,6 +232,10 @@ public enum EnumDamageCause {
     @Nonnull
     public String getName() {
         return this.name;
+    }
+
+    public boolean canKill() {
+        return damageCause.canKill();
     }
 
     public static EnumDamageCause getFromCause(EntityDamageEvent.DamageCause cause) {

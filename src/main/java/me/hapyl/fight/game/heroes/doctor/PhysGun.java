@@ -26,6 +26,7 @@ public class PhysGun extends Weapon {
     public final double maxDistance = 2.5d;
     public final double shift = 0.1d;
     public final double throwMagnitude = 2.0d;
+
     protected final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
 
     public PhysGun() {

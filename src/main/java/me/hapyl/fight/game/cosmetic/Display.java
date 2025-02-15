@@ -75,8 +75,12 @@ public class Display {
         particle0(location, particle, amount, offsetX, offsetY, offsetZ, speed, null, null);
     }
 
-    public void sound(@Nonnull Sound sound, float pitch) {
+    public void sound(@Nonnull Location location, @Nonnull Sound sound, float pitch) {
         PlayerLib.playSound(location, sound, pitch);
+    }
+
+    public void sound(@Nonnull Sound sound, float pitch) {
+        sound(this.location, sound, pitch);
     }
 
     public void repeat(int maxTicks, int period, @Nonnull BiConsumer<Runnable, Integer> consumer) {

@@ -2,8 +2,6 @@ package me.hapyl.fight.game.cosmetic.win;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -51,11 +49,11 @@ public class AvalancheWinCosmetic extends WinCosmetic {
     }
 
     @Override
-    public void tickTask(@Nonnull Display display, int tick) {
+    public void onTick(@Nonnull Display display, int tick) {
         final Location location = display.getLocation();
         final float pitchPerTick = 2.0f / getMaxTimes();
 
-        getBlocks(location, getMaxTimes() - tick).forEach(block -> {
+        getBlocks(location, tick).forEach(block -> {
             if (blocks.add(block)) {
                 for (Player online : Bukkit.getOnlinePlayers()) {
                     //online.sendBlockChange(block.getLocation(), CollectionUtils.randomElement(data, data[0]));
@@ -65,13 +63,13 @@ public class AvalancheWinCosmetic extends WinCosmetic {
                 // Fx
                 final Location fxLocation = block.getLocation().add(0.0d, 1.0d, 0.0d);
 
-                PlayerLib.spawnParticle(fxLocation, Particle.ITEM_SNOWBALL, 1, 0.15d, 0.25d, 0.15d, 0.05f);
-                PlayerLib.spawnParticle(fxLocation, Particle.SNOWFLAKE, 2, 0.1d, 0.25d, 0.11d, 0.01f);
+                display.particle(fxLocation, Particle.ITEM_SNOWBALL, 1, 0.15d, 0.25d, 0.15d, 0.05f);
+                display.particle(fxLocation, Particle.SNOWFLAKE, 2, 0.1d, 0.25d, 0.11d, 0.01f);
 
-                PlayerLib.playSound(
+                display.sound(
                         fxLocation,
                         Sound.BLOCK_SNOW_BREAK,
-                        (float) Numbers.clamp(2.0f - (pitchPerTick * tick), 0.0d, 2.0d)
+                        (float) Math.clamp(pitchPerTick * tick, 0.0d, 2.0d)
                 );
             }
         });

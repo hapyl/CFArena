@@ -104,6 +104,7 @@ public class Color implements TextColor {
     public static final Color LAVENDER = new Color("#E6E6FA");
     public static final Color LIGHT_BLUE = new Color("#ADD8E6");
     public static final Color ECHO_WORLD = new Color("#363a47");
+    public static final Color ABYSS = new Color("#7304c2");
 
     // *-----------------------------------------------------*
 

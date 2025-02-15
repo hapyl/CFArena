@@ -15,6 +15,7 @@ public enum Cooldown {
     AMNESIA,
     JAPAN_BOOSTER(300),
     PORTAL(1000),
+    INTERACT(50),
     ;
 
     public final long duration;

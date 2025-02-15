@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
@@ -18,6 +19,8 @@ public class HellboundWinCosmetic extends WinCosmetic {
 
         setRarity(Rarity.CURSED);
         setIcon(Material.NETHER_BRICK);
+
+        setExclusive(true);
     }
 
     @Override
@@ -30,7 +33,9 @@ public class HellboundWinCosmetic extends WinCosmetic {
     }
 
     @Override
-    public void tickTask(@Nonnull Display display, int tick) {
+    public void onTick(@Nonnull Display display, int tick) {
+        final Player player = display.getPlayer();
 
+        // TODO: I really have no idea for this effect
     }
 }

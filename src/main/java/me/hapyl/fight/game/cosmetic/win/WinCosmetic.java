@@ -4,8 +4,8 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -49,22 +49,28 @@ public abstract class WinCosmetic extends Cosmetic {
     /**
      * Called every {@link WinCosmetic#step} ticks.
      *
-     * @param display - Display object.
-     * @param tick    - Ticks left. 1-{@link WinCosmetic#maxTimes}, on 0 {@link WinCosmetic#onStop(Display)} is called.
+     * @param display - The display.
+     * @param tick    - The current tick, from {@code 0} to {@code maxTimes - 1}.
+     *                On {@code tick == maxTimes}, {@link #onStop(Display)} is called.
      */
-    public abstract void tickTask(@Nonnull Display display, int tick);
+    public abstract void onTick(@Nonnull Display display, int tick);
 
     @Override
     public final void onDisplay(@Nonnull Display display) {
         onStart(display);
-        GameTask.runTaskTimerTimes((task, tick) -> {
-            if (tick == 0) {
-                WinCosmetic.this.onStop(display);
-                return;
-            }
 
-            WinCosmetic.this.tickTask(display, tick);
-        }, step, step, maxTimes).setShutdownAction(ShutdownAction.IGNORE);
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                if (tick >= maxTimes) {
+                    onStop(display);
+                    return;
+                }
+
+                onTick(display, tick);
+            }
+        }.shutdownAction(ShutdownAction.IGNORE)
+         .runTaskTimer(step, step);
     }
 
     public int getMaxTimes() {

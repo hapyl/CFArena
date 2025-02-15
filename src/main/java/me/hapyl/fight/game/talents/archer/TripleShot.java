@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.archer.ArcherMastery;
 import me.hapyl.fight.game.skin.archer.AbstractSkinArcher;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -23,22 +24,21 @@ public class TripleShot extends Talent {
 
     @DisplayField private final short arrowCount = 3;
     @DisplayField(suffix = "°") private final double spread = 5;
+    @DisplayField(percentage = true) private final double extraArrowDamage = 0.5d;
 
     public TripleShot(@Nonnull Key key) {
         super(key, "Triple Shot");
 
         setDescription("""
-                Shoots three arrows in front of you. Two additional arrows deal &b50%&7 of normal damage.
+                Shoot three arrows in front of you.
+                
+                The additional arrows deal &b{extraArrowDamage}&7 of normal damage.
                 """
         );
 
         setType(TalentType.DAMAGE);
         setItem(Material.ARROW);
         setCooldown(90);
-    }
-
-    public short arrowCount() {
-        return arrowCount;
     }
 
     @Override
@@ -49,7 +49,12 @@ public class TripleShot extends Talent {
             return Response.error("world is null?");
         }
 
-        shoot(player, arrowCount);
+        final ArcherMastery mastery = HeroRegistry.ARCHER.getMastery();
+
+        final int arrowCount = mastery.getTripleShotArrowCount(player, this.arrowCount);
+        final double arrowSpeed = mastery.getTripleShotArrowSpeed(player, 1.0d);
+
+        shoot(player, arrowCount, arrowSpeed);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_ARROW_SHOOT, 1.25f);
@@ -58,10 +63,15 @@ public class TripleShot extends Talent {
         return Response.OK;
     }
 
-    public void shoot(@Nonnull GamePlayer player, int amount) {
+    public void shoot(@Nonnull GamePlayer player, int amount, double arrowSpeed) {
         final double damage = HeroRegistry.ARCHER.getWeapon().getDamage();
 
         final Arrow middleArrow = spawnArrow(player);
+
+        if (arrowSpeed != 1.0d) {
+            middleArrow.setVelocity(middleArrow.getVelocity().multiply(arrowSpeed));
+        }
+
         middleArrow.setDamage(damage);
 
         boolean left = true;
@@ -70,7 +80,7 @@ public class TripleShot extends Talent {
             final Vector velocity = middleArrow.getVelocity();
 
             final Arrow arrow = spawnArrow(player);
-            arrow.setDamage(damage / 2);
+            arrow.setDamage(damage * extraArrowDamage);
             arrow.setVelocity(velocity.add(left ? player.getVectorOffsetLeft(spread) : player.getVectorOffsetRight(spread)));
 
             left = !left;

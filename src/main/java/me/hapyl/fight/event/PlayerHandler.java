@@ -61,6 +61,7 @@ import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
@@ -706,7 +707,7 @@ public final class PlayerHandler implements Listener {
         final Player player = (Player) ev.getWhoClicked();
         final PlayerProfile profile = CF.getProfile(player);
 
-        if (profile.hasTrial() || Manager.current().isGameInProgress()) {
+        if (player.getGameMode() != GameMode.CREATIVE || profile.hasTrial() || Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
         }
     }
@@ -936,6 +937,19 @@ public final class PlayerHandler implements Listener {
                 new ProjectilePostLaunchEvent(player, entity).call();
             }
         }.runTaskLater(1);
+    }
+
+    @EventHandler
+    public void handlePlayerInteractAtEntityEvent(PlayerInteractEntityEvent ev) {
+        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+        final LivingGameEntity entity = CF.getEntity(ev.getRightClicked());
+
+        if (ev.getHand() == EquipmentSlot.OFF_HAND || player == null || entity == null || player.hasCooldown(Cooldown.INTERACT)) {
+            return;
+        }
+
+        player.startCooldown(Cooldown.INTERACT);
+        entity.onInteract(player);
     }
 
     private void processLobbyDamage(@Nonnull LivingEntity entity, @Nonnull EntityDamageEvent ev) {

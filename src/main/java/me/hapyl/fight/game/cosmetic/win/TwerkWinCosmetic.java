@@ -68,7 +68,7 @@ public class TwerkWinCosmetic extends WinCosmetic {
     }
 
     @Override
-    public void tickTask(@Nonnull Display display, int tick) {
+    public void onTick(@Nonnull Display display, int tick) {
         for (Human dancer : dancers) {
             // Switch pose
             dancer.setPose(dancer.getPose() == pose ? NPCPose.CROUCHING : pose);

@@ -30,7 +30,7 @@ public class MasteryGUI extends StyledGUI {
     private final int returnPage;
 
     public MasteryGUI(Player player, Hero hero, int returnPage) {
-        super(player, "Mastery " + hero.getName(), Size.FOUR);
+        super(player, "Mastery - " + hero.getName(), Size.FOUR);
 
         this.hero = hero;
         this.returnPage = returnPage;

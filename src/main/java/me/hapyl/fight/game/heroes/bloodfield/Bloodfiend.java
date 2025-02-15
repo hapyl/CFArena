@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.bloodfield;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
@@ -45,7 +46,6 @@ import org.bukkit.entity.Bat;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
@@ -58,11 +58,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-/**
- * todo:
- *  Candlebane might need a range increase
- *  Didn't really notify Blood Chalice effect
- */
 public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
 
     @DisplayField public final short impelTimes = 3;
@@ -118,9 +113,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 &8&o;;While casting, transform into a bat and fly freely.
                 
                 While impelled, &nplayers &nmust&7 obey &b&l%s &7of your commands.
-                &8&oEntities other than players take %s damage.
+                &8&oEntities other than players take %.0f damage.
                 
-                If &4failed&7 to obey a command, they suffer &c%.0f&7 ❤ damage.
+                If &4failed&7 to obey a command, they suffer &c%.0f ❤&7 damage.
                 """.formatted(impelTimes, impelNonPlayerDamage, impelDamage));
 
         setUltimate(ultimate);
@@ -276,19 +271,15 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     }
 
     @EventHandler()
-    public void handleImpelJump(PlayerMoveEvent ev) {
+    public void handleImpelJump(PlayerJumpEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
-        final Location to = ev.getTo();
-        final Location from = ev.getFrom();
 
-        if (player == null || to == null || (to.getY() <= from.getY()) || player.isOnGround()) {
+        if (player == null) {
             return;
         }
 
         workImpel(
-                player, (impel, gamePlayer) -> {
-                    impel.complete(gamePlayer, Type.JUMP);
-                }
+                player, (impel, gamePlayer) -> impel.complete(gamePlayer, Type.JUMP)
         );
     }
 

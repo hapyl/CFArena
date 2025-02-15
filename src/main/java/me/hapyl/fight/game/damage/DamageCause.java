@@ -23,6 +23,8 @@ public class DamageCause implements Copyable {
     private DamageFormat damageFormat;
     private int damageTicks;
     private double knockBack;
+    private boolean canKill;
+    private boolean melee;
 
     private DamageCause(@Nonnull DeathMessage message) {
         this.deathMessage = message;
@@ -30,6 +32,8 @@ public class DamageCause implements Copyable {
         this.damageFormat = DamageFormat.DEFAULT;
         this.damageTicks = DEFAULT_DAMAGE_TICKS;
         this.knockBack = 1.0d;
+        this.canKill = true;
+        this.melee = false;
     }
 
     public double knockBack() {
@@ -142,10 +146,29 @@ public class DamageCause implements Copyable {
     public DamageCause createCopy() {
         final DamageCause cause = new DamageCause(this.deathMessage);
 
+        // FIXME (Sat, Feb 15 2025 @xanyjl):
         cause.flags.addAll(this.flags);
         cause.damageFormat = this.damageFormat;
 
         return cause;
+    }
+
+    public DamageCause canKill(boolean canKill) {
+        this.canKill = canKill;
+        return this;
+    }
+
+    public boolean canKill() {
+        return this.canKill;
+    }
+
+    public DamageCause melee(boolean value) {
+        this.melee = value;
+        return this;
+    }
+
+    public boolean melee() {
+        return this.melee;
     }
 
     /**

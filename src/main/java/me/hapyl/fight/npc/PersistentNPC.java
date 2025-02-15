@@ -30,7 +30,7 @@ import java.util.function.Function;
 public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate {
 
     private static final NPCFormat FORMAT = new NPCFormat(
-            new NPCFormat.TextFormat("&8[&e&lNPC&8] %s{name}: &f{text}".formatted(Color.SUCCESS)),
+            new NPCFormat.TextFormat("&e[NPC] %s{name}: &f{text}".formatted(Color.SUCCESS)),
             new NPCFormat.NameFormat("%s{name}".formatted(Color.SUCCESS))
     );
 

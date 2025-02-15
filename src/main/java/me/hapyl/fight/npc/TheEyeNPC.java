@@ -89,7 +89,7 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
         CAN_CLAIM_RELIC_REWARDS(
                 player -> CF.getDatabase(player).collectibleEntry.canClaimAnyTier(),
                 "ᴄᴀɴ ᴄʟᴀɪᴍ ʀᴇʟɪᴄ ʀᴇᴡᴀʀᴅs",
-                List.of("You found some relics, come claim the rewards!", "You have shown my the relics, get your rewards.")
+                List.of("You found some relics, come claim the rewards!", "You have shown me the relics, get your rewards.")
         ),
 
         CAN_LEVEL_UP_STABILIZER(

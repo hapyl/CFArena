@@ -19,6 +19,18 @@ public class GamePlayerCooldownManager {
         this.player = player;
     }
 
+    public void stopCooldown(@Nonnull ItemStack itemStack) {
+        setCooldown(itemStack, 0);
+    }
+
+    public void stopCooldown(@Nonnull Key key) {
+        setCooldown(key, 0);
+    }
+
+    public void stopCooldown(@Nonnull Keyed keyed) {
+        setCooldown(keyed, 0);
+    }
+
     public void setCooldown(@Nonnull ItemStack itemStack, int cd) {
         setCooldown0(itemStack, cd, false);
     }

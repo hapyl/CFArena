@@ -17,19 +17,21 @@ public class StoreCommand extends CFCommand {
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
         final String argument = args.get(0).toString();
+        final Store store = CF.getPlugin().getStore();
 
         switch (argument.toLowerCase()) {
             case "respawn" -> {
-                final Store store = CF.getPlugin().getStore();
-
                 store.removeOffers(player);
                 store.getOffers(player);
 
                 Message.success(player, "Respawned store items!");
             }
-            default -> {
-                Message.error(player, "Invalid usage!");
+            case "reset" -> {
+                store.refreshOrders(player);
+
+                Message.success(player, "Refresh orders!");
             }
+            default -> Message.error(player, "Invalid usage!");
         }
 
     }

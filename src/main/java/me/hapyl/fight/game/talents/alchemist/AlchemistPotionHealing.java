@@ -14,18 +14,18 @@ import static org.bukkit.Sound.BLOCK_BREWING_STAND_BREW;
 
 public class AlchemistPotionHealing extends AlchemistPotion {
 
-    private final double healing = 15;
+    private final double healing = 30;
+    private final double extraHealing = 10;
 
-    private final double extraHealing = 5;
     private final int extraHealingThreshold = Tick.fromSecond(3);
 
     public AlchemistPotionHealing() {
-        super("Potion of Healing", 10, Color.fromRGB(209, 13, 19));
+        super("Potion of Healing", 20, Color.fromRGB(209, 13, 19));
 
         setDescription("""
                 &aHeals&7 you for &a%.0f &c❤&7.
                 
-                If you &ndon't&7 &ntake&7 &cdamage&7 in &b%s&7 after using this potion, &aheal&7 for additional &a%.0f&7 &c❤&7.
+                If you &ndon't &ntake&7 &cdamage&7 in &b%s&7 after using this potion, &aheal&7 for additional &a%.0f&7 &c❤&7.
                 """.formatted(healing, CFUtils.formatTick(extraHealingThreshold), extraHealing)
         );
     }
@@ -50,6 +50,7 @@ public class AlchemistPotionHealing extends AlchemistPotion {
 
             // Extra healing
             if (tick == extraHealingThreshold) {
+                data.cancelActivePotion();
                 player.heal(extraHealing);
 
                 // Fx

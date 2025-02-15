@@ -159,6 +159,11 @@ public abstract class GameTask implements Runnable, BukkitTask {
         return bukkitTask.isSync();
     }
 
+    public GameTask shutdownAction(@Nonnull ShutdownAction shutdownAction) {
+        this.shutdownAction = shutdownAction;
+        return this;
+    }
+
     private void validateDoesNotExists() {
         if (bukkitTask != null) {
             throw Debug.exception(IllegalStateException.class, "Tried to register an already registered task with id %s!".formatted(getId()));

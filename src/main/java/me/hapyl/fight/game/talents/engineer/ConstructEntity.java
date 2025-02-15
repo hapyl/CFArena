@@ -5,12 +5,13 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
+import me.hapyl.fight.util.hitbox.Hitbox;
+import me.hapyl.fight.util.hitbox.HitboxEntity;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
@@ -38,46 +39,42 @@ public class ConstructEntity implements Removable, Ticking {
 
         final Location location = construct.location;
 
-        this.entity = CF.createEntity(
-                LocationHelper.addAsNew(location, 0, construct.talent.yOffset / 2, 0),
-                Entities.SLIME, self -> {
-                    final double health = construct.healthScaled().get(0, 10.0d);
+        this.entity = Hitbox.create(
+                LocationHelper.addAsNew(location, 0, construct.talent.yOffset / 2, 0), construct.getName(), construct.healthScaled().get(0, 10.0d), new Hitbox() {
+                    @Override
+                    public void onSpawn(@Nonnull HitboxEntity entity) {
+                        entity.setImmune(EnumDamageCause.SUFFOCATION);
+                        entity.setInformImmune(false);
 
-                    self.setSilent(true);
-                    self.setInvisible(true);
-                    self.setAI(false);
-                    self.setSize(3);
-                    self.setMaxHealth(health);
-                    self.setHealth(health);
+                        player.getTeam().addEntry(entity.getEntry());
+                    }
 
-                    final LivingGameEntity entity = new LivingGameEntity(self) {
-                        @Override
-                        public void onDamageTaken(@Nonnull DamageInstance instance) {
-                            player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_HURT, 1.5f);
-                        }
+                    @Override
+                    public void onDeath() {
+                    }
 
-                        @Override
-                        public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
-                            lastDamager.sendMessage("&cCannot damage allied Construct!");
-                        }
-                    };
-                    entity.setImmune(EnumDamageCause.SUFFOCATION);
-                    entity.setInformImmune(false);
-                    entity.setCustomName(construct.getName());
+                    @Override
+                    public void onDamageTaken(@Nonnull DamageInstance instance) {
+                        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_HURT, 1.5f);
+                    }
 
-                    player.getTeam().addEntry(entity.getEntry());
-
-                    return entity;
-                }
+                    @Override
+                    public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+                        lastDamager.sendMessage("&cCannot damage allied Construct!");
+                    }
+                },
+                3
         );
 
         final EngineerTalent talent = construct.talent;
 
-        this.stand = Entities.ARMOR_STAND_MARKER.spawn(location.clone().add(0, talent.yOffset, 0), self -> {
-            self.setInvisible(true);
-            self.setSmall(true);
-            self.setGravity(false);
-        });
+        this.stand = Entities.ARMOR_STAND_MARKER.spawn(
+                location.clone().add(0, talent.yOffset, 0), self -> {
+                    self.setInvisible(true);
+                    self.setSmall(true);
+                    self.setGravity(false);
+                }
+        );
 
         setDisplayEntity(0);
     }

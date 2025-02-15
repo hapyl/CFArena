@@ -31,19 +31,17 @@ import java.util.Map;
 
 public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
 
+    private static final Material EMPTY_SLOT_MATERIAL = Material.LIME_STAINED_GLASS_PANE;
     private static final ItemStack EMPTY_SLOT = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
             .setName("&aEmpty Slot!")
             .setSmartLore("There will be nothing in this slot.")
             .asIcon();
-
     private final int[] HOTBAR_SLOTS = { 27, 28, 29, 30, 31, 32, 33, 34, 35 };
     private final int UNMODIFIABLE_SLOT = 35;
-
     private final PlayerProfile profile;
     private final HotBarLoadout loadout;
     private final Hero hero;
     private final Map<ItemStack, HotBarSlot> itemToSlotMap;
-
     private int wrongClicks;
 
     public HotbarLoadoutGUI(Player player) {
@@ -144,10 +142,12 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             event.setCancelled(true);
             event.setCursor(null);
 
-            GameTask.runLater(() -> {
-                gui.setItem(slot, cursor);
-                fillMiddleRow();
-            }, 1);
+            GameTask.runLater(
+                    () -> {
+                        gui.setItem(slot, cursor);
+                        fillMiddleRow();
+                    }, 1
+            );
         }
     }
 
@@ -221,9 +221,11 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             if (itemType == Material.PLAYER_HEAD) {
                 final SkullMeta skull = (SkullMeta) item.getItemMeta();
 
-                builder.modifyMeta(SkullMeta.class, meta -> {
-                    meta.setPlayerProfile(skull.getPlayerProfile());
-                });
+                builder.modifyMeta(
+                        SkullMeta.class, meta -> {
+                            meta.setPlayerProfile(skull.getPlayerProfile());
+                        }
+                );
             }
             else {
                 builder.addLore("&8" + CFUtils.getItemName(item));
@@ -261,13 +263,26 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
     }
 
     private void fillMiddleRow() {
-        for (int i = 27; i <= 35; i++) {
-            final ItemStack item = getItem(i);
+        for (int slot = 27; slot <= 35; slot++) {
+            final ItemStack item = getItem(slot);
 
             if (item == null || item.getType().isAir()) {
-                setItem(i, EMPTY_SLOT);
+                setItem(slot, emptySlotItem(slot - 27 + 1));
             }
         }
+    }
+
+    private static ItemStack emptySlotItem(int slot) {
+        return new ItemBuilder(EMPTY_SLOT_MATERIAL)
+                .setName("&aEmpty Slot!")
+                .addTextBlockLore("""
+                        &8Hotbar Slot %1$s
+                        
+                        There is currently nothing on hotbar slot %1$s.
+                        
+                        &8&o;;Move a designated item here to this slot.
+                        """.formatted(slot))
+                .asIcon();
     }
 
 }

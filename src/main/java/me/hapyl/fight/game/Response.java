@@ -43,30 +43,41 @@ public class Response {
         }
     }
 
+    @Override
+    public String toString() {
+        return reason;
+    }
+
     @Nonnull
     public static Response error(@Nonnull String reason) {
         return new Response(reason, Type.ERROR);
     }
 
-    @Override
-    public String toString() {
-        return String.valueOf(reason);
-    }
-
     @Nonnull
     public static Response ok() {
-        return new Response(null, Type.OK);
+        return OK;
     }
 
     @Nonnull
     public static Response await() {
-        return new Response(null, Type.AWAIT);
+        return AWAIT;
     }
 
     public enum Type {
+        /**
+         * An error has occurred.
+         */
         ERROR,
+
+        /**
+         * Everything is ok.
+         */
         OK,
-        AWAIT // basically ok but does not start cooldown
+
+        /**
+         * Everything is ok, but don't start the cooldown.
+         */
+        AWAIT
     }
 
 }

@@ -28,7 +28,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @Override
     public String getDescription() {
         return """
-                The chalice will heal for &c{healingPercent}&7 of damage dealt.
+                The chalice will heal for &c{healingPercent}&7 of the damage dealt.
                 &8&o;;Only against taunted entities.
                 """;
     }
@@ -36,6 +36,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @Nonnull
     @Override
     public String getHowToRemove() {
+        // TODO (Mon, Feb 10 2025 @xanyjl): Maybe change to twinclaw like the original?
         return """
                 &4Unremovable.
                 """;

@@ -85,6 +85,7 @@ import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
+import me.hapyl.fight.game.heroes.alchemist.AbyssalCurse;
 import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
@@ -106,6 +107,7 @@ import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.alchemist.AlchemistEffect;
 import me.hapyl.fight.game.talents.engineer.Construct;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.shaman.TotemPrison;
@@ -255,13 +257,56 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         // *=* Inner commands *=* //
         register(
+                "startAndExplodeAbyssalCurse", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  new AbyssalCurse(gamePlayer, 5);
+
+                                  gamePlayer.sendMessage("&aDone!");
+                              });
+                }
+        );
+
+        register(
+                "obfString", (player, args) -> {
+                    final String text = args.get(0).toString();
+                    final int index = args.get(1).toInt();
+
+                    final String replaced = ObfString.of("&f", text, index, "&a*&b");
+
+                    Message.success(player, "Result: " + replaced);
+                }
+        );
+
+        register(
+                "randomMadnessEffect", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  final boolean isPositive = args.get(0).toBoolean();
+                                  final AlchemistEffect effect = HeroRegistry.ALCHEMIST.randomAlchemicalEffect(isPositive);
+
+                                  effect.applyMadness(gamePlayer, gamePlayer);
+                              });
+                }
+        );
+
+        register(
+                "balloon", (player, args) -> {
+                    Registries.getCosmetics().BALLOON.createBalloon(player);
+
+                    Message.success(player, "Whee!");
+                }
+        );
+
+        register(
                 "hurricane", (player, args) -> {
                     GamePlayer.getPlayerOptional(player)
                               .ifPresent(gamePlayer -> {
-                                  final int amount = args.getInt(0);
+                                  final int amount = args.get(0).toInt(1);
+                                  final double speed = args.get(1).toDouble(1.0d);
 
-                                  HeroRegistry.ARCHER.getFirstTalent().shoot(gamePlayer, amount);
-                                  gamePlayer.sendMessage("Shoot %s arrows!".formatted(amount));
+                                  HeroRegistry.ARCHER.getFirstTalent().shoot(gamePlayer, amount, speed);
+                                  gamePlayer.sendMessage("&aShot %s arrows with %s speed!".formatted(amount, speed));
                               });
                 }
         );

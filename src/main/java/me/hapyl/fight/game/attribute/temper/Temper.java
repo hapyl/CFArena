@@ -36,7 +36,7 @@ public enum Temper implements SmallCapsDescriber {
     MECHA_INDUSTRY,
     TAMING_THE_TIME(false),
     CONTAINMENT(false),
-    ALCHEMIST(false),
+    ALCHEMIST,
     WITCHER(false),
     TAMER_WOLF(false),
     TAMER_LASER,
