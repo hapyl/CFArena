@@ -43,6 +43,7 @@ import me.hapyl.fight.game.heroes.techie.Techie;
 import me.hapyl.fight.game.heroes.troll.Troll;
 import me.hapyl.fight.game.heroes.vampire.Vampire;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
+import me.hapyl.fight.game.heroes.warden.Warden;
 import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.talents.alchemist.CauldronAbility;
@@ -158,6 +159,9 @@ import me.hapyl.fight.game.talents.troll.Repulsor;
 import me.hapyl.fight.game.talents.troll.TrollSpin;
 import me.hapyl.fight.game.talents.vampire.*;
 import me.hapyl.fight.game.talents.vortex.*;
+import me.hapyl.fight.game.talents.warden.Disunion;
+import me.hapyl.fight.game.talents.warden.Fracture;
+import me.hapyl.fight.game.talents.warden.Paradox;
 import me.hapyl.fight.game.talents.witcher.*;
 import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
@@ -508,8 +512,15 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     public static final DeadEye DEAD_EYE;
     public static final SpikeBarrier SPIKE_BARRIER;
 
+    /**
+     * {@link Warden}
+     */
+    public static final Fracture FRACTURE;
+    public static final Disunion DISUNION;
+    public static final Paradox PARADOX;
     /*/ don't put anything below here /*/
     private static final Set<Talent> values;
+
 
     static {
         AbstractStaticRegistry.ensure(TalentRegistry.class, Talent.class);
@@ -721,6 +732,10 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         LUCKY_DAY = register("lucky_day", LuckyDay::new);
         DEAD_EYE = register("dead_eye", DeadEye::new);
         SPIKE_BARRIER = register("spike_barrier", SpikeBarrier::new);
+
+        FRACTURE = register("fracture", Fracture::new);
+        DISUNION = register("disunion", Disunion::new);
+        PARADOX = register("paradox", Paradox::new);
     }
 
     @Nonnull

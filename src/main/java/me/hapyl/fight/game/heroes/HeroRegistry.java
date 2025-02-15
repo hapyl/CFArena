@@ -50,6 +50,7 @@ import me.hapyl.fight.game.heroes.techie.Techie;
 import me.hapyl.fight.game.heroes.troll.Troll;
 import me.hapyl.fight.game.heroes.vampire.Vampire;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
+import me.hapyl.fight.game.heroes.warden.Warden;
 import me.hapyl.fight.game.heroes.witcher.WitcherClass;
 import me.hapyl.fight.game.heroes.zealot.Zealot;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -110,6 +111,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     @MarkedAsIncomplete public static final Gunner GUNNER;
     @MarkedAsIncomplete public static final Echo ECHO;
     public static final Himari HIMARI;
+    public static final Warden WARDEN;
 
     // *=* Tutorial Hero *=* // Please keep last
     public static final TutorialArcher TUTORIAL_ARCHER;
@@ -175,6 +177,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         GUNNER = register("gunner", Gunner::new);
         ECHO = register("echo", Echo::new);
         HIMARI = register("himari",Himari::new);
+        WARDEN = register("warden", Warden::new);
 
         // Keep last
         TUTORIAL_ARCHER = register("tutorial_archer", TutorialArcher::new);
