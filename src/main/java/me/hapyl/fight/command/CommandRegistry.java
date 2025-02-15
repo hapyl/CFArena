@@ -63,7 +63,7 @@ import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
@@ -74,7 +74,7 @@ import me.hapyl.fight.game.cosmetic.Rarity;
 import me.hapyl.fight.game.crate.Crates;
 import me.hapyl.fight.game.crate.convert.CrateConvert;
 import me.hapyl.fight.game.crate.convert.CrateConverts;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -1395,11 +1395,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "damageMeDaddy", (player, args) ->
-
-                {
+                "damageMeDaddy", (player, args) -> {
                     final double damage = args.get(0).toDouble();
-                    final EnumDamageCause cause = args.get(1).toEnum(EnumDamageCause.class, EnumDamageCause.ENTITY_ATTACK);
+                    final DamageCause cause = DamageCause.byKey(Key.ofString(args.get(1).toString()));
 
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 
@@ -1414,30 +1412,23 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "debugDamageCause", (player, args) ->
-
-                {
-                    final EnumDamageCause cause = args.get(0).toEnum(EnumDamageCause.class);
+                "debugDamageCause", (player, args) -> {
+                    final DamageCause cause = DamageCause.byKey(Key.ofString(args.get(0).toString()));
 
                     if (cause == null) {
                         Chat.sendMessage(player, "&cInvalid cause!");
                         return;
                     }
 
-                    Chat.sendMessage(player, "Name: " + cause.name());
+                    Chat.sendMessage(player, "Name: " + cause.getKey());
                     Chat.sendMessage(player, "Flags:");
 
-                    cause.getFlags().forEach(flag -> {
-                        Chat.sendMessage(player, "+ " + flag.name());
-                    });
-
+                    cause.getFlags().forEach(flag -> Chat.sendMessage(player, "+ " + flag.name()));
                 }
         );
 
         register(
-                "calculateGlobalStats", (player, args) ->
-
-                {
+                "calculateGlobalStats", (player, args) -> {
                     HeroRegistry.calculateGlobalStats();
 
                     Chat.sendMessage(player, "&aDone!");
@@ -2124,7 +2115,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     final double damage = args.get(0).toDouble(1.0d);
 
                     gamePlayer.setLastDamager(gamePlayer);
-                    gamePlayer.damage(damage, EnumDamageCause.ENTITY_ATTACK);
+                    gamePlayer.damage(damage, DamageCause.ENTITY_ATTACK);
                     Chat.sendMessage(player, "&aDamaged!");
                 }
         );
@@ -2586,7 +2577,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("simulateDeathMessage") {
             @Override
             protected void execute(Player player, String[] strings) {
-                final EnumDamageCause cause = getArgument(strings, 0).toEnum(EnumDamageCause.class);
+                final DamageCause cause = DamageCause.byKey(Key.ofString(getArgument(strings, 0).toString()));
                 final double distance = getArgument(strings, 1).toDouble();
                 final GamePlayer gamePlayer = CF.getPlayer(player);
 
@@ -2597,14 +2588,12 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Nullable
             @Override
             protected List<String> tabComplete(CommandSender sender, String[] args) {
-                return completerSort(EnumDamageCause.values(), args);
+                return completerSort(DamageCause.keys(), args);
             }
         });
 
         register(
-                "recipes", (player, args) ->
-
-                {
+                "recipes", (player, args) -> {
                     if (args.length == 0) {
                         Chat.sendMessage(player, "&cMissing argument, either 'reset' or 'clear'.");
                         return;
@@ -2627,9 +2616,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "dumpBlockNamesCSV", (player, args) ->
-
-                {
+                "dumpBlockNamesCSV", (player, args) -> {
                     Runnables.runAsync(() -> {
                         final File path = new File(Main.getPlugin().getDataFolder(), "element_types.csv");
 
@@ -2652,9 +2639,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "testEternaItemBuilderAddTrim", (player, args) ->
-
-                {
+                "testEternaItemBuilderAddTrim", (player, args) -> {
                     player.getInventory()
                           .addItem(ItemBuilder.of(Material.DIAMOND_CHESTPLATE)
                                               .setArmorTrim(TrimPattern.EYE, TrimMaterial.DIAMOND)
@@ -2663,9 +2648,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "getUuidName", (player, args) ->
-
-                {
+                "getUuidName", (player, args) -> {
                     try {
                         final UUID uuid = UUID.fromString(args.getString(0));
 
@@ -2679,25 +2662,24 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("nextTrim") {
 
             // bro just make this a fucking enum
-            private final TrimPattern[] PATTERNS =
-                    {
-                            TrimPattern.SENTRY,
-                            TrimPattern.DUNE,
-                            TrimPattern.COAST,
-                            TrimPattern.WILD,
-                            TrimPattern.WARD,
-                            TrimPattern.EYE,
-                            TrimPattern.VEX,
-                            TrimPattern.TIDE,
-                            TrimPattern.SNOUT,
-                            TrimPattern.RIB,
-                            TrimPattern.SPIRE,
-                            TrimPattern.WAYFINDER,
-                            TrimPattern.SHAPER,
-                            TrimPattern.SILENCE,
-                            TrimPattern.RAISER,
-                            TrimPattern.HOST
-                    };
+            private final TrimPattern[] PATTERNS = {
+                    TrimPattern.SENTRY,
+                    TrimPattern.DUNE,
+                    TrimPattern.COAST,
+                    TrimPattern.WILD,
+                    TrimPattern.WARD,
+                    TrimPattern.EYE,
+                    TrimPattern.VEX,
+                    TrimPattern.TIDE,
+                    TrimPattern.SNOUT,
+                    TrimPattern.RIB,
+                    TrimPattern.SPIRE,
+                    TrimPattern.WAYFINDER,
+                    TrimPattern.SHAPER,
+                    TrimPattern.SILENCE,
+                    TrimPattern.RAISER,
+                    TrimPattern.HOST
+            };
 
             @Override
             protected void execute(Player player, String[] strings) {
@@ -3989,7 +3971,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     return;
                 }
 
-                final double calcDamage = damage / (defense * Attributes.DEFENSE_SCALING + (1 - Attributes.DEFENSE_SCALING));
+                final double calcDamage = damage / (defense * BaseAttributes.DEFENSE_SCALING + (1 - BaseAttributes.DEFENSE_SCALING));
 
                 Message.success(player, "Done!");
                 Chat.sendMessage(player, "&a%.1f &8= %s DMG & %s DEF".formatted(calcDamage, damage, defense));

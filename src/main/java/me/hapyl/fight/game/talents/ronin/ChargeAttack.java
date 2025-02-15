@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.ronin;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.ronin.ChargeAttackData;
@@ -63,7 +63,7 @@ public class ChargeAttack extends Talent {
 
             Collect.nearbyEntities(location, radius, player::isNotSelfOrTeammate)
                     .forEach(entity -> {
-                        entity.damage(damage, player, EnumDamageCause.RONIN_HIT);
+                        entity.damage(damage, player, DamageCause.RONIN_HIT);
                     });
 
             // Fx

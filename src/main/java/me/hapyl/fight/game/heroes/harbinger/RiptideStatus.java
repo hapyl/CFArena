@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.harbinger;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Vectors;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
@@ -80,7 +80,7 @@ public class RiptideStatus extends PlayerData implements Ticking {
 
         GameTask.runTaskTimerTimes((task, tick) -> {
             entity.setLastDamager(player);
-            entity.damage(RIPTIDE_DAMAGE, EnumDamageCause.RIPTIDE);
+            entity.damage(RIPTIDE_DAMAGE, DamageCause.RIPTIDE);
             entity.setVelocity(Vectors.random(0.25d, 0.1d));
 
             // Fx

@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
@@ -136,7 +136,7 @@ public class AbyssalCurse extends TickingGameTask {
         HeroRegistry.ALCHEMIST.removeCurse(this);
 
         player.setLastDamager(owner);
-        player.dieBy(EnumDamageCause.ABYSS_CURSE);
+        player.dieBy(DamageCause.ABYSS_CURSE);
 
         // Fx
         final Location location = player.getMidpointLocation();

@@ -13,7 +13,7 @@ import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.NonNullItemCreator;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -56,11 +56,13 @@ public class Weapon
     private final Key key;
 
     protected double damage;
+    protected int attackCooldown;
+
     private String name;
     private String description;
     private String lore;
     private ItemStack item;
-    private EnumDamageCause damageCause;
+    private DamageCause damageCause;
 
     protected Weapon(@Nonnull Material material, @Nonnull Key key) {
         this.material = material;
@@ -71,14 +73,23 @@ public class Weapon
         this.enchants = Lists.newArrayList();
         this.abilities = Maps.newLinkedHashMap();
         this.damageCause = null;
+        this.attackCooldown = DamageCause.defaultAttackCooldown();
+    }
+
+    public int attackCooldown() {
+        return attackCooldown;
+    }
+
+    public void attackCooldown(int attackSpeed) {
+        this.attackCooldown = attackSpeed;
     }
 
     @Nullable
-    public EnumDamageCause damageCause() {
+    public DamageCause damageCause() {
         return damageCause;
     }
 
-    public void damageCause(@Nonnull EnumDamageCause damageCause) {
+    public void damageCause(@Nonnull DamageCause damageCause) {
         this.damageCause = damageCause;
     }
 
@@ -255,8 +266,8 @@ public class Weapon
                     }
 
                     Talent.preconditionAnd(gamePlayer)
-                            .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
-                            .ifFalse((pl, rs) -> rs.sendError(pl));
+                          .ifTrue((pl, rs) -> ability.execute0(pl, pl.getInventory().getItemInMainHand()))
+                          .ifFalse((pl, rs) -> rs.sendError(pl));
                 });
 
                 for (Action action : clickTypes) {
@@ -295,26 +306,24 @@ public class Weapon
         builder.modifyMeta(meta -> {
             meta.removeAttributeModifier(Attribute.ATTACK_SPEED);
 
-            meta.addAttributeModifier(Attribute.ATTACK_SPEED, new AttributeModifier(
-                    BukkitUtils.createKey(UUID.randomUUID()),
-                    0.0d,
-                    AttributeModifier.Operation.ADD_NUMBER,
-                    EquipmentSlotGroup.HAND
-            ));
+            meta.addAttributeModifier(
+                    Attribute.ATTACK_SPEED, new AttributeModifier(
+                            BukkitUtils.createKey(UUID.randomUUID()),
+                            1000.0d,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            EquipmentSlotGroup.HAND
+                    )
+            );
         });
 
         builder.setUnbreakable(true);
 
-        if (material == Material.BOW || material == Material.CROSSBOW) {
-            builder.addEnchant(Enchantment.INFINITY, 1);
-        }
-
-        if (material == Material.TRIDENT) {
-            builder.addEnchant(Enchantment.LOYALTY, 3);
+        switch (material) {
+            case BOW, CROSSBOW -> builder.addEnchant(Enchantment.INFINITY, 1);
+            case TRIDENT -> builder.addEnchant(Enchantment.LOYALTY, 3);
         }
 
         builder.hideFlags();
-
         return builder.build();
     }
 
@@ -343,6 +352,8 @@ public class Weapon
         copy.name = this.name;
         copy.description = this.description;
         copy.damage = this.damage;
+        copy.damageCause = this.damageCause;
+        copy.attackCooldown = this.attackCooldown;
         copy.enchants.addAll(this.enchants);
 
         return copy;
@@ -405,8 +416,13 @@ public class Weapon
             return this;
         }
 
-        public Builder damageCause(@Nonnull EnumDamageCause cause) {
+        public Builder damageCause(@Nonnull DamageCause cause) {
             this.weapon.damageCause(cause);
+            return this;
+        }
+
+        public Builder attackSpeed(int attackSpeed) {
+            this.weapon.attackCooldown(attackSpeed);
             return this;
         }
 

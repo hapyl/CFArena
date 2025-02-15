@@ -14,7 +14,7 @@ import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.fx.EntityFollowingParticle;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -103,7 +103,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                                 A sharp fang.
                                 """)
                         .damage(5.0d)
-                        .damageCause(EnumDamageCause.VAMPIRE_BITE)
+                        .damageCause(DamageCause.VAMPIRE_BITE)
         );
 
         final UltimateTalent ultimate = new BloodfiendUltimate();
@@ -164,9 +164,9 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
 
-        if (player == null || cause != EnumDamageCause.VAMPIRE_BITE) {
+        if (player == null || cause != DamageCause.VAMPIRE_BITE) {
             return;
         }
 
@@ -422,7 +422,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                             return;
                         }
 
-                        entity.damage(impelNonPlayerDamage, player, EnumDamageCause.IMPEL);
+                        entity.damage(impelNonPlayerDamage, player, DamageCause.IMPEL);
                     }
                 }.runTaskTimer(0, 1);
             });

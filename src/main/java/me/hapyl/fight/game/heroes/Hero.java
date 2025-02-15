@@ -544,6 +544,7 @@ public abstract class Hero
      *
      * @return this hero weapon.
      */
+    @Nonnull
     public Weapon getWeapon() {
         return weapon;
     }

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -114,7 +114,7 @@ public class Pytaria extends Hero {
     }
 
     // This is needed for "snapshot" damage.
-    public double calculateDamage(@Nonnull GamePlayer player, double damage, @Nonnull EnumDamageCause cause) {
+    public double calculateDamage(@Nonnull GamePlayer player, double damage, @Nonnull DamageCause cause) {
         return player.getAttributes().calculateOutgoingDamage(damage);
     }
 
@@ -198,7 +198,7 @@ public class Pytaria extends Hero {
                 me.setAI(false);
             });
 
-            final double finalDamage = calculateDamage(player, 25.0d, EnumDamageCause.FEEL_THE_BREEZE);
+            final double finalDamage = calculateDamage(player, 25.0d, DamageCause.FEEL_THE_BREEZE);
             final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
 
             player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
@@ -212,7 +212,7 @@ public class Pytaria extends Hero {
                         bee.remove();
 
                         Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
-                            victim.damage(finalDamage, player, EnumDamageCause.FEEL_THE_BREEZE);
+                            victim.damage(finalDamage, player, DamageCause.FEEL_THE_BREEZE);
                         });
 
                         // Heal

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -97,7 +97,7 @@ public class TwinClaw extends TickingGameTask {
             }
         }
 
-        nearestEntity.damage(damage, player, EnumDamageCause.TWINCLAW);
+        nearestEntity.damage(damage, player, DamageCause.TWINCLAW);
         remove();
 
         // Achievement

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +21,7 @@ public class Genie extends NamedEntityType {
     public Genie(@Nonnull Key key) {
         super(key, "Genie");
 
-        final Attributes attributes = getAttributes();
+        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(500);
         attributes.setAttack(125);
 

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
@@ -43,7 +43,7 @@ public class ConstructEntity implements Removable, Ticking {
                 LocationHelper.addAsNew(location, 0, construct.talent.yOffset / 2, 0), construct.getName(), construct.healthScaled().get(0, 10.0d), new Hitbox() {
                     @Override
                     public void onSpawn(@Nonnull HitboxEntity entity) {
-                        entity.setImmune(EnumDamageCause.SUFFOCATION);
+                        entity.setImmune(DamageCause.SUFFOCATION);
                         entity.setInformImmune(false);
 
                         player.getTeam().addEntry(entity.getEntry());

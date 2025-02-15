@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.maps;
 
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -97,7 +97,7 @@ public class DragonsGorge extends Level {
                         player.addEffect(Effects.SLOW, 3, 5);
                     }
                     else if (newValue >= maxColdValue && isModulo) {
-                        player.damage(damage, EnumDamageCause.COLD);
+                        player.damage(damage, DamageCause.COLD);
 
                         // Fx
                         player.playWorldSound(Sound.ENTITY_PLAYER_HURT_FREEZE, 1.5f - (1.0f / maxColdValue * newValue));

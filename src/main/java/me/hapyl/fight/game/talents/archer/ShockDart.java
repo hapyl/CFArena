@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.archer.ArcherMastery;
@@ -137,7 +137,7 @@ public class ShockDart extends Talent implements Listener {
                     final double damage = distance <= 1 ? explosionMaxDamage : (explosionMaxDamage - (distance * 2));
 
                     target.setLastDamager(player);
-                    target.damage(damage, EnumDamageCause.SHOCK_DART);
+                    target.damage(damage, DamageCause.SHOCK_DART);
                 });
 
                 // Fx

@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
@@ -96,7 +96,7 @@ public class NyxPassive extends PassiveTalent {
                     // Make the player who triggered the followup the damager,
                     // nyx gets the assist if entity dies from this attack
                     entity.setLastDamager(player);
-                    entity.damage(damage, EnumDamageCause.CHAOS);
+                    entity.damage(damage, DamageCause.CHAOS);
                 });
 
         startCd(nyx);

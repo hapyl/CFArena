@@ -22,8 +22,8 @@ public enum Effects implements Described {
     // for the game.
     SPEED(new VanillaEffect("Speed", PotionEffectType.SPEED, EffectType.POSITIVE)),
     SLOW(new VanillaEffect("Slowness", PotionEffectType.SLOWNESS, EffectType.NEGATIVE)),
-    HASTE(new VanillaEffect("Haste", PotionEffectType.HASTE, EffectType.POSITIVE)),
-    MINING_FATIGUE(new VanillaEffect("Mining Fatigue", PotionEffectType.MINING_FATIGUE, EffectType.NEGATIVE)),
+    HASTE(new VanillaEffect("Haste", PotionEffectType.HASTE, EffectType.NEUTRAL)),
+    MINING_FATIGUE(new VanillaEffect("Mining Fatigue", PotionEffectType.MINING_FATIGUE, EffectType.NEUTRAL)),
     JUMP_BOOST(new VanillaEffect("Jump Boost", PotionEffectType.JUMP_BOOST, EffectType.POSITIVE)),
     NAUSEA(new VanillaEffect("Nausea", PotionEffectType.NAUSEA, EffectType.NEGATIVE)),
     FIRE_RESISTANCE(new VanillaEffect("Fire Resistance", PotionEffectType.FIRE_RESISTANCE, EffectType.POSITIVE)),

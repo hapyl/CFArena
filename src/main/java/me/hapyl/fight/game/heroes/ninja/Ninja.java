@@ -8,7 +8,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -143,6 +143,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         return hasCooldown(player) ? "&f🌊 &l" + getCooldownFormatted(player) : "";
     }
 
+    @Nonnull
     @Override
     public NinjaWeapon getWeapon() {
         return (NinjaWeapon) super.getWeapon();
@@ -154,7 +155,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final LivingGameEntity entity = instance.getEntity();
         final NinjaWeapon weapon = getWeapon();
 
-        if (entity == player || player == null || !instance.isEntityAttack() || player.cooldownManager.hasCooldown(weapon)) {
+        if (entity == player || player == null || !instance.isMeleeAttack() || player.cooldownManager.hasCooldown(weapon)) {
             return;
         }
 
@@ -175,7 +176,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
 
     @Override
     public void processDamageAsVictim(@Nonnull DamageInstance instance) {
-        if (instance.getCause() == EnumDamageCause.FALL) {
+        if (instance.getCause() == DamageCause.FALL) {
             instance.setCancelled(true);
         }
     }
@@ -220,7 +221,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
                 40,
                 0.5d,
                 ultimateDamage,
-                EnumDamageCause.THROWING_STARS,
+                DamageCause.THROWING_STARS,
                 location -> player.spawnWorldParticle(location, Particle.FIREWORK, 1, 0.0d, 0.0d, 0.0d, 0.015f),
                 entity -> player.playWorldSound(entity.getLocation(), Sound.ITEM_TRIDENT_HIT, 2.0f)
         );

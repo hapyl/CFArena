@@ -5,7 +5,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -107,7 +107,7 @@ public class Troll extends Hero implements Listener {
 
         if (Math.random() >= 0.98) {
             entity.setLastDamager(killer);
-            entity.dieBy(EnumDamageCause.TROLL_LAUGH);
+            entity.dieBy(DamageCause.TROLL_LAUGH);
 
             entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
             entity.sendMessage("&a%s had the last laugh!".formatted(killer.getName()));

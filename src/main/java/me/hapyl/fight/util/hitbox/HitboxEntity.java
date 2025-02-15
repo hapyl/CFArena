@@ -2,7 +2,7 @@ package me.hapyl.fight.util.hitbox;
 
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.entity.LivingEntity;
@@ -48,8 +48,8 @@ public class HitboxEntity extends LivingGameEntity {
         hitbox.onInteract(player);
     }
 
-    private static Attributes defaultAttributes(double health) {
-        final Attributes attributes = new Attributes();
+    private static BaseAttributes defaultAttributes(double health) {
+        final BaseAttributes attributes = new BaseAttributes();
 
         attributes.setMaxHealth(health);
         attributes.set(AttributeType.EFFECT_RESISTANCE, 1.0d); // Kinda cheap way but it's ok

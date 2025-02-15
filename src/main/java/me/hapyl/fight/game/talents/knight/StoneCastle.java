@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -93,7 +93,7 @@ public class StoneCastle extends Talent implements Listener {
             final double splitDamage = damage * damageSplitSelf;
 
             ev.multiplyDamage(damageSplitOther);
-            teammate.damage(splitDamage, EnumDamageCause.STONE_CASTLE);
+            teammate.damage(splitDamage, DamageCause.STONE_CASTLE);
             break;
         }
     }

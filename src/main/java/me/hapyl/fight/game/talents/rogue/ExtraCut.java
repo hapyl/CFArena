@@ -9,7 +9,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -102,7 +102,7 @@ public class ExtraCut extends Talent {
                     final EntityAttributes attributes = hitEntity.getAttributes();
                     attributes.decreaseTemporary(Temper.THROWING_KNIFE, AttributeType.SPEED, speedDecrease, impairDuration, player);
 
-                    hitEntity.damage(damage, player, EnumDamageCause.THROWING_KNIFE);
+                    hitEntity.damage(damage, player, DamageCause.THROWING_KNIFE);
                     cancel();
                 }
             }

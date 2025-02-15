@@ -10,7 +10,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -112,7 +113,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
                         AlchemistEffect.ofStatTemper("took your &2&lProtection&e away", Color.fromRGB(22, 150, 8), AttributeType.DEFENSE, -0.5d, alchemicalMadnessNegativeDuration),
                         AlchemistEffect.of(
                                 "&c&lHurt&e you", Color.fromRGB(196, 39, 63), (entity, player) -> {
-                                    entity.damage(entity.getMaxHealth() * 0.3d, player, EnumDamageCause.MAGIC);
+                                    entity.damage(entity.getMaxHealth() * 0.3d, player, DamageCause.MAGIC);
                                 }
                         ),
                         AlchemistEffect.of(
@@ -144,14 +145,14 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
                         player.addEffect(Effects.POISON, 20, true);
                     }
                     else if (isToxinLevelBetween(player, 80, 99)) {
-                        player.damage(1, EnumDamageCause.TOXIN);
+                        player.damage(1, DamageCause.TOXIN);
                         player.addEffect(Effects.DARKNESS, 20, true);
                         player.addEffect(Effects.NAUSEA, 20, true);
 
                         player.removeEnergy(1, player);
                     }
                     else if (getToxinLevel(player) >= 100) {
-                        player.dieBy(EnumDamageCause.TOXIN);
+                        player.dieBy(DamageCause.TOXIN);
                     }
 
                     // Decrement toxin
@@ -211,9 +212,9 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
             return;
         }
 
-        final EnumDamageCause cause = ev.getCause();
+        final DamageCause cause = ev.getCause();
 
-        if (cause == null || !cause.isMelee()) {
+        if (cause == null || !cause.hasFlag(DamageFlag.MELEE)) {
             return;
         }
 

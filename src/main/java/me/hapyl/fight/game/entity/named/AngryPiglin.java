@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.EntityType;
 import org.bukkit.Location;
 import org.bukkit.entity.Piglin;
@@ -16,7 +16,7 @@ public class AngryPiglin extends NamedEntityType {
     public AngryPiglin(@Nonnull Key key) {
         super(key, "Angry Piglin");
 
-        final Attributes attributes = getAttributes();
+        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(100);
         attributes.setAttack(50);
 

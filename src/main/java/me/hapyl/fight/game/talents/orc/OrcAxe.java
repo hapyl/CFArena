@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -93,7 +93,7 @@ public class OrcAxe extends InputTalent {
                     // Damage and KB
                     Collect.nearbyEntities(location, 1.0d, entity -> !player.isSelfOrTeammate(entity))
                             .forEach(entity -> {
-                                entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
+                                entity.damage(15.0d, player, DamageCause.CYCLING_AXE);
 
                                 if (entity.hasEffectResistanceAndNotify(player)) {
                                     return;
@@ -162,7 +162,7 @@ public class OrcAxe extends InputTalent {
             }
 
             private void executeHit(@Nonnull Location location) {
-                CF.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> !living.equals(player));
+                CF.damageAoE(location, 2.5d, 10.0d, player, DamageCause.ORC_DASH, living -> !living.equals(player));
 
                 // Fx
                 player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);

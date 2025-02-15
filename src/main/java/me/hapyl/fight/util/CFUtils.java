@@ -21,7 +21,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.ForceCloned;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -275,7 +275,7 @@ public class CFUtils {
 
     }
 
-    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
+    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable DamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
         final Location location = shooter.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
 
@@ -416,12 +416,12 @@ public class CFUtils {
         createExplosion(location, range, damage, null, null, consumer);
     }
 
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause) {
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable DamageCause cause) {
         createExplosion(location, range, damage, damager, cause, null);
     }
 
     @Deprecated
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable DamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
         final World world = location.getWorld();
         if (world == null) {
             return;

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.zealot;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -29,7 +29,7 @@ public class SoulsRebound extends GameTask {
     @Override
     public final void run() {
         damageTaken.forEach((entity, damage) -> {
-            entity.damage(damage, player, EnumDamageCause.SOULS_REBOUND);
+            entity.damage(damage, player, DamageCause.SOULS_REBOUND);
 
             // Fx
             entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!".formatted(

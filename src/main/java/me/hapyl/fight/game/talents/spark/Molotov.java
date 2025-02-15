@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -104,7 +104,7 @@ public class Molotov extends Talent implements Listener {
                         entity.heal(fireHealing);
                     }
                     else {
-                        entity.damage(fireDamage, player, EnumDamageCause.FIRE_MOLOTOV);
+                        entity.damage(fireDamage, player, DamageCause.FIRE_MOLOTOV);
                     }
                 });
 

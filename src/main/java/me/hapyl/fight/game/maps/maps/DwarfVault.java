@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.maps;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -54,9 +54,9 @@ public class DwarfVault extends Level implements Listener {
     @EventHandler
     public void handleDamage(GameDamageEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final EnumDamageCause cause = ev.getCause();
+        final DamageCause cause = ev.getCause();
 
-        if (cause == EnumDamageCause.DWARF_LAVA) {
+        if (cause == DamageCause.DWARF_LAVA) {
             return;
         }
 
@@ -72,7 +72,7 @@ public class DwarfVault extends Level implements Listener {
         }
 
         entity.setVelocity(lavaPushVector);
-        entity.damage(lavaDamage, EnumDamageCause.DWARF_LAVA);
+        entity.damage(lavaDamage, DamageCause.DWARF_LAVA);
         entity.startCooldown(Cooldown.DWARF_LAVA);
 
         // Fx

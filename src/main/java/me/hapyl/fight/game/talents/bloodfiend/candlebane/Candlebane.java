@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.bloodfiend.candlebane;
 
 import com.google.common.collect.Lists;
 import me.hapyl.fight.fx.EntityFollowingParticle;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.Taunt;
@@ -230,7 +230,7 @@ public class Candlebane extends Taunt {
 
                 @Override
                 public void onHit(@Nonnull Location location) {
-                    entity.damageNoKnockback(talent.damagePerInterval, player, EnumDamageCause.CANDLEBANE);
+                    entity.damageNoKnockback(talent.damagePerInterval, player, DamageCause.CANDLEBANE);
                 }
             }.runTaskTimer(0, 1);
         });

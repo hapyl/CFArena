@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.frostbite;
 import com.google.common.collect.Sets;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
@@ -72,7 +72,7 @@ public class Icicles extends Talent {
                 return;
             }
 
-            entity.damage(damage, player, EnumDamageCause.FREEZE);
+            entity.damage(damage, player, DamageCause.FREEZE);
             final EntityAttributes attributes = entity.getAttributes();
 
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_CHANCE, critChanceReduction, debuffDuration, player);

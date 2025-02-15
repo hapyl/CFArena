@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -117,7 +117,7 @@ public class ActiveElement {
 
                     entityPoof();
                     players.forEach(target -> {
-                        target.damage(element.getDamage(), player, EnumDamageCause.GRAVITY_GUN);
+                        target.damage(element.getDamage(), player, DamageCause.GRAVITY_GUN);
                         element.onHit(target.getEntity(), material);
                     });
                     this.cancel();

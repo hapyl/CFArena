@@ -7,7 +7,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -37,6 +37,7 @@ public class BatSwarm extends Talent {
 
     @DisplayField private final double healthDecrease = 10;
     @DisplayField private final int impairDuration = Tick.fromSecond(8);
+    @DisplayField private final int affectPeriod = 2;
 
     private final TemperInstance temperInstance = Temper.SWARM.newInstance()
             .decrease(AttributeType.MAX_HEALTH, healthDecrease)
@@ -84,14 +85,16 @@ public class BatSwarm extends Talent {
                     return;
                 }
 
+                if (!modulo(affectPeriod)) {
+                    return;
+                }
+
                 bats.forEach(bat -> {
+
                     // Entity collision
                     Collect.nearbyEntities(bat.getLocation(), hitboxSize, player::isNotSelfOrTeammate).forEach(entity -> {
-                        if (entity.getNoDamageTicks(player) > 0) {
-                            return;
-                        }
 
-                        entity.damage(damage, player, EnumDamageCause.SWARM);
+                        entity.damage(damage, player, DamageCause.SWARM);
                         entity.addEffect(Effects.BLINDNESS, 1, 20);
 
                         // Decrease health

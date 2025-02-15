@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
@@ -113,7 +113,7 @@ public class MoonBase extends Level {
                         .stream()
                         .filter(LivingGameEntity::isInWater)
                         .forEach(player -> {
-                            player.damage(damage, EnumDamageCause.WATER);
+                            player.damage(damage, DamageCause.WATER);
                             player.playWorldSound(Sound.ENTITY_SILVERFISH_HURT, 0.75f);
                         });
             }

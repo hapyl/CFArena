@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.himari;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.Shield;
@@ -59,7 +59,7 @@ public class SpikeBarrier extends HimariTalent {
                 return;
             }
 
-            damager.damage(amount, player, EnumDamageCause.SPIKE_SHIELD);
+            damager.damage(amount, player, DamageCause.SPIKE_SHIELD);
 
             // Fx
         }

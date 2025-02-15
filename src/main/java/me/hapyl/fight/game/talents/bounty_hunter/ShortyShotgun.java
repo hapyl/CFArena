@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.bounty_hunter;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -118,7 +118,7 @@ public class ShortyShotgun extends Talent {
                     damage *= hookTalent.onHookMultiplier;
                 }
 
-                entity.damage(damage, player, EnumDamageCause.SHOTGUN);
+                entity.damage(damage, player, DamageCause.SHOTGUN);
 
                 // Knock back entity
                 entity.setVelocity(location.getDirection().normalize().multiply(1.2d).setY(0.25d));

@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.librarian;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
@@ -46,7 +46,7 @@ public class EntityDarkness extends LibrarianTalent {
                     return;
                 }
 
-                victim.damage(getCurrentValue(player), player, EnumDamageCause.DARKNESS);
+                victim.damage(getCurrentValue(player), player, DamageCause.DARKNESS);
                 victim.addEffect(Effects.PARANOIA, 20);
 
                 // Fx

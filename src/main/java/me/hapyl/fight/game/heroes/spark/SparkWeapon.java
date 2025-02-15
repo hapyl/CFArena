@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.spark;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
@@ -43,8 +43,8 @@ public class SparkWeapon extends RangeWeapon {
 
             @Nonnull
             @Override
-            public EnumDamageCause getDamageCause() {
-                return EnumDamageCause.FIRE_SPRAY;
+            public DamageCause getDamageCause() {
+                return DamageCause.FIRE_SPRAY;
             }
         };
     }

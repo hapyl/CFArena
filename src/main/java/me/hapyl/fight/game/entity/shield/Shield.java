@@ -6,7 +6,7 @@ import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.DamageFlag;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
@@ -51,17 +51,17 @@ public class Shield implements Ticking {
     /**
      * Returns true if this shield can shield form the given cause.
      * <br>
-     * By default, shields protect from any damage but {@link EnumDamageCause#FALL}.
+     * By default, shields protect from any damage but {@link DamageCause#FALL}.
      *
      * @param cause - Cause.
      * @return true if this shield can shield from the given cause; false otherwise.
      */
-    public boolean canShield(@Nullable EnumDamageCause cause) {
+    public boolean canShield(@Nullable DamageCause cause) {
         if (cause == null) {
             return true;
         }
 
-        if (cause.hasFlag(DamageFlag.PIERCING_DAMAGE) || cause == EnumDamageCause.FALL) {
+        if (cause.hasFlag(DamageFlag.PIERCING_DAMAGE) || cause == DamageCause.FALL) {
             return false;
         }
 

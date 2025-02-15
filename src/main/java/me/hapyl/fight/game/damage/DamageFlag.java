@@ -13,13 +13,6 @@ public enum DamageFlag {
     PROJECTILE,
 
     /**
-     * Is this {@link DamageCause} is named damage or vanilla damage.
-     * <p>
-     * This flag is default for named causes.
-     */
-    CUSTOM,
-
-    /**
      * Can this {@link DamageCause} crit.
      * <p>
      * This flag is default.
@@ -41,10 +34,25 @@ public enum DamageFlag {
     PIERCING_DAMAGE,
 
     /**
-     * Is this {@link DamageCause} ignores damage ticks.
-     * <br>
-     * This will ignore damage ticks and will not start them.
+     * Is this {@link DamageCause} ignores damage ticks and does not apply attack cooldown.
      */
-    IGNORES_DAMAGE_TICKS,
+    IGNORES_INVULNERABILITY_TICKS_AND_ATTACK_COOLDOWN,
+
+    /**
+     * Is this {@link DamageCause} a environment damage.
+     * <br>
+     * Environment damage
+     */
+    ENVIRONMENT,
+
+    /**
+     * Whether this {@link DamageCause} can kill.
+     */
+    CAN_KILL,
+
+    /**
+     * Whether this {@link DamageCause} should be considered a 'melee' hit.
+     */
+    MELEE,
 
 }

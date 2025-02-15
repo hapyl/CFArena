@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
@@ -42,7 +42,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
 
     public void onHit(LivingGameEntity entity) {
         entity.setLastDamager(player);
-        entity.damage(ability.damage, EnumDamageCause.RAY_OF_DEATH);
+        entity.damage(ability.damage, DamageCause.RAY_OF_DEATH);
     }
 
     @Override

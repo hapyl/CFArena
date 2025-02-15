@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -73,7 +73,7 @@ public class Ender extends Hero implements Listener {
                         return;
                     }
 
-                    player.damage(2.0d, EnumDamageCause.WATER);
+                    player.damage(2.0d, DamageCause.WATER);
                     player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 1.2f);
                 });
             }

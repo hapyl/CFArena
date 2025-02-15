@@ -9,7 +9,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -87,7 +87,7 @@ public class ArrowShield extends Talent implements Listener {
         livingEntities.forEach(entity -> {
             Temper.POISON_IVY.temper(entity, AttributeType.DEFENSE, -0.2d, poisonDuration, player);
 
-            entity.damage(explosionDamage, player, EnumDamageCause.POISON_IVY);
+            entity.damage(explosionDamage, player, DamageCause.POISON_IVY);
             entity.addEffect(Effects.POISON, poisonStrength, poisonDuration);
         });
 

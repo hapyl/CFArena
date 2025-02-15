@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.spark;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -87,7 +87,7 @@ public class Spark extends Hero {
     @Override
     public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getEntityAsPlayer();
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
 
         if (!validatePlayer(player) || cause == null) {
             return;
@@ -103,8 +103,8 @@ public class Spark extends Hero {
         }
 
         // Cancel any fire damage
-        switch (cause) {
-            case FIRE, FIRE_TICK, LAVA -> instance.setCancelled(true);
+        if (cause == DamageCause.FIRE || cause == DamageCause.FIRE_TICK || cause == DamageCause.LAVA) {
+            instance.setCancelled(true);
         }
     }
 
@@ -115,7 +115,7 @@ public class Spark extends Hero {
             public void run(int tick) {
                 getAlivePlayers().forEach(player -> {
                     if (player.isInWater()) {
-                        player.damage(inWaterDamage, EnumDamageCause.WATER);
+                        player.damage(inWaterDamage, DamageCause.WATER);
                         player.playWorldSound(Sound.ENTITY_PLAYER_HURT_DROWN, 0.75f);
                     }
                 });

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.BoundingBoxCollector;
@@ -50,7 +50,7 @@ public class TurbineFeature extends LevelFeature {
 
             // Kill em all
             killTrigger.collect(world).forEach(entity -> {
-                entity.damage(entity.getHealth() + 100, EnumDamageCause.SHREDS_AND_PIECES);
+                entity.damage(entity.getHealth() + 100, DamageCause.SHREDS_AND_PIECES);
 
                 // Fx
                 Registries.getCosmetics().BLOOD.onDisplay0(new Display(null, entity.getLocation()));

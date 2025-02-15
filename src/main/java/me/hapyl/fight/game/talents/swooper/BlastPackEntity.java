@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -115,7 +115,7 @@ public class BlastPackEntity extends TickingGameTask {
 
             // Damage and stun non-teammates
             if (!player.isTeammate(entity)) {
-                entity.damageNoKnockback(talent.damage, player, EnumDamageCause.SATCHEL);
+                entity.damageNoKnockback(talent.damage, player, DamageCause.SATCHEL);
 
                 if (shouldStun()) {
                     TalentRegistry.AKCIY.stun(entity, player, talent.stunDuration);

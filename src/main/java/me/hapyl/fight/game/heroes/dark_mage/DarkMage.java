@@ -100,7 +100,7 @@ public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataH
         final LivingGameEntity entity = instance.getEntity();
 
         // Skip Wither Rose
-        if (player == null || player.isUsingUltimate() || !instance.isEntityAttack()) {
+        if (player == null || player.isUsingUltimate() || !instance.isMeleeAttack()) {
             return;
         }
 

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -96,7 +96,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
         // The damage is done without a damager to remove the knockback,
         // and the tick damage is, so when player teleports, they can instantly hit the enemy
         entity.setLastDamager(player);
-        entity.damage(damage, EnumDamageCause.SHADOW_CLONE);
+        entity.damage(damage, DamageCause.SHADOW_CLONE);
 
         entity.addEffect(Effects.BLINDNESS, 1, 20);
         entity.triggerDebuff(player);

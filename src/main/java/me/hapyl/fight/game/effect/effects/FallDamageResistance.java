@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
@@ -24,9 +24,9 @@ public class FallDamageResistance extends Effect implements Listener {
     @EventHandler()
     public void handleDamageEvent(GameDamageEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final EnumDamageCause cause = ev.getCause();
+        final DamageCause cause = ev.getCause();
 
-        if (cause != EnumDamageCause.FALL || !entity.hasEffect(Effects.FALL_DAMAGE_RESISTANCE)) {
+        if (cause != DamageCause.FALL || !entity.hasEffect(Effects.FALL_DAMAGE_RESISTANCE)) {
             return;
         }
 

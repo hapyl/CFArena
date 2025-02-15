@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.bloodfield.impel;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import org.bukkit.Sound;
@@ -54,7 +54,7 @@ public class ImpelInstance extends Instance<Bloodfiend> {
         impel = new Impel(Type.random(), instance.impelDuration) {
             @Override
             public void onFail(GamePlayer player) {
-                player.damage(instance.impelDamage, ImpelInstance.this.player, EnumDamageCause.IMPEL);
+                player.damage(instance.impelDamage, ImpelInstance.this.player, DamageCause.IMPEL);
                 player.triggerDebuff(ImpelInstance.this.player);
 
                 player.sendMessage("&6&l🦇 &eFailed to obey %s's command! &c-%s &c❤".formatted(

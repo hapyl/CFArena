@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -84,7 +84,7 @@ public class GravityZone extends Talent {
 
                         // Damage
                         final int ticksInPull = this.ticksInPull.getOrDefault(entity, 1);
-                        entity.damage(ticksInPull * damagePerTick, player, EnumDamageCause.GRAVITY);
+                        entity.damage(ticksInPull * damagePerTick, player, DamageCause.GRAVITY);
 
                         final Vector velocity = entity.getVelocity();
                         entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));

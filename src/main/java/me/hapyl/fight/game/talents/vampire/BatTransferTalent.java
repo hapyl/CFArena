@@ -9,7 +9,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -135,7 +135,7 @@ public class BatTransferTalent extends Talent {
                            return;
                        }
 
-                       entity.damage(damage, player, EnumDamageCause.BAT_BITE);
+                       entity.damage(damage, player, DamageCause.BAT_BITE);
                        temperInstance.temper(entity, impairDuration, player);
 
                        // Fx

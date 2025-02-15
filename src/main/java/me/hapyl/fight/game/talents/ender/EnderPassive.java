@@ -4,7 +4,7 @@ package me.hapyl.fight.game.talents.ender;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.util.Collect;
@@ -46,7 +46,7 @@ public class EnderPassive extends PassiveTalent {
                 return;
             }
 
-            entity.damage(damage, gamePlayer, EnumDamageCause.ENDER_TELEPORT);
+            entity.damage(damage, gamePlayer, DamageCause.ENDER_TELEPORT);
         });
     }
 }

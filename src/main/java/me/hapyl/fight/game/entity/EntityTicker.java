@@ -32,6 +32,11 @@ public class EntityTicker {
      */
     public final EntityTick sneakTicks;
 
+    /**
+     * The numbers of ticks the entity cannot take damage from the environment.
+     */
+    public final EntityTick noEnvironmentDamageTicks;
+
     private final LivingGameEntity entity;
     private final List<Tick> tickerList;
 
@@ -44,6 +49,7 @@ public class EntityTicker {
         this.aliveTicks = register("alive", TickDirection.UP);
         this.inWaterTicks = register("in_water", TickDirection.UP, LivingGameEntity::isInWater);
         this.sneakTicks = register("sneak", TickDirection.UP, predicate -> predicate instanceof GamePlayer player && player.isSneaking());
+        this.noEnvironmentDamageTicks = register("no_environment_damage_ticks", TickDirection.DOWN);
     }
 
     @Override

@@ -151,6 +151,15 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
             false
     ),
 
+    KILL_CONFIRMATION(
+            Material.SKELETON_SKULL,
+            "Elimination/Assist Confirmation", """
+            Whether you will see a quick elimination or assist confirmation on the screen upon elimination or assisting in an elimination.
+            """,
+            Category.UI,
+            true
+    ),
+
     ///////////
     // Other //
     /// ////////

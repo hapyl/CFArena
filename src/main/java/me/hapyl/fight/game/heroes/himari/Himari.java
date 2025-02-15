@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -136,7 +136,7 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
             actionList.append(player -> {
                 //Self-damage (haram!!)
-                player.damage(20, player, EnumDamageCause.GAMBLE);
+                player.damage(20, player, DamageCause.GAMBLE);
                 player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lJudgement.",2, 80, 6);
                 return true;
             });

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.LowAttributes;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.EntityType;
@@ -20,7 +20,7 @@ public abstract class NamedEntityType implements Keyed {
 
     private final Key key;
     private final String name;
-    private final Attributes attributes;
+    private final BaseAttributes attributes;
 
     private EntityType type;
 
@@ -49,7 +49,7 @@ public abstract class NamedEntityType implements Keyed {
      * @return the attributes for this type.
      */
     @Nonnull
-    public Attributes getAttributes() {
+    public BaseAttributes getAttributes() {
         return attributes;
     }
 

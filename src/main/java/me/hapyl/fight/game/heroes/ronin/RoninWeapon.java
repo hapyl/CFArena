@@ -11,7 +11,7 @@ import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -130,7 +130,7 @@ public class RoninWeapon extends Weapon {
 
             Collect.nearbyEntities(player.getLocationInFrontFromEyes(0.75d), ability.deflectDamageRadius, player::isNotSelfOrTeammate)
                     .forEach(entity -> {
-                        entity.damageNoKnockback(deflectDamage, player, EnumDamageCause.DEFLECT);
+                        entity.damageNoKnockback(deflectDamage, player, DamageCause.DEFLECT);
 
                         // Fx
                     });

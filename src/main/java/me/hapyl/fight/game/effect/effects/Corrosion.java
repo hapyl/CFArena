@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.effect.effects;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -22,7 +22,7 @@ public class Corrosion extends Effect {
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (tick % damagePeriod == 0) {
-            entity.damage(1.0d, EnumDamageCause.CORROSION);
+            entity.damage(1.0d, DamageCause.CORROSION);
         }
     }
 

@@ -109,7 +109,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider {
         final GamePlayer damager = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (damager == null || !instance.isEntityAttack()) {
+        if (damager == null || !instance.isMeleeAttack()) {
             return;
         }
 

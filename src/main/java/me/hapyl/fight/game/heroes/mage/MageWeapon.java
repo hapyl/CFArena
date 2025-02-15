@@ -3,7 +3,6 @@ package me.hapyl.fight.game.heroes.mage;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -74,7 +73,6 @@ public class MageWeapon extends Weapon {
             final Location location = entity.getLocation();
 
             entity.addTag("LastDamage=Soul");
-            entity.damage(getDamage() / 2, player, EnumDamageCause.SOUL_WHISPER);
 
             // Fx
             entity.spawnWorldParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);

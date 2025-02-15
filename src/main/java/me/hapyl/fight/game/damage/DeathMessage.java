@@ -1,4 +1,4 @@
-package me.hapyl.fight.game;
+package me.hapyl.fight.game.damage;
 
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
@@ -29,10 +29,6 @@ public record DeathMessage(String message, String damagerSuffix) {
                 this.damagerSuffix = damagerSuffix;
             }
             else {
-                if (damagerSuffix.isBlank()) {
-                    throw new IllegalArgumentException("Damage cause is missing a damager suffix! It must either contain %s or contain a suffix!".formatted(DAMAGER_PLACEHOLDER));
-                }
-
                 this.damagerSuffix = damagerSuffix + " " + DAMAGER_PLACEHOLDER;
             }
         }
@@ -56,8 +52,8 @@ public record DeathMessage(String message, String damagerSuffix) {
         final String message = message().replace(DAMAGER_PLACEHOLDER, killerPronoun);
         final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killerPronoun);
         final String longDistanceSuffix =
-                (player.getLastDamageCause().isProjectile() && distance >= 20.0d)
-                        ? " (from %.1f meters away!)".formatted(distance)
+                (player.getLastDamageCause().hasFlag(DamageFlag.PROJECTILE) && distance >= 20.0d)
+                        ? " (from %.1f blocks away!)".formatted(distance)
                         : "";
 
         String string;
@@ -70,7 +66,7 @@ public record DeathMessage(String message, String damagerSuffix) {
             string = "%s %s %s".formatted(playerName, message, suffix + longDistanceSuffix);
         }
 
-        return "&4 ☠ " + new Gradient(string)
+        return "&4 ☠ " + new Gradient(string + ".")
                 .rgb(
                         new Color(160, 0, 0),
                         new Color(255, 51, 51),

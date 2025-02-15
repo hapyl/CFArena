@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.EntityType;
 import org.bukkit.Location;
 import org.bukkit.entity.Husk;
@@ -18,7 +18,7 @@ public class Abobo extends NamedEntityType {
 
         setType(EntityType.BOSS);
 
-        final Attributes attributes = getAttributes();
+        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(250);
         attributes.setDefense(150);
     }

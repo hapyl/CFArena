@@ -14,7 +14,7 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -119,7 +119,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             return;
         }
 
-        final EnumDamageCause cause = ev.getCause();
+        final DamageCause cause = ev.getCause();
 
         if (cause == null) {
             return;

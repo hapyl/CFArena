@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -82,7 +82,7 @@ public class SparkFlash extends Talent {
                     if ((dotProduct >= 0.4f && distance <= maxDistance) && victim.hasLineOfSight(item)) {
                         victim.addEffect(Effects.BLINDNESS, 1, flashDuration);
                         victim.playSoundAndCut(Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
-                        victim.damage(fireDamage, player, EnumDamageCause.FIRE_TICK);
+                        victim.damage(fireDamage, player, DamageCause.FIRE_TICK);
                         victim.setFireTicks(10);
                         victim.triggerDebuff(player);
                     }

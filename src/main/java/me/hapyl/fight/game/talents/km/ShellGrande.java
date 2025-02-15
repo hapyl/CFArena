@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.km;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -68,7 +68,7 @@ public class ShellGrande extends Talent {
 
             if (tick == 0) {
                 item.remove();
-                CFUtils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, EnumDamageCause.ENTITY_EXPLOSION, null);
+                CFUtils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, DamageCause.ENTITY_EXPLOSION, null);
             }
 
         }, 1, 40);

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.shaman;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Blocks;
@@ -59,7 +59,7 @@ public class SlimeGunk extends TickingGameTask {
 
             talent.temperInstance.temper(entity, 5, player);
 
-            entity.damageNoKnockback(1, player, EnumDamageCause.POISON);
+            entity.damageNoKnockback(1, player, DamageCause.POISON);
         });
 
         // Fx

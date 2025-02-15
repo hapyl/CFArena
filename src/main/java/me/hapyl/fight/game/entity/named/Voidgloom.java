@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -23,7 +23,7 @@ public class Voidgloom extends NamedEntityType implements Listener {
     public Voidgloom(@Nonnull Key key) {
         super(key, "Voidgloom Seraph");
 
-        final Attributes attributes = getAttributes();
+        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(1000);
         attributes.setDefense(50);
 

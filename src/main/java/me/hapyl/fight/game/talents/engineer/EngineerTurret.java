@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
@@ -137,7 +137,7 @@ public class EngineerTurret extends EngineerTalent {
                             return false;
                         }
 
-                        targetEntity.damageNoKnockback(damage + (getLevel() * damageIncreasePerLevel), player, EnumDamageCause.SENTRY_SHOT);
+                        targetEntity.damageNoKnockback(damage + (getLevel() * damageIncreasePerLevel), player, DamageCause.SENTRY_SHOT);
                         return true;
                     }
                 }.setIterations(3).runTaskTimer(0, 1);

@@ -10,18 +10,19 @@ public class WardenMastery extends HeroMastery {
     public WardenMastery(Hero hero) {
         super(hero);
 
-        setLevel(new WardenMastery.MasteryLevelRift(1));
-        setLevel(new WardenMastery.MasteryLevelChaos(2));
-        setLevel(new WardenMastery.MasteryLevelOblivion(3));
-        setLevel(new WardenMastery.MasteryLevelHopeless(4));
-        setLevel(new WardenMastery.MasteryLevelEnd(5));
-
+        setLevels(
+                WardenMastery.MasteryLevelRift::new,
+                WardenMastery.MasteryLevelChaos::new,
+                WardenMastery.MasteryLevelOblivion::new,
+                WardenMastery.MasteryLevelHopeless::new,
+                WardenMastery.MasteryLevelEnd::new
+        );
     }
 
     @Nonnull
     @Override
-    public Warden getHero() {
-        return (Warden) super.getHero();
+    public Warden hero() {
+        return (Warden) super.hero();
     }
 
     //TODO: Example masteries to use.

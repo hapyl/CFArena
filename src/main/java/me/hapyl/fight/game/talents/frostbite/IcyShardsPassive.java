@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.PassiveTalent;
@@ -102,7 +102,7 @@ public class IcyShardsPassive extends PassiveTalent {
                         }
 
                         temperInstance.temper(entity, impairDuration, player);
-                        entity.damage(damage, player, EnumDamageCause.ICICLE);
+                        entity.damage(damage, player, DamageCause.ICICLE);
 
                         hitIcicles.add(index);
                     }

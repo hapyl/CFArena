@@ -1,7 +1,7 @@
 package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.event.Cancellable;
@@ -41,7 +41,7 @@ public class GameDamageEvent extends CustomEvent implements Cancellable {
     }
 
     @Nullable
-    public EnumDamageCause getCause() {
+    public DamageCause getCause() {
         return instance.getCause();
     }
 

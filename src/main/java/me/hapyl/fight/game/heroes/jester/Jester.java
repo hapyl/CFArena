@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -105,7 +105,7 @@ public class Jester extends Hero implements Disabled, UIComponent, PlayerDataHan
         ev.setCancelled(true);
 
         entity.setLastDamager(theJoker);
-        entity.dieBy(EnumDamageCause.THE_JOKER);
+        entity.dieBy(DamageCause.THE_JOKER);
     }
 
     public void spawnConfetti(@Nonnull GamePlayer player, @Nonnull Location location) {

@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -64,7 +64,7 @@ public class LaserEye extends Talent {
                             }
                         },
                         entity -> {
-                            entity.damage(damage, player, EnumDamageCause.LASER);
+                            entity.damage(damage, player, DamageCause.LASER);
                             particleHit.display(entity.getMidpointLocation());
                         }
                 );

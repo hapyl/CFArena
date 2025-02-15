@@ -50,6 +50,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         setUltimate(new RoninUltimate());
     }
 
+    @Nonnull
     @Override
     public RoninWeapon getWeapon() {
         return (RoninWeapon) super.getWeapon();
@@ -60,7 +61,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         final LivingGameEntity damager = instance.getDamager();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (!(damager instanceof GamePlayer player) || !validatePlayer(player) || !instance.isEntityAttack()) {
+        if (!(damager instanceof GamePlayer player) || !validatePlayer(player) || !instance.isMeleeAttack()) {
             return;
         }
 

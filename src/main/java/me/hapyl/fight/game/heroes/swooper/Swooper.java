@@ -5,7 +5,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -87,7 +87,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final LivingGameEntity entity = instance.getEntity();
         final GamePlayer player = instance.getDamagerAsPlayer();
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
 
         if (player == null) {
             return;
@@ -96,7 +96,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
         final SwooperData data = getPlayerData(player);
 
         // Butt
-        if (cause == EnumDamageCause.ENTITY_ATTACK) {
+        if (cause == DamageCause.ENTITY_ATTACK) {
             data.lastButt = Math.max(0, data.lastButt - 1);
 
             if (data.lastButt == 0 && player.random.nextDouble() <= knockbackChance) {
@@ -112,7 +112,7 @@ public class Swooper extends Hero implements Listener, UIComplexComponent, Playe
             }
         }
 
-        if (!data.isHighlighted(entity) || cause != EnumDamageCause.RIFLE) {
+        if (!data.isHighlighted(entity) || cause != DamageCause.RIFLE) {
             return;
         }
 

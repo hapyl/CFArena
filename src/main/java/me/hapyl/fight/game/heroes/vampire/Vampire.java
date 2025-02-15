@@ -14,7 +14,7 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.BloodDebt;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -80,7 +80,7 @@ public class Vampire extends Hero implements Listener {
                                 A very sharp fang.
                                 """)
                         .damage(5.0d)
-                        .damageCause(EnumDamageCause.VAMPIRE_BITE)
+                        .damageCause(DamageCause.VAMPIRE_BITE)
         );
 
         setUltimate(new VampireUltimate());
@@ -259,7 +259,7 @@ public class Vampire extends Hero implements Listener {
                 private void doDamage(Bat bat, LivingGameEntity entity) {
                     bat.remove();
 
-                    entity.damage(ultimate.damage, player, EnumDamageCause.BAT_BITE_NO_TICK);
+                    entity.damage(ultimate.damage, player, DamageCause.BAT_BITE_NO_TICK);
                     entity.bloodDebt().incrementOfMaxHealth(ultimate.bloodDebtAmount);
 
                     final Location location = bat.getLocation();

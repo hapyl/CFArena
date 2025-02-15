@@ -7,7 +7,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -78,7 +78,7 @@ public class RoninDash extends Talent {
                 // Affect
                 Collect.nearbyEntities(player.getLocation(), 1.5d, player::isNotSelfOrTeammate)
                         .forEach(entity -> {
-                            entity.damage(damage, player, EnumDamageCause.ENTITY_ATTACK);
+                            entity.damage(damage, player, DamageCause.ENTITY_ATTACK);
 
                             final EntityAttributes attributes = entity.getAttributes();
                             attributes.decreaseTemporary(

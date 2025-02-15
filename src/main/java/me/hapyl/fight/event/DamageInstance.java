@@ -2,7 +2,8 @@ package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.event.Cancellable;
@@ -21,14 +22,13 @@ public class DamageInstance implements Cancellable {
     private final LivingGameEntity entity;
     private final double initialDamage;
 
-    protected EnumDamageCause cause;
+    protected DamageCause cause;
     protected double damage;
     protected boolean isCrit;
 
     private LivingGameEntity damager;
     private boolean cancel;
     private double critIncrease = -1;
-    private int overrideDamageTicks = -1;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity;
@@ -90,33 +90,22 @@ public class DamageInstance implements Cancellable {
     }
 
     /**
-     * Gets the {@link EnumDamageCause} of this damage.
+     * Gets the {@link DamageCause} of this damage.
      *
      * @return the cause of this damage.
      */
     @Nullable
-    public EnumDamageCause getCause() {
+    public DamageCause getCause() {
         return cause;
     }
 
     /**
-     * Sets the {@link EnumDamageCause} of this damage.
+     * Sets the {@link DamageCause} of this damage.
      *
      * @param cause - New cause.
      */
-    public void setCause(@Nullable EnumDamageCause cause) {
+    public void setCause(@Nullable DamageCause cause) {
         this.cause = cause;
-    }
-
-    /**
-     * Gets the {@link EnumDamageCause} of this damage; or default value, if the cause is <code>null</code>.
-     *
-     * @param def - Default value.
-     * @return the cause.
-     */
-    @Nonnull
-    public EnumDamageCause getCauseOr(@Nonnull EnumDamageCause def) {
-        return this.cause != null ? this.cause : def;
     }
 
     /**
@@ -223,19 +212,14 @@ public class DamageInstance implements Cancellable {
         throw new IllegalArgumentException("Entity is not a player!");
     }
 
-    /**
-     * Returns true if this cause is {@link EnumDamageCause#ENTITY_ATTACK} <code>or</code> {@link EnumDamageCause#ENTITY_ATTACK_NON_CRIT}.
-     *
-     * @return true if this cause is an entity attack.
-     */
-    public boolean isEntityAttack() {
-        return cause == EnumDamageCause.ENTITY_ATTACK || cause == EnumDamageCause.ENTITY_ATTACK_NON_CRIT;
+    public boolean isMeleeAttack() {
+        return cause.hasFlag(DamageFlag.MELEE);
     }
 
     // Calculate damage
     public void calculateDamage() {
         // True damage is, well, "true" damage.
-        if (cause != null && cause.isTrueDamage()) {
+        if (cause != null && cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
             damage = initialDamage;
             return;
         }
@@ -246,7 +230,7 @@ public class DamageInstance implements Cancellable {
             damage = damagerAttributes.calculateOutgoingDamage(initialDamage);
 
             // Calculate crit
-            final boolean shouldCrit = (cause != null && cause.isCanCrit()) && damagerAttributes.isCritical();
+            final boolean shouldCrit = (cause != null && cause.hasFlag(DamageFlag.CAN_CRIT)) && damagerAttributes.isCritical();
 
             if (shouldCrit) {
                 setCrit(true);
@@ -265,7 +249,7 @@ public class DamageInstance implements Cancellable {
         String stringDamage;
 
         if (cause != null) {
-            stringDamage = cause.getDamageCause().getDamageFormat().format(this);
+            stringDamage = cause.damageFormat().format(this);
         }
         else {
             stringDamage = "%.0f".formatted(damage);
@@ -281,26 +265,6 @@ public class DamageInstance implements Cancellable {
      */
     public boolean isDamageLethal() {
         return entity.getHealth() - damage <= 0.0d;
-    }
-
-    /**
-     * Gets the noDamageTicks for this {@link DamageInstance}, or {@code -1} if it doesn't override.
-     *
-     * @return the noDamageTicks or -1.
-     */
-    public int getOverrideDamageTicks() {
-        return overrideDamageTicks;
-    }
-
-    /**
-     * Sets the noDamageTicks for this {@link DamageInstance}.
-     * <br>
-     * If the value of {@link #getOverrideDamageTicks()} is other than {@code -1}, the noDamageTicks will be overridden with the value.
-     *
-     * @param overrideDamageTicks - No damage ticks.
-     */
-    public void setOverrideDamageTicks(int overrideDamageTicks) {
-        this.overrideDamageTicks = overrideDamageTicks;
     }
 
     protected void setLastDamager(@Nullable LivingGameEntity entity) {

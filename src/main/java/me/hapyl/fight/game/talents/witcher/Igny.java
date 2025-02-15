@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.witcher;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -54,15 +54,15 @@ public class Igny extends Talent {
             final double distance = targetLocation.distance(target.getLocation());
 
             if (isBetween(distance, 0, 1)) {
-                target.damage(damageClosest, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageClosest, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireDurationClosest);
             }
             else if (isBetween(distance, 1, 2.5)) {
-                target.damage(damageMedium, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageMedium, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksMedium);
             }
             else if (isBetween(distance, 2.5, 4.1d)) {
-                target.damage(damageFurther, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageFurther, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksFurther);
             }
         });

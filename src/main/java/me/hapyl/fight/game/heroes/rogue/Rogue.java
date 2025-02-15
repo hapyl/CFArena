@@ -10,7 +10,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -78,7 +78,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         attributes.setMaxHealth(60);
         attributes.setSpeed(130);
-        attributes.setAttackSpeed(300);
+        attributes.setAttackSpeed(150);
 
         final HeroEquipment equipment = getEquipment();
 
@@ -127,17 +127,17 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final LivingGameEntity entity = instance.getEntity();
         final LivingGameEntity damager = instance.getDamager();
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
 
         // Only replace normal attacks
-        if (cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (cause != DamageCause.ENTITY_ATTACK) {
             return;
         }
 
         instance.setCancelled(true);
 
         entity.modifyKnockback(d -> 0.7d, then -> {
-            then.damage(instance.getInitialDamage(), damager, EnumDamageCause.ROGUE_ATTACK);
+            then.damage(instance.getInitialDamage(), damager, DamageCause.ROGUE_ATTACK);
         });
     }
 
@@ -275,7 +275,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                                 hitEnemy = true;
                             }
 
-                            entity.damageNoKnockback(explosionDamage, player, EnumDamageCause.PIPE_BOMB);
+                            entity.damageNoKnockback(explosionDamage, player, DamageCause.PIPE_BOMB);
                             entity.addEffect(Effects.BLEED, bleedDuration);
                         }
 

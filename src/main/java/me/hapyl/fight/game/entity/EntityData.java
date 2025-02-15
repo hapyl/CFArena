@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
-import me.hapyl.eterna.builtin.Debuggable;
-import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
@@ -10,7 +8,7 @@ import me.hapyl.fight.annotate.Important;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.Effects;
@@ -29,13 +27,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Used to store named damage, effects, etc.
  */
-public final class EntityData implements Ticking, Debuggable {
+public final class EntityData implements Ticking {
 
     private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
 
     private final Map<Effects, ActiveGameEffect> gameEffects;
     private final Map<GamePlayer, Double> damageTaken;
-    private final Map<GameEntity, Integer> noDamageTicks;
+    private final Map<DamageCause, Integer> attackCooldown;
 
     private final Cache<GamePlayer> assistingPlayers;
 
@@ -45,13 +43,13 @@ public final class EntityData implements Ticking, Debuggable {
     boolean wasHit;
 
     @Nullable private GameEntity lastDamager;
-    @Nullable private EnumDamageCause lastDamageCause;
+    @Nullable private DamageCause lastDamageCause;
 
     public EntityData(@Nonnull LivingGameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
         this.gameEffects = Maps.newConcurrentMap();
-        this.noDamageTicks = Maps.newConcurrentMap();
+        this.attackCooldown = Maps.newConcurrentMap();
         this.assistingPlayers = Cache.ofSet(ASSIST_DURATION);
     }
 
@@ -99,7 +97,7 @@ public final class EntityData implements Ticking, Debuggable {
      * @return the last cause of the taken damage.
      */
     @Nullable
-    public EnumDamageCause getLastDamageCause() {
+    public DamageCause getLastDamageCause() {
         return lastDamageCause;
     }
 
@@ -108,18 +106,18 @@ public final class EntityData implements Ticking, Debuggable {
      *
      * @param cause - Cause.
      */
-    public void setLastDamageCause(@Nullable EnumDamageCause cause) {
+    public void setLastDamageCause(@Nullable DamageCause cause) {
         this.lastDamageCause = cause;
     }
 
     /**
-     * Gets the cause of the last taken damage, defaults to {@link EnumDamageCause#ENTITY_ATTACK}.
+     * Gets the cause of the last taken damage, defaults to {@link DamageCause#ENTITY_ATTACK}.
      *
-     * @return the cause of the last taken damage, defaults to {@link EnumDamageCause#ENTITY_ATTACK}.
+     * @return the cause of the last taken damage, defaults to {@link DamageCause#ENTITY_ATTACK}.
      */
     @Nonnull
-    public EnumDamageCause getLastDamageCauseNonNull() {
-        return lastDamageCause == null ? EnumDamageCause.ENTITY_ATTACK : lastDamageCause;
+    public DamageCause getLastDamageCauseNonNull() {
+        return lastDamageCause == null ? DamageCause.ENTITY_ATTACK : lastDamageCause;
     }
 
     /**
@@ -208,9 +206,9 @@ public final class EntityData implements Ticking, Debuggable {
      *
      * @param cause - Bukkit cause.
      */
-    public void setLastDamageCauseIfNative(EntityDamageEvent.DamageCause cause) {
+    public void setLastDamageCauseIfNative(@Nonnull EntityDamageEvent.DamageCause cause) {
         if (isNativeDamage()) {
-            lastDamageCause = EnumDamageCause.getFromCause(cause);
+            lastDamageCause = DamageCause.byBukkitCause(cause);
         }
     }
 
@@ -231,12 +229,8 @@ public final class EntityData implements Ticking, Debuggable {
      * @param type      - Effect type.
      * @param amplifier - Amplifier.
      * @param duration  - Duration. {@code -1} for infinite duration.
-     * @param override  - True to override existing effect.
-     *                  When overriding, the previous effect will be
-     *                  overridden, else the duration will be added
-     *                  to remaining ticks.
      */
-    public void addEffect(@Nonnull Effects type, int amplifier, int duration, boolean override) {
+    public void addEffect(@Nonnull Effects type, int amplifier, int duration) {
         // Check for effect resistance
         if (type.getEffect().getType() == EffectType.NEGATIVE && entity.hasEffectResistanceAndNotify()) {
             return;
@@ -246,13 +240,7 @@ public final class EntityData implements Ticking, Debuggable {
 
         if (effect != null) {
             effect.triggerUpdate();
-
-            if (override) {
-                effect.setRemainingTicks(duration);
-            }
-            else {
-                effect.addRemainingTicks(duration);
-            }
+            effect.setRemainingTicks(duration);
         }
         else {
             gameEffects.put(type, new ActiveGameEffect(entity, type, amplifier, duration));
@@ -330,29 +318,25 @@ public final class EntityData implements Ticking, Debuggable {
         // Tick effects
         gameEffects.values().forEach(ActiveGameEffect::tick);
 
-        // Tick no damage ticks
-        tickNoDamage();
+        // Tick attack cooldowns
+        tickAttackCooldowns();
     }
 
-    public int getNoDamageTicks(@Nullable GameEntity entity) {
-        return noDamageTicks.getOrDefault(entity != null ? entity : this.entity, 0);
+    public boolean hasAttackCooldown(@Nonnull DamageCause cause) {
+        final Integer cooldown = attackCooldown.get(cause);
+
+        return cooldown != null && cooldown > 0;
     }
 
-    public void setNoDamageTicks(@Nullable GameEntity entity, int ticks) {
-        noDamageTicks.put(entity != null ? entity : this.entity, ticks);
+    public void startAttackCooldown(@Nonnull DamageCause cause, int cooldown) {
+        attackCooldown.put(cause, cooldown);
     }
 
-    @Nonnull
-    @Override
-    public String toDebugString() {
-        return CollectionUtils.wrapToString(noDamageTicks);
-    }
-
-    private void tickNoDamage() {
-        final Iterator<Map.Entry<GameEntity, Integer>> iterator = noDamageTicks.entrySet().iterator();
+    private void tickAttackCooldowns() {
+        final Iterator<Map.Entry<DamageCause, Integer>> iterator = attackCooldown.entrySet().iterator();
 
         while (iterator.hasNext()) {
-            final Map.Entry<GameEntity, Integer> next = iterator.next();
+            final Map.Entry<DamageCause, Integer> next = iterator.next();
             final int value = next.getValue() - 1;
 
             if (value > 0) {
@@ -388,7 +372,7 @@ public final class EntityData implements Ticking, Debuggable {
             return;
         }
 
-        gameEntity.dieBy(EnumDamageCause.SUICIDE);
+        gameEntity.dieBy(DamageCause.SUICIDE);
     }
 
     /**

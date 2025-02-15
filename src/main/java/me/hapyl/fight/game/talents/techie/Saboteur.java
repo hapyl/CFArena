@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -110,7 +110,7 @@ public class Saboteur extends TechieTalent {
                     public void onPickup(@Nonnull GamePlayer target) {
                         // Damage
                         target.setLastDamager(target);
-                        target.damage(hackedSupplyDamage, EnumDamageCause.HACK);
+                        target.damage(hackedSupplyDamage, DamageCause.HACK);
 
                         // Fx
                         target.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 0.75f);

@@ -8,7 +8,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -122,7 +122,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             return;
         }
 
-        livingEntity.damage(weapon.getDamage(), player, EnumDamageCause.NEVERMISS);
+        livingEntity.damage(weapon.getDamage(), player, DamageCause.NEVERMISS);
         player.cooldownManager.setCooldown(weapon, nevermissCd);
 
         // Fx
@@ -165,7 +165,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !instance.isEntityAttack()) {
+        if (player == null || !instance.isMeleeAttack()) {
             return;
         }
 
@@ -189,6 +189,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                 .display(location, 3, 0.25d, 0.0d, 0.25d, 1.0f);
     }
 
+    @Nonnull
     @Override
     public ShadowAssassinWeapon getWeapon() {
         return (ShadowAssassinWeapon) super.getWeapon();

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.alphabet.AlphabetImpl;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.LevelFeature;
@@ -64,7 +64,7 @@ public class VoidFeature extends LevelFeature {
             case 6 -> subtitle = "Vulnerable to Void";
             case 7 -> {
                 subtitle = "Void Consuming You";
-                player.damage(30, EnumDamageCause.LIBRARY_VOID);
+                player.damage(30, DamageCause.LIBRARY_VOID);
                 player.addEffect(Effects.WITHER, 0, 20);
             }
         }

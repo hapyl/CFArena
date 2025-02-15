@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.knight.BlastKnightData;
@@ -115,7 +115,7 @@ public class Discharge extends Talent implements Listener {
                 return;
             }
 
-            entity.damage(damage, player, EnumDamageCause.NOVA_EXPLOSION);
+            entity.damage(damage, player, DamageCause.NOVA_EXPLOSION);
             entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-2.0d));
         });
 

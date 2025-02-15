@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -42,8 +42,8 @@ public class FrostbiteWeapon extends RangeWeapon {
 
             @Nonnull
             @Override
-            public EnumDamageCause getDamageCause() {
-                return EnumDamageCause.FROSTBITE;
+            public DamageCause getDamageCause() {
+                return DamageCause.FROSTBITE;
             }
 
             @Override

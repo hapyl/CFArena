@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -37,7 +37,7 @@ public class CauldronAbility extends Talent implements Listener {
 
                 @Override
                 public void onHit(@Nonnull LivingGameEntity entity, @Nonnull GamePlayer alchemist) {
-                    entity.damage(damage, alchemist, EnumDamageCause.POTION);
+                    entity.damage(damage, alchemist, DamageCause.POTION);
                 }
             },
 

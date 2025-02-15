@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -78,6 +78,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
         }.runTaskTimer(0, 1);
     }
 
+    @Nonnull
     @Override
     public MoonwalkerWeapon getWeapon() {
         return (MoonwalkerWeapon) super.getWeapon();
@@ -320,7 +321,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
             }
 
             Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
-                entity.damage(meteoriteDamage, executor, EnumDamageCause.METEORITE);
+                entity.damage(meteoriteDamage, executor, DamageCause.METEORITE);
                 entity.addEffect(Effects.CORROSION, corrosionTime, true);
             });
 

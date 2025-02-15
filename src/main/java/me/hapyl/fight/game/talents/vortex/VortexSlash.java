@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -73,7 +73,7 @@ public class VortexSlash extends Talent {
                         return;
                     }
 
-                    entity.damage(damage, player, EnumDamageCause.SOTS);
+                    entity.damage(damage, player, DamageCause.SOTS);
                 });
 
                 // Fx

@@ -6,7 +6,7 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -158,7 +158,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
                     return;
                 }
 
-                gamePlayer.createExplosion(arrow.getLocation(), explosionRadius, explosionDamage, EnumDamageCause.BOOM_BOW);
+                gamePlayer.createExplosion(arrow.getLocation(), explosionRadius, explosionDamage, DamageCause.BOOM_BOW);
             }
         }
     }

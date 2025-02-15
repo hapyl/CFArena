@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -90,8 +90,8 @@ public class SwooperWeapon extends RangeWeapon {
 
             @Nonnull
             @Override
-            public EnumDamageCause getDamageCause() {
-                return EnumDamageCause.RIFLE;
+            public DamageCause getDamageCause() {
+                return DamageCause.RIFLE;
             }
 
             @Override

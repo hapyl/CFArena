@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.shaman.resonance;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.Totem;
@@ -46,7 +46,7 @@ public class DamageResonance extends TotemResonance {
             }
 
             entity.setLastDamager(player);
-            entity.damage(damage, EnumDamageCause.TOTEM);
+            entity.damage(damage, DamageCause.TOTEM);
         });
 
         // Fx

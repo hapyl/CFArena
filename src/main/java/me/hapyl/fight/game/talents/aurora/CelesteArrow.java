@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.aurora;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
@@ -54,7 +54,7 @@ public class CelesteArrow extends AuroraArrowTalent {
 
     @Override
     public void onHit(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, @Nonnull DamageInstance instance) {
-        instance.setCause(EnumDamageCause.CELESTE_ARROW);
+        instance.setCause(DamageCause.CELESTE_ARROW);
 
         // If not teammate, just reduce the damage
         if (!player.isTeammate(entity)) {

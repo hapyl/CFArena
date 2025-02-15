@@ -5,9 +5,9 @@ import java.util.Random;
 
 public class AttributeRandom extends Random {
 
-    private final Attributes attributes;
+    private final BaseAttributes attributes;
 
-    public AttributeRandom(Attributes attributes) {
+    public AttributeRandom(BaseAttributes attributes) {
         this.attributes = attributes;
     }
 

@@ -26,6 +26,7 @@ import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.damage.DeathMessage;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.element.ElementCaller;
@@ -314,9 +315,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         playerPing.reset();
 
         // Update scoreboard
-        GameTask.runLater(() -> {
-            updateScoreboardTeams(true);
-        }, 5);
+        GameTask.runLater(
+                () -> {
+                    updateScoreboardTeams(true);
+                }, 5
+        );
     }
 
     @Override
@@ -391,6 +394,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
                     if (isFirstBlood) {
                         ChallengeType.FIRST_BLOOD.progress(gamePlayerKiller);
                     }
+
+                    // Kill confirmation
+                    if (gamePlayerKiller.isSettingEnabled(EnumSetting.KILL_CONFIRMATION)) {
+                        gamePlayerKiller.notifyKillConfirmation(KillConfirmation.KILL, this);
+                    }
                 }
 
                 // Check for first blood
@@ -430,6 +438,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         assistingPlayers.forEach(assist -> {
             Award.PLAYER_ASSISTED.award(assist);
             assist.stats.addValue(StatType.ASSISTS, 1);
+
+            assist.notifyKillConfirmation(KillConfirmation.ASSIST, this);
         });
 
         stats.addValue(StatType.DEATHS, 1);
@@ -620,12 +630,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public void decreaseHealth(@Nonnull DamageInstance instance) {
         super.decreaseHealth(instance);
         updateHealth();
-    }
-
-    @Nonnull
-    @Override
-    protected EntityState deathState() {
-        return EntityState.ALIVE;
     }
 
     // Update player visual health
@@ -1632,21 +1636,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         Reflect.sendPacket(getPlayer(), packet);
     }
 
-    @Override
-    public final int getNoDamageTicks(@Nullable GameEntity entity) {
-        // Players have global no damage ticks
-        return entityData.getNoDamageTicks(this);
-    }
-
-    @Override
-    public final void setNoDamageTicks(@Nullable GameEntity entity, int ticks) {
-        // Players have global no damage ticks
-        entityData.setNoDamageTicks(this, ticks);
-    }
-
     @Nonnull
     public <T extends Vehicle> T startRiding(@Nonnull Function<Player, T> fn) {
         return CF.getVehicleManager().startRiding(getPlayer(), fn);
+    }
+
+    @Override
+    public int getAttackCooldown() {
+        return getHero().getWeapon().attackCooldown();
     }
 
     /**
@@ -1691,6 +1688,19 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void chargeUltimate() {
         addEnergy(getUltimateCost());
+    }
+
+    public void notifyKillConfirmation(@Nonnull KillConfirmation confirmation, @Nonnull GamePlayer player) {
+        final GameTeam team = player.getTeam();
+
+        sendSubtitle("%s %s".formatted(confirmation.prefix(), team.getColor() + player.getName()), 0, 10, 5);
+        confirmation.onDisplay(this);
+    }
+
+    @Nonnull
+    @Override
+    protected EntityState deathState() {
+        return EntityState.ALIVE;
     }
 
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

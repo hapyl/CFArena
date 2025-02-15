@@ -9,7 +9,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -122,7 +122,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         final GamePlayer player = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || !instance.isEntityAttack()) {
+        if (player == null || !instance.isMeleeAttack()) {
             return;
         }
 
@@ -231,7 +231,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
             }
 
             entity.setLastDamager(player);
-            entity.damage(ultimateRangeDamage, EnumDamageCause.RIPTIDE);
+            entity.damage(ultimateRangeDamage, DamageCause.RIPTIDE);
 
             addRiptide(player, entity, ultimateRangeRiptide, false);
         });
@@ -332,9 +332,8 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                                 entity.setLastDamager(player);
                                 entity.damage(
                                         affected ? ultimateMeleeDamage * ultimateMeleeRiptideDamageMultiplier : ultimateMeleeDamage,
-                                        EnumDamageCause.RIPTIDE
+                                        DamageCause.RIPTIDE
                                 );
-                                entity.setNoDamageTicks(player, 30); // Prevent multiple damage
                             });
 
                             // Fx

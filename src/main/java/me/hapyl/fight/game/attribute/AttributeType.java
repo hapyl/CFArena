@@ -3,12 +3,18 @@ package me.hapyl.fight.game.attribute;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.ChatColor;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 
 public enum AttributeType implements Described {
@@ -77,8 +83,8 @@ public enum AttributeType implements Described {
                     entity.setWalkSpeed(Numbers.clamp1neg1((float) value));
                 }
             }.setChar("🌊")
-                    .setColor(ChatColor.AQUA)
-                    .setToString((type, value) -> "%.0f%%".formatted(type.scaleUp(value))),
+             .setColor(ChatColor.AQUA)
+             .setToString((type, value) -> "%.0f%%".formatted(type.scaleUp(value))),
             0.2d
     ) {
         @Override
@@ -163,28 +169,57 @@ public enum AttributeType implements Described {
     },
 
     ATTACK_SPEED(
-            new Attribute("Attack Speed", "How fast you attack.") {
+            new Attribute("Attack Speed", "Decreases the cooldown between your attacks.") {
+
+                private static final NavigableMap<Double, PotionEffect> effectMap;
+
+                static {
+                    effectMap = new TreeMap<>();
+
+                    effectMap.put(1.5d, makeEffect(PotionEffectType.HASTE, 0));
+                    effectMap.put(2.5d, makeEffect(PotionEffectType.HASTE, 1));
+                    effectMap.put(3.5d, makeEffect(PotionEffectType.HASTE, 2));
+                    effectMap.put(0.0d, makeEffect(PotionEffectType.MINING_FATIGUE, 8));
+                    effectMap.put(0.125d, makeEffect(PotionEffectType.MINING_FATIGUE, 7));
+                    effectMap.put(0.25d, makeEffect(PotionEffectType.MINING_FATIGUE, 6));
+                    effectMap.put(0.375d, makeEffect(PotionEffectType.MINING_FATIGUE, 5));
+                    effectMap.put(0.5d, makeEffect(PotionEffectType.MINING_FATIGUE, 4));
+                    effectMap.put(0.625d, makeEffect(PotionEffectType.MINING_FATIGUE, 3));
+                    effectMap.put(0.75d, makeEffect(PotionEffectType.MINING_FATIGUE, 2));
+                    effectMap.put(0.875d, makeEffect(PotionEffectType.MINING_FATIGUE, 1));
+                }
 
                 @Override
+                @SuppressWarnings("deprecation")
                 public void update(LivingGameEntity entity, double value) {
-                    final boolean isInfiniteSpeed = value == Attributes.INFINITE_ATTACK_SPEED;
+                    entity.removePotionEffect(PotionEffectType.HASTE);
+                    entity.removePotionEffect(PotionEffectType.MINING_FATIGUE);
 
-                    entity.setAttributeValue(
-                            org.bukkit.attribute.Attribute.ATTACK_SPEED,
-                            isInfiniteSpeed ? 100 : 1 + value
-                    );
+                    // Apply either haste or mining fatigue for effect only
+                    final Map.Entry<Double, PotionEffect> entry = effectMap.floorEntry(value);
+
+                    if (entry != null) {
+                        entity.addPotionEffect(entry.getValue());
+                    }
+                }
+
+                private static PotionEffect makeEffect(PotionEffectType type, int amplifier) {
+                    return new PotionEffect(type, Constants.INFINITE_DURATION, amplifier, false, false, false);
                 }
             }
                     .setChar("⚔")
                     .setColor(ChatColor.YELLOW)
-                    .setToString((type, value) -> {
-                        return value == Attributes.INFINITE_ATTACK_SPEED ? "∞" : AttributeType.doubleFormatPercent(type, value);
-                    }),
+                    .setToString(AttributeType::doubleFormatPercent),
             1.0d
     ) {
         @Override
+        public double minValue() {
+            return 0.1d; // 10%
+        }
+
+        @Override
         public double maxValue() {
-            return 10;
+            return 5d; // 500%
         }
     },
 
@@ -369,12 +404,12 @@ public enum AttributeType implements Described {
     }
 
     /**
-     * Gets the current value of this attribute from the given {@link Attributes}.
+     * Gets the current value of this attribute from the given {@link BaseAttributes}.
      *
      * @param attributes - Attributes.
      * @return the current value of thia attribute from the given attributes.
      */
-    public double get(@Nonnull Attributes attributes) {
+    public double get(@Nonnull BaseAttributes attributes) {
         return attributes.get(this);
     }
 
@@ -391,19 +426,13 @@ public enum AttributeType implements Described {
     }
 
     @Nonnull
-    public String getFormatted(@Nonnull Attributes attributes) {
+    public String getFormatted(@Nonnull BaseAttributes attributes) {
         return doFormat(attributes, AttributeType::toString);
     }
 
     @Nonnull
-    public String getFormattedScaled(@Nonnull Attributes attributes) {
+    public String getFormattedScaled(@Nonnull BaseAttributes attributes) {
         return doFormat(attributes, (t, v) -> t.toString(t.scaleUp(v)));
-    }
-
-    private String doFormat(Attributes attributes, BiFunction<AttributeType, Double, String> fn) {
-        final double value = get(attributes);
-
-        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), fn.apply(this, value));
     }
 
     public boolean isBuff(double newValue, double oldValue) {
@@ -471,6 +500,12 @@ public enum AttributeType implements Described {
     @Nonnull
     public String getCharacter() {
         return attribute.getCharacter();
+    }
+
+    private String doFormat(BaseAttributes attributes, BiFunction<AttributeType, Double, String> fn) {
+        final double value = get(attributes);
+
+        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), fn.apply(this, value));
     }
 
     /**

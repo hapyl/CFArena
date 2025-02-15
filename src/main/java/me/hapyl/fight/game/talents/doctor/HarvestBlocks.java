@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.math.nn.DoubleDouble;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -203,7 +203,7 @@ public class HarvestBlocks extends Talent {
                         return;
                     }
 
-                    entity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
+                    entity.damage(damage, player, DamageCause.GRAVITY_GUN);
                 });
 
                 player.spawnWorldParticle(location, Particle.EXPLOSION_EMITTER, 1);

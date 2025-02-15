@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.math.geometry.Drawable;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.nyx.ChaosDroplet;
@@ -144,7 +144,7 @@ public class ChaosGround extends Talent {
                         // Affect
                         Collect.nearbyEntities(location, maxDistance, player::isNotSelfOrTeammate)
                                 .forEach(entity -> {
-                                    entity.damageNoKnockback(damage, player, EnumDamageCause.CHAOS);
+                                    entity.damageNoKnockback(damage, player, DamageCause.CHAOS);
 
                                     if (entity instanceof GamePlayer playerEntity) {
                                         TalentRegistry.BLINDING_CURSE.scaryWither(playerEntity);

@@ -16,8 +16,8 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.*;
 import me.hapyl.fight.game.entity.cooldown.Cooldown;
@@ -464,17 +464,24 @@ public final class PlayerHandler implements Listener {
         // Reassign cause from the weapon if applicable
         if (damager instanceof GamePlayer playerDamager) {
             final Weapon weapon = playerDamager.getHero().getWeapon();
-            final EnumDamageCause customWeaponCause = weapon.damageCause();
+            final DamageCause customWeaponCause = weapon.damageCause();
 
             if (playerDamager.getHeldSlot() == HotBarSlot.WEAPON && customWeaponCause != null) {
                 instance.setCause(customWeaponCause);
             }
         }
 
-        final int noDamageTicks = gameEntity.getNoDamageTicks(damager);
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
+        final int noEnvironmentDamageTicksTick = gameEntity.ticker.noEnvironmentDamageTicks.getTick();
 
-        if ((cause != null && !cause.hasFlag(DamageFlag.IGNORES_DAMAGE_TICKS)) && noDamageTicks > 0) {
+        // Check for attack cooldown
+        if (damager != null && cause != null && damager.getEntityData().hasAttackCooldown(cause)) {
+            damager.playSound(Sound.BLOCK_LAVA_POP, 2.0f); // FIXME (Sat, Feb 15 2025 @xanyjl): Might be annoying
+            ev.setCancelled(true);
+            return;
+        }
+
+        if ((cause != null && cause.hasFlag(DamageFlag.ENVIRONMENT) && noEnvironmentDamageTicksTick > 0)) {
             ev.setDamage(0.0d);
             ev.setCancelled(true);
             return;
@@ -482,7 +489,7 @@ public final class PlayerHandler implements Listener {
 
         // Apply damage cause knockback
         if (cause != null) {
-            final double knockBack = (finalProjectile != null && damager != null) ? RANGE_KNOCKBACK : cause.getDamageCause().knockBack();
+            final double knockBack = (finalProjectile != null && damager != null) ? RANGE_KNOCKBACK : cause.knockBack();
             final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
 
             gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, 1 - knockBack);
@@ -563,7 +570,7 @@ public final class PlayerHandler implements Listener {
         if (lastDamager != null) {
             final EntityAttributes damagerAttributes = lastDamager.getAttributes();
             if ((instance.cause != null
-                    && instance.cause.isAllowedForFerocity())
+                    && instance.cause.isDirectDamage())
                     && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
                 final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
@@ -573,16 +580,11 @@ public final class PlayerHandler implements Listener {
             }
         }
 
-        // Yes, this is a hack before I love everyone
-        if (finalProjectile != null && lastDamager != null) {
-
-        }
-
         // Don't damage anything, only visually
         ev.setDamage(ZERO_DAMAGE); // FIXME: 0.0d causes bugs thanks mojang
 
         // Process true damage
-        if (instance.cause.isTrueDamage()) {
+        if (instance.cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
             instance.damage = initialDamage;
         }
 
@@ -624,7 +626,7 @@ public final class PlayerHandler implements Listener {
     public void handleGameDamageMonitorEvent(GameDamageMonitorEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
         final GameEntity damager = ev.getDamager();
-        final EnumDamageCause cause = Objects.requireNonNullElse(ev.getCause(), EnumDamageCause.ENTITY_ATTACK);
+        final DamageCause cause = Objects.requireNonNullElse(ev.getCause(), DamageCause.ENTITY_ATTACK);
 
         final double damage = ev.getDamage();
 
@@ -639,7 +641,7 @@ public final class PlayerHandler implements Listener {
 
             player.sendMessage(prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
                     damage,
-                    cause.getName(),
+                    cause.getReadableName(),
                     entity.getName(),
                     ev.isCritical() ? " &b&lCRIT!" : ""
             ));
@@ -648,7 +650,7 @@ public final class PlayerHandler implements Listener {
         // Incoming damage
         if (entity instanceof GamePlayer player && player.isSettingEnabled(EnumSetting.SHOW_DAMAGE_IN_CHAT)) {
             final String prefix = "&8[&c⚔&8] &f";
-            String message = "&l%.2f &ffrom &l%s".formatted(damage, cause.getName());
+            String message = "&l%.2f &ffrom &l%s".formatted(damage, cause.getReadableName());
 
             if (damager != null) {
                 message += " &fby &l" + damager.getName();
@@ -689,7 +691,7 @@ public final class PlayerHandler implements Listener {
 
         if (gameEntity != null) {
             ev.setCancelled(true);
-            gameEntity.damage(damage, player, EnumDamageCause.PROJECTILE);
+            gameEntity.damage(damage, player, DamageCause.PROJECTILE);
         }
     }
 

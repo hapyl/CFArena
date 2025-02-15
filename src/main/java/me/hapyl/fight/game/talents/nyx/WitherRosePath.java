@@ -12,7 +12,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.EntityRandom;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -116,7 +116,7 @@ public class WitherRosePath extends Talent {
         // Damage and debuff
         Collect.nearbyEntities(location, 1, player::isNotSelfOrTeammate)
                 .forEach(entity -> {
-                    entity.damage(damage, player, EnumDamageCause.NYX_SPIKE);
+                    entity.damage(damage, player, DamageCause.NYX_SPIKE);
 
                     temperInstance.temper(entity, impairDuration, player);
 

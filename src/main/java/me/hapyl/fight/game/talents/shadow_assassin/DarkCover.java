@@ -9,7 +9,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -87,7 +87,7 @@ public class DarkCover extends ShadowAssassinTalent {
                 return;
             }
 
-            entity.damage(damage, player, EnumDamageCause.DARK_ENERGY);
+            entity.damage(damage, player, DamageCause.DARK_ENERGY);
             if (regenerateEnergy) {
                 data.addEnergy(energyRegen);
             }

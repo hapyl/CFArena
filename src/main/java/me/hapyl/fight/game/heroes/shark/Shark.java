@@ -10,7 +10,7 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -141,7 +141,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !instance.isEntityAttack()) {
+        if (player == null || !instance.isMeleeAttack()) {
             return;
         }
 
@@ -268,7 +268,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
 
                     Collect.nearbyEntities(location, radius, entity -> !player.isSelfOrTeammate(entity))
                             .forEach(entity -> {
-                                entity.damage(damage, player, EnumDamageCause.SHARK_BITE);
+                                entity.damage(damage, player, DamageCause.SHARK_BITE);
                             });
 
                     // Fx

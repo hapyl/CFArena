@@ -9,15 +9,18 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.orc.OrcAxe;
 import me.hapyl.fight.game.talents.orc.OrcGrowl;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
@@ -36,11 +39,11 @@ public class Orc extends Hero implements Listener {
     private final PlayerMap<DamageData> damageMap = PlayerMap.newMap();
 
     private final TemperInstance berserk = Temper.BERSERK_MODE.newInstance(Named.BERSERK.toString())
-            .increase(AttributeType.ATTACK, 0.4d)
-            .increase(AttributeType.SPEED, 0.05d)
-            .increase(AttributeType.CRIT_CHANCE, 0.4d)
-            .decrease(AttributeType.DEFENSE, 0.6d)
-            .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
+                                                              .increase(AttributeType.ATTACK, 0.4d)
+                                                              .increase(AttributeType.SPEED, 0.05d)
+                                                              .increase(AttributeType.CRIT_CHANCE, 0.4d)
+                                                              .decrease(AttributeType.DEFENSE, 0.6d)
+                                                              .message(Named.BERSERK.getCharacter() + " &aYou're berserk!");
 
     public Orc(@Nonnull Key key) {
         super(key, "Pakarat Rakab");
@@ -76,9 +79,9 @@ public class Orc extends Hero implements Listener {
     @Override
     public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getEntityAsPlayer();
-        final EnumDamageCause cause = instance.getCauseOr(EnumDamageCause.NONE);
+        final DamageCause cause = instance.getCause();
 
-        if (cause != EnumDamageCause.ENTITY_ATTACK) {
+        if (cause == null || !cause.isDirectDamage()) {
             return;
         }
 
@@ -166,7 +169,8 @@ public class Orc extends Hero implements Listener {
                     • &aIncreased %s.
                     • &aIncreased %s.
                     • &c%.0f %s.
-                    """.formatted(Named.BERSERK,
+                    """.formatted(
+                    Named.BERSERK,
                     AttributeType.ATTACK,
                     AttributeType.SPEED,
                     AttributeType.CRIT_CHANCE,

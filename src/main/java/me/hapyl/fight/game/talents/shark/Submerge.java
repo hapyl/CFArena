@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.shark;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
@@ -37,7 +37,7 @@ public class Submerge extends TimedGameTask {
         final Location location = player.getLocation();
 
         Collect.nearbyEntities(location, talent.range, entity -> !entity.isSelfOrTeammate(player)).forEach(entity -> {
-            entity.damage(talent.damage, player, EnumDamageCause.FEET_ATTACK);
+            entity.damage(talent.damage, player, DamageCause.FEET_ATTACK);
             entity.setVelocity(entity.getDirection().multiply(-0.75d).setY(0.33d));
         });
     }

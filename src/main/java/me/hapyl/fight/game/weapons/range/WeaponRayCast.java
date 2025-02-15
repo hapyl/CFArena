@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
@@ -120,8 +120,8 @@ public class WeaponRayCast {
     }
 
     @Nonnull
-    public EnumDamageCause getDamageCause() {
-        return EnumDamageCause.RANGE_ATTACK;
+    public DamageCause getDamageCause() {
+        return DamageCause.RANGE_ATTACK;
     }
 
     @Event

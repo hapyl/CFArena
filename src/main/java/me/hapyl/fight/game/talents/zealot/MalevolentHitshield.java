@@ -4,7 +4,7 @@ package me.hapyl.fight.game.talents.zealot;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.shield.HitShield;
@@ -49,7 +49,7 @@ public class MalevolentHitshield extends Talent {
             }
 
             @Override
-            public boolean canShield(@Nullable EnumDamageCause cause) {
+            public boolean canShield(@Nullable DamageCause cause) {
                 return true; // blocks any damage
             }
 

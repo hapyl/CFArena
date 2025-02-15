@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -57,7 +57,7 @@ public class FatalReap extends Talent {
                 final double health = entity.getHealth();
                 final double damage = Math.min(health * (damagePercent / 100), entity.getMaxHealth() / 2);
 
-                entity.damage(damage, player, EnumDamageCause.RIP_BONES);
+                entity.damage(damage, player, DamageCause.RIP_BONES);
                 hitEntities.add(entity);
             }
 

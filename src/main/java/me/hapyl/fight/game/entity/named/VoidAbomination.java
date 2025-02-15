@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MultiPartLivingGameEntity;
@@ -18,7 +18,7 @@ public class VoidAbomination extends NamedEntityType {
     public VoidAbomination(@Nonnull Key key) {
         super(key, "Void Abomination");
 
-        final Attributes attributes = getAttributes();
+        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(1_000_000_000);
         attributes.setSpeed(0.05);
 

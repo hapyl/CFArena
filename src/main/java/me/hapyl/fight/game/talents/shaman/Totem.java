@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.shaman;
 
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.shaman.resonance.TotemResonance;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -88,7 +88,7 @@ public class Totem extends TickingGameTask {
                     return;
                 }
 
-                entity.damageNoKnockback(talent.explodeDamage, player, EnumDamageCause.TOTEM);
+                entity.damageNoKnockback(talent.explodeDamage, player, DamageCause.TOTEM);
             });
 
             player.playWorldSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1);
@@ -101,7 +101,7 @@ public class Totem extends TickingGameTask {
                 return;
             }
 
-            entity.damage(1, player, EnumDamageCause.TOTEM);
+            entity.damage(1, player, DamageCause.TOTEM);
         });
 
         // Fx

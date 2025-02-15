@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.orc;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -29,7 +29,7 @@ public class OrcWeapon extends Weapon {
     @DisplayField private final double damage = 16;
 
     public OrcWeapon() {
-        super(Material.IRON_AXE, Key.ofString("orc_axe"));
+        super(Material.IRON_AXE, Key.ofString("orc_weapon"));
 
         thrownAxe = PlayerMap.newMap();
 
@@ -84,7 +84,7 @@ public class OrcWeapon extends Weapon {
                 @Override
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                        gameEntity.damage(damage, player, EnumDamageCause.ORC_WEAPON);
+                        gameEntity.damage(damage, player, DamageCause.ORC_WEAPON);
                         gameEntity.addEffect(Effects.SLOW, 4, 100);
                         gameEntity.setFreezeTicks(100);
                     });

@@ -9,7 +9,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -125,7 +125,7 @@ public class BlindingCurse extends DarkMageTalent {
 
                     hitEntities.add(entity);
 
-                    entity.damageNoKnockback(damage, player, EnumDamageCause.DARKNESS_CURSE);
+                    entity.damageNoKnockback(damage, player, DamageCause.DARKNESS_CURSE);
 
                     final EntityAttributes attributes = entity.getAttributes();
                     attributes.decreaseTemporary(Temper.DARKNESS, AttributeType.SPEED, speedReduction, impairDuration, player);

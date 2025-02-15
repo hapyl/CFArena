@@ -8,7 +8,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -193,7 +193,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
                 final LivingGameEntity target = targetOutput.getEntity();
 
                 player.teleport(location);
-                target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
+                target.damage(backstabDamage, player, DamageCause.BACKSTAB);
 
                 // Fx
                 player.sendMessage("&aBackstabbed &7%s&a!".formatted(target.getName()));

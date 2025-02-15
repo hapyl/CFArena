@@ -7,7 +7,7 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -192,7 +192,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                         return;
                     }
 
-                    entity.damageNoKnockback(damage, player, EnumDamageCause.STAR_SLASH);
+                    entity.damageNoKnockback(damage, player, DamageCause.STAR_SLASH);
                 });
 
                 // Fx
@@ -249,7 +249,7 @@ public class Vortex extends Hero implements UIComplexComponent {
                             isHit = true;
 
                             entity.modifyKnockback(1 - knockback, self -> {
-                                self.damage(damage, player, EnumDamageCause.SOTS);
+                                self.damage(damage, player, DamageCause.SOTS);
                             });
                         }
 

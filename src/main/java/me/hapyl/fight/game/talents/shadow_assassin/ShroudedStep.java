@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
@@ -76,7 +76,7 @@ public class ShroudedStep extends Talent {
                         return;
                     }
 
-                    entity.damage(decoyExplosionDamage, player, EnumDamageCause.DECOY);
+                    entity.damage(decoyExplosionDamage, player, DamageCause.DECOY);
                 });
 
                 PlayerLib.spawnParticle(decoyLocation, Particle.ENCHANTED_HIT, 50, 0.5d, 0.5d, 0.5d, 0.01f);

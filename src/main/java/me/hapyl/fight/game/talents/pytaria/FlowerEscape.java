@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
@@ -56,7 +56,7 @@ public class FlowerEscape extends Talent {
         location.setYaw(0.0f);
         location.setPitch(0.0f);
 
-        final double snapshotDamage = HeroRegistry.PYTARIA.calculateDamage(player, flowerDamage, EnumDamageCause.FLOWER);
+        final double snapshotDamage = HeroRegistry.PYTARIA.calculateDamage(player, flowerDamage, DamageCause.FLOWER);
         final DisplayEntity entity = display.spawnInterpolated(location);
 
         new TimedGameTask(getDuration()) {
@@ -88,7 +88,7 @@ public class FlowerEscape extends Talent {
                         return;
                     }
 
-                    entity.damage(lastTick ? snapshotDamage * 2 : snapshotDamage, player, EnumDamageCause.FLOWER);
+                    entity.damage(lastTick ? snapshotDamage * 2 : snapshotDamage, player, DamageCause.FLOWER);
                 });
 
                 // Fx

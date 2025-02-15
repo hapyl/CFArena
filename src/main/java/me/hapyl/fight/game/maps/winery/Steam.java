@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.winery;
 
 import me.hapyl.eterna.module.util.Direction;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.features.Geyser;
 
@@ -20,7 +20,7 @@ public class Steam extends Geyser {
             return;
         }
 
-        entity.damage(1, EnumDamageCause.STEAM);
+        entity.damage(1, DamageCause.STEAM);
     }
 
 }

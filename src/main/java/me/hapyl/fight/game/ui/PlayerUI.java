@@ -14,7 +14,7 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.effect.Effect;
@@ -158,7 +158,7 @@ public class PlayerUI extends TickingGameTask {
         // Design changes if debug is enabled
         if (EnumSetting.SEE_DEBUG_DATA.isEnabled(player)) {
             final EntityAttributes attributes = gamePlayer.getAttributes();
-            final Attributes baseAttributes = attributes.getBaseAttributes();
+            final BaseAttributes baseAttributes = attributes.getBaseAttributes();
 
             // Attributes
             final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();

@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -64,7 +64,7 @@ public class BrokenHeartRadiation extends Talent {
 
                 temperInstance.temper(entity, effectDuration, player);
 
-                entity.damageNoKnockback(beamDamage, player, EnumDamageCause.RADIATION);
+                entity.damageNoKnockback(beamDamage, player, DamageCause.RADIATION);
             }
 
             @Override

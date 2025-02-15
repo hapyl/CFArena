@@ -10,8 +10,8 @@ import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.attribute.BaseAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.Outline;
@@ -54,7 +54,7 @@ public class AstralStar implements Ticking {
             slime.setSilent(true);
             slime.setInvisible(true);
 
-            final Attributes attributes = new Attributes();
+            final BaseAttributes attributes = new BaseAttributes();
             attributes.setMaxHealth(talent.healthSacrificePerStar);
 
             final LivingGameEntity entity = new LivingGameEntity(slime, attributes) {
@@ -96,7 +96,7 @@ public class AstralStar implements Ticking {
             entity.setCollision(EntityUtils.Collision.DENY);
             entity.setValidState(true);
             entity.setInformImmune(false);
-            entity.setImmune(EnumDamageCause.SUFFOCATION);
+            entity.setImmune(DamageCause.SUFFOCATION);
 
             player.getTeam().addEntry(entity.getEntry());
 

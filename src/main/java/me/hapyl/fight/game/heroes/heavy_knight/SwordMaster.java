@@ -51,7 +51,7 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         final HeroAttributes attributes = getAttributes();
         attributes.setDefense(150);
         attributes.setSpeed(60);
-        attributes.setAttackSpeed(20);
+        attributes.setAttackSpeed(50);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(Material.NETHERITE_CHESTPLATE, TrimPattern.HOST, TrimMaterial.NETHERITE);

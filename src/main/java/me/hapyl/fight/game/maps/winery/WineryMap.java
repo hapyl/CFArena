@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.HiddenLevelFeature;
@@ -142,7 +142,7 @@ public class WineryMap extends Level {
 
                     if (tick > 0 && tick % frequency == 0) {
                         player.getWorld().strikeLightningEffect(player.getEyeLocation());
-                        player.damage(2, EnumDamageCause.LIGHTNING);
+                        player.damage(2, DamageCause.LIGHTNING);
                     }
                 });
             }

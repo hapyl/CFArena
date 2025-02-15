@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
 import me.hapyl.eterna.module.util.Described;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.tamer.TamerTimed;
 import me.hapyl.fight.util.CFUtils;
@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class TamerPack implements Described, TamerTimed, DisplayFieldProvider {
 
-    protected final Attributes attributes;
+    protected final BaseAttributes attributes;
 
     private final String name;
     private final String description;
@@ -27,7 +27,7 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
         this.description = description;
         this.type = type;
         this.duration = 100;
-        this.attributes = new Attributes();
+        this.attributes = new BaseAttributes();
     }
 
     @Nonnull
@@ -43,7 +43,7 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
     }
 
     @Nonnull
-    public Attributes getAttributes() {
+    public BaseAttributes getAttributes() {
         return attributes;
     }
 

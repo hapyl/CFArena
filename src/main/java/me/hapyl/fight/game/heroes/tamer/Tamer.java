@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -132,7 +132,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
                 }
 
                 gameEntity.setLastDamager(gamePlayer);
-                gameEntity.damage(WEAPON_DAMAGE, EnumDamageCause.LEASHED);
+                gameEntity.damage(WEAPON_DAMAGE, DamageCause.LEASHED);
             });
 
             hook.remove();

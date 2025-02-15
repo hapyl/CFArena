@@ -11,9 +11,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class Attributes implements Copyable {
-
-    public static final double INFINITE_ATTACK_SPEED = 9.99d;
+public class BaseAttributes implements Copyable {
 
     public static final double DEFENSE_SCALING = 0.5d;
     public static final double ATTACK_SPEED_SCALING = Math.PI * 2 / 10;
@@ -21,12 +19,12 @@ public class Attributes implements Copyable {
     protected final Map<AttributeType, Double> mapped;
     protected final AttributeRandom random;
 
-    public Attributes(LivingEntity entity) {
+    public BaseAttributes(@Nonnull LivingEntity entity) {
         this();
         setMaxHealth(entity.getHealth());
     }
 
-    public Attributes() {
+    public BaseAttributes() {
         mapped = Maps.newHashMap();
         random = new AttributeRandom(this);
 
@@ -259,15 +257,6 @@ public class Attributes implements Copyable {
     }
 
     /**
-     * Sets the {@link AttributeType#ATTACK_SPEED} to be "infinite".
-     * <p>
-     * This will allow spamming the weapon like in 1.8 and will remove the indicator.
-     */
-    public void setInfiniteAttackSpeed() {
-        set(AttributeType.ATTACK_SPEED, INFINITE_ATTACK_SPEED);
-    }
-
-    /**
      * Sets the {@link AttributeType#KNOCKBACK_RESISTANCE} value for this attribute.
      *
      * @param value - New value.
@@ -404,11 +393,15 @@ public class Attributes implements Copyable {
 
     @Nonnull
     @Override
-    public Attributes createCopy() {
-        final Attributes copy = new Attributes();
+    public BaseAttributes createCopy() {
+        final BaseAttributes copy = new BaseAttributes();
         copy.mapped.putAll(mapped);
 
         return copy;
+    }
+
+    public int calculateAttackCooldown(double cooldown) {
+        return (int) (cooldown * (1 / get(AttributeType.ATTACK_SPEED)));
     }
 
     @Override

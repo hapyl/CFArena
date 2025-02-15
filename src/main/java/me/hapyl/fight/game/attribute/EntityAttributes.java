@@ -30,14 +30,14 @@ import java.util.function.Consumer;
  *
  * @see #get(AttributeType)
  */
-public class EntityAttributes extends Attributes implements PlayerElementHandler {
+public class EntityAttributes extends BaseAttributes implements PlayerElementHandler {
 
     protected final AttributeTemperTable tempers;
 
     private final LivingGameEntity entity;
-    private final Attributes baseAttributes;
+    private final BaseAttributes baseAttributes;
 
-    public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
+    public EntityAttributes(LivingGameEntity entity, BaseAttributes baseAttributes) {
         this.entity = entity;
         this.baseAttributes = baseAttributes.createCopy();
         this.tempers = new AttributeTemperTable(this);
@@ -235,7 +235,7 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
      * @return the base attributes.
      */
     @Nonnull
-    public Attributes getBaseAttributes() {
+    public BaseAttributes getBaseAttributes() {
         return baseAttributes;
     }
 
@@ -260,6 +260,11 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
         tempers.cancel(temper);
     }
 
+    @Override
+    public String toString() {
+        return entity.toString() + super.toString();
+    }
+
     private void display(AttributeType type, boolean isBuff) {
         final Location location = entity.getMidpointLocation();
 
@@ -268,11 +273,5 @@ public class EntityAttributes extends Attributes implements PlayerElementHandler
                 : new DebuffDisplay("&c&l▼ %s &c&l▼".formatted(type), 30);
 
         display.display(location);
-    }
-
-
-    @Override
-    public String toString() {
-        return entity.toString() + super.toString();
     }
 }

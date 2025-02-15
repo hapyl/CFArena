@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -244,7 +244,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
                             Collect.nearbyEntities(hitLocation, 2.0d, living -> living.isValid(player))
                                     .forEach(entity -> {
-                                        entity.damage(damage, player, EnumDamageCause.EMBODIMENT_OF_DEATH);
+                                        entity.damage(damage, player, DamageCause.EMBODIMENT_OF_DEATH);
                                         player.heal(healing);
                                     });
 

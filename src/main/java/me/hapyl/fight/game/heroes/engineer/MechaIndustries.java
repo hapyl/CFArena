@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.heroes.engineer;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import org.bukkit.EntityEffect;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -24,23 +24,25 @@ public class MechaIndustries extends TimedGameTask implements Removable {
 
         this.player = player;
         this.engineer = engineer;
-        this.golem = CF.createEntity(player.getLocation(), Entities.IRON_GOLEM, self -> {
-            self.setPlayerCreated(true);
-            self.setAI(false);
+        this.golem = CF.createEntity(
+                player.getLocation(), Entities.IRON_GOLEM, self -> {
+                    self.setPlayerCreated(true);
+                    self.setAI(false);
 
-            final Attributes attributes = new Attributes();
-            final Engineer.EngineerUltimate ultimate = engineer.getUltimate();
+                    final BaseAttributes attributes = new BaseAttributes();
+                    final Engineer.EngineerUltimate ultimate = engineer.getUltimate();
 
-            attributes.setMaxHealth(ultimate.mechaHealth);
-            attributes.setDefense(ultimate.mechaDefense);
+                    attributes.setMaxHealth(ultimate.mechaHealth);
+                    attributes.setDefense(ultimate.mechaDefense);
 
-            player.hideEntity(self);
+                    player.hideEntity(self);
 
-            final LivingGameEntity entity = new LivingGameEntity(self, attributes);
-            entity.setValidState(true);
+                    final LivingGameEntity entity = new LivingGameEntity(self, attributes);
+                    entity.setValidState(true);
 
-            return entity;
-        });
+                    return entity;
+                }
+        );
 
         player.getTeam().addEntry(golem.getEntry());
         player.addEffect(Effects.INVISIBILITY, 100000, true);
@@ -70,10 +72,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             return;
         }
 
-        final int noDamageTicks = golem.getNoDamageTicks();
-        final int maximumNoDamageTicks = golem.getMaximumNoDamageTicks();
-
-        if (noDamageTicks <= maximumNoDamageTicks / 2 && golem.isInWater()) {
+        if (modulo(10) && golem.isInWater()) {
             golem.damage(engineer.ultimateInWaterDamage);
         }
 

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -105,7 +105,7 @@ public class Updraft extends Talent implements Listener {
                         return;
                     }
 
-                    entity.damageNoKnockback(plungeDamage, player, EnumDamageCause.PLUNGE);
+                    entity.damageNoKnockback(plungeDamage, player, DamageCause.PLUNGE);
                     SwordMaster.addSuccessfulTalent(player, Updraft.this);
                 });
 

@@ -11,7 +11,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -80,9 +80,9 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
-        final EnumDamageCause cause = instance.getCause();
+        final DamageCause cause = instance.getCause();
 
-        if (player == null || cause != EnumDamageCause.FEROCITY || player.isUsingUltimate()) {
+        if (player == null || cause != DamageCause.FEROCITY || player.isUsingUltimate()) {
             return;
         }
 

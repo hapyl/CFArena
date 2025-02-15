@@ -5,7 +5,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
@@ -84,7 +84,7 @@ public class DeadEye extends HimariTalent {
 
             private void deadShot() {
                 temperInstance.temper(player, 5);
-                target.damage(baseDamage, player, EnumDamageCause.DEAD_EYE);
+                target.damage(baseDamage, player, DamageCause.DEAD_EYE);
 
                 // Fx
                 player.playWorldSound(Sound.ENTITY_ZOMBIE_INFECT, 0.34f);

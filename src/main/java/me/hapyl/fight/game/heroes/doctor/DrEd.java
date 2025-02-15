@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -78,7 +78,7 @@ public class DrEd extends Hero implements UIComponent {
                     if (nearest != null) {
                         final Material material = shield.getMaterial();
 
-                        nearest.damage(shield.getType().getElement().getDamage(), player, EnumDamageCause.BLOCK_SHIELD);
+                        nearest.damage(shield.getType().getElement().getDamage(), player, DamageCause.BLOCK_SHIELD);
 
                         shield.remove();
                         scheduleNextShield(player, 10);

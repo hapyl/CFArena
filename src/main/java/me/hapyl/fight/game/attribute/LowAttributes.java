@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.attribute;
 
-public class LowAttributes extends Attributes {
+public class LowAttributes extends BaseAttributes {
 
     public LowAttributes() {
         setMaxHealth(20);

@@ -10,7 +10,7 @@ import me.hapyl.fight.database.Database;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.crate.CrateManager;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -344,7 +344,7 @@ public final class CF {
      * @return list of affected entities.
      */
     @Nonnull
-    public static List<LivingGameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
+    public static List<LivingGameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable LivingGameEntity damager, @Nullable DamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
         final List<LivingGameEntity> entities = Collect.nearbyEntities(location, radius).stream().filter(predicate).toList();
 
         for (LivingGameEntity entity : entities) {
@@ -366,7 +366,7 @@ public final class CF {
      * @return list of affected entities.
      */
     @Nonnull
-    public static List<LivingGameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable EnumDamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
+    public static List<LivingGameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable DamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
         return damageAoE(location, damage, radius, CF.getEntity(damager), cause, predicate);
     }
 
