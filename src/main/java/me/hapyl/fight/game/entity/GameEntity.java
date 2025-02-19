@@ -13,7 +13,6 @@ import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
-import me.hapyl.fight.util.CFUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -105,8 +104,8 @@ public class GameEntity {
     }
 
     @Nonnull
-    public final String getNameUnformatted() {
-        return CFUtils.stripColor(getName());
+    public String getNameUnformatted() {
+        return entity.getName();
     }
 
     @Nonnull
@@ -357,6 +356,18 @@ public class GameEntity {
     @Nullable
     public String getCustomName() {
         return this.entity.getCustomName();
+    }
+
+    @Nonnull
+    public String getNameWithTeamColor() {
+        final GameTeam team = getTeam();
+
+        return (team != null ? team.getColor() : "") + getNameUnformatted();
+    }
+
+    @Nullable
+    public GameTeam getTeam() {
+        return GameTeam.getEntryTeam(getEntry());
     }
 
     public void setCustomName(@Nullable String name) {

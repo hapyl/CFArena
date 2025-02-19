@@ -1,22 +1,23 @@
 package me.hapyl.fight.game.damage;
 
-import me.hapyl.eterna.module.chat.Gradient;
-import me.hapyl.eterna.module.chat.gradient.Interpolators;
+import me.hapyl.eterna.module.annotate.NotEmpty;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
 
-public record DeathMessage(String message, String damagerSuffix) {
+public record DeathMessage(@Nonnull String message, @Nonnull String damagerSuffix) {
 
     private static final String DAMAGER_PLACEHOLDER = "{damager}";
+    private static final String DEFAULT_COLOR = ChatColor.DARK_RED.toString();
+    private static final double PROJECTILE_DISTANCE_THRESHOLD = 15d;
 
-    public DeathMessage(String message, String damagerSuffix) {
+    public DeathMessage(@Nonnull String message, @Nonnull String damagerSuffix) {
         this.message = message;
 
         // If a message has placeholder, then damagerSuffix is not needed
@@ -34,46 +35,31 @@ public record DeathMessage(String message, String damagerSuffix) {
         }
     }
 
-    public String formatMessage(String damager) {
-        return message.replace(DAMAGER_PLACEHOLDER, damager);
-    }
-
-    public String formatSuffix(String damager) {
-        if (damagerSuffix.isBlank()) {
-            return "";
-        }
-
-        return damagerSuffix.replace(DAMAGER_PLACEHOLDER, damager);
-    }
-
     @Nonnull
     public String format(@Nonnull GamePlayer player, @Nullable GameEntity killer, double distance) {
-        final String killerPronoun = getValidPronoun(killer);
-        final String message = message().replace(DAMAGER_PLACEHOLDER, killerPronoun);
-        final String suffix = damagerSuffix().replace(DAMAGER_PLACEHOLDER, killerPronoun);
-        final String longDistanceSuffix =
-                (player.getLastDamageCause().hasFlag(DamageFlag.PROJECTILE) && distance >= 20.0d)
-                        ? " (from %.1f blocks away!)".formatted(distance)
-                        : "";
+        final StringBuilder builder = new StringBuilder("&4 ☠ " + DEFAULT_COLOR);
 
-        String string;
-        final String playerName = player.getName();
+        // Append the base message
+        builder.append(player.getNameWithTeamColor()).append(DEFAULT_COLOR).append(" ").append(message);
 
-        if (killerPronoun.isBlank()) {
-            string = "%s %s".formatted(playerName, message + longDistanceSuffix);
-        }
-        else {
-            string = "%s %s %s".formatted(playerName, message, suffix + longDistanceSuffix);
+        // If there was a killer, append suffix, because it usually contains 'by', 'from', etc.
+        if (killer != null && !damagerSuffix.isEmpty()) {
+            builder.append(" ").append(damagerSuffix);
         }
 
-        return "&4 ☠ " + new Gradient(string + ".")
-                .rgb(
-                        new Color(160, 0, 0),
-                        new Color(255, 51, 51),
-                        Interpolators.LINEAR
-                );
+        builder.append(DEFAULT_COLOR).append(".");
+
+        // If the shot was projectile, and it was from far away, add flex distance
+        if (player.getLastDamageCause().hasFlag(DamageFlag.PROJECTILE) && distance >= PROJECTILE_DISTANCE_THRESHOLD) {
+            builder.append(" &7(from %.1f blocks away!)".formatted(distance));
+        }
+
+        return builder.toString()
+                      .replace(DAMAGER_PLACEHOLDER, getValidPronoun(killer));
     }
 
+    @NotEmpty
+    @Nonnull
     private String getValidPronoun(@Nullable GameEntity gameEntity) {
         if (gameEntity == null) {
             return "something";
@@ -89,11 +75,7 @@ public record DeathMessage(String message, String damagerSuffix) {
             }
         }
 
-        return gameEntity.getNameUnformatted();
-    }
-
-    public static DeathMessage of(String message, String suffix) {
-        return new DeathMessage(message, suffix);
+        return gameEntity.getNameWithTeamColor() + DEFAULT_COLOR;
     }
 
 }

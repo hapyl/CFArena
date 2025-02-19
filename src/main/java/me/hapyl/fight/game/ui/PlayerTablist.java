@@ -102,7 +102,7 @@ public class PlayerTablist extends Tablist {
         });
 
         for (PlayerProfile profile : profiles) {
-            final String displayNameTab = profile.getDisplay().toStringTab();
+            final String displayNameTab = profile.display().toStringTab();
 
             entryList.append(displayNameTab, EntryTexture.of(profile.getPlayer()), PingBars.byValue(profile.getPlayer().getPing()));
         }
@@ -176,7 +176,7 @@ public class PlayerTablist extends Tablist {
                     final PlayerProfile profile = CF.getProfile(bukkitPlayer);
                     toFill--;
 
-                    entryList.append("&8- %s &8(%s&8)".formatted(profile.getDisplay().getNamePrefixed(), profile.getSelectedHeroString()));
+                    entryList.append("&8- %s &8(%s&8)".formatted(profile.display().toString(), profile.getSelectedHeroString()));
                 }
             }
 

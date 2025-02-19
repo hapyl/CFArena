@@ -112,7 +112,7 @@ public enum ChatChannel {
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {
         final PlayerProfile profile = CF.getProfile(sender);
-        final StringBuilder builder = new StringBuilder(profile.getDisplay().toString());
+        final StringBuilder builder = new StringBuilder(profile.display().toString());
 
         // Tag receiver
         final String atReceiverName = ("@" + receiver.getName()).toLowerCase(Locale.ROOT);

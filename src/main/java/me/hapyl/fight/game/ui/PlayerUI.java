@@ -62,7 +62,7 @@ public class PlayerUI extends TickingGameTask {
         this.manager = Manager.current();
 
         // Create scoreboard
-        this.builder = new Scoreboarder(Main.GAME_NAME);
+        this.builder = new Scoreboarder(Main.GAME_NAME_LONG);
         this.builder.setHideNumbers(true);
 
         this.updateScoreboard();
@@ -136,7 +136,7 @@ public class PlayerUI extends TickingGameTask {
                     player,
                     gamePlayer == null
                             ? "&aYou will spectate when the game starts."
-                            : "&aYou are currently spectating."
+                            : "&aYou are currently spectating!"
             );
         }
     }
@@ -231,7 +231,7 @@ public class PlayerUI extends TickingGameTask {
             builder.addLines(
                     " &7ʀᴀɴᴋ: " + profile.getRank().getPrefixWithFallback(),
                     " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
-                    " &7ᴄᴏɪɴs: " + Currency.COINS.getFormatted(player)
+                    " &7ᴄᴀᴛ ᴄᴏɪɴꜱ: " + Currency.COINS.getFormatted(player)
             );
 
             final long rubyCount = currency.get(Currency.RUBIES);

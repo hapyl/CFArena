@@ -350,11 +350,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Override
     public void die(boolean force) {
-        super.die(force);
-
-        if (!isAlive()) {
+        if (isDeadOrRespawning()) {
             return;
         }
+
+        super.die(force);
 
         final Player player = getEntity();
         boolean gameOver = false;
@@ -549,12 +549,12 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public GameTeam getTeam() {
         final GameTeam team = super.getTeam();
 
-        if (team == null) {
-            Debug.severe(this + " has no team somehow!");
-            return GameTeam.WHITE;
+        if (team != null) {
+            return team;
         }
 
-        return team;
+        Debug.severe(this + " has no team somehow!");
+        return GameTeam.WHITE;
     }
 
     /**
@@ -1048,7 +1048,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     @Nonnull
     public String formatTeamNameScoreboardPosition(int position, @Nonnull String suffix) {
-        return formatTeamName(" &e#" + position + " ", suffix);
+        return formatTeamName(" &f#&l%s ".formatted(position), suffix);
     }
 
     public void setFlying(boolean b) {
@@ -1080,6 +1080,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void swingMainHand() {
         getPlayer().swingMainHand();
+    }
+
+    public void swingOffHand() {
+        getPlayer().swingOffHand();
     }
 
     @Nonnull

@@ -59,8 +59,8 @@ public class LocalTeamManager implements Ticking {
                 });
             }
             else {
-                final PlayerDisplay display = profile.getDisplay();
-                final String displayName = display.toString(PlayerDisplay.LOBBY_BITMASK);
+                final PlayerDisplay display = profile.display();
+                final String displayName = display.toString(PlayerDisplay.Part.LEVEL, PlayerDisplay.Part.STATUS, PlayerDisplay.Part.PREFIX);
 
                 team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
                 team.setSuffix("");

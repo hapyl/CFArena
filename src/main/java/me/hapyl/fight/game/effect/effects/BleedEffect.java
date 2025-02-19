@@ -4,10 +4,7 @@ import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 
 import javax.annotation.Nonnull;
 
@@ -18,28 +15,34 @@ public class BleedEffect extends Effect {
             Color.fromRGB(194, 14, 41),
             2
     );
+
+    private final int damagePeriod = 20;
     private final double damage = 2.0d;
 
     public BleedEffect() {
-        super("Bleed", EffectType.NEGATIVE);
+        super("&4∲ Bleeding", EffectType.NEGATIVE);
     }
 
     @Override
     public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        entity.sendMessage("&c&l∲ &7You are bleeding!");
+        entity.sendMessage("&4∲ &cYou are bleeding!");
+        entity.playSound(Sound.ENTITY_ZOMBIE_INFECT, 1.0f);
     }
 
     @Override
     public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.sendMessage("&c&l∲ &aThe bleeding has stopped!");
+        entity.sendMessage("&4∲ &aThe bleeding has stopped!");
+        entity.playSound(Sound.ENTITY_HORSE_SADDLE, 1.25f);
     }
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
-        if (tick % 20 == 0) {
-            entity.damage(damage, DamageCause.BLEED);
-            spawnParticle(entity.getLocation());
+        if (tick % damagePeriod != 0) {
+            return;
         }
+
+        entity.damage(damage, DamageCause.BLEED);
+        spawnParticle(entity.getLocation());
     }
 
     public void spawnParticle(Location location) {

@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.heroes.Affiliation;
+import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.talents.PassiveTalent;
@@ -92,7 +93,11 @@ public abstract class GuessWhoGUI extends StyledGUI {
         final Affiliation affiliation = profile.getAffiliation();
 
         // General
-        builder.addLore("Archetype: " + profile.getArchetypes());
+        builder.addLore("Archetypes: ");
+
+        for (Archetype archetype : profile.getArchetypes()) {
+            builder.addLore(" %s".formatted(archetype.toString()));
+        }
 
         if (affiliation == Affiliation.NOT_SET) {
             builder.addLore("&mAffiliation");

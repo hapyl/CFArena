@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
+// FIXME (Tue, Feb 18 2025 @xanyjl): Yep
 public enum Effects implements Described {
 
     // *=* Vanilla effects *=* //

@@ -47,14 +47,14 @@ public class FrenzyMode extends GameType {
         final int playerLives = playerLivesMap.getOrDefault(player, -1);
         final LinkedValue2IntegerReverseMap<GamePlayer> reverse = LinkedValue2IntegerReverseMap.of(playerLivesMap);
 
-        builder.addLine("&4⚠ &c&lFrenzy: &8(&c%s ❤&8)".formatted(playerLives));
+        builder.addLine("&c&l%s &8(&c&l%s &c❤&8)".formatted(nameSmallCaps(), playerLives));
 
-        reverse.forEach(3, (index, gamePlayer, live) -> {
+        reverse.forEach(5, (index, gamePlayer, live) -> {
             if (gamePlayer == null) {
-                builder.addLine(" &e#" + (index + 1) + " ...");
+                builder.addLine(" &f#&l%s &8...".formatted(index + 1));
             }
             else {
-                builder.addLine(gamePlayer.formatTeamNameScoreboardPosition(index + 1, " &c" + live + "❤"));
+                builder.addLine(gamePlayer.formatTeamNameScoreboardPosition(index + 1, " &c&l%s &c❤".formatted(live)));
             }
         });
     }
@@ -69,7 +69,7 @@ public class FrenzyMode extends GameType {
     @Override
     public void onDeath(@Nonnull GameInstance instance, @Nonnull GamePlayer player) {
         // If not in a map it means they have died.
-        if (playerLivesMap.containsKey(player)) {
+        if (!playerLivesMap.containsKey(player)) {
             return;
         }
 

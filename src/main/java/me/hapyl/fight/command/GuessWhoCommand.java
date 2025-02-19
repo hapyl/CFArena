@@ -113,7 +113,6 @@ public class GuessWhoCommand extends SimplePlayerCommand {
 
                 @Override
                 public void onDecline() {
-                    Message.error(player, "{%s} has declined you invite.".formatted(target.getName()));
                 }
             };
         }

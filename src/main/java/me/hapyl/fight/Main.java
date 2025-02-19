@@ -14,7 +14,6 @@ import me.hapyl.fight.fastaccess.FastAccessHandler;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
-import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.CosmeticHandler;
 import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.experience.Experience;
@@ -52,8 +51,8 @@ import java.util.Objects;
 
 public class Main extends JavaPlugin {
 
-    public static final String GAME_NAME = Color.GOLD.bold() +
-            "&6&lᴄғ &eᴀʀᴇɴᴀ";
+    public static final String GAME_NAME = "&6&lᴄғ &eᴀʀᴇɴᴀ";
+    public static final String GAME_NAME_LONG = "&6&lᴄʟᴀꜱꜱᴇꜱ ꜰɪɢʜᴛ &eᴀʀᴇɴᴀ";
 
     public static final UpdateTopic updateTopic = new UpdateTopic("&4He's Back, Isn't He?");
 

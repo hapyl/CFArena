@@ -63,7 +63,7 @@ public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
             if (CF.hasProfile(lobbyPlayer)) {
                 final PlayerProfile profile = CF.getProfile(lobbyPlayer);
 
-                builder.addLore("&8- " + profile.getDisplay());
+                builder.addLore("&8- " + profile.display());
             }
         }
 

@@ -326,7 +326,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
 
     @Nonnull
     public String formatTeamName() {
-        return getFirstLetterCaps() + " " + ChatColor.WHITE + formatTeamMembers();
+        return getFirstLetterCaps() + "&8 " + ChatColor.WHITE + formatTeamMembers();
     }
 
     @Nonnull

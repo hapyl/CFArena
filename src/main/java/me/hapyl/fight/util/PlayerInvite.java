@@ -10,6 +10,7 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.Message;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+// FIXME (Wed, Feb 19 2025 @xanyjl): This system is actually kinda ass use Profiles at least I understand it was made BEFORE profiles but like fuck you
 public abstract class PlayerInvite extends BukkitRunnable {
 
     private static final long inviteLifeTimeTicks = 600;
@@ -47,24 +49,28 @@ public abstract class PlayerInvite extends BukkitRunnable {
         // Notify
         Message.success(inviter, "Invite has been sent!");
 
-        final String playerMessage = "&b[&3✉&b] %s &ahas invited you to &2%s&a!".formatted(CF.getProfile(inviter)
-                .getDisplay()
-                .getNamePrefixed(), message);
+        final String playerMessage = "%s &ahas invited you to &2%s&a!".formatted(
+                CF.getProfile(inviter)
+                  .display()
+                  .toString(), message
+        );
 
         invitees.forEach(player -> {
+            Chat.sendMessage(player, CFUtils.strikethroughText(ChatColor.DARK_AQUA));
             Chat.sendMessage(player, playerMessage);
 
             new MessageBuilder()
                     .append("                   ")
-                    .append("&a&l✔ &nACCEPT")
+                    .append("&a&l✔ ᴀᴄᴄᴇᴘᴛ")
                     .event(ClickEvent.Action.RUN_COMMAND, "/invite %s accept".formatted(uuid.toString()))
                     .event(HoverEvent.Action.SHOW_TEXT, "&aClick to accept!")
                     .append("      ")
-                    .append("&c&l❌ &nDECLINE")
+                    .append("&c&l❌ ᴅᴇᴄʟɪɴᴇ")
                     .event(ClickEvent.Action.RUN_COMMAND, "/invite %s decline".formatted(uuid.toString()))
                     .event(HoverEvent.Action.SHOW_TEXT, "&cClick to decline!")
                     .send(player);
 
+            Chat.sendMessage(player, CFUtils.strikethroughText(ChatColor.DARK_AQUA));
             PlayerLib.plingNote(player, 2.0f);
         });
 
@@ -125,6 +131,10 @@ public abstract class PlayerInvite extends BukkitRunnable {
             return;
         }
 
+        // Notify
+        Message.error(inviter, "{%s} has declined your invite!".formatted(player.getName()));
+        Message.error(player, "You declined {%s}'s invite!".formatted(inviter.getName()));
+
         onDecline();
         cleanup();
     }
@@ -133,6 +143,10 @@ public abstract class PlayerInvite extends BukkitRunnable {
         states.put(player, State.ACCEPTED);
 
         if (isAccepted()) {
+            // Notify
+            Message.success(inviter, "{%s} has accepted your invite!".formatted(player.getName()));
+            Message.success(player, "You accepted {%s}'s invite!".formatted(inviter.getName()));
+
             onAccept();
             cleanup();
         }

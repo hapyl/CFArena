@@ -32,17 +32,21 @@ public class NickCommand extends CFCommand implements DisabledCommand {
 
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        if (true) {
+            Message.error(player, "This feature is currently disabled, sorry!");
+            return;
+        }
+
         if (!ProfanityFilter.isInstantiated()) {
             Message.error(player, "This feature cannot be used yet, try again in a moment!");
             return;
         }
 
         final PlayerProfile profile = CF.getProfile(player);
-        final PlayerDisplay display = profile.getDisplay();
+        final PlayerDisplay display = profile.display();
         final String newNick = args.get(0).toString();
 
         if (newNick.isEmpty() || newNick.equalsIgnoreCase("reset")) {
-            display.resetNick();
             Message.success(player, "Reset your nick!");
             return;
         }
@@ -61,8 +65,6 @@ public class NickCommand extends CFCommand implements DisabledCommand {
             Message.error(player, "You cannot use that as a nick!");
             return;
         }
-
-        display.setNick(newNick);
 
         Message.success(player, "Set your nick to: {%s}!".formatted(newNick));
         Message.error(player, "Keep in mind abusing the nick system is a bannable offense!");

@@ -3,6 +3,7 @@ package me.hapyl.fight.game.effect;
 import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.StringDisplay;
@@ -23,7 +24,7 @@ public abstract class Effect implements Described {
     private StringDisplay display;
 
     protected Effect(@Nonnull String name, @Nonnull EffectType type) {
-        this.name = name;
+        this.name = name + Constants.DEFAULT_LORE_COLOR;
         this.description = "";
         this.type = type;
 

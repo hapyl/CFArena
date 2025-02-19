@@ -176,9 +176,9 @@ public enum AttributeType implements Described {
                 static {
                     effectMap = new TreeMap<>();
 
-                    effectMap.put(1.5d, makeEffect(PotionEffectType.HASTE, 0));
-                    effectMap.put(2.5d, makeEffect(PotionEffectType.HASTE, 1));
-                    effectMap.put(3.5d, makeEffect(PotionEffectType.HASTE, 2));
+                    effectMap.put(1.25d, makeEffect(PotionEffectType.HASTE, 0));
+                    effectMap.put(1.75d, makeEffect(PotionEffectType.HASTE, 1));
+                    effectMap.put(2.0d, makeEffect(PotionEffectType.HASTE, 2));
                     effectMap.put(0.0d, makeEffect(PotionEffectType.MINING_FATIGUE, 8));
                     effectMap.put(0.125d, makeEffect(PotionEffectType.MINING_FATIGUE, 7));
                     effectMap.put(0.25d, makeEffect(PotionEffectType.MINING_FATIGUE, 6));
@@ -219,7 +219,7 @@ public enum AttributeType implements Described {
 
         @Override
         public double maxValue() {
-            return 5d; // 500%
+            return 2d; // 200%
         }
     },
 

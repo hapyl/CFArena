@@ -2,6 +2,7 @@ package me.hapyl.fight.game.type;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 public abstract class GameType {
 
     private final String name;
+    private final String nameSmallCaps;
     private final int timeLimit; // in seconds
 
     private Material material;
@@ -32,13 +34,19 @@ public abstract class GameType {
     private boolean allowRespawn;
     private int respawnTime;
 
-    public GameType(String name, int timeLimitSec) {
+    public GameType(@Nonnull String name, int timeLimitSec) {
         this.name = name;
+        this.nameSmallCaps = SmallCaps.format(name);
         this.timeLimit = timeLimitSec;
         this.description = "";
         this.material = Material.BEDROCK;
         this.playerRequirements = 2;
         this.allowRespawn = false;
+    }
+
+    @Nonnull
+    public String nameSmallCaps() {
+        return nameSmallCaps;
     }
 
     public int getRespawnTime() {
@@ -186,12 +194,8 @@ public abstract class GameType {
 
         // Per-result titles
         switch (resultType) {
-            case DRAW -> {
-                titleAll(resultType.toString(), "&7It's a draw!");
-            }
-            case NO_WINNERS -> {
-                titleAll("&6&lɢᴀᴍᴇ ᴏᴠᴇʀ", "&7There are no winners!");
-            }
+            case DRAW -> titleAll(resultType.toString(), "&7It's a draw!");
+            case NO_WINNERS -> titleAll("&6&lɢᴀᴍᴇ ᴏᴠᴇʀ", "&7There are no winners!");
             case SINGLE_WINNER, MULTIPLE_WINNERS -> {
                 // This one is per player to display either WINNER or DEFEAT
                 Bukkit.getOnlinePlayers().forEach(player -> {

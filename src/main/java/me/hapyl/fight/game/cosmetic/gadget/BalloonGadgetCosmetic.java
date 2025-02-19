@@ -87,7 +87,7 @@ public class BalloonGadgetCosmetic extends Gadget implements Listener {
         if (player != target) {
             final PlayerProfile playerProfile = CF.getProfile(player);
 
-            Message.info(target, "&c \uD83C\uDF88&r {%s} tied a balloon to you!".formatted(playerProfile.getDisplay().toString()));
+            Message.info(target, "&c \uD83C\uDF88&r {%s} tied a balloon to you!".formatted(playerProfile.display().toString()));
         }
 
         return Response.ok();

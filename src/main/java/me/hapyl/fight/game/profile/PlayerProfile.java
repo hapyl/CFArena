@@ -190,7 +190,7 @@ public class PlayerProfile {
     }
 
     @Nonnull
-    public PlayerDisplay getDisplay() {
+    public PlayerDisplay display() {
         return new PlayerDisplay(getDatabase());
     }
 
@@ -323,7 +323,7 @@ public class PlayerProfile {
         final RankFormatter format = getRank().getFormat();
         final String message = format.joinMessage();
 
-        return message != null ? Chat.bformat("&8[&a+&8] " + message, getDisplay().getNamePrefixed()) : null;
+        return message != null ? Chat.bformat("&8[&a+&8] " + message, display().toString()) : null;
     }
 
     @Nullable
@@ -331,7 +331,7 @@ public class PlayerProfile {
         final RankFormatter format = getRank().getFormat();
         final String message = format.leaveMessage();
 
-        return message != null ? Chat.bformat("&8[&c-&8] " + message, getDisplay().getNamePrefixed()) : null;
+        return message != null ? Chat.bformat("&8[&c-&8] " + message, display().toString()) : null;
     }
 
     @Nonnull

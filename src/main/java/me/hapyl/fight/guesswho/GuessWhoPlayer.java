@@ -175,7 +175,8 @@ public class GuessWhoPlayer {
     @Nonnull
     public String getProfileName() {
         final PlayerProfile profile = CF.getProfile(player);
-        return profile.getDisplay().getNamePrefixed();
+
+        return profile.display().toString();
     }
 
     @Nonnull

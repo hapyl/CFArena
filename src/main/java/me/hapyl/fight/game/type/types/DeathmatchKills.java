@@ -28,7 +28,7 @@ public class DeathmatchKills extends GameType {
                 Free for All death-match when everyone is fighting for kills.
                 
                 First player to reach &a%s&7 kills wins!
-                 """.formatted(killsGoal));
+                """.formatted(killsGoal));
 
         setPlayerRequirements(2);
         setMaterial(Material.WITHER_SKELETON_SKULL);

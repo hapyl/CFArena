@@ -1118,6 +1118,11 @@ public class CFUtils {
         Bukkit.getOnlinePlayers().forEach(player -> player.showEntity(CF.getPlugin(), entity));
     }
 
+    @Nonnull
+    public static String strikethroughText(@Nonnull ChatColor color) {
+        return (color + "&m ").repeat(77);
+    }
+
     private static class Helper {
         private static <K, V, R> Set<R> fetchFromMap(Map<K, V> hashMap, Class<R> clazz, boolean b) {
             Collection<?> collection = b ? hashMap.keySet() : hashMap.values();

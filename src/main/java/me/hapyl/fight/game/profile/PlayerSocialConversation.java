@@ -31,7 +31,7 @@ public class PlayerSocialConversation {
 
         Chat.sendMessage(
                 profile.getPlayer(),
-                formatTo.formatted(to.getDisplay().getNamePrefixed(), message)
+                formatTo.formatted(to.display().toString(), message)
         );
     }
 
@@ -40,7 +40,7 @@ public class PlayerSocialConversation {
 
         Chat.sendMessage(
                 profile.getPlayer(),
-                formatFrom.formatted(from.getDisplay().getNamePrefixed(), message)
+                formatFrom.formatted(from.display().toString(), message)
         );
     }
 

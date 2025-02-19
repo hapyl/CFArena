@@ -638,11 +638,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return y - location.getY();
     }
 
-    @Nullable
-    public GameTeam getTeam() {
-        return GameTeam.getEntryTeam(Entry.of(this));
-    }
-
     public void setGlowing(@Nonnull GamePlayer player, @Nonnull ChatColor color, int duration) {
         Glowing.glow(entity, color, duration, player.getPlayer());
     }

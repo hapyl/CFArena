@@ -220,6 +220,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(EnumLevel.ARENA));
         registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(EnumLevel.ARENA));
         registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(EnumLevel.ARENA));
+        registerRelic(204, new Relic(Type.EMERALD, 501, 83, -36).setBlockFace(BlockFace.NORTH_EAST).setZone(EnumLevel.ARENA));
 
         // Japan - Reversed Ids in 300-399 range
         // Skipping for now, since rebuilding -h

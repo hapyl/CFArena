@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
 
-    COINS(new Color("#FFD700"), "🪙", "Coins") {
+    COINS(new Color("#FFD700"), "\uD83D\uDC08", "Cat Coins") {
         @Override
         public void onIncrease(Player player, long value) {
             Registries.getAchievements().GAIN_COINS.addCompleteCount(player, (int) value);

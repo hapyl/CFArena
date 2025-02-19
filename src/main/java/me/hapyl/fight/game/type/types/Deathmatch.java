@@ -2,9 +2,7 @@ package me.hapyl.fight.game.type.types;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.math.nn.IntInt;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
-import me.hapyl.eterna.module.util.BFormat;
 import me.hapyl.eterna.module.util.collection.LinkedValue2IntegerReverseMap;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.EntityState;
@@ -33,7 +31,7 @@ public class Deathmatch extends GameType {
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.
-                                
+                
                 Player with most kills in time limit wins.
                 """);
         setPlayerRequirements(2);
@@ -49,21 +47,23 @@ public class Deathmatch extends GameType {
     }
 
     @Override
-    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer gamePlayer) {
-        final Player player = gamePlayer.getPlayer();
-        final GameTeam playerTeam = gamePlayer.getTeam();
+    public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
+        final GameTeam playerTeam = player.getTeam();
         final Map<GameTeam, Integer> topKills = getTopTeamKills(instance, SCOREBOARD_DISPLAY_LIMIT);
 
-        builder.addLines("&6⚔ &l%s: &8(&b🗡 &l%s&8)".formatted(getName(), playerTeam.data.kills));
+        builder.addLines("&6&l%s &8(&b🗡 &l%s&8)".formatted(nameSmallCaps(), playerTeam.data.kills));
 
-        final IntInt i = new IntInt(1);
-        topKills.forEach((team, kills) -> {
-            builder.addLines(BFormat.format(" &e#&l{Position} &f{Name} &b🗡 &l{Kills}", i.get(), team.formatTeamName(), kills));
-            i.increment();
-        });
+        int position = 1;
 
-        for (int j = i.get(); j <= SCOREBOARD_DISPLAY_LIMIT; j++) {
-            builder.addLines(" &e...");
+        for (Map.Entry<GameTeam, Integer> entry : topKills.entrySet()) {
+            final GameTeam team = entry.getKey();
+            final Integer kills = entry.getValue();
+
+            builder.addLine(" &f#&l%s &f%s &b🗡 &l%s".formatted(position++, team.formatTeamName(), kills));
+        }
+
+        for (int j = position; j <= SCOREBOARD_DISPLAY_LIMIT; j++) {
+            builder.addLines(" &f#&l%s &8...".formatted(j));
         }
     }
 

@@ -828,8 +828,6 @@ public final class Manager extends BukkitRunnable {
 
     public void allowGoldenGg(@Nonnull Player player) {
         goldenGg.add(player.getUniqueId());
-
-        Debug.info("Allowed golden gg for %s!".formatted(player.getName()));
     }
 
     public void setSelectedHero(Player player, Hero hero) {

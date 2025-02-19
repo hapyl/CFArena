@@ -28,7 +28,7 @@ public class FreeForAll extends GameType {
     public void formatScoreboard(@Nonnull Scoreboarder builder, @Nonnull GameInstance instance, @Nonnull GamePlayer player) {
         final List<GameTeam> teams = GameTeam.getTeams();
 
-        builder.addLine("&c⚔ &6&lFree for All");
+        builder.addLine("&6&l" + nameSmallCaps());
 
         teams.removeIf(team -> !team.hasAnyPlayers());
         teams.sort(Comparators.comparingBool(GameTeam::isTeamAlive));
@@ -40,7 +40,7 @@ public class FreeForAll extends GameType {
                 builder.addLine(" &a● " + teamName);
             }
             else {
-                builder.addLine(" &c❌ %s &c&m%s".formatted(team.getFirstLetterCaps(), team.formatTeamMembers()));
+                builder.addLine(" &8● %s &8&m%s".formatted(team.getFirstLetterCaps(), team.formatTeamMembers()));
             }
         });
     }

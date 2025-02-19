@@ -241,7 +241,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
         MINION = of(Key.ofString("minion"), "was killed by {damager}'s minion");
         RIP_BONES = of(Key.ofString("rip_bones"), "was ripped to shreds", "by");
         AURA_OF_CIRCUS = of(Key.ofString("aura_of_circus"), "was furiously tamed", "by");
-        BLEED = ofNonCrit(Key.ofString("bleed"), "bled to death from {damager}'s touch");
+        BLEED = ofNonCrit(Key.ofString("bleed"), "bled to death from {damager}'s touch").flags(DamageFlag.IGNORES_INVULNERABILITY_TICKS_AND_ATTACK_COOLDOWN);
         SHOTGUN = of(Key.ofString("shotgun"), "was shot to death", "by");
         BACKSTAB = ofNonCrit(Key.ofString("backstab"), "was stabbed in the back", "by");
         WITHERBORN = ofNonCrit(Key.ofString("witherborn"), "was withered to death by {damager}'s Witherborn");
@@ -269,7 +269,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
         BLADE_BARRAGE = ofNonCrit(Key.ofString("blade_barrage"), "fell before {damager}'s swords");
         TOTEM = of(Key.ofString("totem"), "was stomped on", "by").flags(DamageFlag.IGNORES_INVULNERABILITY_TICKS_AND_ATTACK_COOLDOWN);
         RAY_OF_DEATH = of(Key.ofString("ray_of_death"), "was doomed to fail", "before {damager}'s Ray of Death").flags(DamageFlag.IGNORES_INVULNERABILITY_TICKS_AND_ATTACK_COOLDOWN);
-        ROGUE_ATTACK = ENTITY_ATTACK.cloneAs(Key.ofString("rogue_attack"));
+        ROGUE_ATTACK = ENTITY_ATTACK.cloneAs(Key.ofString("rogue_attack")).knockBack(0.5d);
         THROWING_KNIFE = ofNonCrit(Key.ofString("throwing_knife"), "was hit by a throwing knife", "of");
         PIPE_BOMB = ofNonCrit(Key.ofString("pipe_bomb"), "was blown away by {damager}'s Pipe Bomb").flags(DamageFlag.TRUE_DAMAGE);
         UPPERCUT = ofNonCrit(Key.ofString("uppercut"), "was upperCUT", "by");

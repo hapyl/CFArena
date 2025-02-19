@@ -254,6 +254,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new EnvironmentCommand("environment"));
         register(new DumpColorCommand("dumpColor"));
         register(new ViewTheEyeGuiCommand("viewtheeyegui"));
+        register(new ReadSignsCommand("readSigns"));
 
         // *=* Inner commands *=* //
         register(
@@ -3239,67 +3240,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                 Chat.sendMessage(player, targetEntity.getEntityData());
             }
-        });
-
-        register(new SimplePlayerAdminCommand("readSigns") {
-
-            private Queue<Sign> queue;
-
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final NamedSignReader reader = new NamedSignReader(player.getWorld());
-
-                if (queue == null) {
-                    queue = reader.readAsQueue();
-                    Chat.sendMessage(player, "&aFound %s signs. Use the command again to teleport to the next one.".formatted(queue.size()));
-                    return;
-                }
-
-                if (queue.peek() == null) {
-                    Chat.sendMessage(player, "&cNo more signs!");
-                    queue = null;
-                    return;
-                }
-
-                final Sign sign = queue.poll();
-                final String line = sign.getLine(0).replace("[", "").replace("]", "").toUpperCase();
-                final Location location = sign.getLocation().add(0.5d, 0.0d, 0.5d); // center it
-                final String locationString = BukkitUtils.locationToString(location);
-
-                Chat.sendMessage(player, "");
-                Chat.sendMessage(player, "&aNext: &l" + line.toUpperCase());
-
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.runCommand("/tp %s %s %s".formatted(location.getX(), location.getY(), location.getZ())),
-                        LazyEvent.showText("&eClick to teleport!"),
-                        "&6&lCLICK TO TELEPORT"
-                );
-
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.copyToClipboard("%s %s %s".formatted(location.getX(), location.getY(), location.getZ())),
-                        LazyEvent.showText("&eClick to copy coordinates!"),
-                        "&6&lCLICK TO COPY COORDINATES"
-                );
-
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.copyToClipboard(line.equalsIgnoreCase("spawn")
-                                ? "addLocation(%s, 0, 0)".formatted(locationString)
-                                : "addPackLocation(PackType.%s, %s)".formatted(line, locationString)),
-                        LazyEvent.showText("&eClick to copy code!"),
-                        "&6&lCLICK TO COPY CODE"
-                );
-
-                Chat.sendClickableHoverableMessage(
-                        player,
-                        LazyEvent.runCommand(getUsage().toLowerCase()),
-                        LazyEvent.showText("&aClick to show the next sign!"),
-                        "&a&lNEXT"
-                );
-            }
-
         });
 
         register(new SimpleAdminCommand("listProfiles") {
