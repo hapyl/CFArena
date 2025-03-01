@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
@@ -10,7 +11,6 @@ import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.database.entry.CosmeticEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.Disabled;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.store.Purchasable;
 import me.hapyl.fight.util.Formatted;
@@ -84,8 +84,9 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
 
     @Nonnull
     public ItemBuilder createItem(Player player) {
-        final ItemBuilder builder = ItemBuilder.of(icon, name);
+        final ItemBuilder builder = new ItemBuilder(icon);
 
+        builder.setName(name);
         builder.addLore(rarity.toString(type.getName()));
         builder.addLore("");
         builder.addTextBlockLore(getDescription());
@@ -111,11 +112,11 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
         onDisplay(display);
     }
 
-    @Event
+    @EventLike
     public void onEquip(@Nonnull Player player) {
     }
 
-    @Event
+    @EventLike
     public void onUnequip(@Nonnull Player player) {
     }
 
@@ -220,9 +221,11 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
         if (this == object) {
             return true;
         }
+
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
+
         final Cosmetic that = (Cosmetic) object;
         return Objects.equals(this.key, that.key);
     }

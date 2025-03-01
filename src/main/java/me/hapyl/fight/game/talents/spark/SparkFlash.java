@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -80,7 +80,7 @@ public class SparkFlash extends Talent {
                     final double distance = victim.getLocation().distance(itemLocation);
 
                     if ((dotProduct >= 0.4f && distance <= maxDistance) && victim.hasLineOfSight(item)) {
-                        victim.addEffect(Effects.BLINDNESS, 1, flashDuration);
+                        victim.addEffect(EffectType.BLINDNESS, 1, flashDuration);
                         victim.playSoundAndCut(Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
                         victim.damage(fireDamage, player, DamageCause.FIRE_TICK);
                         victim.setFireTicks(10);

@@ -8,7 +8,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -51,7 +51,7 @@ public class PoisonZone extends Talent {
                     final EntityAttributes attributes = living.getAttributes();
                     attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration, player);
 
-                    living.addEffect(Effects.POISON, 1, defenseReductionDuration);
+                    living.addEffect(EffectType.POISON, 1, defenseReductionDuration);
                 });
 
                 // Fx

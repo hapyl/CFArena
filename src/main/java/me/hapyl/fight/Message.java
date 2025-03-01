@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
  * <ul>
  *     <li>Surround the argument with <code>{}</code>:
  *     <pre>{@code
- *       Notifier.info(sender, "Hello, {%s}!".formatted(sender.getName());
- *       Notifier.success(sender, "This was {successful}!");
+ *       Message.info(sender, "Hello, {%s}!".formatted(sender.getName());
+ *       Message.success(sender, "This was {successful}!");
  *     }</pre>
  * </ul>
  */

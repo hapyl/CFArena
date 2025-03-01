@@ -9,7 +9,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
@@ -157,7 +157,7 @@ public class HarvestBlocks extends Talent {
         }.runTaskTimer(0, 2);
 
         player.schedule(() -> launchProjectile(player, damage.get()), collectDelay);
-        player.addEffect(Effects.SLOW, 10, collectDelay);
+        player.addEffect(EffectType.SLOW, 10, collectDelay);
 
         return Response.OK;
     }

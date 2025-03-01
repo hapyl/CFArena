@@ -172,7 +172,7 @@ public class Pytaria extends Hero {
                     
                     Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
                     
-                    Also regenerates &c{healthRegenPercent}%% ❤&7 of &aPytaria's&7 missing health.
+                    Also regenerates &c{healthRegenPercent}% ❤&7 of &aPytaria's&7 missing health.
                     """
             );
 

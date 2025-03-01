@@ -2,6 +2,7 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerSkin;
@@ -16,7 +17,6 @@ import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.element.ElementHandler;
@@ -27,12 +27,12 @@ import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.story.HeroStory;
 import me.hapyl.fight.util.Catchers;
@@ -371,7 +371,7 @@ public abstract class Hero
     /**
      * Called whenever a player presses the ultimate, no matter if it's ready or not.
      */
-    @Event
+    @EventLike
     public void onUltimateKeyPressed(@Nonnull GamePlayer player, @Nonnull UltimateStatus status) {
     }
 
@@ -450,7 +450,7 @@ public abstract class Hero
      *
      * @param instance - Damage instance.
      */
-    @Event
+    @EventLike
     public void processDamageAsVictim(@Nonnull DamageInstance instance) {
     }
 
@@ -459,7 +459,7 @@ public abstract class Hero
      *
      * @param instance - Damage instance.
      */
-    @Event
+    @EventLike
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
     }
 
@@ -469,7 +469,7 @@ public abstract class Hero
      * @param instance   - Damage instance.
      * @param projectile - Projectile.
      */
-    @Event
+    @EventLike
     public void processDamageAsDamagerProjectile(@Nonnull DamageInstance instance, @Nonnull Projectile projectile) {
     }
 
@@ -494,7 +494,7 @@ public abstract class Hero
      * @param instance - The current damage instance.
      * @return true if the damage should be cancelled; false otherwise.
      */
-    @Event
+    @EventLike
     public boolean processTeammateDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, DamageInstance instance) {
         return true;
     }
@@ -505,7 +505,7 @@ public abstract class Hero
      *
      * @param player - Player.
      */
-    @Event
+    @EventLike
     public void onDeath(@Nonnull GamePlayer player) {
     }
 

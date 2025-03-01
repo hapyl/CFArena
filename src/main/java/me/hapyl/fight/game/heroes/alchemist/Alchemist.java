@@ -12,7 +12,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -25,7 +25,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.alchemist.*;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -39,14 +39,15 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 import static org.bukkit.Sound.*;
 
-public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<AlchemistData>, Listener {
+public class Alchemist extends Hero implements UIComplexComponent, PlayerDataHandler<AlchemistData>, Listener {
 
     public final Weapon stickMissing = Weapon.builder(Material.CLAY_BALL, Key.ofString("alchemist_stick_missing"))
-                                             .name("&4Stick is Missing!")
+                                             .name("&4The Stick is Missing!")
                                              .description("""
                                                      Your stick is currently brewing a potion!
                                                      &8&o;;Click the cauldron to pause the brewing process and get your stick back.
@@ -118,7 +119,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
                         ),
                         AlchemistEffect.of(
                                 "&8&lblinded&e you", Color.fromRGB(46, 40, 41), (entity, player) -> {
-                                    entity.addEffect(Effects.BLINDNESS, alchemicalMadnessNegativeDuration, true);
+                                    entity.addEffect(EffectType.BLINDNESS, alchemicalMadnessNegativeDuration);
                                 }
                         )
                 }
@@ -142,12 +143,12 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
             public void run() {
                 getAlivePlayers().forEach(player -> {
                     if (isToxinLevelBetween(player, 60, 80)) {
-                        player.addEffect(Effects.POISON, 20, true);
+                        player.addEffect(EffectType.POISON, 20);
                     }
                     else if (isToxinLevelBetween(player, 80, 99)) {
                         player.damage(1, DamageCause.TOXIN);
-                        player.addEffect(Effects.DARKNESS, 20, true);
-                        player.addEffect(Effects.NAUSEA, 20, true);
+                        player.addEffect(EffectType.DARKNESS, 20);
+                        player.addEffect(EffectType.NAUSEA, 20);
 
                         player.removeEnergy(1, player);
                     }
@@ -180,7 +181,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
 
     @Override
     public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
-        player.removeEffect(Effects.INVISIBILITY);
+        player.removeEffect(EffectType.INVISIBILITY);
         player.sendSubtitle("&cYou dealt damage and lost your invisibility!", 5, 10, 5);
 
         return false;
@@ -214,7 +215,7 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
 
         final DamageCause cause = ev.getCause();
 
-        if (cause == null || !cause.hasFlag(DamageFlag.MELEE)) {
+        if (!cause.hasFlag(DamageFlag.MELEE)) {
             return;
         }
 
@@ -242,13 +243,19 @@ public class Alchemist extends Hero implements UIComponent, PlayerDataHandler<Al
         return false;
     }
 
+    @Nullable
     @Override
-    @Nonnull
-    public String getString(@Nonnull GamePlayer player) {
+    public List<String> getStrings(@Nonnull GamePlayer player) {
+        final AlchemistData data = getPlayerData(player);
         final double toxinLevel = getToxinLevel(player);
         final String toxinColor = getToxinColor(player);
 
-        return "%1$s&l%2$s %1$s%3$.0f%%".formatted(toxinColor, Named.ABYSS_CORROSION.getCharacter(), toxinLevel);
+        final int potionDurationLeft = data.activePotion != null ? data.activePotion.getDurationLeft() : 0;
+
+        return List.of(
+                "%1$s&l%2$s %1$s%3$.0f%%".formatted(toxinColor, Named.ABYSS_CORROSION.getCharacter(), toxinLevel),
+                potionDurationLeft != 0 ? "&5\uD83E\uDDEA &d&l%s&ds".formatted(Tick.round(potionDurationLeft)) : ""
+        );
     }
 
     @Nonnull

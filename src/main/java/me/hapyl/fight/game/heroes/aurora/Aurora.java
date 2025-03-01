@@ -14,18 +14,17 @@ import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.aurora.AuroraArrowTalent;
 import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -119,12 +118,6 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             return;
         }
 
-        final DamageCause cause = ev.getCause();
-
-        if (cause == null) {
-            return;
-        }
-
         data.breakBond("You took damage!");
     }
 
@@ -204,7 +197,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         talent.startCdIndefinitely(player);
 
-        player.addEffect(Effects.SLOW, 10, talent.teleportDelay);
+        player.addEffect(EffectType.SLOW, 10, talent.teleportDelay);
 
         new PlayerTickingGameTask(player) {
 

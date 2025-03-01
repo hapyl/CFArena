@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
@@ -85,7 +85,7 @@ public class Updraft extends Talent implements Listener {
                 }
 
                 plungingEnemies.forEach(entity -> {
-                    entity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 20, true);
+                    entity.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 20);
                     entity.setVelocity(pushDownVelocity);
                 });
 

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -82,7 +82,7 @@ public class SmokeBomb extends Talent {
                 final Location location = item.getLocation();
 
                 Collect.nearbyEntities(location, radius).forEach(entity -> {
-                    entity.addEffect(Effects.BLINDNESS, 1, 25);
+                    entity.addEffect(EffectType.BLINDNESS, 1, 25);
 
                     if (player.isSelfOrTeammate(entity)) {
                         return;

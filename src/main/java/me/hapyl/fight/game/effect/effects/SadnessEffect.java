@@ -3,7 +3,7 @@ package me.hapyl.fight.game.effect.effects;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Sound;
 
@@ -15,7 +15,7 @@ public class SadnessEffect extends Effect {
     private final double attackDecrease = 0.15d;
 
     public SadnessEffect() {
-        super("Radiating Sadness", EffectType.NEGATIVE);
+        super("Radiating Sadness", Type.NEGATIVE);
 
         setDescription(
                 "You feel sad, losing the ability to heal, in addition to %s and %s decrease.",

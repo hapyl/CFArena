@@ -173,6 +173,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
 
             private void doEndUltimate() {
                 this.cancel();
+                instance.onPlayerDied();
 
                 // Stats
                 player.getStats().addValue(StatType.ULTIMATE_USED, 1);

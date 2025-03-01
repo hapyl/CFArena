@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
@@ -20,6 +20,9 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -179,7 +182,7 @@ public class GameEntity {
                 return false;
             }
 
-            if (gamePlayer.hasEffect(Effects.INVISIBILITY)) {
+            if (gamePlayer.hasEffect(EffectType.INVISIBILITY)) {
                 return gamePlayer.getHero().isValidIfInvisible(gamePlayer);
             }
 
@@ -246,16 +249,16 @@ public class GameEntity {
         kill();
     }
 
-    @Event
+    @EventLike
     public void onStart(@Nonnull GameInstance instance) {
     }
 
-    @Event
+    @EventLike
     public void onStop(@Nonnull GameInstance instance) {
         forceRemove();
     }
 
-    @Event
+    @EventLike
     public void onDeath() {
         kill();
     }
@@ -541,4 +544,24 @@ public class GameEntity {
 
         return location;
     }
+
+    public boolean isOnFire() {
+        return entity.getFireTicks() > 0;
+    }
+
+    @Nonnull
+    public BoundingBox boundingBox() {
+        return entity.getBoundingBox();
+    }
+
+    public void setEquipment(@Nonnull EntityEquipment equipment) {
+        final EntityEquipment entityEquipment = entity.getEquipment();
+
+        if (entityEquipment != null) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                entityEquipment.setItem(slot, equipment.getItem(slot));
+            }
+        }
+    }
+
 }

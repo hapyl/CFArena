@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.WarningType;
@@ -61,7 +61,7 @@ public class Echo extends Hero implements Disabled, PlayerDataHandler<EchoData>,
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.INVISIBILITY, Constants.INFINITE_DURATION);
+        player.addEffect(EffectType.INVISIBILITY, Constants.INFINITE_DURATION);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class Echo extends Hero implements Disabled, PlayerDataHandler<EchoData>,
 
                         // Warn players
                         Collect.nearbyPlayers(targetLocation, nullSpaceRadius)
-                                .forEach(target -> target.sendWarning(WarningType.WARNING));
+                                .forEach(target -> target.sendWarning(WarningType.WARNING, 5));
                     })
                     .onCastEnd(() -> {
                         final EchoData data = getPlayerData(player);

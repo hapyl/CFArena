@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.ui.display;
 
-import me.hapyl.fight.Main;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Bukkit;
@@ -40,7 +40,7 @@ public class DamageDisplay extends StringDisplay {
         if (damager != null) {
             Bukkit.getOnlinePlayers().forEach(player -> {
                 if (damager.is(player) || damager.isVisibleTo(player)) {
-                    player.showEntity(Main.getPlugin(), display);
+                    player.showEntity(CF.getPlugin(), display);
                 }
             });
         }

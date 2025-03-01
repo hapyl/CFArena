@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -13,7 +13,7 @@ public class Corrosion extends Effect {
     public final int damagePeriod = 10;
 
     public Corrosion() {
-        super("Corrosion", EffectType.NEGATIVE);
+        super("Corrosion", Type.NEGATIVE);
         setDescription("""
                 Slows, disturbs vision and rapidly deals damages.
                 """);

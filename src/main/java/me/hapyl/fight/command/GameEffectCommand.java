@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
                 return;
             }
 
-            final Effects type = Enums.byName(Effects.class, args[0]);
+            final EffectType type = Enums.byName(EffectType.class, args[0]);
             final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Numbers.getInt(args[1]);
 
             final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
@@ -60,7 +60,7 @@ public class GameEffectCommand extends SimplePlayerAdminCommand {
     @Override
     protected List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return completerSort(arrayToList(Effects.values()), args);
+            return completerSort(arrayToList(EffectType.values()), args);
         }
         return null;
     }

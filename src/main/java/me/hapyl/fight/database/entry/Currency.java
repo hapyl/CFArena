@@ -1,9 +1,9 @@
 package me.hapyl.fight.database.entry;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.crate.convert.Product;
 import me.hapyl.fight.registry.Registries;
@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
 
-    COINS(new Color("#FFD700"), "\uD83D\uDC08", "Cat Coins") {
+    COINS(new Color("#FFD700"), "\uD83D\uDC08", "Catcoins") {
         @Override
         public void onIncrease(Player player, long value) {
             Registries.getAchievements().GAIN_COINS.addCompleteCount(player, (int) value);
@@ -44,7 +44,7 @@ public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
      * @param player - Player, who this currency is increased for.
      * @param value  - Value by which this currency is increased by.
      */
-    @Event
+    @EventLike
     public void onIncrease(Player player, long value) {
     }
 
@@ -54,7 +54,7 @@ public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
      * @param player - Player, who this currency is decreased for.
      * @param value  - Value by which this currency is decreased by.
      */
-    @Event
+    @EventLike
     public void onDecrease(Player player, long value) {
     }
 

@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
@@ -66,7 +66,7 @@ public class CyberCage {
 
         CF.getEntityOptional(victim).ifPresent(gameEntity -> {
             gameEntity.damage(talent.cageDamage, player);
-            gameEntity.addEffect(Effects.VULNERABLE, talent.vulnerabilityDuration);
+            gameEntity.addEffect(EffectType.VULNERABLE, talent.vulnerabilityDuration);
         });
 
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());

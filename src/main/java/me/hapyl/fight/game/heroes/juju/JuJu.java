@@ -9,7 +9,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
@@ -273,8 +273,8 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
                         final Vector vector = location.getDirection().normalize().multiply(0.4d).add(new Vector(0.0d, 0.5d, 0.0d));
 
                         player.setVelocity(vector);
-                        player.addEffect(Effects.SLOW_FALLING, 1, 15);
-                        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100);
+                        player.addEffect(EffectType.SLOW_FALLING, 1, 15);
+                        player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
 
                         // Fx
                         player.playWorldSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);

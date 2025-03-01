@@ -9,11 +9,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface OverridingMethodsMustImplementEvents {
 
-    /**
-     * Which {@link me.hapyl.fight.game.Event} methods must be implemented.
-     *
-     * @return an array of methods that must be implemented.
-     */
-    String[] events() default "";
-
 }

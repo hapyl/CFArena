@@ -18,9 +18,8 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.*;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
@@ -375,52 +374,54 @@ public final class PlayerHandler implements Listener {
             // Ignore self-damage for the following
             if (damager != entity) {
                 // Check for player damager
-                if (damager instanceof Player player) {
-                    // Remove vanilla critical hit
-                    if (player.getFallDistance() > 0.0F
-                            && !player.isOnGround()
-                            && !player.hasPotionEffect(PotionEffectType.BLINDNESS)
-                            && player.getVehicle() == null) {
-                        instance.damage /= 1.5F;
-                    }
-
-                    data.setLastDamagerIfNative(CF.getPlayer(player));
-                }
-                // Check for projectile damage
-                else if (damager instanceof Projectile projectile) {
-                    // Scale it down according to a super cool formula for players
-                    if (projectile.getShooter() instanceof Player player && projectile instanceof AbstractArrow arrow) {
-                        final GamePlayer gamePlayer = CF.getPlayer(player);
-
-                        if (gamePlayer != null) {
-                            final double scale = arrow.isCritical() ? bowScale[1] : bowScale[0];
-                            final double scaleFactor = instance.damage / scale;
-
-                            final Weapon weapon = gamePlayer.getHero().getWeapon();
-                            final double weaponDamage = weapon.getDamage();
-
-                            instance.damage = weaponDamage * scaleFactor;
+                switch (damager) {
+                    case Player player -> {
+                        // Remove vanilla critical hit
+                        if (player.getFallDistance() > 0.0F
+                                && !player.isOnGround()
+                                && !player.hasPotionEffect(PotionEffectType.BLINDNESS)
+                                && player.getVehicle() == null) {
+                            instance.overrideInitialDamage(initialDamage / 1.5F);
                         }
-                    }
 
-                    // Reassign damager to shooter
-                    if (projectile.getShooter() instanceof LivingEntity living) {
-                        data.setLastDamagerIfNative(CF.getEntity(living));
+                        data.setLastDamagerIfNative(CF.getPlayer(player));
                     }
+                    // Check for projectile damage
+                    case Projectile projectile -> {
+                        // Scale it down according to a super cool formula for players
+                        if (projectile.getShooter() instanceof Player player && projectile instanceof AbstractArrow arrow) {
+                            final GamePlayer gamePlayer = CF.getPlayer(player);
 
-                    // Store projectile for further use
-                    finalProjectile = projectile;
-                }
-                // Default to damager if they're living
-                else if (damager instanceof LivingEntity living) {
-                    data.setLastDamagerIfNative(CF.getEntity(living));
+                            if (gamePlayer != null) {
+                                final double scale = arrow.isCritical() ? bowScale[1] : bowScale[0];
+                                final double scaleFactor = instance.damage / scale;
+
+                                final Weapon weapon = gamePlayer.getHero().getWeapon();
+                                final double weaponDamage = weapon.getDamage();
+
+                                instance.damage = weaponDamage * scaleFactor;
+                            }
+                        }
+
+                        // Reassign damager to shooter
+                        if (projectile.getShooter() instanceof LivingEntity living) {
+                            data.setLastDamagerIfNative(CF.getEntity(living));
+                        }
+
+                        // Store projectile for further use
+                        finalProjectile = projectile;
+                    }
+                    // Default to damager if they're living
+                    case LivingEntity living -> data.setLastDamagerIfNative(CF.getEntity(living));
+                    default -> {
+                    }
                 }
             }
 
             final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
             instance.setLastDamager(lastDamager);
 
-            if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasEffect(Effects.INVISIBILITY)) {
+            if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasEffect(EffectType.INVISIBILITY)) {
                 final boolean cancelDamage = gamePlayer.getHero().processInvisibilityDamage(gamePlayer, gameEntity, instance.damage);
 
                 if (cancelDamage) {
@@ -466,8 +467,11 @@ public final class PlayerHandler implements Listener {
             final Weapon weapon = playerDamager.getHero().getWeapon();
             final DamageCause customWeaponCause = weapon.damageCause();
 
-            if (playerDamager.getHeldSlot() == HotBarSlot.WEAPON && customWeaponCause != null) {
+            if (instance.cause.isDirectDamage() && playerDamager.getHeldSlot() == HotBarSlot.WEAPON && customWeaponCause != null) {
                 instance.setCause(customWeaponCause);
+
+                // Also update entity data
+                data.setLastDamageCause(customWeaponCause);
             }
         }
 
@@ -475,26 +479,27 @@ public final class PlayerHandler implements Listener {
         final int noEnvironmentDamageTicksTick = gameEntity.ticker.noEnvironmentDamageTicks.getTick();
 
         // Check for attack cooldown
-        if (damager != null && cause != null && damager.getEntityData().hasAttackCooldown(cause)) {
-            damager.playSound(Sound.BLOCK_LAVA_POP, 2.0f); // FIXME (Sat, Feb 15 2025 @xanyjl): Might be annoying
+        if (damager != null && damager.getEntityData().hasAttackCooldown(cause)) {
+            if (damager instanceof GamePlayer playerDamager && playerDamager.isSettingEnabled(EnumSetting.ATTACK_COOLDOWN_SOUND)) {
+                damager.playSound(Sound.BLOCK_LAVA_POP, 2.0f);
+            }
+
             ev.setCancelled(true);
             return;
         }
 
-        if ((cause != null && cause.hasFlag(DamageFlag.ENVIRONMENT) && noEnvironmentDamageTicksTick > 0)) {
+        if (cause.hasFlag(DamageFlag.ENVIRONMENT) && noEnvironmentDamageTicksTick > 0) {
             ev.setDamage(0.0d);
             ev.setCancelled(true);
             return;
         }
 
         // Apply damage cause knockback
-        if (cause != null) {
-            final double knockBack = (finalProjectile != null && damager != null) ? RANGE_KNOCKBACK : cause.knockBack();
-            final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
+        final double knockBack = (finalProjectile != null && damager != null) ? RANGE_KNOCKBACK : cause.knockBack();
+        final double kbResist = gameEntity.getAttributeValue(Attribute.KNOCKBACK_RESISTANCE);
 
-            gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, 1 - knockBack);
-            GameTask.runLater(() -> gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, kbResist), 1);
-        }
+        gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, 1 - knockBack);
+        GameTask.runLater(() -> gameEntity.setAttributeValue(Attribute.KNOCKBACK_RESISTANCE, kbResist), 1);
 
         // CALCULATE DAMAGE USING ATTRIBUTES
 
@@ -569,9 +574,7 @@ public final class PlayerHandler implements Listener {
         // Ferocity
         if (lastDamager != null) {
             final EntityAttributes damagerAttributes = lastDamager.getAttributes();
-            if ((instance.cause != null
-                    && instance.cause.isDirectDamage())
-                    && !gameEntity.hasCooldown(Cooldown.FEROCITY)) {
+            if (instance.cause.isDirectDamage() && !gameEntity.hasCooldown(LivingGameEntity.FEROCITY_COOLDOWN)) {
                 final int ferocityStrikes = damagerAttributes.getFerocityStrikes();
 
                 if (ferocityStrikes > 0) {
@@ -585,7 +588,7 @@ public final class PlayerHandler implements Listener {
 
         // Process true damage
         if (instance.cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
-            instance.damage = initialDamage;
+            instance.damage = instance.getInitialDamage();
         }
 
         // Keep damage in limit
@@ -626,7 +629,7 @@ public final class PlayerHandler implements Listener {
     public void handleGameDamageMonitorEvent(GameDamageMonitorEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
         final GameEntity damager = ev.getDamager();
-        final DamageCause cause = Objects.requireNonNullElse(ev.getCause(), DamageCause.ENTITY_ATTACK);
+        final DamageCause cause = ev.getCause();
 
         final double damage = ev.getDamage();
 
@@ -643,7 +646,7 @@ public final class PlayerHandler implements Listener {
                     damage,
                     cause.getReadableName(),
                     entity.getName(),
-                    ev.isCritical() ? " &b&lCRIT!" : ""
+                    ev.isCritical() ? " &e&lCRIT! %s".formatted(DamageInstance.CRIT_CHAR) : ""
             ));
         }
 
@@ -657,7 +660,7 @@ public final class PlayerHandler implements Listener {
             }
 
             if (ev.isCritical()) {
-                message += " &b&lCRIT!";
+                message += " &e&lCRIT! %s".formatted(DamageInstance.CRIT_CHAR);
             }
 
             player.sendMessage(prefix + message);
@@ -946,11 +949,11 @@ public final class PlayerHandler implements Listener {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final LivingGameEntity entity = CF.getEntity(ev.getRightClicked());
 
-        if (ev.getHand() == EquipmentSlot.OFF_HAND || player == null || entity == null || player.hasCooldown(Cooldown.INTERACT)) {
+        if (ev.getHand() == EquipmentSlot.OFF_HAND || player == null || entity == null || player.hasCooldown(LivingGameEntity.INTERACT_COOLDOWN)) {
             return;
         }
 
-        player.startCooldown(Cooldown.INTERACT);
+        player.startCooldown(LivingGameEntity.INTERACT_COOLDOWN);
         entity.onInteract(player);
     }
 
@@ -1059,10 +1062,11 @@ public final class PlayerHandler implements Listener {
                 final int timeLeft = talent.getCdTimeLeft(player);
 
                 if (timeLeft >= Constants.MAX_COOLDOWN) {
-                    player.sendMessage("&cTalent on cooldown!");
+                    Response.error(player, "Talent on cooldown!");
                 }
                 else {
-                    player.sendMessage("&cTalent on cooldown for %s.".formatted(CFUtils.formatTick(timeLeft)));
+                    Response.error(player, "Talent on cooldown for %s!".formatted(CFUtils.formatTick(timeLeft)));
+                    PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
                 }
             }
             player.snapToWeapon();

@@ -4,11 +4,11 @@ import javax.annotation.Nonnull;
 
 public class CooldownData {
 
-    private final Cooldown cooldown;
+    private final EntityCooldown cooldown;
     private final long startedAt;
     private long duration;
 
-    public CooldownData(@Nonnull Cooldown cooldown, long duration) {
+    public CooldownData(@Nonnull EntityCooldown cooldown, long duration) {
         this.cooldown = cooldown;
         this.startedAt = System.currentTimeMillis();
         this.duration = duration;

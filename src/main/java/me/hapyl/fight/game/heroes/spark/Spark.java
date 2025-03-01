@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
@@ -75,7 +75,7 @@ public class Spark extends Hero {
         }
 
         // Fx
-        player.addEffect(Effects.SLOW, 50, 20);
+        player.addEffect(EffectType.SLOW, 50, 20);
         player.playWorldSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1.5f);
         player.spawnWorldParticle(Particle.FIREWORK, 50, 0.1d, 0.5d, 0.1d, 0.2f);
         player.spawnWorldParticle(Particle.LAVA, 10, 0.1d, 0.5d, 0.1d, 0.2f);
@@ -89,7 +89,7 @@ public class Spark extends Hero {
         final GamePlayer player = instance.getEntityAsPlayer();
         final DamageCause cause = instance.getCause();
 
-        if (!validatePlayer(player) || cause == null) {
+        if (!validatePlayer(player)) {
             return;
         }
 
@@ -125,7 +125,7 @@ public class Spark extends Hero {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.FIRE_RESISTANCE, 1, 999999);
+        player.addEffect(EffectType.FIRE_RESISTANCE, 1, 999999);
     }
 
     @Override

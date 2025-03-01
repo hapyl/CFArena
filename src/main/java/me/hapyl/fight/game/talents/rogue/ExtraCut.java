@@ -10,7 +10,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -54,8 +54,8 @@ public class ExtraCut extends Talent {
 
     @Override
     public Response execute(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.SLOW, 5, castingTime + 5); // Slowness for FOV effect only
-        player.addEffect(Effects.MOVEMENT_CONTAINMENT, 255, castingTime + 5);
+        player.addEffect(EffectType.SLOW, 5, castingTime + 5); // Slowness for FOV effect only
+        player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 255, castingTime + 5);
 
         new TickingGameTask() {
             private Location location = getLocation();

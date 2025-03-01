@@ -230,7 +230,7 @@ public class Candlebane extends Taunt {
 
                 @Override
                 public void onHit(@Nonnull Location location) {
-                    entity.damageNoKnockback(talent.damagePerInterval, player, DamageCause.CANDLEBANE);
+                    target.damageNoKnockback(talent.damagePerInterval, player, DamageCause.CANDLEBANE);
                 }
             }.runTaskTimer(0, 1);
         });

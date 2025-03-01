@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -85,7 +85,7 @@ public class OrcWeapon extends Weapon {
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
                         gameEntity.damage(damage, player, DamageCause.ORC_WEAPON);
-                        gameEntity.addEffect(Effects.SLOW, 4, 100);
+                        gameEntity.addEffect(EffectType.SLOW, 4, 100);
                         gameEntity.setFreezeTicks(100);
                     });
                 }

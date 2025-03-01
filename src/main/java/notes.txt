@@ -2,16 +2,8 @@
 
 - Scratch cards
 - Leaderboard
-- Add 'environment reset'
-- Potion display
-- Dice item gadget display is broken
-- Add 'feature' command to turn on/off stuff
-- Some causes have extra space at the end
-- Death message displays twice?
-- Reduce rogue knockback
-- Maybe tiered attack speed is better
-- I still don't really like pipe bomb
-- Change throwing kinfe message
+- Fix achievement hover color
+- Maybe add mastery to game report?
 
 ======= IMPORTANT =======
 

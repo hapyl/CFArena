@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.entity;
 
 import me.hapyl.eterna.module.util.Ticking;
+import me.hapyl.fight.game.Constants;
 
 public class Decay implements Ticking {
 
@@ -8,6 +9,7 @@ public class Decay implements Ticking {
     private final int duration;
     private final double decrement;
 
+    private int tick;
     private double decay;
 
     public Decay(double amount, int duration) {
@@ -15,7 +17,7 @@ public class Decay implements Ticking {
         this.duration = duration;
 
         this.decay = amount;
-        this.decrement = amount / duration;
+        this.decrement = amount / (duration + Constants.DECAY_DELAY);
     }
 
     public double getAmount() {
@@ -32,6 +34,10 @@ public class Decay implements Ticking {
 
     @Override
     public void tick() {
+        if (tick++ < Constants.DECAY_DELAY) {
+            return;
+        }
+
         this.decay -= this.decrement;
     }
 }

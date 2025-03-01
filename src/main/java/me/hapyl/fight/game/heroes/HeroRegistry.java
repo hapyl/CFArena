@@ -25,6 +25,7 @@ import me.hapyl.fight.game.heroes.healer.Healer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.hercules.Hercules;
 import me.hapyl.fight.game.heroes.himari.Himari;
+import me.hapyl.fight.game.heroes.inferno.Inferno;
 import me.hapyl.fight.game.heroes.jester.Jester;
 import me.hapyl.fight.game.heroes.juju.JuJu;
 import me.hapyl.fight.game.heroes.km.KillingMachine;
@@ -67,7 +68,7 @@ import java.util.*;
 public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     public static final Archer ARCHER;
-    @MarkedAsIncomplete public static final Alchemist ALCHEMIST;
+    public static final Alchemist ALCHEMIST;
     @MarkedAsIncomplete public static final Moonwalker MOONWALKER;
     @MarkedAsIncomplete public static final Hercules HERCULES;
     public static final Mage MAGE;
@@ -112,6 +113,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     @MarkedAsIncomplete public static final Echo ECHO;
     public static final Himari HIMARI;
     public static final Warden WARDEN;
+    public static final Inferno INFERNO;
 
     // *=* Tutorial Hero *=* // Please keep last
     public static final TutorialArcher TUTORIAL_ARCHER;
@@ -178,6 +180,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         ECHO = register("echo", Echo::new);
         HIMARI = register("himari",Himari::new);
         WARDEN = register("warden", Warden::new);
+        INFERNO = register("inferno", Inferno::new);
 
         // Keep last
         TUTORIAL_ARCHER = register("tutorial_archer", TutorialArcher::new);

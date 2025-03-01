@@ -3,7 +3,7 @@ package me.hapyl.fight.game.effect.effects;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.DebuffDisplay;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ public class OrcGrowlEffect extends Effect {
     private final double attackReduction = 0.2d;
 
     public OrcGrowlEffect() {
-        super("Orc Growl", EffectType.NEGATIVE);
+        super("Orc Growl", Type.NEGATIVE);
 
         setDescription("""
                 Slows and weakens enemies with Orc's fear.

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -40,7 +40,7 @@ public class DragonSkinSpell extends MageSpell {
     protected void useSpell(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(Effects.SLOW, 2, duration);
+        player.addEffect(EffectType.SLOW, 2, duration);
 
         temperInstance.temper(player, duration);
 

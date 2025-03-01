@@ -14,7 +14,8 @@ import javax.annotation.Nullable;
 public record DeathMessage(@Nonnull String message, @Nonnull String damagerSuffix) {
 
     private static final String DAMAGER_PLACEHOLDER = "{damager}";
-    private static final String DEFAULT_COLOR = ChatColor.DARK_RED.toString();
+    private static final String DEFAULT_COLOR = ChatColor.RED.toString();
+
     private static final double PROJECTILE_DISTANCE_THRESHOLD = 15d;
 
     public DeathMessage(@Nonnull String message, @Nonnull String damagerSuffix) {

@@ -109,13 +109,12 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         }
 
         final Relic relic = byBlock(block);
+
         if (relic == null) {
             return;
         }
 
-        if (!relic.hasFound(player)) {
-            relic.give(player);
-        }
+        relic.give(player);
     }
 
     public int countIn(EnumLevel map) {

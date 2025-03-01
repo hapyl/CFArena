@@ -17,7 +17,7 @@ public class MoonPillarZone extends MoonZone {
     private final DisplayEntity entity;
 
     public MoonPillarZone(MoonPillarTalent talent, GamePlayer player, Location centre, double size, int energy) {
-        super(player, centre, size, energy);
+        super(player, centre, talent.getDuration(), size, energy);
 
         this.talent = talent;
 
@@ -26,7 +26,7 @@ public class MoonPillarZone extends MoonZone {
         centre.getBlock().getRelative(BlockFace.UP, 2).setType(Material.BARRIER, false);
 
         this.entity = LocationHelper.offset(centre, -0.5, -3, -0.5, loc -> {
-            return talent.displayData.spawnInterpolated(centre);
+            return talent.displayData.spawnInterpolated(loc);
         });
 
         // Fx

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -15,15 +15,13 @@ import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.talents.himari.DeadEye;
-import me.hapyl.fight.game.talents.himari.HimariActionList;
-import me.hapyl.fight.game.talents.himari.LuckyDay;
-import me.hapyl.fight.game.talents.himari.SpikeBarrier;
+import me.hapyl.fight.game.talents.himari.*;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
@@ -32,11 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public class Himari extends Hero implements Listener, PlayerDataHandler<HimariData> {
-    @DisplayField private final double speedAmplify = 0.4d;
-
     private final PlayerDataMap<HimariData> playerData = PlayerMap.newDataMap(player -> new HimariData(player, this));
-    private final TemperInstance temperInstance = Temper.LUCKINESS.newInstance()
-            .increase(AttributeType.SPEED, speedAmplify);
 
     public Himari(@Nonnull Key key) {
         super(key, "Himari");
@@ -46,9 +40,9 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         profile.setGender(Gender.FEMALE);
 
         setDescription("""
-                A girl who LOVES to gamble. No matter if it's for money, results, dares, or even her life!
-                She's pretty cute if you know her well.
-                However, Doctor Ed doesn't like her that much...
+                A girl who loves to gamble.
+                
+                No matter if it's for money, results, dares or even her life!
                 """);
 
         setItem("23172927c6518ee184a1466d5f1ea81b989ced61a5d5159e3643bb9caf9c189f");
@@ -61,8 +55,8 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         setWeapon(Weapon.builder(Material.ENCHANTED_BOOK, Key.ofString("teachings_of_freedom"))
                         .name("Teachings of Freedom")
                         .description("""
-                                        &8;;Default Weapon. No luck needed.
                                         A book that contains a lot of teachings and theory.
+                                        
                                         There are many pages, some of them &f&lglow&7 as you observe more.
                                         """
                                 //  (she skipped a lot of lessons btw, fuck dr.ed)
@@ -71,7 +65,6 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
         setUltimate(new HimariUltimate());
     }
-
 
     @Override
     public LuckyDay getFirstTalent() {
@@ -103,52 +96,74 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
 
         @DisplayField private final short witherAmplifier = 4;
         @DisplayField private final int witherDuration = 155;
+        @DisplayField(percentage = true) private final double healingThreshold = 0.3d;
+
+        @DisplayField private final double speedAmplify = 0.4d;
+        @DisplayField private final int speedDuration = 100;
+
+        @DisplayField private final double selfDamage = 20;
+        @DisplayField private final double healing = 40;
+
+        private final TemperInstance speedInstance = Temper.LUCKINESS.newInstance()
+                                                                     .increase(AttributeType.SPEED, speedAmplify);
 
         public HimariUltimate() {
-            super(Himari.this, "All in", 60);
+            super(Himari.this, "All In", 60);
             setDescription("""
-                    Throw a cube that gives out a random number from 1 to 4, which will result in the effect.
+                    Throw a die and roll between &a1&7-&44&7 to gain a random effect:
                     
-                    You can get increased %s, poison your last offender, heal yourself or get punished for your impudence.
+                    &a1 &8»&7 Gain %s increase.
+                    &e2 &8»&7 Wither your last &cattacker&7.
+                    &63 &8»&7 &aHeal&7 yourself.
+                    &44 &8»&7 &4Suffer&7.
                     """.formatted(AttributeType.SPEED));
 
             setItem(Material.IRON_SWORD);
-            setDurationSec(3);
+            setDurationSec(0.5f);
             setCooldownSec(30);
 
             actionList.append(player -> {
                 //move speed
-                temperInstance.temper(player, 100);
-                player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lMove..", 2, 100, 6);
-                return true;
+                speedInstance.temper(player, speedDuration);
+                playRollFx(player, "Move...");
             });
 
-            actionList.append(player -> {
-                final GameEntity lastAttacker = player.getLastDamager();
-                //poison last entity who hurt Himari
-                if (lastAttacker instanceof LivingGameEntity livingAttacker) {
-                    livingAttacker.addEffect(Effects.WITHER, witherAmplifier, witherDuration);
-                    player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lThey will regret...", 2, 60, 6);
-                    return true;
+            actionList.append(new HimariAction() {
+                @Override
+                public void execute(@Nonnull GamePlayer player) {
+                    final GameEntity lastAttacker = player.getLastDamager();
+
+                    if (lastAttacker instanceof LivingGameEntity livingAttacker) {
+                        livingAttacker.addEffect(EffectType.WITHER, witherAmplifier, witherDuration);
+                        playRollFx(player, "They will regret...");
+                    }
                 }
-                return false;
+
+                @Override
+                public boolean canExecute(@Nonnull GamePlayer player) {
+                    final GameEntity lastAttacker = player.getLastDamager();
+
+                    return lastAttacker instanceof LivingGameEntity;
+                }
+            });
+
+            actionList.append(new HimariAction() {
+                @Override
+                public void execute(@Nonnull GamePlayer player) {
+                    player.heal(healing);
+                    playRollFx(player, "Back in action...");
+                }
+
+                @Override
+                public boolean canExecute(@Nonnull GamePlayer player) {
+                    return player.getHealth() < player.getMaxHealth() * healingThreshold;
+                }
             });
 
             actionList.append(player -> {
                 //Self-damage (haram!!)
-                player.damage(20, player, DamageCause.GAMBLE);
-                player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lJudgement.",2, 80, 6);
-                return true;
-            });
-
-            actionList.append(player -> {
-                //heal player if low on health.
-                if (player.getHealth() < player.getMaxHealth() * 0.3) {
-                    player.heal(40);
-                    player.sendSubtitle("&o&lYou hear a whisper in your head: &0&o&lBack in action..",2, 60, 6);
-                    return true;
-                }
-                return false;
+                player.damageNoKnockback(selfDamage, player, DamageCause.GAMBLE);
+                playRollFx(player, "Judgement.");
             });
         }
 
@@ -156,14 +171,16 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             return execute(() -> {
-                actionList.randomActionAndExecute(player);
-
+                new HimariDiceAnimation(player, actionList).play(getDuration());
                 // Fx
 
-                // ^ Fx is not needed here, since CF already uses dragon roar
-                // or what fucking ever that sound is
-                // anyway, it fits good enough
             });
+        }
+
+        private void playRollFx(GamePlayer player, String message) {
+            player.sendTitle("&7You hear a whisper in your head:", "&0&o&l" + message, 10, 50, 5);
+
+            player.playSound(Sound.PARTICLE_SOUL_ESCAPE, 0.0f);
         }
     }
 

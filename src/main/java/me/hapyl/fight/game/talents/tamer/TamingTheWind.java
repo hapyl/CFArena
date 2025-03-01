@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.InputTalent;
@@ -80,7 +80,7 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
                 @Override
                 public void onStart() {
                     entity.setVelocity(new Vector(0, 0.75, 0));
-                    entity.addEffect(Effects.IMMOVABLE, duration, true);
+                    entity.addEffect(EffectType.IMMOVABLE, duration);
                     entity.triggerDebuff(player);
                 }
 
@@ -110,10 +110,10 @@ public class TamingTheWind extends InputTalent implements TamerTimed {
         new EntityLevitate<>(player, duration) {
             @Override
             public void onStart() {
-                player.addEffect(Effects.LEVITATION, 6, duration);
+                player.addEffect(EffectType.LEVITATION, 6, duration);
 
-                player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, duration + 20, true);
-                player.addEffect(Effects.IMMOVABLE, duration, true);
+                player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, duration + 20);
+                player.addEffect(EffectType.IMMOVABLE, duration);
             }
 
             @Override

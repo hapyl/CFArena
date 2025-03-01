@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.effects.BleedEffect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -29,7 +29,7 @@ public class BloodfiendData implements Ticking {
     public BloodfiendData(GamePlayer player) {
         this.player = player;
         this.succulence = Maps.newConcurrentMap();
-        this.bleedEffect = (BleedEffect) Effects.BLEED.getEffect();
+        this.bleedEffect = (BleedEffect) EffectType.BLEED.getEffect();
     }
 
     @Nullable

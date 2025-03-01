@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.task.player;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 
@@ -31,7 +31,7 @@ public interface IPlayerTask {
     /**
      * Called upon player dying while the task is active.
      */
-    @Event
+    @EventLike
     default void onTaskStopBecauseOfDeath() {
     }
 

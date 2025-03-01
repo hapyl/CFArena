@@ -1,11 +1,11 @@
 package me.hapyl.fight.database;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.registry.Registry;
 import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bson.Document;
 import org.bukkit.OfflinePlayer;
@@ -89,14 +89,14 @@ public class PlayerDatabaseEntry {
     /**
      * Called right before writing the root {@link Document} into the remote database.
      */
-    @Event
+    @EventLike
     public void onSave() {
     }
 
     /**
      * Called once after loading all the entries.
      */
-    @Event
+    @EventLike
     public void onLoad() {
     }
 

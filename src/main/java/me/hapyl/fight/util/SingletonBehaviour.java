@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Mimics a singleton, {@link Enum} like behaviour.
  */
-public class SingletonBehaviour {
+public abstract class SingletonBehaviour {
 
     protected static final Map<Class<?>, Integer> SINGLETONS = new HashMap<>();
 
@@ -30,6 +30,11 @@ public class SingletonBehaviour {
      */
     public final boolean equals(@Nullable Object object) {
         return this == object;
+    }
+
+    @Override
+    public int hashCode() {
+        throw new IllegalStateException("Singleton must implement hashCode()");
     }
 
     protected static void instantiate(@Nonnull Object reference) {

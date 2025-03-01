@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -108,8 +108,8 @@ public class ShortyShotgun extends Talent {
                 // Check for bleed
                 if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
                     entity.setLastDamager(player);
-                    entity.addEffect(Effects.BLEED, bleedDuration, true);
-                    entity.addEffect(Effects.VULNERABLE, bleedDuration, true);
+                    entity.addEffect(EffectType.BLEED, bleedDuration);
+                    entity.addEffect(EffectType.VULNERABLE, bleedDuration);
                 }
 
                 double damage = maxDamagePerPellet - d;

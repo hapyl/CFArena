@@ -17,13 +17,13 @@ import javax.annotation.Nullable;
 public abstract class Effect implements Described {
 
     private final String name;
-    private final EffectType type;
+    private final Type type;
 
     private String description;
     private EffectParticle effectParticle;
     private StringDisplay display;
 
-    protected Effect(@Nonnull String name, @Nonnull EffectType type) {
+    protected Effect(@Nonnull String name, @Nonnull Type type) {
         this.name = name + Constants.DEFAULT_LORE_COLOR;
         this.description = "";
         this.type = type;
@@ -66,7 +66,7 @@ public abstract class Effect implements Described {
     }
 
     @Nonnull
-    public EffectType getType() {
+    public Type getType() {
         return type;
     }
 

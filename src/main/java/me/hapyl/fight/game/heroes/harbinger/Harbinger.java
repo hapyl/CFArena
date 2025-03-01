@@ -10,7 +10,7 @@ import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -372,7 +372,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
                 }
 
                 // Fx
-                player.addEffect(Effects.SLOW, 2, 20);
+                player.addEffect(EffectType.SLOW, 2, 20);
                 player.playWorldSound(Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
             });
         }

@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.bounty_hunter;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.entity.EntityUtils;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -237,7 +237,7 @@ public class GrappleHook extends GameTask {
                 // Finishes grappling
                 if (playerLocation.distanceSquared(location) <= 1d) {
                     remove();
-                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 600, true);
+                    player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 600);
                 }
 
                 if (isVectorFinite(vector)) {

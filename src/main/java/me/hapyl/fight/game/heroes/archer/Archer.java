@@ -24,7 +24,7 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.terminology.Terms;
+import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.ProgressBarBuilder;
@@ -294,7 +294,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
             setDescription("""
                     Light the &6fuse&7 and equip a &6&lBOOM BOW&7 that shoots explosive arrows that &cexplode&7 on impact, dealing massive %s&7.
-                    """.formatted(Terms.TRUE_DAMAGE));
+                    """.formatted(EnumTerm.TRUE_DAMAGE));
 
             setItem(Material.BLAZE_POWDER);
             setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f);

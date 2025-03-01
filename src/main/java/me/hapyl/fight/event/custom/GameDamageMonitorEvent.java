@@ -36,7 +36,7 @@ public class GameDamageMonitorEvent extends CustomEvent {
         return instance.getDamager();
     }
 
-    @Nullable
+    @Nonnull
     public DamageCause getCause() {
         return instance.getCause();
     }

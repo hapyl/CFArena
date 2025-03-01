@@ -10,7 +10,7 @@ public class VanillaEffect extends Effect {
 
     private final PotionEffectType effect;
 
-    public VanillaEffect(String name, PotionEffectType effect, EffectType type) {
+    public VanillaEffect(String name, PotionEffectType effect, Type type) {
         super(name, type);
 
         this.effect = effect;

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -146,8 +146,8 @@ public class ShadowPrism extends Talent {
         startCd(player, 9999);
         final float pitchPerTick = 2.0f / windupTime;
 
-        player.addEffect(Effects.SLOW, 100, windupTime);
-        player.addEffect(Effects.SLOW_FALLING, 0, windupTime);
+        player.addEffect(EffectType.SLOW, 100, windupTime);
+        player.addEffect(EffectType.SLOW_FALLING, 0, windupTime);
 
         GameTask.runTaskTimerTimes((task, i) -> {
             final Location eyeLocation = player.getEyeLocation();
@@ -175,7 +175,7 @@ public class ShadowPrism extends Talent {
             playerPrism.remove(player);
 
             // Fx
-            player.addEffect(Effects.BLINDNESS, 1, 20);
+            player.addEffect(EffectType.BLINDNESS, 1, 20);
             player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         }, 1, windupTime);
 

@@ -87,10 +87,10 @@ public class TermCollectionGUI extends StyledPageGUI<Term> {
         List<Term> terms;
 
         if (query == null) {
-            terms = Terms.listTerms();
+            terms = EnumTerm.listTerms();
         }
         else {
-            terms = Terms.byContext(query);
+            terms = EnumTerm.byContext(query);
         }
 
         this.query = query;

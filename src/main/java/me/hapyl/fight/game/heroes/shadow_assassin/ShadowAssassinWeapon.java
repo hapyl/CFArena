@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -58,8 +58,8 @@ public class ShadowAssassinWeapon extends Weapon {
         final Vector vector = location.getDirection();
 
         entity.setVelocity(new Vector(vector.getX(), 0.1d, vector.getZ()).multiply(2.13f));
-        entity.addEffect(Effects.SLOW, 5, 40);
-        entity.addEffect(Effects.NAUSEA, 5, 40);
+        entity.addEffect(EffectType.SLOW, 5, 40);
+        entity.addEffect(EffectType.NAUSEA, 5, 40);
 
         entity.getAttributes().decreaseTemporary(Temper.BACKSTAB, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration, player);
 

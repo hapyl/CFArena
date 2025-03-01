@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.task;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Timed;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -104,11 +104,11 @@ public abstract class GameTask implements Runnable, BukkitTask {
         return bukkitTask == null ? -1 : bukkitTask.getTaskId();
     }
 
-    @Event
+    @EventLike
     public void onTaskStart() {
     }
 
-    @Event
+    @EventLike
     public void onTaskStop() {
     }
 

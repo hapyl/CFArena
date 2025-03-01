@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.bloodfiend;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
 import me.hapyl.fight.game.talents.Talent;
@@ -79,7 +79,7 @@ public class SpectralForm extends Talent {
                 player.setAllowFlight(false);
                 player.setFlying(false);
 
-                player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100);
+                player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
 
                 // Fx
                 final Location location = player.getLocation();

@@ -9,9 +9,10 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.effect.Effects;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -31,7 +32,7 @@ public final class EntityData implements Ticking {
 
     private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
 
-    private final Map<Effects, ActiveGameEffect> gameEffects;
+    private final Map<EffectType, ActiveGameEffect> gameEffects;
     private final Map<GamePlayer, Double> damageTaken;
     private final Map<DamageCause, Integer> attackCooldown;
 
@@ -77,7 +78,7 @@ public final class EntityData implements Ticking {
      * @return game effect map.
      */
     @Nonnull
-    public Map<Effects, ActiveGameEffect> getGameEffects() {
+    public Map<EffectType, ActiveGameEffect> getGameEffects() {
         return gameEffects;
     }
 
@@ -230,9 +231,9 @@ public final class EntityData implements Ticking {
      * @param amplifier - Amplifier.
      * @param duration  - Duration. {@code -1} for infinite duration.
      */
-    public void addEffect(@Nonnull Effects type, int amplifier, int duration) {
+    public void addEffect(@Nonnull EffectType type, int amplifier, int duration) {
         // Check for effect resistance
-        if (type.getEffect().getType() == EffectType.NEGATIVE && entity.hasEffectResistanceAndNotify()) {
+        if (type.getEffect().getType() == Type.NEGATIVE && entity.hasEffectResistanceAndNotify()) {
             return;
         }
 
@@ -253,7 +254,7 @@ public final class EntityData implements Ticking {
      *
      * @param type - Type.
      */
-    public void clearEffect(Effects type) {
+    public void clearEffect(EffectType type) {
         gameEffects.remove(type);
     }
 
@@ -262,7 +263,7 @@ public final class EntityData implements Ticking {
      *
      * @param type - Type.
      */
-    public void removeEffect(Effects type) {
+    public void removeEffect(EffectType type) {
         final ActiveGameEffect gameEffect = gameEffects.get(type);
         if (gameEffect != null) {
             gameEffect.forceStop();
@@ -275,7 +276,7 @@ public final class EntityData implements Ticking {
      * @param type - Type.
      * @return true if this entity has the given effect.
      */
-    public boolean hasEffect(Effects type) {
+    public boolean hasEffect(EffectType type) {
         return gameEffects.containsKey(type);
     }
 
@@ -323,9 +324,9 @@ public final class EntityData implements Ticking {
     }
 
     public boolean hasAttackCooldown(@Nonnull DamageCause cause) {
-        final Integer cooldown = attackCooldown.get(cause);
+        final int cooldown = attackCooldown.getOrDefault(cause, 0);
 
-        return cooldown != null && cooldown > 0;
+        return !cause.hasFlag(DamageFlag.ENVIRONMENT) && cooldown > 0;
     }
 
     public void startAttackCooldown(@Nonnull DamageCause cause, int cooldown) {

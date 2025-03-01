@@ -28,7 +28,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 
-public class WitcherClass extends Hero implements ComplexHero, UIComponent {
+public class WitcherClass extends Hero implements UIComponent {
 
     private final PlayerMap<Combo> combos = PlayerMap.newMap();
 

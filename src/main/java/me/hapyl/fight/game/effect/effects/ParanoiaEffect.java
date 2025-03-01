@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectParticle;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -30,7 +30,7 @@ public class ParanoiaEffect extends Effect {
     };
 
     public ParanoiaEffect() {
-        super("Paranoia", EffectType.NEGATIVE);
+        super("Paranoia", Type.NEGATIVE);
 
         setDescription("""
                 Blinds players and plays decoy sounds around them.
@@ -42,7 +42,7 @@ public class ParanoiaEffect extends Effect {
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         // Plays a sound every 20 ticks or with 10% chance
-        if (tick % 20 == 0 || Math.random() >= 0.9d) {
+        if (tick % 20 == 0 || entity.random.checkBound(0.9d)) {
             // Display paranoia for all players but the viewer
             final Location spawnLocation = entity.getLocation().clone().add(0, 1.7d, 0);
             //this.displayParticles(spawnLocation, entity.getEntity()); Moved to omen debuff to only show the particles for the player

@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
 
@@ -39,7 +39,7 @@ public abstract class AstralTask extends TickingGameTask {
         run(player, star, tick);
     }
 
-    @Event
+    @EventLike
     protected void onCancel(@Nonnull CancelReason reason) {
     }
 

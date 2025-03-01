@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.util.Collect;
@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 public class Invisibility extends Effect {
 
     public Invisibility() {
-        super("Invisibility", EffectType.POSITIVE);
+        super("Invisibility", Type.POSITIVE);
 
         setDescription("""
                 Completely hides the player.

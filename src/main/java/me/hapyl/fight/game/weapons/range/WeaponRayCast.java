@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.weapons.range;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -31,15 +31,15 @@ public class WeaponRayCast {
         this.player = player;
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onStop() {
     }
 
-    @Event
+    @EventLike
     public void onMove(@Nonnull Location location) {
     }
 
@@ -124,13 +124,13 @@ public class WeaponRayCast {
         return DamageCause.RANGE_ATTACK;
     }
 
-    @Event
+    @EventLike
     @OverridingMethodsMustInvokeSuper
     public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
         entity.damage(getDamage(isHeadShot), player, getDamageCause());
     }
 
-    @Event
+    @EventLike
     public boolean predicateEntity(@Nonnull LivingGameEntity entity) {
         return true;
     }

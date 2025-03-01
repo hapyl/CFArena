@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;
 import org.bukkit.potion.PotionEffectType;
@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 
 public class ChillAuraEffect extends Effect {
     public ChillAuraEffect() {
-        super("Chill Aura", EffectType.NEGATIVE);
+        super("Chill Aura", Type.NEGATIVE);
 
         setDescription("""
                 Chills enemies out.

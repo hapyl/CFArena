@@ -7,7 +7,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -98,7 +98,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
         entity.setLastDamager(player);
         entity.damage(damage, DamageCause.SHADOW_CLONE);
 
-        entity.addEffect(Effects.BLINDNESS, 1, 20);
+        entity.addEffect(EffectType.BLINDNESS, 1, 20);
         entity.triggerDebuff(player);
 
         // Reduce defense
@@ -106,7 +106,7 @@ public class CloneNPC extends HumanNPC implements TickingScheduler {
         attributes.decreaseTemporary(Temper.SHADOW_CLONE, AttributeType.DEFENSE, talent.defenseReduction, talent.defenseReductionDuration, player);
 
         // Fx
-        entity.playHurtSound();
+        entity.playHurtSound(true);
         entity.playWorldSound(Sound.ENTITY_SQUID_SQUIRT, 0.0f);
         entity.playWorldSound(Sound.ENTITY_ENDER_DRAGON_HURT, 0.0f);
         entity.playWorldSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 0.75f);

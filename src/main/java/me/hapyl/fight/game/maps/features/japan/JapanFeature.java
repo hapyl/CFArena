@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.task.GameTask;
@@ -25,6 +25,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import java.util.Set;
 
 public class JapanFeature extends LevelFeature implements Listener {
+
+    private static final EntityCooldown COOLDOWN = EntityCooldown.of("japan_booster", 300L);
 
     private final Location[] healingSakuraLocations = {
             BukkitUtils.defLocation(972, 66, -12),
@@ -116,7 +118,7 @@ public class JapanFeature extends LevelFeature implements Listener {
             return;
         }
 
-        if (gamePlayer.hasCooldown(Cooldown.JAPAN_BOOSTER)) {
+        if (gamePlayer.hasCooldown(COOLDOWN)) {
             return;
         }
 
@@ -128,7 +130,7 @@ public class JapanFeature extends LevelFeature implements Listener {
 
         for (JapanBooster booster : boosters) {
             if (LocationHelper.blockLocationEquals(booster.getLocation(), block.getLocation())) {
-                gamePlayer.startCooldown(Cooldown.JAPAN_BOOSTER);
+                gamePlayer.startCooldown(COOLDOWN);
                 booster.boost(gamePlayer);
                 return;
             }

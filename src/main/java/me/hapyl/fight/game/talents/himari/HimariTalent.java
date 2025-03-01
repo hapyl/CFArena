@@ -12,10 +12,19 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public abstract class HimariTalent extends Talent {
+
+    protected static final String howToGetString = "&8&o;;This talent must be rolled through Lucky Day!";
+
     public HimariTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
         setCooldown(Constants.INDEFINITE_COOLDOWN);
+    }
+
+    @Nonnull
+    @Override
+    public String getTalentClassType() {
+        return "Lucky " + super.getTalentClassType();
     }
 
     // This method is execute replacement because execute is used as precondition method
@@ -25,7 +34,6 @@ public abstract class HimariTalent extends Talent {
     // Allow executing this talent
     public void allowExecution(@Nonnull GamePlayer player) {
         stopCd(player);
-        player.sendMessage(getName() + " is now ready to be used!");
     }
 
     @Override

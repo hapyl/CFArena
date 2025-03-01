@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import org.bukkit.Location;
@@ -71,7 +71,7 @@ public interface DeviceHack {
                 onTick(player, tick);
 
                 // Disallow movement each tick to prevent abuse
-                player.addEffect(Effects.MOVEMENT_CONTAINMENT, 2, true);
+                player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 2);
 
                 // Tick
                 tick++;

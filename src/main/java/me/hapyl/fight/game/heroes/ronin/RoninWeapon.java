@@ -12,7 +12,7 @@ import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -202,7 +202,7 @@ public class RoninWeapon extends Weapon {
             this.entity.teleport(getDisplayLocation());
 
             // Add slowness
-            this.player.addEffect(Effects.MOVEMENT_CONTAINMENT, 2, true);
+            this.player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 2);
         }
 
         private Location getDisplayLocation() {

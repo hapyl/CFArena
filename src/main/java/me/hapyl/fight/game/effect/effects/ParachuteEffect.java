@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -11,13 +11,13 @@ import javax.annotation.Nonnull;
 
 public class ParachuteEffect extends Effect {
     public ParachuteEffect() {
-        super("Parachute", EffectType.POSITIVE);
+        super("Parachute", Type.POSITIVE);
     }
 
     @Override
     public void onTick(@Nonnull LivingGameEntity entity, int tick) {
         if (entity.isOnGround()) {
-            entity.removeEffect(Effects.PARACHUTE);
+            entity.removeEffect(EffectType.PARACHUTE);
         }
     }
 

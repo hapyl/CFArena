@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps.maps;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.LevelFeature;
@@ -18,6 +18,8 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 
 public class DwarfVault extends Level implements Listener {
+
+    private static final EntityCooldown COOLDOWN = EntityCooldown.of("dwarf_lava", 1000L);
 
     public final BoundingBoxCollector lavaBoundingBox = new BoundingBoxCollector(5973, 24, -36, 6029, 33, 36);
     public final Vector lavaPushVector = new Vector(0.0d, 3.1d, 0.0d);
@@ -39,9 +41,11 @@ public class DwarfVault extends Level implements Listener {
         addLocation(6000, 75, -49, -180f, 0f);
         addLocation(6011.0, 64, -82.0, 90f, 0f);
 
-        addFeature(new LevelFeature("Bouncy Lava", """
+        addFeature(new LevelFeature(
+                "Bouncy Lava", """
                 Hot but bouncy lava that allows you to get back to the platform.
-                """) {
+                """
+        ) {
             @Override
             public void tick(int tick) {
                 if (tick % 20 == 0) {
@@ -67,13 +71,13 @@ public class DwarfVault extends Level implements Listener {
     }
 
     public void launchUp(@Nonnull LivingGameEntity entity) {
-        if (entity.hasCooldown(Cooldown.DWARF_LAVA)) {
+        if (entity.hasCooldown(COOLDOWN)) {
             return;
         }
 
         entity.setVelocity(lavaPushVector);
         entity.damage(lavaDamage, DamageCause.DWARF_LAVA);
-        entity.startCooldown(Cooldown.DWARF_LAVA);
+        entity.startCooldown(COOLDOWN);
 
         // Fx
         entity.playSound(Sound.BLOCK_LAVA_POP, 0.0f);

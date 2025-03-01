@@ -7,7 +7,7 @@ import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -151,7 +151,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                     &8&o;;The explosion can damage yourself.
                     
                     If at least &none&7 enemy was &chit&7, &nrefresh&7 %s charges.
-                    """.formatted(Effects.BLEED.getName(), Named.SECOND_WIND)
+                    """.formatted(EffectType.BLEED.getName(), Named.SECOND_WIND)
             );
 
             setItem(Material.LIGHTNING_ROD);
@@ -228,7 +228,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                                 }
 
                                 entity.damageNoKnockback(explosionDamage, player, DamageCause.PIPE_BOMB);
-                                entity.addEffect(Effects.BLEED, bleedDuration);
+                                entity.addEffect(EffectType.BLEED, bleedDuration);
                             }
 
                             // Refresh passive

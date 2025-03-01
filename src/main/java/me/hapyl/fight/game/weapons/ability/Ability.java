@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.weapons.ability;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.Described;
@@ -51,14 +52,16 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     public final void execute0(GamePlayer player, ItemStack item) {
         if (hasCooldown(player)) {
             if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
-                sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
+                Response.error(player, "Ability on cooldown for %s!".formatted(getCooldownTimeLeftFormatted(player)));
+                PlayerLib.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             }
+
             return;
         }
 
         final Response response = execute(player, item);
         if (response != null && response.isError()) {
-            sendError(player, "Unable to use this! " + response.getReason());
+            response.sendError(player);
             return;
         }
 

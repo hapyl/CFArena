@@ -13,6 +13,7 @@ public enum Race implements Named {
     VAMPIRE("&4🦇 &cVampire"),
     SHARK("&b🦈 Shark"),
     VOID_CREATURE("&b\uD83C\uDF00 Abyss Creature"),
+    DEMON("&4\uD83D\uDC7F Demon"),
 
     UNKNOWN("&8❓ Unknown"),
 

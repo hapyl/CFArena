@@ -87,7 +87,7 @@ public class Color implements TextColor {
     public static final Color M_YELLOW = new Color("#FFD700");
     public static final Color GRAYER = GRAY.darken(0.8f);
     public static final Color SKIN = new Color("#ffdbac");
-    public static final Color MOON = new Color("#C0C0C0");
+    public static final Color MOON = new Color("#b5b08f");
     public static final Color ETHEREAL = new Color("#D3E1FF");
     public static final Color HEXBANE = new Color("#5C3D2E");
     public static final Color VOID = new Color("#3A2A4C");
@@ -105,6 +105,7 @@ public class Color implements TextColor {
     public static final Color LIGHT_BLUE = new Color("#ADD8E6");
     public static final Color ECHO_WORLD = new Color("#363a47");
     public static final Color ABYSS = new Color("#7304c2");
+    public static final Color HELL = new Color("#8B0000");
 
     // *-----------------------------------------------------*
 

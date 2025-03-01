@@ -2,7 +2,7 @@ package me.hapyl.fight.protocol;
 
 import me.hapyl.eterna.module.event.protocol.PacketSendEvent;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedSoundEffect;
 import org.bukkit.entity.Player;
@@ -22,7 +22,7 @@ public class ArcaneMutePacketHandler implements Listener {
 
         final GamePlayer gamePlayer = CF.getPlayer(player);
 
-        if (gamePlayer != null && gamePlayer.hasEffect(Effects.ARCANE_MUTE)) {
+        if (gamePlayer != null && gamePlayer.hasEffect(EffectType.ARCANE_MUTE)) {
             ev.setCancelled(true);
         }
     }

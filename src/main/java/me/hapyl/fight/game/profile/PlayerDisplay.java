@@ -102,8 +102,13 @@ public class PlayerDisplay {
     }
 
     @Nonnull
+    public String toStringChat() {
+        return toString(Part.LEVEL, Part.STATUS, Part.PREFIX, Part.NAME);
+    }
+
+    @Nonnull
     public String toStringTab() {
-        return Chat.format("%s %s".formatted(toString(Part.LEVEL, Part.STATUS, Part.PREFIX, Part.NAME), formatPing()));
+        return Chat.format("%s %s".formatted(toStringChat(), formatPing()));
     }
 
     @Nonnull

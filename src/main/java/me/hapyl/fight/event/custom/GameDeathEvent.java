@@ -34,7 +34,7 @@ public class GameDeathEvent extends CustomEvent implements Cancellable {
         return instance.getDamager();
     }
 
-    @Nullable
+    @Nonnull
     public DamageCause getCause() {
         return instance.getCause();
     }

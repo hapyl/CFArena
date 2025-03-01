@@ -4,7 +4,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.mastery.HeroMasteryLevel;
 import me.hapyl.fight.game.heroes.mastery.NumberProvider;
-import me.hapyl.fight.terminology.Terms;
+import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.displayfield.DisplayField;
 
 import javax.annotation.Nonnull;
@@ -61,7 +61,7 @@ public class ArcherMastery extends HeroMastery {
             super(
                     level, "Lucky!", """
                             Increases the %s of &a%s&7 to activate by &b{chanceIncrease}&7.
-                            """.formatted(Terms.BASE_CHANCE, hero().getPassiveTalent().getName())
+                            """.formatted(EnumTerm.BASE_CHANCE, hero().getPassiveTalent().getName())
             );
         }
 

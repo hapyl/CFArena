@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.attribute.BaseAttributes;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
@@ -45,7 +45,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         );
 
         player.getTeam().addEntry(golem.getEntry());
-        player.addEffect(Effects.INVISIBILITY, 100000, true);
+        player.addEffect(EffectType.INVISIBILITY, 100000);
 
         // Fx
         player.spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
@@ -58,7 +58,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         cancel();
 
         golem.remove();
-        player.removeEffect(Effects.INVISIBILITY);
+        player.removeEffect(EffectType.INVISIBILITY);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DEATH, 0.75f);

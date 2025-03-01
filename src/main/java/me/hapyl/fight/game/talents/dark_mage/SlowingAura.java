@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.talents.TalentType;
@@ -84,7 +84,7 @@ public class SlowingAura extends DarkMageTalent {
                         return;
                     }
 
-                    entity.addEffect(Effects.SLOW, 3, 10);
+                    entity.addEffect(EffectType.SLOW, 3, 10);
 
                     final EntityAttributes attributes = entity.getAttributes();
                     attributes.increaseTemporary(Temper.SLOWING_AURA, AttributeType.COOLDOWN_MODIFIER, cdIncrease, impairDuration);

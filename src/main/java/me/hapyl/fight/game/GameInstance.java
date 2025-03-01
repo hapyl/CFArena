@@ -10,7 +10,7 @@ import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.win.WinCosmetic;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
@@ -120,7 +120,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     public void calculateEverything() {
         GameTask.runLater(
                 () -> {
-                    gameResult.calculate();
+                    gameResult.displayWinners();
                     gameResult.awardWinners();
                 }, 10
         ).setShutdownAction(ShutdownAction.IGNORE);
@@ -288,7 +288,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
                 return;
             }
 
-            player.addEffect(Effects.GLOWING, 20);
+            player.addEffect(EffectType.GLOWING, 20);
             player.sendTitle("&c&lYOU'RE AFK", "&aMove to return from afk!", 0, 10, 0);
 
             if (tick % 10 == 0) {

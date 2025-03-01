@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -47,7 +47,7 @@ public class EntityDarkness extends LibrarianTalent {
                 }
 
                 victim.damage(getCurrentValue(player), player, DamageCause.DARKNESS);
-                victim.addEffect(Effects.PARANOIA, 20);
+                victim.addEffect(EffectType.PARANOIA, 20);
 
                 // Fx
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_STEP, 0.0f);

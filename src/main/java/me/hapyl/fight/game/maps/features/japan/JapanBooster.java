@@ -2,7 +2,7 @@ package me.hapyl.fight.game.maps.features.japan;
 
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -41,7 +41,7 @@ public class JapanBooster {
             player.playWorldSound(Sound.ENTITY_WITHER_SHOOT, 1.5f);
         }, boostDelay);
 
-        player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, boostDelay * 3);
+        player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, boostDelay * 3);
     }
 
     @Nonnull

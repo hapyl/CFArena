@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Removable;
@@ -68,7 +68,7 @@ public class IceCage extends TimedGameTask implements Removable{
 
         entity.sendMessage("&b\uD83E\uDD76 &3You got hit by %s's snowball!".formatted(player.getName()));
         entity.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
-        entity.addEffect(Effects.BLINDNESS, 2, 30);
+        entity.addEffect(EffectType.BLINDNESS, 2, 30);
         entity.setFreezeTicks(maxTick);
         entity.triggerDebuff(player);
 

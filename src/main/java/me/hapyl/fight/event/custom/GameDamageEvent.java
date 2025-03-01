@@ -40,7 +40,7 @@ public class GameDamageEvent extends CustomEvent implements Cancellable {
         instance.multiplyDamage(multiplier);
     }
 
-    @Nullable
+    @Nonnull
     public DamageCause getCause() {
         return instance.getCause();
     }

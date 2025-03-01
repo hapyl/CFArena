@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.EntityMemory;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MemoryKey;
@@ -18,7 +18,7 @@ public class MovementContainment extends Effect {
     private final double speedConstant = 100;
 
     public MovementContainment(@Nonnull String string) {
-        super(string, EffectType.NEGATIVE);
+        super(string, Type.NEGATIVE);
     }
 
     public MovementContainment() {

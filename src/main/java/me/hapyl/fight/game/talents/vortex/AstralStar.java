@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
@@ -9,7 +10,6 @@ import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -111,7 +111,7 @@ public class AstralStar implements Ticking {
         return talent;
     }
 
-    @Event
+    @EventLike
     public void onDeath() {
         player.playWorldSound(Sound.ENTITY_BLAZE_DEATH, 0.0f);
         player.sendTitle("&c⭐", "&4A star was destroyed!", 5, 10, 5);

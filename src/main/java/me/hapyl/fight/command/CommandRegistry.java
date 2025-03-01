@@ -26,7 +26,6 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Cuboid;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.math.nn.IntInt;
-import me.hapyl.eterna.module.player.EffectType;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.player.dialog.DialogInstance;
@@ -45,7 +44,6 @@ import me.hapyl.fight.GVar;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.anticheat.PunishmentReport;
-import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.chat.ChatChannel;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.NamedCollection;
@@ -75,10 +73,8 @@ import me.hapyl.fight.game.crate.Crates;
 import me.hapyl.fight.game.crate.convert.CrateConvert;
 import me.hapyl.fight.game.crate.convert.CrateConverts;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.*;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
-import me.hapyl.fight.game.entity.cooldown.CooldownData;
 import me.hapyl.fight.game.entity.named.NamedEntityType;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
@@ -109,6 +105,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.alchemist.AlchemistEffect;
 import me.hapyl.fight.game.talents.engineer.Construct;
+import me.hapyl.fight.game.talents.himari.HimariAction;
 import me.hapyl.fight.game.talents.juju.Orbiting;
 import me.hapyl.fight.game.talents.shaman.TotemPrison;
 import me.hapyl.fight.game.talents.swooper.BlastPackEntity;
@@ -143,7 +140,6 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -178,7 +174,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.List;
-import java.util.Queue;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -255,8 +250,36 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new DumpColorCommand("dumpColor"));
         register(new ViewTheEyeGuiCommand("viewtheeyegui"));
         register(new ReadSignsCommand("readSigns"));
+        register(new TemperStatCommand("temperStat"));
 
         // *=* Inner commands *=* //
+        register("triggerLuckyDay", (player, args) -> {
+            GamePlayer.getPlayerOptional(player)
+                    .ifPresent(gameplayer -> {
+                        final int index = args.getInt(0);
+                        final HimariAction action = TalentRegistry.LUCKY_DAY.actionList.byIndex(index);
+
+                        if (action == null) {
+                            gameplayer.sendMessage(Message.ERROR, "No action at index {%s}!".formatted(index));
+                            return;
+                        }
+
+                        gameplayer.sendMessage(Message.SUCCESS, "Executing action...");
+                        action.execute(gameplayer);
+                    });
+        });
+
+        register(
+                "maxMoonEnergy", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gamePlayer -> {
+                                  HeroRegistry.MOONWALKER.getPlayerData(gamePlayer).incrementMoonEnergy(1000);
+
+                                  gamePlayer.sendMessage("&eMaxed energy!");
+                              });
+                }
+        );
+
         register(
                 "startAndExplodeAbyssalCurse", (player, args) -> {
                     GamePlayer.getPlayerOptional(player)
@@ -939,9 +962,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         });
 
         register(
-                "playMasteryLevelUpEffect", (player, args) ->
-
-                {
+                "playMasteryLevelUpEffect", (player, args) -> {
                     final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
                     final Hero hero = Manager.current().getSelectedLobbyHero(player);
                     final int level = entry.getLevel(hero);
@@ -953,9 +974,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register("masteryExp", (player, args) -> HeroMastery.dumpExpMap(player));
 
         register(
-                "giveHideTooltipsItem", (player, args) ->
-
-                {
+                "giveHideTooltipsItem", (player, args) -> {
                     player.getInventory().addItem(new ItemBuilder(Material.IRON_PICKAXE).asIcon());
                 }
         );
@@ -1105,9 +1124,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
 
         register(
-                "launchIcicles", (player, args) ->
-
-                {
+                "launchIcicles", (player, args) -> {
                     final GamePlayer gamePlayer = CF.getPlayer(player);
 
                     if (gamePlayer == null) {
@@ -1526,7 +1543,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 {
                     LivingGameEntity entity = CF.createEntity(player.getLocation(), Entities.PIG);
 
-                    entity.addEffect(Effects.IMMOVABLE, 10000, true);
+                    entity.addEffect(EffectType.IMMOVABLE, 10000);
                 }
         );
 
@@ -2084,7 +2101,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new SimplePlayerAdminCommand("ef") {
             @Override
             protected void execute(Player player, String[] args) {
-                final EffectType effectType = getArgument(args, 0).toEnum(EffectType.class);
+                final me.hapyl.eterna.module.player.EffectType effectType = getArgument(args, 0).toEnum(me.hapyl.eterna.module.player.EffectType.class);
                 final int effectDuration = getArgument(args, 1).toInt(20);
 
                 if (effectType == null) {
@@ -2322,7 +2339,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
                         // Glow duh
                         if (entity instanceof LivingGameEntity livingGameEntity) {
-                            livingGameEntity.addEffect(Effects.GLOWING, 60);
+                            livingGameEntity.addEffect(EffectType.GLOWING, 60);
                         }
                     }
                 }
@@ -2430,41 +2447,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     Chat.sendMessage(player, "&aDone!");
                 }
         );
-
-        register(new SimplePlayerAdminCommand("debugCooldown") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                final Cooldown cooldown = getArgument(args, 0).toEnum(Cooldown.class);
-                final long duration = getArgument(args, 1).toLong();
-
-                if (cooldown == null) {
-                    Message.Error.INVALID_ENUMERABLE_ARGUMENT.send(player, Arrays.toString(Cooldown.values()));
-                    return;
-                }
-
-                final GamePlayer gamePlayer = CF.getPlayer(player);
-
-                if (gamePlayer == null) {
-                    Message.error(player, "Cannot use outside a game.");
-                    return;
-                }
-
-                if (duration > 0) {
-                    gamePlayer.startCooldown(cooldown, duration);
-                    Message.success(player, "Started cooldown!");
-                    return;
-                }
-
-                final CooldownData data = gamePlayer.getCooldown().getData(cooldown);
-
-                if (data == null) {
-                    Message.error(player, "&cYou don't have this cooldown!");
-                    return;
-                }
-
-                player.sendMessage(data.toString());
-            }
-        });
 
         register(new SimplePlayerAdminCommand("velocity") {
             @Override
@@ -3007,48 +2989,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
 
                 Chat.sendMessage(player, "&aRotated with %s, %s, %s!".formatted(x, y, z));
-            }
-        });
-
-        register(new SimplePlayerAdminCommand("temperStat") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                // $ <stat> <amount> <duration>
-                // $ temper [value] [duration]
-                final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
-
-                if (gamePlayer == null) {
-                    Chat.sendMessage(player, "&cCannot use outside a game.");
-                    return;
-                }
-
-                final Temper temper = getArgument(args, 0).toEnum(Temper.class);
-                final AttributeType attributeType = getArgument(args, 1).toEnum(AttributeType.class);
-                final double value = getArgument(args, 2).toDouble(0.2d);
-                final int duration = getArgument(args, 3).toInt(100);
-
-                if (attributeType == null) {
-                    Message.error(player, "Invalid type!");
-                    return;
-                }
-
-                if (temper == null) {
-                    Message.error(player, "Invalid temper!");
-                    return;
-                }
-
-                temper.temper(gamePlayer, attributeType, value, duration);
-                Chat.sendMessage(player, "&aDone!");
-            }
-
-            @Nullable
-            @Override
-            protected List<String> tabComplete(CommandSender sender, String[] args) {
-                if (args.length == 1) {
-                    return completerSort(Temper.values(), args);
-                }
-
-                return null;
             }
         });
 

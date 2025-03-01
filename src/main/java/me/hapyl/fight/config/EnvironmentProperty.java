@@ -78,6 +78,10 @@ public class EnvironmentProperty<T> {
         return true;
     }
 
+    public void reset() {
+        value(defaultValue);
+    }
+
     @Nonnull
     public static EnvironmentProperty<Integer> ofInteger(@Nonnull String name, int defaultValue) {
         return new EnvironmentProperty<>(name, Integer.class, defaultValue);

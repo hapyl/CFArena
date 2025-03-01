@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -12,7 +12,7 @@ public class SlowingAuraEffect extends Effect {
     public final int cooldownModifier = 2;
 
     public SlowingAuraEffect() {
-        super("Slowing Aura", EffectType.NEGATIVE);
+        super("Slowing Aura", Type.NEGATIVE);
 
         setDescription("Slows players and increases talent cooldowns.");
     }

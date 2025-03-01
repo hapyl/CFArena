@@ -6,6 +6,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.NonNullableElementHolder;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -42,11 +43,6 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
         valueMap.put(type, newValue);
     }
 
-    public String getString(StatType type) {
-        final double value = getValue(type);
-        return " " + (value > 0 ? type.getTextHas().formatted(value) : type.getTextHasnt());
-    }
-
     public Player getPlayer() {
         return this.getElement().getPlayer();
     }
@@ -76,4 +72,7 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
     }
 
 
+    public boolean greaterThanZero(@Nonnull StatType statType) {
+        return getValue(statType) > 0;
+    }
 }

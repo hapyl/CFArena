@@ -9,7 +9,7 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -135,7 +135,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
             @Override
             public void run() {
                 getAlivePlayers().forEach(player -> {
-                    if (!player.hasEffect(Effects.INVISIBILITY)) {
+                    if (!player.hasEffect(EffectType.INVISIBILITY)) {
                         return;
                     }
 
@@ -279,7 +279,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
                         // Fx
                         player.playWorldSound(Sound.BLOCK_BEACON_ACTIVATE, 1.75f);
                         player.playWorldSound(Sound.BLOCK_BEACON_AMBIENT, 1.75f);
-                        player.addEffect(Effects.SLOW, getUltimateDuration());
+                        player.addEffect(EffectType.SLOW, getUltimateDuration());
                     })
                     .onEnd(() -> {
                         player.playWorldSound(Sound.BLOCK_BEACON_DEACTIVATE, 1.85f);

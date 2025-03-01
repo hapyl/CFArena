@@ -18,6 +18,7 @@ public enum Affiliation implements Prefixed {
     MERCENARY(Color.CRIMSON.boldAndDefault("\uD83D\uDD74"), "The Mercenaries", "A group of mercenaries and bounty hunters."),
     CHATEAU(Color.BLOOD.boldAndDefault("🦇"), "Château", "A mansion filled with vampires."),
     SPACE(Color.SPACE.boldAndDefault("🌌"), "The Space", "\"The galaxy is vast beyond compare.\""),
+    HELL(Color.HELL.boldAndDefault("⛓"), "Hell", "Some say it lies down below the world."),
 
     UNKNOWN(Color.DEFAULT + "❓", "Unknown", "The origin of this hero is a mystery...");
 

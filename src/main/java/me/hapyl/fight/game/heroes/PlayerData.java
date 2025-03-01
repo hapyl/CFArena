@@ -10,7 +10,7 @@ public abstract class PlayerData {
 
     public final GamePlayer player;
 
-    public PlayerData(GamePlayer player) {
+    public PlayerData(@Nonnull GamePlayer player) {
         this.player = player;
     }
 

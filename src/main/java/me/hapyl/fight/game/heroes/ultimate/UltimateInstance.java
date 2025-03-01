@@ -36,6 +36,9 @@ public abstract class UltimateInstance {
     public void onEnd() {
     }
 
+    public void onPlayerDied() {
+    }
+
     protected boolean isForceEndUltimate() {
         return forceEndUltimate;
     }

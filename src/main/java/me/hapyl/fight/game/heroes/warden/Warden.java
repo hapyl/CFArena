@@ -3,6 +3,7 @@ package me.hapyl.fight.game.heroes.warden;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class Warden extends Hero implements ComplexHero {
+public class Warden extends Hero implements Disabled {
     private final TemperInstance temperInstance = Temper.PARADOX.newInstance()
             .decrease(AttributeType.ATTACK,0.15);
 

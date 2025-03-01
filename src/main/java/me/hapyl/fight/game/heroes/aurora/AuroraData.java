@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.aurora;
 
 import me.hapyl.fight.game.Constants;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -91,7 +91,7 @@ public class AuroraData extends PlayerData {
         player.playWorldSound(Sound.ENTITY_ALLAY_DEATH, 0.75f);
 
         // In case we're in the air (we're 99% are) add parachute effect (lol funny name haha)
-        player.addEffect(Effects.PARACHUTE, Constants.INFINITE_DURATION);
+        player.addEffect(EffectType.PARACHUTE, Constants.INFINITE_DURATION);
     }
 
 }

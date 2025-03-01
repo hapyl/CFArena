@@ -1,12 +1,12 @@
 package me.hapyl.fight.vehicle;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.input.InputKey;
 import me.hapyl.eterna.module.player.input.PlayerInput;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.ImmutableList;
 import me.hapyl.fight.util.Property;
@@ -51,7 +51,7 @@ public class Vehicle extends BukkitRunnable implements Removable {
         runTaskTimer(CF.getPlugin(), 0, 2);
     }
 
-    @Event
+    @EventLike
     public void onMove() {
     }
 

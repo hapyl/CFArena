@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.nightmare;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Location;
@@ -28,7 +28,7 @@ public class OmenDebuff implements Ticking {
 
         debuff.put(entity, tick);
 
-        entity.addEffect(Effects.PARANOIA, tick, true);
+        entity.addEffect(EffectType.PARANOIA, tick);
         entity.triggerDebuff(player);
     }
 

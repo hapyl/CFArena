@@ -8,7 +8,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -95,7 +95,7 @@ public class BatSwarm extends Talent {
                     Collect.nearbyEntities(bat.getLocation(), hitboxSize, player::isNotSelfOrTeammate).forEach(entity -> {
 
                         entity.damage(damage, player, DamageCause.SWARM);
-                        entity.addEffect(Effects.BLINDNESS, 1, 20);
+                        entity.addEffect(EffectType.BLINDNESS, 1, 20);
 
                         // Decrease health
                         temperInstance.temper(entity, impairDuration, player);

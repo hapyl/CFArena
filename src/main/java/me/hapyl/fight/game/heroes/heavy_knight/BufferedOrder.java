@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.heavy_knight;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.util.Buffer;
-import me.hapyl.fight.game.Event;
 
 import javax.annotation.Nonnull;
 
@@ -52,7 +52,7 @@ public abstract class BufferedOrder<E> {
         buffer.clear();
     }
 
-    @Event
+    @EventLike
     public abstract void onCorrectOrder();
 
 }

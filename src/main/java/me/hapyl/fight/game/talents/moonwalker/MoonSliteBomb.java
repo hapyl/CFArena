@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -142,7 +142,7 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     private void applyCorrosion(LivingGameEntity entity) {
-        entity.addEffect(Effects.CORROSION, corrosionDuration);
+        entity.addEffect(EffectType.CORROSION, corrosionDuration);
     }
 
     private boolean isBombItem(Item item) {

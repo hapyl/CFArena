@@ -30,21 +30,24 @@ public enum Season {
         StringBuilder leftBuilder = new StringBuilder();
         StringBuilder rightBuilder = new StringBuilder();
 
-        for (int i = 0; i < colors.length; i++) {
-            leftBuilder.append(colors[i]).append(string);
+        for (Color color : colors) {
+            leftBuilder.append(color).append(string);
         }
 
         for (int i = colors.length - 1; i >= 0; i--) {
             rightBuilder.append(colors[i]).append(string);
         }
 
+        return leftBuilder.toString() + ChatColor.DARK_GRAY + " %s ".formatted(getDateString()) + rightBuilder;
+    }
+
+    @Nonnull
+    public static String getDateString() {
         final LocalDate today = LocalDate.now();
         final Month month = today.getMonth();
         final int dayOfMonth = today.getDayOfMonth();
 
-        final String dateFormatted = " %s/%s/%s ".formatted(dayOfMonth, month.getValue(), today.getYear());
-
-        return leftBuilder.toString() + ChatColor.DARK_GRAY + dateFormatted + rightBuilder;
+        return "%s/%s/%s".formatted(dayOfMonth, month.getValue(), today.getYear());
     }
 
     @Nonnull

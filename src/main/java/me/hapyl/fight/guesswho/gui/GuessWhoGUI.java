@@ -1,15 +1,15 @@
 package me.hapyl.fight.guesswho.gui;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.heroes.Affiliation;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.PassiveTalent;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.guesswho.GuessWhoPlayer;
 import me.hapyl.fight.gui.styled.Size;
@@ -40,7 +40,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
         this.data = data;
     }
 
-    @Event
+    @EventLike
     public void onOpen() {
     }
 

@@ -9,13 +9,13 @@ import javax.annotation.Nonnull;
 public class ActiveGameEffect implements Ticking {
 
     private final LivingGameEntity entity;
-    private final Effects type;
+    private final EffectType type;
     private final Effect effect;
     private final int amplifier;
     private int level;
     private int remainingTicks;
 
-    public ActiveGameEffect(LivingGameEntity entity, Effects type, int amplifier, int duration) {
+    public ActiveGameEffect(LivingGameEntity entity, EffectType type, int amplifier, int duration) {
         this.entity = entity;
         this.type = type;
         this.effect = type.getEffect();
@@ -32,7 +32,7 @@ public class ActiveGameEffect implements Ticking {
     }
 
     @Nonnull
-    public Effects getType() {
+    public EffectType getType() {
         return type;
     }
 

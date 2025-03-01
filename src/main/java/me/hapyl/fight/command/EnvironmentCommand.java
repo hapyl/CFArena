@@ -43,6 +43,15 @@ public class EnvironmentCommand extends CFCommand {
         }
         else {
             final String name = args.get(0).toString();
+
+            // Handle 'reset'
+            if (name.equalsIgnoreCase("reset")) {
+                environment.values().forEach(EnvironmentProperty::reset);
+
+                Message.success(player, "Successfully reset all properties to their default values!");
+                return;
+            }
+
             final EnvironmentProperty<?> property = environment.byName(name.toLowerCase());
 
             if (property == null) {

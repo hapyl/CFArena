@@ -57,6 +57,24 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
             true
     ),
 
+    KILL_CONFIRMATION(
+            Material.SKELETON_SKULL,
+            "Elimination/Assist Confirmation", """
+            Whether you will see a quick elimination or assist confirmation on the screen upon elimination or assisting in an elimination.
+            """,
+            Category.GAMEPLAY,
+            true
+    ),
+
+    ATTACK_COOLDOWN_SOUND(
+            Material.WOODEN_SWORD,
+            "Attack Cooldown Sound", """
+            Whether to play a "pop" sound whenever your attack is nullified because it was on cooldown.
+            """,
+            Category.GAMEPLAY,
+            true
+    ),
+
     //////////
     // Chat //
     /// ///////
@@ -106,6 +124,15 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
             true
     ),
 
+    SEE_GAME_REPORT(
+            Material.BOOK,
+            "Show Game Report", """
+            Whether you'll get a game report at the end of a game.
+            """,
+            Category.CHAT,
+            true
+    ),
+
     ////////
     // UI //
     /// /////
@@ -149,15 +176,6 @@ public enum EnumSetting implements Setting, PlayerItemCreator, KeyedEnum {
             """,
             Category.UI,
             false
-    ),
-
-    KILL_CONFIRMATION(
-            Material.SKELETON_SKULL,
-            "Elimination/Assist Confirmation", """
-            Whether you will see a quick elimination or assist confirmation on the screen upon elimination or assisting in an elimination.
-            """,
-            Category.UI,
-            true
     ),
 
     ///////////

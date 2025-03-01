@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -84,8 +84,8 @@ public class Irden extends Talent {
 
             temperInstance.temper(entity, impairDuration, player);
 
-            entity.addEffect(Effects.VULNERABLE, impairDuration, true);
-            entity.addEffect(Effects.IMMOVABLE, impairDuration, true);
+            entity.addEffect(EffectType.VULNERABLE, impairDuration);
+            entity.addEffect(EffectType.IMMOVABLE, impairDuration);
         });
     }
 

@@ -4,7 +4,7 @@ import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -64,7 +64,7 @@ public class LimboFeature extends VoidFeature implements Listener {
         entity.teleport(teleportLocation);
 
         // Fx
-        entity.addEffect(Effects.DARKNESS, 255, 40);
+        entity.addEffect(EffectType.DARKNESS, 255, 40);
         entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 
         Geometry.drawLine(location, teleportLocation, 0.5,

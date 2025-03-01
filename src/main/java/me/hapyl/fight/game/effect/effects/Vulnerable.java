@@ -3,8 +3,8 @@ package me.hapyl.fight.game.effect.effects;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectParticle;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;
@@ -17,7 +17,7 @@ public class Vulnerable extends Effect implements Listener {
     private final double damageMultiplier = 1.5d;
 
     public Vulnerable() {
-        super("Vulnerable", EffectType.NEGATIVE);
+        super("Vulnerable", Type.NEGATIVE);
 
         setDescription("""
                 Vulnerable entities take more damage.
@@ -28,7 +28,7 @@ public class Vulnerable extends Effect implements Listener {
     public void handleGameDamageEvent(GameDamageEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
 
-        if (entity.hasEffect(Effects.VULNERABLE)) {
+        if (entity.hasEffect(EffectType.VULNERABLE)) {
             ev.multiplyDamage(damageMultiplier);
         }
     }

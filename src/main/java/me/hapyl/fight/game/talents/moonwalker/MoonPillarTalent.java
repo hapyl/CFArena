@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.moonwalker;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -26,18 +27,21 @@ public class MoonPillarTalent extends Talent {
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f,0.0000f,2.0000f,0.0000f,0.0000f,1.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[1.0000f,0.0000f,0.0000f,0.3750f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,1.0000f,0.0000f,-0.5000f,1.0000f,0.0000f,-0.0000f,0.4375f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[-0.0000f,-1.3125f,0.0000f,1.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,0.0000f,0.0000f,1.1250f,0.3438f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,0.2500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[-1.0000f,0.0000f,-0.0000f,0.6250f,0.0000f,1.0000f,0.0000f,1.0000f,0.0000f,0.0000f,-1.0000f,0.6250f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\",north:\"low\",west:\"low\"}},transformation:[0.0000f,0.0000f,1.0000f,0.3750f,0.0000f,1.0000f,0.0000f,-0.5000f,-1.0000f,0.0000f,0.0000f,0.5625f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:end_stone_brick_wall\",Properties:{up:\"true\"}},transformation:[0.0000f,1.3125f,-0.0000f,-0.1875f,1.0000f,-0.0000f,0.0000f,1.7500f,-0.0000f,-0.0000f,-1.1250f,0.6563f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
-    public MoonPillarTalent(Key key) {
+    public MoonPillarTalent(@Nonnull Key key) {
         super(key, "Moonlit Pillar");
 
         setDescription("""
-                Erect a Moonlit Pillar in front of you to create a &eMoonlit Zone&7.
-                """
+                Erect a pillar at the &etarget&7 location, converting nearby area into %s.
+                
+                The pillar periodically &bresonates&7, dealing &cdamage&7 to nearby enemies.
+                """.formatted(Named.MOONLIT_ZONE)
         );
 
         setType(TalentType.ENHANCE);
         setItem(Material.BONE);
-        setDurationSec(10);
-        setCooldownSec(30);
+
+        setDurationSec(12.0f);
+        setCooldownSec(28.0f);
     }
 
     @Override
@@ -48,7 +52,7 @@ public class MoonPillarTalent extends Talent {
             return Response.error("No valid target block!");
         }
 
-        final Location location = block.getLocation().add(0.5d, 0.0d, 0.5d);
+        final Location location = block.getLocation().add(0.5d, 0.5d, 0.5d);
 
         if (!canFit(location)) {
             return Response.error("Cannot fit the pillar!");

@@ -10,6 +10,7 @@ public enum Gender implements Named {
     MALE("&b♂ Male"),
     FEMALE("&d♀ Female"),
 
+    OTHER("&e❔ Other"),
     UNKNOWN("&8❓ Unknown"),
 
     ;

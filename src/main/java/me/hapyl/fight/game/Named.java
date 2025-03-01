@@ -41,6 +41,7 @@ public enum Named {
     BLOOD_DEBT("&l🩸", "Blood Debt", Color.BLOOD),
     ABYSS_CORROSION("&5&l☣", "Abyssal Corrosion", Color.ABYSS),
     ABYSSAL_CURSE("&5&l\uD83D\uDDEF", "Abyssal Curse", Color.ABYSS),
+    MOONLIT_ZONE("\uD83C\uDF19", "Moonlit Zone", Color.MOON),
 
     ;
 

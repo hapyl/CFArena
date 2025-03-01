@@ -6,6 +6,7 @@ import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.MathBoldFont;
 import org.bukkit.event.Cancellable;
 
 import javax.annotation.Nonnull;
@@ -16,24 +17,27 @@ import javax.annotation.Nullable;
  */
 public class DamageInstance implements Cancellable {
 
-    public static final String DAMAGE_FORMAT = "&b&l%s";
-    public static final String DAMAGE_FORMAT_CRIT = "&e&l%s&c✷";
+    public static final String DAMAGE_FORMAT = "&e&l%s";
+
+    public static final String CRIT_CHAR = "&c✷";
+    public static final String DAMAGE_FORMAT_CRIT = "&6&l%s" + CRIT_CHAR;
 
     private final LivingGameEntity entity;
-    private final double initialDamage;
 
-    protected DamageCause cause;
+    @Nonnull protected DamageCause cause;
     protected double damage;
     protected boolean isCrit;
 
     private LivingGameEntity damager;
     private boolean cancel;
+    private double initialDamage;
     private double critIncrease = -1;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity;
         this.initialDamage = damage;
         this.damage = damage;
+        this.cause = DamageCause.ENTITY_ATTACK;
     }
 
     /**
@@ -94,7 +98,7 @@ public class DamageInstance implements Cancellable {
      *
      * @return the cause of this damage.
      */
-    @Nullable
+    @Nonnull
     public DamageCause getCause() {
         return cause;
     }
@@ -104,7 +108,7 @@ public class DamageInstance implements Cancellable {
      *
      * @param cause - New cause.
      */
-    public void setCause(@Nullable DamageCause cause) {
+    public void setCause(@Nonnull DamageCause cause) {
         this.cause = cause;
     }
 
@@ -246,16 +250,11 @@ public class DamageInstance implements Cancellable {
 
     @Nonnull
     public String getDamageFormatted() {
-        String stringDamage;
+        final String damageString = MathBoldFont.format("%.0f".formatted(damage));
 
-        if (cause != null) {
-            stringDamage = cause.damageFormat().format(this);
-        }
-        else {
-            stringDamage = "%.0f".formatted(damage);
-        }
-
-        return isCrit ? DAMAGE_FORMAT_CRIT.formatted(stringDamage) : DAMAGE_FORMAT.formatted(stringDamage);
+        return isCrit
+                ? DAMAGE_FORMAT_CRIT.formatted(damageString)
+                : DAMAGE_FORMAT.formatted(damageString);
     }
 
     /**
@@ -265,6 +264,11 @@ public class DamageInstance implements Cancellable {
      */
     public boolean isDamageLethal() {
         return entity.getHealth() - damage <= 0.0d;
+    }
+
+    protected void overrideInitialDamage(double newDamage) {
+        this.initialDamage = newDamage;
+        this.damage = newDamage;
     }
 
     protected void setLastDamager(@Nullable LivingGameEntity entity) {

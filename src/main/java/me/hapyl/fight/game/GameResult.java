@@ -6,6 +6,7 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.task.GameTask;
@@ -85,27 +86,40 @@ public class GameResult {
         return players;
     }
 
-    public void calculate() {
+    public void displayWinners() {
         Chat.broadcast("");
         Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
 
         gameInstance.getMode().displayWinners(this);
 
         Chat.broadcast("&6&l▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
+        Chat.broadcast("");
 
         // Show each player their game report
-        GameTask.runLater(() -> {
-            for (GamePlayer gamePlayer : players) {
-                final Player player = gamePlayer.getPlayer();
-                final StatContainer stat = gamePlayer.getStats();
+        GameTask.runLater(
+                () -> {
+                    for (GamePlayer gamePlayer : players) {
+                        if (!gamePlayer.isSettingEnabled(EnumSetting.SEE_GAME_REPORT)) {
+                            return;
+                        }
 
-                Chat.sendMessage(player, "&a&lɢᴀᴍᴇ ʀᴇᴘᴏʀᴛ:");
-                Chat.sendMessage(player, stat.getString(StatType.COINS));
-                Chat.sendMessage(player, stat.getString(StatType.EXP));
-                Chat.sendMessage(player, stat.getString(StatType.KILLS));
-                Chat.sendMessage(player, stat.getString(StatType.DEATHS));
-            }
-        }, 20).setShutdownAction(ShutdownAction.IGNORE);
+                        final Player player = gamePlayer.getPlayer();
+                        final StatContainer stat = gamePlayer.getStats();
+
+                        Chat.sendMessage(player, "");
+                        Chat.sendMessage(player, "&a&lɢᴀᴍᴇ ʀᴇᴘᴏʀᴛ:");
+
+                        StatType.COINS.sendReportMessage(player, stat);
+                        StatType.EXP.sendReportMessage(player, stat);
+                        StatType.KILLS.sendReportMessage(player, stat);
+                        StatType.DEATHS.sendReportMessage(player, stat);
+                        StatType.ASSISTS.sendReportMessageIfValueGreaterThanZero(player, stat);
+                        StatType.MASTERY_EARNED.sendReportMessageIfValueGreaterThanZero(player, stat);
+
+                        Chat.sendMessage(player, "");
+                    }
+                }, 20
+        ).setShutdownAction(ShutdownAction.IGNORE);
     }
 
     @Nonnull

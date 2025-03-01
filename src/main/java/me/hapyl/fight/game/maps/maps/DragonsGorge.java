@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps.maps;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
@@ -88,13 +88,13 @@ public class DragonsGorge extends Level {
                     player.setFreezeTicks((int) Math.min(player.getMaxFreezeTicks(), newValue));
 
                     if (isBetween(newValue, 25, 50)) {
-                        player.addEffect(Effects.SLOW, 1, 5);
+                        player.addEffect(EffectType.SLOW, 1, 5);
                     }
                     else if (isBetween(newValue, 50, 75)) {
-                        player.addEffect(Effects.SLOW, 2, 5);
+                        player.addEffect(EffectType.SLOW, 2, 5);
                     }
                     else if (isBetween(newValue, 75, 100)) {
-                        player.addEffect(Effects.SLOW, 3, 5);
+                        player.addEffect(EffectType.SLOW, 3, 5);
                     }
                     else if (newValue >= maxColdValue && isModulo) {
                         player.damage(damage, DamageCause.COLD);

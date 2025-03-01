@@ -15,7 +15,7 @@ import me.hapyl.fight.fx.EntityFollowingParticle;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -58,7 +58,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplexComponent {
+public class Bloodfiend extends Hero implements Listener, UIComplexComponent {
 
     @DisplayField public final short impelTimes = 3;
     @DisplayField public final double impelNonPlayerDamage = 50;
@@ -418,11 +418,11 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
 
                     @Override
                     public void onHit(@Nonnull Location location) {
-                        if (entity instanceof GamePlayer) {
+                        if (target instanceof GamePlayer) {
                             return;
                         }
 
-                        entity.damage(impelNonPlayerDamage, player, DamageCause.IMPEL);
+                        target.damage(impelNonPlayerDamage, player, DamageCause.IMPEL);
                     }
                 }.runTaskTimer(0, 1);
             });
@@ -440,7 +440,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                 ));
             }
 
-            player.addEffect(Effects.INVISIBILITY, 10000, true);
+            player.addEffect(EffectType.INVISIBILITY, 10000);
 
             final Bat playerBat = Entities.BAT.spawn(
                     eyeLocation, self -> {
@@ -486,7 +486,7 @@ public class Bloodfiend extends Hero implements ComplexHero, Listener, UIComplex
                         player.setAllowFlight(false);
                         player.setFlying(false);
 
-                        player.removeEffect(Effects.INVISIBILITY);
+                        player.removeEffect(EffectType.INVISIBILITY);
 
                         playerBat.remove();
                     });

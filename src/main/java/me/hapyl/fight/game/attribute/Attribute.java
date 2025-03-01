@@ -26,6 +26,11 @@ public class Attribute implements Described {
     }
 
     @Nonnull
+    public BiFunction<AttributeType, Double, String> getToString() {
+        return toString;
+    }
+
+    @Nonnull
     @Override
     public String getName() {
         return name;

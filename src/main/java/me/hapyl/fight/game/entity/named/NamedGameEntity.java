@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.entity.named;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.hologram.GlobalHologram;
 import me.hapyl.eterna.module.hologram.Hologram;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.Location;
@@ -38,11 +38,11 @@ public class NamedGameEntity<T extends LivingEntity> extends LivingGameEntity {
         onSpawn();
     }
 
-    @Event
+    @EventLike
     public void onSpawn() {
     }
 
-    @Event
+    @EventLike
     public void onTick(int tick) {
     }
 

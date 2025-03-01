@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -46,7 +46,7 @@ public class PlayerCloneList {
 
         player.teleport(linkedClone.getLocation());
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
-        player.addEffect(Effects.BLINDNESS, 1, 20);
+        player.addEffect(EffectType.BLINDNESS, 1, 20);
 
         TalentRegistry.SHADOW_ASSASSIN_CLONE.getData(player).addEnergy(talent.energyRegen);
 

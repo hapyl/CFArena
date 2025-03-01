@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.mage;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -45,7 +45,7 @@ public class ArcaneMute extends Talent {
             return Response.error("No light of sight!");
         }
 
-        target.addEffect(Effects.ARCANE_MUTE, getDuration());
+        target.addEffect(EffectType.ARCANE_MUTE, getDuration());
 
         target.sendMessage("&e&l☠ &cYou have been cursed by Arcane Mute! &8(%s)".formatted(player.getName()));
         player.sendMessage("&aArcane Mute cursed %s.".formatted(target.getName()));

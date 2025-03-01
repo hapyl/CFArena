@@ -61,6 +61,11 @@ public class AlchemistPotionHealing extends AlchemistPotion {
             // Fx
         }
 
+        @Override
+        public int getDurationLeft() {
+            return extraHealingThreshold - getTick();
+        }
+
         public void cancelExtraHealing() {
             data.cancelActivePotion();
 

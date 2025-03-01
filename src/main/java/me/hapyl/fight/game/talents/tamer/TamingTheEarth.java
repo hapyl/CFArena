@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.tamer;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -51,7 +51,7 @@ public class TamingTheEarth extends Talent implements TamerTimed {
                 entity.teleport(locationBelow);
             }
 
-            entity.addEffect(Effects.MOVEMENT_CONTAINMENT, duration, true);
+            entity.addEffect(EffectType.MOVEMENT_CONTAINMENT, duration);
             entity.triggerDebuff(player);
 
             // Fx

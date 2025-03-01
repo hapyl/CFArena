@@ -36,10 +36,10 @@ public enum DamageFlag {
     /**
      * Is this {@link DamageCause} ignores damage ticks and does not apply attack cooldown.
      */
-    IGNORES_INVULNERABILITY_TICKS_AND_ATTACK_COOLDOWN,
+    BYPASS_COOLDOWN,
 
     /**
-     * Is this {@link DamageCause} a environment damage.
+     * Is this {@link DamageCause} an environment damage.
      * <br>
      * Environment damage
      */

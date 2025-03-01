@@ -8,13 +8,17 @@ import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.troll.LastLaughPassive;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -49,15 +53,15 @@ public class Troll extends Hero implements Listener {
         equipment.setBoots(255, 204, 84);
 
         setWeapon(Weapon.builder(Material.STICK, Key.ofString("stickonator"))
-                .name("Stickonator")
-                .description("""
-                        - What's brown and sticky?
-                        - What?
-                        - A stick!
-                        - ...
-                        """)
-                .enchant(Enchantment.KNOCKBACK, 1)
-                .damage(4.0)
+                        .name("Stickonator")
+                        .description("""
+                                - What's brown and sticky?
+                                - What?
+                                - A stick!
+                                - ...
+                                """)
+                        .enchant(Enchantment.KNOCKBACK, 1)
+                        .damage(4.0)
         );
 
         setUltimate(new TrollUltimate());
@@ -105,11 +109,12 @@ public class Troll extends Hero implements Listener {
             return;
         }
 
-        if (Math.random() >= 0.98) {
+        final LastLaughPassive passiveTalent = getPassiveTalent();
+
+        if (killer.random.checkBound(1 - passiveTalent.chance)) {
             entity.setLastDamager(killer);
             entity.dieBy(DamageCause.TROLL_LAUGH);
 
-            entity.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
             entity.sendMessage("&a%s had the last laugh!".formatted(killer.getName()));
 
             final AchievementRegistry registry = Registries.getAchievements();
@@ -117,7 +122,7 @@ public class Troll extends Hero implements Listener {
 
             // Fx
             killer.sendMessage("&aYou laughed at %s!".formatted(entity.getName()));
-            killer.playSound(Sound.ENTITY_WITCH_CELEBRATE, 2.0f);
+            killer.playWorldSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 2.0f);
 
             registry.TROLL_LAUGHING_OUT_LOUD.complete(killer.getPlayer());
         }
@@ -134,7 +139,7 @@ public class Troll extends Hero implements Listener {
     }
 
     @Override
-    public Talent getPassiveTalent() {
+    public LastLaughPassive getPassiveTalent() {
         return TalentRegistry.TROLL_PASSIVE;
     }
 

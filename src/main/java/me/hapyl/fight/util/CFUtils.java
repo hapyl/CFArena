@@ -33,6 +33,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -57,6 +58,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -977,6 +979,18 @@ public class CFUtils {
     }
 
     public static double distance(@Nonnull Location a, @Nonnull Location b) {
+        return distance0(a, b, Location::distance);
+    }
+
+    public static double distanceSquared(@Nonnull Location a, @Nonnull Location b) {
+        return distance0(a, b, Location::distanceSquared);
+    }
+
+    public static void globalBlockChange(@Nonnull Location location, @Nonnull BlockData data) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockChange(location, data));
+    }
+
+    private static double distance0(Location a, Location b, BiFunction<Location, Location, Double> fn) {
         final World aWorld = a.getWorld();
         final World bWorld = b.getWorld();
 
@@ -984,7 +998,7 @@ public class CFUtils {
             return Double.MAX_VALUE;
         }
 
-        return a.distance(b);
+        return fn.apply(a, b);
     }
 
     @Nonnull

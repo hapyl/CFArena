@@ -29,7 +29,14 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     public void unsetSelected(@Nonnull Type type) {
+        final Cosmetic selected = getSelected(type);
+        final Player player = getOnlinePlayer();
+
         setValue("selected.%s".formatted(type.getKeyAsString()), null);
+
+        if (selected != null && player != null) {
+            selected.onUnequip(player);
+        }
     }
 
     public void setSelected(@Nonnull Type type, @Nonnull Cosmetic cosmetic) {
@@ -96,7 +103,9 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
             final Type type = cosmetic.getType();
 
             // Unset selected if was selected
-            if (getSelected(type) == cosmetic) {
+            final Cosmetic selected = getSelected(type);
+
+            if (selected != null && selected.equals(cosmetic)) {
                 unsetSelected(type);
             }
         }

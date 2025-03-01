@@ -103,6 +103,8 @@ public class Relic {
 
     public void give(@Nonnull Player player) {
         if (hasFound(player)) {
+            Chat.sendMessage(player, "&dYou have already found this relic!");
+            PlayerLib.playSound(player, Sound.ENTITY_SILVERFISH_HURT, 2.0f);
             return;
         }
 

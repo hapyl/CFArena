@@ -1,58 +1,59 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.Message;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.entity.Player;
 
-public class PlayerAttributeCommand extends SimplePlayerAdminCommand {
-    public PlayerAttributeCommand(String name) {
-        super(name);
+import javax.annotation.Nonnull;
 
-        setAliases("pa");
+public class PlayerAttributeCommand extends CFCommand {
+
+    public PlayerAttributeCommand(@Nonnull String name) {
+        super(name, PlayerRank.ADMIN);
+
         addCompleterValues(1, AttributeType.values());
+        addCompleterValues(1, "reset");
     }
 
     @Override
-    protected void execute(Player player, String[] args) {
-        // pa (TYPE) [newValue]
-        final AttributeType type = getArgument(args, 0).toEnum(AttributeType.class);
-        final double newValue = getArgument(args, 1).toDouble();
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        final AttributeType type = args.get(0).toEnum(AttributeType.class);
+        final double newValue = args.get(1).toDouble();
 
-        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+        GamePlayer.getPlayerOptional(player)
+                  .ifPresent(gamePlayer -> {
+                      final EntityAttributes attributes = gamePlayer.getAttributes();
 
-        if (type == null) {
-            Chat.sendMessage(player, "&4Error! &cInvalid type, try there: " + AttributeType.listNames());
-            return;
-        }
+                      // Reset
+                      if (args.get(0).toString().equalsIgnoreCase("reset")) {
+                          attributes.reset();
+                          gamePlayer.updateAttributes();
 
-        if (gamePlayer == null) {
-            Chat.sendMessage(player, "&4Error! &cNo game instance.");
-            return;
-        }
+                          gamePlayer.sendMessage(Message.SUCCESS, "Reset all attributes to base.");
+                          return;
+                      }
 
-        final EntityAttributes attributes = gamePlayer.getAttributes();
+                      if (type == null) {
+                          gamePlayer.sendMessage(Message.ERROR, "Invalid type, valid types: " + AttributeType.listNames());
+                          return;
+                      }
 
-        if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
-            attributes.reset();
-            gamePlayer.updateAttributes();
+                      // 0.0d means display the value
+                      if (newValue == 0.0d) {
+                          final double value = attributes.get(type);
 
-            Chat.sendMessage(player, "&aReset all attributes to base.");
-            return;
-        }
+                          gamePlayer.sendMessage(Message.SUCCESS, "Your {%s} attribute is {%.1f} &8(%.0f)&f!".formatted(type.getName(), value, type.scaleUp(value)));
+                          return;
+                      }
 
-        // 0.0d means display the value
-        if (newValue == 0.0d) {
-            final double value = attributes.get(type);
-
-            Chat.sendMessage(player, "&aYour %s is %s.".formatted(type.getName(), value));
-            return;
-        }
-
-        attributes.set(type, newValue - attributes.getBase(type));
-        Chat.sendMessage(player, "&aSet %s to %s.".formatted(type.getName(), attributes.get(type)));
+                      attributes.set(type, newValue - attributes.getBase(type));
+                      gamePlayer.sendMessage(Message.SUCCESS, "Set your {%s} attribute to {%s}!".formatted(type.getName(), attributes.get(type)));
+                  });
     }
+
 
 }

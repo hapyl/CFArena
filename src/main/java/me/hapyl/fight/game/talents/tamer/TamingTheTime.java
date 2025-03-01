@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -19,6 +20,16 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
     @DisplayField private final double attackSpeedIncrease = 1.0d;
     @DisplayField private final double speedIncrease = 0.1d;
 
+    private final TemperInstance enemyTemperInstance
+            = Temper.TAMING_THE_TIME.newInstance()
+                                    .decrease(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
+                                    .decrease(AttributeType.SPEED, speedIncrease);
+
+    private final TemperInstance selfTemperInstance
+            = Temper.TAMING_THE_TIME.newInstance()
+                                    .increase(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
+                                    .increase(AttributeType.SPEED, speedIncrease);
+
     public TamingTheTime(@Nonnull Key key) {
         super(key, "Taming the Time");
 
@@ -30,7 +41,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
         leftData.setAction("Impair Enemies");
         leftData.setDescription("""
                 Hinder all enemies by &eimpairing&7 their movement, decreasing their %s and %s.
-                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED
+                """.formatted(AttributeType.ATTACK_SPEED, AttributeType.SPEED)
         );
         leftData.setType(TalentType.IMPAIR);
         leftData.setDurationSec(3);
@@ -39,7 +50,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
         rightData.setAction("Accelerate");
         rightData.setDescription("""
                 Enhance yourself by increasing your %s and %s.
-                """, AttributeType.SPEED, AttributeType.ATTACK_SPEED
+                """.formatted(AttributeType.ATTACK_SPEED, AttributeType.SPEED)
         );
         rightData.setType(TalentType.ENHANCE);
         rightData.copyDurationAndCooldownFrom(leftData);
@@ -53,10 +64,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
         final int duration = getDuration(player);
 
         Collect.enemyPlayers(player).forEach(enemy -> {
-            Temper.TAMING_THE_TIME.newInstance()
-                    .decrease(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
-                    .decrease(AttributeType.SPEED, speedIncrease)
-                    .temper(enemy, duration, player);
+            enemyTemperInstance.temper(enemy, duration, player);
 
             // Enemy Fx
             enemy.playSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 1.25f);
@@ -70,10 +78,7 @@ public class TamingTheTime extends InputTalent implements TamerTimed {
     public Response onRightClick(@Nonnull GamePlayer player) {
         final int duration = getDuration(player);
 
-        Temper.TAMING_THE_TIME.newInstance()
-                .increase(AttributeType.ATTACK_SPEED, attackSpeedIncrease)
-                .increase(AttributeType.SPEED, speedIncrease)
-                .temper(player, duration);
+        selfTemperInstance.temper(player, duration);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.75f);

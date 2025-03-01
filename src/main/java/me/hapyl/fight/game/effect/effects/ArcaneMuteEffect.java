@@ -3,7 +3,7 @@ package me.hapyl.fight.game.effect.effects;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.event.EventHandler;
@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class ArcaneMuteEffect extends Effect implements Listener {
     public ArcaneMuteEffect() {
-        super("Arcane Mute", EffectType.NEGATIVE);
+        super("Arcane Mute", Type.NEGATIVE);
 
         setDescription("""
                 Prevents players from using their talents and deafens them.

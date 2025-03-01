@@ -49,68 +49,83 @@ public class HeroStatisticGUI extends StyledGUI {
     public void onUpdate() {
         setHeader(
                 new ItemBuilder(hero.getItem()).setName(this.hero.getName())
-                        .addLore()
-                        .addLore("Archetype: " + hero.getProfile().getSimpleArchetypesDisplay())
-                        .addLore()
-                        .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
-                        .addLore()
-                        .addSmartLore("This hero is ranked &b#%s&7.".formatted(hero.getRank()))
-                        .addSmartLore(
-                                "Heroes are ranked by the average of the stats. This is not indicative of the hero's strength.",
-                                "&8&o"
-                        )
-                        .asIcon()
+                                               .addLore()
+                                               .addLore("Archetypes: " + hero.getProfile().getSimpleArchetypesDisplay())
+                                               .addLore()
+                                               .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
+                                               .addLore()
+                                               .addSmartLore("This hero is ranked &b#%s&7.".formatted(hero.getRank()))
+                                               .addSmartLore(
+                                                       "Heroes are ranked by the average of the stats. This is not indicative of the hero's strength.",
+                                                       "&8&o"
+                                               )
+                                               .asIcon()
         );
 
         final SmartComponent component = newSmartComponent();
 
         // Play time
-        setItem(12, create(
-                Material.CLOCK,
-                "Total Play Time",
-                "has been played a total of {} times.",
-                StatType.PLAYED
-        ));
+        setItem(
+                12, create(
+                        Material.CLOCK,
+                        "Total Play Time",
+                        "has been played a total of {} times.",
+                        StatType.PLAYED
+                )
+        );
 
         // Wins
-        setItem(14, create(
-                Material.FIREWORK_ROCKET,
-                "Total Wins",
-                "has won {} times.",
-                StatType.WINS
-        ));
+        setItem(
+                14, create(
+                        Material.FIREWORK_ROCKET,
+                        "Total Wins",
+                        "has won {} times.",
+                        StatType.WINS
+                )
+        );
+
+        // Kills
+        setItem(20, create(Material.DIAMOND_SWORD, "Total Kills", "has killed {} enemies.", StatType.KILLS));
 
         // Deaths
-        setItem(20, create(
-                Material.SKELETON_SKULL,
-                "Total Deaths",
-                "has died {} times.",
-                StatType.DEATHS
-        ));
+        setItem(
+                21, create(
+                        Material.SKELETON_SKULL,
+                        "Total Deaths",
+                        "has died {} times.",
+                        StatType.DEATHS
+                )
+        );
 
         // Ultimates
-        setItem(21, create(
-                Material.NETHER_STAR,
-                "Ultimate Used",
-                "has used ultimates {} times.",
-                StatType.ULTIMATE_USED
-        ));
+        setItem(
+                22, create(
+                        Material.NETHER_STAR,
+                        "Ultimate Used",
+                        "has used ultimates {} times.",
+                        StatType.ULTIMATE_USED
+                )
+        );
 
         // Damage dealt
-        setItem(23, create(
-                Material.IRON_SWORD,
-                "Damage Dealt",
-                "has dealt a total of {} damage.",
-                StatType.DAMAGE_DEALT
-        ));
+        setItem(
+                23, create(
+                        Material.IRON_SWORD,
+                        "Damage Dealt",
+                        "has dealt a total of {} damage.",
+                        StatType.DAMAGE_DEALT
+                )
+        );
 
         // Damage taken
-        setItem(24, create(
-                Material.IRON_CHESTPLATE,
-                "Damage Taken",
-                "has taken a total of {} damage.",
-                StatType.DAMAGE_TAKEN
-        ));
+        setItem(
+                24, create(
+                        Material.IRON_CHESTPLATE,
+                        "Damage Taken",
+                        "has taken a total of {} damage.",
+                        StatType.DAMAGE_TAKEN
+                )
+        );
 
         // Ability Stats
         for (Talent talent : hero.getTalents()) {

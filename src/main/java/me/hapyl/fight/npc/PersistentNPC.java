@@ -1,5 +1,6 @@
 package me.hapyl.fight.npc;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.hologram.StringArray;
 import me.hapyl.eterna.module.reflect.npc.ClickType;
 import me.hapyl.eterna.module.reflect.npc.HumanNPC;
@@ -10,7 +11,6 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.task.DelegateTask;
 import me.hapyl.fight.game.task.PersistentTask;
@@ -77,11 +77,11 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
         sound.play(player);
     }
 
-    @Event
+    @EventLike
     public void onSpawn(@Nonnull Player player) {
     }
 
-    @Event
+    @EventLike
     public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
     }
 

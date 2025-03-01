@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -47,7 +47,7 @@ public class TakerHook {
         final Location location = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
         final Vector vector = location.getDirection().normalize();
 
-        player.addEffect(Effects.SLOW, 10, 10000);
+        player.addEffect(EffectType.SLOW, 10, 10000);
         player.setCanMove(false);
 
         taskExtend = new GameTask() {
@@ -98,8 +98,8 @@ public class TakerHook {
                             talent().damagePercent
                     ));
 
-                    nearest.addEffect(Effects.SLOW, 1, 60);
-                    nearest.addEffect(Effects.WITHER, 1, 60);
+                    nearest.addEffect(EffectType.SLOW, 1, 60);
+                    nearest.addEffect(EffectType.WITHER, 1, 60);
 
                     final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
                     nearest.damage(damage, player);
@@ -126,8 +126,8 @@ public class TakerHook {
 
         CFUtils.clearCollection(chains);
 
-        player.removeEffect(Effects.SLOW);
-        player.removeEffect(Effects.JUMP_BOOST);
+        player.removeEffect(EffectType.SLOW);
+        player.removeEffect(EffectType.JUMP_BOOST);
 
         player.setCanMove(true);
     }
@@ -163,7 +163,7 @@ public class TakerHook {
             @Override
             public void run() {
                 if (chains.isEmpty()) {
-                    player.removeEffect(Effects.SLOW);
+                    player.removeEffect(EffectType.SLOW);
                     player.setCanMove(true);
 
                     cancel();

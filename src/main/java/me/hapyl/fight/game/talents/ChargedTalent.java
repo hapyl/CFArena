@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents;
 
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.annotate.DoNotMutate;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -68,7 +68,7 @@ public class ChargedTalent extends Talent {
         data.remove(player);
     }
 
-    @Event
+    @EventLike
     public void onLastCharge(@Nonnull GamePlayer player) {
     }
 

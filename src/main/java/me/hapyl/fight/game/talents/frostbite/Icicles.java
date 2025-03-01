@@ -8,7 +8,7 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
@@ -79,7 +79,7 @@ public class Icicles extends Talent {
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.CRIT_DAMAGE, critDamageReduction, debuffDuration, player);
             attributes.decreaseTemporary(Temper.ICE_CAGE, AttributeType.ATTACK, attackReduction, debuffDuration, player);
 
-            entity.addEffect(Effects.SLOW, 1, 20);
+            entity.addEffect(EffectType.SLOW, 1, 20);
         });
 
         // Fx

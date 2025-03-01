@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.mage;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
@@ -30,7 +30,7 @@ public class WyvernHeartSpell extends MageSpell {
     protected void useSpell(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(Effects.SPEED, 2, duration);
+        player.addEffect(EffectType.SPEED, 2, duration);
         player.getAttributes().decreaseTemporary(Temper.WYVERN_HEART, AttributeType.ATTACK, attackDecrease, duration);
         player.heal(healingAmount);
     }

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.EntityMemory;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.MemoryKey;
@@ -14,7 +14,7 @@ public class Immovable extends Effect {
     private final MemoryKey key = new MemoryKey("immovable_kb");
 
     public Immovable() {
-        super("Immovable", EffectType.NEUTRAL);
+        super("Immovable", Type.NEUTRAL);
 
         setDescription("""
                 Entities aren't affected by knockback.

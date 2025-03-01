@@ -81,7 +81,7 @@ public class Orc extends Hero implements Listener {
         final GamePlayer player = instance.getEntityAsPlayer();
         final DamageCause cause = instance.getCause();
 
-        if (cause == null || !cause.isDirectDamage()) {
+        if (!cause.isDirectDamage()) {
             return;
         }
 

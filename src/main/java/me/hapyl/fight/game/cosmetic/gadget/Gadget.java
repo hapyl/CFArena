@@ -44,12 +44,13 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     @Nonnull
     public ItemStack getItem(@Nonnull Player player) {
         if (item == null) {
-            final ItemBuilder builder = new ItemBuilder(icon, getKey())
+            final Key key = getKey();
+
+            final ItemBuilder builder = createItem(player)
                     .setName(getName() + Color.BUTTON.bold() + " RIGHT CLICK")
-                    .addLore("&8Gadget")
-                    .addLore()
-                    .addTextBlockLore(description)
-                    .setCooldownGroup(getKey())
+                    .setCooldownGroup(key)
+                    .setLore(0, "&8Gadget") // Change the first line of the lore because I like it what way
+                    .setKey(key)
                     .addClickEvent(this::execute0);
 
             if (texture != null) {
@@ -94,6 +95,12 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
         if (PlayerLib.isOnCooldown(player, getKey())) {
             Message.error(player, "This gadget is on cooldown!");
             PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+            return;
+        }
+
+        // Validate if player still owns this cosmetic
+        if (!isUnlocked(player)) {
+            Message.error(player, "You don't own this gadget!");
             return;
         }
 

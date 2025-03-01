@@ -8,7 +8,7 @@ import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -89,7 +89,7 @@ public class ConfusionPotion extends Talent {
                     return;
                 }
 
-                target.addEffect(Effects.AMNESIA, 20, true);
+                target.addEffect(EffectType.AMNESIA, 20);
                 target.triggerDebuff(player);
             });
 

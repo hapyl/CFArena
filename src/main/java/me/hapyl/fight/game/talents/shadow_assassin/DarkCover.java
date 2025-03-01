@@ -10,7 +10,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
@@ -119,14 +119,14 @@ public class DarkCover extends ShadowAssassinTalent {
 
     public void setDarkCover(GamePlayer player, boolean flag) {
         if (flag) {
-            player.addEffect(Effects.INVISIBILITY, 999999, true);
+            player.addEffect(EffectType.INVISIBILITY, 999999);
             playDarkCoverFx(player, true);
         }
 
         else {
             darkCoverTask.remove(player);
 
-            player.removeEffect(Effects.INVISIBILITY);
+            player.removeEffect(EffectType.INVISIBILITY);
             playDarkCoverFx(player, false);
         }
     }

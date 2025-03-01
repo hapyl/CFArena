@@ -11,14 +11,15 @@ import javax.annotation.Nonnull;
 public abstract class EntityFollowingParticle extends TickingStepGameTask {
 
     private static final int MAX_TICK = 600;
-    public final Location location;
-    public final LivingGameEntity entity;
 
-    public EntityFollowingParticle(int speed, @ForceCloned Location location, @Nonnull LivingGameEntity entity) {
+    public final Location location;
+    public final LivingGameEntity target;
+
+    public EntityFollowingParticle(int speed, @ForceCloned Location location, @Nonnull LivingGameEntity target) {
         super(speed);
 
         this.location = location.clone();
-        this.entity = entity;
+        this.target = target;
     }
 
     public abstract void draw(int tick, @Nonnull Location location);
@@ -26,30 +27,35 @@ public abstract class EntityFollowingParticle extends TickingStepGameTask {
     public void onHit(@Nonnull Location location) {
     }
 
-    public double distance() {
-        return 0.75d;
+    public double distanceSquared() {
+        return 0.8660254037844386d; // 0.75d
     }
 
-    public double factor() {
+    public double mlFactor() {
         return 0.25f;
+    }
+
+    @Nonnull
+    public Location entityLocation() {
+        return target.getLocation();
     }
 
     @Override
     public boolean tick(int tick, int step) {
-        if (tick > MAX_TICK || entity.isDeadOrRespawning()) {
+        if (tick > MAX_TICK || target.isDeadOrRespawning()) {
             cancel();
             return true;
         }
 
-        final Location entityLocation = entity.getLocation();
+        final Location entityLocation = entityLocation();
 
-        if (CFUtils.distance(entityLocation, location) <= distance()) {
+        if (CFUtils.distanceSquared(location, entityLocation) < distanceSquared()) {
             cancel();
             onHit(location);
             return true;
         }
 
-        location.add(entityLocation.subtract(location).toVector().multiply(factor()));
+        location.add(entityLocation.subtract(location).toVector().multiply(mlFactor()));
         draw(tick, location);
         return false;
     }

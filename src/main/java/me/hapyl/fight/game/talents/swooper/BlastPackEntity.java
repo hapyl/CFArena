@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.math.Geometry;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -109,7 +109,7 @@ public class BlastPackEntity extends TickingGameTask {
             // Push the player
             if (player.equals(entity)) {
                 player.setVelocity(vector.multiply(talent.selfMagnitude));
-                player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100, true);
+                player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
                 return;
             }
 

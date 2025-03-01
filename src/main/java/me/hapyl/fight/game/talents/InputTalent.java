@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 
@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 
 /**
  * This talent requires a mouse input to be executed.
+ * fixme -> I don't like how this works
  */
 public abstract class InputTalent extends Talent {
 
@@ -28,8 +29,8 @@ public abstract class InputTalent extends Talent {
      */
     @Deprecated
     @Override
-    public Talent setType(@Nonnull TalentType type) {
-        return this;
+    public Talent setType(@Nonnull TalentType type) throws IllegalStateException {
+        throw new IllegalStateException("InputTalent uses separate types for left and right clicks!");
     }
 
     @Nonnull
@@ -48,10 +49,10 @@ public abstract class InputTalent extends Talent {
     public void appendLore(@Nonnull ItemBuilder builder) {
         builder.addTextBlockLore("""
                 
-                &e&lLEFT CLICK&e to %s
+                &e&lʟᴇꜰᴛ ᴄʟɪᴄᴋ&e to %s
                 &8%s
                 %s
-                &6&lRIGHT CLICK&6 to %s
+                &6&lʀɪɢʜᴛ ᴄʟɪᴄᴋ&6 to %s
                 &8%s
                 %s
                 """.formatted(
@@ -108,25 +109,24 @@ public abstract class InputTalent extends Talent {
      *
      * @param player - Player, who used the talent.
      */
-    @Event
+    @EventLike
     public void onUse(@Nonnull GamePlayer player) {
     }
 
     /**
      * Called whenever a player cancels the talent.
      */
-    @Event
+    @EventLike
     public void onCancel(@Nonnull GamePlayer player) {
     }
 
-    @Deprecated
     @Override
     public final InputTalent setCooldown(int cd) {
         leftData.setCooldown(cd);
+        rightData.setCooldown(cd);
         return this;
     }
 
-    @Deprecated
     @Override
     public final Talent setCooldownSec(float cd) {
         return setCooldown((int) (cd * 20));
@@ -159,20 +159,13 @@ public abstract class InputTalent extends Talent {
     public final Response execute(@Nonnull GamePlayer player) {
         final Response response = onEquip(player);
 
-        player.sendTitle("&6&lL&e&lCLICK     &6&lR&e&lCLICK",
-                ("&ato " + trim(leftData.action) + "         &ato " + trim(rightData.action)),
+        player.sendTitle(
+                "&6&lʟᴇꜰᴛ     &6&lʀɪɢʜᴛ",
+                "&ato %s         &ato %s".formatted(trim(leftData.action), trim(rightData.action)),
                 1, 10000, 1
         );
 
         return response;
-    }
-
-    public String trim(String name) {
-        if (name.length() > 20) {
-            return name.substring(0, 20);
-        }
-
-        return name;
     }
 
     public String getUsage(boolean isLeftClick) {
@@ -191,7 +184,6 @@ public abstract class InputTalent extends Talent {
         }
     }
 
-
     private String format(InputTalentData data) {
         String string = data.getDescription();
 
@@ -202,11 +194,15 @@ public abstract class InputTalent extends Talent {
         return string;
     }
 
-    private String format(@Nonnull String string, @Nonnull InputTalentData data) {
-        string = StaticFormat.NAME.format(string, this);
-        string = StaticFormat.DURATION.format(string, data);
-        string = StaticFormat.COOLDOWN.format(string, data);
+    private static String trim(String name) {
+        if (name.length() > 20) {
+            return name.substring(0, 20);
+        }
 
-        return string;
+        return name;
+    }
+
+    private static IllegalStateException ise(String reason) {
+        return new IllegalStateException(reason);
     }
 }

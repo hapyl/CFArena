@@ -13,7 +13,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * I really don't know how a database works or should work;
@@ -28,6 +31,8 @@ import java.util.logging.Logger;
  */
 public class Database extends DependencyInjector<Main> {
 
+    private static final Pattern CLINK_PATTERN = Pattern.compile("srv://(.*?):");
+
     private final FileConfiguration fileConfig;
     private final NamedDatabase namedDatabase;
     private final Map<NamedCollection, MongoCollection<Document>> collections;
@@ -35,7 +40,7 @@ public class Database extends DependencyInjector<Main> {
     private MongoClient client;
     private MongoDatabase database;
 
-    public Database(Main main) {
+    public Database(@Nonnull Main main) {
         super(main);
 
         this.fileConfig = main.getConfig();
@@ -92,7 +97,13 @@ public class Database extends DependencyInjector<Main> {
 
     @Nonnull
     public String getDatabaseString() {
-        return "&a&lMONGO &fConnected Database: &6&l" + namedDatabase.name();
+        return "&a&lMONGOdb &fConnected Database: &6&l%s&f on &e'%s'&f.".formatted(namedDatabase.name(), connectionName());
+    }
+
+    private String connectionName() {
+        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(fileConfig.getString("database.connection_link")));
+
+        return matcher.find() ? matcher.group(1) : "localhost";
     }
 
     @Nonnull

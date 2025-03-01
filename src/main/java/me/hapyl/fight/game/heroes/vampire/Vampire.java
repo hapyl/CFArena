@@ -213,7 +213,7 @@ public class Vampire extends Hero implements Listener {
                 soldier.teleport(location);
 
                 // Swing randomly
-                if (player.random.next() < 0.04f) {
+                if (player.random.nextDouble() < 0.04f) {
                     soldier.swingMainHand();
                 }
 
@@ -221,7 +221,7 @@ public class Vampire extends Hero implements Listener {
                 if (tick >= castDuration && soldier.getPose() != NPCPose.CROUCHING) {
                     float chance = (float) ((1d / SNEAK_TICK_THRESHOLD) * (SNEAK_TICK_THRESHOLD - ultimate.getCastDuration() - tick));
 
-                    if (player.random.next() <= chance) {
+                    if (player.random.nextDouble() <= chance) {
                         soldier.setPose(NPCPose.CROUCHING);
                     }
                 }

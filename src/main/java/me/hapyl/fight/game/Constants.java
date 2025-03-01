@@ -3,6 +3,7 @@ package me.hapyl.fight.game;
 import me.hapyl.fight.annotate.ConstantField;
 import me.hapyl.fight.game.attribute.temper.AttributeTemper;
 import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.entity.Decay;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.ChatColor;
 
@@ -36,4 +37,10 @@ public interface Constants {
             applicableTo = { String.class }
     )
     String DEFAULT_LORE_COLOR = ChatColor.GRAY.toString();
+
+    @ConstantField(
+            description = "The delay before the decay starts disappearing.",
+            applicableTo = { Decay.class }
+    )
+    int DECAY_DELAY = 30;
 }

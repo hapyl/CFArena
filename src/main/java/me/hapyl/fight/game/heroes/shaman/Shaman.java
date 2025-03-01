@@ -9,7 +9,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -208,7 +208,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
                     }
 
                     // Remove effects
-                    player.removeEffectsByType(EffectType.NEGATIVE);
+                    player.removeEffectsByType(Type.NEGATIVE);
 
                     temperInstance.temper(entity, effectResIncreaseDuration);
 

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -46,7 +46,7 @@ public class LaserEye extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(Effects.MOVEMENT_CONTAINMENT, duration, true);
+        player.addEffect(EffectType.MOVEMENT_CONTAINMENT, duration);
 
         new PlayerTickingGameTask(player) {
             @Override

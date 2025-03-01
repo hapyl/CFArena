@@ -38,6 +38,11 @@ public class Environment {
         return Lists.newArrayList(byName.keySet());
     }
 
+    @Nonnull
+    public List<EnvironmentProperty<?>> values() {
+        return Lists.newArrayList(byName.values());
+    }
+
     private <K, T extends EnvironmentProperty<K>> T register(T t) {
         byName.put(t.name(), t);
         return t;

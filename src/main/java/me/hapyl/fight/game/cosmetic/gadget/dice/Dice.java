@@ -36,7 +36,7 @@ public class Dice extends Gadget {
         this.rollJackpot = rollJackpot;
 
         setDescription("""
-                Costs &6%,d coins&7 to roll between 1-6.
+                Costs &6%,d coins&7 to roll between &c1&8-&5&l6&7.
                 
                 If you roll a &5&l6&7, earn:
                 """.formatted(rollCost)

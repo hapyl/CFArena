@@ -10,7 +10,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -100,8 +100,8 @@ public class BatTransferTalent extends Talent {
             this.bat.remove();
 
             this.player.setGameMode(GameMode.SURVIVAL);
-            this.player.addEffect(Effects.SLOW_FALLING, 10, true);
-            this.player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100, true);
+            this.player.addEffect(EffectType.SLOW_FALLING, 10);
+            this.player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
 
             // Fx
             this.player.playWorldSound(Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
@@ -158,7 +158,7 @@ public class BatTransferTalent extends Talent {
             }
 
             // Fx
-            if (tick % 20 == 0 || player.random.next() < 0.025) {
+            if (tick % 20 == 0 || player.random.nextDouble() < 0.025) {
                 player.playWorldSound(location, Sound.ENTITY_BAT_AMBIENT, 0.5f);
             }
         }

@@ -4,9 +4,8 @@ import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.ui.display.AscendingDisplay;
@@ -133,7 +132,7 @@ public class Shield implements Ticking {
     /**
      * Called upon shield being broken.
      */
-    @Event
+    @EventLike
     public void onBreak() {
     }
 

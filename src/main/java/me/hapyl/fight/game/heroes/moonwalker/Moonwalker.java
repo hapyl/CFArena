@@ -9,16 +9,16 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.WarningType;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.talents.moonwalker.MoonPillarTalent;
 import me.hapyl.fight.game.task.TickingGameTask;
@@ -49,12 +49,17 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
         setMinimumLevel(3);
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.RANGE);
+        profile.setArchetypes(Archetype.RANGE, Archetype.DEFENSE, Archetype.POWERFUL_ULTIMATE);
         profile.setAffiliation(Affiliation.SPACE);
         profile.setGender(Gender.MALE);
         profile.setRace(Race.ALIEN);
 
-        setDescription("A traveler from another planet... or, should I say moon? Brings his skills and... planets... with himself!");
+        setDescription("""
+                A traveler from another planet... or rather, a moon?
+                
+                Brings his skills and... plants... with himself!
+                """);
+
         setItem("1cf8fbd76586920c5273519927862fdc111705a1851d4d1aac450bcfd2b3a");
 
         final HeroAttributes attributes = getAttributes();
@@ -113,15 +118,16 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
     @Override
     public void onStart(@Nonnull GamePlayer player) {
         player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
-        player.addEffect(Effects.SLOW_FALLING, 2, -1);
+        player.addEffect(EffectType.SLOW_FALLING, 2, -1);
     }
 
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
         final MoonwalkerData data = getPlayerData(player);
+        final double energy = data.energy;
 
-        return "&e☄ &6" + data.weaponEnergy;
+        return "&e☄ &6&l%.0f".formatted(energy) + (energy >= getPassiveTalent().maxEnergy ? " &c&lMAX!" : "");
     }
 
     @Nonnull
@@ -180,9 +186,9 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
                 final DisplayEntity entity = blob.spawnInterpolated(spawnLocation);
 
                 final Vector vector = landingLocation.toVector()
-                        .subtract(spawnLocation.toVector())
-                        .normalize()
-                        .multiply(0.7d);
+                                                     .subtract(spawnLocation.toVector())
+                                                     .normalize()
+                                                     .multiply(0.7d);
 
                 new TickingGameTask() {
                     private double theta = 0.0d;
@@ -203,7 +209,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
                         // Notify players
                         Collect.nearbyPlayers(landingLocation, meteoriteRadius).forEach(player -> {
-                            player.sendWarning(WarningType.DANGER);
+                            player.sendWarning(WarningType.DANGER, 5);
                         });
 
                         // Fx
@@ -322,7 +328,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
             Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
                 entity.damage(meteoriteDamage, executor, DamageCause.METEORITE);
-                entity.addEffect(Effects.CORROSION, corrosionTime, true);
+                entity.addEffect(EffectType.CORROSION, corrosionTime);
             });
 
             // FX

@@ -6,7 +6,7 @@ import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.terminology.Term;
 import me.hapyl.fight.terminology.TermCollectionGUI;
 import me.hapyl.fight.terminology.TermGUI;
-import me.hapyl.fight.terminology.Terms;
+import me.hapyl.fight.terminology.EnumTerm;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public class TermCommand extends CFCommand {
             return;
         }
 
-        final List<Term> terms = Terms.byContext(query);
+        final List<Term> terms = EnumTerm.byContext(query);
 
         if (terms.isEmpty()) {
             Message.ERROR.send(player, "Could not find any terms matching the query '{%s}'!".formatted(query));

@@ -15,7 +15,7 @@ import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.challenge.ChallengeType;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.effect.effects.SlowingAuraEffect;
 import me.hapyl.fight.game.element.ElementHandler;
 import me.hapyl.fight.game.element.PlayerElementHandler;
@@ -93,14 +93,19 @@ public abstract class Talent
     }
 
     @Nonnull
+    public Key cooldownKey() {
+        return this.key;
+    }
+
+    @Nonnull
     @Override
     public final Key getKey() {
-        return key;
+        return this.key;
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hashCode(key);
+        return Objects.hashCode(this.key);
     }
 
     // defaults to 1 point per 10 seconds of cooldown
@@ -255,7 +260,7 @@ public abstract class Talent
     @Nonnull
     @Override
     public ItemStack createItem() {
-        final ItemBuilder builderItem = ItemBuilder.of(material)
+        final ItemBuilder builderItem = new ItemBuilder(material)
                 .setName(name)
                 .addLore("&8" + getTypeFormattedWithClassType())
                 .addLore();
@@ -284,7 +289,7 @@ public abstract class Talent
         }
 
         // cooldown
-        builderItem.setCooldown(cd -> cd.setCooldownGroup(key.asNamespacedKey()));
+        builderItem.setCooldown(cd -> cd.setCooldownGroup(cooldownKey().asNamespacedKey()));
 
         if (this instanceof UltimateTalent) {
             builderItem.glow();
@@ -448,11 +453,11 @@ public abstract class Talent
         }
 
         // If a player has slowing aura, modify cooldown
-        if (player.hasEffect(Effects.SLOWING_AURA)) {
-            cooldown *= ((SlowingAuraEffect) Effects.SLOWING_AURA.getEffect()).cooldownModifier;
+        if (player.hasEffect(EffectType.SLOWING_AURA)) {
+            cooldown *= ((SlowingAuraEffect) EffectType.SLOWING_AURA.getEffect()).cooldownModifier;
         }
 
-        player.cooldownManager.setCooldown(this, cooldown);
+        player.cooldownManager.setCooldown(cooldownKey(), cooldown);
     }
 
     public void startCd(@Nonnull GamePlayer player) {
@@ -460,7 +465,7 @@ public abstract class Talent
     }
 
     public final void stopCd(@Nonnull GamePlayer player) {
-        player.cooldownManager.setCooldown(this, 0);
+        player.cooldownManager.setCooldown(cooldownKey(), 0);
     }
 
     public final boolean hasCd(@Nonnull GamePlayer player) {
@@ -468,7 +473,7 @@ public abstract class Talent
     }
 
     public final int getCdTimeLeft(@Nonnull GamePlayer player) {
-        return player.cooldownManager.getCooldown(this);
+        return player.cooldownManager.getCooldown(cooldownKey());
     }
 
     @Override

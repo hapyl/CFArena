@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class DarkMage extends Hero implements ComplexHero, Listener, PlayerDataHandler<DarkMageData>, UIComplexComponent {
+public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMageData>, UIComplexComponent {
 
     private final PlayerDataMap<DarkMageData> playerData = PlayerMap.newDataMap(DarkMageData::new);
 

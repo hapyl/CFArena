@@ -5,11 +5,12 @@ import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.alchemist.AlchemistPotion;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AlchemistData extends PlayerData {
 
     protected AlchemistState state;
-    protected ActivePotion activePotion;
+    @Nullable protected ActivePotion activePotion;
     protected double toxin;
 
     public AlchemistData(GamePlayer player) {

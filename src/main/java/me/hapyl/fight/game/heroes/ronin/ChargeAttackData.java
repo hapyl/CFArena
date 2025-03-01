@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.heroes.ronin;
 
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ronin.ChargeAttack;
 import me.hapyl.fight.game.task.GameTask;
@@ -49,7 +49,7 @@ public class ChargeAttackData extends GameTask {
         }
 
         // Slow player down a little
-        player.addEffect(Effects.SLOW, 2, 2);
+        player.addEffect(EffectType.SLOW, 2, 2);
     }
 
     public boolean isPerfect() {

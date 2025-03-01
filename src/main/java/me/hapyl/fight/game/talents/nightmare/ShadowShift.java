@@ -4,7 +4,7 @@ package me.hapyl.fight.game.talents.nightmare;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -52,9 +52,9 @@ public class ShadowShift extends Talent implements Listener {
             return Response.error(targetLocation.getError().getErrorMessage());
         }
 
-        player.addEffect(Effects.BLINDNESS, 20, immobilizationDuration);
-        player.addEffect(Effects.SLOW, 20, immobilizationDuration);
-        player.addEffect(Effects.JUMP_BOOST, 250, immobilizationDuration);
+        player.addEffect(EffectType.BLINDNESS, 20, immobilizationDuration);
+        player.addEffect(EffectType.SLOW, 20, immobilizationDuration);
+        player.addEffect(EffectType.JUMP_BOOST, 250, immobilizationDuration);
 
         final Location location = targetLocation.getLocation();
         final LivingGameEntity entity = targetLocation.getEntity();

@@ -288,7 +288,7 @@ public enum AttributeType implements Described {
             }
                     .setChar("🐇")
                     .setColor(ChatColor.AQUA)
-                    .setToString(AttributeType::doubleFormatScaled),
+                    .setToString(AttributeType::doubleFormatPercent),
             0.45
     ) {
         @Override
@@ -431,6 +431,13 @@ public enum AttributeType implements Described {
     }
 
     @Nonnull
+    public String getFormattedWithAttributeName(@Nonnull BaseAttributes attributes) {
+        final double value = get(attributes);
+
+        return "%s &f%s".formatted(toString(), toString(value));
+    }
+
+    @Nonnull
     public String getFormattedScaled(@Nonnull BaseAttributes attributes) {
         return doFormat(attributes, (t, v) -> t.toString(t.scaleUp(v)));
     }
@@ -520,7 +527,7 @@ public enum AttributeType implements Described {
 
     @Nonnull
     public static String doubleFormat(@Nonnull AttributeType type, double value) {
-        return "%.0f".formatted(value);
+        return "%,.0f".formatted(value);
     }
 
     @Nonnull

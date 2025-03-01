@@ -6,7 +6,7 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -183,7 +183,7 @@ public class Hercules extends Hero implements Listener, Disabled {
         final double plungeDamage = 5.0d + (1.5d * distance);
 
         player.playWorldSound(Sound.ITEM_TRIDENT_RIPTIDE_2, 1.75f);
-        player.addEffect(Effects.JUMP_BOOST, 255, 80);
+        player.addEffect(EffectType.JUMP_BOOST, 255, 80);
 
         player.setVelocity(new Vector(0.0d, -1.0d, 0.0d));
         player.addTag("plunging");
@@ -197,7 +197,7 @@ public class Hercules extends Hero implements Listener, Disabled {
                     this.cancel();
 
                     player.removeTag("plunging");
-                    player.removeEffect(Effects.JUMP_BOOST);
+                    player.removeEffect(EffectType.JUMP_BOOST);
 
                     Registries.getCosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
 

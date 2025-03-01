@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
@@ -88,7 +88,7 @@ public class GravityZone extends Talent {
 
                         final Vector velocity = entity.getVelocity();
                         entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
-                        entity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 60, true);
+                        entity.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 60);
                     });
 
                     ticksInPull.clear();

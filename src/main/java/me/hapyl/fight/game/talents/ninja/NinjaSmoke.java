@@ -5,7 +5,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -49,7 +49,7 @@ public class NinjaSmoke extends Talent {
         final Location location = player.getMidpointLocation();
         final int duration = getDuration();
 
-        player.addEffect(Effects.INVISIBILITY, duration);
+        player.addEffect(EffectType.INVISIBILITY, duration);
 
         // Fx
         new TimedGameTask(duration) {

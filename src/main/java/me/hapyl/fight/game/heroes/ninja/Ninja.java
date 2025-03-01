@@ -9,7 +9,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -91,9 +91,9 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final NinjaSmoke ninjaSmoke = getSecondTalent();
 
         Temper.SHADOWSTRIKE.temper(player, AttributeType.DODGE, ninjaSmoke.dodgeIncrease, ninjaSmoke.buffDuration);
-        player.removeEffect(Effects.INVISIBILITY);
+        player.removeEffect(EffectType.INVISIBILITY);
 
-        entity.addEffect(Effects.SLOW, 5, 20);
+        entity.addEffect(EffectType.SLOW, 5, 20);
 
         // Fx
         player.playWorldSound(Sound.BLOCK_ANVIL_LAND, 1.25f);

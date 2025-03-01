@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectParticle;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Particle;
 
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class RespawnResistance extends Effect {
 
     public RespawnResistance() {
-        super("Respawn Resistance", EffectType.POSITIVE);
+        super("Respawn Resistance", Type.POSITIVE);
 
         setDescription("""
                 Negates all damage.

@@ -52,9 +52,9 @@ import java.util.Objects;
 public class Main extends JavaPlugin {
 
     public static final String GAME_NAME = "&6&lᴄғ &eᴀʀᴇɴᴀ";
-    public static final String GAME_NAME_LONG = "&6&lᴄʟᴀꜱꜱᴇꜱ ꜰɪɢʜᴛ &eᴀʀᴇɴᴀ";
+    public static final String[] GAME_NAME_LONG = { "ᴄʟᴀꜱꜱᴇꜱ ꜰɪɢʜᴛ", "ᴀʀᴇɴᴀ" };
 
-    public static final UpdateTopic updateTopic = new UpdateTopic("&4He's Back, Isn't He?");
+    public static final UpdateTopic updateTopic = new UpdateTopic("&cSmells Like Hell!");
 
     public static final String requireEternaVersion = "4.7.11";
     public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete

@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.moonwalker;
 
-import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
@@ -26,7 +25,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
         this.data = data;
         this.ability = ability;
 
-        runTaskTimer(ability.firstShotDelay, 1);
+        runTaskTimer(1, 1);
     }
 
     @Override
@@ -42,7 +41,6 @@ public class RayOfDeath extends PlayerTickingGameTask {
 
     public void onHit(LivingGameEntity entity) {
         entity.setLastDamager(player);
-        entity.damage(ability.damage, DamageCause.RAY_OF_DEATH);
     }
 
     @Override
@@ -55,9 +53,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
             return;
         }
 
-        data.weaponEnergy -= Math.min(data.weaponEnergy, ability.energyDrainPerTick);
-
-        if (data.weaponEnergy <= 0) {
+        if (data.energy <= 0) {
             endRay();
             return;
         }
@@ -66,7 +62,7 @@ public class RayOfDeath extends PlayerTickingGameTask {
         final Location location = player.getEyeLocation();
         final DirectionalMatrix matrix = player.getLookAlongMatrix();
 
-        for (double d = 0.0d; d < ability.maxDistance; d += 0.5) {
+        for (double d = 0.0d; d < 1; d += 0.5) {
             final double x = Math.sin(d) * 0.5d;
             final double y = Math.cos(d) * 0.5d;
 
@@ -93,10 +89,9 @@ public class RayOfDeath extends PlayerTickingGameTask {
     }
 
     private void endRay() {
-        ability.weapon.rayOfDeathMap.remove(player, this);
         cancel();
 
-        final int cooldown = (getTick() + 1) * ability.cdPerSecondActive;
+        final int cooldown = (getTick() + 1) * 1;
         ability.startCooldown(player, cooldown);
     }
 

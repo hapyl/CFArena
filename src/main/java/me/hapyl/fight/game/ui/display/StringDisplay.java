@@ -101,7 +101,7 @@ public class StringDisplay {
             self.setInterpolationDuration(0);
             self.setTransformation(initTransformation);
             self.setTextOpacity((byte) -1);
-            self.setText(Chat.format(string));
+            self.setText(Chat.color(string));
             self.setViewRange(viewRange);
 
             onPrepare(self);

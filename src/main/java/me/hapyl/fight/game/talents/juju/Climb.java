@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.juju;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
@@ -64,7 +64,7 @@ public class Climb extends Talent {
             player.setVelocity(player.getLocation().getDirection().normalize().multiply(magnitude).setY(magnitude));
         }, 1);
 
-        player.addEffect(Effects.SPEED, 1, 60);
+        player.addEffect(EffectType.SPEED, 1, 60);
         player.playSound(Sound.BLOCK_SLIME_BLOCK_BREAK, 0.75f);
 
         if (!player.isUsingUltimate()) {

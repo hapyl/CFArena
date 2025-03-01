@@ -28,7 +28,7 @@ import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.damage.DeathMessage;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.ping.PlayerPing;
 import me.hapyl.fight.game.entity.shield.Shield;
@@ -37,7 +37,6 @@ import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.PlayerDataHandler;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
-import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -224,7 +223,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         player.setMaxHealth(40.0d); // why deprecate
         player.setHealth(40.0d);
         player.setAbsorptionAmount(0.0d);
-        player.setFireTicks(0);
+        player.setFireTicks(0); // This doesn't seem to work
         player.setVisualFire(false);
         player.setAllowFlight(false);
         player.setFlying(false);
@@ -300,9 +299,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         else {
             stats.markAsWinner();
         }
-
-        // Award mastery exp
-        HeroMastery.awardPlayer(this);
 
         // Reset game player
         getProfile().resetGamePlayer();
@@ -615,7 +611,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getEntityData().clearEffects();
     }
 
-    public void clearEffect(Effects type) {
+    public void clearEffect(EffectType type) {
         getEntityData().clearEffect(type);
     }
 
@@ -900,7 +896,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         prepare(hero);
 
         // Add spawn protection
-        addEffect(Effects.RESPAWN_RESISTANCE, 60);
+        addEffect(EffectType.RESPAWN_RESISTANCE, 60);
 
         // Respawn location
         final IGameInstance gameInstance = Manager.current().getCurrentGame();
@@ -1078,14 +1074,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getPlayer().setGameMode(gameMode);
     }
 
-    public void swingMainHand() {
-        getPlayer().swingMainHand();
-    }
-
-    public void swingOffHand() {
-        getPlayer().swingOffHand();
-    }
-
     @Nonnull
     public EntityEquipment getEquipment() {
         return getPlayer().getEquipment();
@@ -1138,7 +1126,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
     public void cancelInputTalent() {
         if (inputTalent != null && !inputTalent.hasCd(this)) {
-            sendTitle("&cCancelled", inputTalent.getName(), 0, 10, 5);
+            sendTitle("&c&lᴄᴀɴᴄᴇʟʟᴇᴅ", inputTalent.getName(), 0, 10, 5);
             playSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
 
             inputTalent.onCancel(this);
@@ -1351,10 +1339,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         return enumSetting.isEnabled(getPlayer());
     }
 
-    public boolean isSettingDisabled(@Nonnull EnumSetting setting) {
-        return setting.isDisabled(getPlayer());
-    }
-
     public boolean hasBlocksAbove() {
         return !getBlocksAbove().isEmpty();
     }
@@ -1482,9 +1466,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      * Sends an exclamation as a title to the player, indicating that the player should be cautious.
      *
      * @param warningType - The warning type to display.
+     * @param duration - The duration of the warning.
      */
-    public void sendWarning(@Nonnull WarningType warningType) {
-        asPlayer(player -> Chat.sendTitle(player, warningType.toString(), "", 0, 5, 5));
+    public void sendWarning(@Nonnull WarningType warningType, int duration) {
+        asPlayer(player -> Chat.sendTitle(player, warningType.toString(), "", 0, duration, 5));
     }
 
     @Nonnull
@@ -1529,7 +1514,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
 
     public boolean isValidForCosmetics() {
-        if (hasEffect(Effects.INVISIBILITY)) {
+        if (hasEffect(EffectType.INVISIBILITY)) {
             return false;
         }
 

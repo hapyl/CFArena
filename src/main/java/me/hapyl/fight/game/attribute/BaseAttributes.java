@@ -321,6 +321,11 @@ public class BaseAttributes implements Copyable {
         mapped.put(type, value);
     }
 
+    public BaseAttributes put(@Nonnull AttributeType type, double value) {
+        set(type, value);
+        return this;
+    }
+
     public final void reset() {
         mapped.clear();
     }
@@ -427,4 +432,5 @@ public class BaseAttributes implements Copyable {
     private void setValueScaled(AttributeType type, double value) {
         set(type, type.scaleDown(value));
     }
+
 }

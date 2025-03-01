@@ -1,10 +1,10 @@
 package me.hapyl.fight.guesswho;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -84,7 +84,7 @@ public enum GameState {
         }
     };
 
-    @Event
+    @EventLike
     public void onStart(@Nonnull GuessWho game) {
     }
 

@@ -3,10 +3,10 @@ package me.hapyl.fight.event;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.entity.named.NamedGameEntity;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
@@ -24,6 +24,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import java.util.function.Consumer;
 
 public class EntityHandler implements Listener {
+
+    private static final EntityCooldown COOLDOWN = EntityCooldown.of("portal", 1000L);
 
     @EventHandler()
     public void handlePlayerPortal(PlayerTeleportEvent ev) {
@@ -113,7 +115,7 @@ public class EntityHandler implements Listener {
         }
 
         // Don't target invisible entities
-        if (target.hasEffect(Effects.INVISIBILITY)) {
+        if (target.hasEffect(EffectType.INVISIBILITY)) {
             ev.setTarget(null);
             ev.setCancelled(true);
             return;
@@ -141,11 +143,11 @@ public class EntityHandler implements Listener {
             return;
         }
 
-        if (entity.hasCooldown(Cooldown.PORTAL)) {
+        if (entity.hasCooldown(COOLDOWN)) {
             return;
         }
 
-        entity.startCooldown(Cooldown.PORTAL);
+        entity.startCooldown(COOLDOWN);
         new GameEntityContactPortalEvent(entity, type).call();
     }
 

@@ -6,7 +6,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.talents.Talent;
@@ -59,13 +59,13 @@ public class Uppercut extends Talent {
             SwordMaster.addSuccessfulTalent(player, this);
 
             entity.damageNoKnockback(damage, player, DamageCause.UPPERCUT);
-            entity.addEffect(Effects.SLOW_FALLING, 5, getDuration());
+            entity.addEffect(EffectType.SLOW_FALLING, 5, getDuration());
             entity.setVelocity(upVelocity);
             entity.triggerDebuff(player);
         });
 
         player.setVelocity(upVelocity);
-        player.addEffect(Effects.SLOW_FALLING, 5, getDuration());
+        player.addEffect(EffectType.SLOW_FALLING, 5, getDuration());
 
         location.add(0, 0.2d, 0);
 

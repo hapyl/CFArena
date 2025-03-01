@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.tamer;
 
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.fx.Riptide;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
@@ -33,11 +33,11 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
         riptide.remove();
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onTick() {
     }
 

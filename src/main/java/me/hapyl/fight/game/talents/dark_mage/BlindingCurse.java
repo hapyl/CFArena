@@ -10,7 +10,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
@@ -163,7 +163,7 @@ public class BlindingCurse extends DarkMageTalent {
         });
 
         player.showEntity(wither);
-        player.addEffect(Effects.BLINDNESS, 3, witherFxDuration + 20);
+        player.addEffect(EffectType.BLINDNESS, 3, witherFxDuration + 20);
         player.playSound(Sound.ENTITY_WITHER_SPAWN, 1.75f);
 
         GameTask.runLater(wither::remove, witherFxDuration).setShutdownAction(ShutdownAction.IGNORE);

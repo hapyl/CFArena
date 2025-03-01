@@ -9,8 +9,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.stats.StatContainer;
-import me.hapyl.fight.game.stats.StatType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -136,25 +134,6 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
         }
 
         return 0;
-    }
-
-    public static void awardPlayer(@Nonnull GamePlayer player) {
-        final StatContainer stats = player.getStats();
-        long earnedExp = 0;
-
-        if (stats.isWinner()) {
-            earnedExp += EXP_WIN;
-        }
-
-        earnedExp += (long) (stats.getValue(StatType.KILLS) * EXP_ELIMINATION);
-
-        if (earnedExp <= 0) {
-            return;
-        }
-
-        final Hero playerHero = player.getHero();
-
-        player.sendMessage(PREFIX + "&aEarned %s &6Mastery Exp&a for %s!".formatted(earnedExp, playerHero.getNameSmallCaps()));
     }
 
     public static long getExpRequiredForLevel(int level) {

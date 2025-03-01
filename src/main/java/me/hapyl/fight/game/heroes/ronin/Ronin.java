@@ -5,7 +5,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -67,7 +67,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
 
         // Apply bleed
         if (player.isUsingUltimate()) {
-            entity.addEffect(Effects.BLEED, 60, true);
+            entity.addEffect(EffectType.BLEED, 60);
         }
     }
 
@@ -133,7 +133,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
             return builder()
                     .onCastStart(() -> {
                         // Fx
-                        player.addEffect(Effects.SLOW, 3, getCastDuration());
+                        player.addEffect(EffectType.SLOW, 3, getCastDuration());
                         player.spawnWorldParticle(player.getLocation(), Particle.DUST_PILLAR, 20, 0.1, 0.1, 0.1, particleData);
                         player.playHurtAnimation(0);
 

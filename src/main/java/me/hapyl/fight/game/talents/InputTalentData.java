@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.talents;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Stores input talent left/right click data.
@@ -62,8 +61,8 @@ public class InputTalentData implements Timed, Cooldown {
         return description;
     }
 
-    public InputTalentData setDescription(@Nonnull String description, @Nullable Object... format) {
-        this.description = description.formatted(format);
+    public InputTalentData setDescription(@Nonnull String description) {
+        this.description = description;
         return this;
     }
 

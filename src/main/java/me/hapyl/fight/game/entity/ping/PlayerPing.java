@@ -2,13 +2,15 @@ package me.hapyl.fight.game.entity.ping;
 
 import me.hapyl.eterna.module.util.Buffer;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Resettable;
 
 import javax.annotation.Nonnull;
 
 public class PlayerPing implements Resettable {
+
+    private static final EntityCooldown COOLDOWN = EntityCooldown.of("player_ping", 500L);
 
     protected final GamePlayer player;
     protected final Buffer<Ping> buffer;
@@ -29,7 +31,7 @@ public class PlayerPing implements Resettable {
     }
 
     public boolean isOnCooldown() {
-        return player.hasCooldown(Cooldown.PLAYER_PING);
+        return player.hasCooldown(COOLDOWN);
     }
 
     public void requestedPing() {
@@ -63,7 +65,7 @@ public class PlayerPing implements Resettable {
     }
 
     private void ping(@Nonnull PingType type) {
-        player.startCooldown(Cooldown.PLAYER_PING);
+        player.startCooldown(COOLDOWN);
         requests = 0;
 
         buffer.add(new Ping(this, type));

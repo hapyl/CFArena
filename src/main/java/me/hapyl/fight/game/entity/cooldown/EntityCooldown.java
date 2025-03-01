@@ -1,59 +1,65 @@
 package me.hapyl.fight.game.entity.cooldown;
 
-import com.google.common.collect.Maps;
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
+import java.util.Objects;
 
-public class EntityCooldown {
+/**
+ * Keep in mind cooldowns are in <b>millis, <i>not ticks</i></b>!
+ */
+public class EntityCooldown implements Keyed {
 
-    private final LivingGameEntity entity;
-    private final Map<Cooldown, CooldownData> cooldownMap;
+    private final Key key;
+    private final long durationInMilliseconds;
 
-    public EntityCooldown(@Nonnull LivingGameEntity entity) {
-        this.entity = entity;
-        this.cooldownMap = Maps.newHashMap();
+    public EntityCooldown(@Nonnull Key key, long durationInMilliseconds) {
+        this.key = key;
+        this.durationInMilliseconds = durationInMilliseconds;
     }
 
-    public LivingGameEntity getEntity() {
-        return entity;
+    @Nonnull
+    public static EntityCooldown of(@Nonnull String key, long durationInMilliseconds) {
+        return new EntityCooldown(Key.ofString(key), durationInMilliseconds);
     }
 
-    public void stopCooldowns() {
-        cooldownMap.clear();
+    @Nonnull
+    public static EntityCooldown of(@Nonnull String key) {
+        return of(key, 0L);
     }
 
-    public void stopCooldown(@Nonnull Cooldown cooldown) {
-        cooldownMap.remove(cooldown);
+    @Nonnull
+    @Override
+    public final Key getKey() {
+        return this.key;
     }
 
-    public boolean hasCooldown(@Nonnull Cooldown cooldown) {
-        final CooldownData data = cooldownMap.get(cooldown);
+    public long durationInMilliseconds() {
+        return durationInMilliseconds;
+    }
 
-        if (data == null) {
+    @Override
+    public final boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        if (data.isFinished()) {
-            cooldownMap.remove(cooldown);
-            return false;
-        }
-
-        return true;
+        final EntityCooldown that = (EntityCooldown) o;
+        return Objects.equals(this.key, that.key);
     }
 
-    public void startCooldown(@Nonnull Cooldown cooldown) {
-        startCooldown(cooldown, cooldown.duration);
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(this.key);
     }
 
-    public void startCooldown(@Nonnull Cooldown cooldown, long durationMillis) {
-        cooldownMap.put(cooldown, new CooldownData(cooldown, durationMillis));
-    }
-
-    @Nullable
-    public CooldownData getData(@Nonnull Cooldown cooldown) {
-        return cooldownMap.get(cooldown);
-    }
+    //NO_DAMAGE,
+    //PLAYER_PING(500),
+    //WITCH_POTION,
+    //CC_MESSAGE(1000),
+    //PORTAL(1000),
+    //
+    //RAY_OF_DEATH(100),
+    ;
 }

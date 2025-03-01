@@ -7,7 +7,7 @@ import me.hapyl.fight.terminology.terms.TermPiercingDamage;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public enum Terms {
+public enum EnumTerm {
 
     TRUE_DAMAGE(Term.builder()
             .setName("True Damage")
@@ -47,7 +47,7 @@ public enum Terms {
 
     public final Term term;
 
-    Terms(Term term) {
+    EnumTerm(Term term) {
         this.term = term;
     }
 
@@ -65,7 +65,7 @@ public enum Terms {
 
         query = query.toLowerCase();
 
-        for (Terms enumTerm : values()) {
+        for (EnumTerm enumTerm : values()) {
             if (enumTerm.term.isMatching(query)) {
                 possibleTerms.add(enumTerm.term);
             }
@@ -78,7 +78,7 @@ public enum Terms {
     public static List<Term> listTerms() {
         List<Term> terms = Lists.newArrayList();
 
-        for (Terms term : values()) {
+        for (EnumTerm term : values()) {
             terms.add(term.term);
         }
 

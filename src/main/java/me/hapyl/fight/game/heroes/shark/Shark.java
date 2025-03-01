@@ -11,7 +11,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -24,7 +24,7 @@ import me.hapyl.fight.game.talents.shark.Whirlpool;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.terminology.Terms;
+import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -157,7 +157,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.WATER_BREATHING, -1);
+        player.addEffect(EffectType.WATER_BREATHING, -1);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                     After a short casting time, ride the wave forward rapidly, dealing massive %s upon landing.
                     
                     &8;;If you posses at least {minBloodThirst}, your amazing eyesight will mark hurt enemies.
-                    """.formatted(Terms.PIERCING_DAMAGE)
+                    """.formatted(EnumTerm.PIERCING_DAMAGE)
             );
 
             setItem(Material.WATER_BUCKET);
@@ -237,7 +237,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                 @Override
                 public void onExecute() {
                     player.setAttributeValue(Attribute.GRAVITY, BukkitUtils.GRAVITY);
-                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 1000);
+                    player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 1000);
                 }
 
                 @Override

@@ -27,4 +27,8 @@ public class ActivePotion extends TickingGameTask {
             data.cancelActivePotion();
         }
     }
+
+    public int getDurationLeft() {
+        return potion.getDuration() - getTick();
+    }
 }

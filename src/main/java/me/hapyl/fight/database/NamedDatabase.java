@@ -27,6 +27,11 @@ public enum NamedDatabase {
     }
 
     @Nonnull
+    public String suffix() {
+        return suffix;
+    }
+
+    @Nonnull
     public static NamedDatabase byName(String name) {
         for (NamedDatabase value : values()) {
             if (value.name().equalsIgnoreCase(name)) {

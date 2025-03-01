@@ -9,7 +9,7 @@ import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -150,7 +150,7 @@ public class TransmissionBeacon extends Talent implements Listener {
 
         new EnderPearlTeleportEvent(player, location).call();
 
-        player.addEffect(Effects.BLINDNESS, 1, 20);
+        player.addEffect(EffectType.BLINDNESS, 1, 20);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
     }
 

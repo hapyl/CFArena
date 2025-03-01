@@ -10,7 +10,6 @@ import me.hapyl.fight.annotate.KeepNull;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.ComplexHero;
 import me.hapyl.fight.game.heroes.Gender;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroProfile;
@@ -42,7 +41,7 @@ import java.util.Map;
  * This hero is pain in the ass...
  * Slots are hardcoded, make sure not to change them.
  */
-public class Librarian extends Hero implements ComplexHero, Listener, Disabled {
+public class Librarian extends Hero implements Listener, Disabled {
 
     private final Map<Integer, LibrarianTalent> talentMap = new HashMap<>();
     private final PlayerMap<Grimoire> grimoireMap = PlayerMap.newMap();

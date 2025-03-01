@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.task;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.game.talents.Timed;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ public abstract class TimedGameTask extends TickingGameTask {
         return maxTick;
     }
 
-    @Event
+    @EventLike
     public void onLastTick() {
     }
 

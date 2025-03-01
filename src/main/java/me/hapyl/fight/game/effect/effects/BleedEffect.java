@@ -2,7 +2,7 @@ package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.*;
 
@@ -20,7 +20,7 @@ public class BleedEffect extends Effect {
     private final double damage = 2.0d;
 
     public BleedEffect() {
-        super("&4∲ Bleeding", EffectType.NEGATIVE);
+        super("&4∲ Bleeding", Type.NEGATIVE);
     }
 
     @Override

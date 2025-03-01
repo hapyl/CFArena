@@ -2,7 +2,7 @@ package me.hapyl.fight.game.talents.dark_mage;
 
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.task.GameTask;
@@ -147,7 +147,7 @@ public class ShadowCloneNPC extends HumanNPC {
         player.playWorldSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.25f);
 
-        player.addEffect(Effects.BLINDNESS, 20);
+        player.addEffect(EffectType.BLINDNESS, 20);
     }
 
 }

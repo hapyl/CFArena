@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.effect.effects;
 
 import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 
 public class WitherBlood extends Effect {
     public WitherBlood() {
-        super("Withered Blood", EffectType.NEGATIVE);
+        super("Withered Blood", Type.NEGATIVE);
 
         setDescription("Feel the wither in your blood.");
     }

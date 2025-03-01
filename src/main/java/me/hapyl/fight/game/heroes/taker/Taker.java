@@ -6,7 +6,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Gender;
@@ -202,7 +202,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider {
 
             bones.reset();
 
-            player.addEffect(Effects.SLOW, 255, castDuration);
+            player.addEffect(EffectType.SLOW, 255, castDuration);
 
             return builder()
                     .onCastTick(tick -> {

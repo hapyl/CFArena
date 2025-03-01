@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.mage;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -50,7 +50,7 @@ public class MageTransmission extends Talent {
         }
 
         player.teleport(location);
-        player.addEffect(Effects.SLOW, 10, 20);
+        player.addEffect(EffectType.SLOW, 10, 20);
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.65f);
 
         if (location.getWorld() != null) {

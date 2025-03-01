@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.alchemist;
 
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.alchemist.ActivePotion;
 import me.hapyl.fight.game.heroes.alchemist.AlchemistData;
@@ -22,7 +22,7 @@ public class AlchemistPotionInvisibility extends AlchemistPotion {
     @Nonnull
     @Override
     public ActivePotion use(@Nonnull AlchemistData data, @Nonnull GamePlayer player) {
-        player.addEffect(Effects.INVISIBILITY, getDuration());
+        player.addEffect(EffectType.INVISIBILITY, getDuration());
 
         return new ActivePotion(data, player, this);
     }

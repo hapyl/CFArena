@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.engineer;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -64,7 +64,7 @@ public class EngineerSentry extends EngineerTalent {
                             return;
                         }
 
-                        entity.addEffect(Effects.GLOWING, 1, getDuration());
+                        entity.addEffect(EffectType.GLOWING, 1, getDuration());
                     });
                 }
             }

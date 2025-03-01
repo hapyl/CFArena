@@ -1,9 +1,9 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
-import me.hapyl.fight.game.Event;
 import me.hapyl.fight.script.action.ScriptActionBuilder;
 
 import javax.annotation.Nonnull;
@@ -19,11 +19,11 @@ public class Script implements Keyed {
         this.actions = Lists.newLinkedList();
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onEnd() {
     }
 

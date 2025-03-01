@@ -2,10 +2,10 @@ package me.hapyl.fight.game.ui;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.nn.IntInt;
 import me.hapyl.eterna.module.player.song.Song;
 import me.hapyl.eterna.module.player.song.SongPlayer;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -14,10 +14,14 @@ import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.attribute.temper.AttributeTemper;
 import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.effect.ActiveGameEffect;
 import me.hapyl.fight.game.effect.Effect;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.heroes.Hero;
@@ -39,6 +43,8 @@ import javax.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This controls all UI-based elements such as scoreboard, tab-list, and actionbar (while in game).
@@ -62,11 +68,11 @@ public class PlayerUI extends TickingGameTask {
         this.manager = Manager.current();
 
         // Create scoreboard
-        this.builder = new Scoreboarder(Main.GAME_NAME_LONG);
+        this.builder = new Scoreboarder("&6&l%s &e%s".formatted(Main.GAME_NAME_LONG[0], Main.GAME_NAME_LONG[1]));
         this.builder.setHideNumbers(true);
 
         this.updateScoreboard();
-        this.builder.addPlayer(player);
+        this.builder.show(player);
 
         this.bossBar = BossBar.bossBar(Component.text(), 1.0f, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS);
 
@@ -123,7 +129,7 @@ public class PlayerUI extends TickingGameTask {
 
         // Update UI if enabled
         if (EnumSetting.HIDE_UI.isDisabled(player)) {
-            animateScoreboard();
+            animateScoreboard(tick);
             updateScoreboard();
 
             if (gamePlayer != null) {
@@ -161,25 +167,50 @@ public class PlayerUI extends TickingGameTask {
             final BaseAttributes baseAttributes = attributes.getBaseAttributes();
 
             // Attributes
-            final ItemBuilder baseBuilder = ItemBuilder.of(Material.COARSE_DIRT, "Base Attributes", "&8Debug").addLore();
-            baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormatted(baseAttributes)));
+            final ItemBuilder baseBuilder = new ItemBuilder(Material.COARSE_DIRT)
+                    .setName("Base Attributes")
+                    .addLore("&8Debug")
+                    .addLore()
+                    .addSmartLore("Displays the base attributes of this hero.")
+                    .addLore();
+            baseAttributes.forEach((type, value) -> baseBuilder.addLore(type.getFormattedWithAttributeName(baseAttributes)));
 
-            final ItemBuilder playerBuilder = ItemBuilder.of(Material.DIRT, "Player Attributes", "&8Debug").addLore();
-            attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormatted(attributes)));
+            final ItemBuilder playerBuilder = new ItemBuilder(Material.COARSE_DIRT)
+                    .setName("Actual Attributes")
+                    .addLore("&8Debug")
+                    .addLore()
+                    .addSmartLore("Displays the actual, current attributes of this hero.")
+                    .addLore();
+            attributes.forEach((type, value) -> playerBuilder.addLore(type.getFormattedWithAttributeName(attributes)));
 
             // Tempers
             // Set temper items
-            final ItemBuilder temperBuilder = new ItemBuilder(Material.COMPARATOR).setName("Temper Data").addLore("&8Debug").addLore();
+            final ItemBuilder temperBuilder = new ItemBuilder(Material.COMPARATOR)
+                    .setName("Temper Data")
+                    .addLore("&8Debug")
+                    .addLore()
+                    .addSmartLore("Displays a list of tempers that are tempered with your attributes.")
+                    .addLore();
+
             if (!attributes.hasTempers()) {
                 temperBuilder.addLore("&8Empty!");
             }
             else {
                 attributes.forEachTempers(data -> {
-                    temperBuilder.addLore("&a&l" + data.temper.name());
-                    data.values.forEach((type, temper) -> {
-                        temperBuilder.addLore(" " + type.toString());
-                        temperBuilder.addLore("  %s for %s".formatted(type.scaleUp(temper.value), temper.toString()));
-                    });
+                    temperBuilder.addLore("&8● &6&l%s".formatted(data.temper.name()));
+
+                    final Iterator<Map.Entry<AttributeType, AttributeTemper>> iterator = data.values.entrySet().iterator();
+
+                    while (iterator.hasNext()) {
+                        final Map.Entry<AttributeType, AttributeTemper> entry = iterator.next();
+                        final AttributeType type = entry.getKey();
+                        final AttributeTemper value = entry.getValue();
+
+                        final boolean isLast = !iterator.hasNext();
+
+                        temperBuilder.addLore(" &8%s &a%.0f %s for &b%s".formatted((isLast ? "└" : "├"), type.scaleUp(value.value), type.toString(), value.toString()));
+                    }
+
                 });
             }
 
@@ -216,22 +247,21 @@ public class PlayerUI extends TickingGameTask {
         final PlayerDatabase playerDatabase = profile.getDatabase();
 
         builder.getLines().clear();
-        builder.addLines("");
+        builder.addLines("&8%s %s".formatted(Season.getDateString(), CF.getPlugin().getDatabase().getNamedDatabase().suffix()), "");
 
         // Trial
         if (profile.hasTrial()) {
             profile.getTrial().updateScoreboard(builder);
         }
-
         // Lobby
         else if (!manager.isGameInProgress()) {
             final CurrencyEntry currency = playerDatabase.currencyEntry;
 
-            builder.addLine("&2🧑 &a&lYou, %s:".formatted(player.getName()));
+            builder.addLine("&2🧑 &a&lʏᴏᴜ, %s:".formatted(SmallCaps.format(player.getName())));
             builder.addLines(
                     " &7ʀᴀɴᴋ: " + profile.getRank().getPrefixWithFallback(),
                     " &7ʜᴇʀᴏ: " + profile.getSelectedHeroString(),
-                    " &7ᴄᴀᴛ ᴄᴏɪɴꜱ: " + Currency.COINS.getFormatted(player)
+                    " &7ᴄᴀᴛᴄᴏɪɴꜱ: " + Currency.COINS.getFormatted(player)
             );
 
             final long rubyCount = currency.get(Currency.RUBIES);
@@ -305,7 +335,8 @@ public class PlayerUI extends TickingGameTask {
         return talent != null ? talent.getItem() : new ItemStack(Material.AIR);
     }
 
-    private void animateScoreboard() {
+    private void animateScoreboard(int tick) {
+        // TODO (Fri, Feb 21 2025 @xanyjl):
     }
 
     private StringBuilder buildGameFooter() {
@@ -314,35 +345,33 @@ public class PlayerUI extends TickingGameTask {
         // Display active effects
         builder.append("\n&e&lᴀᴄᴛɪᴠᴇ ᴇғғᴇᴄᴛs:\n");
         final GamePlayer gp = GamePlayer.getExistingPlayer(this.player);
+
         if (gp == null || gp.getActiveEffectsView().isEmpty()) {
             builder.append("&8None!");
         }
         else {
-            // {Positive}{Name} - {Time}
-            final IntInt i = new IntInt(0);
+            int index = 0;
 
-            gp.getActiveEffectsView().forEach((type, active) -> {
+            for (Map.Entry<EffectType, ActiveGameEffect> entry : gp.getActiveEffectsView().entrySet()) {
+                final EffectType type = entry.getKey();
                 final Effect effect = type.getEffect();
+                final ActiveGameEffect activeEffect = entry.getValue();
 
-                builder.append(effect.getType().getColor());
-                builder.append(effect.getName());
-                builder.append(" &f- ");
-
-                if (active.isInfiniteDuration()) {
-                    builder.append("∞");
-                }
-                else {
-                    builder.append(new SimpleDateFormat("mm:ss").format(active.getRemainingTicks() * 50));
+                if (index != 0) {
+                    builder.append(" ");
                 }
 
-                builder.append(" ");
+                builder.append("%s%s &f%s".formatted(
+                        effect.getType().getColor(),
+                        effect.getName(),
+                        activeEffect.isInfiniteDuration() ? "∞" : new SimpleDateFormat("mm:ss").format(activeEffect.getRemainingTicks() * 50L)
+                ));
 
-                i.increment();
-                if (i.get() >= 2) {
+                if (index++ > 0 && index % 2 == 0) {
                     builder.append("\n");
-                    i.set(0);
                 }
-            });
+            }
+
         }
 
         return builder.append("\n");
@@ -372,7 +401,7 @@ public class PlayerUI extends TickingGameTask {
             footer.append("&f%s - %s\n&8%s".formatted(
                     song.getOriginalAuthor(),
                     song.getName(),
-                    songPlayer.isPaused() ? "&e&lPAUSE" : builder.toString()
+                    songPlayer.isPaused() ? "&e&lPAUSED" : builder.toString()
             ));
         }
 

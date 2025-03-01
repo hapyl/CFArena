@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.heavy_knight;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
@@ -55,7 +55,7 @@ public class SwordMasterWeapon extends Weapon {
             final Vector vector = location.getDirection().normalize().multiply(leapMagnitude).setY(leapMagnitudeY);
 
             player.setVelocity(vector);
-            player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100, true);
+            player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
 
             // Fx
             player.playWorldSound(Sound.ENTITY_CAMEL_DASH, 0.75f);

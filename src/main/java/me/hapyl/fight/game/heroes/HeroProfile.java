@@ -26,6 +26,11 @@ public class HeroProfile {
     }
 
     @Nonnull
+    public Hero hero() {
+        return hero;
+    }
+
+    @Nonnull
     public Gender getGender() {
         return gender;
     }

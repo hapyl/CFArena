@@ -9,7 +9,7 @@ import me.hapyl.fight.annotate.StrictTalentPlacement;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -127,7 +127,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
 
     private void useSmokeBomb(GamePlayer player, Location location) {
         player.setItem(HotBarSlot.HERO_ITEM, null);
-        player.addEffect(Effects.SPEED, 2, smokeDuration);
+        player.addEffect(EffectType.SPEED, 2, smokeDuration);
 
         player.snapToWeapon();
 
@@ -135,8 +135,8 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
             @Override
             public void run(int tick) {
                 Collect.nearbyPlayers(location, smokeRadius).forEach(inRange -> {
-                    inRange.addEffect(Effects.BLINDNESS, 1, 25);
-                    inRange.addEffect(Effects.INVISIBILITY, 25, true);
+                    inRange.addEffect(EffectType.BLINDNESS, 1, 25);
+                    inRange.addEffect(EffectType.INVISIBILITY, 25);
                 });
 
                 // Fx

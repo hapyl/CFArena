@@ -10,7 +10,7 @@ public class Response {
     public static final Response OK = new Response(null, Type.OK);
     public static final Response ERROR = new Response(null, Type.ERROR);
     public static final Response AWAIT = new Response(null, Type.AWAIT);
-    public static final Response ERROR_DEFAULT = error("Talent is not complete!");
+    public static final Response ERROR_DEFAULT = error("Incomplete talent, report this!");
 
     private final String reason;
     private final Type type;
@@ -37,7 +37,7 @@ public class Response {
         return this.type == Type.AWAIT;
     }
 
-    public void sendError(GamePlayer player) {
+    public void sendError(@Nonnull GamePlayer player) {
         if (isError() && reason != null) {
             player.sendMessage("&8[&c❌&8] &4" + reason);
         }
@@ -51,6 +51,10 @@ public class Response {
     @Nonnull
     public static Response error(@Nonnull String reason) {
         return new Response(reason, Type.ERROR);
+    }
+
+    public static void error(@Nonnull GamePlayer player, @Nonnull String reason) {
+        error(reason).sendError(player);
     }
 
     @Nonnull

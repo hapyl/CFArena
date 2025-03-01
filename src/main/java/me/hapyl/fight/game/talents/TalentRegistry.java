@@ -18,6 +18,7 @@ import me.hapyl.fight.game.heroes.healer.Healer;
 import me.hapyl.fight.game.heroes.heavy_knight.SwordMaster;
 import me.hapyl.fight.game.heroes.hercules.Hercules;
 import me.hapyl.fight.game.heroes.himari.Himari;
+import me.hapyl.fight.game.heroes.inferno.Inferno;
 import me.hapyl.fight.game.heroes.jester.Jester;
 import me.hapyl.fight.game.heroes.juju.JuJu;
 import me.hapyl.fight.game.heroes.km.KillingMachine;
@@ -98,6 +99,7 @@ import me.hapyl.fight.game.talents.hercules.PlungePassive;
 import me.hapyl.fight.game.talents.himari.DeadEye;
 import me.hapyl.fight.game.talents.himari.LuckyDay;
 import me.hapyl.fight.game.talents.himari.SpikeBarrier;
+import me.hapyl.fight.game.talents.inferno.*;
 import me.hapyl.fight.game.talents.jester.MusicBoxTalent;
 import me.hapyl.fight.game.talents.jester.TakeACakeToTheFace;
 import me.hapyl.fight.game.talents.juju.*;
@@ -518,6 +520,15 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     public static final Fracture FRACTURE;
     public static final Disunion DISUNION;
     public static final Paradox PARADOX;
+
+    /**
+     * {@link Inferno}
+     */
+    public static final FirePitTalent FIRE_PIT;
+    public static final DemonSplitTalentQuazii DEMON_SPLIT_QUAZII;
+    public static final DemonSplitTalentTyphoeus DEMON_SPLIT_TYPHOEUS;
+    public static final DemonKindPassiveTalent DEMON_KIND;
+
     /*/ don't put anything below here /*/
     private static final Set<Talent> values;
 
@@ -736,6 +747,11 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         FRACTURE = register("fracture", Fracture::new);
         DISUNION = register("disunion", Disunion::new);
         PARADOX = register("paradox", Paradox::new);
+
+        FIRE_PIT = register("fire_pit", FirePitTalent::new);
+        DEMON_SPLIT_QUAZII = register("demon_split_quazii", DemonSplitTalentQuazii::new);
+        DEMON_SPLIT_TYPHOEUS = register("demon_split_typhoeus", DemonSplitTalentTyphoeus::new);
+        DEMON_KIND = register("demon_kind", DemonKindPassiveTalent::new);
     }
 
     @Nonnull
