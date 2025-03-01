@@ -4,7 +4,6 @@ import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -28,7 +27,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import javax.annotation.Nonnull;
 
-public class Inferno extends Hero implements Disabled, PlayerDataHandler<InfernoData>, UIComponent, Listener {
+public class Inferno extends Hero implements PlayerDataHandler<InfernoData>, UIComponent, Listener {
 
     private final PlayerDataMap<InfernoData> playerDataMap = PlayerMap.newDataMap(InfernoData::new);
 
