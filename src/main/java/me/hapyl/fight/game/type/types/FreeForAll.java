@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.util.Comparators;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.type.GameType;
 import org.bukkit.Material;
 
@@ -12,8 +13,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FreeForAll extends GameType {
-    public FreeForAll() {
-        super("Free for All", 600);
+    public FreeForAll(@Nonnull EnumGameType handle) {
+        super(handle, "Free for All", 600);
 
         setDescription("""
                 One life, one chance to win.

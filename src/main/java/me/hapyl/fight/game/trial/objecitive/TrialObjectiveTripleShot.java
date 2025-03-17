@@ -79,7 +79,7 @@ public class TrialObjectiveTripleShot extends TrialObjective {
 
             // Achievement
             if (((double) tries / 3.0d) == 1.0d) {
-                Registries.getAchievements().FIRST_TRY.complete(trial.getPlayer());
+                Registries.achievements().FIRST_TRY.complete(trial.getPlayer());
             }
         }
     }

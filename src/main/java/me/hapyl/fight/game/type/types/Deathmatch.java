@@ -12,6 +12,7 @@ import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.type.GameType;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -26,8 +27,8 @@ public class Deathmatch extends GameType {
 
     private static final int SCOREBOARD_DISPLAY_LIMIT = 5;
 
-    public Deathmatch() {
-        super("Deathmatch", 300);
+    public Deathmatch(@Nonnull EnumGameType handle) {
+        super(handle, "Deathmatch", 300);
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.

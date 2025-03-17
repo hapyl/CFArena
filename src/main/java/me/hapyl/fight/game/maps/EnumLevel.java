@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.maps;
 
+import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.commission.level.CommissionLevelCrypt;
 import me.hapyl.fight.game.event.ServerEvents;
 import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.japan.JapanFeature;
@@ -80,7 +82,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(PackType.CHARGE, 513, 72, -32)
     ),
 
-    JAPAN("Japan", level -> level
+    JAPAN(
+            "Japan", level -> level
             .setDescription("This map is based on real-life temple &e平等院 (Byōdō-in)&7!")
             .setMaterial(Material.CHERRY_SAPLING)
             .setSize(Size.LARGE)
@@ -89,7 +92,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(1000, 64, 6, 180, 0)
     ),
 
-    GREENHOUSE("Greenhouse", level -> level
+    GREENHOUSE(
+            "Greenhouse", level -> level
             .setDescription("This greenhouse has a lot of flowers to hide, and bunch of secret passages.__&8&oWho's made them?")
             .setSize(Size.SMALL)
             .setMaterial(Material.OAK_SAPLING)
@@ -100,7 +104,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(1500, 65, 14, -180f, 0f)
     ),
 
-    RAILWAY("Railway", level -> level
+    RAILWAY(
+            "Railway", level -> level
             .setDescription("The action happening in the unknown Railway Station. Big area to fight, and to hide.")
             .setMaterial(Material.RAIL)
             .setSize(Size.LARGE)
@@ -109,7 +114,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(2034.0, 70, 0.0, 90f, 0)
     ),
 
-    MIDJOURNEY("Mid Journey", level -> level
+    MIDJOURNEY(
+            "Mid Journey", level -> level
             .setDescription("""
                     DiDenPro add description.
                     DiDenPro add description.
@@ -125,7 +131,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(2500, 72, -27)
     ),
 
-    RAILWAY_STATION("Railway Station", level -> level
+    RAILWAY_STATION(
+            "Railway Station", level -> level
             .setDescription("{}")
             .setMaterial(Material.POWERED_RAIL)
             .setSize(Size.LARGE)
@@ -145,7 +152,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(PackType.CHARGE, 3010, 72, -35)
     ),
 
-    CLOUDS("The Clouds", level -> level
+    CLOUDS(
+            "The Clouds", level -> level
             .setDescription("Ruined city built on the clouds somewhere in the sky.")
             .setMaterial(Material.WHITE_STAINED_GLASS)
             .setSize(Size.MASSIVE)
@@ -162,7 +170,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(PackType.CHARGE, 3525, 73, -12)
     ),
 
-    LIBRARY("Infinity Library", level -> level
+    LIBRARY(
+            "Infinity Library", level -> level
             .setDescription("A library that stuck in the void.")
             .setMaterial(Material.BOOKSHELF)
             .setSize(Size.MEDIUM)
@@ -186,7 +195,8 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     DWARF_VAULT(DwarfVault::new),
     LIMBO(LimboMap::new),
 
-    FORGOTTEN_CHURCH("Forgotten Church", level -> level
+    FORGOTTEN_CHURCH(
+            "Forgotten Church", level -> level
             .setDescription("""
                     All forgotten church covered in snow.
                     
@@ -200,8 +210,21 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     ),
 
     // *=* Commission Levels *=* //
+    THE_CRYPT(CommissionLevelCrypt::new),
 
     ;
+
+    private static final List<CommissionLevel> COMMISSIONS;
+
+    static {
+        COMMISSIONS = Lists.newArrayList();
+
+        for (EnumLevel level : values()) {
+            if (level.level instanceof CommissionLevel commissionLevel) {
+                COMMISSIONS.add(commissionLevel);
+            }
+        }
+    }
 
     private final Level level;
 
@@ -217,18 +240,19 @@ public enum EnumLevel implements Selectable, KeyedEnum {
         return level.isPlayable();
     }
 
+    @Nonnull
     public Level getLevel() {
         return level;
     }
 
     @Override
     public boolean isSelected(@Nonnull Player player) {
-        return Manager.current().getCurrentMap() == this;
+        return Manager.current().currentEnumLevel() == this;
     }
 
     @Override
     public void select(@Nonnull Player player) {
-        if (Manager.current().getCurrentMap() == this) {
+        if (Manager.current().currentEnumLevel() == this) {
             Message.error(player, "This map is already selected!");
             return;
         }
@@ -241,6 +265,11 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     @Nonnull
     public String getName() {
         return level.getName();
+    }
+
+    @Nonnull
+    public static List<CommissionLevel> commissionLevels() {
+        return Lists.newArrayList(COMMISSIONS);
     }
 
     public static List<EnumLevel> getPlayableMaps() {

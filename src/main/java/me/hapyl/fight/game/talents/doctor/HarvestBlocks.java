@@ -39,17 +39,16 @@ public class HarvestBlocks extends Talent {
 
     @DisplayField private final short maximumBlocks = 10;
     @DisplayField private final double maxDistance = 20.0d;
+    @DisplayField private final double distance = 3.0d;
     @DisplayField private final int collectDelay = 30;
 
     public HarvestBlocks(@Nonnull Key key) {
         super(key, "Block Harvest");
 
         setDescription("""
-                Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
+                Quickly gather resources from up to &e{maximumBlocks}&7 nearby blocks, then combine into one big pile before throwing it at your &cenemies&7.
                 
-                Then combine them in one big pile before throwing it at your enemies.
-                
-                &8;;The damage is based on the number of blocks gathered.
+                &8&o;;The damage is based on the number of blocks gathered.
                 """
         );
 
@@ -198,7 +197,7 @@ public class HarvestBlocks extends Talent {
                 entity.remove();
                 cancel();
 
-                Collect.nearbyEntities(location, 3.0d).forEach(entity -> {
+                Collect.nearbyEntities(location, distance).forEach(entity -> {
                     if (player.isTeammate(entity)) { // Damage self but not teammates
                         return;
                     }

@@ -10,7 +10,6 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.WarningType;
 import me.hapyl.fight.game.heroes.*;
@@ -31,7 +30,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -117,7 +115,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
         player.addEffect(EffectType.SLOW_FALLING, 2, -1);
     }
 

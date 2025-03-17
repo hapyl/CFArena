@@ -17,7 +17,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -26,13 +25,13 @@ import java.util.Set;
 
 public class DemonSplitTalentTyphoeus extends DemonSplitTalent {
 
-    @DisplayField private final double repeatDamageMultiplier = 1.3d;
+    @DisplayField private final double repeatDamageMultiplier = 0.7d;
     @DisplayField private final double repeatSwipeRadius = 2.5d;
-    @DisplayField private final int repeatDuration = 60;
+    @DisplayField private final int repeatDuration = 100;
 
     @DisplayField(percentage = true) private final double trailOfFireDamage = 0.1d;
 
-    @DisplayField private final int trailOfFireDamagePeriod = 16;
+    @DisplayField private final int trailOfFireDamagePeriod = 10;
     @DisplayField private final int trailOfFireExtinguishPeriod = 8;
 
     private final ParticleBuilder particle = ParticleBuilder.dustTransition(Color.fromRGB(96, 0, 0), Color.fromRGB(212, 17, 17), 1);
@@ -57,8 +56,8 @@ public class DemonSplitTalentTyphoeus extends DemonSplitTalent {
     public ReformDescription describeReform() {
         return new ReformDescription(
                 "Repeat", """
-                &nrepeat&7 the &4damage&7 you dealt in the last &b%ss&7 multiplied by &cx%.1f&7.
-                """.formatted(Tick.round(repeatDuration), repeatDamageMultiplier)
+                &nrepeat&7 the &4damage&7 you dealt in the last &b%ss&7 multiplied by &cx%.1f&7 as %s.
+                """.formatted(Tick.round(repeatDuration), repeatDamageMultiplier, EnumTerm.TRUE_DAMAGE)
         );
     }
 
@@ -144,9 +143,7 @@ public class DemonSplitTalentTyphoeus extends DemonSplitTalent {
 
                         Collect.nearbyEntities(fireLocation, 1.5d, player::isNotSelfOrTeammate)
                                .forEach(entity -> {
-                                   final BoundingBox boundingBox = entity.boundingBox();
-
-                                   if (!boundingBox.overlaps(fire.getBoundingBox())) {
+                                   if (!FirePit.isInFireBlock(entity, fire)) {
                                        return;
                                    }
 

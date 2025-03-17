@@ -29,7 +29,7 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetic> {
         super(player, "Cosmetic " + GUI.ARROW_FORWARD + " " + type.getName(), Size.FOUR);
         this.type = type;
 
-        final List<Cosmetic> cosmetics = Registries.getCosmetics().byType(type);
+        final List<Cosmetic> cosmetics = Registries.cosmetics().byType(type);
 
         // Don't show unobtainable cosmetics unless magically selected
         cosmetics.removeIf(cosmetic -> {

@@ -58,7 +58,10 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
         profile.setGender(Gender.MALE); // male? robot, idk
 
         setDescription("""
-                A Genius with 12 PHDs. He made all of his buildings himself. Though, he uses just two of those.
+                A Genius with 12 PhDs.
+                
+                He made all of his buildings himself, though he uses just two of those.
+                
                 And your best hope - Not pointed at you.
                 """);
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");

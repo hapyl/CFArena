@@ -439,7 +439,7 @@ public abstract class Talent
         stats.addAbilityUsage(this);
 
         // Progress achievement
-        Registries.getAchievements().USE_TALENTS.complete(player);
+        Registries.achievements().USE_TALENTS.complete(player);
 
         // Progress bond
         ChallengeType.USE_TALENTS.progress(player);

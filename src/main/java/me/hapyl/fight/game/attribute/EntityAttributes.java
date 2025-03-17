@@ -37,7 +37,7 @@ public class EntityAttributes extends BaseAttributes implements PlayerElementHan
     private final LivingGameEntity entity;
     private final BaseAttributes baseAttributes;
 
-    public EntityAttributes(LivingGameEntity entity, BaseAttributes baseAttributes) {
+    public EntityAttributes(@Nonnull LivingGameEntity entity, @Nonnull BaseAttributes baseAttributes) {
         this.entity = entity;
         this.baseAttributes = baseAttributes.createCopy();
         this.tempers = new AttributeTemperTable(this);
@@ -58,11 +58,11 @@ public class EntityAttributes extends BaseAttributes implements PlayerElementHan
      */
     @Override
     public double get(@Nonnull AttributeType type) {
-        return Math.clamp(
-                getBase(type) + super.get(type) + tempers.get(type),
-                type.minValue(),
-                type.maxValue()
-        );
+        return type.clamp(getBase(type) + super.get(type) + tempers.get(type));
+    }
+
+    public double getWithoutTempers(@Nonnull AttributeType type) {
+        return type.clamp(getBase(type) + super.get(type));
     }
 
     @Override

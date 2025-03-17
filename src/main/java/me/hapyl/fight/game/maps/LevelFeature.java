@@ -49,7 +49,7 @@ public abstract class LevelFeature implements Described, Lifecycle, PlayerElemen
     }
 
     protected final boolean validateCurrentMap(EnumLevel maps) {
-        return Manager.current().getCurrentMap() == maps;
+        return Manager.current().currentEnumLevel() == maps;
     }
 
     protected final boolean validateGameAndMap(EnumLevel map) {

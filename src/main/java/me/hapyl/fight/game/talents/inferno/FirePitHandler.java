@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.inferno;
 
 import com.google.common.collect.Lists;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 
@@ -77,16 +78,28 @@ public class FirePitHandler extends TickingGameTask {
         // Damage detection
         if (tick > talent.transformDelay) {
             firePits.forEach(pit -> {
+                if (pit.locations().isEmpty()) {
+                    return;
+                }
+
                 final Location centre = pit.locations().getFirst();
 
-                Collect.nearbyEntities(centre, 3d, player::isNotSelfOrTeammate)
-                       .forEach(entity -> {
-                           if (!pit.isInFire(entity)) {
-                               return;
-                           }
+                // This fire detection is pain in the fucking ass...
+                centre.getWorld().getNearbyEntities(centre, 3.0d, 100.0d, 3.0d)
+                      .stream()
+                      .filter(entity -> {
+                          final LivingGameEntity gameEntity = CF.getEntity(entity);
 
-                           entity.damage(entity.getMaxHealth() * talent.damage, player, DamageCause.FIRE_PIT);
-                       });
+                          return gameEntity != null && gameEntity.isValid() && !player.isSelfOrTeammate(gameEntity) && pit.isInFire(gameEntity);
+                      })
+                      .map(CF::getEntity)
+                      .forEach(entity -> {
+                          if (entity == null) {
+                              return;
+                          }
+
+                          entity.damage(entity.getMaxHealth() * talent.damage, player, DamageCause.FIRE_PIT);
+                      });
             });
         }
 

@@ -5,7 +5,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +20,7 @@ public class ModeSelectGUI extends GameManagementSubGUI<EnumGameType> {
     @Nonnull
     @Override
     public ItemStack getHeaderItem() {
-        return StyledItem.ICON_MODE_SELECT.asIcon();
+        return StyledTexture.ICON_MODE_SELECT.asIcon();
     }
 
     @Override

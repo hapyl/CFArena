@@ -7,7 +7,7 @@ import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
-import me.hapyl.fight.game.entity.named.NamedGameEntity;
+import me.hapyl.fight.game.entity.commission.CommissionEntity;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
@@ -130,9 +130,9 @@ public class EntityHandler implements Listener {
         }
     }
 
-    private void forEachNamedEntity(Consumer<NamedGameEntity<?>> consumer) {
+    private void forEachNamedEntity(Consumer<CommissionEntity> consumer) {
         CF.getEntities().forEach(gameEntity -> {
-            if (gameEntity instanceof NamedGameEntity<?> named) {
+            if (gameEntity instanceof CommissionEntity named) {
                 consumer.accept(named);
             }
         });

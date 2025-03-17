@@ -15,7 +15,7 @@ public class AchievementHeroGUI extends AchievementAbstractGUI {
     private final ItemStack headerItem;
 
     public AchievementHeroGUI(Player player, Hero hero) {
-        super(player, hero.getName(), Registries.getAchievements().heroSpecific(hero));
+        super(player, hero.getName(), Registries.achievements().heroSpecific(hero));
 
         this.headerItem = AchievementGUI.createHeroSpecificTexture(hero).asIcon();
 

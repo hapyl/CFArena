@@ -18,7 +18,7 @@ public class MusicContrailCosmetic extends ParticleContrailCosmetic {
     }
 
     @Override
-    public void onMove(@Nonnull Display display) {
+    public void onMove(@Nonnull Display display, int tick) {
         // This is really the weirdest way to handle particle color.
         display.particle(
                 getParticle(),

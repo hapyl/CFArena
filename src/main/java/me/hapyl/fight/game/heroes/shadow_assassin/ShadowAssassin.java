@@ -6,7 +6,6 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
@@ -15,18 +14,21 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.shadow_assassin.DarkCover;
 import me.hapyl.fight.game.talents.shadow_assassin.PlayerCloneList;
 import me.hapyl.fight.game.talents.shadow_assassin.ShadowAssassinClone;
+import me.hapyl.fight.game.talents.shadow_assassin.ShadowSwitch;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -40,14 +42,16 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ShadowAssassin extends Hero implements Listener, UIComponent {
+public class ShadowAssassin extends Hero implements Listener, UIComponent, PlayerDataHandler<ShadowAssassinData> {
 
     public final HeroEquipment furyEquipment = new HeroEquipment();
-    public final double attackIncrease;
-    public final double speedDecrease;
+
+    @DisplayField(percentage = true) public final double attackIncrease = 0.4285714285714286d; // Mimics the old 30 flat attack
+
     private final int nevermissCd = 20;
     private final double nevermissDistance = 10.0d;
-    private final PlayerMap<ShadowAssassinData> playerData = PlayerMap.newMap();
+
+    private final PlayerDataMap<ShadowAssassinData> playerData = PlayerMap.newDataMap(player -> new ShadowAssassinData(player, this));
 
     public ShadowAssassin(@Nonnull Key key) {
         super(key, "Shadow Assassin");
@@ -58,16 +62,15 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         profile.setRace(Race.UNKNOWN);
 
         setDescription("""
-                An assassin with anger management issues from dimension of shadows. Capable of switching between being &9&oStealth&8&o, and &c&oFurious&8&o.
+                An assassin with anger management issues from dimension of shadows.
+                
+                Capable of switching between being Stealthy and Furious.
                 """);
         setItem("d7fcfa5b0af855f314606a5cd2b597475286a152d1ee08d9949a6386cbc46a8e");
 
         final HeroAttributes attributes = getAttributes();
         attributes.setAttack(70);
         attributes.setSpeed(120);
-
-        this.attackIncrease = AttributeType.ATTACK.getDefaultValue() - attributes.get(AttributeType.ATTACK);
-        this.speedDecrease = attributes.get(AttributeType.SPEED) - AttributeType.SPEED.getDefaultValue();
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(14, 23, 41);
@@ -165,7 +168,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !instance.isMeleeAttack()) {
+        if (player == null || !instance.isDirectDamage()) {
             return;
         }
 
@@ -210,7 +213,7 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public ShadowSwitch getFirstTalent() {
         return TalentRegistry.SHADOW_SWITCH;
     }
 
@@ -235,6 +238,12 @@ public class ShadowAssassin extends Hero implements Listener, UIComponent {
         final int energy = getData(player).getEnergy();
         return ChatColor.DARK_PURPLE + Named.SHADOW_ENERGY.getCharacter() + energy +
                 (energy == ShadowAssassinData.MAX_ENERGY ? " &lMAX!" : "");
+    }
+
+    @Nonnull
+    @Override
+    public PlayerDataMap<ShadowAssassinData> getDataMap() {
+        return playerData;
     }
 
     @Nullable

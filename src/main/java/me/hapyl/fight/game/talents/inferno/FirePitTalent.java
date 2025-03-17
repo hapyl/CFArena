@@ -52,7 +52,7 @@ public class FirePitTalent extends Talent {
         super(key, "Fire Pit");
 
         setDescription("""
-                Summon &6{pitCount}&7 fire pits around you which transform to fire after &b{transformDelay}&7.
+                Summon &6{pitCount}&7 fire pits around you which transform to soul fire after &b{transformDelay}&7.
                 
                 Stepping in fire deals &4{damage}&7 of &cenemy&7's %s as %s.
                 """.formatted(AttributeType.MAX_HEALTH, EnumTerm.TRUE_DAMAGE));
@@ -61,7 +61,7 @@ public class FirePitTalent extends Talent {
         setType(TalentType.DAMAGE);
 
         setDurationSec(2.5f);
-        setCooldownSec(12.0f);
+        setCooldownSec(20.0f);
     }
 
     @Override

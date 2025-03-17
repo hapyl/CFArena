@@ -16,7 +16,7 @@ import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.eye.RelicHuntGUI;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
@@ -49,7 +49,7 @@ public class RelicRewardGUI extends StyledGUI {
     public void onUpdate() {
         final CollectibleEntry entry = CF.getDatabase(player).collectibleEntry;
 
-        setHeader(StyledItem.ICON_RELIC_REWARDS.asIcon());
+        setHeader(StyledTexture.ICON_RELIC_REWARDS.asIcon());
 
         // Tiered
         int slot = 37;
@@ -128,7 +128,7 @@ public class RelicRewardGUI extends StyledGUI {
         }
 
         // All relics
-        final Cosmetic cosmetic = Registries.getCosmetics().RELIC_HUNTER;
+        final Cosmetic cosmetic = Registries.cosmetics().RELIC_HUNTER;
         final ItemBuilder builder = new ItemBuilder(Material.DIAMOND);
 
         builder.setName("Exclusive Cosmetic");

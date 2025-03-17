@@ -7,6 +7,8 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.parkour.Data;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.eterna.module.util.Runnables;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -14,7 +16,6 @@ import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameDamageMonitorEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
@@ -39,7 +40,13 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.guesswho.GuessWho;
+import me.hapyl.fight.npc.PersistentNPCManager;
+import me.hapyl.fight.proxy.ServerType;
+import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.util.CFUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,12 +55,10 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakEvent;
@@ -68,9 +73,9 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -83,8 +88,7 @@ public final class PlayerHandler implements Listener {
     public static final double ZERO_DAMAGE = 0.00001d;
 
     public final double[] bowScale = { 6.0d, 11.0d };
-    public final double RANGE_SCALE = 6.28d;
-    public final double DAMAGE_LIMIT = Short.MAX_VALUE;
+    public final double DAMAGE_LIMIT = 9_999_999;
 
     private final Set<EntityDamageEvent.DamageCause> instantDeathCauses
             = Set.of(EntityDamageEvent.DamageCause.VOID);
@@ -99,11 +103,32 @@ public final class PlayerHandler implements Listener {
         final Manager manager = Manager.current();
         final PlayerProfile profile = manager.handlePlayer(player);
 
+        ev.joinMessage(null);
+
+        // Check for transfer
+        if (player.isTransferred()) {
+            player.retrieveCookie(TransferManager.FROM_SERVER).thenAcceptAsync(data -> {
+                if (data == null) {
+                    kickIllegalLogin(player, "INVALID_COOKIE");
+                    return;
+                }
+
+                final ServerType fromServer = Enums.byName(ServerType.class, new String(data, StandardCharsets.UTF_8));
+
+                if (fromServer == null) {
+                    kickIllegalLogin(player, "INVALID_TRANSFER");
+                    return;
+                }
+
+                TransferManager.accept(player, fromServer, CF.getPlugin().serverType());
+            });
+            return;
+        }
+
         if (manager.isGameInProgress()) {
             final GameInstance gameInstance = (GameInstance) manager.getCurrentGame();
 
             gameInstance.getMode().onJoin(gameInstance, player);
-            ev.setJoinMessage(null);
 
             // Fix skin
             final PlayerSkin skin = profile.getHero().getSkin();
@@ -116,16 +141,17 @@ public final class PlayerHandler implements Listener {
             if (!player.hasPlayedBefore()) {
                 //new Tutorial(player);
             }
-            // Only show the join message if the game is not in progress.
-            // Game instance should modify and broadcast the join message.
-            ev.setJoinMessage(profile.getJoinMessage());
         }
+
+        // Broadcast
+        broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(true));
 
         if (profile.getRank().isStaff()) {
             Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
         }
 
         LocalTeamManager.updateAll();
+        PersistentNPCManager.handleOnJoin(player);
 
         for (ParkourCourse value : ParkourCourse.values()) {
             value.getParkour().updateLeaderboardIfExists();
@@ -136,11 +162,14 @@ public final class PlayerHandler implements Listener {
     public void handlePlayerQuit(PlayerQuitEvent ev) {
         final Player player = ev.getPlayer();
         final Manager manager = Manager.current();
-        final PlayerProfile profile = manager.getProfile(player);
+        final PlayerProfile profile = manager.getProfileOrNull(player);
 
+        // Realistically, this should never happen
         if (profile == null) {
-            return; // Don't care
+            return;
         }
+
+        ev.quitMessage(null);
 
         // GuessWho
         final GuessWho guessWhoGame = manager.getGuessWhoGame();
@@ -156,18 +185,16 @@ public final class PlayerHandler implements Listener {
             if (gamePlayer != null) {
                 game.getMode().onLeave((GameInstance) game, player);
             }
+        }
 
-            ev.setQuitMessage(null);
-        }
-        else {
-            // Only show the quit message if the game is not in progress.
-            // Game instance should modify and broadcast the quit message.
-            ev.setQuitMessage(profile.getLeaveMessage());
-        }
+        // Broadcast
+        broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(false));
 
         if (profile.getRank().isStaff()) {
             Message.broadcastStaff("{%s} left.".formatted(player.getName()));
         }
+
+        PersistentNPCManager.handleOnQuit(player);
 
         // Save database
         manager.getProfile(player).getDatabase().save();
@@ -254,17 +281,12 @@ public final class PlayerHandler implements Listener {
 
     @EventHandler()
     public void handleBlockPlace(BlockPlaceEvent ev) {
-        if (ev.getPlayer().getGameMode() != GameMode.CREATIVE) {
-            ev.setCancelled(true);
-            ev.setBuild(false);
-        }
+        checkBlockEvent(ev.getPlayer(), ev);
     }
 
     @EventHandler()
     public void handleBlockBreak(BlockBreakEvent ev) {
-        if (ev.getPlayer().getGameMode() != GameMode.CREATIVE) {
-            ev.setCancelled(true);
-        }
+        checkBlockEvent(ev.getPlayer(), ev);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -293,7 +315,6 @@ public final class PlayerHandler implements Listener {
         final Hero hero = player.getHero();
 
         ev.setCancelled(true);
-
         hero.getEventHandler().handlePlayerSwapHandItemsEvent(player);
     }
 
@@ -488,7 +509,7 @@ public final class PlayerHandler implements Listener {
             return;
         }
 
-        if (cause.hasFlag(DamageFlag.ENVIRONMENT) && noEnvironmentDamageTicksTick > 0) {
+        if (cause.isEnvironmentDamage() && noEnvironmentDamageTicksTick > 0) {
             ev.setDamage(0.0d);
             ev.setCancelled(true);
             return;
@@ -509,7 +530,7 @@ public final class PlayerHandler implements Listener {
         // A little hack to make fully charged arrows crit
         if (finalProjectile instanceof Arrow arrow) {
             if (arrow.isCritical()) {
-                instance.setCrit(true);
+                instance.setCrit();
             }
         }
 
@@ -586,14 +607,15 @@ public final class PlayerHandler implements Listener {
         // Don't damage anything, only visually
         ev.setDamage(ZERO_DAMAGE); // FIXME: 0.0d causes bugs thanks mojang
 
-        // Process true damage
-        if (instance.cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
-            instance.damage = instance.getInitialDamage();
-        }
-
         // Keep damage in limit
         if (instance.damage > DAMAGE_LIMIT) {
             instance.damage = DAMAGE_LIMIT;
+        }
+
+        // This will skip anything done before, even if an
+        // event changes the damage, ABSOLUTE IS STRONG!
+        if (instance.cause.hasFlag(DamageFlag.ABSOLUTE_DAMAGE)) {
+            instance.damage = initialDamage;
         }
 
         // Progress stats for damager
@@ -642,7 +664,7 @@ public final class PlayerHandler implements Listener {
         if (damager instanceof GamePlayer player && player.isSettingEnabled(EnumSetting.SHOW_DAMAGE_IN_CHAT)) {
             final String prefix = "&8[&a⚔&8] &f";
 
-            player.sendMessage(prefix + "&l%.2f &fusing &l%s &fto &l%s%s".formatted(
+            player.sendMessage(prefix + "&l%,.0f &fusing &l%s &fto &l%s%s".formatted(
                     damage,
                     cause.getReadableName(),
                     entity.getName(),
@@ -653,7 +675,7 @@ public final class PlayerHandler implements Listener {
         // Incoming damage
         if (entity instanceof GamePlayer player && player.isSettingEnabled(EnumSetting.SHOW_DAMAGE_IN_CHAT)) {
             final String prefix = "&8[&c⚔&8] &f";
-            String message = "&l%.2f &ffrom &l%s".formatted(damage, cause.getReadableName());
+            String message = "&l%,.0f &ffrom &l%s".formatted(damage, cause.getReadableName());
 
             if (damager != null) {
                 message += " &fby &l" + damager.getName();
@@ -957,6 +979,32 @@ public final class PlayerHandler implements Listener {
         entity.onInteract(player);
     }
 
+    private void broadcastJoinOrQuitMessage(@Nullable String message) {
+        if (message == null) {
+            return;
+        }
+
+        Chat.broadcast(message);
+    }
+
+    private <E extends BlockEvent & Cancellable> void checkBlockEvent(Player player, E event) {
+        final PlayerProfile profile = CF.getProfile(player);
+
+        boolean cancel = false;
+
+        if (player.getGameMode() != GameMode.CREATIVE) {
+            cancel = true;
+        }
+        else if (!profile.buildMode()) {
+            cancel = true;
+
+            Message.error(player, "You are not in the {%s} mode!".formatted("&e/build"));
+            Message.sound(player, SoundEffect.FAILURE);
+        }
+
+        event.setCancelled(cancel);
+    }
+
     private void processLobbyDamage(@Nonnull LivingEntity entity, @Nonnull EntityDamageEvent ev) {
         final EntityDamageEvent.DamageCause cause = ev.getCause();
 
@@ -1106,28 +1154,15 @@ public final class PlayerHandler implements Listener {
         return true;
     }
 
-    private record DisabledEffect(PotionEffectType type, AttributeType attribute) {
-        public DisabledEffect(PotionEffectType type) {
-            this(type, null);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            final DisabledEffect that = (DisabledEffect) o;
-            return Objects.equals(type, that.type);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(type);
-        }
+    private static void kickIllegalLogin(Player player, String reason) {
+        Runnables.runSync(() -> player.kick(
+                Component.text()
+                         .append(Component.text("Illegal login!", NamedTextColor.DARK_RED, TextDecoration.BOLD))
+                         .appendNewline()
+                         .append(Component.text("There was an error with a transfer: ", NamedTextColor.RED).append(Component.text(reason, NamedTextColor.WHITE)))
+                         .asComponent(),
+                PlayerKickEvent.Cause.INVALID_COOKIE
+        ));
     }
 
 

@@ -135,7 +135,7 @@ public class Totem extends TickingGameTask {
         final double y = getLocation().getY();
 
         if (y <= 1) {
-            Registries.getAchievements().SHAMAN_TOTEM_OUT_OF_WORLD.complete(player);
+            Registries.achievements().SHAMAN_TOTEM_OUT_OF_WORLD.complete(player);
             return true;
         }
 

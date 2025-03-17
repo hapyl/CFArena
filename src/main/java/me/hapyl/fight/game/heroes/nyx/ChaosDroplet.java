@@ -2,12 +2,12 @@ package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.ComparableTo;
+import me.hapyl.eterna.module.util.Located;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.util.ItemStackRandomizedData;
-import me.hapyl.fight.util.Located;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

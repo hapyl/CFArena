@@ -53,7 +53,9 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         profile.setAffiliation(Affiliation.THE_WITHERS);
         profile.setGender(Gender.MALE);
 
-        setDescription("A mage, who was cursed by the &8&l&oDark Magic&8&o, but even it couldn't kill him...");
+        setDescription("""
+                A mage, who was cursed by the Dark Magic, but even it couldn't kill him...
+                """);
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
@@ -100,7 +102,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         final LivingGameEntity entity = instance.getEntity();
 
         // Skip Wither Rose
-        if (player == null || player.isUsingUltimate() || !instance.isMeleeAttack()) {
+        if (player == null || player.isUsingUltimate() || !instance.isDirectDamage()) {
             return;
         }
 

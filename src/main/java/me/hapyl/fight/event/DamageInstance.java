@@ -31,7 +31,6 @@ public class DamageInstance implements Cancellable {
     private LivingGameEntity damager;
     private boolean cancel;
     private double initialDamage;
-    private double critIncrease = -1;
 
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity;
@@ -49,28 +48,16 @@ public class DamageInstance implements Cancellable {
         return isCrit;
     }
 
-    public void setCrit(boolean crit) {
-        if (damager == null) {
+    public void setCrit() {
+        // Don't care if already scored a crit or environment damage
+        if (damager == null || isCrit) {
             return;
         }
 
         final EntityAttributes attributes = damager.getAttributes();
 
-        if (crit && !isCrit) {
-            isCrit = true;
-
-            critIncrease = damage * attributes.get(AttributeType.CRIT_DAMAGE);
-            damage += critIncrease;
-        }
-        else if (!crit && isCrit) {
-            isCrit = false;
-
-            // Don't decrement crit if hasn't crit
-            if (critIncrease != -1) {
-                damage -= critIncrease;
-                critIncrease = -1;
-            }
-        }
+        isCrit = true;
+        damage = damage * (1 + attributes.get(AttributeType.CRIT_DAMAGE));
     }
 
     /**
@@ -216,14 +203,14 @@ public class DamageInstance implements Cancellable {
         throw new IllegalArgumentException("Entity is not a player!");
     }
 
-    public boolean isMeleeAttack() {
-        return cause.hasFlag(DamageFlag.MELEE);
+    public boolean isDirectDamage() {
+        return cause.isDirectDamage();
     }
 
     // Calculate damage
     public void calculateDamage() {
-        // True damage is, well, "true" damage.
-        if (cause != null && cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
+        // Absolute damage ignores EVERYTHING
+        if (cause.hasFlag(DamageFlag.ABSOLUTE_DAMAGE)) {
             damage = initialDamage;
             return;
         }
@@ -231,17 +218,17 @@ public class DamageInstance implements Cancellable {
         if (damager != null) {
             final EntityAttributes damagerAttributes = damager.getAttributes();
 
-            damage = damagerAttributes.calculateOutgoingDamage(initialDamage);
+            damage = damagerAttributes.calculateOutgoingDamage(initialDamage, cause);
 
             // Calculate crit
-            final boolean shouldCrit = (cause != null && cause.hasFlag(DamageFlag.CAN_CRIT)) && damagerAttributes.isCritical();
+            final boolean shouldCrit = cause.hasFlag(DamageFlag.CAN_CRIT) && damagerAttributes.isCritical();
 
             if (shouldCrit) {
-                setCrit(true);
+                setCrit();
             }
         }
 
-        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage, damager));
+        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage, damager, cause));
     }
 
     public double getDamageWithinLimit() {

@@ -72,6 +72,9 @@ public enum Temper implements SmallCapsDescriber {
     LUCKINESS,
     DEAD_EYE(false),
     PARADOX,
+    EXCELLENCY(false),
+    STICKY(false),
+    SHADOW_ASSASSIN_FURY_MODE(false),
 
     /* Keep semicolon on this line for easier addition. */;
 

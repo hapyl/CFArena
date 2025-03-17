@@ -30,8 +30,8 @@ public class TeleportPearl extends Talent implements Listener {
         super(key, "Rideable Pearl");
 
         setDescription("""
-                Throw an ender pearl and mount to ride it all the way!
-                &6&lSNEAK &7to throw normally.
+                Throw an &dender pearl&7 and &emount&7 to ride it all the way!
+                &8&o;;Sneak to throw normally.
                 """
         );
 

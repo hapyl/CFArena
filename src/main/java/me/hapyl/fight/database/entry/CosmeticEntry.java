@@ -112,7 +112,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     private CosmeticRegistry registry() {
-        return Registries.getCosmetics();
+        return Registries.cosmetics();
     }
 
     @Nonnull

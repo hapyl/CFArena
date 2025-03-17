@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.nightmare;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -23,11 +24,12 @@ public class Paranoia extends Talent {
         super(key, "Paranoia");
 
         setDescription("""
-                Launch a cloud of darkness in front of you that travels forward, applying &cOmen&7 to whoever it touches for {duration}.
+                Launch a cloud of &8darkness&7 in front of you that travels forward, applying %s to whoever it touches for {duration}.
+                &8&o;;The cloud can travel through walls.
                 
-                &4👻 &c&lOmen:
-                Enemies take more damage and suffer &e&lParanoia&7.
-                """
+                &6%s
+                Enemies take more &cdamage&7 and suffer &eParanoia&7.
+                """.formatted(Named.OMEN, Named.OMEN.getName())
         );
 
         setType(TalentType.IMPAIR);
@@ -40,14 +42,16 @@ public class Paranoia extends Talent {
     public Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
-        final ArmorStand stand = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), self -> {
-            self.setInvulnerable(true);
-            self.setVisible(false);
-            self.setSmall(true);
-            self.setMarker(true);
-            self.getLocation().setYaw(location.getYaw());
-            self.getLocation().setPitch(location.getPitch());
-        });
+        final ArmorStand stand = Entities.ARMOR_STAND.spawn(
+                location.add(0.0d, 1.0d, 0.0d), self -> {
+                    self.setInvulnerable(true);
+                    self.setVisible(false);
+                    self.setSmall(true);
+                    self.setMarker(true);
+                    self.getLocation().setYaw(location.getYaw());
+                    self.getLocation().setPitch(location.getPitch());
+                }
+        );
 
         player.playWorldSound(Sound.AMBIENT_CAVE, 1.0f);
 

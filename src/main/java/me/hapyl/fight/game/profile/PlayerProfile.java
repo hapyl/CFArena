@@ -22,6 +22,7 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
+import me.hapyl.fight.proxy.ServerType;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.entity.Player;
 
@@ -93,6 +94,14 @@ public class PlayerProfile {
         GameTask.runLater(() -> {
             Deliveries.notify(player);
         }, 20);
+    }
+
+    public boolean buildMode() {
+        return CF.getPlugin().serverType() == ServerType.BUILD || buildMode;
+    }
+
+    public void buildMode(boolean buildMode) {
+        this.buildMode = buildMode;
     }
 
     @Nonnull
@@ -332,6 +341,21 @@ public class PlayerProfile {
         final String message = format.leaveMessage();
 
         return message != null ? Chat.bformat("&8[&c-&8] " + message, display().toString()) : null;
+    }
+
+    @Nullable
+    public String getJoinOrQuitMessage(boolean join) {
+        // If the game is in progress, don't send join/quit messages
+        if (Manager.current().isGameInProgress()) {
+            return null;
+        }
+
+        // Don't send messages for transferred players
+        if (player.isTransferred()) {
+            return null;
+        }
+
+        return join ? getJoinMessage() : getLeaveMessage();
     }
 
     @Nonnull

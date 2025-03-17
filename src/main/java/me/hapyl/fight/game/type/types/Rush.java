@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 public class Rush extends DeathmatchKills {
 
     public Rush() {
-        super("RUSH", 1200, 20);
+        super(null, "RUSH", 1200, 20);
 
         setDescription("""
                 A faster version of kills death-match with lower cooldowns and accelerated ultimates!

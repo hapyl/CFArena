@@ -53,7 +53,7 @@ public final class ServerEvents {
                 profile.setOriginalSkin(theSkin);
                 profile.applyOriginalSkin();
 
-                Registries.getAchievements().APRIL_FOOLS.complete(ev.getPlayer());
+                Registries.achievements().APRIL_FOOLS.complete(ev.getPlayer());
             }
         });
 

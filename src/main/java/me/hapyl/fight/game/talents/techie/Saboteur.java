@@ -165,7 +165,7 @@ public class Saboteur extends TechieTalent {
 
     @Nonnull
     private List<ActivePack> getActivePacks() {
-        final EnumLevel currentMap = Manager.current().getCurrentMap();
+        final EnumLevel currentMap = Manager.current().currentEnumLevel();
         final List<ActivePack> list = Lists.newArrayList();
 
         currentMap.getLevel().getGamePacks().forEach(gamePack -> list.addAll(gamePack.getActivePacks()));

@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Debug;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import org.bukkit.command.CommandSender;
 
@@ -37,7 +38,7 @@ public class GameCommand extends SimpleCommand {
                         Debug.info("Creating a new game instance...");
                     }
 
-                    manager.createNewGameInstance();
+                    manager.createNewGameInstance(new GameInstance(manager.currentEnumType(), manager.currentEnumLevel()));
                 }
 
                 case "stop" -> {

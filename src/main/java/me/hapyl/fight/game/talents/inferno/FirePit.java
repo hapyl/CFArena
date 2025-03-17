@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class FirePit implements Removable {
 
     public static final BlockData AIR = Material.AIR.createBlockData();
+    public static final Material FIRE_MATERIAL = Material.SOUL_FIRE;
 
     private final FirePitTalent talent;
     private final GamePlayer player;
@@ -57,7 +58,7 @@ public class FirePit implements Removable {
             final Block block = location.getBlock();
 
             if (block.getType() == Material.AIR) {
-                block.setType(Material.FIRE, false);
+                block.setType(FIRE_MATERIAL, false);
             }
         });
     }
@@ -73,7 +74,7 @@ public class FirePit implements Removable {
                 fireLocations, location -> {
                     final Block block = location.getBlock();
 
-                    if (block.getType() == Material.FIRE) {
+                    if (block.getType() == FIRE_MATERIAL) {
                         block.setType(Material.AIR, false);
                     }
                 }
@@ -84,10 +85,8 @@ public class FirePit implements Removable {
     }
 
     public boolean isInFire(@Nonnull LivingGameEntity entity) {
-        final BoundingBox boundingBox = entity.boundingBox();
-
         for (Location location : fireLocations) {
-            if (boundingBox.overlaps(location.getBlock().getBoundingBox())) {
+            if (isInFireBlock(entity, location.getBlock())) {
                 return true;
             }
         }
@@ -103,5 +102,17 @@ public class FirePit implements Removable {
         }
 
         return locations;
+    }
+
+    public static boolean isInFireBlock(@Nonnull LivingGameEntity entity, @Nonnull Block block) {
+        final Material type = block.getType();
+
+        if (type != Material.FIRE && type != Material.SOUL_FIRE) {
+            return false;
+        }
+
+        final BoundingBox boundingBox = entity.boundingBox();
+
+        return boundingBox.overlaps(block.getBoundingBox().shift(0.0d, 0.9d, 0.0d));
     }
 }

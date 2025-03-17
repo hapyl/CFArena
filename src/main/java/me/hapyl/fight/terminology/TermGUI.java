@@ -3,7 +3,7 @@ package me.hapyl.fight.terminology;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -36,7 +36,7 @@ public class TermGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_TERMS.asIcon());
+        setHeader(StyledTexture.ICON_TERMS.asIcon());
 
         setItem(22, new ItemBuilder(Material.CREEPER_BANNER_PATTERN)
                 .setName(term.getName())

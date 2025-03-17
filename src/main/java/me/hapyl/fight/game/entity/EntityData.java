@@ -9,10 +9,9 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.Type;
 import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.Type;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -137,7 +136,14 @@ public final class EntityData implements Ticking {
      * @return the last damager.
      */
     @Nullable
-    public GameEntity getLastDamager() {
+    public GameEntity lastDamager() {
+        // Validate if the damage is still alive, unless it's a player
+        if (lastDamager != null) {
+            if (!(lastDamager instanceof GamePlayer) && lastDamager instanceof LivingGameEntity livingDamager && livingDamager.isDead()) {
+                lastDamager = null;
+            }
+        }
+
         return lastDamager;
     }
 
@@ -157,11 +163,7 @@ public final class EntityData implements Ticking {
      */
     @Nullable
     public LivingGameEntity getLastDamagerAsLiving() {
-        if (lastDamager instanceof LivingGameEntity living) {
-            return living;
-        }
-
-        return null;
+        return lastDamager() instanceof LivingGameEntity livingDamager ? livingDamager : null;
     }
 
     /**
@@ -182,24 +184,6 @@ public final class EntityData implements Ticking {
         }
 
         return lastDamager.getEntity();
-    }
-
-    /**
-     * Gets the last damager cast to the type, or null if incompatible type.
-     *
-     * @param cast - To cast.
-     * @param <T>  - Type of the damager.
-     * @return the last damager cast to the type, or null if incompatible type.
-     */
-    @Nullable
-    public <T> T getLastDamager(Class<T> cast) {
-        final LivingEntity living = rootLastDamager();
-
-        if (cast.isInstance(living)) {
-            return cast.cast(living);
-        }
-
-        return null;
     }
 
     /**
@@ -326,7 +310,7 @@ public final class EntityData implements Ticking {
     public boolean hasAttackCooldown(@Nonnull DamageCause cause) {
         final int cooldown = attackCooldown.getOrDefault(cause, 0);
 
-        return !cause.hasFlag(DamageFlag.ENVIRONMENT) && cooldown > 0;
+        return !cause.isEnvironmentDamage() && cooldown > 0;
     }
 
     public void startAttackCooldown(@Nonnull DamageCause cause, int cooldown) {

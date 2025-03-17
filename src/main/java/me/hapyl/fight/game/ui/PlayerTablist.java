@@ -22,7 +22,6 @@ import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.maps.EnumLevel;
@@ -118,13 +117,13 @@ public class PlayerTablist extends Tablist {
         entryList.append("   &e&lsʏsᴛᴇᴍ &7(%s&7 tps)".formatted(CF.getTpsFormatted()), EntryTexture.YELLOW);
         entryList.append();
 
-        final String mapName = manager.getCurrentMap().getName();
+        final String mapName = manager.currentEnumLevel().getName();
         final IGameInstance game = manager.getCurrentGame();
 
         if (!manager.isGameInProgress()) {
             entryList.append("&b&lLobby:", EntryTexture.AQUA);
             entryList.append(" &7ᴍᴀᴘ: &f" + mapName);
-            entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.getCurrentMode().getName());
+            entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.currentEnumType().getName());
             entryList.append(" &7ꜰᴀɪʀ ᴍᴏᴅᴇ: &f" + ChatColor.stripColor(manager.getFairMode().getMastery()));
         }
         else {
@@ -160,10 +159,9 @@ public class PlayerTablist extends Tablist {
             // If gamePlayers are empty means not in a game
             if (!gamePlayers.isEmpty()) {
                 for (GamePlayer teammate : gamePlayers) {
-                    entryList.append("&8- &a%s &7⁑ &c&l%s  &b%s".formatted(
+                    entryList.append("&8- &a%s &7⁑ %s".formatted(
                             teammate.getName(),
-                            teammate.getHealthFormatted(player),
-                            teammate.getUltimateString(UltimateColor.PRIMARY)
+                            teammate.getTabString(player)
                     ));
 
                     toFill--;
@@ -191,7 +189,7 @@ public class PlayerTablist extends Tablist {
         entryList.append();
         entryList.append("&6&lStore: &8(%s)".formatted(Challenge.getTimeUntilResetFormatted()), EntryTexture.GOLD);
 
-        final boolean isStoreUnlocked = Registries.getNPCs().STORE_OWNER.isStoreUnlocked(player);
+        final boolean isStoreUnlocked = Registries.npcs().STORE_OWNER.isStoreUnlocked(player);
 
         for (StoreOffer offer : offers.getOffers()) {
             entryList.append("&8- " + (isStoreUnlocked ? offer.toString() : "???"));
@@ -235,7 +233,7 @@ public class PlayerTablist extends Tablist {
         entryList.append("&b&lRelic Hunt:", EntryTexture.AQUA);
 
         final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
-        final EnumLevel currentMap = manager.isGameInProgress() ? manager.getCurrentMap() : EnumLevel.SPAWN;
+        final EnumLevel currentMap = manager.isGameInProgress() ? manager.currentEnumLevel() : EnumLevel.SPAWN;
 
         final int totalRelics = relicHunt.getTotalRelics();
         final int totalRelicsFound = collectibleEntry.getFoundList().size();

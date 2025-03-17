@@ -155,7 +155,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
         final LivingGameEntity entity = instance.getEntity();
         final NinjaWeapon weapon = getWeapon();
 
-        if (entity == player || player == null || !instance.isMeleeAttack() || player.cooldownManager.hasCooldown(weapon)) {
+        if (entity == player || player == null || !instance.isDirectDamage() || player.cooldownManager.hasCooldown(weapon)) {
             return;
         }
 

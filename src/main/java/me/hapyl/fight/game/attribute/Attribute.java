@@ -73,7 +73,7 @@ public class Attribute implements Described {
      * @param entity - Player.
      * @param value  - The new value.
      */
-    public void update(LivingGameEntity entity, double value) {
+    public void update(@Nonnull LivingGameEntity entity, double value) {
     }
 
     @Nonnull

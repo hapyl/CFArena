@@ -82,7 +82,7 @@ public class FixMongoDbMigrationFiles extends SimplePlayerAdminCommand {
 
         original = doFix(original, TalentRegistry.values());
         original = doFix(original, HeroRegistry.values());
-        original = doFix(original, Registries.getCosmetics().values());
+        original = doFix(original, Registries.cosmetics().values());
         original = doFix(original, ExperienceEntry.Type.values());
         original = doFix(original, EnumSetting.values());
         original = doFix(original, StatType.values());

@@ -50,7 +50,7 @@ public class FlowerBreeze extends Talent {
         super(key, "Flower Breeze");
 
         setDescription("""
-                Feel the breeze of the flowers that damages your but grants &c%s &7and &b%s &7boost for {duration}.
+                Feel the breeze of beautiful &dflowers&7 that &4hurts&7 you but increases your &c%s&7 and &b%s&7 for {duration}.
                 
                 &8;;This ability cannot kill.
                 """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE)

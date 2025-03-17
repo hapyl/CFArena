@@ -57,7 +57,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
     public int getAchievementPoints() {
         int points = 0;
 
-        for (Achievement achievement : Registries.getAchievements().values()) {
+        for (Achievement achievement : Registries.achievements().values()) {
             final int completeCount = getCompleteCount(achievement);
 
             if (completeCount > 0) {

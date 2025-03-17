@@ -15,7 +15,6 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -44,7 +43,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
@@ -69,6 +67,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE);
         profile.setGender(Gender.FEMALE);
+        profile.setRace(Race.UNKNOWN);
 
         setItem("9babb9fbe50a84b31f68e749b438d4c8f7f58618aec3e769243aa660ce4440fb");
 
@@ -123,7 +122,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
     }
 
     @Override

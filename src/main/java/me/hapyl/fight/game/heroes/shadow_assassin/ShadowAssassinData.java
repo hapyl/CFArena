@@ -1,8 +1,7 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -12,30 +11,21 @@ import org.bukkit.World;
 
 import javax.annotation.Nonnull;
 
-public class ShadowAssassinData {
+public class ShadowAssassinData extends PlayerData {
 
     public static final int MAX_ENERGY = 100;
 
-    private final GamePlayer player;
     private final ShadowAssassin hero;
 
     private AssassinMode mode;
     private int energy;
 
-    public ShadowAssassinData(GamePlayer player, ShadowAssassin hero) {
-        this.player = player;
+    public ShadowAssassinData(@Nonnull GamePlayer player, @Nonnull ShadowAssassin hero) {
+        super(player);
+
         this.hero = hero;
         this.mode = AssassinMode.STEALTH;
         this.energy = MAX_ENERGY / 2;
-    }
-
-    @Nonnull
-    public AssassinMode getMode() {
-        return mode;
-    }
-
-    public int getEnergy() {
-        return energy;
     }
 
     public void switchMode(@Nonnull AssassinMode newMode) {
@@ -46,18 +36,6 @@ public class ShadowAssassinData {
 
         mode = newMode;
         mode.switchTo(player, hero);
-
-        // Attributes
-        final EntityAttributes attributes = player.getAttributes();
-
-        if (mode == AssassinMode.FURY) {
-            attributes.add(AttributeType.ATTACK, hero.attackIncrease);
-            attributes.subtract(AttributeType.SPEED, hero.speedDecrease);
-        }
-        else {
-            attributes.subtract(AttributeType.ATTACK, hero.attackIncrease);
-            attributes.add(AttributeType.SPEED, hero.speedDecrease);
-        }
 
         // Damage & Fx
         Collect.nearbyEntities(player, 1.5d).forEach(entity -> {
@@ -71,12 +49,26 @@ public class ShadowAssassinData {
         playSwitchFx();
     }
 
+    @Nonnull
+    public AssassinMode getMode() {
+        return mode;
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
     public void subtractEnergy(int furyCost) {
         energy = Math.max(energy - furyCost, 1);
     }
 
     public void addEnergy(int energyRegen) {
         energy = Math.min(energy + energyRegen, MAX_ENERGY);
+    }
+
+    @Override
+    public void remove() {
+
     }
 
     private void playSwitchFx() {

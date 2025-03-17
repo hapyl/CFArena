@@ -299,7 +299,7 @@ public class StoreOwnerNPC extends PersistentNPC implements Listener, QuestRegis
             );
 
             addEntry(DialogEntry.of(dialog -> {
-                Registries.getPointOfInterests().STORE.discover(dialog.getPlayer());
+                Registries.poi().STORE.discover(dialog.getPlayer());
             }));
         }
 

@@ -56,7 +56,7 @@ public abstract class OverchargeUltimateTalent extends UltimateTalent {
         final Response response = instance.response();
 
         if (response.isOk()) {
-            Registries.getAchievements().OVERCHARGED.complete(player);
+            Registries.achievements().OVERCHARGED.complete(player);
         }
 
         return instance;

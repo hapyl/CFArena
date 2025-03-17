@@ -113,7 +113,7 @@ public class WineryMap extends Level {
                 }
 
                 for (GamePlayer player : Collect.aliveGamePlayers()) {
-                    if (Registries.getAchievements().OWL_SPY.hasCompletedAtLeastOnce(player)) {
+                    if (Registries.achievements().OWL_SPY.hasCompletedAtLeastOnce(player)) {
                         continue;
                     }
 
@@ -128,7 +128,7 @@ public class WineryMap extends Level {
                     }
 
                     if (owlCount == owls.length) {
-                        Registries.getAchievements().OWL_SPY.complete(player);
+                        Registries.achievements().OWL_SPY.complete(player);
                     }
                 }
             }

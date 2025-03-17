@@ -34,14 +34,14 @@ public class HighClassDiceCosmetic extends Dice {
 
         @Override
         public void appendDescription(@Nonnull Player player, @Nonnull RewardDescription description) {
-            description.append(Registries.getCosmetics().DICE_STATUS.getFormatted());
+            description.append(Registries.cosmetics().DICE_STATUS.getFormatted());
         }
 
         @Override
         public void doGrant(@Nonnull Player player) {
             super.doGrant(player);
 
-            Registries.getCosmetics().DICE_STATUS.setUnlocked(player, true);
+            Registries.cosmetics().DICE_STATUS.setUnlocked(player, true);
         }
     }
 

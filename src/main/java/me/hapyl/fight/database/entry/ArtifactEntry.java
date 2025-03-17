@@ -24,7 +24,7 @@ public class ArtifactEntry extends PlayerDatabaseEntry {
 
     @Nonnull
     public List<Artifact> getOwned() {
-        final ArtifactRegistry registry = Registries.getArtifacts();
+        final ArtifactRegistry registry = Registries.artifacts();
         final List<Artifact> artifacts = Lists.newArrayList();
 
         getValue("owned", new ArrayList<String>())

@@ -189,10 +189,21 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         final Hero hero = player.getHero();
         consumer.accept(hero);
 
-        final Level level = Manager.current().currentLevel();
-        consumer.accept(level);
+        final Manager manager = Manager.current();
+        final GameInstance instance = manager.getGameInstance();
 
-        level.getFeatures().forEach(consumer);
+        // Call the instance level and type instead of manager stored ones
+        if (instance != null) {
+            consumer.accept(instance);
+
+            final Level level = instance.currentLevel();
+            consumer.accept(level);
+
+            // Always accept for features
+            level.getFeatures().forEach(consumer);
+
+            consumer.accept(instance.currentType());
+        }
 
         hero.getNullSafeTalents().forEach(consumer);
 

@@ -7,7 +7,6 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -38,7 +37,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -71,7 +69,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
         profile.setGender(Gender.MALE);
         profile.setRace(Race.HUMAN);
 
-        setDescription("One of the best archers joins the fight! Not alone though but with his &3&ocustom-made &8&obow.");
+        setDescription("One of the best archers joins the fight! Not alone though but with his custom-made bow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
 
         setWeapon(BowWeapon
@@ -105,7 +103,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
     }
 
     @Override

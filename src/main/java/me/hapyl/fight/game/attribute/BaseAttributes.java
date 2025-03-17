@@ -2,6 +2,9 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.util.Copyable;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
+import me.hapyl.fight.game.damage.DamageType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
@@ -13,8 +16,22 @@ import java.util.function.BiConsumer;
 
 public class BaseAttributes implements Copyable {
 
-    public static final double DEFENSE_SCALING = 0.5d;
-    public static final double ATTACK_SPEED_SCALING = Math.PI * 2 / 10;
+    public static final double DEFENSE_SCALING;
+    public static final double ATTACK_SPEED_SCALING;
+
+    private static final Map<DamageType, AttributeType> CAUSE_DAMAGE_BONUS_MAP;
+
+    static {
+        DEFENSE_SCALING = 0.5d;
+        ATTACK_SPEED_SCALING = Math.PI * 2 / 10;
+
+        CAUSE_DAMAGE_BONUS_MAP = Map.of(
+                DamageType.DIRECT_MELEE, AttributeType.DIRECT_DAMAGE_BONUS,
+                DamageType.DIRECT_RANGE, AttributeType.DIRECT_DAMAGE_BONUS,
+                DamageType.TALENT, AttributeType.TALENT_DAMAGE_BONUS,
+                DamageType.ULTIMATE, AttributeType.ULTIMATE_DAMAGE_BONUS
+        );
+    }
 
     protected final Map<AttributeType, Double> mapped;
     protected final AttributeRandom random;
@@ -68,9 +85,15 @@ public class BaseAttributes implements Copyable {
      *
      * @param damage  - Damage.
      * @param damager - The damager.
+     * @param cause   - The cause.
      * @return the calculated incoming damage.
      */
-    public final double calculateIncomingDamage(double damage, @Nullable LivingGameEntity damager) {
+    public final double calculateIncomingDamage(double damage, @Nullable LivingGameEntity damager, @Nonnull DamageCause cause) {
+        // True damage assumed the defense is 0
+        if (cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
+            return calculateDefense(damage, 0.0d);
+        }
+
         double defense = get(AttributeType.DEFENSE);
 
         if (damager != null) {
@@ -95,15 +118,28 @@ public class BaseAttributes implements Copyable {
 
     /**
      * Calculates the outgoing damage with the formula:
-     * <pre>
-     *     damage * attack
-     * </pre>
+     * <pre>{@code
+     *      damage * attack * (1 + causeBonus)
+     * }</pre>
      *
      * @param damage - Damage.
+     * @param cause  - The damage cause.
      * @return the calculated outgoing damage.
      */
-    public final double calculateOutgoingDamage(double damage) {
-        return damage * AttributeType.ATTACK.get(this);
+    public final double calculateOutgoingDamage(double damage, @Nonnull DamageCause cause) {
+        return damage * AttributeType.ATTACK.get(this) + damageCauseBonus(cause);
+    }
+
+    /**
+     * Gets the damage bonus for the given cause or {@code 0} if not applicable to the given cause.
+     *
+     * @param cause - The cause.
+     * @return the damage bonus for the given cause or {@code 0} if not applicable to the given cause.
+     */
+    public final double damageCauseBonus(@Nonnull DamageCause cause) {
+        final AttributeType type = CAUSE_DAMAGE_BONUS_MAP.get(cause.type());
+
+        return type != null ? get(type) : 0.0d;
     }
 
     /**
@@ -326,6 +362,11 @@ public class BaseAttributes implements Copyable {
         return this;
     }
 
+    public BaseAttributes putScaled(@Nonnull AttributeType type, double value) {
+        setValueScaled(type, value);
+        return this;
+    }
+
     public final void reset() {
         mapped.clear();
     }
@@ -416,14 +457,11 @@ public class BaseAttributes implements Copyable {
         int i = 0;
         for (AttributeType type : AttributeType.values()) {
             if (i++ != 0) {
-                builder.append("\n");
+                builder.append(", ");
             }
 
             final double v = get(type);
-
-            if (v > 0) {
-                builder.append(" ").append(type.name()).append(" = ").append(v);
-            }
+            builder.append(" ").append(type.name()).append(" = ").append(v);
         }
 
         return builder.append("}").toString();

@@ -11,7 +11,6 @@ import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.player.dialog.DialogInstance;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.collection.Cache;
@@ -30,6 +29,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.competetive.Tournament;
 import me.hapyl.fight.game.element.ElementCaller;
 import me.hapyl.fight.game.entity.*;
+import me.hapyl.fight.game.entity.commission.CommissionOverlayEntity;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -46,6 +46,7 @@ import me.hapyl.fight.game.skin.SkinEffectManager;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.type.EnumGameType;
+import me.hapyl.fight.game.type.GameType;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
 import me.hapyl.fight.guesswho.GuessWho;
@@ -56,6 +57,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -66,14 +68,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public final class Manager extends BukkitRunnable {
-
-    public static final int MIN_TEAMS_TO_START_THE_GAME = 2;
 
     private final Main main;
     private final Set<EntityType> ignoredTypes = Sets.newHashSet(
@@ -90,6 +91,7 @@ public final class Manager extends BukkitRunnable {
     private final Map<UUID, GameEntity> entities;
     private final Map<UUID, PlayerProfile> profiles;
     private final Map<Attribute, Double> defaultAttributeValues;
+
     private final SkinEffectManager skinEffectManager;
     private final AutoSync autoSave;
 
@@ -102,11 +104,12 @@ public final class Manager extends BukkitRunnable {
     private GuessWho guessWhoGame;
     private FairMode fairMode;
 
-    public Manager(Main main) {
+    public Manager(@Nonnull Main main) {
         this.main = main;
 
         entities = Maps.newConcurrentMap();
         profiles = Maps.newConcurrentMap();
+
         defaultAttributeValues = Map.of(
                 Attribute.MAX_HEALTH, 20.0d,
                 Attribute.KNOCKBACK_RESISTANCE, 0.0d,
@@ -116,7 +119,6 @@ public final class Manager extends BukkitRunnable {
                 Attribute.GRAVITY, 0.08d
         );
 
-        // load config data
         currentMap = main.getConfigEnumValue("current-map", EnumLevel.class, EnumLevel.ARENA);
         currentMode = main.getConfigEnumValue("current-mode", EnumGameType.class, EnumGameType.FFA);
 
@@ -169,6 +171,7 @@ public final class Manager extends BukkitRunnable {
     public void run() {
         // Tick entities
         final Collection<GameEntity> entities = Manager.this.entities.values();
+
         entities.removeIf(entity -> {
             if (entity instanceof GamePlayer) {
                 return false;
@@ -177,7 +180,6 @@ public final class Manager extends BukkitRunnable {
             return entity.getEntity().isDead();
         });
 
-        // Tick players
         entities.forEach(entity -> {
             // There was a Ticking instance check before,
             // but I really think that entities other than players should be ticked separately.
@@ -205,7 +207,7 @@ public final class Manager extends BukkitRunnable {
             @Override
             public void onCountdownFinish() {
                 startCountdown = null;
-                createNewGameInstance();
+                createNewGameInstance(new GameInstance(currentMode, currentMap));
             }
         };
     }
@@ -217,7 +219,7 @@ public final class Manager extends BukkitRunnable {
         }
 
         final PlayerProfileData playerData = getProfile(player).getPlayerData();
-        final AchievementData data = playerData.getAchievementData(Registries.getAchievements().I_DONT_WANT_TO_PLAY);
+        final AchievementData data = playerData.getAchievementData(Registries.achievements().I_DONT_WANT_TO_PLAY);
 
         final int useTime = data.checkExpire(10000).increment(Type.USE_TIME, 1);
 
@@ -352,6 +354,20 @@ public final class Manager extends BukkitRunnable {
         return reference.get();
     }
 
+    @Nonnull
+    public CommissionOverlayEntity createOverlayEntity(@Nonnull Location location, @Nonnull BiFunction<Location, Husk, CommissionOverlayEntity> fn) {
+        // Overlay entities are stored by NPC id for faster lookup
+        return createEntity(
+                location, Entities.HUSK, self -> {
+                    self.setVisibleByDefault(false);
+                    self.setAdult();
+                    self.setSilent(true);
+
+                    return fn.apply(location, self);
+                }
+        );
+    }
+
     /**
      * Registers the given {@link GameEntity} to the manager.
      *
@@ -476,8 +492,13 @@ public final class Manager extends BukkitRunnable {
     }
 
     @Nonnull
-    public EnumLevel getCurrentMap() {
+    public EnumLevel currentEnumLevel() {
         return currentMap;
+    }
+
+    @Nonnull
+    public Level currentLevel() {
+        return currentMap.getLevel();
     }
 
     public void setCurrentMap(@Nonnull EnumLevel maps) {
@@ -487,21 +508,12 @@ public final class Manager extends BukkitRunnable {
         Main.getPlugin().setConfigValue("current-map", maps.name().toLowerCase(Locale.ROOT));
     }
 
-    @Nonnull
-    public Level currentLevel() {
-        return currentMap.getLevel();
-    }
-
     public boolean isDebug() {
         return CF.environment().debug.isEnabled();
     }
 
-    public EnumGameType getCurrentMode() {
-        return currentMode;
-    }
-
     public void setCurrentMode(@Nonnull EnumGameType mode) {
-        if (mode == getCurrentMode()) {
+        if (mode == currentEnumType()) {
             return;
         }
 
@@ -513,6 +525,11 @@ public final class Manager extends BukkitRunnable {
     }
 
     public boolean canStartGame() {
+        if (gameInstance != null) {
+            displayError("a game is already in progress!");
+            return false;
+        }
+
         // Pre-game start checks
         if ((!currentMap.isPlayable() || !currentMap.getLevel().hasLocation()) && !isDebug()) {
             displayError("illegal map");
@@ -529,7 +546,10 @@ public final class Manager extends BukkitRunnable {
 
         // TODO (Thu, Aug 29 2024 @xanyjl): !!! Make sure only one hero of the give type can be in a single team
 
-        final int playerRequirements = getCurrentMode().getMode().getPlayerRequirements();
+        final GameType mode = currentEnumType().getMode();
+        final int playerRequirements = mode.getPlayerRequirements();
+        final int teamRequirements = mode.getTeamRequirements();
+
         final Collection<Player> nonSpectatorPlayers = getNonSpectatorPlayers();
 
         // Check for minimum players if not in debug
@@ -537,8 +557,8 @@ public final class Manager extends BukkitRunnable {
             final List<GameTeam> teams = GameTeam.getPopulatedTeams();
 
             // Check teams
-            if (teams.size() < MIN_TEAMS_TO_START_THE_GAME) {
-                displayError("there aren't enough teams (%s/%s)".formatted(teams.size(), MIN_TEAMS_TO_START_THE_GAME));
+            if (teams.size() < teamRequirements) {
+                displayError("there aren't enough teams (%s/%s)".formatted(teams.size(), teamRequirements));
                 return false;
             }
 
@@ -588,27 +608,9 @@ public final class Manager extends BukkitRunnable {
      * <p>
      * Only one game instance can be active at a time.
      */
-    public void createNewGameInstance() {
+    public void createNewGameInstance(@Nonnull GameInstance instance) {
         if (!canStartGame()) {
             return;
-        }
-
-        // Check for team balance
-        // todo -> Maybe add config support for unbalanced teams
-        GameTeam.removeOfflinePlayers(); // Make sure to remove offline players
-        final List<GameTeam> populatedTeams = GameTeam.getPopulatedTeams();
-
-        int teamPlayers = 0;
-        for (GameTeam populatedTeam : populatedTeams) {
-            final int size = populatedTeam.getPlayers().size();
-            if (teamPlayers == 0) {
-                teamPlayers = size;
-                continue;
-            }
-
-            if (size != teamPlayers) {
-                Chat.broadcast("&6&lUnbalanced Team! &e%s has more players than other teams.".formatted(populatedTeam.getName()));
-            }
         }
 
         // Stop GuessWho
@@ -617,6 +619,7 @@ public final class Manager extends BukkitRunnable {
         final ParkourManager parkourManager = Eterna.getManagers().parkour;
         final DialogManager dialogManager = Eterna.getManagers().dialog;
 
+        //
         for (Player player : Bukkit.getOnlinePlayers()) {
             parkourManager.quit(player);
 
@@ -628,7 +631,7 @@ public final class Manager extends BukkitRunnable {
         }
 
         // Create new instance and call onStart methods
-        this.gameInstance = new GameInstance(getCurrentMode(), getCurrentMap());
+        this.gameInstance = instance;
         this.gameInstance.onStart();
 
         // Init skin manager
@@ -651,16 +654,19 @@ public final class Manager extends BukkitRunnable {
             }
 
             // Teleport to the map
-            player.teleport(currentMap.getLevel().getLocation());
+            player.teleport(instance.currentLevel().getLocation());
 
             // Glow teammates right after teleport
             gamePlayer.getTeam().glowTeammates();
         }
 
+        final int revealIn = instance.currentLevel().getTimeBeforeReveal();
+
         if (!CF.environment().debug.isEnabled()) {
-            Chat.broadcast("&a&l➺ &aAll players have been hidden!");
-            Chat.broadcast("&a&l➺ &aThey have &e%ss &ato spread before being revealed.".formatted(
-                    BukkitUtils.roundTick(currentMap.getLevel().getTimeBeforeReveal())));
+            if (revealIn > 0) {
+                Chat.broadcast("&a&l➺ &2All players have been hidden!");
+                Chat.broadcast("&a&l➺ &2They have &a%ss &2to spread before being revealed.".formatted(Tick.round(revealIn)));
+            }
         }
         else {
             this.gameInstance.setTimeLeft(10000000000L);
@@ -669,7 +675,10 @@ public final class Manager extends BukkitRunnable {
         // On reveal
         GameTask.runLater(
                 () -> {
-                    Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
+                    if (revealIn > 0) {
+                        Chat.broadcast("&a&l➺ &aPlayers have been revealed. &lFIGHT!");
+                    }
+
                     gameInstance.setGameState(State.IN_GAME);
 
                     ElementCaller.CALLER.onPlayersRevealed(gameInstance);
@@ -684,8 +693,8 @@ public final class Manager extends BukkitRunnable {
                         }
                     });
 
-                    playAnimation();
-                }, isDebug() ? 1 : currentMap.getLevel().getTimeBeforeReveal()
+                    gameInstance.playStartAnimation();
+                }, isDebug() ? 1 : revealIn
         );
 
     }
@@ -796,7 +805,7 @@ public final class Manager extends BukkitRunnable {
             allowGoldenGg(player);
 
             // Progress achievement
-            Registries.getAchievements().PLAY_FIRST_GAME.complete(player);
+            Registries.achievements().PLAY_FIRST_GAME.complete(player);
 
             // Progress bonds
             ChallengeType.PLAY_GAMES.progress(player);
@@ -810,7 +819,7 @@ public final class Manager extends BukkitRunnable {
             LobbyItems.giveAll(player);
 
             // Delay the eye text
-            final TheEyeNPC theEye = Registries.getNPCs().THE_EYE;
+            final TheEyeNPC theEye = Registries.npcs().THE_EYE;
             final TheEyeNPC.EyeNotification notification = theEye.getFirstEyeNotification(player);
 
             if (notification != null) {
@@ -977,14 +986,8 @@ public final class Manager extends BukkitRunnable {
         return heroes;
     }
 
-    public void removeEntity(LivingEntity entity) {
+    public void removeEntity(@Nonnull LivingEntity entity) {
         final GameEntity gameEntity = entities.remove(entity.getUniqueId());
-
-        if (gameEntity == null) {
-            return;
-        }
-
-        //gameEntity.remove();
     }
 
     public Set<GameEntity> getEntities() {
@@ -1096,8 +1099,14 @@ public final class Manager extends BukkitRunnable {
         return gameInstance == null;
     }
 
-    private void playAnimation() {
-        new TitleAnimation();
+    @Nonnull
+    public EnumGameType currentEnumType() {
+        return currentMode;
+    }
+
+    @Nonnull
+    public GameType currentType() {
+        return currentMode.getMode();
     }
 
     private void displayError(@Nonnull String message) {

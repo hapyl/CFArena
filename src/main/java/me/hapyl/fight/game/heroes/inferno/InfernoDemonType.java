@@ -7,7 +7,6 @@ import me.hapyl.eterna.module.inventory.Equipment;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,6 +24,7 @@ public enum InfernoDemonType implements Named {
 
     QUAZII(
             "&bQuazii",
+            "&bⓆⓊⒶⓏⒾⒾ",
             Entities.WITHER_SKELETON,
             Equipment.builder()
                      .mainHand(new ItemBuilder(Material.DIAMOND_AXE).addEnchant(Enchant.LUCK_OF_THE_SEA, 1).asIcon())
@@ -36,6 +36,7 @@ public enum InfernoDemonType implements Named {
 
     TYPHOEUS(
             "&cTyphoeus",
+            "&cⓉⓎⓅⒽⓄⒺⓊⓈ",
             Entities.ZOMBIFIED_PIGLIN,
             Equipment.builder()
                      .mainHand(new ItemBuilder(Material.BLAZE_ROD).addEnchant(Enchant.LUCK_OF_THE_SEA, 1).asIcon())
@@ -47,11 +48,13 @@ public enum InfernoDemonType implements Named {
     );
 
     private final String name;
+    private final String demonName;
     private final Entities<? extends LivingEntity> type;
     private final Equipment equipment;
 
-    InfernoDemonType(@Nonnull String name, @Nonnull Entities<? extends LivingEntity> type, @Nonnull Equipment equipment) {
+    InfernoDemonType(@Nonnull String name, @Nonnull String demonName, @Nonnull Entities<? extends LivingEntity> type, @Nonnull Equipment equipment) {
         this.name = name;
+        this.demonName = demonName;
         this.type = type;
         this.equipment = equipment;
     }
@@ -77,14 +80,20 @@ public enum InfernoDemonType implements Named {
                         ageable.setAdult();
                     }
 
-                    final LivingGameEntity entity = new LivingGameEntity(bukkitEntity, new BaseAttributes().put(AttributeType.MAX_HEALTH, 99999)) {
+                    // Inherit player attributes
+                    final BaseAttributes attributesCopy = player.getEffectiveAttributes();
+                    attributesCopy.setMaxHealth(999999); // Don't kill demon entities
+
+                    final LivingGameEntity entity = new LivingGameEntity(bukkitEntity, attributesCopy) {
                         @Override
                         public void onDamageTaken(@Nonnull DamageInstance instance) {
                             // Redirect damage to the player
                             player.redirectDamage(instance);
                         }
+
                     };
 
+                    entity.aboveHead("&4\uD83D\uDC7F %s".formatted(demonName));
                     entity.setEquipment(equipment);
 
                     // Make them immune

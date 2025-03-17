@@ -31,10 +31,10 @@ import javax.annotation.Nonnull;
 public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterData> {
 
     private final TemperInstance temperInstance = Temper.ULTIMATE_SACRIFICE.newInstance()
-            .increase(AttributeType.ATTACK, 1.0d)
-            .increase(AttributeType.SPEED, 0.1d) // 50%
-            .decrease(AttributeType.DEFENSE, 100.0d)
-            .decrease(AttributeType.COOLDOWN_MODIFIER, 0.5d);
+                                                                           .increase(AttributeType.ATTACK, 1.0d)
+                                                                           .increase(AttributeType.SPEED, 0.1d) // 50%
+                                                                           .decrease(AttributeType.DEFENSE, 100.0d)
+                                                                           .decrease(AttributeType.COOLDOWN_MODIFIER, 0.5d);
 
     private final PlayerDataMap<SwordMasterData> playerData = PlayerMap.newDataMap(player -> new SwordMasterData(this, player));
 
@@ -45,6 +45,10 @@ public class SwordMaster extends Hero implements PlayerDataHandler<SwordMasterDa
         profile.setArchetypes(Archetype.DAMAGE);
         profile.setAffiliation(Affiliation.KINGDOM);
         profile.setGender(Gender.MALE);
+
+        setDescription("""
+                A knight.
+                """);
 
         setItem("4b2a75f05437ba2e28fb2a7d0eb6697a6e091ce91072b5c4ff1945295b092");
 

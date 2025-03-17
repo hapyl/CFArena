@@ -100,7 +100,7 @@ public class ActiveTamerPack implements Ticking, Removable {
      * Removes all the pack entities.
      */
     public final void remove() {
-        entities.forEach(GameEntity::kill);
+        entities.forEach(GameEntity::remove);
         entities.clear();
     }
 
@@ -117,7 +117,7 @@ public class ActiveTamerPack implements Ticking, Removable {
         entities.remove(tamerEntity);
 
         if (!entity.isDead()) {
-            entity.kill();
+            entity.remove();
         }
     }
 

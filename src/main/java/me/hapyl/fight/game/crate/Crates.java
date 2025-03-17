@@ -15,14 +15,14 @@ import org.bukkit.Sound;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static me.hapyl.fight.registry.Registries.getCosmetics;
+import static me.hapyl.fight.registry.Registries.cosmetics;
 
 @Deprecated // legacy
 public enum Crates implements KeyedEnum, WeightedDrop, EnumWrapper<Crate>, Product<Long> {
 
     NOVICE(
             new Crate("Novice Crate")
-                    .with(getCosmetics().BLOOD, getCosmetics().GROUND_PUNCH, getCosmetics().COOKIE_MADNESS)
+                    .with(cosmetics().BLOOD, cosmetics().GROUND_PUNCH, cosmetics().COOKIE_MADNESS)
     ) {
         @Override
         public int getWeight() {
@@ -91,29 +91,29 @@ public enum Crates implements KeyedEnum, WeightedDrop, EnumWrapper<Crate>, Produ
     LEGACY(
             new Crate("Legacy Crate")
                     .with(
-                            getCosmetics().BLOOD,
-                            getCosmetics().COOKIE_MADNESS,
-                            getCosmetics().SQUID_LAUNCH,
-                            getCosmetics().GROUND_PUNCH,
-                            getCosmetics().GIANT_SWORD,
-                            getCosmetics().LIGHTNING
+                            cosmetics().BLOOD,
+                            cosmetics().COOKIE_MADNESS,
+                            cosmetics().SQUID_LAUNCH,
+                            cosmetics().GROUND_PUNCH,
+                            cosmetics().GIANT_SWORD,
+                            cosmetics().LIGHTNING
                     )
-                    .with(getCosmetics().SCARY_DOOKIE, getCosmetics().FINAL_MESSAGE, getCosmetics().BIG_BLAST, getCosmetics().ELECTROCUTE)
-                    .with(getCosmetics().MUSIC, getCosmetics().RAINBOW, getCosmetics().FLOWER_PATH)
+                    .with(cosmetics().SCARY_DOOKIE, cosmetics().FINAL_MESSAGE, cosmetics().BIG_BLAST, cosmetics().ELECTROCUTE)
+                    .with(cosmetics().MUSIC, cosmetics().RAINBOW, cosmetics().FLOWER_PATH)
                     .with(
-                            getCosmetics().FIGHTER,
-                            getCosmetics().OCTAVE,
-                            getCosmetics().STAR,
-                            getCosmetics().BIOHAZARD,
-                            getCosmetics().LOVE,
-                            getCosmetics().HAPPY,
-                            getCosmetics().GENDER_MALE,
-                            getCosmetics().GENDER_FEMALE,
-                            getCosmetics().ANNIHILATOR,
-                            getCosmetics().RAINY,
-                            getCosmetics().GLITCH
+                            cosmetics().FIGHTER,
+                            cosmetics().OCTAVE,
+                            cosmetics().STAR,
+                            cosmetics().BIOHAZARD,
+                            cosmetics().LOVE,
+                            cosmetics().HAPPY,
+                            cosmetics().GENDER_MALE,
+                            cosmetics().GENDER_FEMALE,
+                            cosmetics().ANNIHILATOR,
+                            cosmetics().RAINY,
+                            cosmetics().GLITCH
                     )
-                    .with(getCosmetics().AVALANCHE, getCosmetics().TWERK)
+                    .with(cosmetics().AVALANCHE, cosmetics().TWERK)
     ),
 
     ;

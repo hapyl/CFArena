@@ -55,7 +55,7 @@ public class IceCage extends TimedGameTask implements Removable{
 
         // Achievement
         if (player.isSelfOrTeammate(entity)) {
-            final AchievementRegistry registry = Registries.getAchievements();
+            final AchievementRegistry registry = Registries.achievements();
             registry.FROSTBITE_CAGE_SELF.complete(player);
 
             if (!player.equals(entity) && entity instanceof GamePlayer playerEntity) {

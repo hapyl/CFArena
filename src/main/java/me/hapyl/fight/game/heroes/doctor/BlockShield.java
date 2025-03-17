@@ -1,64 +1,59 @@
 package me.hapyl.fight.game.heroes.doctor;
 
-import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.util.Nulls;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
-import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Located;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 
-public class BlockShield {
+public class BlockShield implements Located {
 
-    private static final Location DEFAULT_BLOCK_LOCATION = BukkitUtils.defLocation(0, 48, 0);
+    private final static Material DEFAULT_MATERIAL = Material.MAGMA_BLOCK;
 
     private final GamePlayer player;
+    private final Entity entity;
+    private final Material material;
+    private final ElementType type;
 
-    private Entity entity;
-    private Material material;
-    private ElementType type;
     private double theta;
 
-    public BlockShield(GamePlayer player) {
+    public BlockShield(@Nonnull GamePlayer player) {
         this.player = player;
-    }
+        this.material = randomBlock();
+        this.type = ElementType.getElement(material);
+        this.entity = Entities.ARMOR_STAND_MARKER.spawn(
+                player.getLocation(), self -> {
+                    self.setSmall(true);
+                    self.setInvisible(true);
 
-    public void newElement() {
-        if (exists()) {
-            return;
-        }
+                    self.getEquipment().setHelmet(new ItemBuilder(material).toItemStack());
+                }
+        );
 
-        // Get random block around the player
-        final Block block = randomBlock();
-        setType(block.getType());
-
+        // Fx
         player.playSound(Sound.ENTITY_CHICKEN_EGG, 0.0f);
     }
 
-    private void setType(Material material) {
-        this.material = material;
-        this.type = ElementType.getElement(material);
-        this.theta = 0;
-
-        this.entity = Entities.ARMOR_STAND_MARKER.spawn(player.getLocation(), self -> {
-            self.setSmall(true);
-            self.setInvisible(true);
-
-            Nulls.runIfNotNull(self.getEquipment(), equipment -> {
-                equipment.setHelmet(ItemBuilder.of(material).build());
-            });
-        });
+    @Nonnull
+    @Override
+    public Location getLocation() {
+        return entity.getLocation();
     }
 
-    public void update() {
+    public boolean update() {
         if (material == null) {
-            return;
+            return false;
         }
 
         final Location location = player.getLocation();
@@ -75,29 +70,31 @@ public class BlockShield {
             this.entity.teleport(location);
         }
 
-        if (theta > Math.PI * 2) {
-            theta = 0;
-        }
-
         theta += Math.PI / 20;
 
         // Offset marker
         location.add(0.0d, 0.75d, 0.0d);
 
+        // Collision detection
+        final LivingGameEntity nearest = Collect.nearestEntity(location, 0.3d, player::isNotSelfOrTeammate);
+
+        if (nearest != null) {
+            nearest.damage(type.getElement().getDamage(), player, DamageCause.BLOCK_SHIELD);
+
+            // Fx
+            player.playWorldSound(location, material.createBlockData().getSoundGroup().getBreakSound(), 0.0f);
+            return true;
+        }
+
         // Fx
         ParticleBuilder.blockDust(material).display(location, 1, 0.25d, 0.25d, 0.25d, 1.0f);
         ParticleBuilder.blockBreak(material).display(location, 1, 0.1d, 0.1d, 0.1d, 0.1f);
+
+        return false;
     }
 
     public void remove() {
-        if (entity != null) {
-            entity.remove();
-            entity = null;
-        }
-
-        theta = 0;
-        material = null;
-        type = null;
+        entity.remove();
     }
 
     public boolean exists() {
@@ -116,25 +113,13 @@ public class BlockShield {
         return material;
     }
 
-    public Block randomBlock() {
+    public Material randomBlock() {
         return randomBlock(0);
     }
 
-    private final static Material DEFAULT_MATERIAL = Material.MAGMA_BLOCK;
-
-    private Block defaultBlock() {
-        final Block block = DEFAULT_BLOCK_LOCATION.getBlock();
-
-        if (block.getType() != DEFAULT_MATERIAL) {
-            block.setType(DEFAULT_MATERIAL);
-        }
-
-        return block;
-    }
-
-    private Block randomBlock(int count) {
+    private Material randomBlock(int count) {
         if (count > 10) {
-            return defaultBlock();
+            return DEFAULT_MATERIAL;
         }
 
         final Location location = player.getLocation().add(
@@ -144,11 +129,12 @@ public class BlockShield {
         );
 
         final Block block = location.getBlock();
+        final Material type = block.getType();
 
-        if (!block.getType().isOccluding()) {
+        if (!type.isOccluding()) {
             return randomBlock(++count);
         }
 
-        return block;
+        return type;
     }
 }

@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.reflect.npc.NPCPose;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -28,7 +27,7 @@ public class ShadowTrailCosmetic extends ContrailCosmetic implements Disabled {
                 "Shadow Trail",
                 "There is something trailing behind you!",
                 Rarity.MYTHIC,
-                Tuple.of("special", "It will summon shadow clones as you move!")
+                ContrailType.of("special", "It will summon shadow clones as you move!")
         );
 
         setIcon(Material.PLAYER_HEAD);
@@ -37,7 +36,7 @@ public class ShadowTrailCosmetic extends ContrailCosmetic implements Disabled {
     }
 
     @Override
-    public void onMove(@Nonnull Display display) {
+    public void onMove(@Nonnull Display display, int tick) {
         final Player player = display.getPlayer();
 
         if (player == null) {
@@ -57,14 +56,16 @@ public class ShadowTrailCosmetic extends ContrailCosmetic implements Disabled {
         final Human npc = createNpc(display);
         queue.offer(npc);
 
-        GameTask.runLater(() -> {
-            if (!npc.isAlive()) {
-                return;
-            }
+        GameTask.runLater(
+                () -> {
+                    if (!npc.isAlive()) {
+                        return;
+                    }
 
-            queue.remove(npc);
-            npc.remove();
-        }, 20);
+                    queue.remove(npc);
+                    npc.remove();
+                }, 20
+        );
     }
 
     private Human createNpc(Display display) {

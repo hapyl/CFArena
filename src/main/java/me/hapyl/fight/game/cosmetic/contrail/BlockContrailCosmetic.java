@@ -3,7 +3,6 @@ package me.hapyl.fight.game.cosmetic.contrail;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.Tuple;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -24,7 +23,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     private int stay;
 
     public BlockContrailCosmetic(@Nonnull Key key, @Nonnull String name, @Nonnull String description, @Nonnull Rarity rarity) {
-        super(key, name, description, rarity, Tuple.of("block", "It will convert blocks you're walking on."));
+        super(key, name, description, rarity, BLOCK);
 
         this.materials = Lists.newArrayList();
         this.stay = 20;
@@ -76,7 +75,7 @@ public class BlockContrailCosmetic extends ContrailCosmetic {
     }
 
     @Override
-    public void onMove(@Nonnull Display display) {
+    public void onMove(@Nonnull Display display, int tick) {
         final Location location = display.getLocation().subtract(0.0d, 1.0d, 0.0);
         final Block block = location.getBlock();
         final Player player = display.getPlayer();

@@ -73,7 +73,7 @@ public enum GameState {
             });
 
             // Achievements
-            Registries.getAchievements().WIN_GUESS_WHO.complete(winnerPlayer);
+            Registries.achievements().WIN_GUESS_WHO.complete(winnerPlayer);
 
             // Progress bond
             ChallengeType.PLAY_GUESS_WHO.progress(game.player1.getPlayer());

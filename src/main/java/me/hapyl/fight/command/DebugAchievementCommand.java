@@ -15,7 +15,7 @@ public class DebugAchievementCommand extends SimplePlayerAdminCommand {
         super(name);
         setUsage("debugachievement (achievement)");
 
-        registry = Registries.getAchievements();
+        registry = Registries.achievements();
 
         addCompleterValues(1, registry.listIds());
     }

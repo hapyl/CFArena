@@ -66,6 +66,8 @@ import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.collectible.relic.Relic;
+import me.hapyl.fight.game.commission.Monster;
+import me.hapyl.fight.game.commission.*;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -75,7 +77,7 @@ import me.hapyl.fight.game.crate.convert.CrateConverts;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.*;
-import me.hapyl.fight.game.entity.named.NamedEntityType;
+import me.hapyl.fight.game.entity.commission.CommissionEntityType;
 import me.hapyl.fight.game.entity.shield.Shield;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.heroes.Hero;
@@ -92,11 +94,14 @@ import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.lobby.StartCountdown;
+import me.hapyl.fight.game.maps.CommissionLevel;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.gamepack.GamePack;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.snake.SnakeParkour;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.DailyReward;
+import me.hapyl.fight.game.reward.DropChance;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.skin.Skins;
 import me.hapyl.fight.game.stats.StatType;
@@ -157,6 +162,7 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
@@ -251,23 +257,127 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ViewTheEyeGuiCommand("viewtheeyegui"));
         register(new ReadSignsCommand("readSigns"));
         register(new TemperStatCommand("temperStat"));
+        register(new BetterMace("betterMace"));
+        register(new ServerCommand("server"));
+        register(new BuildCommand("build"));
+        register(new CommissionExperienceCommand("commissionExperience"));
 
         // *=* Inner commands *=* //
-        register("triggerLuckyDay", (player, args) -> {
-            GamePlayer.getPlayerOptional(player)
-                    .ifPresent(gameplayer -> {
-                        final int index = args.getInt(0);
-                        final HimariAction action = TalentRegistry.LUCKY_DAY.actionList.byIndex(index);
+        register(
+                "debugCommissionExperience", (player, args) -> {
+                    for (int level = 1; level <= Commission.MAX_PLAYER_LEVEL; level++) {
+                        final long exp = Commission.expNeededForLevel(level);
+                        final int levelByExp = Commission.levelByExp(exp);
 
-                        if (action == null) {
-                            gameplayer.sendMessage(Message.ERROR, "No action at index {%s}!".formatted(index));
-                            return;
-                        }
+                        Debug.info("[%s] exp=%s, levelByExp=%s".formatted(level, exp, levelByExp));
+                    }
+                }
+        );
 
-                        gameplayer.sendMessage(Message.SUCCESS, "Executing action...");
-                        action.execute(gameplayer);
-                    });
-        });
+        register(
+                "debugCommissionLevel", (player, args) -> {
+                    final EnumLevel level = args.get(0).toEnum(EnumLevel.class);
+
+                    if (level == null) {
+                        Message.error(player, "Invalid level!");
+                        return;
+                    }
+
+                    if (!(level.getLevel() instanceof CommissionLevel commissionLevel)) {
+                        Message.error(player, "Cannot debug non-commission level!");
+                        return;
+                    }
+
+                    final List<MonsterSpawn> monsterSpawns = commissionLevel.monsterSpawns();
+
+                    Debug.info("Monster spawns:");
+
+                    for (int i = 0; i < monsterSpawns.size(); i++) {
+                        final MonsterSpawn spawn = monsterSpawns.get(i);
+
+                        Debug.info("#%s at %s".formatted(i, LocationHelper.toString(spawn.location())));
+
+                        spawn.entities().getWeightedElements().forEach(element -> {
+                            final Monster monster = element.t();
+                            final int weight = element.weight();
+
+                            Debug.info(" %s (%s)".formatted(monster, weight));
+                        });
+                    }
+
+                }
+        );
+
+        register(
+                "dropChanceOf", (player, args) -> {
+                    final double chance = args.get(0).toDouble();
+                    final DropChance dropChance = DropChance.of(chance);
+
+                    Message.success(player, "Drop Chance of {%.2f%%} is {%s}!".formatted(chance * 100, dropChance));
+                }
+        );
+
+        register(
+                "createCommission", (player, args) -> {
+                    final EnumLevel level = args.get(0).toEnum(EnumLevel.class);
+                    final int tier = args.get(1).toInt();
+
+                    if (level == null) {
+                        Message.error(player, "Invalid level!");
+                        return;
+                    }
+
+                    if (!(level.getLevel() instanceof CommissionLevel)) {
+                        Message.error(player, "{%s} is not a commission level!".formatted(level));
+                        return;
+                    }
+
+                    Message.info(player, "Creating a new commission...");
+                    Manager.current().createNewGameInstance(new CommissionInstance(level, EnumTier.of(tier)));
+                }
+        );
+
+        register(
+                "testPlayerAboveHead", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gameplayer -> {
+                                  gameplayer.aboveHead("test", "test123", "test1231231231321");
+                              });
+                }
+        );
+
+        register(
+                "losBlockBoundingBox", (player, args) -> {
+                    final Block block = player.getTargetBlockExact(100);
+
+                    if (block == null) {
+                        Message.error(player, "No block in sight!");
+                        return;
+                    }
+
+                    final BoundingBox boundingBox = block.getBoundingBox();
+
+                    Message.success(player, "{%s} bounding box is {%s}.".formatted(block.getType(), boundingBox));
+                }
+        );
+
+        register(
+                "triggerLuckyDay", (player, args) -> {
+                    GamePlayer.getPlayerOptional(player)
+                              .ifPresent(gameplayer -> {
+                                  final int index = args.getInt(0);
+                                  final HimariAction action = TalentRegistry.LUCKY_DAY.actionList.byIndex(index);
+
+                                  if (action == null) {
+                                      gameplayer.sendMessage(Message.ERROR, "No action at index {%s}!".formatted(index));
+                                      return;
+                                  }
+
+                                  gameplayer.sendMessage(Message.SUCCESS, "Executing action...");
+                                  action.execute(gameplayer);
+                              });
+                }
+        );
 
         register(
                 "maxMoonEnergy", (player, args) -> {
@@ -316,7 +426,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
 
         register(
                 "balloon", (player, args) -> {
-                    Registries.getCosmetics().BALLOON.createBalloon(player);
+                    Registries.cosmetics().BALLOON.createBalloon(player);
 
                     Message.success(player, "Whee!");
                 }
@@ -566,14 +676,25 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         return;
                     }
 
-                    final boolean isRemove = args.get(1).toString().equalsIgnoreCase("remove");
+                    final String arg1 = args.get(1).toString();
 
-                    if (isRemove) {
+                    if (arg1.equalsIgnoreCase("remove")) {
                         parent.set(key, null);
-
-                        Message.success(player, "Removed metadata for key {%s}.".formatted(key));
+                        Message.success(player, "Removed metadata for key {%s}!".formatted(key));
                     }
                     else {
+                        final Boolean newValue
+                                = arg1.equalsIgnoreCase("true")
+                                ? Boolean.TRUE : arg1.equalsIgnoreCase("false")
+                                ? Boolean.FALSE : null;
+
+                        if (newValue != null) {
+                            parent.set(key, newValue);
+
+                            Message.success(player, "Set metadata for key {%s} to {%s}!".formatted(key, newValue));
+                            return;
+                        }
+
                         final Object value = parent.get(key, null);
 
                         if (value == null) {
@@ -638,7 +759,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 "calculatePointReward", (player, args) ->
 
                 {
-                    final AchievementRegistry registry = Registries.getAchievements();
+                    final AchievementRegistry registry = Registries.achievements();
 
                     final String query = args.getString(0);
                     final int completeCount = args.getInt(1);
@@ -1297,7 +1418,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 "debugCosmetic", (player, args) ->
 
                 {
-                    final Cosmetic cosmetic = Registries.getCosmetics().get(args.getString(0));
+                    final Cosmetic cosmetic = Registries.cosmetics().get(args.getString(0));
 
                     if (cosmetic == null) {
                         Message.error(player, "Unknown cosmetic: {%s}".formatted(args.getString(0)));
@@ -2033,21 +2154,23 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             @Override
             protected void execute(Player player, String[] args) {
                 final String stringArg = getArgument(args, 0).toString();
-                final NamedEntityType type = Registries.getEntities().get(stringArg);
+                final int level = getArgument(args, 1).toInt(1);
+
+                final CommissionEntityType type = Registries.entities().get(stringArg);
 
                 if (type == null) {
                     Message.error(player, "Invalid entity type: {%s}!".formatted(stringArg));
                     return;
                 }
 
-                type.create(player.getLocation());
-                Message.success(player, "Spawned {%s}!".formatted(type.getName()));
+                type.create(player.getLocation(), level);
+                Message.success(player, "Spawned {%s} at level {%s}!".formatted(type.getName(), level));
             }
 
             @Nullable
             @Override
             protected List<String> tabComplete(CommandSender sender, String[] args) {
-                return completerSort(Registries.getEntities().keys(), args);
+                return completerSort(Registries.entities().keys(), args);
             }
         });
 

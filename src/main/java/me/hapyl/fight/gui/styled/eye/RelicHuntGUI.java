@@ -109,7 +109,7 @@ public class RelicHuntGUI extends StyledGUI {
         }
 
         setItem(30, createTotalRelicsItem());
-        setItem(32, StyledItem.ICON_RELIC_REWARDS.asButton("browse"), RelicRewardGUI::new);
+        setItem(32, StyledTexture.ICON_RELIC_REWARDS.asButton("browse"), RelicRewardGUI::new);
     }
 
     private ItemStack createTotalRelicsItem() {

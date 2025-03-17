@@ -42,7 +42,7 @@ public class HeroPreferencesGUI extends StyledGUI {
     public void onUpdate() {
         final int maxItemsPerPage = SLOTS.length;
 
-        setHeader(StyledItem.RANDOM_HERO_PREFERENCES.asIcon());
+        setHeader(StyledTexture.RANDOM_HERO_PREFERENCES.asIcon());
 
         final List<Archetype> archetypes = CFUtils.enumSubList(Archetype.class, startIndex, maxItemsPerPage, Archetype.NOT_SET);
         final boolean isEmpty = include.isEmpty();

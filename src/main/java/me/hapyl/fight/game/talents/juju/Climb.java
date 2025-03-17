@@ -7,7 +7,7 @@ import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Supplier;
+import me.hapyl.fight.util.LocationSupplier;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -57,8 +57,8 @@ public class Climb extends Talent {
             return Response.error("Not hugging wall.");
         }
 
-        // Flip
-        player.teleport(new Supplier<>(player.getLocation()).supply(loc -> loc.setYaw(loc.getYaw() + 180)));
+        // Flip fixme -> The fuck is this?
+        player.teleport(new LocationSupplier(player.getLocation()).supply(loc -> loc.setYaw(loc.getYaw() + 180)));
 
         GameTask.runLater(() -> { // had to introduce delay because it broke for no reason
             player.setVelocity(player.getLocation().getDirection().normalize().multiply(magnitude).setY(magnitude));

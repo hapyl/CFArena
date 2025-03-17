@@ -54,10 +54,10 @@ public class Vampire extends Hero implements Listener {
         super(key, "Vorath");
 
         setDescription("""
-                One of the royal guards at the %s&8&o, believes that with enough firepower, &oeverything&8&o is possible.
+                One of the royal guards at the %s, believes that with enough firepower, everything is possible.
                 
                 Prefers NoSunBurn™ sunscreen.
-                """.formatted(Affiliation.CHATEAU));
+                """.formatted(Affiliation.CHATEAU.getName()));
 
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.SELF_BUFF);

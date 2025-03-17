@@ -56,7 +56,7 @@ public class Librarian extends Hero implements Listener, Disabled {
         super(key, "Librarian of Void");
 
         setDescription("""
-                Mislead by the &0void&7, sacrifices were made.
+                Mislead by the void, sacrifices were made.
                 """);
 
         final HeroProfile profile = getProfile();

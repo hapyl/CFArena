@@ -12,7 +12,7 @@ import me.hapyl.fight.game.heroes.mastery.HeroMasteryLevel;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -53,7 +53,7 @@ public class MasteryGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_MASTERY.asIcon());
+        setHeader(StyledTexture.ICON_MASTERY.asIcon());
 
         final HeroMastery mastery = hero.getMastery();
         final MasteryEntry entry = CF.getDatabase(player).masteryEntry;

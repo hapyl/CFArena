@@ -15,7 +15,9 @@ public class LastLaughPassive extends PassiveTalent {
         super(key, "Last Laugh");
 
         setDescription("""
-                Your hits have &b{chance} &7chance to instantly kill enemy.
+                Your hits have &b{chance}&7 chance to instantly kill the &cenemy&7.
+                
+                &8&oDoes not work on bosses and mini-bosses.
                 """
         );
 

@@ -28,7 +28,7 @@ public class LimboFeature extends VoidFeature implements Listener {
     @EventHandler()
     public void handlePortalEvent(GameEntityContactPortalEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final Level currentMap = Manager.current().getCurrentMap().getLevel();
+        final Level currentMap = Manager.current().currentEnumLevel().getLevel();
 
         if (!validateCurrentMap(EnumLevel.LIMBO)) {
             return;

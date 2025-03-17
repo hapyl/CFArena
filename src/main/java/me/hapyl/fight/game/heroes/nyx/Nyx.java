@@ -65,13 +65,14 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         equipment.setLeggings(22, 28, 28, TrimPattern.DUNE, TrimMaterial.NETHERITE);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.DUNE, TrimMaterial.NETHERITE);
 
+        setDescription("""
+                `Chaos... brings victory...`
+                """);
+
         setItem("e4e7d05432c07cbbe6414def96196f434ffc8759a528202463257f42f304670d");
 
         setWeapon(new NyxWeapon());
 
-        setDescription("""
-                &8&o;;Chaos... brings victory...
-                """);
 
         setUltimate(new NyxUltimate());
     }
@@ -152,10 +153,10 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         }
 
         return player.getTeam().getPlayers()
-                .stream()
-                .filter(this::validateNyx)
-                .findFirst()
-                .orElse(null);
+                     .stream()
+                     .filter(this::validateNyx)
+                     .findFirst()
+                     .orElse(null);
     }
 
     private boolean validateNyx(GamePlayer player) {

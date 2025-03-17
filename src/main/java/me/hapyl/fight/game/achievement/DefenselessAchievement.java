@@ -34,6 +34,6 @@ public class DefenselessAchievement extends Achievement implements Listener {
             return;
         }
 
-        Registries.getAchievements().DEFENSELESS.complete(player.getPlayer());
+        Registries.achievements().DEFENSELESS.complete(player.getPlayer());
     }
 }

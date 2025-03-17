@@ -46,7 +46,7 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
     private final Set<FirePillar> firePillars;
 
     public InfernoUltimate(Inferno inferno) {
-        super(inferno, "Fire Pillar", 100);
+        super(inferno, "Fire Pillar", 70);
 
         this.firePillars = Sets.newHashSet();
 

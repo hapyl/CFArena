@@ -13,7 +13,8 @@ import javax.annotation.Nullable;
 
 public enum PlayerRank {
 
-    DEFAULT(0, new RankFormatter() {
+    DEFAULT(
+            0, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -26,8 +27,10 @@ public enum PlayerRank {
             return Color.YELLOW;
         }
 
-    }),
-    VIP(1, new RankFormatter() {
+    }
+    ),
+    VIP(
+            1, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -51,9 +54,11 @@ public enum PlayerRank {
         public String leaveMessage() {
             return "{player} &6has left!";
         }
-    }),
+    }
+    ),
 
-    PREMIUM(2, new RankFormatter() {
+    PREMIUM(
+            2, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -75,10 +80,28 @@ public enum PlayerRank {
         public String leaveMessage() {
             return "{player} &6has departed!";
         }
-    }),
+    }
+    ),
+
+    BUILD(
+            98, new RankFormatter() {
+        @Nonnull
+        @Override
+        public String prefix() {
+            return Color.AQUA.bold() + "ʙᴜɪʟᴅ";
+        }
+
+        @Nonnull
+        @Override
+        public Color nameColor() {
+            return Color.DARK_AQUA;
+        }
+    }
+    ),
 
     // Game manager are NOT administrators
-    GAME_MANAGER(99, new RankFormatter() {
+    GAME_MANAGER(
+            99, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -102,10 +125,12 @@ public enum PlayerRank {
         public String leaveMessage() {
             return PlayerRank.PREMIUM.format.leaveMessage();
         }
-    }),
+    }
+    ),
 
     // Administrators
-    MODERATOR(100, new RankFormatter() {
+    MODERATOR(
+            100, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -129,9 +154,11 @@ public enum PlayerRank {
         public String leaveMessage() {
             return null;
         }
-    }),
+    }
+    ),
 
-    ADMIN(101, new RankFormatter() {
+    ADMIN(
+            101, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -160,9 +187,11 @@ public enum PlayerRank {
         public String leaveMessage() {
             return null;
         }
-    }),
+    }
+    ),
 
-    CONSOLE(102, new RankFormatter() {
+    CONSOLE(
+            102, new RankFormatter() {
         @Nonnull
         @Override
         public String prefix() {
@@ -174,7 +203,8 @@ public enum PlayerRank {
         public Color nameColor() {
             return Color.DARK_RED;
         }
-    }),
+    }
+    ),
 
     ;
 

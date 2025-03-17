@@ -11,7 +11,6 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -215,7 +214,7 @@ public class Alchemist extends Hero implements UIComplexComponent, PlayerDataHan
 
         final DamageCause cause = ev.getCause();
 
-        if (!cause.hasFlag(DamageFlag.MELEE)) {
+        if (!cause.isDirectDamage()) {
             return;
         }
 

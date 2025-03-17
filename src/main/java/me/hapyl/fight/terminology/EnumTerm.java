@@ -10,26 +10,44 @@ import java.util.List;
 public enum EnumTerm {
 
     TRUE_DAMAGE(Term.builder()
-            .setName("True Damage")
-            .setShortDescription("""
-                    True damage ignores all external modifications.
-                    """)
-            .setDescription("""
-                    True damage ignored all external modifications, such as %s, %s, etc.
-                    """.formatted(AttributeType.ATTACK, AttributeType.DEFENSE))
-            .build()),
+                    .setName("True Damage")
+                    .setShortDescription("""
+                            Ignores defense.
+                            """)
+                    .setDescription("""
+                            Ignores victim's %s, while still being affected by damager's %s.
+                            
+                            Cannot crit.
+                            """.formatted(AttributeType.DEFENSE, AttributeType.ATTACK))
+                    .build()),
+
+    ABSOLUTE_DAMAGE(
+            Term.builder()
+                .setName("Absolute Damage")
+                .setShortDescription("""
+                        Ignores any external modifications.
+                        """)
+                .setDescription("""
+                        Ignores any attributes of either the victim or the damager.
+                        
+                        What you see is what you get.
+                        
+                        Cannot crit.
+                        """)
+                .build()
+    ),
 
     PIERCING_DAMAGE(new TermPiercingDamage()),
 
     BASE_CHANCE(Term.builder()
-            .setName("Base Chance")
-            .setShortDescription("""
-                    Base chance can be increased in internal or external way.
-                    """)
-            .setDescription("""
-                    Unlike fixed chance, base chance can be increased in variety of ways.
-                    """)
-            .build()),
+                    .setName("Base Chance")
+                    .setShortDescription("""
+                            Base chance can be increased in internal or external way.
+                            """)
+                    .setDescription("""
+                            Unlike fixed chance, base chance can be increased in a variety of ways.
+                            """)
+                    .build()),
 
     BLOOD_DEBT(
             Term.builder()

@@ -11,6 +11,7 @@ public enum RewardResource {
 
     COINS(Currency.COINS),
     RUBY(Currency.RUBIES),
+
     EXPERIENCE {
         @Override
         public void increment(@Nonnull Player player, long value) {
@@ -39,7 +40,11 @@ public enum RewardResource {
         public String format(long value) {
             return "&9%,d Experience".formatted(value);
         }
-    };
+    },
+
+    THE_EYE_TOKEN(Currency.EYE_TOKEN),
+
+    ;
 
     private final Currency currency;
 

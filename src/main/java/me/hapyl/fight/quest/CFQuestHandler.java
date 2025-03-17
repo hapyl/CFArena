@@ -16,8 +16,8 @@ public final class CFQuestHandler extends QuestHandler {
         super(plugin);
 
         // Register quests
-        Registries.getNPCs().THE_EYE.registerQuests(this);
-        Registries.getNPCs().STORE_OWNER.registerQuests(this);
+        Registries.npcs().THE_EYE.registerQuests(this);
+        Registries.npcs().STORE_OWNER.registerQuests(this);
     }
 
     @Override

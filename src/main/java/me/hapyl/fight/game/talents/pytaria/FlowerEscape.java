@@ -7,9 +7,9 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -28,18 +28,18 @@ public class FlowerEscape extends Talent {
 
     @DisplayField(suffix = "blocks") private final double flowerRadius = 2.5d;
     @DisplayField private final double flowerDamage = 5.0d;
+    @DisplayField private final double explodeDamageIncrease = 2.0d;
     @DisplayField private final int pulsePeriod = 20;
 
     public FlowerEscape(@Nonnull Key key) {
         super(key, "Flower Escape");
 
         setDescription("""
-                Throw a deadly flower at your current location and dash backwards.
+                Throw a &cdeadly&7 &dflower&7 at your current location and &bdash&7 backwards.
                 
-                The flower will continuously pulse and deal damage to nearby players.
-                
-                After the duration is over, it will explode dealing &bdouble&7 the damage.
-                """
+                The &dflower&7 continuously pulses and deals %s to nearby &cenemies&7.
+                &8&o;;After the duration ends, it explodes dealing x%.0f the original damage.
+                """.formatted(EnumTerm.ABSOLUTE_DAMAGE, explodeDamageIncrease)
         );
 
         setItem(Material.RED_TULIP);
@@ -56,8 +56,8 @@ public class FlowerEscape extends Talent {
         location.setYaw(0.0f);
         location.setPitch(0.0f);
 
-        final double snapshotDamage = HeroRegistry.PYTARIA.calculateDamage(player, flowerDamage, DamageCause.FLOWER);
         final DisplayEntity entity = display.spawnInterpolated(location);
+        final double snapShotDamage = player.getAttributes().calculateOutgoingDamage(flowerDamage, DamageCause.FLOWER);
 
         new TimedGameTask(getDuration()) {
             @Override
@@ -84,11 +84,11 @@ public class FlowerEscape extends Talent {
 
             private void damage(boolean lastTick) {
                 Collect.nearbyEntities(location, flowerRadius).forEach(entity -> {
-                    if (entity.equals(player)) {
+                    if (player.isSelfOrTeammate(entity)) {
                         return;
                     }
 
-                    entity.damage(lastTick ? snapshotDamage * 2 : snapshotDamage, player, DamageCause.FLOWER);
+                    entity.damageNoKnockback(lastTick ? snapShotDamage * explodeDamageIncrease : snapShotDamage, player, DamageCause.FLOWER);
                 });
 
                 // Fx

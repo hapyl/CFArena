@@ -11,7 +11,6 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -40,7 +39,6 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
@@ -122,7 +120,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
         final GamePlayer player = instance.getDamagerAsPlayer();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || !instance.isMeleeAttack()) {
+        if (player == null || !instance.isDirectDamage()) {
             return;
         }
 
@@ -174,7 +172,7 @@ public class Harbinger extends Hero implements Listener, UIComponent, PlayerData
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
     }
 
     @Override

@@ -19,7 +19,7 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
 
     private final Size size;
 
-    public StyledGUI(Player player, String name, Size size) {
+    public StyledGUI(@Nonnull Player player, @Nonnull String name, @Nonnull Size size) {
         super(player, name, size.size);
 
         this.size = size;

@@ -178,7 +178,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         NYX = register("nyx", Nyx::new);
         GUNNER = register("gunner", Gunner::new);
         ECHO = register("echo", Echo::new);
-        HIMARI = register("himari",Himari::new);
+        HIMARI = register("himari", Himari::new);
         WARDEN = register("warden", Warden::new);
         INFERNO = register("inferno", Inferno::new);
 
@@ -223,7 +223,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
 
     @Nonnull
     public static List<Hero> playable() {
-        return CF.environment().allowDisabledHeroes.isEnabled() ? values() :  new ArrayList<>(playable);
+        return CF.environment().allowDisabledHeroes.isEnabled() ? values() : new ArrayList<>(playable);
     }
 
     @Nonnull

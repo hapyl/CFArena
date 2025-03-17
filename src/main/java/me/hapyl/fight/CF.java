@@ -15,6 +15,7 @@ import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.commission.CommissionOverlayEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.quest.CFQuestHandler;
@@ -24,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Husk;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -170,6 +173,11 @@ public final class CF {
     @Nonnull
     public static <T extends LivingEntity> LivingGameEntity createEntity(@Nonnull Location location, @Nonnull Entities<T> type) {
         return createEntity(location, type, LivingGameEntity::new);
+    }
+
+    @Nonnull
+    public static CommissionOverlayEntity createOverlayEntity(@Nonnull Location location, @Nonnull BiFunction<Location, Husk, CommissionOverlayEntity> fn) {
+        return Manager.current().createOverlayEntity(location, fn);
     }
 
     /**

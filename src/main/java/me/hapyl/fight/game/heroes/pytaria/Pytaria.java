@@ -1,12 +1,15 @@
 package me.hapyl.fight.game.heroes.pytaria;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.HeroAttributes;
+import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -17,9 +20,10 @@ import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.pytaria.ExcellencyPassive;
 import me.hapyl.fight.game.talents.pytaria.FlowerBreeze;
+import me.hapyl.fight.game.talents.pytaria.FlowerEscape;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.Collect;
@@ -34,14 +38,6 @@ import javax.annotation.Nonnull;
 
 public class Pytaria extends Hero {
 
-    private final double maxAttack = 1.2d;
-    private final double maxCritChance = 0.8d;
-    private final double minDefense = 0.3d;
-
-    private final double attackScale;
-    private final double critChanceScale;
-    private final double defenseScale;
-
     public Pytaria(@Nonnull Key key) {
         super(key, "Pytaria");
 
@@ -49,8 +45,11 @@ public class Pytaria extends Hero {
         profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_BUFF, Archetype.SELF_SUSTAIN);
         profile.setGender(Gender.FEMALE);
 
-        setDescription(
-                "Beautiful, yet deadly opponent with addiction to flowers. She suffered all her youth, which, in the end, only made her stronger."
+        setDescription("""
+                Beautiful, yet deadly opponent with addiction to flowers.
+                
+                She suffered all her youth, which, in the end, only made her stronger.
+                """
         );
         setItem("7bb0752f9fa87a693c2d0d9f29549375feb6f76952da90d68820e7900083f801");
 
@@ -61,14 +60,10 @@ public class Pytaria extends Hero {
         attributes.setCritDamage(50);
         attributes.setHeight(170);
 
-        this.attackScale = maxAttack - attributes.get(AttributeType.ATTACK);
-        this.critChanceScale = maxCritChance - attributes.get(AttributeType.CRIT_CHANCE);
-        this.defenseScale = attributes.get(AttributeType.DEFENSE) - minDefense;
-
         setWeapon(Weapon.builder(Material.ALLIUM, Key.ofString("annihilallium"))
-                .name("Annihilallium")
-                .description("A beautiful flower, nothing more.")
-                .damage(8.0)
+                        .name("Annihilallium")
+                        .description("A beautiful flower, nothing more.")
+                        .damage(8.0)
         );
 
         final HeroEquipment equipment = getEquipment();
@@ -99,27 +94,29 @@ public class Pytaria extends Hero {
 
     public void recalculateStats(@Nonnull GamePlayer gamePlayer) {
         final EntityAttributes attributes = gamePlayer.getAttributes();
+        final ExcellencyPassive passive = getPassiveTalent();
 
         final double maxHealth = gamePlayer.getMaxHealth();
         final double health = gamePlayer.getHealth();
-        final double factor = 1 - (health / maxHealth);
+        final double factor = 1 - health / maxHealth;
 
-        attributes.reset(AttributeType.CRIT_CHANCE);
-        attributes.reset(AttributeType.ATTACK);
-        attributes.reset(AttributeType.DEFENSE);
+        final double attack = attributes.getWithoutTempers(AttributeType.ATTACK);
+        final double critChance = attributes.getWithoutTempers(AttributeType.CRIT_CHANCE);
+        final double defense = attributes.getWithoutTempers(AttributeType.DEFENSE);
 
-        attributes.addSilent(AttributeType.ATTACK, factor * attackScale);
-        attributes.addSilent(AttributeType.CRIT_CHANCE, factor * critChanceScale);
-        attributes.subtractSilent(AttributeType.DEFENSE, factor * defenseScale);
-    }
+        final double attackIncrease = factor * passive.maxAttackIncrease;
+        final double critChanceIncrease = factor * passive.maxCritChanceIncrease;
+        final double defenseDecrease = factor * passive.maxDefenseDecrease;
 
-    // This is needed for "snapshot" damage.
-    public double calculateDamage(@Nonnull GamePlayer player, double damage, @Nonnull DamageCause cause) {
-        return player.getAttributes().calculateOutgoingDamage(damage);
+        Temper.EXCELLENCY.newInstance()
+                         .increase(AttributeType.ATTACK, attack * attackIncrease)
+                         .increase(AttributeType.CRIT_CHANCE, critChance * critChanceIncrease)
+                         .decrease(AttributeType.DEFENSE, defense * defenseDecrease)
+                         .temper(gamePlayer, Constants.INFINITE_DURATION);
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public FlowerEscape getFirstTalent() {
         return TalentRegistry.FLOWER_ESCAPE;
     }
 
@@ -129,7 +126,7 @@ public class Pytaria extends Hero {
     }
 
     @Override
-    public Talent getPassiveTalent() {
+    public ExcellencyPassive getPassiveTalent() {
         return TalentRegistry.EXCELLENCY;
     }
 
@@ -140,7 +137,6 @@ public class Pytaria extends Hero {
         final World world = bee.getWorld();
         final Vector vector = targetLocation.toVector().subtract(location.toVector()).normalize().multiply(0.5d);
         final double distance = targetLocation.distance(location);
-
 
         for (double i = 0.0D; i < distance; i += 0.5) {
             location.add(vector);
@@ -158,11 +154,12 @@ public class Pytaria extends Hero {
         return location;
     }
 
-    private class PytariaUltimate extends UltimateTalent {
+    public class PytariaUltimate extends UltimateTalent {
 
-        @DisplayField public final short healthRegenPercent = 40;
+        @DisplayField(percentage = true) public final double healthRegenPercent = 0.4d;
+        @DisplayField public final double damage = 25;
 
-        public PytariaUltimate() {
+        private PytariaUltimate() {
             super(Pytaria.this, "Feel the Breeze", 60);
 
             setDescription("""
@@ -172,7 +169,7 @@ public class Pytaria extends Hero {
                     
                     Once charged, the &6Bee&7 creates an explosion at the locked location, dealing damage in small &eAoE&7.
                     
-                    Also regenerates &c{healthRegenPercent}% ❤&7 of &aPytaria's&7 missing health.
+                    Also regenerates &c{healthRegenPercent} ❤&7 of &aPytaria's&7 missing health.
                     """
             );
 
@@ -188,37 +185,42 @@ public class Pytaria extends Hero {
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player) {
             final Location location = player.getLocation();
-            final Vector vector = location.getDirection();
 
-            location.add(vector.setY(0).multiply(5));
+            location.add(location.getDirection().setY(0).multiply(5));
             location.add(0, 7, 0);
 
-            final Bee bee = Entities.BEE.spawn(location, me -> {
-                me.setSilent(true);
-                me.setAI(false);
-            });
+            final Bee bee = Entities.BEE.spawn(
+                    location, me -> {
+                        me.setSilent(true);
+                        me.setAI(false);
+                    }
+            );
 
-            final double finalDamage = calculateDamage(player, 25.0d, DamageCause.FEEL_THE_BREEZE);
             final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
+            final double snapShotDamage = player.getAttributes().calculateOutgoingDamage(damage, DamageCause.FEEL_THE_BREEZE);
 
             player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 
             return builder()
                     .onCastTick(tick -> {
-                        getLockLocation(bee, entity);
+                        getLockLocation(bee, entity); // Keep this for effect!
+
+                        final double y = Math.sin(Math.toRadians(tick * 5)) * 0.2d;
+
+                        LocationHelper.offset(location, 0, y, 0, () -> bee.teleport(location));
                     })
                     .onExecute(() -> {
                         final Location lockLocation = getLockLocation(bee, entity);
                         bee.remove();
 
                         Collect.nearbyEntities(lockLocation, 1.0d).forEach(victim -> {
-                            victim.damage(finalDamage, player, DamageCause.FEEL_THE_BREEZE);
+                            victim.damage(snapShotDamage, player, DamageCause.FEEL_THE_BREEZE);
                         });
 
                         // Heal
                         final double health = player.getHealth();
                         final double maxHealth = player.getMaxHealth();
-                        final double healingAmount = (maxHealth - health) * getUltimate().healthRegenPercent / maxHealth;
+                        final double healingAmount = (maxHealth - health) * healthRegenPercent;
 
                         player.heal(healingAmount);
                         player.sendMessage("&6🐝 &aHealed for &c&l%.0f&c❤&a!".formatted(healingAmount));

@@ -12,7 +12,6 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.SettingsGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
 import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.eye.EyeGUI;
 import me.hapyl.fight.gui.styled.hotbar.HotbarLoadoutGUI;
@@ -45,33 +44,33 @@ public class PlayerProfileGUI extends StyledGUI {
 
         setItem(
                 20,
-                StyledItem.ICON_COSMETICS.asButton("browse cosmetics"),
+                StyledTexture.ICON_COSMETICS.asButton("browse cosmetics"),
                 CollectionGUI::new
         );
 
         setItem(
                 22,
-                StyledItem.ICON_LEVELLING.asButton("open leveling"),
+                StyledTexture.ICON_LEVELLING.asButton("open leveling"),
                 ExperienceGUI::new
         );
 
         setItem(
                 24,
-                StyledItem.ICON_ACHIEVEMENTS.asButton("browse achievements!"),
+                StyledTexture.ICON_ACHIEVEMENTS.asButton("browse achievements!"),
                 AchievementGUI::new
         );
 
         // Settings
         setPanelItem(
                 6,
-                StyledItem.ICON_SETTINGS.asButton("modify settings"),
+                StyledTexture.ICON_SETTINGS.asButton("modify settings"),
                 SettingsGUI::new
         );
 
         // Loadout
         setPanelItem(
                 7,
-                StyledItem.ICON_LOADOUT.asButton("customize hotbar"),
+                StyledTexture.ICON_LOADOUT.asButton("customize hotbar"),
                 HotbarLoadoutGUI::new
         );
 

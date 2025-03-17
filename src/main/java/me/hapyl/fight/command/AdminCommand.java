@@ -9,6 +9,7 @@ import me.hapyl.fight.command.extra.Acceptor;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
@@ -106,7 +107,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 }
 
                 CF.getPlayerOptional(player).ifPresentOrElse(gamePlayer -> {
-                    gamePlayer.damage(value, player);
+                    gamePlayer.damage(value, player, DamageCause.COMMAND);
                     sendMessage(player, "&aDealt &l%s&a damage to you!", value);
                 }, () -> {
                     sendMessage(player, "&cCannot find game player instance.");

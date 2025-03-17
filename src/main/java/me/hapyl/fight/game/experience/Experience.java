@@ -22,6 +22,7 @@ import me.hapyl.fight.game.reward.HeroUnlockReward;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.game.reward.RewardResource;
 import me.hapyl.fight.game.reward.StackedReward;
+import me.hapyl.fight.npc.CommissionerNPC;
 import me.hapyl.fight.npc.TheEyeNPC;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.ChatColor;
@@ -169,7 +170,7 @@ public final class Experience extends DependencyInjector<Main> implements Listen
         }
 
         // Fix achievement
-        Registries.getAchievements().LEVEL_TIERED.setCompleteCount(player, (int) toLevel);
+        Registries.achievements().LEVEL_TIERED.setCompleteCount(player, (int) toLevel);
 
         // Display reward message and sound
         // Don't display if leveling up to level 1
@@ -396,7 +397,7 @@ public final class Experience extends DependencyInjector<Main> implements Listen
 
         // Manual rewards
         // Keep manual rewards last for consistency
-        final CosmeticRegistry cosmetics = Registries.getCosmetics();
+        final CosmeticRegistry cosmetics = Registries.cosmetics();
 
         addReward(1, levelReward(1).withCosmetic(cosmetics.PEACE));
         addReward(2, levelReward(2).withCosmetic(cosmetics.EMERALD_EXPLOSION));
@@ -405,6 +406,14 @@ public final class Experience extends DependencyInjector<Main> implements Listen
                 5, Reward.of(
                         Key.ofString("the_eye_remote_communication"), "The Eye Remote Communication", player -> {
                             MetadataEntry.set(player, TheEyeNPC.HAS_UNLOCKED_REMOTE_GUI, true);
+                        }
+                )
+        );
+
+        addReward(
+                10, Reward.of(
+                        Key.ofString("commission_access"), "Access to &cCommissions", player -> {
+                            CommissionerNPC.HAS_UNLOCKED_COMMISSIONS.set(player, true);
                         }
                 )
         );

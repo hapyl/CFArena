@@ -17,9 +17,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class Display {
+
+    private static final Location ZERO = BukkitUtils.defLocation(0, 64, 0);
 
     private final Player player;
     private final Location location;
@@ -136,4 +139,14 @@ public class Display {
         return list;
     }
 
+    @Nonnull
+    public Location getPlayerLocationOrZero() {
+        return player != null ? player.getLocation() : ZERO;
+    }
+
+    public void offset(double x, double y, double z, @Nonnull Consumer<Location> consumer) {
+        location.add(x, y, z);
+        consumer.accept(location);
+        location.subtract(x, y, z);
+    }
 }

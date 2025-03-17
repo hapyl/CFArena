@@ -1,16 +1,11 @@
 package me.hapyl.fight.game.damage;
 
+import me.hapyl.fight.terminology.EnumTerm;
+
 /**
  * Represents a flag that {@link DamageCause} can have.
  */
 public enum DamageFlag {
-
-    /**
-     * Is this {@link DamageCause} supposed to be a projectile.
-     * <p>
-     * Projectile kills display the distance of the shot.
-     */
-    PROJECTILE,
 
     /**
      * Can this {@link DamageCause} crit.
@@ -22,9 +17,16 @@ public enum DamageFlag {
     /**
      * Is this {@link DamageCause} a true damage.
      * <p>
-     * True damage is not affected by attributes.
+     * {@link EnumTerm#TRUE_DAMAGE}
      */
     TRUE_DAMAGE,
+
+    /**
+     * Is this {@link DamageCause} an absolute damage.
+     * <p>
+     * {@link EnumTerm#ABSOLUTE_DAMAGE}
+     */
+    ABSOLUTE_DAMAGE,
 
     /**
      * Is this {@link DamageCause} a piercing damage.
@@ -36,23 +38,11 @@ public enum DamageFlag {
     /**
      * Is this {@link DamageCause} ignores damage ticks and does not apply attack cooldown.
      */
-    BYPASS_COOLDOWN,
-
-    /**
-     * Is this {@link DamageCause} an environment damage.
-     * <br>
-     * Environment damage
-     */
-    ENVIRONMENT,
+    IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN,
 
     /**
      * Whether this {@link DamageCause} can kill.
      */
     CAN_KILL,
-
-    /**
-     * Whether this {@link DamageCause} should be considered a 'melee' hit.
-     */
-    MELEE,
 
 }

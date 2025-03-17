@@ -32,11 +32,12 @@ public class PlayerSkinPreview extends TickingGameTask {
     protected HumanNPC npc;
     private double rotation = 0;
 
-    public PlayerSkinPreview(@Nonnull Player player, Hero hero, Skin skin) {
+    public PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Skin skin) {
         this(
                 player,
+                // Null skin means it's the hero's default skin
                 skin == null ? hero : skin.getHero(),
-                skin == null ? (EnumSetting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
+                getProperEquipment(player, hero, skin)
         );
     }
 
@@ -56,10 +57,10 @@ public class PlayerSkinPreview extends TickingGameTask {
         location.add(0.0d, 0.05d, 0.0d);
 
         final Vector directionTowardsPlayer = player.getLocation()
-                .toVector()
-                .normalize()
-                .setY(0)
-                .subtract(location.toVector().normalize().setY(0));
+                                                    .toVector()
+                                                    .normalize()
+                                                    .setY(0)
+                                                    .subtract(location.toVector().normalize().setY(0));
         location.setDirection(directionTowardsPlayer);
 
         if (!location.getBlock().isEmpty()) {
@@ -111,6 +112,18 @@ public class PlayerSkinPreview extends TickingGameTask {
         npc.teleport(location);
 
         rotation += ROTATION_PER_TICK;
+    }
+
+    private static HeroEquipment getProperEquipment(Player player, Hero hero, Skin skin) {
+        final boolean useSkinsInsteadOfArmorEnabled = EnumSetting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player);
+        final HeroEquipment equipment = skin != null ? skin.getEquipment() : hero.getEquipment();
+
+        // If the hero has a skin and setting enabled = return null
+        if (hero.getSkin() != null && useSkinsInsteadOfArmorEnabled) {
+            return null;
+        }
+
+        return equipment;
     }
 
 }

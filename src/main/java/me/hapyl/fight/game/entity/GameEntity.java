@@ -8,6 +8,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
+import me.hapyl.fight.annotate.IfOverridingMethodsDoNotInvokeSuperTheyMustInvoke;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.team.Entry;
@@ -27,6 +28,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -103,11 +105,6 @@ public class GameEntity {
 
     @Nonnull
     public String getName() {
-        return entity.getName();
-    }
-
-    @Nonnull
-    public String getNameUnformatted() {
         return entity.getName();
     }
 
@@ -232,8 +229,29 @@ public class GameEntity {
         entity.setFireTicks(tick);
     }
 
-    public void kill() {
-        entity.remove();
+    /**
+     * Removes this entity from the world.
+     *
+     * @param playDeathAnimation - Whether the death animation of falling on the side should be played.
+     */
+    @OverridingMethodsMustInvokeSuper
+    @IfOverridingMethodsDoNotInvokeSuperTheyMustInvoke({ "onRemove()" })
+    public void remove(boolean playDeathAnimation) {
+        if (playDeathAnimation) {
+            entity.setHealth(0.0d);
+        }
+        else {
+            entity.remove();
+        }
+
+        onRemove();
+    }
+
+    /**
+     * Removes this entity from the world without death animation.
+     */
+    public final void remove() {
+        this.remove(false);
     }
 
     /**
@@ -246,7 +264,7 @@ public class GameEntity {
         }
 
         entity.remove();
-        kill();
+        onRemove();
     }
 
     @EventLike
@@ -258,9 +276,20 @@ public class GameEntity {
         forceRemove();
     }
 
+    /**
+     * Called whenever the entity health reached {@code 0} and it dies.
+     */
     @EventLike
+    @OverridingMethodsMustInvokeSuper
     public void onDeath() {
-        kill();
+        remove(true); // Do play the death animation actually
+    }
+
+    /**
+     * Called whenever the entity is <b>removed</b> from the world.
+     */
+    @EventLike
+    public void onRemove() {
     }
 
     public <T extends Entity> void as(@Nonnull Class<T> clazz, @Nonnull Consumer<T> consumer) {
@@ -361,20 +390,20 @@ public class GameEntity {
         return this.entity.getCustomName();
     }
 
+    public void setCustomName(@Nullable String name) {
+        this.entity.setCustomName(name);
+    }
+
     @Nonnull
     public String getNameWithTeamColor() {
         final GameTeam team = getTeam();
 
-        return (team != null ? team.getColor() : "") + getNameUnformatted();
+        return (team != null ? team.getColor() : "") + getName();
     }
 
     @Nullable
     public GameTeam getTeam() {
         return GameTeam.getEntryTeam(getEntry());
-    }
-
-    public void setCustomName(@Nullable String name) {
-        this.entity.setCustomName(name);
     }
 
     public void flip() {

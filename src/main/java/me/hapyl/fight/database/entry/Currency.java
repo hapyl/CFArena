@@ -14,10 +14,10 @@ import javax.annotation.Nonnull;
 
 public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
 
-    COINS(new Color("#FFD700"), "\uD83D\uDC08", "Catcoins") {
+    COINS(new Color("#FFD700"), "⛂", "Catcoins") {
         @Override
         public void onIncrease(Player player, long value) {
-            Registries.getAchievements().GAIN_COINS.addCompleteCount(player, (int) value);
+            Registries.achievements().GAIN_COINS.addCompleteCount(player, (int) value);
         }
     },
     RUBIES(new Color("#9B111E"), "💎", "Rubies"),
@@ -25,6 +25,8 @@ public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
      * @deprecated Crates are being discontinued
      */
     @Deprecated CHEST_DUST(new Color("#964B00"), "📦", "Dust"),
+
+    EYE_TOKEN(Color.EYE, "&l👁", "The Eye Tokens"),
 
     ;
 

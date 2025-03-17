@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class WyvernHeartSpell extends MageSpell {
 
-    @DisplayField(suffix = "❤") private final double healingAmount = 50.0d;
+    @DisplayField(scaleFactor = 100, suffix = "% of Max Health") private final double healingAmount = 0.5d;
     @DisplayField(scaleFactor = 100) private final double attackDecrease = 0.98d;
 
     public WyvernHeartSpell() {
@@ -32,6 +32,6 @@ public class WyvernHeartSpell extends MageSpell {
 
         player.addEffect(EffectType.SPEED, 2, duration);
         player.getAttributes().decreaseTemporary(Temper.WYVERN_HEART, AttributeType.ATTACK, attackDecrease, duration);
-        player.heal(healingAmount);
+        player.healRelativeToMaxHealth(healingAmount);
     }
 }

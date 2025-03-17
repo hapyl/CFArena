@@ -51,7 +51,7 @@ public record DeathMessage(@Nonnull String message, @Nonnull String damagerSuffi
         builder.append(DEFAULT_COLOR).append(".");
 
         // If the shot was projectile, and it was from far away, add flex distance
-        if (player.getLastDamageCause().hasFlag(DamageFlag.PROJECTILE) && distance >= PROJECTILE_DISTANCE_THRESHOLD) {
+        if (player.getLastDamageCause().type() == DamageType.DIRECT_RANGE && distance >= PROJECTILE_DISTANCE_THRESHOLD) {
             builder.append(" &7(from %.1f blocks away!)".formatted(distance));
         }
 
@@ -72,7 +72,7 @@ public record DeathMessage(@Nonnull String message, @Nonnull String damagerSuffi
             final ProjectileSource shooter = projectile.getShooter();
 
             if (shooter instanceof LivingEntity livingShooter) {
-                return livingShooter.getName() + "'s " + gameEntity.getNameUnformatted();
+                return livingShooter.getName() + "'s " + gameEntity.getNameWithTeamColor();
             }
         }
 

@@ -10,15 +10,14 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.EffectType;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.juju.ArrowShield;
 import me.hapyl.fight.game.talents.juju.TricksOfTheJungle;
 import me.hapyl.fight.game.task.GameTask;
@@ -36,7 +35,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -66,7 +64,9 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
         setMinimumLevel(5);
 
-        setDescription("A bandit from the depths of the jungle. Highly skilled in range combat.");
+        setDescription("""
+                A bandit from the depths of the jungle. Highly skilled in range combat.
+                """);
         setItem("9dcff46588f394987979b7dd770adea94d8ee1fb1f7b8704e1baf91227f6a4d");
 
         final HeroEquipment equipment = getEquipment();
@@ -206,7 +206,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
     }
 
     @Nullable

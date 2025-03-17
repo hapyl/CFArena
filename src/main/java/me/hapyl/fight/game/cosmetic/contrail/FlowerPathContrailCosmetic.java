@@ -44,7 +44,7 @@ public class FlowerPathContrailCosmetic extends BlockContrailCosmetic {
     }
 
     @Override
-    public void onMove(@Nonnull Display display) {
+    public void onMove(@Nonnull Display display, int tick) {
         final Location location = display.getLocation();
         final Player player = display.getPlayer();
         final Block block = location.getBlock();

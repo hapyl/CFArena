@@ -20,6 +20,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -131,6 +132,16 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
         if (entry.isPlayer()) {
             playerCount--;
         }
+    }
+
+    @ApiStatus.Internal
+    @Deprecated
+    public void addPlayerForce(@Nonnull GamePlayer player) {
+        members.add(player.getEntry());
+    }
+
+    public void empty() {
+        members.clear();
     }
 
     public boolean isEntry(@Nonnull Entry entry) {

@@ -11,10 +11,10 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -39,6 +39,10 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.TALENT_DAMAGE);
         profile.setGender(Gender.MALE);
 
+        setDescription("""
+                A samurai.
+                """);
+
         setItem("267bf069fefb40be22724b02e6c4fbe2133ef5e112bc551a4f0042ea99dcf6a2");
 
         final HeroEquipment equipment = getEquipment();
@@ -61,7 +65,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         final LivingGameEntity damager = instance.getDamager();
         final LivingGameEntity entity = instance.getEntity();
 
-        if (!(damager instanceof GamePlayer player) || !validatePlayer(player) || !instance.isMeleeAttack()) {
+        if (!(damager instanceof GamePlayer player) || !validatePlayer(player) || !instance.isDirectDamage()) {
             return;
         }
 
@@ -101,9 +105,9 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         @DisplayField private final double critDamageIncrease = 40;
 
         private final TemperInstance temperInstance = Temper.RONIN.newInstance("&4&lﾒ &cHakariki")
-                .increaseScaled(AttributeType.SPEED, speedIncrease)
-                .increaseScaled(AttributeType.CRIT_CHANCE, critChanceIncrease)
-                .increaseScaled(AttributeType.CRIT_DAMAGE, critDamageIncrease);
+                                                                  .increaseScaled(AttributeType.SPEED, speedIncrease)
+                                                                  .increaseScaled(AttributeType.CRIT_CHANCE, critChanceIncrease)
+                                                                  .increaseScaled(AttributeType.CRIT_DAMAGE, critDamageIncrease);
 
         private final BlockData particleData = Material.NETHER_WART_BLOCK.createBlockData();
 

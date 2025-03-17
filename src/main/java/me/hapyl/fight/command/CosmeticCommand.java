@@ -25,7 +25,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
     @Override
     protected List<String> tabComplete(CommandSender sender, String[] args) {
         if ((args.length >= 1 && args[0].equalsIgnoreCase("play")) || args.length == 3) {
-            return completerSort(Registries.getCosmetics().keys(), args);
+            return completerSort(Registries.cosmetics().keys(), args);
         }
 
         return null;
@@ -43,7 +43,7 @@ public class CosmeticCommand extends SimplePlayerCommand {
             return;
         }
 
-        final CosmeticRegistry registry = Registries.getCosmetics();
+        final CosmeticRegistry registry = Registries.cosmetics();
 
         if (args.length == 2) {
             switch (args[0].toLowerCase()) {

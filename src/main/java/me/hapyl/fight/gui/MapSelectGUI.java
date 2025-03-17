@@ -6,7 +6,7 @@ import me.hapyl.fight.game.maps.HiddenLevelFeature;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,7 +22,7 @@ public class MapSelectGUI extends GameManagementSubGUI<EnumLevel> {
     @Nonnull
     @Override
     public ItemStack getHeaderItem() {
-        return StyledItem.ICON_MAP_SELECT.asIcon();
+        return StyledTexture.ICON_MAP_SELECT.asIcon();
     }
 
     @Nonnull

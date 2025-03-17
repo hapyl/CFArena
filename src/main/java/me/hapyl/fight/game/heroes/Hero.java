@@ -35,10 +35,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.story.HeroStory;
-import me.hapyl.fight.util.Catchers;
-import me.hapyl.fight.util.Formatted;
-import me.hapyl.fight.util.NullSafeList;
-import me.hapyl.fight.util.SingletonBehaviour;
+import me.hapyl.fight.util.*;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import me.hapyl.fight.util.strict.StrictPackage;
 import org.bukkit.Material;
@@ -302,7 +299,8 @@ public abstract class Hero
      *
      * @param about - New description.
      */
-    public void setDescription(String about) {
+    public void setDescription(@Nonnull String about) {
+        Catchers.catchNoColor(about);
         this.description = about;
     }
 

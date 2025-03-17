@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.nightmare;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -32,10 +33,10 @@ public class ShadowShift extends Talent implements Listener {
         super(key, "Shadow Shift");
 
         setDescription("""
-                Instantly teleport behind your target entity to scare them from behind, applying &cOmen&7.
+                Instantly &bteleport&7 behind your target &eenemy&7 to scare them from behind, applying %s.
                 
-                You will lose the ability to move for a short duration.
-                """
+                &8&o;;You will lose the ability to move for a short duration.
+                """.formatted(Named.OMEN)
         );
 
         setType(TalentType.IMPAIR);

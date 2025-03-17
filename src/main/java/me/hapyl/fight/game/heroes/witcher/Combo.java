@@ -38,7 +38,7 @@ public class Combo {
 
 		// Achievement
 		if (combo >= 16) {
-			Registries.getAchievements().WITCHER_COMBO.complete(player);
+			Registries.achievements().WITCHER_COMBO.complete(player);
 		}
 	}
 

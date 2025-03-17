@@ -35,8 +35,9 @@ public class TransmissionBeacon extends Talent implements Listener {
         super(key, "Transmission Beacon");
 
         setDescription("""
-                Place the beacon somewhere hidden from your opponents.
-                Use your &bultimate&7 to instantly teleport to its location and collect it.
+                Place a transmission beacon somewhere hidden from your opponents.
+                
+                Use your &bultimate&7 to instantly &bteleport&7 to its location and collect it.
                 
                 &c&l;;The beacon can be destroyed!
                 """
@@ -70,7 +71,7 @@ public class TransmissionBeacon extends Talent implements Listener {
             @Override
             public void run(int tick) {
                 // Tick beacons
-                beaconLocation.forEach((owner, beacon) -> {
+                beaconLocation.forEach((player, beacon) -> {
                     final Location location = beacon.getLocation();
                     final World world = location.getWorld();
 
@@ -93,10 +94,10 @@ public class TransmissionBeacon extends Talent implements Listener {
                         world.playSound(location, Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.0f);
                     }
 
-                    PlayerLib.spawnParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
-                    PlayerLib.spawnParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-                    PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-                    PlayerLib.spawnParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f);
+                    player.spawnWorldParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
+                    player.spawnWorldParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+                    player.spawnWorldParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+                    player.spawnWorldParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f);
                 });
             }
         }.runTaskTimer(0, 1);

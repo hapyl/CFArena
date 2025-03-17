@@ -42,7 +42,7 @@ public class Mage extends Hero implements UIComponent {
         profile.setGender(Gender.MALE);
 
         setDescription("""
-                Necromancer with the ability to absorb soul fragments upon hitting his foes to use them as fuel for his &e&l&oSoul Eater&8&o.
+                Necromancer with the ability to absorb soul to use them as fuel for his Soul Eater.
                 """);
 
         setItem("f41e6e4bcd2667bb284fb0dde361894840ea782efbfb717f6244e06b951c2b3f");

@@ -60,7 +60,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
         profile.setRace(Race.SHARK);
 
         setDescription("""
-                A strong warrior from the &3&oDepths of Waters&8&o.
+                A strong warrior from the Depths of Waters.
                 """);
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
@@ -141,7 +141,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
 
-        if (player == null || !instance.isMeleeAttack()) {
+        if (player == null || !instance.isDirectDamage()) {
             return;
         }
 

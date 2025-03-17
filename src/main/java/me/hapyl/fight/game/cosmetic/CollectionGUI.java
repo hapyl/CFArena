@@ -10,7 +10,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public class CollectionGUI extends StyledGUI {
         final CosmeticEntry cosmetics = CF.getDatabase(getPlayer()).cosmeticEntry;
         final SmartComponent component = newSmartComponent();
 
-        setHeader(StyledItem.ICON_COSMETICS.asIcon());
+        setHeader(StyledTexture.ICON_COSMETICS.asIcon());
 
         for (Type type : Type.values()) {
             final String name = type.getName();

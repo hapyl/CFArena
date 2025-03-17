@@ -103,7 +103,7 @@ public class Tamer extends Hero implements Listener, UIComponent {
             return;
         }
 
-        Registries.getAchievements().TAMER_FISHING_TIME.complete(player);
+        Registries.achievements().TAMER_FISHING_TIME.complete(player);
     }
 
     @EventHandler()

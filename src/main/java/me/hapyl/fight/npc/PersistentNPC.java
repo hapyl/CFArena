@@ -62,12 +62,14 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
         }
 
         // Delegate task
-        DelegateTask.delegate(this, new PersistentTask() {
-            @Override
-            public void run() {
-                PersistentNPC.this.tick();
-            }
-        }.runTaskTimer(0, 20));
+        DelegateTask.delegate(
+                this, new PersistentTask() {
+                    @Override
+                    public void run() {
+                        PersistentNPC.this.tick();
+                    }
+                }.runTaskTimer(0, 1)
+        );
     }
 
     @Override
@@ -115,14 +117,17 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
     public void tick() {
         ++tick;
 
-        // This will update NPC name
-        setBelowHead(player -> {
-            if (!hasName()) {
-                return StringArray.empty();
-            }
+        // Update the name once a second
+        if (tick % 20 == 0) {
+            // This will update NPC name
+            setBelowHead(player -> {
+                if (!hasName()) {
+                    return StringArray.empty();
+                }
 
-            return StringArray.of(Color.BUTTON.bold() + "CLICK");
-        });
+                return StringArray.of(Color.BUTTON.bold() + "CLICK");
+            });
+        }
     }
 
     @Nonnull

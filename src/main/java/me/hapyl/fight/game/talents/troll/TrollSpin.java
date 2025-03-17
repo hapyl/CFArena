@@ -21,7 +21,7 @@ public class TrollSpin extends Talent {
         super(key, "Spin");
 
         setDescription("""
-                Rotates all nearby opponents head 180 degrees.
+                Rotates all nearby &cenemies&7 heads &b180&7 degrees.
                 """
         );
 

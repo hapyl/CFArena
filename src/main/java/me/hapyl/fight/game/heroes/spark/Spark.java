@@ -6,30 +6,28 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Archetype;
-import me.hapyl.fight.game.heroes.Gender;
-import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.spark.FireGuyPassive;
+import me.hapyl.fight.game.talents.spark.Molotov;
+import me.hapyl.fight.game.talents.spark.SparkFlash;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.game.weapons.range.RangeWeapon;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
-import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
 
-public class Spark extends Hero {
+public class Spark extends Hero implements PlayerDataHandler<SparkData> {
 
-    private final PlayerMap<RunInBackData> markerLocation = PlayerMap.newMap();
-    @DisplayField private final double inWaterDamage = 3d;
+    @DisplayField(percentage = true) private final double inWaterDamage = 0.03d;
+
+    private final PlayerDataMap<SparkData> playerData = PlayerMap.newDataMap(SparkData::new);
 
     public Spark(@Nonnull Key key) {
         super(key, "Spark");
@@ -38,7 +36,9 @@ public class Spark extends Hero {
         profile.setArchetypes(Archetype.RANGE, Archetype.POWERFUL_ULTIMATE, Archetype.SELF_SUSTAIN);
         profile.setGender(Gender.MALE);
 
-        setDescription("Strikes with fire! ...literally.");
+        setDescription("""
+                Strikes with fire! ...literally.
+                """);
         setItem("ade095332720215ca9b85e7eacd1d092b1697fad34d696add94d3b70976702c");
 
         final HeroEquipment equipment = this.getEquipment();
@@ -50,38 +50,10 @@ public class Spark extends Hero {
         setUltimate(new SparkUltimate());
     }
 
-    public void rebirthPlayer(@Nonnull GamePlayer player) {
-        final RunInBackData data = markerLocation.remove(player);
-
-        if (data == null) {
-            return;
-        }
-
-        final double health = data.health();
-
-        player.setVisualFire(false);
-        player.setInvulnerable(true);
-        player.setHealth(health);
-
-        final Location teleportLocation = data.location();
-        teleportLocation.setYaw(player.getYaw());
-        teleportLocation.setPitch(player.getPitch());
-
-        player.teleport(teleportLocation);
-
-        // Reload
-        if (getWeapon() instanceof RangeWeapon rangeWeapon) {
-            rangeWeapon.forceReload(player);
-        }
-
-        // Fx
-        player.addEffect(EffectType.SLOW, 50, 20);
-        player.playWorldSound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 1.5f);
-        player.spawnWorldParticle(Particle.FIREWORK, 50, 0.1d, 0.5d, 0.1d, 0.2f);
-        player.spawnWorldParticle(Particle.LAVA, 10, 0.1d, 0.5d, 0.1d, 0.2f);
-        player.sendTitle("&6🔥", "&eOn Rebirth...", 5, 10, 5);
-
-        GameTask.runLater(() -> player.setInvulnerable(false), 20);
+    @Nonnull
+    @Override
+    public PlayerDataMap<SparkData> getDataMap() {
+        return playerData;
     }
 
     @Override
@@ -95,7 +67,7 @@ public class Spark extends Hero {
 
         // Check for ultimate death
         if (player.isUsingUltimate() && instance.getDamage() >= player.getHealth()) {
-            rebirthPlayer(player);
+            getPlayerData(player).rebirth();
             player.setUsingUltimate(false);
 
             instance.setCancelled(true);
@@ -103,7 +75,7 @@ public class Spark extends Hero {
         }
 
         // Cancel any fire damage
-        if (cause == DamageCause.FIRE || cause == DamageCause.FIRE_TICK || cause == DamageCause.LAVA) {
+        if (cause.isFireDamage()) {
             instance.setCancelled(true);
         }
     }
@@ -129,40 +101,18 @@ public class Spark extends Hero {
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public Molotov getFirstTalent() {
         return TalentRegistry.SPARK_MOLOTOV;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public SparkFlash getSecondTalent() {
         return TalentRegistry.SPARK_FLASH;
     }
 
     @Override
-    public Talent getPassiveTalent() {
+    public FireGuyPassive getPassiveTalent() {
         return TalentRegistry.FIRE_GUY;
-    }
-
-    private RunInBackData getMarker(GamePlayer player) {
-        return markerLocation.get(player);
-    }
-
-    private Location getSafeLocation(Location location) {
-        final World world = location.getWorld();
-
-        if (world == null) {
-            return null;
-        }
-
-        for (int i = 10; i > 0; i--) {
-            if (location.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()) {
-                return location;
-            }
-
-            location.subtract(0, 1, 0);
-        }
-
-        return null;
     }
 
     private class SparkUltimate extends UltimateTalent {
@@ -185,25 +135,22 @@ public class Spark extends Hero {
         @Nonnull
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player) {
-            final Location location = getSafeLocation(player.getLocation());
+            final SparkData data = getPlayerData(player);
 
-            if (location == null) {
-                return error("Location is not safe!");
+            if (data.runItBack != null) {
+                return error("Already running back!");
             }
 
+            final Location location = data.markerLocation();
             final double health = player.getHealth();
+
+            data.runItBack = new RunItBackData(location, health);
 
             return builder()
                     .onExecute(() -> {
-                        markerLocation.put(player, new RunInBackData(player, location, health));
                         player.setVisualFire(true);
                     })
                     .onTick(tick -> {
-                        if (getMarker(player) == null) {
-                            player.setVisualFire(false);
-                            return;
-                        }
-
                         final int percent = tick * 10 / getDuration();
                         player.sendSubtitle("&6🔥".repeat(percent) + "&8🔥".repeat(10 - percent), 0, 10, 0);
 
@@ -214,9 +161,7 @@ public class Spark extends Hero {
                         player.spawnWorldParticle(location, Particle.LANDING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
                         player.spawnWorldParticle(location, Particle.DRIPPING_LAVA, 1, 0.2d, 0.2, 0.2d, 0.05f);
                     })
-                    .onEnd(() -> {
-                        rebirthPlayer(player);
-                    });
+                    .onEnd(data::rebirth);
         }
     }
 }

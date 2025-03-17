@@ -17,7 +17,7 @@ import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.util.ItemStacks;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -166,7 +166,7 @@ public class HeroPreviewGUI extends StyledGUI {
         // Mastery
         setItem(
                 18,
-                StyledItem.ICON_MASTERY
+                StyledTexture.ICON_MASTERY
                         .toBuilder()
                         .addLore()
                         .addLore(entry.makeMasteryHeader(hero))
@@ -177,7 +177,7 @@ public class HeroPreviewGUI extends StyledGUI {
         );
 
         // Story
-        setItem(27, StyledItem.ICON_STORY
+        setItem(27, StyledTexture.ICON_STORY
                 .toBuilder()
                 .addLore()
                 .addLore(Color.ERROR + "Find at least one chapter to unlock!")

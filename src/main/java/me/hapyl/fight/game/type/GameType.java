@@ -4,26 +4,31 @@ import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
 import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.GameResult;
 import me.hapyl.fight.game.GameResultType;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.util.handle.EnumHandle;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
-public abstract class GameType {
+@AutoRegisteredListener
+public abstract class GameType implements PlayerElementHandler, EnumHandle<EnumGameType> {
 
+    private final EnumGameType handle;
     private final String name;
     private final String nameSmallCaps;
     private final int timeLimit; // in seconds
@@ -34,7 +39,8 @@ public abstract class GameType {
     private boolean allowRespawn;
     private int respawnTime;
 
-    public GameType(@Nonnull String name, int timeLimitSec) {
+    public GameType(@Nonnull EnumGameType handle, @Nonnull String name, int timeLimitSec) {
+        this.handle = handle;
         this.name = name;
         this.nameSmallCaps = SmallCaps.format(name);
         this.timeLimit = timeLimitSec;
@@ -42,6 +48,16 @@ public abstract class GameType {
         this.material = Material.BEDROCK;
         this.playerRequirements = 2;
         this.allowRespawn = false;
+
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public EnumGameType getHandle() {
+        return handle;
     }
 
     @Nonnull
@@ -91,9 +107,9 @@ public abstract class GameType {
 
     public boolean isPlayerRequirementsMet() {
         final int readyPlayers = Bukkit.getOnlinePlayers()
-                .stream()
-                .filter(player -> !EnumSetting.SPECTATE.isEnabled(player))
-                .collect(Collectors.toSet()).size();
+                                       .stream()
+                                       .filter(player -> !EnumSetting.SPECTATE.isEnabled(player))
+                                       .collect(Collectors.toSet()).size();
 
         final int populatedTeams = GameTeam.getPopulatedTeams().size();
 
@@ -158,10 +174,12 @@ public abstract class GameType {
         gamePlayer.setSpectator(true);
         Chat.broadcast("&a%s joined the game as a spectator!".formatted(player.getName()));
 
-        GameTask.runLater(() -> {
-            gamePlayer.sendSubtitle("&aYou are currently spectating!", 0, 20, 0);
-            gamePlayer.teleport(instance.getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers());
-        }, 1);
+        GameTask.runLater(
+                () -> {
+                    gamePlayer.sendSubtitle("&aYou are currently spectating!", 0, 20, 0);
+                    gamePlayer.teleport(instance.getRandomPlayerLocationOrMapLocationIfThereAreNoPlayers());
+                }, 1
+        );
     }
 
     public void onStart(@Nonnull GameInstance instance) {
@@ -181,7 +199,6 @@ public abstract class GameType {
         return true;
     }
 
-    @OverridingMethodsMustInvokeSuper
     public void displayWinners(@Nonnull GameResult result) {
         final String gameTime = result.getGameTimeFormatted();
         final GameResultType resultType = result.getResultType();
@@ -225,6 +242,10 @@ public abstract class GameType {
         result.getWinners().forEach(winner -> {
             Chat.broadcastCenterMessage(winner.formatWinnerName());
         });
+    }
+
+    public int getTeamRequirements() {
+        return 2;
     }
 
     protected void titleAll(String title, String subtitle) {

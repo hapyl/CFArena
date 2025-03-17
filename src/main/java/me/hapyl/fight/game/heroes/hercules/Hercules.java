@@ -199,7 +199,7 @@ public class Hercules extends Hero implements Listener, Disabled {
                     player.removeTag("plunging");
                     player.removeEffect(EffectType.JUMP_BOOST);
 
-                    Registries.getCosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
+                    Registries.cosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
 
                     Collect.nearbyEntities(player.getLocation(), 4).forEach(target -> {
                         if (target.equals(player)) {

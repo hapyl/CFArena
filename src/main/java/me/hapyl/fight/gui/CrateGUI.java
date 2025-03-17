@@ -176,8 +176,8 @@ public class CrateGUI extends StyledPageGUI<Crates> {
         setPanelItem(
                 3,
                 StyledTexture.CRATE_CONVERT.toBuilder()
-                        .setName("Crate Conversion")
-                        .addTextBlockLore("""
+                                           .setName("Crate Conversion")
+                                           .addTextBlockLore("""
                                 Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.
                                                   
                                 Spend %2$s&7 to convert and craft crates!
@@ -187,15 +187,15 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                                         dust.getFormatted()
                                 )
                         )
-                        .addLore()
-                        .addLore("You have: %s".formatted(dust.format(
+                                           .addLore()
+                                           .addLore("You have: %s".formatted(dust.format(
                                 format -> {
                                     return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
                                 }
                         )))
-                        .addLore()
-                        .addLore(Color.BUTTON + "Click to convert!")
-                        .asIcon(),
+                                           .addLore()
+                                           .addLore(Color.BUTTON + "Click to convert!")
+                                           .asIcon(),
                 fn -> new CrateConvertGUI(player, location)
         );
 

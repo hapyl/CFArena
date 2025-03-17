@@ -1,0 +1,64 @@
+package me.hapyl.fight.npc;
+
+import me.hapyl.eterna.module.inventory.Equipment;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.reflect.npc.ClickType;
+import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.util.StringRandom;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
+
+public class WorkerNPCMale extends PersistentNPC {
+
+    public WorkerNPCMale(@Nonnull Key key) {
+        super(key, -1.5d, 62.0d, -12.5d, "Worker Joel");
+
+        setSkin(
+                "ewogICJ0aW1lc3RhbXAiIDogMTc0MDkyODMxMTE5NCwKICAicHJvZmlsZUlkIiA6ICI2NDU4Mjc0MjEyNDg0MDY0YTRkMDBlNDdjZWM4ZjcyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaDNtMXMiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWIzMDEzMTVlNWY2OTAzZjgyOGVjYmNkNmRmNTlmNzQ2NDlmOTlkOWNhNDQ0Y2VhZTA0NWM5NTIwMDk5Yjg4ZCIKICAgIH0KICB9Cn0=",
+                "vJ5mquF/L+yCwwehkXzuyBcdkwvHLfe5uRKiJi1VeXYqBmHzGq4i2SOy4SpJy/FPC0z4QxbLG05KgIYXewXeA/qXLRl+ZybH3GfKPtT+m+MumMS3r6GO8RSbJlzO6LfOujpiSyS4G5FMmeAUrcNFpOcvDqzECzfcSCVs6AO+J+svfGB8ghU92EgKP0hCBvhdavTRknZKfehlEryojIaBeQM/3etvNA1wWYcvcJZpGuRB4DZJdSLz7vqpvwLkJ8SmBN7DSBwLmN5RzlIbcglnunS2QKPoGkkUTLrQB0/5+palEKIyADICzE7U6b9OPRQ9DTucxeBTNQZrWjnUlok6XGX2P9MMnRO9riPY2bNtBWTdLijmjVg6Kcqct8RUiA2ugEpGWsXifXs4q5yNTwy4wxLBuWM1BAXLfT0y+Obhw6GHPXVEeG0jKFglE0CkPG8XILJWpVMhz2z1d1tUUw4mVQHUdTgV2Zs2rs6udK1gsQeXBcdIdKe7JLSUFEcG8pYJFzCj7efMM9ZCiqHkw92rQnC3+nFmXFjcmslQ9QB2Yk+Im1KUFlrblEnB9T1lPGxtJiXV5i53nGQl28MfkS4A9IdOHdLymRKnYTZLX6MPVkrKV3wm7xjQ73NAahOp6C7JtwTP2G7//oAIddioQ59XtazQwGKB+1pXud30vuiVEoE="
+        );
+
+        setInteractionDelay(30);
+        setLookAtCloseDist(0);
+
+        setEquipment(
+                Equipment.builder()
+                         .helmet(Material.GOLDEN_HELMET)
+                         .mainHand(ItemBuilder.playerHeadUrl("f620519b74536c1f85b7c7e5e11ce5c059c2ff759cb8df254fc7f9ce781d29").asIcon())
+                         .build()
+        );
+
+        sound = new PersistentNPCSound(0.75f);
+    }
+
+    @Override
+    public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
+        sendNpcMessage(player, StringRandom.of("Work, work, work...", "Just need to move these boxes..."));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Update head pose every 2s
+        if (tick % 40 == 0) {
+            final float newYaw = BukkitUtils.RANDOM.nextFloat(135f, 175f);
+            final float newPitch = BukkitUtils.RANDOM.nextFloat(-15f, 25f);
+
+            setHeadRotation(newYaw, newPitch);
+
+            if (BukkitUtils.RANDOM.nextBoolean()) {
+                swingMainHand();
+            }
+            else {
+                swingOffHand();
+            }
+        }
+
+        setPose(NPCPose.CROUCHING);
+    }
+}

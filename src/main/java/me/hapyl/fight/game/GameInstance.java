@@ -12,6 +12,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.win.WinCosmetic;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.element.ElementCaller;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.MoveType;
 import me.hapyl.fight.game.heroes.Hero;
@@ -38,7 +39,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 
-public class GameInstance extends TickingGameTask implements IGameInstance, Lifecycle {
+public class GameInstance extends TickingGameTask implements IGameInstance, Lifecycle, PlayerElementHandler {
 
     private final String hexCode;
     private final long startedAt;
@@ -127,7 +128,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     }
 
     public void executeWinCosmetic() {
-        Cosmetic cosmetic = Registries.getCosmetics().FIREWORKS;
+        Cosmetic cosmetic = Registries.cosmetics().FIREWORKS;
         Location location = currentMap.getLevel().getLocation();
         Player winner = null;
 
@@ -275,9 +276,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         final Set<GamePlayer> alivePlayers = CF.getAlivePlayers();
 
         if (Manager.current().isDebug()) {
-            alivePlayers.forEach(player -> {
-                player.setEnergy(player.getUltimateCost());
-            });
+            alivePlayers.forEach(player -> player.setEnergy(player.getUltimateCost()));
             return;
         }
 
@@ -295,7 +294,7 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
                 player.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1.0f);
             }
 
-            Registries.getAchievements().AFK.complete(player);
+            Registries.achievements().AFK.complete(player);
         });
 
         if (timeLimitInTicks == -1) {
@@ -326,7 +325,16 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         return currentMap.getLevel();
     }
 
-    private void createGamePlayers() {
+    @Nonnull
+    public GameType currentType() {
+        return mode;
+    }
+
+    public void playStartAnimation() {
+        new TitleAnimation();
+    }
+
+    protected void createGamePlayers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             final PlayerProfile profile = CF.getProfile(player);
             final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;

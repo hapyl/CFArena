@@ -16,7 +16,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Material;
@@ -68,7 +68,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_LOADOUT.asIcon());
+        setHeader(StyledTexture.ICON_LOADOUT.asIcon());
         fillMiddleRow();
 
         setItem(12, getItemBySlot(HotBarSlot.WEAPON));

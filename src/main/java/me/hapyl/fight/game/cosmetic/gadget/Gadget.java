@@ -112,7 +112,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
         }
 
         PlayerLib.setCooldown(player, getKey(), cooldown);
-        Registries.getAchievements().USE_GADGETS.complete(player);
+        Registries.achievements().USE_GADGETS.complete(player);
     }
 
     @Override

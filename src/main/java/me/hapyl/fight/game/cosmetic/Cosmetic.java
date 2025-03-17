@@ -241,7 +241,7 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
 
     @Nonnull
     public static Cosmetic[] getCosmeticsThatCanAppearInStoreAndNotOwnedBy(@Nullable Player player) {
-        final CosmeticRegistry registry = Registries.getCosmetics();
+        final CosmeticRegistry registry = Registries.cosmetics();
 
         final Cosmetic nullCosmetic = getNullCosmetic();
         final Cosmetic[] defaultStoreOffers = { nullCosmetic, nullCosmetic, nullCosmetic, nullCosmetic };
@@ -272,6 +272,6 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
 
     @Nonnull
     public static Cosmetic getNullCosmetic() {
-        return Registries.getCosmetics().NULL_COSMETIC;
+        return Registries.cosmetics().NULL_COSMETIC;
     }
 }

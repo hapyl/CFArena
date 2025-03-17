@@ -12,6 +12,9 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.inferno.DemonSplitTalentQuazii;
+import me.hapyl.fight.game.talents.inferno.DemonSplitTalentTyphoeus;
+import me.hapyl.fight.game.talents.inferno.FirePitTalent;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
@@ -41,7 +44,7 @@ public class Inferno extends Hero implements PlayerDataHandler<InfernoData>, UIC
                 """);
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.DAMAGE, Archetype.SELF_SUSTAIN, Archetype.HEXBANE);
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN, Archetype.HEXBANE);
         profile.setGender(Gender.OTHER);
         profile.setAffiliation(Affiliation.HELL);
         profile.setRace(Race.DEMON);
@@ -55,8 +58,8 @@ public class Inferno extends Hero implements PlayerDataHandler<InfernoData>, UIC
         final HeroEquipment equipment = getEquipment();
         setItem("3ec891e2104626342ded1f8d9a14e2be42b2da0c2c6026f99ac1c6ef9ab2915c");
 
-        equipment.setChestPlate(24, 16, 19, TrimPattern.TIDE, TrimMaterial.GOLD);
-        equipment.setLeggings(76, 35, 22, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
+        equipment.setChestPlate(36, 25, 31, TrimPattern.TIDE, TrimMaterial.RESIN);
+        equipment.setLeggings(36, 25, 31, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setBoots(Material.GOLDEN_BOOTS, TrimPattern.SILENCE, TrimMaterial.GOLD);
 
         setWeapon(new InfernoWeapon());
@@ -121,17 +124,17 @@ public class Inferno extends Hero implements PlayerDataHandler<InfernoData>, UIC
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public DemonSplitTalentQuazii getFirstTalent() {
         return TalentRegistry.DEMON_SPLIT_QUAZII;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public DemonSplitTalentTyphoeus getSecondTalent() {
         return TalentRegistry.DEMON_SPLIT_TYPHOEUS;
     }
 
     @Override
-    public Talent getThirdTalent() {
+    public FirePitTalent getThirdTalent() {
         return TalentRegistry.FIRE_PIT;
     }
 

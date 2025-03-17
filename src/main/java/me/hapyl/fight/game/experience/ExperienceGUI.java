@@ -8,7 +8,7 @@ import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -50,7 +50,7 @@ public class ExperienceGUI extends StyledGUI {
         final long playerLevel = experience.getLevel(player);
         final ExperienceLevel[] feed = experience.getLevelFeed(playerLevel);
 
-        setHeader(StyledItem.ICON_LEVELLING.asIcon());
+        setHeader(StyledTexture.ICON_LEVELLING.asIcon());
 
         Material material = Material.MAGENTA_STAINED_GLASS_PANE;
 

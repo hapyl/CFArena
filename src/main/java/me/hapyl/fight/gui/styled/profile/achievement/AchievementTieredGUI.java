@@ -33,7 +33,7 @@ public class AchievementTieredGUI extends StyledGUI {
     public AchievementTieredGUI(Player player) {
         super(player, "Achievements (Tiered)", Size.FIVE);
 
-        final AchievementRegistry registry = Registries.getAchievements();
+        final AchievementRegistry registry = Registries.achievements();
         page = 1;
 
         achievements = Lists.newLinkedList();

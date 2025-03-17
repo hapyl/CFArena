@@ -41,7 +41,7 @@ public class SlimeParkour extends CFParkour {
     @Nullable
     @Override
     public Response onStart(Player player, Data data) {
-        Registries.getNPCs().UNDEAD_WATCHER.sendNpcMessage(player, "This parkour is way too dangerous!");
+        Registries.npcs().UNDEAD_WATCHER.sendNpcMessage(player, "This parkour is way too dangerous!");
 
         player.teleport(getQuitLocation());
         return Response.CANCEL;

@@ -53,11 +53,11 @@ public class TurbineFeature extends LevelFeature {
                 entity.damage(entity.getHealth() + 100, DamageCause.SHREDS_AND_PIECES);
 
                 // Fx
-                Registries.getCosmetics().BLOOD.onDisplay0(new Display(null, entity.getLocation()));
+                Registries.cosmetics().BLOOD.onDisplay0(new Display(null, entity.getLocation()));
 
                 // Trigger achievement
                 if (entity instanceof Player player) {
-                    Registries.getAchievements().SHREDDING_TIME.complete(player);
+                    Registries.achievements().SHREDDING_TIME.complete(player);
                 }
             });
 

@@ -32,6 +32,8 @@ import me.hapyl.fight.protocol.ArcaneMutePacketHandler;
 import me.hapyl.fight.protocol.DismountPacketHandler;
 import me.hapyl.fight.protocol.MotDPacketHandler;
 import me.hapyl.fight.protocol.PlayerClickAtEntityPacketHandler;
+import me.hapyl.fight.proxy.ServerType;
+import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
@@ -56,7 +58,7 @@ public class Main extends JavaPlugin {
 
     public static final UpdateTopic updateTopic = new UpdateTopic("&cSmells Like Hell!");
 
-    public static final String requireEternaVersion = "4.7.11";
+    public static final String requireEternaVersion = "4.7.17";
     public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete
 
     private static long start;
@@ -79,6 +81,8 @@ public class Main extends JavaPlugin {
     private Store store;
     private CFQuestHandler questHandler;
     private Environment environment;
+
+    private ServerType serverType;
 
     @Override
     public void onEnable() {
@@ -197,6 +201,13 @@ public class Main extends JavaPlugin {
         //new UpdateBlockHackReplacer();
 
         StrictValidator.validateAll(this);
+
+        serverType = ServerType.currentType();
+    }
+
+    @Nonnull
+    public ServerType serverType() {
+        return Objects.requireNonNull(serverType, "Illegal server type!");
     }
 
     @Override
@@ -338,6 +349,7 @@ public class Main extends JavaPlugin {
         return environment;
     }
 
+
     private void registerEvents() {
         CF.registerEvents(List.of(
                 new PlayerHandler(),
@@ -351,6 +363,8 @@ public class Main extends JavaPlugin {
                 new SynchronizedGarbageEntityCollector.Handler(),
                 new FastAccessHandler(),
                 new TrialListener(),
+                new TransferManager(),
+                new EntityHandler(),
 
                 // Packet Listeners
                 new ArcaneMutePacketHandler(),

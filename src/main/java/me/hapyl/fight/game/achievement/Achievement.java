@@ -19,8 +19,8 @@ import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -142,25 +142,30 @@ public class Achievement implements Keyed {
         Chat.sendMessage(player, "");
         Chat.sendCenterMessage(player, GRADIENT);
 
+        final TextComponent.Builder builder
+                = Component.text()
+                           .append(Component.text(name, NamedTextColor.GOLD))
+                           .appendNewline()
+                           .append(Component.text(getType(), NamedTextColor.DARK_GRAY))
+                           .appendNewline();
+
+        ItemBuilder.splitString("", description, 35).forEach(string -> {
+            builder.appendNewline();
+            builder.append(Component.text(string, NamedTextColor.GRAY, TextDecoration.ITALIC));
+        });
+
+        builder.appendNewline()
+               .appendNewline()
+               .append(Component.text("Reward:", NamedTextColor.GRAY))
+               .appendNewline()
+               .append(
+                       Component.text("%s %s %s".formatted(pointReward, Named.ACHIEVEMENT_POINT.getCharacter(), Named.ACHIEVEMENT_POINT.getName()), NamedTextColor.BLUE)
+               );
+
         player.sendMessage(
                 Component.text(CenterChat.makeString(getName()), NamedTextColor.GOLD)
-                        .hoverEvent(ComponentUtils.showText(
-                                Component.text(getName(), NamedTextColor.GOLD),
-                                Component.text(getType(), NamedTextColor.DARK_GRAY),
-                                null,
-                                Component.text(getDescription(), NamedTextColor.GRAY, TextDecoration.ITALIC),
-                                null,
-                                Component.text("Reward", NamedTextColor.GRAY),
-                                Component.text(
-                                        "%s %s %s".formatted(
-                                                pointReward,
-                                                Named.ACHIEVEMENT_POINT.getCharacterColored(),
-                                                Named.ACHIEVEMENT_POINT.getName()
-                                        ),
-                                        me.hapyl.fight.game.color.Color.ROYAL_BLUE
-                                )
-                        ))
-                        .clickEvent(ClickEvent.runCommand("/viewachievementgui"))
+                         .hoverEvent(builder.asComponent())
+                         .clickEvent(ClickEvent.runCommand("/viewachievementgui"))
         );
 
         Chat.sendMessage(player, "");

@@ -106,6 +106,7 @@ public class Color implements TextColor {
     public static final Color ECHO_WORLD = new Color("#363a47");
     public static final Color ABYSS = new Color("#7304c2");
     public static final Color HELL = new Color("#8B0000");
+    public static final Color EYE = new Color("#4A9DA5");
 
     // *-----------------------------------------------------*
 

@@ -27,7 +27,9 @@ public class Freazly extends Hero {
         profile.setArchetypes(Archetype.HEXBANE, Archetype.RANGE, Archetype.POWERFUL_ULTIMATE);
         profile.setGender(Gender.UNKNOWN);
 
-        setDescription("A very cold entity to the touch.");
+        setDescription("""
+                A very cold entity to the touch.
+                """);
         setItem("cad7486b5d20823d5c24cba1850a600a7744209899828b19ccf93f69f2187058");
 
         final HeroEquipment equipment = getEquipment();

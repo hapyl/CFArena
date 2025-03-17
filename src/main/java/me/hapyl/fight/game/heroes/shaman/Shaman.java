@@ -52,7 +52,9 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
         profile.setGender(Gender.MALE);
 
         setDescription("""
-                An orc from the jungle. Always rumbles about something.
+                An orc from the jungle.
+                
+                Always rumbles about something.
                 """
         );
 

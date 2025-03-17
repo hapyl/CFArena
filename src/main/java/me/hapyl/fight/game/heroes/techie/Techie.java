@@ -65,7 +65,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         profile.setRace(Race.CYBERNETIC);
 
         setDescription("""
-                Anonymous hacker, who hacked his way to the fight. Specializes in locking enemies talents.
+                Anonymous hacker, who hacked his way to the fight.
+                
+                Specializes in locking enemies talents.
                 """);
 
         setItem("4e3b15e5eb0ada16e2e1751644bdc28e0ceae8d398439a6b8037d4da097b9c37");

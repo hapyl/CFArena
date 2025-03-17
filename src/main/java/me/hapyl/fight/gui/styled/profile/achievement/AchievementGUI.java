@@ -10,7 +10,7 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import org.bukkit.entity.Player;
 
@@ -48,10 +48,10 @@ public class AchievementGUI extends StyledGUI {
     public void onUpdate() {
         final Hero hero = profile.getHero();
 
-        setHeader(StyledItem.ICON_ACHIEVEMENTS.asIcon());
+        setHeader(StyledTexture.ICON_ACHIEVEMENTS.asIcon());
 
-        setItem(20, StyledItem.ICON_ACHIEVEMENTS_GENERAL.asButton("view"), AchievementGeneralGUI::new);
-        setItem(22, StyledItem.ICON_ACHIEVEMENTS_TIERED.asButton("view"), AchievementTieredGUI::new);
+        setItem(20, StyledTexture.ICON_ACHIEVEMENTS_GENERAL.asButton("view"), AchievementGeneralGUI::new);
+        setItem(22, StyledTexture.ICON_ACHIEVEMENTS_TIERED.asButton("view"), AchievementTieredGUI::new);
         setItem(
                 24,
                 createHeroSpecificTexture(hero).addLore().addLore(Color.BUTTON + "Click to view!").asIcon(),

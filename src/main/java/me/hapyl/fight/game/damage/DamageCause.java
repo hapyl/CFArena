@@ -45,6 +45,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
     public static final DamageCause FREEZE;
     public static final DamageCause SONIC_BOOM;
 
+    public static final DamageCause COMMAND;
     public static final DamageCause FEROCITY;
     public static final DamageCause LIBRARY_VOID;
     public static final DamageCause COLD;
@@ -62,7 +63,6 @@ public class DamageCause implements Keyed, CloneableKeyed {
     public static final DamageCause TOXIN;
     public static final DamageCause METEORITE;
     public static final DamageCause MOON_PILLAR;
-    public static final DamageCause WITHER_SKULLED;
     public static final DamageCause GRAVITY_GUN;
     public static final DamageCause PLUNGE;
     public static final DamageCause BLACK_HOLE;
@@ -161,8 +161,8 @@ public class DamageCause implements Keyed, CloneableKeyed {
         /*/ ⬇️ Register below ⬇️ /*/
 
         // Base causes
-        ENTITY_ATTACK = of(Key.ofString("entity_attack"), "was killed", "by").flags(DamageFlag.MELEE);
-        PROJECTILE = of(Key.ofString("projectile"), "was shot", "by").flags(DamageFlag.PROJECTILE);
+        ENTITY_ATTACK = of(Key.ofString("entity_attack"), DamageType.DIRECT_MELEE, "was killed", "by");
+        PROJECTILE = of(Key.ofString("projectile"), DamageType.DIRECT_RANGE, "was shot", "by");
 
         // Vanilla causes, needed for vanilla damage
         FALL = minecraft(Key.ofString("fall"), "fell to their death", "while escaping from").flags(DamageFlag.PIERCING_DAMAGE);
@@ -183,7 +183,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
         ENTITY_SWEEP_ATTACK = ENTITY_ATTACK.cloneAs(Key.ofString("entity_sweep_attack"));
         SUFFOCATION = minecraft(Key.ofString("suffocation"), "couldn't hold their breath", "and {damager} was watching, menacingly");
         MELTING = minecraft(Key.ofString("melting"), "is now a puddle of water", "isn't that fun, {damager}?");
-        LIGHTNING = minecraft(Key.ofString("lightning"), "was struck by lightning", "by").flags(DamageFlag.BYPASS_COOLDOWN);
+        LIGHTNING = minecraft(Key.ofString("lightning"), "was struck by lightning", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
         SUICIDE = minecraft(Key.ofString("suicide"), "died", "with help from");
         STARVATION = minecraft(Key.ofString("starvation"), "starved to death", "because {damager} didn't share their food");
         THORNS = minecraft(Key.ofString("thorns"), "was prickled to death", "by");
@@ -194,120 +194,122 @@ public class DamageCause implements Keyed, CloneableKeyed {
         SONIC_BOOM = minecraft(Key.ofString("sonic_boom"), "was BOOM BOOM BAKUDAN'ed", "by {damager}");
 
         // Development causes
-        FEROCITY = ofNonCrit(Key.ofString("ferocity"), "was ferociously killed", "by").flags(DamageFlag.BYPASS_COOLDOWN);
-        LIBRARY_VOID = ofNonCrit(Key.ofString("library_void"), "was consumed by §kthe void").flags(DamageFlag.ENVIRONMENT);
-        COLD = ofNonCrit(Key.ofString("cold"), "froze to death", "with help from").flags(DamageFlag.ENVIRONMENT);
-        DWARF_LAVA = ofNonCrit(Key.ofString("dwarf_lava"), "didn't bounce high enough", "and {damager} was just stood there, menacingly").flags(DamageFlag.ENVIRONMENT);
-        STEAM = ofNonCrit(Key.ofString("steam"), "was steamed to death", "with help from").flags(DamageFlag.ENVIRONMENT);
+        COMMAND = ofNonCrit(Key.ofString("command"), DamageType.ENVIRONMENT, "was forcefully killed", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        FEROCITY = ofNonCrit(Key.ofString("ferocity"), DamageType.ENVIRONMENT, "was ferociously killed", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        LIBRARY_VOID = ofNonCrit(Key.ofString("library_void"), DamageType.ENVIRONMENT, "was consumed by §kthe void");
+        COLD = ofNonCrit(Key.ofString("cold"), DamageType.ENVIRONMENT, "froze to death", "with help from");
+        DWARF_LAVA = ofNonCrit(Key.ofString("dwarf_lava"), DamageType.ENVIRONMENT, "didn't bounce high enough", "and {damager} was just stood there, menacingly");
+        STEAM = ofNonCrit(Key.ofString("steam"), DamageType.ENVIRONMENT, "was steamed to death", "with help from");
 
         // Custom causes
-        NOVA_EXPLOSION = of(Key.ofString("nova_explosion"), "has been split into atoms", "by");
-        SHOCK_DART = of(Key.ofString("shock_dart"), "was shocked", "by");
-        BOOM_BOW = ofNonCrit(Key.ofString("boom_bow"), "went out with a BIG BANG", "with help from").flags(DamageFlag.TRUE_DAMAGE);
-        FIRE_MOLOTOV = of(Key.ofString("fire_molotov"), "couldn't find a way out of {damager}'s fire");
-        FIRE_SPRAY = of(Key.ofString("fire_spray"), "got sprayed to death", "by");
-        FROZEN_WEAPON = of(Key.ofString("frozen_weapon"), "has been frozen to death", "by");
-        LEASHED = of(Key.ofString("leashed"), "leashed to death", "by");
-        SOUL_WHISPER = ofNonCrit(Key.ofString("soul_whisper"), "has entered {damager}'s souls collection");
-        TOXIN = ofNonCrit(Key.ofString("toxin"), "felt the abyssal contamination", "while trying to fight").removeFlags(DamageFlag.CAN_KILL);
-        METEORITE = ofNonCrit(Key.ofString("meteorite"), "felt the wrath of the rock", "of");
-        MOON_PILLAR = of(Key.ofString("moon_pillar"), "couldn't handle the beat", "of");
-        WITHER_SKULLED = of(Key.ofString("wither_skulled"), "was scared to death", "by");
-        GRAVITY_GUN = of(Key.ofString("gravity_gun"), "clearly couldn't see {damager}'s block of the size of their head flying in their direction...");
-        PLUNGE = of(Key.ofString("plunge"), "was stepped on", "by");
-        BLACK_HOLE = of(Key.ofString("black_hole"), "was sucked into the black hole", "created by");
-        DARKNESS = of(Key.ofString("darkness"), "was blinded to death", "by");
-        THROWING_STARS = ofNonCrit(Key.ofString("throwing_stars"), "felt the absolute pain of {damager}'s dagger");
-        STARFALL = of(Key.ofString("starfall"), "doesn't know what danger looks like, yes {damager}?");
-        GOLDEN_PATH = of(Key.ofString("golden_path"), "couldn't fight against their willpower", "created by shine of");
-        FLOWER = ofNonCrit(Key.ofString("flower"), "was pruned to death", "by");
-        FEEL_THE_BREEZE = ofNonCrit(Key.ofString("feel_the_breeze"), "felt {damager}'s breeze...");
-        NEVERMISS = of(Key.ofString("nevermiss"), "couldn't dodge {damager}'s attack, what a noob...");
-        FEET_ATTACK = of(Key.ofString("feet_attack"), "probably lost their toe", "isn't that right, {damager}?");
-        SUBMERGE = of(Key.ofString("submerge"), "didn't know that Sharks bite", "but thanks to the {damager}, now they know...");
-        SOTS = ofNonCrit(Key.ofString("sots"), "couldn't hide from {damager}'s stars").attackCooldown(2); // FIXME (Sat, Feb 15 2025 @xanyjl): Requires impl change
-        STAR_SLASH = ofNonCrit(Key.ofString("star_slash"), "was slashed in half", "by");
-        RAINFIRE = of(Key.ofString("rainfire"), "thought it's raining, but in reality it was {damager}'s arrows...");
-        SWEEP = of(Key.ofString("sweep"), "was swept to death", "by");
-        RIFLE = of(Key.ofString("rifle"), "had their brain exploded in cool slow-mo", "by");
-        SATCHEL = of(Key.ofString("satchel"), "had their last flights", "with");
-        TORNADO = of(Key.ofString("tornado"), "couldn't find the wind", "of");
-        RIPTIDE = ofNonCrit(Key.ofString("riptide"), "was splashed to death", "by").flags(DamageFlag.BYPASS_COOLDOWN);
-        LASER = of(Key.ofString("laser"), "was lasered to death", "by").flags(DamageFlag.BYPASS_COOLDOWN);
-        WATER = of(Key.ofString("water"), "really liked the water").flags(DamageFlag.ENVIRONMENT, DamageFlag.BYPASS_COOLDOWN);
-        SWARM = of(Key.ofString("swarm"), "was swarmed to death by {damager}'s bats").flags(DamageFlag.BYPASS_COOLDOWN);
-        TROLL_LAUGH = ofNonCrit(Key.ofString("troll_laugh"), "was trolled to death", "by");
-        BLOCK_SHIELD = of(Key.ofString("block_shield"), "was hit by {damager}'s circling block");
-        DECOY = of(Key.ofString("decoy"), "was bamboozled", "by");
-        MINION = of(Key.ofString("minion"), "was killed by {damager}'s minion");
-        RIP_BONES = of(Key.ofString("rip_bones"), "was ripped to shreds", "by");
-        AURA_OF_CIRCUS = of(Key.ofString("aura_of_circus"), "was furiously tamed", "by");
-        BLEED = ofNonCrit(Key.ofString("bleed"), "bled to death from {damager}'s touch").flags(DamageFlag.BYPASS_COOLDOWN);
-        SHOTGUN = of(Key.ofString("shotgun"), "was shot to death", "by");
-        BACKSTAB = ofNonCrit(Key.ofString("backstab"), "was stabbed in the back", "by");
-        WITHERBORN = ofNonCrit(Key.ofString("witherborn"), "was withered to death by {damager}'s Witherborn");
-        EMBODIMENT_OF_DEATH = ofNonCrit(Key.ofString("embodiment_of_death"), "was bodied to death", "by").flags(DamageFlag.BYPASS_COOLDOWN); // FIXME (Sat, Feb 15 2025 @xanyjl): Impl change
-        SHREDS_AND_PIECES = ofNonCrit(Key.ofString("shreds_and_pieces"), "was tear to shreds and pieces :o");
-        DARKNESS_CURSE = of(Key.ofString("darkness_curse"), "was swallowed by {damager}'s darkness");
-        CORROSION = ofNonCrit(Key.ofString("corrosion"), "corroded to death", "with help from").flags(DamageFlag.BYPASS_COOLDOWN);
-        ORC_DASH = of(Key.ofString("orc_dash"), "was hit too hard", "by");
-        ORC_WEAPON = ofNonCrit(Key.ofString("orc_weapon"), "was {damager}'s bullseye");
-        CYCLING_AXE = of(Key.ofString("cycling_axe"), "couldn't see that {damager}'s axe is flying there");
-        FROSTBITE = of(Key.ofString("frostbite"), "froze to death, and {damager} is the one to blame");
-        POISON_IVY = ofNonCrit(Key.ofString("poison_ivy"), "was poised to death by {damager}'s poison ivy").attackCooldown(5);
-        IMPEL = ofNonCrit(Key.ofString("impel"), "failed to obey {damager}'s command");
-        TWINCLAW = ofNonCrit(Key.ofString("twinclaw"), "was pierced to death by {damager}'s claw");
-        CANDLEBANE = ofNonCrit(Key.ofString("candlebane"), "was crushed by {damager}'s pillar");
-        RADIATION = ofNonCrit(Key.ofString("radiation"), "was lasered to death", "by").flags(DamageFlag.TRUE_DAMAGE);
-        SOULS_REBOUND = ofNonCrit(Key.ofString("souls_rebound"), "had their soul rebound", "by").flags(DamageFlag.TRUE_DAMAGE);
-        GRAVITY = ofNonCrit(Key.ofString("gravity"), "felt the gravity of {damager}'s planet");
-        ENDER_TELEPORT = ofNonCrit(Key.ofString("ender_teleport"), "was too scared of {damager}'s threatening aura");
-        DARK_ENERGY = ofNonCrit(Key.ofString("dark_energy"), "was annihilated to death", "by");
-        SHADOW_CLONE = ofNonCrit(Key.ofString("shadow_clone"), "was killed by {damager}'s shadow").flags(DamageFlag.BYPASS_COOLDOWN);
-        STONE_CASTLE = ofNonCrit(Key.ofString("stone_castle"), "died because of {damager} while protecting their teammates").flags(DamageFlag.BYPASS_COOLDOWN);
-        SENTRY_SHOT = ofNonCrit(Key.ofString("sentry_shot"), "was shot to death", "by {damager}'s sentry");
-        HACK = ofNonCrit(Key.ofString("hack"), "was hacked", "by");
-        BLADE_BARRAGE = ofNonCrit(Key.ofString("blade_barrage"), "fell before {damager}'s swords");
-        TOTEM = of(Key.ofString("totem"), "was stomped on", "by").flags(DamageFlag.BYPASS_COOLDOWN);
-        RAY_OF_DEATH = of(Key.ofString("ray_of_death"), "was doomed to fail", "before {damager}'s Ray of Death").flags(DamageFlag.BYPASS_COOLDOWN);
+        NOVA_EXPLOSION = of(Key.ofString("nova_explosion"), DamageType.TALENT, "has been split into atoms", "by");
+        SHOCK_DART = of(Key.ofString("shock_dart"), DamageType.TALENT, "was shocked", "by");
+        BOOM_BOW = ofNonCrit(Key.ofString("boom_bow"), DamageType.ULTIMATE, "went out with a BIG BANG", "with help from").flags(DamageFlag.TRUE_DAMAGE);
+        FIRE_MOLOTOV = of(Key.ofString("fire_molotov"), DamageType.TALENT, "couldn't find a way out of {damager}'s fire").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        FIRE_SPRAY = of(Key.ofString("fire_spray"), DamageType.DIRECT_RANGE, "got sprayed to death", "by");
+        FROZEN_WEAPON = of(Key.ofString("frozen_weapon"), DamageType.DIRECT_RANGE, "has been frozen to death", "by");
+        LEASHED = of(Key.ofString("leashed"), DamageType.DIRECT_MELEE, "leashed to death", "by");
+        SOUL_WHISPER = ofNonCrit(Key.ofString("soul_whisper"), DamageType.DIRECT_RANGE, "has entered {damager}'s souls collection");
+        TOXIN = ofNonCrit(Key.ofString("toxin"), DamageType.TALENT, "felt the abyssal contamination", "while trying to fight").removeFlags(DamageFlag.CAN_KILL);
+        METEORITE = ofNonCrit(Key.ofString("meteorite"), DamageType.ULTIMATE, "felt the wrath of the rock", "of");
+        MOON_PILLAR = of(Key.ofString("moon_pillar"), DamageType.TALENT, "couldn't handle the beat", "of");
+        GRAVITY_GUN = of(Key.ofString("gravity_gun"), DamageType.DIRECT_RANGE, "clearly couldn't see {damager}'s block of the size of their head flying in their direction...").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        PLUNGE = of(Key.ofString("plunge"), DamageType.DIRECT_MELEE, "was stepped on", "by");
+        BLACK_HOLE = of(Key.ofString("black_hole"), DamageType.TALENT, "was sucked into the black hole", "created by");
+        DARKNESS = of(Key.ofString("darkness"), DamageType.TALENT, "was blinded to death", "by");
+        THROWING_STARS = ofNonCrit(Key.ofString("throwing_stars"), DamageType.ULTIMATE, "felt the absolute pain of {damager}'s dagger");
+        STARFALL = of(Key.ofString("starfall"), DamageType.TALENT, "doesn't know what danger looks like, yes {damager}?");
+        GOLDEN_PATH = of(Key.ofString("golden_path"), DamageType.TALENT, "couldn't fight against their willpower", "created by shine of");
+        FLOWER = ofNonCrit(Key.ofString("flower"), DamageType.TALENT, "was pruned to death", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN, DamageFlag.ABSOLUTE_DAMAGE);
+        FEEL_THE_BREEZE = ofNonCrit(Key.ofString("feel_the_breeze"), DamageType.ULTIMATE, "felt {damager}'s breeze...").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN, DamageFlag.ABSOLUTE_DAMAGE);
+        NEVERMISS = of(Key.ofString("nevermiss"), DamageType.ULTIMATE, "couldn't dodge {damager}'s attack, what a noob...");
+        FEET_ATTACK = of(Key.ofString("feet_attack"), DamageType.TALENT, "probably lost their toe", "isn't that right, {damager}?");
+        SUBMERGE = of(Key.ofString("submerge"), DamageType.TALENT, "didn't know that Sharks bite", "but thanks to the {damager}, now they know...");
+        SOTS = ofNonCrit(Key.ofString("sots"), DamageType.ULTIMATE, "couldn't hide from {damager}'s stars").attackCooldown(2); // FIXME (Sat, Feb 15 2025 @xanyjl): Requires impl change
+        STAR_SLASH = ofNonCrit(Key.ofString("star_slash"), DamageType.TALENT, "was slashed in half", "by");
+        RAINFIRE = of(Key.ofString("rainfire"), DamageType.ULTIMATE, "thought it's raining, but in reality it was {damager}'s arrows...");
+        SWEEP = of(Key.ofString("sweep"), DamageType.TALENT, "was swept to death", "by");
+        RIFLE = of(Key.ofString("rifle"), DamageType.DIRECT_RANGE, "had their brain exploded in cool slow-mo", "by");
+        SATCHEL = of(Key.ofString("satchel"), DamageType.TALENT, "had their last flights", "with");
+        TORNADO = of(Key.ofString("tornado"), DamageType.TALENT, "couldn't find the wind", "of");
+        RIPTIDE = ofNonCrit(Key.ofString("riptide"), DamageType.TALENT, "was splashed to death", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        LASER = of(Key.ofString("laser"), DamageType.TALENT, "was lasered to death", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        WATER = of(Key.ofString("water"), DamageType.ENVIRONMENT, "really liked the water").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        SWARM = of(Key.ofString("swarm"), DamageType.TALENT, "was swarmed to death by {damager}'s bats").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        TROLL_LAUGH = ofNonCrit(Key.ofString("troll_laugh"), DamageType.TALENT, "was trolled to death", "by");
+        BLOCK_SHIELD = of(Key.ofString("block_shield"), DamageType.TALENT, "was hit by {damager}'s circling block");
+        DECOY = of(Key.ofString("decoy"), DamageType.TALENT, "was bamboozled", "by");
+        MINION = of(Key.ofString("minion"), DamageType.TALENT, "was killed by {damager}'s minion");
+        RIP_BONES = of(Key.ofString("rip_bones"), DamageType.TALENT, "was ripped to shreds", "by");
+        AURA_OF_CIRCUS = of(Key.ofString("aura_of_circus"), DamageType.TALENT, "was furiously tamed", "by");
+        BLEED = ofNonCrit(Key.ofString("bleed"), DamageType.TALENT, "bled to death from {damager}'s touch").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        SHOTGUN = of(Key.ofString("shotgun"), DamageType.TALENT, "was shot to death", "by");
+        BACKSTAB = ofNonCrit(Key.ofString("backstab"), DamageType.ULTIMATE, "was stabbed in the back", "by");
+        WITHERBORN = ofNonCrit(Key.ofString("witherborn"), DamageType.ULTIMATE, "was withered to death by {damager}'s Witherborn");
+        EMBODIMENT_OF_DEATH = ofNonCrit(Key.ofString("embodiment_of_death"), DamageType.ULTIMATE,"was bodied to death", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN); // FIXME (Sat, Feb 15 2025 @xanyjl): Impl change
+        SHREDS_AND_PIECES = ofNonCrit(Key.ofString("shreds_and_pieces"), DamageType.ENVIRONMENT, "was tear to shreds and pieces :o");
+        DARKNESS_CURSE = of(Key.ofString("darkness_curse"), DamageType.TALENT, "was swallowed by {damager}'s darkness");
+        CORROSION = ofNonCrit(Key.ofString("corrosion"), DamageType.ENVIRONMENT, "corroded to death", "with help from").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        ORC_DASH = of(Key.ofString("orc_dash"), DamageType.TALENT, "was hit too hard", "by");
+        ORC_WEAPON = ofNonCrit(Key.ofString("orc_weapon"), DamageType.DIRECT_MELEE, "was {damager}'s bullseye");
+        CYCLING_AXE = of(Key.ofString("cycling_axe"), DamageType.TALENT, "couldn't see that {damager}'s axe is flying there");
+        FROSTBITE = of(Key.ofString("frostbite"), DamageType.DIRECT_RANGE, "froze to death, and {damager} is the one to blame");
+        POISON_IVY = ofNonCrit(Key.ofString("poison_ivy"), DamageType.ULTIMATE, "was poised to death by {damager}'s poison ivy").attackCooldown(5);
+        IMPEL = ofNonCrit(Key.ofString("impel"), DamageType.ULTIMATE, "failed to obey {damager}'s command");
+        TWINCLAW = ofNonCrit(Key.ofString("twinclaw"), DamageType.TALENT, "was pierced to death by {damager}'s claw");
+        CANDLEBANE = ofNonCrit(Key.ofString("candlebane"), DamageType.TALENT, "was crushed by {damager}'s pillar");
+        RADIATION = ofNonCrit(Key.ofString("radiation"), DamageType.TALENT, "was lasered to death", "by").flags(DamageFlag.TRUE_DAMAGE);
+        SOULS_REBOUND = ofNonCrit(Key.ofString("souls_rebound"), DamageType.ULTIMATE, "had their soul rebound", "by").flags(DamageFlag.TRUE_DAMAGE);
+        GRAVITY = ofNonCrit(Key.ofString("gravity"), DamageType.ULTIMATE, "felt the gravity of {damager}'s planet");
+        ENDER_TELEPORT = ofNonCrit(Key.ofString("ender_teleport"), DamageType.TALENT, "was too scared of {damager}'s threatening aura").flags(DamageFlag.ABSOLUTE_DAMAGE, DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        DARK_ENERGY = ofNonCrit(Key.ofString("dark_energy"), DamageType.TALENT, "was annihilated to death", "by");
+        SHADOW_CLONE = ofNonCrit(Key.ofString("shadow_clone"), DamageType.TALENT, "was killed by {damager}'s shadow").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        STONE_CASTLE = ofNonCrit(Key.ofString("stone_castle"), DamageType.TALENT, "died because of {damager} while protecting their teammates").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        SENTRY_SHOT = ofNonCrit(Key.ofString("sentry_shot"), DamageType.TALENT, "was shot to death", "by {damager}'s sentry");
+        HACK = ofNonCrit(Key.ofString("hack"), DamageType.TALENT, "was hacked", "by");
+        BLADE_BARRAGE = ofNonCrit(Key.ofString("blade_barrage"), DamageType.TALENT, "fell before {damager}'s swords");
+        TOTEM = of(Key.ofString("totem"), DamageType.TALENT, "was stomped on", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        RAY_OF_DEATH = of(Key.ofString("ray_of_death"), DamageType.DIRECT_RANGE, "was doomed to fail", "before {damager}'s Ray of Death").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
         ROGUE_ATTACK = ENTITY_ATTACK.cloneAs(Key.ofString("rogue_attack")).knockBack(0.5d);
-        THROWING_KNIFE = ofNonCrit(Key.ofString("throwing_knife"), "was hit by {damager}'s throwing knife");
-        PIPE_BOMB = ofNonCrit(Key.ofString("pipe_bomb"), "was blown away by {damager}'s Pipe Bomb").flags(DamageFlag.TRUE_DAMAGE);
-        UPPERCUT = ofNonCrit(Key.ofString("uppercut"), "was upperCUT", "by");
+        THROWING_KNIFE = ofNonCrit(Key.ofString("throwing_knife"), DamageType.TALENT, "was hit by {damager}'s throwing knife");
+        PIPE_BOMB = ofNonCrit(Key.ofString("pipe_bomb"), DamageType.ULTIMATE, "was blown away by {damager}'s Pipe Bomb").flags(DamageFlag.TRUE_DAMAGE);
+        UPPERCUT = ofNonCrit(Key.ofString("uppercut"), DamageType.TALENT, "was upperCUT", "by");
         RANGE_ATTACK = PROJECTILE.cloneAs(Key.ofString("range_attack"));
-        ICICLE = ofNonCrit(Key.ofString("icicle"), "was pierced by {damager}'s icicle");
-        CELESTE_ARROW = ofNonCrit(Key.ofString("celeste_arrow"), "was somehow shot", "by");
-        CHAOS = ofNonCrit(Key.ofString("chaos"), "was chaotically killed", "by").flags(DamageFlag.BYPASS_COOLDOWN);
-        SHARK_BITE = ofNonCrit(Key.ofString("shark_bite"), "was bitten to death", "by");
-        NYX_SPIKE = ofNonCrit(Key.ofString("nyx_spike"), "was pierced to death", "by").flags(DamageFlag.PIERCING_DAMAGE).attackCooldown(5);
-        SPIKE_SHIELD = ofNonCrit(Key.ofString("spike_shield"), "was hit by {damager}'s spikes").flags(DamageFlag.TRUE_DAMAGE);
-        THE_JOKER = ofNonCrit(Key.ofString("the_joker"), "'s death was yoinked", "by");
-        ECHO = ofNonCrit(Key.ofString("echo"), "lost their body in {damager}'s monochrome world...");
-        RONIN_HIT = ofNonCrit(Key.ofString("ronin_hit"), "lost in the duel", "against");
-        DEFLECT = ofNonCrit(Key.ofString("deflect"), "was killed by {damager}'s deflected attack");
-        BAT_BITE = ofNonCrit(Key.ofString("bat_bite"), "was bitten to death", "by").removeFlags(DamageFlag.CAN_CRIT);
-        BAT_BITE_NO_TICK = BAT_BITE.cloneAs(Key.ofString("bat_bite_no_tick")).flags(DamageFlag.BYPASS_COOLDOWN);
-        DEAD_EYE = of(Key.ofString("dead_eye"), "was dead eyed", "by");
-        VAMPIRE_BITE = of(Key.ofString("vampire_bite"), "was bitten to death").knockBack(0.0d).flags(DamageFlag.MELEE);
-        GAMBLE = ofNonCrit(Key.ofString("gamble"), "gambled their way to the grave", "by");
-        POTION = ofNonCrit(Key.ofString("potion"), "was splashed by {damager}'s potion").flags(DamageFlag.BYPASS_COOLDOWN);
-        MADNESS = ofNonCrit(Key.ofString("madness"), "was killed by mad {damager}");
-        ABYSS_CURSE = ofNonCrit(Key.ofString("abyss_curse"), "was killed by {damager}'s curse");
-        FIRE_PIT = ofNonCrit(Key.ofString("fire_pit"), "was roasted", "by").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.BYPASS_COOLDOWN);
-        DEMON_HAND = ofNonCrit(Key.ofString("demon_hand"), "was demonically killed", "by").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.MELEE);
-        REPEAT = ofNonCrit(Key.ofString("repeat"), "was killed by Typhoeus ({damager})").flags(DamageFlag.BYPASS_COOLDOWN);
-        FIRE_PILLAR = ofNonCrit(Key.ofString("fire_pillar"), "was crushed by {damager}'s Fire Pillar").flags(DamageFlag.BYPASS_COOLDOWN, DamageFlag.TRUE_DAMAGE);
+        ICICLE = ofNonCrit(Key.ofString("icicle"), DamageType.TALENT, "was pierced by {damager}'s icicle");
+        CELESTE_ARROW = ofNonCrit(Key.ofString("celeste_arrow"), DamageType.DIRECT_RANGE, "was somehow shot", "by");
+        CHAOS = ofNonCrit(Key.ofString("chaos"), DamageType.ULTIMATE, "was chaotically killed", "by").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        SHARK_BITE = ofNonCrit(Key.ofString("shark_bite"), DamageType.TALENT, "was bitten to death", "by");
+        NYX_SPIKE = ofNonCrit(Key.ofString("nyx_spike"), DamageType.TALENT, "was pierced to death", "by").flags(DamageFlag.PIERCING_DAMAGE).attackCooldown(5);
+        SPIKE_SHIELD = ofNonCrit(Key.ofString("spike_shield"), DamageType.TALENT, "was hit by {damager}'s spikes").flags(DamageFlag.TRUE_DAMAGE);
+        THE_JOKER = ofNonCrit(Key.ofString("the_joker"), DamageType.ULTIMATE, "'s death was yoinked", "by");
+        ECHO = ofNonCrit(Key.ofString("echo"), DamageType.ULTIMATE, "lost their body in {damager}'s monochrome world...");
+        RONIN_HIT = ofNonCrit(Key.ofString("ronin_hit"), DamageType.TALENT, "lost in the duel", "against");
+        DEFLECT = ofNonCrit(Key.ofString("deflect"), DamageType.TALENT, "was killed by {damager}'s deflected attack");
+        BAT_BITE = ofNonCrit(Key.ofString("bat_bite"), DamageType.TALENT, "was bitten to death", "by").removeFlags(DamageFlag.CAN_CRIT);
+        BAT_BITE_NO_TICK = BAT_BITE.cloneAs(Key.ofString("bat_bite_no_tick")).flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        DEAD_EYE = of(Key.ofString("dead_eye"), DamageType.TALENT, "was dead eyed", "by");
+        VAMPIRE_BITE = of(Key.ofString("vampire_bite"), DamageType.DIRECT_MELEE, "was bitten to death").knockBack(0.0d);
+        GAMBLE = ofNonCrit(Key.ofString("gamble"), DamageType.TALENT, "gambled their way to the grave", "by");
+        POTION = ofNonCrit(Key.ofString("potion"), DamageType.TALENT, "was splashed by {damager}'s potion").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        MADNESS = ofNonCrit(Key.ofString("madness"), DamageType.TALENT,"was killed by mad {damager}");
+        ABYSS_CURSE = ofNonCrit(Key.ofString("abyss_curse"), DamageType.ULTIMATE, "was killed by {damager}'s curse");
+        FIRE_PIT = ofNonCrit(Key.ofString("fire_pit"), DamageType.TALENT, "was roasted", "by").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        DEMON_HAND = ofNonCrit(Key.ofString("demon_hand"), DamageType.DIRECT_MELEE, "was demonically killed", "by").flags(DamageFlag.TRUE_DAMAGE);
+        REPEAT = ofNonCrit(Key.ofString("repeat"), DamageType.TALENT, "was killed by Typhoeus ({damager})").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN);
+        FIRE_PILLAR = ofNonCrit(Key.ofString("fire_pillar"), DamageType.ULTIMATE, "was crushed by {damager}'s Fire Pillar").flags(DamageFlag.IGNORES_DAMAGE_TICKS_AND_ATTACK_COOLDOWN, DamageFlag.TRUE_DAMAGE);
     }
 
     private final Key key;
+    private final DamageType type;
     private final DeathMessage deathMessage;
     private final Set<DamageFlag> flags;
 
     private double knockBack;
     private int attackCooldown;
 
-    private DamageCause(@Nonnull Key key, @Nonnull DeathMessage message) {
+    private DamageCause(@Nonnull Key key, @Nonnull DamageType type, @Nonnull DeathMessage message) {
         this.key = key;
+        this.type = type;
         this.deathMessage = message;
         this.flags = Sets.newHashSet(DamageFlag.CAN_CRIT, DamageFlag.CAN_KILL);
         this.knockBack = 1.0d;
@@ -321,9 +323,14 @@ public class DamageCause implements Keyed, CloneableKeyed {
         }
     }
 
+    @Nonnull
+    public DamageType type() {
+        return type;
+    }
+
     @Override
     public DamageCause cloneAs(@Nonnull Key key) {
-        final DamageCause clone = new DamageCause(key, deathMessage);
+        final DamageCause clone = new DamageCause(key, type, deathMessage);
         clone.flags.addAll(this.flags);
 
         return clone;
@@ -405,7 +412,11 @@ public class DamageCause implements Keyed, CloneableKeyed {
      * @return true if this is a 'direct' damage.
      */
     public boolean isDirectDamage() {
-        return hasFlag(DamageFlag.MELEE) || hasFlag(DamageFlag.PROJECTILE);
+        return type.isDirect();
+    }
+
+    public boolean isEnvironmentDamage() {
+        return type.isEnvironment();
     }
 
     @Nonnull
@@ -457,8 +468,8 @@ public class DamageCause implements Keyed, CloneableKeyed {
      * @param suffix  - Suffix.
      */
     @Nonnull
-    private static DamageCause ofNonCrit(@Nonnull Key key, @Nonnull String message, @Nonnull String suffix) {
-        return of(key, message, suffix).removeFlags(DamageFlag.CAN_CRIT);
+    private static DamageCause ofNonCrit(@Nonnull Key key, @Nonnull DamageType type, @Nonnull String message, @Nonnull String suffix) {
+        return of(key, type, message, suffix).removeFlags(DamageFlag.CAN_CRIT);
     }
 
     /**
@@ -467,8 +478,8 @@ public class DamageCause implements Keyed, CloneableKeyed {
      * @param message - Message.
      */
     @Nonnull
-    private static DamageCause ofNonCrit(@Nonnull Key key, @Nonnull String message) {
-        return ofNonCrit(key, message, "");
+    private static DamageCause ofNonCrit(@Nonnull Key key, @Nonnull DamageType type, @Nonnull String message) {
+        return ofNonCrit(key, type, message, "");
     }
 
     /**
@@ -478,8 +489,8 @@ public class DamageCause implements Keyed, CloneableKeyed {
      * @param suffix  - Suffix.
      */
     @Nonnull
-    private static DamageCause of(@Nonnull Key key, @Nonnull String message, @Nonnull String suffix) {
-        return new DamageCause(key, new DeathMessage(message, suffix));
+    private static DamageCause of(@Nonnull Key key, @Nonnull DamageType type, @Nonnull String message, @Nonnull String suffix) {
+        return new DamageCause(key, type, new DeathMessage(message, suffix));
     }
 
     /**
@@ -488,8 +499,8 @@ public class DamageCause implements Keyed, CloneableKeyed {
      * @param message - Message.
      */
     @Nonnull
-    private static DamageCause of(@Nonnull Key key, @Nonnull String message) {
-        return of(key, message, "by");
+    private static DamageCause of(@Nonnull Key key, @Nonnull DamageType type, @Nonnull String message) {
+        return of(key, type, message, "by");
     }
 
     /**
@@ -500,7 +511,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
      */
     @Nonnull
     private static DamageCause minecraft(@Nonnull Key key, @Nonnull String message, @Nonnull String suffix) {
-        return of(key, message, suffix).setFlags(DamageFlag.ENVIRONMENT);
+        return of(key, DamageType.ENVIRONMENT, message, suffix);
     }
 
     /**

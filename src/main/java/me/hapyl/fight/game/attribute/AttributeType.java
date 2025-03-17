@@ -2,6 +2,7 @@ package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -20,9 +21,9 @@ import java.util.function.BiFunction;
 public enum AttributeType implements Described {
 
     MAX_HEALTH(
-            new Attribute("Max Health", "Maximum health of an entity.") {
+            new Attribute("Max Health", "Increases the maximum health.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     final double health = entity.getHealth();
 
                     if (health > value) {
@@ -58,24 +59,30 @@ public enum AttributeType implements Described {
         }
     },
     ATTACK(
-            new Attribute("Attack", "The more attack you have, the more damage you deal.")
+            new Attribute("Damage", "Increases the outgoing damage.")
                     .setChar("🗡")
                     .setColor(ChatColor.DARK_RED)
-                    .setToString(AttributeType::doubleFormatScaled),
+                    .setToString((type, value) -> "x" + BukkitUtils.decimalFormat(value, "#.#")),
             1.0d
-    ),
+    ) {
+        @Override
+        public double maxValue() {
+            return 10_000;
+        }
+
+    },
     DEFENSE(
-            new Attribute("Defense", "The more defense you have, the less damage you take.")
+            new Attribute("Defense", "Decreases the incoming damage.")
                     .setChar("🛡")
                     .setColor(ChatColor.DARK_GREEN)
                     .setToString(AttributeType::doubleFormatScaled),
             1.0d
     ),
     SPEED(
-            new Attribute("Speed", "Movement speed of an entity.") {
+            new Attribute("Speed", "Increases the movement speed.") {
 
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     if (entity.getWalkSpeed() == value) {
                         return;
                     }
@@ -98,7 +105,7 @@ public enum AttributeType implements Described {
         }
     },
     CRIT_CHANCE(
-            new Attribute("Crit Chance", "Chance for attack to deal critical hit.")
+            new Attribute("Crit Chance", "Increases the change to score a critical hit.")
                     .setChar("☣")
                     .setColor(ChatColor.BLUE)
                     .setToString(AttributeType::doubleFormatPercent),
@@ -110,14 +117,14 @@ public enum AttributeType implements Described {
         }
     },
     CRIT_DAMAGE(
-            new Attribute("Crit Damage", "The damage increase modifier for critical hit.")
+            new Attribute("Crit Damage", "Increases the damage of a critical hit.")
                     .setChar("☠")
                     .setColor(ChatColor.BLUE)
                     .setToString(AttributeType::doubleFormatPercent),
             0.5d
     ),
     FEROCITY(
-            new Attribute("Ferocity", "The change to deal an extra strike.")
+            new Attribute("Ferocity", "Increases the chance to perform an additional attack.")
                     .setChar("\uD83C\uDF00")
                     .setColor(ChatColor.RED)
                     .setToString(AttributeType::doubleFormatPercent),
@@ -129,21 +136,21 @@ public enum AttributeType implements Described {
         }
     },
     MENDING(
-            new Attribute("Mending", "Outgoing healing multiplier.")
+            new Attribute("Mending", "Increases outgoing healing.")
                     .setChar("🌿")
                     .setColor(ChatColor.GREEN)
                     .setToString(AttributeType::doubleFormatPercent),
             1.0d
     ),
     VITALITY(
-            new Attribute("Vitality", "Incoming healing multiplier.")
+            new Attribute("Vitality", "Increases incoming healing.")
                     .setChar(ChatColor.BOLD + "\uD83E\uDE78" + ChatColor.DARK_RED)
                     .setColor(ChatColor.DARK_RED)
                     .setToString(AttributeType::doubleFormatPercent),
             1.0d
     ),
     DODGE(
-            new Attribute("Dodge", "Chance to dodge and nullity an attack.")
+            new Attribute("Dodge", "Increases the chance to dodge the attack.")
                     .setChar("\uD83D\uDC65")
                     .setColor(ChatColor.GOLD)
                     .setToString(AttributeType::doubleFormatPercent),
@@ -156,7 +163,7 @@ public enum AttributeType implements Described {
     },
 
     COOLDOWN_MODIFIER(
-            new Attribute("Cooldown Modifier", "The modifier of your cooldown talents.")
+            new Attribute("Cooldown Modifier", "Decreases the cooldown of all talents and abilities.")
                     .setChar("\uD83D\uDD02")
                     .setColor(ChatColor.DARK_GREEN)
                     .setToString(AttributeType::doubleFormatPercent),
@@ -187,11 +194,12 @@ public enum AttributeType implements Described {
                     effectMap.put(0.625d, makeEffect(PotionEffectType.MINING_FATIGUE, 3));
                     effectMap.put(0.75d, makeEffect(PotionEffectType.MINING_FATIGUE, 2));
                     effectMap.put(0.875d, makeEffect(PotionEffectType.MINING_FATIGUE, 1));
+                    effectMap.put(1.0d, makeEffect(PotionEffectType.MINING_FATIGUE, 0));
                 }
 
                 @Override
                 @SuppressWarnings("deprecation")
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     entity.removePotionEffect(PotionEffectType.HASTE);
                     entity.removePotionEffect(PotionEffectType.MINING_FATIGUE);
 
@@ -224,9 +232,9 @@ public enum AttributeType implements Described {
     },
 
     KNOCKBACK_RESISTANCE(
-            new Attribute("Knockback Resistance", "Multiplier on how much knockback resistance you have.") {
+            new Attribute("Knockback Resistance", "Increases the resistance to knockback.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     entity.setAttributeValue(org.bukkit.attribute.Attribute.KNOCKBACK_RESISTANCE, value);
                 }
             }
@@ -241,7 +249,7 @@ public enum AttributeType implements Described {
     },
 
     EFFECT_RESISTANCE(
-            new Attribute("Effect Resistance", "The chance to resist negative effects.")
+            new Attribute("Effect Resistance", "Increases the chance to resist to negative effects.")
                     .setChar("&5&l\uD83D\uDC1A&5")
                     .setColor(ChatColor.DARK_PURPLE),
             0.0
@@ -253,9 +261,9 @@ public enum AttributeType implements Described {
     },
 
     HEIGHT(
-            new Attribute("Height", "Height doesn't matter. Or does it?") {
+            new Attribute("Height", "Increases the height.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     entity.setAttributeValue(org.bukkit.attribute.Attribute.SCALE, value);
                 }
             }
@@ -273,23 +281,23 @@ public enum AttributeType implements Described {
     },
 
     ENERGY_RECHARGE(
-            new Attribute("Energy Recharge", "Multiplier on how fast you generate energy.")
+            new Attribute("Energy Recharge", "Increases how fast your energy is generated.")
                     .setChar("♻")
                     .setColor(ChatColor.DARK_AQUA),
             1.0d
     ),
 
     JUMP_STRENGTH(
-            new Attribute("Jump Strength", "How high you jump.") {
+            new Attribute("Jump Strength", "Increases how high you can jump.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     entity.setAttributeValue(org.bukkit.attribute.Attribute.JUMP_STRENGTH, value);
                 }
             }
                     .setChar("🐇")
                     .setColor(ChatColor.AQUA)
                     .setToString(AttributeType::doubleFormatPercent),
-            0.45
+            0.45d
     ) {
         @Override
         public double maxValue() {
@@ -303,9 +311,38 @@ public enum AttributeType implements Described {
     },
 
     DEFENSE_IGNORE(
-            new Attribute("Defense Ignore", "The percentage of victim's defense ignored when dealing damage.")
+            new Attribute("Defense Ignore", "Increases the percentage of the victim's defense ignored.")
                     .setChar("∅")
                     .setColor(ChatColor.GOLD)
+                    .setToString(AttributeType::doubleFormatPercent),
+            0.0d
+    ) {
+        @Override
+        public double maxValue() {
+            return 0.8d;
+        }
+    },
+
+    DIRECT_DAMAGE_BONUS(
+            new Attribute("Direct Damage Bonus", "Increases the damage of your direct attacks.")
+                    .setChar(ChatColor.BOLD + "⋏")
+                    .setColor(ChatColor.WHITE)
+                    .setToString(AttributeType::doubleFormatPercent),
+            0.0d
+    ),
+
+    TALENT_DAMAGE_BONUS(
+            new Attribute("Talent Damage Bonus", "Increases the damage of your talents.")
+                    .setChar(ChatColor.BOLD + "⋏")
+                    .setColor(ChatColor.YELLOW)
+                    .setToString(AttributeType::doubleFormatPercent),
+            0.0d
+    ),
+
+    ULTIMATE_DAMAGE_BONUS(
+            new Attribute("Ultimate Damage Bonus", "Increases the damage of your ultimate.")
+                    .setChar(ChatColor.BOLD + "⋏")
+                    .setColor(ChatColor.AQUA)
                     .setToString(AttributeType::doubleFormatPercent),
             0.0d
     ),
@@ -507,6 +544,10 @@ public enum AttributeType implements Described {
     @Nonnull
     public String getCharacter() {
         return attribute.getCharacter();
+    }
+
+    public double clamp(double v) {
+        return Math.clamp(v, minValue(), maxValue());
     }
 
     private String doFormat(BaseAttributes attributes, BiFunction<AttributeType, Double, String> fn) {

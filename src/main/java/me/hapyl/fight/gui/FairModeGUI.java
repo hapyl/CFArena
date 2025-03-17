@@ -7,7 +7,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -36,7 +36,7 @@ public class FairModeGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_FAIR_MODE.asIcon());
+        setHeader(StyledTexture.ICON_FAIR_MODE.asIcon());
 
         final FairMode currentMode = manager.getFairMode();
 

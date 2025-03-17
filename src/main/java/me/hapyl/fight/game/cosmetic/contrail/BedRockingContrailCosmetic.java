@@ -20,8 +20,8 @@ public class BedRockingContrailCosmetic extends BlockContrailCosmetic {
     }
 
     @Override
-    public void onMove(@Nonnull Display display) {
-        super.onMove(display);
+    public void onMove(@Nonnull Display display, int tick) {
+        super.onMove(display, tick);
         display.particle(display.getLocation().add(0.0d, 0.25d, 0.0d), Particle.ASH, 3, 0.2d, 0.0d, 0.2d, 0);
     }
 }

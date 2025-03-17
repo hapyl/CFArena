@@ -55,6 +55,10 @@ public class TheEyeNPC extends PersistentNPC implements QuestRegister {
     public void tick() {
         super.tick();
 
+        if (tick % 20 != 0) {
+            return;
+        }
+
         setAboveHead(player -> {
             if (!questChain.hasCompletedAllQuests(player)) {
                 return blink("ᴏ̨ᴜᴇsᴛ ᴀᴠᴀɪʟᴀʙʟᴇ"); // Yeah the Q looks goofy ignore that 🤣

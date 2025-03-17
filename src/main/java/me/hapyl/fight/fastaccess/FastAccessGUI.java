@@ -30,7 +30,7 @@ public class FastAccessGUI extends StyledPageGUI<FastAccess> implements IFastAcc
         this.slot = slot;
 
         // Set contents
-        final List<FastAccess> fastAccess = Registries.getFastAccess().values(player);
+        final List<FastAccess> fastAccess = Registries.fastAccess().values(player);
         fastAccess.removeIf(access -> access.getCategory() != category);
 
         setContents(fastAccess);

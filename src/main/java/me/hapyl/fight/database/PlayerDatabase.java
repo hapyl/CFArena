@@ -49,6 +49,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final MasteryEntry masteryEntry;
     public final StoreEntry storeEntry;
     public final QuestEntry questEntry;
+    public final CommissionEntry commissionEntry;
 
     // *=* Entries End *=* //
 
@@ -98,6 +99,7 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.masteryEntry = load(new MasteryEntry(this));
         this.storeEntry = load(new StoreEntry(this));
         this.questEntry = load(new QuestEntry(this));
+        this.commissionEntry = load(new CommissionEntry(this));
 
         // Call onLoad
         entries.forEach(PlayerDatabaseEntry::onLoad);

@@ -2,7 +2,7 @@ package me.hapyl.fight.terminology;
 
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.Response;
@@ -29,7 +29,7 @@ public class TermCollectionGUI extends StyledPageGUI<Term> {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_TERMS.asIcon());
+        setHeader(StyledTexture.ICON_TERMS.asIcon());
 
         // Search
         setItem(

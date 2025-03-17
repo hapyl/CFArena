@@ -21,7 +21,7 @@ public class Repulsor extends Talent {
         super(key, "Repulsor");
 
         setDescription("""
-                Propels all nearby opponents high up into the sky!
+                Propels all nearby &cenemies&7 high up into the sky!
                 """
         );
 

@@ -31,7 +31,7 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
     public LegacyAchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
-        registry = Registries.getAchievements();
+        registry = Registries.achievements();
 
         Message.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 

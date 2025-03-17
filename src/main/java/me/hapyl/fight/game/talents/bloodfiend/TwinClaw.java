@@ -103,7 +103,7 @@ public class TwinClaw extends TickingGameTask {
         // Achievement
         final PlayerProfile profile = player.getProfile();
         final AchievementData data = profile.getPlayerData()
-                .getAchievementData(Registries.getAchievements().BLOODFIEND_THEY_ARE_TWINS_ALRIGHT);
+                .getAchievementData(Registries.achievements().BLOODFIEND_THEY_ARE_TWINS_ALRIGHT);
 
         final int useTime = data.checkExpire(5000).increment(Type.USE_TIME, 1);
 

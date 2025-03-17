@@ -16,13 +16,13 @@ public class DeathmatchKills extends GameType {
 
     protected final int killsGoal;
 
-    public DeathmatchKills(String name, int timeLimit, int killsGoal) {
-        super(name, timeLimit);
+    DeathmatchKills(EnumGameType handle, String name, int timeLimit, int killsGoal) {
+        super(handle, name, timeLimit);
         this.killsGoal = killsGoal;
     }
 
-    public DeathmatchKills() {
-        this("Kills Deathmatch", 1800, 10);
+    public DeathmatchKills(@Nonnull EnumGameType handle) {
+        this(handle, "Kills Deathmatch", 1800, 10);
 
         setDescription("""
                 Free for All death-match when everyone is fighting for kills.

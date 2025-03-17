@@ -142,7 +142,7 @@ public class RoninWeapon extends Weapon {
             player.spawnWorldParticle(location, Particle.GUST, 1);
 
             // Achievement
-            Registries.getAchievements().RONIN_DEFLECT.complete(player);
+            Registries.achievements().RONIN_DEFLECT.complete(player);
         }
 
         @Override

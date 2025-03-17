@@ -88,11 +88,11 @@ public class CrateConvertOperationGUI extends StyledGUI {
         }
 
         final ItemBuilder builder = StyledTexture.CRATE_CONVERT.toBuilder()
-                .setAmount(conversionTimes)
-                .setName("Convert " + conversionTimes + " crates")
-                .addLore()
-                .addSmartLore(convert.getDescription())
-                .addLore();
+                                                               .setAmount(conversionTimes)
+                                                               .setName("Convert " + conversionTimes + " crates")
+                                                               .addLore()
+                                                               .addSmartLore(convert.getDescription())
+                                                               .addLore();
 
         // Requirements
         builder.addLore("Requirements:");

@@ -48,7 +48,7 @@ public class HighlightLevel extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final EnumLevel enumLevel = getArgument(args, 0).toEnum(EnumLevel.class, Manager.current().getCurrentMap());
+        final EnumLevel enumLevel = getArgument(args, 0).toEnum(EnumLevel.class, Manager.current().currentEnumLevel());
 
         if (enumLevel == null) {
             player.sendMessage(NamedTextColor.DARK_RED + "Invalid level!");

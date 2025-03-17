@@ -103,7 +103,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
                 @Override
                 public void appendBuilder(@Nonnull Player player, @Nonnull ItemBuilder builder) {
                     builder.addLore("Change map to: %s".formatted(Color.GOLD + enumMap.getName()))
-                           .addLore("Current map: %s".formatted(Color.GOLD + Manager.current().getCurrentMap().getName()));
+                           .addLore("Current map: %s".formatted(Color.GOLD + Manager.current().currentEnumLevel().getName()));
                 }
             });
         }
@@ -178,7 +178,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
         }
 
         // Select Gadget
-        final CosmeticRegistry registry = Registries.getCosmetics();
+        final CosmeticRegistry registry = Registries.cosmetics();
 
         for (Cosmetic cosmetic : registry.byType(Type.GADGET)) {
             register(new FastAccess("select_gadget_" + cosmetic.getKeyAsString(), Category.SELECT_GADGET) {

@@ -14,7 +14,7 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
 
     private final Size size;
 
-    public StyledPageGUI(Player player, String name, Size size) {
+    public StyledPageGUI(@Nonnull Player player, @Nonnull String name, @Nonnull Size size) {
         super(player, name, size.size);
 
         this.size = size;

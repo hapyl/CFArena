@@ -19,8 +19,10 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.database.Award;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GamePlayerResetEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
@@ -60,8 +62,6 @@ import me.hapyl.fight.vehicle.Vehicle;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
 import org.bukkit.*;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
@@ -99,19 +99,17 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     public static final long COMBAT_TAG_DURATION = 5000L;
 
     private static final double MAX_HEARTS = 40.0d;
-    private static final ItemStack HIDE_HAND_ITEM = new ItemBuilder(Material.STONE)
-            .modifyMeta(meta -> {
-                meta.addAttributeModifier(
-                        Attribute.ATTACK_SPEED,
-                        new AttributeModifier(
-                                BukkitUtils.createKey(CF.getPlugin(), "hide_hand"),
-                                -999,
-                                AttributeModifier.Operation.ADD_NUMBER
-                        )
-                );
-                meta.setItemModel(Material.AIR.getKey());
-            })
-            .toItemStack();
+    private static final ItemStack ARROW_ITEM = new ItemBuilder(Material.ARROW)
+            .setName("Invisible Arrow")
+            .addTextBlockLore("""
+                    &8Special Item
+                    
+                    &7&o;;Due to the limitations of the greatest game in the world — Minecraft — it's impossible to shoot your bow without an arrow.
+                    
+                    &7&o;;I did my best to hide it in your inventory by making it invisible, but it seems like you found it, bravo!
+                    """)
+            .modifyMeta(meta -> meta.setItemModel(Material.AIR.getKey()))
+            .asIcon();
 
     public final GamePlayerCooldownManager cooldownManager;
 
@@ -253,6 +251,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         // reset all cooldowns as well
         PlayerLib.stopCooldowns(player);
+
+        // Call event
+        new GamePlayerResetEvent(this).call();
     }
 
     /**
@@ -260,17 +261,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      */
     @Override
     @Deprecated
-    public void kill() {
-        // don't kill players
-    }
-
-    /**
-     * @deprecated {@link #die}
-     */
-    @Override
-    @Deprecated
-    public void remove() {
-        // don't remove players
+    public void remove(boolean playDeathAnimation) {
+        // Don't remove player BUT do call onRemove()
+        onRemove();
     }
 
     @Override
@@ -311,18 +304,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         playerPing.reset();
 
         // Update scoreboard
-        GameTask.runLater(
-                () -> {
-                    updateScoreboardTeams(true);
-                }, 5
-        );
+        GameTask.runLater(() -> updateScoreboardTeams(true), 5);
     }
 
     @Override
     public void onDeath() {
         super.onDeath();
 
-        final GameEntity lastDamager = entityData.getLastDamager();
+        final GameEntity lastDamager = entityData.lastDamager();
 
         // Call skin
         callSkinIfHas(skin -> {
@@ -363,7 +352,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         sendTitle("&c&lʏᴏᴜ ᴅɪᴇᴅ", "", 5, 25, 10);
 
         // Award killer coins for kill
-        final GameEntity lastDamager = entityData.getLastDamager();
+        final GameEntity lastDamager = entityData.lastDamager();
 
         if (lastDamager instanceof LivingGameEntity gameKiller && !equals(gameKiller)) {
             // Don't add stats for teammates either, BUT display the kill cosmetic
@@ -399,7 +388,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
                 // Check for first blood
                 if (isFirstBlood && team != null) {
-                    Registries.getAchievements().FIRST_BLOOD.complete(team);
+                    Registries.achievements().FIRST_BLOOD.complete(team);
                 }
             }
 
@@ -1684,6 +1673,34 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
 
         sendSubtitle("%s %s".formatted(confirmation.prefix(), team.getColor() + player.getName()), 0, 10, 5);
         confirmation.onDisplay(this);
+    }
+
+    @Nonnull
+    public BaseAttributes getEffectiveAttributes() {
+        final BaseAttributes effectiveAttributes = new BaseAttributes();
+
+        this.attributes.forEach((type, value) -> effectiveAttributes.set(type, attributes.get(type)));
+        return effectiveAttributes;
+    }
+
+    public void setArrowItem() {
+        getInventory().setItem(9, ARROW_ITEM);
+    }
+
+    @Nonnull
+    public String getTabString(@Nonnull Player player) {
+        if (!isAlive()) {
+            return state.string;
+        }
+
+        return "&c&l%s  &b%s".formatted(
+                getHealthFormatted(player),
+                getUltimateString(UltimateColor.PRIMARY)
+        );
+    }
+
+    public int getCommissionLevel() {
+        return getDatabase().commissionEntry.level();
     }
 
     @Nonnull

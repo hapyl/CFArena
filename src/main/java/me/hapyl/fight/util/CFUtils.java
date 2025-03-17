@@ -773,7 +773,7 @@ public class CFUtils {
     public static <E> void doClearEntry(@Nullable E e) {
         switch (e) {
             case Entity entity -> entity.remove();
-            case GameEntity entity -> entity.kill();
+            case GameEntity entity -> entity.remove();
             case Block block -> block.getState().update(true, false);
             case null, default -> {
             }
@@ -878,16 +878,17 @@ public class CFUtils {
         return varArgs;
     }
 
-    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> predicate, @Nonnull Consumer<T> andThen) {
-        collection.removeIf(t -> {
-            final boolean shouldRemove = predicate.test(t);
+    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> test, @Nonnull Consumer<T> accept) {
+        final Iterator<T> iterator = collection.iterator();
 
-            if (shouldRemove) {
-                andThen.accept(t);
+        while (iterator.hasNext()) {
+            final T next = iterator.next();
+
+            if (test.test(next)) {
+                accept.accept(next);
+                iterator.remove();
             }
-
-            return shouldRemove;
-        });
+        }
     }
 
     public static void later(@Nonnull Runnable runnable, int delay) {

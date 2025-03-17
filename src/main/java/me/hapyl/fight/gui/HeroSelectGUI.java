@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.registry.Registries;
 import org.bukkit.entity.Player;
@@ -65,7 +65,7 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
         final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
         final boolean randomHeroEnabled = entry.isEnabled();
 
-        final ItemBuilder builder = StyledItem.RANDOM_HERO_PREFERENCES.toBuilder();
+        final ItemBuilder builder = StyledTexture.RANDOM_HERO_PREFERENCES.toBuilder();
         final Set<Archetype> include = entry.getInclude();
 
         builder.addLore();
@@ -145,7 +145,7 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
             new HeroPreviewGUI(player, enumHero, page);
         }
         else {
-            Registries.getAchievements().RULES_ARE_NOT_FOR_ME.complete(player);
+            Registries.achievements().RULES_ARE_NOT_FOR_ME.complete(player);
         }
     }
 
@@ -153,9 +153,9 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
     @Override
     public ItemStack asItem(@Nonnull Player player, Hero hero, int index, int page) {
         if (hero.isLocked(player)) {
-            return StyledItem.LOCKED_HERO.toBuilder()
-                    .addLore("&7Reach level &b%s &7to unlock!".formatted(hero.getMinimumLevel()))
-                    .asIcon();
+            return StyledTexture.LOCKED_HERO.toBuilder()
+                                            .addLore("&7Reach level &b%s &7to unlock!".formatted(hero.getMinimumLevel()))
+                                            .asIcon();
         }
         else {
             return hero.getItemMaker().makeItem(HeroPlayerItemMaker.Type.SELECT, player);

@@ -54,7 +54,7 @@ public class StoreEntry extends PlayerDatabaseEntry {
         final Cosmetic[] cosmetics = new Cosmetic[STORE_SIZE];
 
         for (int i = 0; i < Math.min(STORE_SIZE, offers.size()); i++) {
-            cosmetics[i] = Registries.getCosmetics().get(offers.get(i));
+            cosmetics[i] = Registries.cosmetics().get(offers.get(i));
         }
 
         return cosmetics;

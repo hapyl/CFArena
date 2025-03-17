@@ -17,4 +17,8 @@ public class Metadata extends Key {
     public void set(@Nonnull Player player, boolean b) {
         MetadataEntry.set(player, this, b);
     }
+
+    public <T> T get(@Nonnull Player player, @Nonnull T def) {
+        return MetadataEntry.get(player, this, def);
+    }
 }

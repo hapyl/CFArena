@@ -48,7 +48,9 @@ public class Vortex extends Hero implements UIComplexComponent {
         profile.setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.MELEE, Archetype.SELF_SUSTAIN);
         profile.setGender(Gender.MALE);
 
-        setDescription("A young boy with the power of speaking to stars...");
+        setDescription("""
+                A young boy with the power of speaking to stars...
+                """);
         setItem("2adc458dfabc20b8d587b0476280da2fb325fc616a5212784466a78b85fb7e4d");
 
         final HeroAttributes attributes = getAttributes();

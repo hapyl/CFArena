@@ -12,7 +12,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -26,8 +26,8 @@ public class GameManagementGUI extends StyledGUI {
     @Override
     public void onUpdate() {
         final Manager manager = Manager.current();
-        final EnumLevel currentMap = manager.getCurrentMap();
-        final EnumGameType currentMode = manager.getCurrentMode();
+        final EnumLevel currentMap = manager.currentEnumLevel();
+        final EnumGameType currentMode = manager.currentEnumType();
         final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
         setHeader(LobbyItems.GAME_MANAGEMENT.getItem().getItemStack());
@@ -35,18 +35,18 @@ public class GameManagementGUI extends StyledGUI {
         // Map Select
         setItemRanked(
                 20,
-                StyledItem.ICON_MAP_SELECT.toBuilder()
-                        .addLore()
-                        .addLore("Current Map: &a" + currentMap.getName()),
+                StyledTexture.ICON_MAP_SELECT.toBuilder()
+                                             .addLore()
+                                             .addLore("Current Map: &a" + currentMap.getName()),
                 PlayerRank.GAME_MANAGER, "Click to change that!", MapSelectGUI::new
         );
 
         // Mode Select
         setItemRanked(
                 22,
-                StyledItem.ICON_MODE_SELECT.toBuilder()
-                        .addLore()
-                        .addLore("Current Mode: &a" + currentMode.getMode().getName()),
+                StyledTexture.ICON_MODE_SELECT.toBuilder()
+                                              .addLore()
+                                              .addLore("Current Mode: &a" + currentMode.getMode().getName()),
                 PlayerRank.GAME_MANAGER, "Click to change that!", ModeSelectGUI::new
         );
 
@@ -65,7 +65,7 @@ public class GameManagementGUI extends StyledGUI {
         final FairMode fairMode = manager.getFairMode();
 
         setItemRanked(42,
-                StyledItem.ICON_FAIR_MODE
+                StyledTexture.ICON_FAIR_MODE
                         .toBuilder()
                         .addLore()
                         .addLore(Color.DEFAULT + "Current Mode")

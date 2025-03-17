@@ -64,6 +64,7 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
     public final BedRockingContrailCosmetic BED_ROCKING;
     public final FlowerPathContrailCosmetic FLOWER_PATH;
     public final ShadowTrailCosmetic SHADOW_TRAIL;
+    public final FireVeilCosmetic FIRE_VEIL;
 
     ///////////////////////////
     // *=* Win Cosmetics *=* //
@@ -155,6 +156,7 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
         BED_ROCKING = register("bed_rocking", BedRockingContrailCosmetic::new);
         FLOWER_PATH = register("flower_path", FlowerPathContrailCosmetic::new);
         SHADOW_TRAIL = register("shadow_trail", ShadowTrailCosmetic::new);
+        FIRE_VEIL = register("fire_veil", FireVeilCosmetic::new);
 
         ///////////////////////////
         // *=* Win Cosmetics *=* //

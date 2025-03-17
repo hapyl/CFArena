@@ -180,7 +180,7 @@ public abstract class UltimateTalent extends Talent implements DisplayFieldDataP
 
                 // Bonds and achievements
                 ChallengeType.USE_ULTIMATES.progress(player);
-                Registries.getAchievements().USE_ULTIMATES.complete(player);
+                Registries.achievements().USE_ULTIMATES.complete(player);
             }
         }.runTaskTimer(0, 1);
 

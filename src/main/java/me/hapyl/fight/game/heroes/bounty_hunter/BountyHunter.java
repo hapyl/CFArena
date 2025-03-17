@@ -69,7 +69,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider {
         setDescription("""
                 She is a skilled bounty hunter.
                 
-                &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
+                `Jackpot! Everyone here's got a bounty on their head.`
                 """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
 

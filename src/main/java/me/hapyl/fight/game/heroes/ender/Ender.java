@@ -9,11 +9,11 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
+import me.hapyl.fight.game.talents.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Material;
@@ -35,9 +35,11 @@ public class Ender extends Hero implements Listener {
         setItem("aacb357709d8cdf1cd9c9dbe313e7bab3276ae84234982e93e13839ab7cc5d16");
         setMinimumLevel(5);
 
-        setDescription(
-                "Weird enderman-like looking warrior with teleportation abilities. Hits you with his arm, but it hurts like a brick."
-        );
+        setDescription("""
+                Weird enderman-like looking warrior with teleportation abilities.
+                
+                Hits you with his arm, but it hurts like a brick.
+                """);
 
         final HeroAttributes attributes = getAttributes();
         attributes.setMaxHealth(120);
@@ -73,7 +75,9 @@ public class Ender extends Hero implements Listener {
                         return;
                     }
 
-                    player.damage(2.0d, DamageCause.WATER);
+                    final double damage = 0.02d * player.getMaxHealth();
+
+                    player.damage(damage, DamageCause.WATER);
                     player.playWorldSound(Sound.ENTITY_ENDERMAN_HURT, 1.2f);
                 });
             }
@@ -81,7 +85,7 @@ public class Ender extends Hero implements Listener {
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public TeleportPearl getFirstTalent() {
         return TalentRegistry.TELEPORT_PEARL;
     }
 

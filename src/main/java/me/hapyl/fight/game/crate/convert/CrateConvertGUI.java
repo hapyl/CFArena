@@ -57,10 +57,10 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
         final int convertProductAmount = convert.getConvertProductAmount();
 
         final ItemBuilder builder = StyledTexture.CRATE_CONVERT.toBuilder()
-                .setName(content.getName())
-                .addLore()
-                .addSmartLore(content.getDescription())
-                .addLore();
+                                                               .setName(content.getName())
+                                                               .addLore()
+                                                               .addSmartLore(content.getDescription())
+                                                               .addLore();
 
         if (convertProduct == null) {
             return builder.addLore("&cInvalid product!").asIcon();
@@ -86,9 +86,9 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
     @Override
     public void onUpdate() {
         setHeader(StyledTexture.CRATE_CONVERT.toBuilder()
-                .setName("Crate Conversion")
-                .addLore()
-                .addSmartLore("Convert lower rarity crates into a higher ones!")
-                .asIcon());
+                                             .setName("Crate Conversion")
+                                             .addLore()
+                                             .addSmartLore("Convert lower rarity crates into a higher ones!")
+                                             .asIcon());
     }
 }

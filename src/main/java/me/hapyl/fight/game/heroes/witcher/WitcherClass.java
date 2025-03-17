@@ -8,7 +8,10 @@ import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
@@ -42,7 +45,9 @@ public class WitcherClass extends Hero implements UIComponent {
         profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.HEXBANE, Archetype.DEFENSE);
         profile.setGender(Gender.MALE);
 
-        setDescription("Some say that he's the most trained Witcher ever; Well versed in any kind of magic...");
+        setDescription("""
+                Some say that he's the most trained Witcher ever; Well versed in any kind of magic...
+                """);
         setItem("2552312aa1879e7f7a0fb1526a459add07f3983e90a1457404e505173dcac6fe");
 
         final HeroEquipment equipment = getEquipment();
@@ -51,11 +56,11 @@ public class WitcherClass extends Hero implements UIComponent {
         equipment.setBoots(102, 55, 38, TrimPattern.SILENCE, TrimMaterial.COPPER);
 
         setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("aerondight"))
-                .name("Aerondight")
-                .description("""
-                        Light, sharp as a razor, and fits the hand neatly.
-                        """)
-                .damage(5.0d)
+                        .name("Aerondight")
+                        .description("""
+                                Light, sharp as a razor, and fits the hand neatly.
+                                """)
+                        .damage(5.0d)
         );
 
         setUltimate(new WitcherUltimate());

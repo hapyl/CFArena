@@ -87,7 +87,7 @@ public class Crate extends RandomLoot<Cosmetic> implements Described {
     public Crate with(@Nonnull Type type) {
         final ItemContents<Cosmetic> contents = getContents();
 
-        for (Cosmetic cosmetic : Registries.getCosmetics().values()) {
+        for (Cosmetic cosmetic : Registries.cosmetics().values()) {
             if (cosmetic.isNotDisabledNorExclusive() && cosmetic.getType() == type) {
                 contents.addItem(cosmetic);
             }
@@ -113,7 +113,7 @@ public class Crate extends RandomLoot<Cosmetic> implements Described {
      * @param exclude - Exclude cosmetics.
      */
     public Crate with(@Nonnull Rarity rarity, @Nullable Cosmetic... exclude) {
-        for (Cosmetic value : Registries.getCosmetics().values()) {
+        for (Cosmetic value : Registries.cosmetics().values()) {
             if (!value.isNotDisabledNorExclusive()) {
                 continue;
             }

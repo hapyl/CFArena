@@ -9,7 +9,7 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.npc.StoreOwnerNPC;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.store.escrow.Escrow;
@@ -32,7 +32,7 @@ public class StoreOfferGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledItem.ICON_STORE.asIcon());
+        setHeader(StyledTexture.ICON_STORE.asIcon());
 
         final Cosmetic cosmetic = offer.getOffer();
         final ItemBuilder builder = cosmetic.createItem(player);
@@ -82,7 +82,7 @@ public class StoreOfferGUI extends StyledGUI {
 
                 @Override
                 public void productDelivered() {
-                    final StoreOwnerNPC npc = Registries.getNPCs().STORE_OWNER;
+                    final StoreOwnerNPC npc = Registries.npcs().STORE_OWNER;
                     final long price = cosmetic.getPrice();
 
                     new Dialog()

@@ -54,7 +54,7 @@ public class CloudFeatures extends LevelFeature implements Listener {
         if (location.getY() < 0) {
             if (player.isAlive()) {
                 player.die(true);
-                Registries.getAchievements().BEYOND_CLOUDS.complete(player);
+                Registries.achievements().BEYOND_CLOUDS.complete(player);
             }
         }
     }

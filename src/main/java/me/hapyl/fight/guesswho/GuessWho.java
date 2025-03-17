@@ -167,11 +167,12 @@ public class GuessWho extends GameTask implements Lifecycle {
     public void loseBecauseLeft(Player player) {
         final GuessWhoPlayer gamePlayer = getPlayer(player);
 
-        result = GameResult.LEFT;
-
-        if (gamePlayer != null) {
-            gamePlayer.triggerLose();
+        if (gamePlayer == null) {
+            return;
         }
+
+        result = GameResult.LEFT;
+        gamePlayer.triggerLose();
     }
 
     public int getCurrentRound() {

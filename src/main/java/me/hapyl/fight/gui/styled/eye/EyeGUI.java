@@ -33,7 +33,7 @@ public class EyeGUI extends StyledGUI {
 
         setItem(20, StyledTexture.RELIC_HUNT.asButton("view relics"), RelicHuntGUI::new);
         setItem(22, StyledTexture.DAILY.asButton("view bonds"), DailyGUI::new);
-        setItem(24, StyledTexture.QUESTION.asIcon());
+        setItem(24, StyledTexture.TOKEN_STORE.asIconWithLore("", "&cCOMING SOON"));
 
         // Daily rewards
         final DailyRewardEntry rewardEntry = database.dailyRewardEntry;
@@ -87,25 +87,29 @@ public class EyeGUI extends StyledGUI {
             setItem(slot, builder.asIcon());
 
             if (canClaim) {
-                setClick(slot, click -> {
-                    if (!playerRank.isOrHigher(rankRequired)) {
-                        Message.error(player, lowRankString);
-                        PlayerLib.villagerNo(player);
-                    }
-                    else {
-                        reward.grant(player);
-                    }
+                setClick(
+                        slot, click -> {
+                            if (!playerRank.isOrHigher(rankRequired)) {
+                                Message.error(player, lowRankString);
+                                PlayerLib.villagerNo(player);
+                            }
+                            else {
+                                reward.grant(player);
+                            }
 
-                    update();
-                });
+                            update();
+                        }
+                );
             }
             else {
-                setClick(slot, click -> {
-                    Chat.sendMessage(player, comeBackString);
-                    PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
+                setClick(
+                        slot, click -> {
+                            Chat.sendMessage(player, comeBackString);
+                            PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
 
-                    update();
-                });
+                            update();
+                        }
+                );
             }
 
             slot++;

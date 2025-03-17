@@ -9,7 +9,8 @@ import me.hapyl.fight.game.type.types.Deathmatch;
 import me.hapyl.fight.game.type.types.DeathmatchKills;
 import me.hapyl.fight.game.type.types.FreeForAll;
 import me.hapyl.fight.game.type.types.FrenzyMode;
-import me.hapyl.fight.game.type.types.commission.CommissionMode;
+import me.hapyl.fight.game.type.types.commission.CommissionGameType;
+import me.hapyl.fight.util.handle.EnumHandleFunction;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -19,12 +20,12 @@ import java.util.List;
 
 public enum EnumGameType implements Selectable, KeyedEnum {
 
-    FFA(new FreeForAll()),
-    DEATH_MATCH(new Deathmatch()),
-    DEATH_MATCH_KILLS(new DeathmatchKills()),
-    FRENZY(new FrenzyMode()),
+    FFA(FreeForAll::new),
+    DEATH_MATCH(Deathmatch::new),
+    DEATH_MATCH_KILLS(DeathmatchKills::new),
+    FRENZY(FrenzyMode::new),
 
-    COMMISSION(new CommissionMode()) {
+    COMMISSION(CommissionGameType::new) {
         @Override
         public boolean canBeSelected() {
             return false;
@@ -37,8 +38,8 @@ public enum EnumGameType implements Selectable, KeyedEnum {
 
     private final GameType mode;
 
-    EnumGameType(GameType mode) {
-        this.mode = mode;
+    EnumGameType(EnumHandleFunction<EnumGameType, GameType> fn) {
+        this.mode = fn.apply(this);
     }
 
     @Nonnull
@@ -48,7 +49,7 @@ public enum EnumGameType implements Selectable, KeyedEnum {
 
     @Override
     public boolean isSelected(@Nonnull Player player) {
-        return Manager.current().getCurrentMode() == this;
+        return Manager.current().currentEnumType() == this;
     }
 
     @Override

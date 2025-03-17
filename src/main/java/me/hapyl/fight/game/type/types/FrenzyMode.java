@@ -9,6 +9,7 @@ import me.hapyl.fight.game.EntityState;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.Outline;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.game.type.GameType;
 import org.bukkit.Material;
 
@@ -20,8 +21,8 @@ public class FrenzyMode extends GameType {
     private final int maxLives = 9;
     private final Map<GamePlayer, Integer> playerLivesMap;
 
-    public FrenzyMode() {
-        super("Frenzy", 1200);
+    public FrenzyMode(@Nonnull EnumGameType handle) {
+        super(handle, "Frenzy", 1200);
 
         setDescription("""
                 A free for all with limited lives!
@@ -49,14 +50,16 @@ public class FrenzyMode extends GameType {
 
         builder.addLine("&c&l%s &8(&c&l%s &c❤&8)".formatted(nameSmallCaps(), playerLives));
 
-        reverse.forEach(5, (index, gamePlayer, live) -> {
-            if (gamePlayer == null) {
-                builder.addLine(" &f#&l%s &8...".formatted(index + 1));
-            }
-            else {
-                builder.addLine(gamePlayer.formatTeamNameScoreboardPosition(index + 1, " &c&l%s &c❤".formatted(live)));
-            }
-        });
+        reverse.forEach(
+                5, (index, gamePlayer, live) -> {
+                    if (gamePlayer == null) {
+                        builder.addLine(" &f#&l%s &8...".formatted(index + 1));
+                    }
+                    else {
+                        builder.addLine(gamePlayer.formatTeamNameScoreboardPosition(index + 1, " &c&l%s &c❤".formatted(live)));
+                    }
+                }
+        );
     }
 
     @Override

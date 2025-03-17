@@ -19,7 +19,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
         setUsage("achievement (player) (give|revoke|get) (achievement)");
         setAliases("ach");
 
-        registry = Registries.getAchievements();
+        registry = Registries.achievements();
 
         addCompleterValues(2, "give", "revoke", "reset", "get");
         addCompleterValues(3, registry.listIds());

@@ -26,7 +26,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
     public ArtifactCommand(String name) {
         super(name);
 
-        artifactsNames = Registries.getArtifacts().values().stream().map(artifact -> artifact.getKey().toString()).toList();
+        artifactsNames = Registries.artifacts().values().stream().map(artifact -> artifact.getKey().toString()).toList();
 
         addCompleterValues(2, "has", "add", "remove", "get");
     }
@@ -73,7 +73,7 @@ public class ArtifactCommand extends SimplePlayerAdminCommand {
         }
 
         final String artifactId = getArgument(args, 2).toString();
-        final Artifact artifact = Registries.getArtifacts().get(artifactId);
+        final Artifact artifact = Registries.artifacts().get(artifactId);
 
         if (artifact == null) {
             Message.error(player, "Could not find that artifact!");

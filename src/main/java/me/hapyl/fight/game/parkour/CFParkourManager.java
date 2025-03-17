@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -49,12 +50,20 @@ public class CFParkourManager implements Listener {
                 continue;
             }
 
-            if (CFUtils.distance(leaderboard.getLocation(), clickedBlock.getLocation()) < 5.0d) {
+            if (CFUtils.distance(leaderboard.getLocation(), clickedBlock.getLocation()) < 2.50d) {
                 new ParkourLeaderboardGUI(player, parkour);
                 return;
             }
         }
 
+    }
+
+    @EventHandler
+    public void handlePlayerJoinEvent(PlayerJoinEvent ev) {
+        // Update holograms
+        for (ParkourCourse parkour : ParkourCourse.values()) {
+            parkour.getParkour().reload();
+        }
     }
 
 }

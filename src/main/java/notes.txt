@@ -2,10 +2,19 @@
 
 - Scratch cards
 - Leaderboard
-- Fix achievement hover color
-- Maybe add mastery to game report?
+- Poison Ivy spams the POP sound
+- Cant see contrail?
+- Stats should really be separate for PvP/PvE
+- Obtain coins is broken description
+- Don't set game instance if it failed to create
+- Man I really want to swap attributes to be GOOD
 
 ======= IMPORTANT =======
+
+# Inferno first test changes:
+- Ultimate cost 100 >> 70
+- Repeat 3s >> 5s
+- Quazii decay 50% >> 25% for 5s >> 8s
 
 # Rogue Changes:
 

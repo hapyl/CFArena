@@ -56,7 +56,7 @@ public class GuessWhoRuleOutGUI extends GuessWhoGUI {
                 data.triggerLose();
 
                 // Achievement
-                Registries.getAchievements().FORFEIT_GUESS_WHO.complete(data.getPlayer());
+                Registries.achievements().FORFEIT_GUESS_WHO.complete(data.getPlayer());
             }, ClickType.SHIFT_RIGHT);
         }
 

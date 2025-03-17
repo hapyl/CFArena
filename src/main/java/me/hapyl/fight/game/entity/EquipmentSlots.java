@@ -13,15 +13,7 @@ public enum EquipmentSlots {
     FEET(org.bukkit.inventory.EquipmentSlot.FEET),
     LEGS(org.bukkit.inventory.EquipmentSlot.LEGS),
     CHEST(org.bukkit.inventory.EquipmentSlot.CHEST),
-    HEAD(org.bukkit.inventory.EquipmentSlot.HEAD),
-
-    // named
-    ARROW {
-        @Override
-        public void setItem(@Nonnull PlayerInventory inventory, @Nullable ItemStack item) {
-            inventory.setItem(9, item);
-        }
-    };
+    HEAD(org.bukkit.inventory.EquipmentSlot.HEAD);
 
     @Nullable
     public final org.bukkit.inventory.EquipmentSlot bukkitSlot;

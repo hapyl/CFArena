@@ -208,7 +208,7 @@ public class PlayerUI extends TickingGameTask {
 
                         final boolean isLast = !iterator.hasNext();
 
-                        temperBuilder.addLore(" &8%s &a%.0f %s for &b%s".formatted((isLast ? "└" : "├"), type.scaleUp(value.value), type.toString(), value.toString()));
+                        temperBuilder.addLore(" &8%s &a%s %s for &b%s".formatted((isLast ? "└" : "├"), type.toString(value.value), type.toString(), value.toString()));
                     }
 
                 });
@@ -247,7 +247,7 @@ public class PlayerUI extends TickingGameTask {
         final PlayerDatabase playerDatabase = profile.getDatabase();
 
         builder.getLines().clear();
-        builder.addLines("&8%s %s".formatted(Season.getDateString(), CF.getPlugin().getDatabase().getNamedDatabase().suffix()), "");
+        builder.addLines("&8%s %s %s".formatted(Season.getDateString(), CF.getPlugin().getDatabase().getNamedDatabase().suffix(), CF.getPlugin().serverType()), "");
 
         // Trial
         if (profile.hasTrial()) {
@@ -265,6 +265,7 @@ public class PlayerUI extends TickingGameTask {
             );
 
             final long rubyCount = currency.get(Currency.RUBIES);
+            final long tokenCount = currency.get(Currency.EYE_TOKEN);
 
             if (rubyCount > 0) {
                 final String rubyCountFormatted = Currency.RUBIES.getFormatted(player);

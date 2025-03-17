@@ -68,6 +68,7 @@ public class Level implements ElementHandler, PlayerElementHandler, EnumHandle<E
             CF.registerEvents(listener);
         }
     }
+
     public boolean isPlayable() {
         return isPlayable;
     }

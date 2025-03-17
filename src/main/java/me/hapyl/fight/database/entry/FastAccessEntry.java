@@ -33,7 +33,7 @@ public class FastAccessEntry extends PlayerDatabaseArrayEntry<FastAccess> {
     @Nullable
     @Override
     public FastAccess fromString(@Nonnull String string) {
-        return !string.isEmpty() ? Registries.getFastAccess().get(string) : null;
+        return !string.isEmpty() ? Registries.fastAccess().get(string) : null;
     }
 
     @Nonnull
