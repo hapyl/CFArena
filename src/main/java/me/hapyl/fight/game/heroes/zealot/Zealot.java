@@ -21,7 +21,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
-import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
+import me.hapyl.fight.game.talents.zealot.MalevolentHitshieldTalent;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.Collect;
@@ -52,7 +52,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
                 """);
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.DEFENSE, Archetype.POWERFUL_ULTIMATE);
         profile.setAffiliation(Affiliation.SPACE);
         profile.setGender(Gender.MALE);
         profile.setRace(Race.ALIEN);
@@ -102,7 +102,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
     }
 
     @Override
-    public MalevolentHitshield getSecondTalent() {
+    public MalevolentHitshieldTalent getSecondTalent() {
         return TalentRegistry.MALEVOLENT_HITSHIELD;
     }
 
@@ -124,7 +124,7 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
         final int ferociousHits = data.ferociousHits;
         final boolean isMaxed = ferociousHits == FerociousStrikes.maxStrikes;
 
-        return "&4%s %s%s".formatted(Named.FEROCIOUS_STRIKE.getCharacter(), ferociousHits, isMaxed ? " &lMAX!" : "");
+        return "&4%s %s%s".formatted(Named.FEROCIOUS_STRIKE.getPrefix(), ferociousHits, isMaxed ? " &lMAX!" : "");
     }
 
     public class ZealotUltimate extends UltimateTalent {
@@ -132,8 +132,6 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
         private final DisplayData giantSword = BDEngine.parse(
                 "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:item_display\",item:{id:\"minecraft:golden_sword\",Count:1},item_display:\"none\",transformation:[2.6043f,3.5194f,-2.4148f,-0.2500f,3.4151f,-3.4151f,-1.2941f,1.2500f,-2.5602f,-0.9753f,-4.1826f,-0.5000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
         );
-
-        private final Zealot hero;
 
         @DisplayField public final double baseDamage = 4.0d;
         @DisplayField public final double landingOffset = 10.0d;
@@ -152,20 +150,19 @@ public class Zealot extends Hero implements Listener, PlayerDataHandler<ZealotDa
                     """.formatted(AttributeType.FEROCITY, Named.FEROCIOUS_STRIKE)
             );
 
-            this.hero = hero;
-
             setType(TalentType.DAMAGE);
-            setItem(Material.GOLDEN_SWORD);
-            setDurationSec(12);
+            setMaterial(Material.GOLDEN_SWORD);
+            
+            // The duration is set so the player doesn't get a stack
+            setDuration(10);
 
             setSound(Sound.ENTITY_WITHER_HURT, 0.0f);
         }
 
-
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
-            final ZealotData data = hero.getPlayerData(player);
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
+            final ZealotData data = Zealot.this.getPlayerData(player);
 
             if (data.ferociousHits <= 0) {
                 return error("No " + Named.FEROCIOUS_STRIKE + " &cstacks!");

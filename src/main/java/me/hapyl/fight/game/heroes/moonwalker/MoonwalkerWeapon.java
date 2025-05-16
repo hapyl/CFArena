@@ -9,7 +9,6 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +18,7 @@ public class MoonwalkerWeapon extends Weapon {
     private final Moonwalker hero;
     private final RayOfDeathAbility ability;
 
-    @DisplayField(scaleFactor = 4) public final int chargingTime = 10;
+    @DisplayField(scale = 4) public final int chargingTime = 10;
     @DisplayField public final int maxInactiveTime = 8;
 
     @DisplayField public final double maxDistance = 25;
@@ -71,7 +70,7 @@ public class MoonwalkerWeapon extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final MoonwalkerData data = hero.getPlayerData(player);
 
             // Check if there are enough energy to run

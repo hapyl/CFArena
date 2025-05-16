@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -46,16 +45,13 @@ import java.util.Set;
 
 public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherData> {
 
-    protected final Weapon boomBow = Weapon.builder(Material.BOW, Key.ofString("boom_bow"))
+    protected final Weapon boomBow = Weapon.createBuilder(Material.BOW, Key.ofString("boom_bow"))
             .damage(1.0)
             .name("&6&lBOOM BOW!")
             .build();
 
     private final Set<Arrow> boomArrows = new HashSet<>();
     private final PlayerDataMap<ArcherData> playerData;
-
-    private final double explosionRadius = 3.0d;
-    private final double explosionDamage = 40.0d;
 
     private final int boomBowPerShotCd = 5;
 
@@ -78,9 +74,8 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
         );
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.MAX_HEALTH, 100.0d);
-        attributes.set(AttributeType.SPEED, 0.23d);
-        attributes.set(AttributeType.DEFENSE, 0.7d);
+        attributes.setSpeed(115);
+        attributes.setDefense(70);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(86, 86, 87);
@@ -146,6 +141,8 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
     @EventHandler()
     public void handleProjectileHitEvent(ProjectileHitEvent ev) {
+        final ArcherUltimate ultimate = getUltimate();
+        
         if (ev.getEntity() instanceof Arrow arrow && boomArrows.contains(arrow)) {
             final ProjectileSource shooter = arrow.getShooter();
 
@@ -156,7 +153,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
                     return;
                 }
 
-                gamePlayer.createExplosion(arrow.getLocation(), explosionRadius, explosionDamage, DamageCause.BOOM_BOW);
+                gamePlayer.createExplosion(arrow.getLocation(), ultimate.explosionRadius, ultimate.explosionDamage, DamageCause.BOOM_BOW);
             }
         }
     }
@@ -195,7 +192,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
             final ArcherMastery mastery = getMastery();
             final double passiveChance = mastery.getPassiveChance(player, getPassiveTalent().chance);
 
-            if (!player.random.checkBound(1 - passiveChance)) {
+            if (!player.random.checkBound(passiveChance)) {
                 return;
             }
 
@@ -286,31 +283,31 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
         @DisplayField protected final short baseFuse = 100;
         @DisplayField protected final short fuseShotCost = 20;
+        
+        @DisplayField(suffix = " blocks") private final double explosionRadius = 3.0d;
+        @DisplayField private final double explosionDamage = 40.0d;
 
         public ArcherUltimate() {
             super(Archer.this, "Boom Bow", 70);
 
             setDescription("""
                     Light the &6fuse&7 and equip a &6&lBOOM BOW&7 that shoots explosive arrows that &cexplode&7 on impact, dealing massive %s&7.
-                    """.formatted(EnumTerm.TRUE_DAMAGE));
+                    """.formatted(EnumTerm.BREACH_DAMAGE));
 
-            setItem(Material.BLAZE_POWDER);
+            setMaterial(Material.BLAZE_POWDER);
             setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f);
 
             setManualDuration();
             setCooldownSec(20);
-
-            addAttributeDescription("Explosion Radius", explosionRadius + " blocks");
-            addAttributeDescription("Explosion Damage", explosionDamage);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 player.setUsingUltimate(true);
 
-                player.setItemAndSnap(HotBarSlot.HERO_ITEM, boomBow.getItem());
+                player.setItemAndSnap(HotBarSlot.HERO_ITEM, boomBow.createItem());
                 player.cooldownManager.setCooldown(boomBow, boomBowPerShotCd);
 
                 final ProgressBarBuilder progressBuild = new ProgressBarBuilder("\uD83D\uDD25", ChatColor.GOLD, 10);

@@ -11,10 +11,6 @@ import me.hapyl.fight.Main;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,6 +18,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +30,8 @@ public class SkinCommand extends CFCommand {
     private final String nameToUuidRequest = "https://api.mojang.com/users/profiles/minecraft/%s";
     private final String uuidToProfileRequest = "https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false";
 
-    public SkinCommand() {
-        super("skin", PlayerRank.PREMIUM);
+    public SkinCommand(@Nonnull String name) {
+        super(name, PlayerRank.PREMIUM);
 
         addCompleterValues(1, "reset");
     }
@@ -110,16 +108,20 @@ public class SkinCommand extends CFCommand {
             skinCache.put(skinName.toLowerCase(), skin);
         }
     }
-
+    
     @Nullable
     private JsonObject getJson(String url) {
         try {
-            final CloseableHttpClient client = HttpClients.createDefault();
-            final CloseableHttpResponse response = client.execute(new HttpGet(url));
-
-            return new Gson().fromJson(new InputStreamReader(response.getEntity().getContent()), JsonObject.class);
+            final HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            
+            try (InputStreamReader reader = new InputStreamReader(connection.getInputStream())) {
+                return new Gson().fromJson(reader, JsonObject.class);
+            }
         } catch (Exception e) {
             return null;
         }
     }
+    
 }

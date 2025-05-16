@@ -17,10 +17,11 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MoonPillarTalent extends Talent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 5.0d;
+    @DisplayField(suffix = " blocks") private final double radius = 5.0d;
     @DisplayField private final short energy = 250;
 
     protected final DisplayData displayData = BDEngine.parse(
@@ -38,14 +39,14 @@ public class MoonPillarTalent extends Talent {
         );
 
         setType(TalentType.ENHANCE);
-        setItem(Material.BONE);
+        setMaterial(Material.BONE);
 
         setDurationSec(12.0f);
         setCooldownSec(28.0f);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Block block = getTargetBlock(player);
 
         if (block == null) {

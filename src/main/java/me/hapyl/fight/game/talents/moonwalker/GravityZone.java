@@ -21,6 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -45,13 +46,13 @@ public class GravityZone extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.PURPLE_DYE);
+        setMaterial(Material.PURPLE_DYE);
         setDuration(80);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Block block = player.getTargetBlockExact(10);
 
         if (block == null) {

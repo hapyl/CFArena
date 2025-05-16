@@ -38,7 +38,9 @@ public class GameCommand extends SimpleCommand {
                         Debug.info("Creating a new game instance...");
                     }
 
-                    manager.createNewGameInstance(new GameInstance(manager.currentEnumType(), manager.currentEnumLevel()));
+                    final boolean force = args.length >= 2 && args[1].equalsIgnoreCase("-f");
+                    
+                    manager.createNewGameInstance(() -> new GameInstance(manager.currentEnumType(), manager.currentEnumLevel()), force);
                 }
 
                 case "stop" -> {

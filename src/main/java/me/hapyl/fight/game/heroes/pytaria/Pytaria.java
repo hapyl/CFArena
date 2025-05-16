@@ -6,10 +6,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.*;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -38,6 +35,8 @@ import javax.annotation.Nonnull;
 
 public class Pytaria extends Hero {
 
+    private final ModifierSource modifierSource = new ModifierSource(Key.ofString("excellency"), true);
+    
     public Pytaria(@Nonnull Key key) {
         super(key, "Pytaria");
 
@@ -60,7 +59,7 @@ public class Pytaria extends Hero {
         attributes.setCritDamage(50);
         attributes.setHeight(170);
 
-        setWeapon(Weapon.builder(Material.ALLIUM, Key.ofString("annihilallium"))
+        setWeapon(Weapon.createBuilder(Material.ALLIUM, Key.ofString("annihilallium"))
                         .name("Annihilallium")
                         .description("A beautiful flower, nothing more.")
                         .damage(8.0)
@@ -92,27 +91,23 @@ public class Pytaria extends Hero {
         }.runTaskTimer(0, 5);
     }
 
-    public void recalculateStats(@Nonnull GamePlayer gamePlayer) {
-        final EntityAttributes attributes = gamePlayer.getAttributes();
+    public void recalculateStats(@Nonnull GamePlayer player) {
+        final EntityAttributes attributes = player.getAttributes();
         final ExcellencyPassive passive = getPassiveTalent();
 
-        final double maxHealth = gamePlayer.getMaxHealth();
-        final double health = gamePlayer.getHealth();
+        final double maxHealth = player.getMaxHealth();
+        final double health = player.getHealth();
         final double factor = 1 - health / maxHealth;
-
-        final double attack = attributes.getWithoutTempers(AttributeType.ATTACK);
-        final double critChance = attributes.getWithoutTempers(AttributeType.CRIT_CHANCE);
-        final double defense = attributes.getWithoutTempers(AttributeType.DEFENSE);
 
         final double attackIncrease = factor * passive.maxAttackIncrease;
         final double critChanceIncrease = factor * passive.maxCritChanceIncrease;
         final double defenseDecrease = factor * passive.maxDefenseDecrease;
-
-        Temper.EXCELLENCY.newInstance()
-                         .increase(AttributeType.ATTACK, attack * attackIncrease)
-                         .increase(AttributeType.CRIT_CHANCE, critChance * critChanceIncrease)
-                         .decrease(AttributeType.DEFENSE, defense * defenseDecrease)
-                         .temper(gamePlayer, Constants.INFINITE_DURATION);
+        
+        player.getAttributes().addModifier(modifierSource, Constants.INFINITE_DURATION, modifier -> modifier
+                .of(AttributeType.ATTACK, ModifierType.MULTIPLICATIVE, attackIncrease)
+                .of(AttributeType.CRIT_CHANCE, ModifierType.MULTIPLICATIVE, critChanceIncrease)
+                .of(AttributeType.DEFENSE, ModifierType.MULTIPLICATIVE, defenseDecrease)
+        );
     }
 
     @Override
@@ -183,7 +178,7 @@ public class Pytaria extends Hero {
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             final Location location = player.getLocation();
 
             location.add(location.getDirection().setY(0).multiply(5));
@@ -197,7 +192,7 @@ public class Pytaria extends Hero {
             );
 
             final LivingGameEntity entity = Collect.nearestEntityPrioritizePlayers(location, 50, check -> !player.isSelfOrTeammate(check));
-            final double snapShotDamage = player.getAttributes().calculateOutgoingDamage(damage, DamageCause.FEEL_THE_BREEZE);
+            final double snapShotDamage = player.getAttributes().calculate().outgoingDamage(damage, DamageCause.FEEL_THE_BREEZE);
 
             player.playWorldSound(location, Sound.ENTITY_BEE_LOOP_AGGRESSIVE, 1.0f);
 

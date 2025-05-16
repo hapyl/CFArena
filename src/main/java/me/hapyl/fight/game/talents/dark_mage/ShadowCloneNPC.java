@@ -42,9 +42,9 @@ public class ShadowCloneNPC extends HumanNPC {
         final Hero hero = player.getHero();
 
         this.cooldowns = new int[] {
-                hero.getFirstTalent().getCdTimeLeft(player),
-                hero.getSecondTalent().getCdTimeLeft(player),
-                hero.getThirdTalent().getCdTimeLeft(player)
+                hero.getFirstTalent().getCooldownTimeLeft(player),
+                hero.getSecondTalent().getCooldownTimeLeft(player),
+                hero.getThirdTalent().getCooldownTimeLeft(player)
         };
 
         this.lifeTime = talent.getDuration(player);
@@ -101,7 +101,7 @@ public class ShadowCloneNPC extends HumanNPC {
         remove();
 
         talent.clones.remove(player, this);
-        talent.startCd(player);
+        talent.startCooldown(player);
 
         // Fx
         final Location location = getLocation();
@@ -137,9 +137,9 @@ public class ShadowCloneNPC extends HumanNPC {
 
         final Hero hero = player.getHero();
 
-        hero.getFirstTalent().startCd(player, cooldowns[0] + 1);
-        hero.getSecondTalent().startCd(player, cooldowns[1] + 1);
-        hero.getThirdTalent().startCd(player, cooldowns[2] + 1);
+        hero.getFirstTalent().startCooldown(player, cooldowns[0] + 1);
+        hero.getSecondTalent().startCooldown(player, cooldowns[1] + 1);
+        hero.getThirdTalent().startCooldown(player, cooldowns[2] + 1);
 
         remove();
 

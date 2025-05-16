@@ -1,6 +1,7 @@
 package me.hapyl.fight.gui.styled;
 
 import me.hapyl.fight.Message;
+import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.entity.SoundEffect;
 import org.bukkit.entity.Player;
@@ -12,39 +13,44 @@ import javax.annotation.Nullable;
 
 public interface Styled {
     void onUpdate();
-
+    
     @Nonnull
     Size getStyleSize();
-
+    
     @Nullable
     default ReturnData getReturnData() {
         return null;
     }
-
+    
     void update();
-
+    
     void setHeader(@Nonnull ItemStack item);
-
+    
     default void setPanelItem(int index, @Nonnull ItemStack item) {
         setPanelItem(index, item, null);
     }
-
+    
     void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.eterna.module.inventory.gui.Action action, @Nullable ClickType... clickTypes);
-
+    
     void fillRow(int row, @Nonnull ItemStack item);
-
+    
     default boolean isSetCloseButton() {
         return true;
     }
-
-    default boolean checkCanOpen(@Nonnull Player player) {
+    
+    default boolean isCanOpen(@Nonnull Player player) {
         if (Manager.current().isGameInProgress()) {
             Message.error(player, "You cannot open this GUI in a game!");
             Message.sound(player, SoundEffect.ERROR);
-            return true;
+            return false;
         }
-
-        return false;
+        
+        if (this instanceof Disabled disabled) {
+            disabled.errorMessage(player, "GUI");
+            return false;
+        }
+        
+        return true;
     }
-
+    
 }

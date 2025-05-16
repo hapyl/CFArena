@@ -1,176 +1,155 @@
 package me.hapyl.fight.game.effect;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.Described;
-import me.hapyl.fight.game.effect.effects.*;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-// FIXME (Tue, Feb 18 2025 @xanyjl): Yep
-public enum EffectType implements Described {
-
-    // *=* Vanilla effects *=* //
-    // Not all effects are present due to
-    // some being disabled or just useless
-    // for the game.
-    SPEED(new VanillaEffect("Speed", PotionEffectType.SPEED, Type.POSITIVE)),
-    SLOW(new VanillaEffect("Slowness", PotionEffectType.SLOWNESS, Type.NEGATIVE)),
-    HASTE(new VanillaEffect("Haste", PotionEffectType.HASTE, Type.NEUTRAL)),
-    MINING_FATIGUE(new VanillaEffect("Mining Fatigue", PotionEffectType.MINING_FATIGUE, Type.NEUTRAL)),
-    JUMP_BOOST(new VanillaEffect("Jump Boost", PotionEffectType.JUMP_BOOST, Type.POSITIVE)),
-    NAUSEA(new VanillaEffect("Nausea", PotionEffectType.NAUSEA, Type.NEGATIVE)),
-    FIRE_RESISTANCE(new VanillaEffect("Fire Resistance", PotionEffectType.FIRE_RESISTANCE, Type.POSITIVE)),
-    WATER_BREATHING(new VanillaEffect("Water Breathing", PotionEffectType.WATER_BREATHING, Type.POSITIVE)),
-    BLINDNESS(new VanillaEffect("Blindness", PotionEffectType.BLINDNESS, Type.NEGATIVE) {
-        @Override
-        public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-            entity.addPotionEffect(PotionEffectType.BLINDNESS, amplifier, duration);
-        }
-
-        @Override
-        public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        }
-    }),
-    NIGHT_VISION(new VanillaEffect("Night Vision", PotionEffectType.NIGHT_VISION, Type.POSITIVE)),
-    POISON(new VanillaEffect("Poison", PotionEffectType.POISON, Type.NEGATIVE)),
-    WITHER(new VanillaEffect("Wither", PotionEffectType.WITHER, Type.NEGATIVE)),
-    GLOWING(new VanillaEffect("Glowing", PotionEffectType.GLOWING, Type.NEUTRAL)),
-    LEVITATION(new VanillaEffect("Levitation", PotionEffectType.LEVITATION, Type.NEUTRAL)),
-    SLOW_FALLING(new VanillaEffect("Slow Falling", PotionEffectType.SLOW_FALLING, Type.NEUTRAL)),
-    DARKNESS(new VanillaEffect("Darkness", PotionEffectType.DARKNESS, Type.NEGATIVE)),
-
-    // *=* Custom effects *=* //
-
-    CORROSION(new Corrosion()),
-    PARANOIA(new ParanoiaEffect()),
-    AMNESIA(new Amnesia()),
-    FALL_DAMAGE_RESISTANCE(new FallDamageResistance()),
-    MOVEMENT_CONTAINMENT(new MovementContainment()),
-    VULNERABLE(new Vulnerable()),
-    IMMOVABLE(new Immovable()),
-    INVISIBILITY(new Invisibility()),
-    RESPAWN_RESISTANCE(new RespawnResistance()),
-    RIPTIDE(new Riptide()),
-    ARCANE_MUTE(new ArcaneMuteEffect()),
-    SLOWING_AURA(new SlowingAuraEffect()),
-    BLEED(new BleedEffect()),
-    ORC_GROWL(new OrcGrowlEffect()),
-    WITHER_BLOOD(new WitherBlood()),
-    SADNESS(new SadnessEffect()),
-    CHILL_AURA(new ChillAuraEffect()),
-    PARACHUTE(new ParachuteEffect()),
-
-    ;
-
-    private static final Set<EffectType> vanillaEffects;
-    private static final Map<Effect, EffectType> byHandle;
-
+@ApiStatus.NonExtendable
+public final class EffectType implements Iterable<Effect> {
+    
+    // *=* Vanilla Effects *=*
+    // Not all effects are present because some are either useless or replaced with an attribute.
+    
+    public static final Effect NAUSEA;
+    public static final Effect FIRE_RESISTANCE;
+    public static final Effect WATER_BREATHING;
+    public static final Effect BLINDNESS;
+    public static final Effect NIGHT_VISION;
+    public static final Effect POISON;
+    public static final Effect WITHER;
+    public static final Effect LEVITATION;
+    public static final Effect SLOW_FALLING;
+    public static final Effect DARKNESS;
+    
+    // *=* Custom Effects *=*
+    public static final ParanoiaEffect PARANOIA;
+    public static final AmnesiaEffect AMNESIA;
+    public static final FallDamageResistanceEffect FALL_DAMAGE_RESISTANCE;
+    public static final VulnerableEffect VULNERABLE;
+    public static final InvisibilityEffect INVISIBLE;
+    public static final RespawnResistanceEffect RESPAWN_RESISTANCE;
+    public static final ArcaneMuteEffect ARCANE_MUTE;
+    public static final BleedEffect BLEED;
+    public static final ParachuteEffect PARACHUTE;
+    public static final MovementContainmentEffect MOVEMENT_CONTAINMENT;
+    public static final LingerEffect LINGER;
+    public static final DazeEffect DAZE;
+    
+    private static final Map<Key, Effect> effects;
+    
     static {
-        vanillaEffects = Sets.newHashSet();
-        byHandle = Maps.newHashMap();
-
-        for (EffectType effect : values()) {
-            if (effect.effect instanceof VanillaEffect) {
-                vanillaEffects.add(effect);
-            }
-
-            byHandle.put(effect.effect, effect);
-        }
+        effects = Maps.newHashMap();
+        
+        NAUSEA = of("nausea", key -> new VanillaEffect(key, "\uD83E\uDD22", "Nausea", Color.MOSS_GREEN, PotionEffectType.NAUSEA, Type.NEGATIVE));
+        FIRE_RESISTANCE = of("fire_resistance", key -> new VanillaEffect(key, "\uD83D\uDD25", "Fire Resistance", Color.BURNT_ORANGE, PotionEffectType.FIRE_RESISTANCE, Type.POSITIVE));
+        WATER_BREATHING = of("water_breathing", key -> new VanillaEffect(key, "&l\uD83E\uDEE7", "Water Breathing", Color.MINT_CYAN, PotionEffectType.WATER_BREATHING, Type.POSITIVE));
+        BLINDNESS = of(
+                "blindness", key -> new VanillaEffect(key, "\uD83D\uDC41", "Blindness", Color.CHARCOAL, PotionEffectType.BLINDNESS, Type.NEGATIVE) {
+                    @Override
+                    public void onStart(@Nonnull ActiveEffect effect) {
+                        effect.entity().addPotionEffect(PotionEffectType.BLINDNESS, effect.amplifier(), effect.duration());
+                    }
+                    
+                    @Override
+                    public void onStop(@Nonnull ActiveEffect effect) {
+                    }
+                }
+        );
+        NIGHT_VISION = of("night_vision", key -> new VanillaEffect(key, "\uD83D\uDC41", "Night Vision", Color.EMERALD_GREEN, PotionEffectType.NIGHT_VISION, Type.POSITIVE));
+        POISON = of("poison", key -> new VanillaEffect(key, "☣", "Poison", Color.NEON_GREEN, PotionEffectType.POISON, Type.NEGATIVE));
+        WITHER = of("wither", key -> new VanillaEffect(key, "☠", "Wither", Color.SLATE_GRAY, PotionEffectType.WITHER, Type.NEGATIVE));
+        LEVITATION = of("levitation", key -> new VanillaEffect(key, "☁", "Levitation", Color.PEACH, PotionEffectType.LEVITATION, Type.NEUTRAL));
+        SLOW_FALLING = of("slow_falling", key -> new VanillaEffect(key, "\uD83C\uDF41", "Slow Falling", Color.DUSTY_BLUE, PotionEffectType.SLOW_FALLING, Type.NEUTRAL));
+        DARKNESS = of("darkness", key -> new VanillaEffect(key, "\uD83D\uDC26", "Darkness", Color.MIDNIGHT_BLUE, PotionEffectType.DARKNESS, Type.NEGATIVE));
+        
+        PARANOIA = of("paranoia", ParanoiaEffect::new);
+        AMNESIA = of("amnesia", AmnesiaEffect::new);
+        FALL_DAMAGE_RESISTANCE = of("fall_damage_resistance", FallDamageResistanceEffect::new);
+        VULNERABLE = of("vulnerable", VulnerableEffect::new);
+        INVISIBLE = of("invisibility", InvisibilityEffect::new);
+        RESPAWN_RESISTANCE = of("respawn_resistance", RespawnResistanceEffect::new);
+        ARCANE_MUTE = of("arcane_mute", ArcaneMuteEffect::new);
+        BLEED = of("bleed", BleedEffect::new);
+        PARACHUTE = of("parachute", ParachuteEffect::new);
+        MOVEMENT_CONTAINMENT = of("movement_containment", MovementContainmentEffect::new);
+        LINGER = of("linger", LingerEffect::new);
+        DAZE = of("daze", DazeEffect::new);
     }
-
-    private final Effect effect;
-
-    EffectType(Effect effect) {
-        this.effect = effect;
-    }
-
+    
     @Nonnull
-    public Effect getEffect() {
+    @Override
+    public Iterator<Effect> iterator() {
+        return effects.values().stream().iterator();
+    }
+    
+    @Nonnull
+    public static Set<Effect> ofType(@Nonnull Type type) {
+        return effects.values()
+                      .stream()
+                      .filter(effect -> effect.getType() == type)
+                      .collect(Collectors.toSet());
+    }
+    
+    @Nonnull
+    public static Set<Effect> ofFlag(@Nonnull EffectFlag flag) {
+        return effects.values()
+                      .stream()
+                      .filter(effect -> {
+                          final boolean vanilla = effect instanceof VanillaEffect;
+                          
+                          return switch (flag) {
+                              case VANILLA -> vanilla;
+                              case CUSTOM -> !vanilla;
+                              default -> true;
+                          };
+                      })
+                      .collect(Collectors.toSet());
+    }
+    
+    @Nullable
+    public static Effect byKey(@Nonnull Key key) {
+        return effects.get(key);
+    }
+    
+    @Nonnull
+    public static Set<String> keys() {
+        return effects.keySet().stream()
+                .map(Key::getKey)
+                .collect(Collectors.toSet());
+    }
+    
+    @Nonnull
+    public static Effect randomOfType(@Nonnull Type type) {
+        return CollectionUtils.randomElementOrFirst(ofType(type));
+    }
+    
+    @Nonnull
+    public static Effect randomOfFlag(@Nonnull EffectFlag flag) {
+        return CollectionUtils.randomElementOrFirst(ofFlag(flag));
+    }
+    
+    private static <E extends Effect> E of(String key, Function<Key, E> fn) {
+        final Key realkey = Key.ofString(key);
+        
+        if (effects.containsKey(realkey)) {
+            throw new IllegalArgumentException("Key %s is already registered!".formatted(key));
+        }
+        
+        final E effect = fn.apply(realkey);
+        
+        effects.put(realkey, effect);
         return effect;
     }
-
-    @Nonnull
-    @Override
-    public String getName() {
-        return effect.getName();
-    }
-
-    @Nonnull
-    @Override
-    public String getDescription() {
-        return effect.getDescription();
-    }
-
-    /**
-     * Gets all the {@link EffectType} with the given {@link Type}.
-     *
-     * @param type - Type.
-     * @return set of effects with the matching type.
-     */
-    @Nonnull
-    public static Set<EffectType> getEffects(@Nonnull Type type) {
-        return CFUtils.setOfEnum(EffectType.class, effect -> effect.getEffect().getType() == type);
-    }
-
-    /**
-     * Gets an enum {@link EffectType} by the {@link Effect} handle.
-     *
-     * @param effect - Handle.
-     * @return an enum or null.
-     */
-    @Nullable
-    public static EffectType byHandle(@Nonnull Effect effect) {
-        return byHandle.get(effect);
-    }
-
-    /**
-     * Gets all the {@link EffectType} with the given {@link EffectFlag}.
-     *
-     * @param flag - Flag.
-     * @return set of effects with the matching flag.
-     */
-    @Nonnull
-    public static Set<EffectType> getEffects(@Nonnull EffectFlag flag) {
-        return CFUtils.setOfEnum(
-                EffectType.class, effect -> {
-            final boolean vanilla = effect.effect instanceof VanillaEffect;
-
-            return switch (flag) {
-                case VANILLA -> vanilla;
-                case CUSTOM -> !vanilla;
-                default -> true;
-            };
-        });
-    }
-
-    /**
-     * Gets a random {@link EffectType} with the given {@link Type}.
-     *
-     * @param type - Type.
-     * @return a random effect.
-     */
-    @Nonnull
-    public static EffectType getRandomEffect(@Nonnull Type type) {
-        return CollectionUtils.randomElement(getEffects(type), SPEED);
-    }
-
-    /**
-     * Gets a random {@link EffectType} with the given {@link EffectFlag}.
-     *
-     * @param flag - Flag.
-     * @return a random effect.
-     */
-    @Nonnull
-    public static EffectType getRandomEffect(@Nonnull EffectFlag flag) {
-        return CollectionUtils.randomElement(getEffects(flag), SPEED);
-    }
-
+    
 }

@@ -2,18 +2,16 @@ package me.hapyl.fight.game.weapons.ability;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class DummyAbility extends Ability {
-    public DummyAbility(@Nonnull String name, @Nonnull String description, @Nullable Object... format) {
-        super(name, description, format);
+    public DummyAbility(@Nonnull String name, @Nonnull String description) {
+        super(name, description);
     }
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+    public final Response execute(@Nonnull GamePlayer player) {
         return Response.OK;
     }
 

@@ -19,6 +19,6 @@ public class DemonKindPassiveTalent extends PassiveTalent {
                 &8● &7Greatly increased %s and %s.
                 """.formatted(AttributeType.EFFECT_RESISTANCE, AttributeType.KNOCKBACK_RESISTANCE));
 
-        setItem(Material.ANCIENT_DEBRIS);
+        setMaterial(Material.ANCIENT_DEBRIS);
     }
 }

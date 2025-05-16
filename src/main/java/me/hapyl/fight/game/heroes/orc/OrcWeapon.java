@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -17,7 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,7 +68,7 @@ public class OrcWeapon extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final Location location = player.getLocation();
             final Weapon weapon = HeroRegistry.ORC.getWeapon();
 
@@ -85,7 +84,7 @@ public class OrcWeapon extends Weapon {
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
                         gameEntity.damage(damage, player, DamageCause.ORC_WEAPON);
-                        gameEntity.addEffect(EffectType.SLOW, 4, 100);
+                        gameEntity.addPotionEffect(PotionEffectType.SLOWNESS, 4, 100);
                         gameEntity.setFreezeTicks(100);
                     });
                 }
@@ -95,7 +94,7 @@ public class OrcWeapon extends Weapon {
                     thrownAxe.remove(player);
 
                     player.cooldownManager.setCooldown(weapon, getCooldown());
-                    player.setItem(HotBarSlot.WEAPON, weapon.getItem());
+                    player.setItem(HotBarSlot.WEAPON, weapon.createItem());
                 }
 
             };

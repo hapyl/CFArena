@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.bloodfiend.candlebane;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -15,12 +16,14 @@ public class CandlebaneTalent extends TauntTalent {
 
     @DisplayField protected final short pillarHeight = 7;
     @DisplayField protected final short pillarClicks = 10;
-    @DisplayField(suffix = "❤") protected final double damagePerInterval = 5.0d;
+    @DisplayField(suffix = " ❤") protected final double damagePerInterval = 5.0;
 
     public CandlebaneTalent(@Nonnull Key key) {
         super(key, "Candlebane Pillar", 12, 50);
 
-        setItem(Material.RED_CANDLE);
+        setMaterial(Material.RED_CANDLE);
+        setType(TalentType.DAMAGE);
+        
         setDurationSec(40);
         setCooldownSec(20);
     }

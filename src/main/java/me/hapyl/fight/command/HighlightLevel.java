@@ -12,7 +12,6 @@ import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.PredicateLocation;
-import me.hapyl.fight.game.maps.gamepack.GamePack;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -68,14 +67,14 @@ public class HighlightLevel extends SimplePlayerAdminCommand {
             );
         }
 
-        for (GamePack gamePack : level.getGamePacks()) {
-            int count = 0;
-            for (Location location : gamePack.getLocations()) {
-                spawn(location, item -> item.setItemStack(gamePack.getTexture()), """
-                        &a%s &b%s
-                        """.formatted(gamePack.getClass().getSimpleName(), ++count));
-            }
-        }
+        // for (GamePack gamePack : level.getGamePacks()) {
+        //     int count = 0;
+        //     for (Location location : gamePack.getLocations()) {
+        //         spawn(location, item -> item.setItemStack(gamePack.getTexture()), """
+        //                 &a%s &b%s
+        //                 """.formatted(gamePack.getClass().getSimpleName(), ++count));
+        //     }
+        // }
 
         Debug.info("Highlighted %s (%s).".formatted(level.getName(), markers.size()));
 

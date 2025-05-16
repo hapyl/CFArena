@@ -12,10 +12,11 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TrollSpin extends Talent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 30.0d;
+    @DisplayField(suffix = " blocks") private final double radius = 30.0d;
 
     public TrollSpin(@Nonnull Key key) {
         super(key, "Spin");
@@ -26,12 +27,12 @@ public class TrollSpin extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.NAUTILUS_SHELL);
+        setMaterial(Material.NAUTILUS_SHELL);
         setCooldown(300);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         Collect.nearbyEntities(player.getLocation(), radius).forEach(victim -> {
             if (player.isSelfOrTeammateOrHasEffectResistance(victim)) {
                 return;

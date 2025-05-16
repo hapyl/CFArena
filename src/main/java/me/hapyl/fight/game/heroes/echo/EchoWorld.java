@@ -222,7 +222,7 @@ public class EchoWorld extends TickingGameTask {
 
     private record BlockInf(Block block, BlockData data, BlockState state) {
         public void reset(@Nonnull GamePlayer gamePlayer) {
-            final Player player = gamePlayer.getPlayer();
+            final Player player = gamePlayer.getEntity();
             final WorldServer world = Reflect.getMinecraftWorld(player.getWorld());
 
             Promise.promise(() -> {

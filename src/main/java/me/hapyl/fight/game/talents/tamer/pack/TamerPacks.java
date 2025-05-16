@@ -10,9 +10,7 @@ public enum TamerPacks {
     DR_WITCH(new DrWitch()),
     THE_WOLF_PACK(new TheWolfPack()),
     PIGMAN_RUSHER(new PigmanRusher()),
-    LASER_ZOMBIE(new LaserZombie()),
-
-    ;
+    LASER_ZOMBIE(new LaserZombie());
 
     private final TamerPack pack;
 

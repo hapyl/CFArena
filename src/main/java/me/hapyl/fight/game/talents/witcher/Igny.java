@@ -15,6 +15,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Igny extends Talent {
 
@@ -37,12 +38,12 @@ public class Igny extends Talent {
         );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.BLAZE_POWDER);
+        setMaterial(Material.BLAZE_POWDER);
         setCooldownSec(10);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 

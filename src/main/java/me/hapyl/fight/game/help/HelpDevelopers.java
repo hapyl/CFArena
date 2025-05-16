@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
-import me.hapyl.fight.game.NonNullItemCreator;
+import me.hapyl.fight.ItemCreator;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.util.BrowserLink;
 import org.bukkit.Material;
@@ -143,7 +143,7 @@ public class HelpDevelopers extends HelpGUI {
         }
     }
 
-    private static class Developer implements NonNullItemCreator {
+    private static class Developer implements ItemCreator {
         private final String headTexture;
         private final String name;
         private final String description;
@@ -166,40 +166,30 @@ public class HelpDevelopers extends HelpGUI {
 
         @Nonnull
         @Override
-        public ItemStack getItem() {
-            if (itemStack == null) {
-                return itemStack = createItem();
-            }
-
-            return itemStack;
-        }
-
-        @Override
-        @Nonnull
-        public ItemStack createItem() {
+        public ItemBuilder createBuilder() {
             final ItemBuilder builder = ItemBuilder.playerHeadUrl(headTexture);
             builder.setName(name);
-
+            
             if (description != null) {
                 builder.addLore("&8&o" + description);
             }
-
+            
             builder.addLore();
-
+            
             for (DeveloperRole role : DeveloperRole.values()) {
                 if (roles.contains(role)) {
                     builder.addLore("&f• &6" + role.getName());
                 }
             }
-
+            
             if (optionalLink != null) {
                 builder.addLore();
                 builder.addLore(Color.BUTTON + "Click to open %s's %s!".formatted(name, Color.BUTTON + optionalLink.name()));
             }
-
-            return builder.asIcon();
+            
+            return builder;
         }
-
+        
         public static Developer of(@Nonnull String headTexture, @Nonnull String name, @Nonnull String description, @Nonnull DeveloperRole... roles) {
             final Developer developer = new Developer(headTexture, name, description);
             developer.roles.addAll(Arrays.asList(roles));

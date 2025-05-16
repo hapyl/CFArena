@@ -2,12 +2,12 @@ package me.hapyl.fight.game.heroes.aurora;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.aurora.EtherealArrow;
 import org.bukkit.Color;
@@ -79,7 +79,7 @@ public class EtherealSpirit implements Ticking, Removable {
         // Notify entity if the first stack
         if (currentStacks == 0) {
             entity.sendMessage("%s &bAurora &8(%s&8)&b has granted you %s&b!".formatted(
-                    Named.ETHEREAL_SPIRIT.getCharacterColored(),
+                    Named.ETHEREAL_SPIRIT.getPrefixColored(),
                     aurora.getName(),
                     Named.ETHEREAL_SPIRIT
             ));
@@ -121,7 +121,7 @@ public class EtherealSpirit implements Ticking, Removable {
         }
 
         // Update buff
-        TalentRegistry.ETHEREAL_ARROW.getBuff(orbiting.size()).temper(entity, 5, aurora);
+        TalentRegistry.ETHEREAL_ARROW.applyBuff(entity, aurora, orbiting.size());
 
         // Tick orbiting
         final Location location = entity.getLocation().add(0, entity.getEyeHeight() / 2, 0);

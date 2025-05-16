@@ -69,7 +69,12 @@ public class Reward implements Keyed, Named {
     public final String getName() {
         return this.name;
     }
-
+    
+    @Override
+    public String toString() {
+        return this.name;
+    }
+    
     @Nonnull
     public String getNameWithCheckmark(@Nonnull Player player) {
         return this.name + (hasClaimed(player) ? "&a" : "&c❌");

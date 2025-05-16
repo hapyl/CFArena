@@ -16,6 +16,6 @@ public class ChillAuraPassive extends PassiveTalent {
                 """.formatted(AttributeType.ATTACK_SPEED)
         );
 
-        setItem(Material.LIGHT_BLUE_DYE);
+        setMaterial(Material.LIGHT_BLUE_DYE);
     }
 }

@@ -64,7 +64,7 @@ public class LocalTeamManager implements Ticking {
 
                 team.setPrefix(displayName.substring(0, Math.min(displayName.length(), 64)));
                 team.setSuffix("");
-                team.setColor(display.getColor().bukkitChatColor);
+                team.setColor(display.getColor().backingColor);
             }
         });
     }
@@ -93,7 +93,7 @@ public class LocalTeamManager implements Ticking {
     }
 
     private boolean isGameInProgress() {
-        return Manager.current().getGameInstance() != null;
+        return Manager.current().currentInstanceOrNull() != null;
     }
 
     public static void updateAll() {

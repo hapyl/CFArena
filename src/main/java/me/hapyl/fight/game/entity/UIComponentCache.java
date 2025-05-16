@@ -38,7 +38,6 @@ public class UIComponentCache implements UIComplexComponent {
         return strings;
     }
 
-
     protected static class UIComponent {
 
         private final String string;

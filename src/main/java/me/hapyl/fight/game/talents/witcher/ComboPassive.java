@@ -17,6 +17,6 @@ public class ComboPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.SKELETON_SKULL);
+        setMaterial(Material.SKELETON_SKULL);
     }
 }

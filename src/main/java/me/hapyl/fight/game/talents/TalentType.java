@@ -6,7 +6,6 @@ import me.hapyl.fight.game.color.Color;
 import javax.annotation.Nonnull;
 
 public enum TalentType implements Described {
-    // FIXME (hapyl): 027, Mar 27: ehhh like rename or add better description like DEFENSE doesn't have to give defense, it can be like def increase or jump health IDK!
     DAMAGE(
             "Damage",
             "Deals damage to enemies.",

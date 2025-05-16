@@ -30,14 +30,14 @@ public class StarAligner extends InputTalent {
         super(key, "Astral Vision");
 
         setDescription("""
-                Enter astral vision state.
+                Enter astral vision and focus an &eAstral Star&7.
                 """);
 
         leftData.setAction("Implode");
         leftData.setDescription("""
-                Implode the &a&ntarget&e Astral Star&7, dealing &cAoE damage&7 based on the stars current &chealth&7.
+                Implode the &a&ntarget&e Astral Star&7, dealing &cAoE damage&7 based on the stars current &a❤&7.
                 
-                &c;;Imploding a star will &nnot&c return the sacrificed ❤!
+                &4&o;;Imploding a star will not return the sacrificed ❤!
                 """
         );
         leftData.setType(TalentType.DAMAGE);
@@ -48,7 +48,7 @@ public class StarAligner extends InputTalent {
                 Link with the &a&ntarget&7 &eAstral Star&7, launching yourself towards it.
                 
                 While &ntraveling&7, leave an &6Astral Trail&7 that rapidly deals damage.
-                &8;;If the star is destroyed while traveling, stop traveling.
+                &8&o;;If the star is destroyed while traveling, stop traveling.
                 
                 Upon reaching the &eAstral Star&7, collect it, regain the &4sacrificed&c ❤&7 and &aheal&7 for its &nremaining&7 health.
                 """
@@ -56,7 +56,7 @@ public class StarAligner extends InputTalent {
         rightData.setType(TalentType.MOVEMENT);
         rightData.setCooldownSec(1);
 
-        setItem(Material.BEETROOT_SEEDS);
+        setMaterial(Material.BEETROOT_SEEDS);
     }
 
     @Nonnull
@@ -148,7 +148,7 @@ public class StarAligner extends InputTalent {
         final Vortex hero = HeroRegistry.VORTEX;
 
         hero.performStarBlink(player, targetStar);
-        hero.addDreamStack(player);
+        hero.getPlayerData(player).incrementDream();
 
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
         return Response.OK;

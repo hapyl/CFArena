@@ -20,18 +20,20 @@ public class HerculesShift extends ChargedTalent {
                 """
         );
 
-        setItem(Material.FEATHER);
+        setMaterial(Material.FEATHER);
         setCooldownSec(1);
-        setRechargeTimeSec(6);
+        // setRechargeTimeSec(6);
     }
-
+    
+    @Nonnull
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public Response execute(@Nonnull GamePlayer player, int charges) {
         player.setVelocity(player.getLocation().getDirection().normalize().multiply(1.8d));
-
+        
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_GHAST_SHOOT, 1.25f);
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_WITHER_SHOOT, 0.85f);
-
+        
         return Response.OK;
     }
+    
 }

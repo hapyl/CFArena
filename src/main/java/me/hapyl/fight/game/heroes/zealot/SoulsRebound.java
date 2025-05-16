@@ -23,7 +23,7 @@ public class SoulsRebound extends GameTask {
         this.player = player;
         this.damageTaken = Maps.newHashMap();
 
-        runTaskLater(zealot.getUltimateDuration());
+        runTaskLater(zealot.getUltimate().getDuration());
     }
 
     @Override

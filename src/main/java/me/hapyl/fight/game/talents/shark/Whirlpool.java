@@ -3,7 +3,7 @@ package me.hapyl.fight.game.talents.shark;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.fx.Riptide;
+import me.hapyl.fight.fx.RiptideFx;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -16,6 +16,7 @@ import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Whirlpool extends Talent {
 
@@ -35,20 +36,20 @@ public class Whirlpool extends Talent {
                 """
         );
 
-        setItem(Material.HEART_OF_THE_SEA);
+        setMaterial(Material.HEART_OF_THE_SEA);
 
         setDurationSec(8);
         setCooldownSec(16);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         final Vector vector = location.getDirection();
         vector.setY(0.0d).multiply(4.0);
 
-        final Riptide riptide = new Riptide(location.add(vector));
+        final RiptideFx riptide = new RiptideFx(location.add(vector));
 
         new TickingGameTask() {
 

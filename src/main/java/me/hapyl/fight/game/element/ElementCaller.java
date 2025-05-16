@@ -67,7 +67,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         });
 
         // Call event
-        new GameStartEvent(instance).call();
+        new GameStartEvent(instance).callEvent();
     }
 
     @Override
@@ -109,7 +109,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         });
 
         // Call event
-        new GameEndEvent(instance).call();
+        new GameEndEvent(instance).callEvent();
     }
 
     @Override
@@ -190,7 +190,7 @@ public final class ElementCaller implements StrictElementHandler, StrictPlayerEl
         consumer.accept(hero);
 
         final Manager manager = Manager.current();
-        final GameInstance instance = manager.getGameInstance();
+        final GameInstance instance = manager.currentInstanceOrNull();
 
         // Call the instance level and type instead of manager stored ones
         if (instance != null) {

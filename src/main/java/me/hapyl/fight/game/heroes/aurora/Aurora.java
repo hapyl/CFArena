@@ -11,20 +11,21 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.aurora.AuroraArrowTalent;
+import me.hapyl.fight.game.talents.aurora.CelesteArrow;
+import me.hapyl.fight.game.talents.aurora.EtherealArrow;
 import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
@@ -45,6 +46,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -65,7 +67,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                 """);
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.SUPPORT, Archetype.HEXBANE);
+        profile.setArchetypes(Archetype.SUPPORT, Archetype.HEALER, Archetype.POWERFUL_ULTIMATE);
         profile.setGender(Gender.FEMALE);
         profile.setRace(Race.UNKNOWN);
 
@@ -88,6 +90,20 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         );
 
         setUltimate(new AuroraUltimate());
+        
+        setEventHandler(new HeroEventHandler(this) {
+            @Override
+            public void handlePlayerSwapHandItemsEvent(@Nonnull GamePlayer player) {
+                final AuroraData data = getPlayerData(player);
+                
+                if (player.isUsingUltimate() && data.hasBond()) {
+                    data.breakBond("You broke the bond!");
+                    return;
+                }
+                
+                super.handlePlayerSwapHandItemsEvent(player);
+            }
+        });
     }
 
     @EventHandler
@@ -100,7 +116,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     }
 
     @EventHandler
-    public void handleEntityDamage(GameDamageEvent ev) {
+    public void handleEntityDamage(GameDamageEvent.Process ev) {
         final LivingGameEntity entity = ev.getEntity();
 
         if (!(entity instanceof GamePlayer player)) {
@@ -167,7 +183,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
     @Override
     public boolean processTeammateDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, DamageInstance instance) {
-        instance.setDamage(0.0);
+        instance.overrideDamage(0.0);
         instance.setCancelled(true);
 
         return false; // Don't cancel damage to not spam the "Cannot damage teammates."
@@ -190,13 +206,13 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         final GuardianAngel talent = getPassiveTalent();
 
-        if (talent.hasCd(player)) {
+        if (talent.hasCooldown(player)) {
             return;
         }
 
         talent.startCdIndefinitely(player);
 
-        player.addEffect(EffectType.SLOW, 10, talent.teleportDelay);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 10, talent.teleportDelay);
 
         new PlayerTickingGameTask(player) {
 
@@ -216,7 +232,6 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
                 if (target.isDeadOrRespawning()) {
                     cancelTeleport("The target has died!");
-                    cancel();
                     return;
                 }
 
@@ -232,10 +247,8 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                     player.playWorldSound(teleportLocation, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.0f);
 
                     // Heal
-                    Collect.nearbyEntities(teleportLocation, talent.healingRadius, player::isTeammate) // don't head Aurora
-                            .forEach(entity -> {
-                                entity.heal(talent.healing, player);
-                            });
+                    Collect.nearbyEntities(teleportLocation, talent.healingRadius, player::isTeammate) // don't heal Aurora
+                            .forEach(entity -> entity.heal(talent.healing, player));
 
                     // Fx
                     spawnParticles(teleportLocation, 5, 0.3f, 0.3f, 0.3f);
@@ -266,7 +279,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                         }
                     }.runTaskTimer(0, 1);
 
-                    talent.startCd(player);
+                    talent.startCooldown(player);
 
                     cancel();
                     return;
@@ -295,7 +308,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                 player.sendTitle("&6\uD83D\uDC7C", "&cCancelled! &4" + reason, 5, 10, 5);
                 player.playSound(Sound.ENTITY_ALLAY_HURT, 0.75f);
 
-                talent.startCd(player, talent.getCooldown() / 2);
+                talent.startCooldown(player, talent.getCooldown() / 2);
                 cancel();
             }
         }.runTaskTimer(0, 1);
@@ -356,12 +369,12 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public CelesteArrow getFirstTalent() {
         return TalentRegistry.CELESTE_ARROW;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public EtherealArrow getSecondTalent() {
         return TalentRegistry.ETHEREAL_ARROW;
     }
 
@@ -383,8 +396,8 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final GuardianAngel passiveTalent = getPassiveTalent();
         final LivingGameEntity target = data.target;
 
-        if (passiveTalent.hasCd(player)) {
-            return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCdTimeLeft(player));
+        if (passiveTalent.hasCooldown(player)) {
+            return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCooldownTimeLeft(player));
         }
 
         return target != null ? "&6\uD83D\uDC7C &e%s".formatted(target.getName()) : "";
@@ -432,11 +445,9 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
     public class AuroraUltimate extends UltimateTalent {
 
-        @DisplayField public final double healing = 0.5d;
+        @DisplayField public final double healing = 0.01;
         @DisplayField public final int cooldown = Tick.fromSecond(25);
         @DisplayField public final double maxStrayDistance = 250;
-
-        @DisplayField private final String duration = "Infinite";
 
         public AuroraUltimate() {
             super(Aurora.this, "Divine Intervention", 70);
@@ -449,21 +460,23 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                     
                     While the bond is &nactive&7, Aurora gains the ability to &ffloat&7, but &closes&7 the ability to use &btalents&7 or &4weapons&7.
                     
-                    The bond lasts &nindefinitely&7, unless Aurora takes a &nsingle&7 &ninstance&7 of &cdamage&7 or the &fline of sight&7 breaks.
+                    The bond lasts &nindefinitely&7, unless Aurora takes a single instance of &cdamage&7 or the &fline of sight&7 breaks.
                     &8&o;;Aurora is immune to fall and suffocation damage while the bond is active.
+                    
+                    &7&o;;The bond can be manually broken by pressing the ultimate key.
                     """.formatted(Named.ETHEREAL_SPIRIT)
             );
 
             setType(TalentType.SUPPORT);
-            setItem(Material.PRISMARINE_CRYSTALS);
-
+            setMaterial(Material.PRISMARINE_CRYSTALS);
+            
+            setDuration(Constants.INFINITE_DURATION);
             setSound(Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.0f);
         }
 
-
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             final AuroraData data = getPlayerData(player);
             final LivingGameEntity target = data.target;
 
@@ -495,7 +508,6 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                 data.bond = new CelestialBond(this, data, player, target);
 
                 player.setUsingUltimate(true);
-                startCdIndefinitely(player);
             });
         }
     }

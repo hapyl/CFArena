@@ -20,6 +20,6 @@ public class LikeADreamPassive extends PassiveTalent {
                 """.formatted(Named.ASTRAL_SPARK)
         );
 
-        setItem(Material.RED_BED);
+        setMaterial(Material.RED_BED);
     }
 }

@@ -22,7 +22,7 @@ public class AlchemistPotionInvisibility extends AlchemistPotion {
     @Nonnull
     @Override
     public ActivePotion use(@Nonnull AlchemistData data, @Nonnull GamePlayer player) {
-        player.addEffect(EffectType.INVISIBILITY, getDuration());
+        player.addEffect(EffectType.INVISIBLE, getDuration());
 
         return new ActivePotion(data, player, this);
     }

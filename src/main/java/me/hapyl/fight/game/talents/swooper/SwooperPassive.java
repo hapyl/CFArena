@@ -14,7 +14,7 @@ public class SwooperPassive extends PassiveTalent {
 
     @DisplayField public final int sneakThreshold = Tick.fromSecond(3);
     @DisplayField public final double stealthDamageMultiplier = 2.0d;
-    @DisplayField(suffix = "blocks") public final double maxNestStrayDistance = 1.0d;
+    @DisplayField(suffix = " blocks") public final double maxNestStrayDistance = 1.0d;
 
     public SwooperPassive(@Nonnull Key key) {
         super(key, "Sniper Nest");
@@ -29,7 +29,7 @@ public class SwooperPassive extends PassiveTalent {
                 """.formatted(Named.REFRACTION)
         );
 
-        setItem(Material.FERMENTED_SPIDER_EYE);
+        setMaterial(Material.FERMENTED_SPIDER_EYE);
         setCooldownSec(3);
     }
 }

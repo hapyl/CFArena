@@ -44,7 +44,7 @@ public class FastAccessRegistry extends SimpleRegistry<FastAccess> {
 
                 @Override
                 public boolean shouldDisplayTo(@Nonnull Player player) {
-                    return hero.isValidHero() && !hero.isLocked(player);
+                    return !hero.isDisabled() && !hero.isLocked(player);
                 }
 
                 @Nonnull

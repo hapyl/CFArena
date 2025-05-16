@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShadowSwitch extends ShadowAssassinTalent {
 
@@ -17,7 +18,7 @@ public class ShadowSwitch extends ShadowAssassinTalent {
         super(key, "Shadow Switch");
 
         setType(TalentType.ENHANCE);
-        setItem(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+        setMaterial(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
 
         // Make sure setTalents is last
         setTalents(new Stealth(), new Fury(1));
@@ -39,7 +40,7 @@ public class ShadowSwitch extends ShadowAssassinTalent {
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             if (isInDarkCover(player)) {
                 return Response.error("Cannot switch while in Dark Cover!");
             }
@@ -61,7 +62,7 @@ public class ShadowSwitch extends ShadowAssassinTalent {
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             if (isInDarkCover(player)) {
                 return Response.error("Cannot switch while in Dark Cover!");
             }

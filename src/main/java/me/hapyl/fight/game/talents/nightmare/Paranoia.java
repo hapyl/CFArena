@@ -17,6 +17,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Paranoia extends Talent {
 
@@ -33,13 +34,13 @@ public class Paranoia extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.CHARCOAL);
+        setMaterial(Material.CHARCOAL);
         setDuration(100);
         setCooldown(360);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         final ArmorStand stand = Entities.ARMOR_STAND.spawn(
@@ -81,7 +82,7 @@ public class Paranoia extends Talent {
                         return;
                     }
 
-                    HeroRegistry.NIGHTMARE.getDebuff(player).setOmen(target, getDuration());
+                    HeroRegistry.NIGHTMARE.getPlayerData(player).affect(target, getDuration());
                 });
 
             }

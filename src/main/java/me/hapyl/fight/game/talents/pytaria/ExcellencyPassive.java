@@ -12,7 +12,7 @@ public class ExcellencyPassive extends PassiveTalent {
 
     @DisplayField public final double maxAttackIncrease = 1.3d;
     @DisplayField public final double maxCritChanceIncrease = 0.8d;
-    @DisplayField public final double maxDefenseDecrease = 0.6d;
+    @DisplayField public final double maxDefenseDecrease = -0.6d;
 
     public ExcellencyPassive(@Nonnull Key key) {
         super(key, "Excellency");
@@ -27,6 +27,6 @@ public class ExcellencyPassive extends PassiveTalent {
                 AttributeType.DEFENSE
         ));
 
-        setItem(Material.ROSE_BUSH);
+        setMaterial(Material.ROSE_BUSH);
     }
 }

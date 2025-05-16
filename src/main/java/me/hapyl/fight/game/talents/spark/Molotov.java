@@ -22,13 +22,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Molotov extends Talent implements Listener {
 
     @DisplayField private final int maximumAirTime = 60;
-    @DisplayField(suffix = "blocks") private final double fireRadius = 3.0d;
+    @DisplayField(suffix = " blocks") private final double fireRadius = 3.0d;
     @DisplayField private final double fireDamage = 3.0d;
-    @DisplayField(scaleFactor = 100, suffix = "% of Max Health", suffixSpace = false) private final double fireHealing = 0.4d;
+    @DisplayField(scale = 100, suffix = "% of Max Health") private final double fireHealing = 0.4d;
     @DisplayField private final int fireInterval = 5;
 
     private final Vector downVelocity = new Vector(0.0d, -0.25d, 0.0d);
@@ -44,14 +45,14 @@ public class Molotov extends Talent implements Listener {
         );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.FIRE_CHARGE);
+        setMaterial(Material.FIRE_CHARGE);
 
         setCooldown(700);
         setDuration(100);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().add(new Vector(0.0d, 0.25, 0.0d));
 

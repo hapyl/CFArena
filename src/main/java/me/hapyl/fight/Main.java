@@ -19,7 +19,6 @@ import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.lobby.LobbyItems;
 import me.hapyl.fight.game.maps.features.BoosterController;
-import me.hapyl.fight.game.maps.gamepack.GamePackHandler;
 import me.hapyl.fight.game.parkour.CFParkourManager;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebanePacketHandler;
 import me.hapyl.fight.game.task.GameTask;
@@ -58,7 +57,7 @@ public class Main extends JavaPlugin {
 
     public static final UpdateTopic updateTopic = new UpdateTopic("&cSmells Like Hell!");
 
-    public static final String requireEternaVersion = "4.7.17";
+    public static final String requireEternaVersion = "4.9.0";
     public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete
 
     private static long start;
@@ -357,7 +356,6 @@ public class Main extends JavaPlugin {
                 new ChatHandler(),
                 new EnderPearlHandler(),
                 new CosmeticHandler(),
-                new GamePackHandler(),
                 new SnowFormHandler(),
                 new ServerHandler(),
                 new SynchronizedGarbageEntityCollector.Handler(),

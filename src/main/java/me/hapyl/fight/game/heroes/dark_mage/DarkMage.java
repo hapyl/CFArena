@@ -7,7 +7,6 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -15,11 +14,11 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.dark_mage.ShadowClone;
 import me.hapyl.fight.game.talents.dark_mage.ShadowCloneNPC;
 import me.hapyl.fight.game.task.GameTask;
@@ -28,7 +27,6 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -59,7 +57,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         setItem("e6ca63569e8728722ecc4d12020e42f086830e34e82db55cf5c8ecd51c8c8c29");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.set(AttributeType.CRIT_CHANCE, 0.15d);
+        attributes.setCritChance(25);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(102, 255, 255);
@@ -75,16 +73,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         new GameTask() {
             @Override
             public void run() {
-                playerData.values()
-                        .forEach(data -> data.forEach(entity -> data.player.spawnParticle(
-                                entity.getLocation().add(0, 2.5, 0),
-                                Particle.SMOKE,
-                                5,
-                                0.1,
-                                0.1,
-                                0.1,
-                                0.01f
-                        )));
+                playerData.values().forEach(DarkMageData::tick);
             }
         }.runTaskTimer(0, 5);
     }
@@ -114,7 +103,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
     public void handleInteraction(PlayerInteractAtEntityEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
 
-        if (player == null || !validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
+        if (!validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 
@@ -126,8 +115,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Action action = ev.getAction();
 
-        if (player == null
-                || !validatePlayer(player)
+        if (!validatePlayer(player)
                 || ev.getHand() == EquipmentSlot.OFF_HAND
                 || player.hasCooldownInternal(getWeapon().getMaterial())
                 || ev.getAction() == Action.PHYSICAL) {
@@ -181,7 +169,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
 
         final int witheredCount = data.getWitheredCount();
 
-        return List.of("%s %s".formatted(Named.WITHER_ROSE.getCharacter(), witheredCount), clone != null ? clone.toString() : "");
+        return List.of("%s %s".formatted(Named.WITHER_ROSE.getPrefix(), witheredCount), clone != null ? clone.toString() : "");
     }
 
     // [hapyl's rant about interaction detection]
@@ -252,7 +240,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
             );
 
             setType(TalentType.ENHANCE);
-            setItem(Material.WITHER_SKELETON_SKULL);
+            setMaterial(Material.WITHER_SKELETON_SKULL);
             setSound(Sound.ENTITY_WITHER_SPAWN, 2.0f);
 
             setCooldownSec(30);
@@ -260,7 +248,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 final DarkMageData playerData = getPlayerData(player);
 

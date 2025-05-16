@@ -10,7 +10,6 @@ import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,7 +74,7 @@ public class GravityGun extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final Block targetBlock = player.getTargetBlockExact(7);
 
             // Throw

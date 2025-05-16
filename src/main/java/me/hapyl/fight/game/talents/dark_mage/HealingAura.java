@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 
 public class HealingAura extends DarkMageTalent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 2.5d;
+    @DisplayField(suffix = " blocks") private final double radius = 2.5d;
     @DisplayField private final double healing = 2.0d;
     @DisplayField private final double instantHealing = 10.0d;
     @DisplayField private final int healingPeriod = 15;
@@ -29,7 +29,7 @@ public class HealingAura extends DarkMageTalent {
                 """);
 
         setType(TalentType.SUPPORT);
-        setItem(Material.APPLE);
+        setMaterial(Material.APPLE);
         setDurationSec(6);
         setCooldownSec(30);
     }

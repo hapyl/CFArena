@@ -10,7 +10,7 @@ public interface PlayerExecutable {
     void execute(@Nonnull Player player);
 
     default void execute(@Nonnull GamePlayer player) {
-        execute(player.getPlayer());
+        execute(player.getEntity());
     }
 
 }

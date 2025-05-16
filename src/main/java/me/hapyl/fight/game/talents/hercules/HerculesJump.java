@@ -10,6 +10,7 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class HerculesJump extends Talent {
     public HerculesJump(@Nonnull Key key) {
@@ -21,11 +22,11 @@ public class HerculesJump extends Talent {
         );
 
         setCooldownSec(10);
-        setItem(Material.SLIME_BALL);
+        setMaterial(Material.SLIME_BALL);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         player.setVelocity(new Vector(0.0d, 1.05d, 0.0d));
 
         PlayerLib.playSound(player.getLocation(), Sound.ENTITY_SLIME_JUMP, 0.5f);

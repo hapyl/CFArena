@@ -21,7 +21,7 @@ public class EntityDarkness extends LibrarianTalent {
 
         addDescription("Launches a sprite of darkness, dealing <scaled> damage and applying paranoia. This spell has 3 charges.");
         setCooldown(10);
-        setItem(Material.WITHER_ROSE);
+        setMaterial(Material.WITHER_ROSE);
     }
 
     @Override

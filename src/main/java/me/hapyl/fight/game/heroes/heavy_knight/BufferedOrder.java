@@ -6,13 +6,13 @@ import me.hapyl.eterna.module.util.Buffer;
 import javax.annotation.Nonnull;
 
 public abstract class BufferedOrder<E> {
-
+    
     private final long delay;
     private final E[] correctOrder;
-
+    
     private final Buffer<E> buffer;
     private long lastUse;
-
+    
     @SafeVarargs
     public BufferedOrder(long delay, @Nonnull E... correctOrder) {
         this.delay = delay;
@@ -20,39 +20,38 @@ public abstract class BufferedOrder<E> {
         this.buffer = new Buffer<>(correctOrder.length) {
             @Override
             public void unbuffered(@Nonnull E e) {
-
             }
         };
     }
-
+    
     public boolean offer(@Nonnull E e) {
         if (lastUse > 0L && System.currentTimeMillis() - lastUse >= delay) {
             buffer.clear();
         }
-
+        
         lastUse = System.currentTimeMillis();
-
+        
         // Adding an already present value is not allowed
         if (buffer.contains(e)) {
             return false;
         }
-
+        
         buffer.add(e);
-
+        
         // Compare
         if (!buffer.compareAll(correctOrder)) {
             return false;
         }
-
+        
         onCorrectOrder();
         return true;
     }
-
+    
     public void clear() {
         buffer.clear();
     }
-
+    
     @EventLike
     public abstract void onCorrectOrder();
-
+    
 }

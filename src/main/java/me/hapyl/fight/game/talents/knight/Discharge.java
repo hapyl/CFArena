@@ -25,6 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Discharge extends Talent implements Listener {
 
@@ -47,12 +48,12 @@ public class Discharge extends Talent implements Listener {
         );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.POPPED_CHORUS_FRUIT);
+        setMaterial(Material.POPPED_CHORUS_FRUIT);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final BlastKnightData data = HeroRegistry.BLAST_KNIGHT.getPlayerData(player);
         final int shieldCharge = data.getShieldCharge();
 
@@ -102,7 +103,7 @@ public class Discharge extends Talent implements Listener {
                 // This has to be shield because cooldown prevents player from blocking
                 player.setCooldownInternal(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
 
-                startCd(player);
+                startCooldown(player);
             }
         }.runTaskTimer(0, 1);
 

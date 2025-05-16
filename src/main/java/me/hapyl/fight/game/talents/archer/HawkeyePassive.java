@@ -22,6 +22,6 @@ public class HawkeyePassive extends PassiveTalent {
                 """.formatted(EnumTerm.BASE_CHANCE)
         );
 
-        setItem(Material.ENDER_EYE);
+        setMaterial(Material.ENDER_EYE);
     }
 }

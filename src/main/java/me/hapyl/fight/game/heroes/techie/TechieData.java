@@ -2,11 +2,10 @@ package me.hapyl.fight.game.heroes.techie;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Constants;
-import me.hapyl.fight.game.attribute.temper.Temper;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
+import me.hapyl.fight.game.talents.techie.Saboteur;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,18 +49,18 @@ public class TechieData extends PlayerData implements Iterable<LivingGameEntity>
         getBugs(entity).add(type);
 
         // Apply temper
-        type.getTemper().temper(entity, Constants.INFINITE_DURATION, player);
+        type.temper(entity, player);
     }
 
     @Override
     public void remove() {
-        bugged.keySet().forEach(entity -> entity.getAttributes().resetTemper(Temper.SABOTEUR));
+        bugged.keySet().forEach(entity -> entity.getAttributes().removeModifier(Saboteur.modifierSource));
         bugged.clear();
     }
 
     @Override
     public void remove(@Nonnull LivingGameEntity entity) {
-        entity.getAttributes().resetTemper(Temper.SABOTEUR);
+        entity.getAttributes().removeModifier(Saboteur.modifierSource);
         bugged.remove(entity);
     }
 
@@ -70,7 +69,7 @@ public class TechieData extends PlayerData implements Iterable<LivingGameEntity>
             final boolean removed = predicate.apply(entity);
 
             if (removed) {
-                entity.getAttributes().resetTemper(Temper.SABOTEUR);
+                entity.getAttributes().removeModifier(Saboteur.modifierSource);
             }
 
             return removed;

@@ -14,7 +14,7 @@ public class TestWinConditionCommand extends SimplePlayerAdminCommand {
 
     @Override
     protected void execute(Player player, String[] args) {
-        final IGameInstance gameInstance = Manager.current().getCurrentGame();
+        final IGameInstance gameInstance = Manager.current().currentInstance();
         if (!(gameInstance instanceof GameInstance)) {
             Chat.sendMessage(player, "&cNo game instance.");
             return;

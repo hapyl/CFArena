@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class HimariActionList {
@@ -45,7 +46,7 @@ public class HimariActionList {
         return 0;
     }
 
-    @Nonnull
+    @Nullable
     public HimariAction byIndex(int index) {
         return actions.get(index);
     }

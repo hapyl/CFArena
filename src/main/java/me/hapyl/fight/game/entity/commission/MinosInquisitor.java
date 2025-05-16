@@ -37,10 +37,10 @@ public class MinosInquisitor extends CommissionOverlayEntityType implements List
         setType(EntityType.MINIBOSS);
 
         equipment = Equipment.builder()
-                             .mainHand(Weapon.builder(Material.ARMOR_STAND, Key.ofString("inquisitor_weapon"))
+                             .mainHand(Weapon.createBuilder(Material.ARMOR_STAND, Key.ofString("inquisitor_weapon"))
                                              .damage(10)
                                              .build()
-                                             .getItem())
+                                             .createItem())
                              .build();
     }
 

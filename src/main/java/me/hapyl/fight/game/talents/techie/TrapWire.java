@@ -29,7 +29,7 @@ public class TrapWire extends ChargedTalent implements Listener {
     private final Map<Player, Set<Tripwire>> trapMap = new HashMap<>();
     @DisplayField private final int pickupDelay = 8 * 20;
     @DisplayField private final int destroyedCd = 160;
-    @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
+    @DisplayField(suffix = " blocks") private final short tripwireMaxLength = 10;
     @DisplayField private final int windupTime = 40;
 
     public TrapWire(@Nonnull Key key) {
@@ -45,7 +45,7 @@ public class TrapWire extends ChargedTalent implements Listener {
         );
 
 
-        setItem(Material.STRING);
+        setMaterial(Material.STRING);
         setCooldownSec(3);
     }
 
@@ -70,7 +70,24 @@ public class TrapWire extends ChargedTalent implements Listener {
         //getTraps(player).forEach(Tripwire::clearBlocks);
         //trapMap.remove(player);
     }
-
+    
+    @Nonnull
+    @Override
+    public Response execute(@Nonnull GamePlayer player, int charges) {
+        //final Set<Block> blocks = getTargetBlock(player);
+        //final Set<Tripwire> traps = getTraps(player);
+        //
+        //if (blocks == null) {
+        //    return Response.ERROR;
+        //}
+        //
+        //final Tripwire trap = new Tripwire(player, blocks);
+        //trap.setBlocks();
+        //traps.add(trap);
+        
+        return Response.OK;
+    }
+    
     @Override
     public void onStart(@Nonnull GameInstance instance) {
         super.onStart(instance);
@@ -87,22 +104,6 @@ public class TrapWire extends ChargedTalent implements Listener {
                 }));
             }
         }.runTaskTimer(10, 10);
-    }
-
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        //final Set<Block> blocks = getTargetBlock(player);
-        //final Set<Tripwire> traps = getTraps(player);
-        //
-        //if (blocks == null) {
-        //    return Response.ERROR;
-        //}
-        //
-        //final Tripwire trap = new Tripwire(player, blocks);
-        //trap.setBlocks();
-        //traps.add(trap);
-
-        return Response.OK;
     }
 
     public Set<Tripwire> getTraps(Player player) {

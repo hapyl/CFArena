@@ -39,7 +39,7 @@ public interface IFastAccess extends Styled {
                     player.closeInventory();
 
                     // Fx
-                    Message.success(player, "Reset Quick Access for slot {%s}!".formatted(slot));
+                    Message.success(player, "Reset Quick Access for slot {%s}!".formatted(slot + 1));
                     Message.sound(player, Sound.ENTITY_WOLF_WHINE, 1.0f);
                     Message.sound(player, Sound.ENTITY_GENERIC_EXPLODE, 1.25f);
                 }

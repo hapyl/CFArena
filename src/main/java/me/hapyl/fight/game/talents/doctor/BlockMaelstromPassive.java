@@ -22,7 +22,7 @@ public class BlockMaelstromPassive extends PassiveTalent {
                 """.formatted(Tick.round(cooldown))
         );
 
-        setItem(Material.BRICK);
+        setMaterial(Material.BRICK);
         setType(TalentType.DEFENSE);
     }
 }

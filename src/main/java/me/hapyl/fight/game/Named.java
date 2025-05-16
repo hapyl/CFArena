@@ -4,15 +4,13 @@ import me.hapyl.fight.game.color.Color;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * An enum collection of named objects, such as abilities etc.
  */
-public enum Named {
+public enum Named implements NamedColoredPrefixed {
 
     // Global terms //
-    ENERGY("※", "Energy", Color.AQUA),
     ACHIEVEMENT_POINT("\uD83C\uDF1F", "Achievement Points", Color.ROYAL_BLUE),
 
     // Hero-specific terms //
@@ -43,7 +41,8 @@ public enum Named {
     ABYSSAL_CURSE("&5&l\uD83D\uDDEF", "Abyssal Curse", Color.ABYSS),
     MOONLIT_ZONE("\uD83C\uDF19", "Moonlit Zone", Color.MOON),
     OMEN("&4&l👻", "Omen", Color.DARK_RED),
-
+    SHAMANS_MARK("&2&l\uD83D\uDC38", "Shaman's Mark", Color.ITS_WEDNESDAY_MY_DUDES),
+    
     ;
 
     private final String character;
@@ -57,52 +56,27 @@ public enum Named {
     }
 
     @Nonnull
-    public String getCharacterColored() {
-        return color + character;
-    }
-
-    @Nonnull
-    public String getCharacter() {
+    @Override
+    public String getPrefix() {
         return character;
     }
 
     @Nonnull
+    @Override
     public String getName() {
         return name;
     }
 
     @Nonnull
+    @Override
     public Color getColor() {
         return color;
     }
 
     @Nonnull
-    public String toString(@Nullable String prefix, @Nullable String suffix) {
-        return prefix + this + suffix;
-    }
-
     @Override
     public String toString() {
-        return color + character + " " + color + name + "&7";
+        return toString0();
     }
 
-    @Nonnull
-    public String toStringRaw() {
-        return character + " " + name;
-    }
-
-    @Nonnull
-    public String getCharacterNoColor() {
-        return ChatColor.stripColor(character);
-    }
-
-    @Nonnull
-    public String prefix(@Nonnull Object toPrefix) {
-        return color + character + " " + toPrefix;
-    }
-
-    @Nonnull
-    public String suffix(@Nonnull Object toSuffix) {
-        return color + "" + toSuffix + " " + character;
-    }
 }

@@ -1,30 +1,20 @@
 package me.hapyl.fight.game.talents.tamer;
 
-import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.tamer.TamerData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.TamerPacks;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.Nulls;
-import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.fight.util.displayfield.DisplayFieldData;
-import me.hapyl.fight.util.displayfield.DisplayFieldDataProvider;
-import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
-public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFieldDataProvider {
-
-    private final PlayerMap<ActiveTamerPack> tamerPackMap = PlayerMap.newConcurrentMap();
-    private final List<DisplayFieldData> displayFieldData = Lists.newArrayList();
+public class MineOBall extends Talent implements Listener, TamerTimed {
 
     public MineOBall(@Nonnull Key key) {
         super(key, "Mine 'o Ball");
@@ -47,45 +37,11 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
                             """.formatted(pack.getName(), pack.getTypeString(), pack.getDescription())
             );
 
-            // Copy display fields
-            DisplayFieldSerializer.copy(pack, this);
+            copyDisplayFieldsFrom(pack);
         }
 
         setCooldownSec(10);
         setTexture("5fe47640843744cd5796979d1196fb938317ec42b09fccb2c545ee4c925ac2bd");
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        tamerPackMap.removeAnd(player, ActiveTamerPack::recall);
-    }
-
-    @Override
-    public void onStop(@Nonnull GameInstance instance) {
-        tamerPackMap.forEachAndClear(ActiveTamerPack::remove);
-    }
-
-    @Nullable
-    public ActiveTamerPack getPack(GamePlayer player) {
-        return player == null ? null : tamerPackMap.get(player);
-    }
-
-    @Override
-    public void onStart(@Nonnull GameInstance instance) {
-        new GameTask() {
-            @Override
-            public void run() {
-                tamerPackMap.forEach((player, pack) -> {
-                    if (pack.isOver()) {
-                        pack.recall();
-                        tamerPackMap.remove(player);
-                        return;
-                    }
-
-                    pack.tick();
-                });
-            }
-        }.runTaskTimer(0, 1);
     }
 
     @Nonnull
@@ -95,29 +51,25 @@ public class MineOBall extends Talent implements Listener, TamerTimed, DisplayFi
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final ActiveTamerPack oldPack = getPack(player);
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final TamerData data = HeroRegistry.TAMER.getPlayerData(player);
+        TamerPack previousPack = null;
 
-        if (oldPack != null) {
-            oldPack.recall();
+        if (data.activePack != null) {
+            data.activePack.recall();
+            previousPack = data.activePack.getPack();;
         }
 
-        final TamerPacks randomPack = TamerPacks.random(Nulls.getOrNull(oldPack, ActiveTamerPack::getPack));
+        final TamerPacks randomPack = TamerPacks.random(previousPack);
         final ActiveTamerPack tamerPack = new ActiveTamerPack(randomPack.getPack(), player);
 
         tamerPack.spawn();
-        tamerPackMap.put(player, tamerPack);
+        data.activePack = tamerPack;
 
         // Fx
         player.sendMessage("&c\uD83D\uDD34 &eYou just summoned a &6%s&e!".formatted(tamerPack.getName()));
 
         return Response.OK;
-    }
-
-    @Nonnull
-    @Override
-    public List<DisplayFieldData> getDisplayFieldData() {
-        return displayFieldData;
     }
 
 }

@@ -9,21 +9,21 @@ import java.util.List;
 
 public enum EnumTerm {
 
-    TRUE_DAMAGE(Term.builder()
-                    .setName("True Damage")
-                    .setShortDescription("""
+    BREACH_DAMAGE(Term.builder()
+                      .setName("Breach Damage")
+                      .setShortDescription("""
                             Ignores defense.
                             """)
-                    .setDescription("""
+                      .setDescription("""
                             Ignores victim's %s, while still being affected by damager's %s.
                             
-                            Cannot crit.
+                            &4Cannot crit.
                             """.formatted(AttributeType.DEFENSE, AttributeType.ATTACK))
-                    .build()),
+                      .build()),
 
-    ABSOLUTE_DAMAGE(
+    TRUE_DAMAGE(
             Term.builder()
-                .setName("Absolute Damage")
+                .setName("True Damage")
                 .setShortDescription("""
                         Ignores any external modifications.
                         """)
@@ -32,7 +32,7 @@ public enum EnumTerm {
                         
                         What you see is what you get.
                         
-                        Cannot crit.
+                        &4Cannot crit.
                         """)
                 .build()
     ),

@@ -13,5 +13,5 @@ public class HeroAttributes extends BaseAttributes {
     public Hero getHero() {
         return hero;
     }
-
+    
 }

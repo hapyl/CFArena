@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class TeleportPearl extends Talent implements Listener {
         );
 
         setType(TalentType.MOVEMENT);
-        setItem(Material.ENDER_PEARL);
+        setMaterial(Material.ENDER_PEARL);
         setCooldown(160);
     }
 
@@ -46,15 +47,15 @@ public class TeleportPearl extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final EnderPearl pearl = player.launchProjectile(EnderPearl.class);
 
         enderPearls.add(pearl);
-        pearl.setShooter(player.getPlayer());
+        pearl.setShooter(player.getEntity());
 
         if (!player.isSneaking()) {
             player.playSound(Sound.ENTITY_HORSE_SADDLE, 1.5f);
-            pearl.addPassenger(player.getPlayer());
+            pearl.addPassenger(player.getEntity());
         }
 
         return Response.OK;

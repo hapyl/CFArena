@@ -1,7 +1,7 @@
 package me.hapyl.fight.database.serialize;
 
 import me.hapyl.fight.util.serialize.SerializeConstructor;
-import org.apache.commons.lang.SerializationException;
+import org.apache.commons.lang3.SerializationException;
 import org.bson.Document;
 
 import javax.annotation.Nonnull;

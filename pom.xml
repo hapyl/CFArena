@@ -67,21 +67,21 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.4-R0.1-SNAPSHOT</version>
+            <version>1.21.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.21.4-R0.1-SNAPSHOT</version>
+            <version>1.21.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.github.hapyl</groupId>
             <artifactId>eternaapi</artifactId>
-            <version>4.7.17</version>
+            <version>4.10.6</version>
             <scope>provided</scope> <!-- Why was this not compile anyways? -->
         </dependency>
 

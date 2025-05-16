@@ -1,8 +1,6 @@
 package me.hapyl.fight.game.heroes;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.Described;
-import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
@@ -15,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class HeroPlayerItemMaker {
 
@@ -125,17 +122,23 @@ public class HeroPlayerItemMaker {
                 builder.addLore(" &7Gender: " + profile.getGender());
                 builder.addLore(" &7Race: " + profile.getRace());
 
-
                 // Attributes
                 final HeroAttributes attributes = hero.getAttributes();
 
                 builder.addLore();
                 builder.addLore(Color.DEFAULT.bold() + "ᴀᴛᴛʀɪʙᴜᴛᴇꜱ");
-
-                attributes.forEachMandatoryAndNonDefault((type, value) -> {
-                    builder.addLore(" &7%s: &b%s".formatted(type.getName(), type.getFormatted(attributes)));
-                });
-
+                
+                for (AttributeType attributeType : AttributeType.values()) {
+                    final double value = attributes.get(attributeType);
+                    final double defaultValue = attributeType.defaultValue();
+                    
+                    if (!attributeType.isMandatory() && defaultValue == value) {
+                        continue;
+                    }
+                    
+                    builder.addLore(" &7%s: &b%s".formatted(attributeType.getName(), attributeType.getFormatted(attributes)));
+                }
+                
                 builder.addLore();
                 builder.addLore(Color.DEFAULT.bold() + "ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ");
                 builder.addTextBlockLore(hero.getDescription(), "&8&o ", 35);
@@ -149,18 +152,6 @@ public class HeroPlayerItemMaker {
             throw new IllegalStateException();
         }
 
-        private static <T extends Enum<T> & Named> void appendLore(ItemBuilder builder, String name, T named, @Nullable T nullValue) {
-            if (named == null || named == nullValue) {
-                return;
-            }
-
-            builder.addLore();
-            builder.addLore("&7%s: %s".formatted(name, named.toString()));
-
-            if (named instanceof Described described) {
-                builder.addSmartLore(described.getDescription(), "&8&o");
-            }
-        }
     }
 
 }

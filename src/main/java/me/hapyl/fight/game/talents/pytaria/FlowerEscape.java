@@ -19,6 +19,7 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FlowerEscape extends Talent {
 
@@ -26,7 +27,7 @@ public class FlowerEscape extends Talent {
             "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:tall_grass\",Properties:{half:\"lower\"}},transformation:[0.4918f,0.0000f,0.0000f,-0.2500f,0.0000f,0.4918f,0.0000f,-0.2500f,0.0000f,0.0000f,0.4918f,-0.1875f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:sunflower\",Properties:{half:\"lower\"}},transformation:[1.0000f,0.0000f,0.0000f,-0.4982f,0.0000f,1.0000f,0.0000f,-0.1875f,0.0000f,0.0000f,1.0000f,-0.3748f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_tulip\",Properties:{}},transformation:[0.7038f,-0.4041f,0.2232f,-0.4560f,0.4617f,0.6161f,-0.3403f,0.1875f,-0.0000f,0.4070f,0.7368f,-0.2350f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_tulip\",Properties:{}},transformation:[0.1739f,-0.0000f,0.5963f,-0.3816f,-0.3477f,0.5047f,0.1014f,0.7500f,-0.4845f,-0.3622f,0.1413f,0.3125f,0.0000f,0.0000f,0.0000f,1.0000f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:red_tulip\",Properties:{}},transformation:[1.0000f,0.0000f,0.0000f,-0.5000f,0.0000f,1.0000f,0.0000f,0.7500f,0.0000f,0.0000f,1.0000f,-0.3750f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
 
-    @DisplayField(suffix = "blocks") private final double flowerRadius = 2.5d;
+    @DisplayField(suffix = " blocks") private final double flowerRadius = 2.5d;
     @DisplayField private final double flowerDamage = 5.0d;
     @DisplayField private final double explodeDamageIncrease = 2.0d;
     @DisplayField private final int pulsePeriod = 20;
@@ -39,16 +40,16 @@ public class FlowerEscape extends Talent {
                 
                 The &dflower&7 continuously pulses and deals %s to nearby &cenemies&7.
                 &8&o;;After the duration ends, it explodes dealing x%.0f the original damage.
-                """.formatted(EnumTerm.ABSOLUTE_DAMAGE, explodeDamageIncrease)
+                """.formatted(EnumTerm.TRUE_DAMAGE, explodeDamageIncrease)
         );
 
-        setItem(Material.RED_TULIP);
+        setMaterial(Material.RED_TULIP);
         setCooldownSec(12);
         setDurationSec(6);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection().normalize().multiply(-1.5d);
         player.setVelocity(vector.setY(0.5d));
 
@@ -57,7 +58,7 @@ public class FlowerEscape extends Talent {
         location.setPitch(0.0f);
 
         final DisplayEntity entity = display.spawnInterpolated(location);
-        final double snapShotDamage = player.getAttributes().calculateOutgoingDamage(flowerDamage, DamageCause.FLOWER);
+        final double snapShotDamage = player.getAttributes().calculate().outgoingDamage(flowerDamage, DamageCause.FLOWER);
 
         new TimedGameTask(getDuration()) {
             @Override

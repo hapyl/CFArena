@@ -71,7 +71,7 @@ public interface DeviceHack {
                 onTick(player, tick);
 
                 // Disallow movement each tick to prevent abuse
-                player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 2);
+                player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 5);
 
                 // Tick
                 tick++;

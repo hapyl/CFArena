@@ -15,6 +15,7 @@ import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class DarkMageTalent extends Talent {
 
@@ -55,19 +56,19 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     @Override
-    public void startCd(@Nonnull GamePlayer player) {
+    public void startCooldown(@Nonnull GamePlayer player) {
         if (!hasWither(player)) {
-            super.startCd(player);
+            super.startCooldown(player);
             return;
         }
 
         final DarkMage.DarkMageUltimate ultimate = getUltimate();
 
-        startCd(player, (int) (getCooldown() * ultimate.cooldownReduction));
+        startCooldown(player, (int) (getCooldown() * ultimate.cooldownReduction));
     }
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         player.sendTitle(getUsageRaw(), null, 5, 20, 5);
 
         player.playSound(Sound.ENTITY_GLOW_SQUID_DEATH, 0.75f);
@@ -77,8 +78,8 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     public final void executeDarkMage(@Nonnull GamePlayer player) {
-        if (hasCd(player)) {
-            player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
+        if (hasCooldown(player)) {
+            player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCooldownTimeLeft(player))), 0, 20, 5);
             return;
         }
 
@@ -106,7 +107,7 @@ public abstract class DarkMageTalent extends Talent {
         }
 
         if (!spellResponse.isAwait()) {
-            startCd(player);
+            startCooldown(player);
         }
 
         postProcessTalent(player);

@@ -7,7 +7,6 @@ import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.build.NamedSignReader;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.maps.gamepack.PackType;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Sign;
@@ -73,15 +72,13 @@ public class ReadSignsCommand extends CFCommand {
                 "&8● &e&lCLICK TO COPY COORDINATES"
         );
 
-        final PackType packType = PackType.of(line);
-
         // TODO (Sun, Feb 16 2025 @xanyjl): If spawn sign, yaw should be the sign direction
 
+        // FIXME @May 08, 2025 (xanyjl) -> Signs broke ig
+        
         Chat.sendClickableHoverableMessage(
                 player,
-                LazyEvent.copyToClipboard(packType == null
-                        ? "addLocation(%s, 0, 0);".formatted(locationString)
-                        : "addPackLocation(PackType.%s, %s);".formatted(packType.name(), locationString)),
+                LazyEvent.copyToClipboard("addLocation(%s, 0, 0);".formatted(locationString)),
                 LazyEvent.showText("&dClick to copy code!"),
                 "&8● &d&lCLICK TO COPY CODE"
         );

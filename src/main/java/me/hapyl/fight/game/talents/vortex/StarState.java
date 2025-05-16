@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.vortex;
 
-import org.bukkit.ChatColor;
+import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
 
 import javax.annotation.Nonnull;
 
@@ -9,19 +9,19 @@ public enum StarState {
     BEING_ATTACKED {
         @Override
         void onSet(@Nonnull AstralStar star) {
-            star.setColor(ChatColor.RED);
+            star.setColor(GlowingColor.RED);
         }
     },
     LINKING {
         @Override
         void onSet(@Nonnull AstralStar star) {
-            star.setColorGlobal(ChatColor.GOLD);
+            star.setColorGlobal(GlowingColor.GOLD);
         }
     },
     EXPLODING {
         @Override
         void onSet(@Nonnull AstralStar star) {
-            star.setColorGlobal(ChatColor.DARK_RED);
+            star.setColorGlobal(GlowingColor.DARK_RED);
         }
     };
 

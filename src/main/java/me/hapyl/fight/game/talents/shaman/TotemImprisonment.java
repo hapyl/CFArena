@@ -13,6 +13,7 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TotemImprisonment extends Talent {
 
@@ -27,14 +28,14 @@ public class TotemImprisonment extends Talent {
                 """
         );
 
-        setItem(Material.COBBLESTONE_WALL);
+        setMaterial(Material.COBBLESTONE_WALL);
         setType(TalentType.IMPAIR);
         setCooldownSec(16);
         setDurationSec(6);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final LivingGameEntity target = Collect.targetEntityDot(player, 15, 0.7d, entity -> {
             return !player.isSelfOrTeammate(entity) && player.hasLineOfSight(entity);
         });

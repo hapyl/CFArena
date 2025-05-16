@@ -2,14 +2,13 @@ package me.hapyl.fight.game.talents.nightmare;
 
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.nightmare.OmenDebuff;
+import me.hapyl.fight.game.heroes.nightmare.NightmareData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
@@ -18,141 +17,134 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShadowShift extends Talent implements Listener {
-
+    
     @DisplayField private final int immobilizationDuration = 20;
     @DisplayField private final int omenDuration = 60;
-
+    
     public ShadowShift(@Nonnull Key key) {
         super(key, "Shadow Shift");
-
+        
         setDescription("""
-                Instantly &bteleport&7 behind your target &eenemy&7 to scare them from behind, applying %s.
-                
-                &8&o;;You will lose the ability to move for a short duration.
-                """.formatted(Named.OMEN)
+                       Instantly &bteleport&7 behind your target &eenemy&7 to scare them from behind, applying %s.
+                       
+                       &8&o;;You will lose the ability to move for a short duration.
+                       """.formatted(Named.OMEN)
         );
-
+        
         setType(TalentType.IMPAIR);
-        setItem(Material.LEAD);
+        setMaterial(Material.LEAD);
         setCooldown(200);
     }
-
+    
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final TargetLocation targetLocation = getLocationAndCheck0(player, 50.0d, 0.95d);
-
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final TargetLocation targetLocation = getLocationBehindTargetEntity(player, 50.0d, 0.95d);
+        
         if (targetLocation.getError() != ErrorCode.OK) {
             player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return Response.error(targetLocation.getError().getErrorMessage());
         }
-
-        player.addEffect(EffectType.BLINDNESS, 20, immobilizationDuration);
-        player.addEffect(EffectType.SLOW, 20, immobilizationDuration);
-        player.addEffect(EffectType.JUMP_BOOST, 250, immobilizationDuration);
-
+        
+        player.addEffect(EffectType.BLINDNESS, immobilizationDuration);
+        player.addEffect(EffectType.MOVEMENT_CONTAINMENT, immobilizationDuration);
+        
         final Location location = targetLocation.getLocation();
         final LivingGameEntity entity = targetLocation.getEntity();
-        final OmenDebuff debuff = HeroRegistry.NIGHTMARE.getDebuff(player);
-
+        final NightmareData data = HeroRegistry.NIGHTMARE.getPlayerData(player);
+        
         player.teleport(location);
-        debuff.setOmen(entity, omenDuration);
-
+        data.affect(entity, omenDuration);
+        
         // Fx
         player.playWorldSound(location, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f);
         player.spawnParticle(location, Particle.POOF, 3, 0.1d, 0.1d, 0.1d, 0.04f);
-
+        
         return Response.OK;
     }
-
+    
     @Nonnull
-    public TargetLocation getLocationAndCheck0(GamePlayer player, double maxDistance, double dot) {
-        final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, dot, entity -> {
-            return !player.isSelfOrTeammate(entity) && player.hasLineOfSight(entity);
-        });
-
+    public TargetLocation getLocationBehindTargetEntity(@Nonnull GamePlayer player, double maxDistance, double dot) {
+        final LivingGameEntity target = Collect.targetEntityRayCast(
+                player, maxDistance, dot, entity -> {
+                    return !player.isSelfOrTeammate(entity) && player.hasLineOfSight(entity);
+                }
+        );
+        
         if (target == null) {
             return new TargetLocation(null, null, ErrorCode.NO_TARGET);
         }
-
+        
         final Location behind = target.getLocation().add(target.getLocation().getDirection().multiply(-1).setY(0.0d));
         behind.setYaw(behind.getYaw());
         behind.setPitch(behind.getPitch());
-
+        
         if (behind.getBlock().getType().isOccluding()) {
             return new TargetLocation(null, null, ErrorCode.OCCLUDING);
         }
-
+        
         return new TargetLocation(target, behind, ErrorCode.OK);
     }
-
-    @EventHandler()
-    public void handleEntityLeash(PlayerLeashEntityEvent ev) {
-        if (Manager.current().isGameInProgress()) {
-            ev.setCancelled(true);
-        }
-    }
-
+    
     public enum ErrorCode {
-
+        
         NO_TARGET("No valid target!"),
-        NO_LOS("No line of sight with target!"),
+        NO_LOS("No line of sight with the target!"),
         OCCLUDING("Location is not safe!"),
         OK("");
-
+        
         private final String errorMessage;
-
+        
         ErrorCode(String s) {
             this.errorMessage = s;
         }
-
+        
         public String getErrorMessage() {
             return errorMessage;
         }
     }
-
+    
     public static class TargetLocation {
-
+        
         private final LivingGameEntity entity;
         private final Location location;
         private final ErrorCode error;
-
+        
         TargetLocation(LivingGameEntity entity, Location location, ErrorCode error) {
             this.entity = entity;
             this.location = location;
             this.error = error;
         }
-
+        
         @Nonnull
         public LivingGameEntity getEntity() {
             if (error != ErrorCode.OK) {
                 throw new IllegalStateException("check for error before getting entity!");
             }
-
+            
             return entity;
         }
-
+        
         @Nonnull
         public Location getLocation() {
             if (error != ErrorCode.OK) {
                 throw new IllegalStateException("check for error before getting location!");
             }
-
+            
             location.setPitch(0.0f);
             return location;
         }
-
+        
         @Nonnull
         public ErrorCode getError() {
             return error;
         }
     }
-
-
+    
+    
 }

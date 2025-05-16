@@ -17,11 +17,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SpectralForm extends Talent {
 
     @DisplayField public final double maxFlightHeight = 6;
-    @DisplayField(scaleFactor = 500, dp = 3) public final float flightSpeed = 0.06f;
+    @DisplayField(scale = 500) public final float flightSpeed = 0.06f;
 
     public SpectralForm(@Nonnull Key key) {
         super(key, "Spectral Form");
@@ -36,7 +37,7 @@ public class SpectralForm extends Talent {
                 """
         );
 
-        setItem(Material.BLACK_DYE);
+        setMaterial(Material.BLACK_DYE);
         setType(TalentType.MOVEMENT);
 
         setDurationSec(3);
@@ -44,9 +45,9 @@ public class SpectralForm extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-        final BatCloud batCloud = new BatCloud(player.getPlayer());
+        final BatCloud batCloud = new BatCloud(player.getEntity());
 
         player.setAllowFlight(true);
         player.setFlying(true);

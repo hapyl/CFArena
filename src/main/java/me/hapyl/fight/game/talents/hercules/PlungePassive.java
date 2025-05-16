@@ -15,6 +15,6 @@ public class PlungePassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.COARSE_DIRT);
+        setMaterial(Material.COARSE_DIRT);
     }
 }

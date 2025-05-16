@@ -96,7 +96,7 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
         super.show(player);
         onSpawn(player);
     }
-
+    
     @Override
     public void showAll() {
         Bukkit.getOnlinePlayers().forEach(this::show);

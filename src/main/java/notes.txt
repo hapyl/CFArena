@@ -1,5 +1,9 @@
 ###############################
 
+1230128031289012890318290381290 check for working
+- Cryptshade abilities
+- Extra Cut
+
 - Scratch cards
 - Leaderboard
 - Poison Ivy spams the POP sound
@@ -8,6 +12,9 @@
 - Obtain coins is broken description
 - Don't set game instance if it failed to create
 - Man I really want to swap attributes to be GOOD
+
+- [!] Out of Charged item should have cooldown until next charge not total cooldown
+- Add manual reload and setting to swap DROP >< CTRL DROP
 
 ======= IMPORTANT =======
 

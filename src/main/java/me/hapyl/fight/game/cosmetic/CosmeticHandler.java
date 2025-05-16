@@ -43,7 +43,7 @@ public class CosmeticHandler extends BukkitRunnable implements Listener {
             }
 
             // Don't display if game is not started but exists
-            final IGameInstance gameInstance = Manager.current().getGameInstance();
+            final IGameInstance gameInstance = Manager.current().currentInstanceOrNull();
 
             if (gameInstance != null && gameInstance.getGameState() != State.IN_GAME) {
                 return;

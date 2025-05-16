@@ -13,8 +13,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class TermCommand extends CFCommand {
-    public TermCommand(@Nonnull String name, @Nonnull PlayerRank rank) {
-        super(name, rank);
+    public TermCommand(@Nonnull String name) {
+        super(name, PlayerRank.DEFAULT);
     }
 
     @Override

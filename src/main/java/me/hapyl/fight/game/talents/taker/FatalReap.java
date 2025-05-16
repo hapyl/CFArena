@@ -5,11 +5,10 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.heroes.taker.SpiritualBones;
+import me.hapyl.fight.game.heroes.taker.TakerData;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -20,54 +19,52 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public class FatalReap extends Talent {
 
     @DisplayField private final short spiritualBoneGeneration = 2;
-    @DisplayField(suffix = "blocks") private final double length = 2.0d;
-    @DisplayField(suffix = "%", suffixSpace = false) private final double damagePercent = 20.0d;
+    @DisplayField(suffix = " blocks") private final double length = 2.0d;
+    @DisplayField(suffix = "%") private final double damagePercent = 20.0d;
 
     public FatalReap(@Nonnull Key key) {
         super(key, "Fatal Reap");
 
         setDescription("""
-                Instantly swipe your scythe to unleash a &8devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their &c&ncurrent health&7 as &4damage&7.
+                Instantly swipe your scythe to unleash a &4devastating attack&7 that shatters your opponents' &fbones&7, dealing &c{damagePercent}&7 of their current health as &4damage&7.
                 
-                Convert &b{spiritualBoneGeneration}&7 broken bones from each hit enemy directly into %s.
+                Also convert &b{spiritualBoneGeneration}&7 broken bones from each hit enemy directly into %s.
                 """.formatted(Named.SPIRITUAL_BONES)
         );
 
-        setItem(Material.NETHERITE_HOE);
+        setMaterial(Material.NETHERITE_HOE);
         setCooldownSec(12);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final Set<GameEntity> hitEntities = Sets.newHashSet();
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final Set<LivingGameEntity> hitEntities = Sets.newHashSet();
 
         for (double d = length; d >= -length; d -= 0.2d) {
             final Location location = calculateLocation(player.getEyeLocation(), d);
-
-            for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.5d)) {
-                if (player.isSelfOrTeammate(entity)) {
-                    continue;
-                }
-
-                final double health = entity.getHealth();
-                final double damage = Math.min(health * (damagePercent / 100), entity.getMaxHealth() / 2);
-
-                entity.damage(damage, player, DamageCause.RIP_BONES);
-                hitEntities.add(entity);
-            }
+            
+            hitEntities.addAll(Collect.nearbyEntities(location, 1.5d, player::isNotSelfOrTeammate));
 
             player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.0f, 0.0f, 0.0f, 0.0f);
         }
 
-        final SpiritualBones bones = HeroRegistry.TAKER.getBones(player);
+        final TakerData data = HeroRegistry.TAKER.getPlayerData(player);
 
-        // Give bones
-        bones.add(hitEntities.size() * spiritualBoneGeneration, true);
+        // Damage and give bones here
+        hitEntities.forEach(entity -> {
+            final double health = entity.getHealth();
+            final double damage = Math.min(health * (damagePercent / 100), entity.getMaxHealth() / 2);
+            
+            entity.damage(damage, player, DamageCause.RIP_BONES);
+            
+            data.add(spiritualBoneGeneration, true);
+        });
         hitEntities.clear();
 
         // Fx

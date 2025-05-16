@@ -15,6 +15,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TamingTheEarth extends Talent implements TamerTimed {
 
@@ -29,13 +30,13 @@ public class TamingTheEarth extends Talent implements TamerTimed {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.PISTON);
+        setMaterial(Material.PISTON);
         setDuration(30);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration(player);
 
         Collect.nearbyEntities(player.getLocation(), radius).forEach(entity -> {

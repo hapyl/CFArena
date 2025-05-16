@@ -1,30 +1,41 @@
 package me.hapyl.fight.game.effect;
 
-import org.bukkit.ChatColor;
+import me.hapyl.fight.game.color.Color;
 
 import javax.annotation.Nonnull;
 
 public enum Type {
-
-    NEUTRAL("Neutral", ChatColor.YELLOW),
-    POSITIVE("Positive", ChatColor.GREEN),
-    NEGATIVE("Negative", ChatColor.RED);
-
+    
+    /**
+     * Defines a neutral effect.
+     */
+    NEUTRAL("Neutral", Color.YELLOW),
+    
+    /**
+     * Defines a positive effect.
+     */
+    POSITIVE("Positive", Color.GREEN),
+    
+    /**
+     * Defines a negative effect.
+     */
+    NEGATIVE("Negative", Color.RED);
+    
     private final String name;
-    private final ChatColor color;
-
-    Type(String name, ChatColor color) {
+    private final Color color;
+    
+    Type(String name, Color color) {
         this.name = name;
         this.color = color;
     }
-
+    
     @Nonnull
     public String getName() {
         return name;
     }
-
+    
     @Nonnull
-    public ChatColor getColor() {
+    public Color getColor() {
         return color;
     }
 }

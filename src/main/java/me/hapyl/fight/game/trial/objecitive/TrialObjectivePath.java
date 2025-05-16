@@ -58,7 +58,7 @@ public class TrialObjectivePath extends Cuboid implements Lifecycle, Ticking {
     }
 
     private void sendBlockChange(BlockData data) {
-        final Player player = trial.getPlayer().getPlayer();
+        final Player player = trial.getPlayer().getEntity();
 
         for (Location location : locations) {
             player.sendBlockChange(location, data);

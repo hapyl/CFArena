@@ -18,6 +18,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class VortexSlash extends Talent {
 
@@ -41,19 +42,19 @@ public class VortexSlash extends Talent {
         );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.BONE_MEAL);
+        setMaterial(Material.BONE_MEAL);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
 
         new PlayerTimedGameTask(player, maxDuration) {
 
             @Override
             public void onLastTick() {
-                startCd(player);
+                startCooldown(player);
             }
 
             @Override
@@ -62,7 +63,7 @@ public class VortexSlash extends Talent {
 
                 // Collision check
                 if (nextLocation.getBlock().getType().isSolid()) {
-                    startCd(player);
+                    startCooldown(player);
                     cancel();
                     return;
                 }

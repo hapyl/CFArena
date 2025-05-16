@@ -18,7 +18,7 @@ public class Paradox extends PassiveTalent {
                 &4&l"REALITY": &7 Your hit will heal you for 10 HP.
                 &5&l"ABYSS": &7 Your hit will reduce the enemy's %s by 15%%.
                 """.formatted(AttributeType.ATTACK));
-        setItem(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
+        setMaterial(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
         setType(TalentType.IMPAIR);
     }
 }

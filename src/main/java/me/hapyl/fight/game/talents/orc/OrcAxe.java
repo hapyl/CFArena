@@ -47,7 +47,7 @@ public class OrcAxe extends InputTalent {
                         """)
                 .setCooldownSec(15);
 
-        setItem(Material.NETHERITE_AXE);
+        setMaterial(Material.NETHERITE_AXE);
     }
 
     @Nonnull

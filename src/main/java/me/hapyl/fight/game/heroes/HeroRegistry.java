@@ -13,6 +13,7 @@ import me.hapyl.fight.game.heroes.aurora.Aurora;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
+import me.hapyl.fight.game.heroes.dlan.Dylan;
 import me.hapyl.fight.game.heroes.doctor.DrEd;
 import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;
@@ -32,6 +33,7 @@ import me.hapyl.fight.game.heroes.km.KillingMachine;
 import me.hapyl.fight.game.heroes.knight.BlastKnight;
 import me.hapyl.fight.game.heroes.librarian.Librarian;
 import me.hapyl.fight.game.heroes.mage.Mage;
+import me.hapyl.fight.game.heroes.miku.MikuHatsune;
 import me.hapyl.fight.game.heroes.moonwalker.Moonwalker;
 import me.hapyl.fight.game.heroes.nightmare.Nightmare;
 import me.hapyl.fight.game.heroes.ninja.Ninja;
@@ -66,7 +68,7 @@ import java.util.*;
  * {@inheritDoc}
  */
 public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
-
+    
     public static final Archer ARCHER;
     public static final Alchemist ALCHEMIST;
     @MarkedAsIncomplete public static final Moonwalker MOONWALKER;
@@ -79,7 +81,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Ender ENDER;
     public static final Spark SPARK;
     public static final ShadowAssassin SHADOW_ASSASSIN;
-    public static final WitcherClass WITCHER;
+    @MarkedAsIncomplete public static final WitcherClass WITCHER;
     public static final Vortex VORTEX;
     public static final Freazly FREAZLY;
     public static final DarkMage DARK_MAGE;
@@ -90,7 +92,7 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Swooper SWOOPER;
     public static final Tamer TAMER;
     public static final Shark SHARK;
-    public static final Librarian LIBRARIAN;
+    @LetsPretendThisHeroDoesNotExistAndIgnoreThisLittleGoofyAhhGuyOkayQuestionMark public static final Librarian LIBRARIAN;
     public static final Techie TECHIE;
     @MarkedAsIncomplete public static final KillingMachine WAR_MACHINE;
     public static final Harbinger HARBINGER;
@@ -114,26 +116,28 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
     public static final Himari HIMARI;
     public static final Warden WARDEN;
     public static final Inferno INFERNO;
-
+    public static final MikuHatsune MIKU;
+    public static final Dylan DYLAN;
+    
     // *=* Tutorial Hero *=* // Please keep last
     public static final TutorialArcher TUTORIAL_ARCHER;
-
+    
     private static final Set<Hero> values;
     private static final List<Hero> playable;
-
+    
     private static final Map<Archetype, List<Hero>> byArchetype;
-
+    
     private static GlobalHeroStats globalStats;
-
+    
     static {
         AbstractStaticRegistry.ensure(HeroRegistry.class, Hero.class);
-
+        
         values = new LinkedHashSet<>();
         playable = new ArrayList<>();
         byArchetype = new HashMap<>();
-
+        
         /*/ ⬇️ Register below ⬇️ /*/
-
+        
         ARCHER = register("archer", Archer::new);
         ALCHEMIST = register("alchemist", Alchemist::new);
         MOONWALKER = register("moonwalker", Moonwalker::new);
@@ -181,116 +185,118 @@ public final class HeroRegistry extends AbstractStaticRegistry<Hero> {
         HIMARI = register("himari", Himari::new);
         WARDEN = register("warden", Warden::new);
         INFERNO = register("inferno", Inferno::new);
-
+        MIKU = register("miku_hatsune", MikuHatsune::new);
+        DYLAN = register("dylan", Dylan::new);
+        
         // Keep last
         TUTORIAL_ARCHER = register("tutorial_archer", TutorialArcher::new);
-
+        
         calculateGlobalStats();
     }
-
+    
     @Nonnull
     public static GlobalHeroStats getGlobalStats() {
         return Objects.requireNonNull(globalStats, "Global stats hasn't yet been instantiated!");
     }
-
+    
     public static void calculateGlobalStats() {
         if (globalStats != null) {
             globalStats.clear();
         }
-
+        
         globalStats = new GlobalHeroStats();
     }
-
+    
     @Nonnull
     public static Hero ofString(@Nonnull String string) {
         return AbstractStaticRegistry.ofString(values, string, defaultHero());
     }
-
+    
     @Nullable
     public static Hero ofStringOrNull(@Nonnull String string) {
         return AbstractStaticRegistry.ofStringOrNull(values, string);
     }
-
+    
     @Nonnull
     public static Hero defaultHero() {
         return ARCHER;
     }
-
+    
     @Nonnull
     public static List<Hero> values() {
         return new ArrayList<>(values);
     }
-
+    
     @Nonnull
     public static List<Hero> playable() {
         return CF.environment().allowDisabledHeroes.isEnabled() ? values() : new ArrayList<>(playable);
     }
-
+    
     @Nonnull
     public static List<Hero> playableRespectFavourites(@Nonnull Player player) {
         final PlayerProfile profile = CF.getProfile(player);
         final List<Hero> playable = playable();
-
+        
         playable.sort((a, b) -> {
             final HeroEntry heroEntry = profile.getDatabase().heroEntry;
             return (heroEntry.isFavourite(b) ? 1 : 0) - (heroEntry.isFavourite(a) ? 1 : 0);
         });
-
+        
         return playable;
     }
-
+    
     @Nonnull
     public static List<Hero> playableRespectLockedFavourites(@Nonnull Player player) {
         final List<Hero> heroes = playableRespectFavourites(player);
         heroes.sort(Comparator.comparingInt(a -> (a.isLocked(player) ? 1 : 0)));
-
+        
         return heroes;
     }
-
+    
     @Nonnull
     public static Hero randomHero(@Nonnull Player player) {
         final List<Hero> playable = playable();
         playable.removeIf(hero -> hero.isLocked(player));
-
+        
         return CollectionUtils.randomElement(playable, defaultHero());
     }
-
+    
     @Nonnull
     public static Hero randomHero() {
         return CollectionUtils.randomElement(playable, defaultHero());
     }
-
+    
     @Nonnull
     public static Set<Hero> byArchetype(@Nonnull Archetype archetype) {
         return setFromByMap(byArchetype, archetype);
     }
-
+    
     @Nonnull
     public static List<String> keys() {
         return AbstractStaticRegistry.keys(values);
     }
-
+    
     private static <K> Set<Hero> setFromByMap(Map<K, List<Hero>> map, K key) {
         final List<Hero> list = map.get(key);
-
+        
         return list != null ? new HashSet<>(list) : new HashSet<>();
     }
-
+    
     private static <T extends Hero> T register(@Nonnull String stringKey, @Nonnull KeyFunction<T> fn) {
         final T hero = fn.apply(Key.ofString(stringKey));
-
+        
         values.add(hero);
-
-        if (hero.isValidHero()) {
+        
+        if (!hero.isDisabled()) {
             playable.add(hero);
         }
-
+        
         hero.getProfile().getArchetypes().forEach(archetype -> {
             byArchetype.compute(archetype, Compute.listAdd(hero));
         });
-
+        
         return hero;
     }
-
-
+    
+    
 }

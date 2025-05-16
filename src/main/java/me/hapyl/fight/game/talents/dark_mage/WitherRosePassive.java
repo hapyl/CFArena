@@ -18,6 +18,6 @@ public class WitherRosePassive extends PassiveTalent {
                 """.formatted(Named.WITHER_ROSE)
         );
 
-        setItem(Material.WITHER_ROSE);
+        setMaterial(Material.WITHER_ROSE);
     }
 }

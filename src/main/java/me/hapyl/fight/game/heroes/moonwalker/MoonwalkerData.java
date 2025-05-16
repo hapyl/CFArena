@@ -71,7 +71,7 @@ public class MoonwalkerData extends PlayerData implements Ticking {
         }
 
         // Tick moon zones
-        moonZones.removeIf(MoonZone::removeIf);
+        moonZones.removeIf(MoonZone::removeIfShould);
         moonZones.forEach(MoonZone::tick);
     }
 

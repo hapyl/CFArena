@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -24,6 +23,7 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class MoonSliteBomb extends Talent implements Listener {
@@ -46,7 +46,7 @@ public class MoonSliteBomb extends Talent implements Listener {
                 """
         );
 
-        setItem(Material.END_STONE_BRICK_SLAB);
+        setMaterial(Material.END_STONE_BRICK_SLAB);
         setCooldownSec(10);
     }
 
@@ -71,13 +71,13 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Set<Item> playerBombs = getBombs(player);
         if (playerBombs.size() >= bombLimit) {
             return Response.error("Limit reached!");
         }
 
-        final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem().getType()));
+        final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem(player).getType()));
         item.setPickupDelay(20);
         item.setTicksLived(6000 - explosionDuration);
         item.setOwner(player.getUUID());
@@ -142,7 +142,6 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     private void applyCorrosion(LivingGameEntity entity) {
-        entity.addEffect(EffectType.CORROSION, corrosionDuration);
     }
 
     private boolean isBombItem(Item item) {

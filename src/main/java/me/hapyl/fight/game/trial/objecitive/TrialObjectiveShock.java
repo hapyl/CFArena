@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.trial.objecitive;
 
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -12,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Husk;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class TrialObjectiveShock extends TrialObjective {
     public TrialObjectiveShock(Trial trial) {
@@ -65,7 +65,7 @@ public class TrialObjectiveShock extends TrialObjective {
     }
 
     private void spawnHusk(int x, int y, int z, float yaw, boolean flipped) {
-        trial.spawnEntity(BukkitUtils.defLocation(x + 0.5, y, z + 0.5, yaw, 0), new ConsumerFunction<>() {
+        trial.spawnEntity(BukkitUtils.defLocation(x + 0.5, y, z + 0.5, yaw, 0), new Function<>() {
             @Nonnull
             @Override
             public TrialEntity apply(@Nonnull Husk husk) {
@@ -73,15 +73,13 @@ public class TrialObjectiveShock extends TrialObjective {
                     husk.setCustomName("Dinnerbone");
                     husk.setGravity(false);
                 }
-
+                
                 husk.setAI(false);
-
-                return new TrialEntity(trial, husk);
-            }
-
-            @Override
-            public void andThen(@Nonnull TrialEntity trialEntity) {
-                trialEntity.setValidState(true);
+                
+                final TrialEntity entity = new TrialEntity(trial, husk);
+                entity.setValidState(true);
+                
+                return entity;
             }
         });
     }

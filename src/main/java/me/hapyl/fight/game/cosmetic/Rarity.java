@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.eterna.module.util.UpsideDownText;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.color.ColorFlag;
 import me.hapyl.fight.game.color.GradientColor;
 import me.hapyl.fight.store.Purchasable;
 import me.hapyl.fight.util.FormattedEnum;
@@ -25,42 +24,42 @@ public enum Rarity implements RandomDrop, Purchasable, FormattedEnum {
     },
 
     COMMON(
-            new Color("#b6dbd1"),
+            Color.of("#b6dbd1"),
             "ᴄᴏᴍᴍᴏɴ",
             1_000, 0.35f
     ),
 
     UNCOMMON(
-            new Color("#12e63d"),
+            Color.of("#12e63d"),
             "ᴜɴᴄᴏᴍᴍᴏɴ",
             2_500, 0.25f
     ),
 
     RARE(
-            new Color("#1283db"),
+            Color.of("#1283db"),
             "ʀᴀʀᴇ",
             5_000, 0.20f
     ),
 
     EPIC(
-            new GradientColor("#e314b6", "#ad0789").setFlags(ColorFlag.BOLD),
+            new GradientColor("#e314b6", "#ad0789"),
             "ᴇᴘɪᴄ",
             10_000, 0.10f
     ),
 
     LEGENDARY(
-            new GradientColor("#faa61e", "#fa7a1e").setFlags(ColorFlag.BOLD),
+            new GradientColor("#faa61e", "#fa7a1e"),
             "ʟᴇɢᴇɴᴅᴀʀʏ",
             20_000, 0.06f
     ),
 
     MYTHIC(
-            new GradientColor("#8df7ad", "#02a602").setFlags(ColorFlag.BOLD),
+            new GradientColor("#8df7ad", "#02a602"),
             "ᴍʏᴛʜɪᴄᴀʟ",
             50_000, 0.03f
     ) {
-        private final String PREFIX = new Color("#007d25") + "&k1 ";
-        private final String SUFFIX = new Color("#30f26a") + " &k1&r";
+        private final String PREFIX = Color.of("#007d25") + "&k1 ";
+        private final String SUFFIX = Color.of("#30f26a") + " &k1&r";
 
         @Nonnull
         @Override
@@ -76,7 +75,7 @@ public enum Rarity implements RandomDrop, Purchasable, FormattedEnum {
     },
 
     CURSED(
-            new GradientColor("#a62017", "#cf4b42").setFlags(ColorFlag.BOLD),
+            new GradientColor("#a62017", "#cf4b42"),
             "pǝsɹnɔ",
             100_000, 0.01f
     ) {

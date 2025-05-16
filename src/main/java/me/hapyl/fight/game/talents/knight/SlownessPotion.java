@@ -3,6 +3,7 @@ package me.hapyl.fight.game.talents.knight;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.MaterialData;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SlownessPotion extends Talent {
 
@@ -30,16 +32,17 @@ public class SlownessPotion extends Talent {
                 """
         );
 
-        setItem(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY));
+        setMaterial(MaterialData.of(Material.SPLASH_POTION, builder -> builder.setPotionColor(Color.GRAY)));
+        
         setCooldownSec(12);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final ThrownPotion potion = player.launchProjectile(ThrownPotion.class);
 
         potion.setItem(potionItem);
-        potion.setShooter(player.getPlayer());
+        potion.setShooter(player.getEntity());
 
         return Response.OK;
     }

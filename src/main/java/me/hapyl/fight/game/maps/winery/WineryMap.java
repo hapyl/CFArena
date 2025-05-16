@@ -10,7 +10,7 @@ import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.HiddenLevelFeature;
 import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.features.WinerySteamFeature;
-import me.hapyl.fight.game.maps.gamepack.PackType;
+import me.hapyl.fight.game.maps.supply.Supplies;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
@@ -59,17 +59,17 @@ public class WineryMap extends Level {
         addLocation(5026, 73.0, 34, 0, 0);
         addLocation(4990, 65.0, 28, 0, 0);
 
-        addPackLocation(PackType.HEALTH, 5021, 81.0, 12);
-        addPackLocation(PackType.HEALTH, 4980, 83.0, 1);
-        addPackLocation(PackType.HEALTH, 5030, 65.0, -7);
-        addPackLocation(PackType.HEALTH, 5030, 61.0, 16);
+        addPackLocation(Supplies.HEALTH, 5021, 81.0, 12);
+        addPackLocation(Supplies.HEALTH, 4980, 83.0, 1);
+        addPackLocation(Supplies.HEALTH, 5030, 65.0, -7);
+        addPackLocation(Supplies.HEALTH, 5030, 61.0, 16);
 
-        addPackLocation(PackType.CHARGE, 5016, 91.0, 18);
-        addPackLocation(PackType.CHARGE, 5021, 80.0, 37);
-        addPackLocation(PackType.CHARGE, 5019, 66.0, 9);
-        addPackLocation(PackType.CHARGE, 5027, 68.0, 6);
-        addPackLocation(PackType.CHARGE, 4957, 58.0, -4);
-        addPackLocation(PackType.CHARGE, 4956, 74.0, -3);
+        addPackLocation(Supplies.ENERGY, 5016, 91.0, 18);
+        addPackLocation(Supplies.ENERGY, 5021, 80.0, 37);
+        addPackLocation(Supplies.ENERGY, 5019, 66.0, 9);
+        addPackLocation(Supplies.ENERGY, 5027, 68.0, 6);
+        addPackLocation(Supplies.ENERGY, 4957, 58.0, -4);
+        addPackLocation(Supplies.ENERGY, 4956, 74.0, -3);
 
         setWeather(WeatherType.DOWNFALL);
         setTime(18000);
@@ -90,7 +90,7 @@ public class WineryMap extends Level {
                                 return;
                             }
 
-                            world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
+                            world.playSound(location, Sound.ENTITY_WOLF_GROWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
                         }, howlPeriod, howlPeriod
                 );
             }
@@ -103,7 +103,7 @@ public class WineryMap extends Level {
         addFeature(new HiddenLevelFeature() {
             @Override
             public void tick(int tick) {
-                if (true || tick % 5 != 0) { // FIXME (Mon, Feb 17 2025 @xanyjl):
+                if (true || tick % 5 != 0) { // FIXME (Mon, Feb 17 2025 @xanyjl): map is being rebuild again so replace the coordinates for owls
                     return;
                 }
 

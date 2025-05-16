@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.achievement;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.event.custom.AttributeChangeEvent;
+import me.hapyl.fight.event.custom.AttributeUpdateEvent;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -18,7 +18,7 @@ public class DefenselessAchievement extends Achievement implements Listener {
     }
 
     @EventHandler
-    public void handleAttributeChangeEvent(AttributeChangeEvent ev) {
+    public void handleAttributeChangeEvent(AttributeUpdateEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
         final AttributeType type = ev.getType();
 
@@ -34,6 +34,6 @@ public class DefenselessAchievement extends Achievement implements Listener {
             return;
         }
 
-        Registries.achievements().DEFENSELESS.complete(player.getPlayer());
+        Registries.achievements().DEFENSELESS.complete(player.getEntity());
     }
 }

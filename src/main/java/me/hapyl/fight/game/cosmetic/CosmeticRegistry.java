@@ -55,6 +55,7 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
     public final EmeraldExplosionCosmetic EMERALD_EXPLOSION;
     public final BonesAndShredsCosmetic BONES_AND_SHREDS;
     public final FlowerPotCosmetic FLOWER_POT;
+    public final RitualCosmetic RITUAL;
 
     ////////////////////////////////
     // *=* Contrail Cosmetics *=* //
@@ -147,6 +148,7 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
         EMERALD_EXPLOSION = register("emerald_explosion", EmeraldExplosionCosmetic::new);
         BONES_AND_SHREDS = register("bones_and_shreds", BonesAndShredsCosmetic::new);
         FLOWER_POT = register("flower_pot", FlowerPotCosmetic::new);
+        RITUAL = register("ritual", RitualCosmetic::new);
 
         ////////////////////////////////
         // *=* Contrail Cosmetics *=* //
@@ -208,7 +210,7 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
                 Material.BARRIER
         );
         KISS_KISS = registerPrefix("kiss_kiss", "Kiss, Kiss", "x", "&c\uD83D\uDC8B", Rarity.RARE, Material.GOLDEN_APPLE);
-        MONKEY = registerPrefix("monkey", "Monkey!", "Return to monke!", new Color("#674e38") + "🐵", Rarity.RARE, Material.BROWN_WOOL);
+        MONKEY = registerPrefix("monkey", "Monkey!", "Return to monke!", Color.of("#674e38") + "🐵", Rarity.RARE, Material.BROWN_WOOL);
         SMILEY = registerPrefix("smiley", "Smiley", "Smiling through the day.", "&f&lツ", Rarity.RARE, Material.PUFFERFISH);
         TRIANGLE = registerPrefix("triangle", "Triangle", "Is it aligned?", "&3📐", Rarity.RARE, Material.WARPED_STAIRS);
         DRAGON = registerPrefix("dragon", "Dragon", "How do I train it?", Color.MAROON + "🐉", Rarity.EPIC, Material.DRAGON_HEAD);

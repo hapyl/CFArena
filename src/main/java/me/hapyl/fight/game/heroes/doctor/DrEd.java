@@ -124,16 +124,16 @@ public class DrEd extends Hero implements UIComponent, PlayerDataHandler<DrEdDat
             );
 
             setType(TalentType.IMPAIR);
-            setItem(Material.GOLDEN_HORSE_ARMOR);
+            setMaterial(Material.GOLDEN_HORSE_ARMOR);
             setDurationSec(10);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return builder()
                     .onExecute(() -> {
-                        player.setItemAndSnap(HotBarSlot.HERO_ITEM, ultimateWeapon.getItem());
+                        player.setItemAndSnap(HotBarSlot.HERO_ITEM, ultimateWeapon.createItem());
                     })
                     .onEnd(() -> {
                         ultimateWeapon.stop(player);

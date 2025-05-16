@@ -19,6 +19,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class VampirePet extends Talent {
 
@@ -33,7 +34,7 @@ public class VampirePet extends Talent {
                 """
         );
 
-        setItem(Material.BAT_SPAWN_EGG);
+        setMaterial(Material.BAT_SPAWN_EGG);
         setDurationSec(10);
         setCooldown(getDuration() + (8 * 20));
 
@@ -64,7 +65,7 @@ public class VampirePet extends Talent {
                     final LivingGameEntity nearestEntity = Collect.nearestEntityRaw(
                             player.getLocation(),
                             20.0d,
-                            entity -> entity.isValid(player) && !entity.is(bat)
+                            entity -> entity.isValid(player) && false
                     );
 
                     if (nearestEntity == null) {
@@ -81,14 +82,14 @@ public class VampirePet extends Talent {
                     );
 
                     projectile.setGravity(false);
-                    projectile.setShooter(player.getPlayer());
+                    projectile.setShooter(player.getEntity());
                 });
             }
         }.runTaskTimer(0, ATTACK_PERIOD);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Bat oldPet = getPet(player);
 
         if (oldPet != null) {

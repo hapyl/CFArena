@@ -143,7 +143,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
         @DisplayField private final int corrosionTime = 130;
         @DisplayField private final double meteoriteRadius = 8.5d;
         @DisplayField private final double meteoriteDamage = 50.0d;
-        @DisplayField(suffix = "blocks") private final double distanceFromLanding = 15;
+        @DisplayField(suffix = " blocks") private final double distanceFromLanding = 15;
 
         public MoonwalkerUltimate() {
             super(Moonwalker.this, "Moonteorite", 80);
@@ -155,14 +155,14 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
                     """
             );
 
-            setItem(Material.END_STONE_BRICKS);
+            setMaterial(Material.END_STONE_BRICKS);
             setDuration(30);
             setCooldownSec(45);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             final Block targetBlock = HeroRegistry.MOONWALKER.getTargetBlock(player);
 
             if (targetBlock == null) {
@@ -326,7 +326,7 @@ public class Moonwalker extends Hero implements Disabled, PlayerDataHandler<Moon
 
             Collect.nearbyEntities(location, meteoriteRadius).forEach(entity -> {
                 entity.damage(meteoriteDamage, executor, DamageCause.METEORITE);
-                entity.addEffect(EffectType.CORROSION, corrosionTime);
+                // entity.addEffect(EffectType.CORROSION, corrosionTime);
             });
 
             // FX

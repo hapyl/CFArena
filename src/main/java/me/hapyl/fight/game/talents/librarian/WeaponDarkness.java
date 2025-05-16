@@ -12,7 +12,7 @@ public class WeaponDarkness extends LibrarianTalent {
         super(key, "Infusion of Darkness");
 
         addDescription("Infuses your weapon for &b<scaled>s&7 with higher damage.");
-        setItem(Material.INK_SAC);
+        setMaterial(Material.INK_SAC);
     }
 
     @Override

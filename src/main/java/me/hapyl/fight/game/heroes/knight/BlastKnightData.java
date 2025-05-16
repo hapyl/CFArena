@@ -36,7 +36,7 @@ public class BlastKnightData extends PlayerData implements MaterialCooldown {
     public void incrementShieldCharge() {
         // Notify full charge
         if (shieldCharge + 1 == MAX_CHARGE) {
-            player.sendTitle("🛡", "&2&lShield fully charged!", 5, 20, 5);
+            player.sendTitle("🛡", "&2&lSHIELD FULLY CHARGED!", 5, 15, 5);
             player.playSound(Sound.ITEM_SHIELD_BLOCK, 0.0f);
         }
 

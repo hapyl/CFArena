@@ -1,44 +1,33 @@
 package me.hapyl.fight.game.entity;
 
-import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public enum SoundEffect {
-
-    ERROR(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f),
-    FAILURE(Sound.ENTITY_VILLAGER_NO, 1.0f),
-    SUCCESS(Sound.ENTITY_VILLAGER_YES, 1.0f),
-    PURCHASE(Sound.ENTITY_PLAYER_LEVELUP, 2.0f),
-
-    ;
-
-    private final Sound sound;
-    private final float pitch;
-
-    SoundEffect(Sound sound, float pitch) {
-        this.sound = sound;
-        this.pitch = pitch;
-    }
-
+public record SoundEffect(@Nonnull Sound sound, float pitch) {
+    
+    public static final SoundEffect ERROR = of(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+    public static final SoundEffect FAILURE = of(Sound.ENTITY_VILLAGER_NO, 1.0f);
+    public static final SoundEffect SUCCESS = of(Sound.ENTITY_VILLAGER_YES, 1.0f);
+    public static final SoundEffect PURCHASE = of(Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
+    
     public void play(@Nonnull GamePlayer player) {
-        play(player.getPlayer());
+        player.playSound(this);
     }
-
-    @Super
+    
     public void play(@Nonnull Player player) {
         PlayerLib.playSound(player, sound, pitch);
     }
-
+    
     @Nonnull
-    public Sound getSound() {
-        return sound;
+    public static SoundEffect of(@Nonnull Sound sound) {
+        return of(sound, 1.0f);
     }
-
-    public float getPitch() {
-        return pitch;
+    
+    @Nonnull
+    public static SoundEffect of(@Nonnull Sound sound, float pitch) {
+        return new SoundEffect(sound, pitch);
     }
 }

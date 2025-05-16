@@ -22,7 +22,6 @@ import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.ui.PlayerUI;
 import me.hapyl.fight.infraction.PlayerInfraction;
-import me.hapyl.fight.proxy.ServerType;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.entity.Player;
 
@@ -58,7 +57,6 @@ public class PlayerProfile {
     private PlayerSkin originalSkin;
     private Trial trial;
     private boolean resourcePack;
-    private boolean buildMode;
 
     public PlayerProfile(@Nonnull Player player) {
         this.player = player;
@@ -67,7 +65,6 @@ public class PlayerProfile {
         PlayerDatabase.instantiate(player);
 
         this.resourcePack = false;
-        this.buildMode = false;
 
         // Load data here
         this.localTeamManager = new LocalTeamManager(this);
@@ -94,14 +91,6 @@ public class PlayerProfile {
         GameTask.runLater(() -> {
             Deliveries.notify(player);
         }, 20);
-    }
-
-    public boolean buildMode() {
-        return CF.getPlugin().serverType() == ServerType.BUILD || buildMode;
-    }
-
-    public void buildMode(boolean buildMode) {
-        this.buildMode = buildMode;
     }
 
     @Nonnull
@@ -182,14 +171,6 @@ public class PlayerProfile {
         }
     }
 
-    public boolean isBuildMode() {
-        return buildMode;
-    }
-
-    public void setBuildMode(boolean buildMode) {
-        this.buildMode = buildMode;
-    }
-
     public boolean isResourcePack() {
         return resourcePack;
     }
@@ -215,10 +196,10 @@ public class PlayerProfile {
 
     /**
      * @see CF#getDatabase(Player)
-     * @deprecated {@link PlayerDatabase} can exist without {@link PlayerProfile}
+     * //@deprecated {@link PlayerDatabase} can exist without {@link PlayerProfile}
      */
     @Nonnull
-    @Deprecated
+    // @Deprecated
     public PlayerDatabase getDatabase() {
         return CF.getDatabase(player);
     }
@@ -244,7 +225,7 @@ public class PlayerProfile {
      */
     @Nonnull
     public GamePlayer createGamePlayer() {
-        this.gamePlayer = Manager.current().registerGamePlayer(new GamePlayer(this));
+        this.gamePlayer = Manager.current().registerEntity(new GamePlayer(this));
 
         if (CF.environment().debug.isEnabled()) {
             CFUtils.dumpStackTrace();

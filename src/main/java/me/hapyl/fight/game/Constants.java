@@ -1,9 +1,11 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.annotate.ConstantField;
-import me.hapyl.fight.game.attribute.temper.AttributeTemper;
+import me.hapyl.fight.game.attribute.AttributeModifier;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.entity.Decay;
+import me.hapyl.fight.game.entity.Shield;
+import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.ChatColor;
 
@@ -16,7 +18,7 @@ public interface Constants {
 
     @ConstantField(
             description = "A constant for infinite duration.",
-            applicableTo = { Effect.class, AttributeTemper.class }
+            applicableTo = { Effect.class, AttributeModifier.class, Shield.class, Cooldown.class }
     )
     int INFINITE_DURATION = -1;
 

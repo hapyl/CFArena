@@ -57,7 +57,7 @@ public interface Message {
     /**
      * Warning {@link Channel}.
      */
-    Channel WARNING = new Channel("&6[&l❗&6]&e ", Color.GOLD, Color.YELLOW);
+    Channel WARNING = new Channel("&6&l❗&e ", Color.GOLD, Color.YELLOW);
 
     /**
      * Staff {@link Channel}.

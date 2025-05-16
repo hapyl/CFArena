@@ -9,6 +9,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class LibrarianTalent extends Talent {
 
@@ -24,7 +25,7 @@ public abstract class LibrarianTalent extends Talent {
     public abstract Response executeGrimoire(@Nonnull GamePlayer player);
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         if (HeroRegistry.LIBRARIAN.hasICD(player)) {
             return ERROR; // should never happen
         }

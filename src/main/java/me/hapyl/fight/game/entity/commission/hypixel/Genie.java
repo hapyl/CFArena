@@ -6,8 +6,6 @@ import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.BaseAttributes;
-import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -21,12 +19,12 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class Genie extends CommissionEntityType {
     public Genie(@Nonnull Key key) {
         super(key, "Genie");
 
-        final BaseAttributes attributes = getAttributes();
         attributes.setMaxHealth(500);
         attributes.setAttack(125);
 
@@ -64,7 +62,7 @@ public class Genie extends CommissionEntityType {
             final Location location = entity.getLocation();
 
             child = CF.createEntity(
-                    location, Entities.HUSK, new ConsumerFunction<>() {
+                    location, Entities.HUSK, new Function<>() {
                         @Nonnull
                         @Override
                         public LivingGameEntity apply(@Nonnull Husk husk) {

@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class IceCageTalent extends Talent implements Listener {
 
@@ -35,7 +36,7 @@ public class IceCageTalent extends Talent implements Listener {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.SNOWBALL);
+        setMaterial(Material.SNOWBALL);
         setDurationSec(6);
         setCooldownSec(20);
     }
@@ -81,10 +82,10 @@ public class IceCageTalent extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Snowball snowball = player.launchProjectile(Snowball.class);
 
-        snowball.setShooter(player.getPlayer());
+        snowball.setShooter(player.getEntity());
         snowballMap.put(player, snowball);
 
         player.playWorldSound(Sound.ENTITY_SNOWBALL_THROW, 1.0f);

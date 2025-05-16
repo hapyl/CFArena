@@ -40,7 +40,7 @@ public class HeroMasteryLevel implements Described, DisplayFieldProvider {
     }
 
     private Compile<String> compileDescription(@Nonnull String description) {
-        return Compile.of(description, str -> DisplayFieldSerializer.formatString(str, this));
+        return Compile.of(description, str -> DisplayFieldSerializer.serialize(str, this));
     }
 
 }

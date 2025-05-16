@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.hologram.PlayerHologram;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
@@ -274,7 +273,7 @@ public class CrateLocation extends Location {
             item.setCustomName(Chat.format(rarity.getColor() + lootName));
             item.setCustomNameVisible(true);
 
-            Glowing.glow(player, item, rarity.getBukkitColor(), 50);
+            // Glowing.glow(player, item, rarity.getBukkitColor(), 50);
 
             spawnedItems.add(item);
             spawnedMaterials.add(material);

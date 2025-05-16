@@ -16,7 +16,7 @@ public class SoulHarvestPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.SKELETON_SPAWN_EGG);
+        setMaterial(Material.SKELETON_SPAWN_EGG);
         setType(TalentType.IMPAIR);
     }
 }

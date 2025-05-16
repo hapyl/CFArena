@@ -16,6 +16,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Kven extends Talent {
 
@@ -30,7 +31,7 @@ public class Kven extends Talent {
         );
 
         setType(TalentType.DEFENSE);
-        setItem(Material.FLOWER_POT);
+        setMaterial(Material.FLOWER_POT);
         setCooldownSec(30);
     }
 
@@ -58,7 +59,7 @@ public class Kven extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (getShieldCharge(player) != 0) {
             return Response.error("Already have shield applied!");
         }

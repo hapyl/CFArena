@@ -15,6 +15,6 @@ public class RevivePassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.GHAST_TEAR);
+        setMaterial(Material.GHAST_TEAR);
     }
 }

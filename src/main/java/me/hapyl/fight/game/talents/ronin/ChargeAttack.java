@@ -17,6 +17,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ChargeAttack extends Talent {
 
@@ -44,13 +45,13 @@ public class ChargeAttack extends Talent {
                 """);
 
         setType(TalentType.DAMAGE);
-        setItem(Material.IRON_SWORD);
+        setMaterial(Material.IRON_SWORD);
 
         setCooldownSec(7.5f);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final RoninData data = player.getPlayerData(HeroRegistry.RONIN);
 
         if (data.chargeAttack != null) {
@@ -83,13 +84,13 @@ public class ChargeAttack extends Talent {
 
         data.chargeAttack = new ChargeAttackData(player, this);
 
-        startCd(player, 2); // icd to prevent double click
+        startCooldown(player, 2); // icd to prevent double click
         return Response.AWAIT;
     }
 
     public void failChargeAttack(@Nonnull GamePlayer player) {
         player.getPlayerData(HeroRegistry.RONIN).cancelChargeAttack();
-        startCd(player, (int) (getCooldown() * cooldownIncreaseIfFailed));
+        startCooldown(player, (int) (getCooldown() * cooldownIncreaseIfFailed));
 
         // Fx
         player.playSound(Sound.BLOCK_ANVIL_LAND, 0.75f);

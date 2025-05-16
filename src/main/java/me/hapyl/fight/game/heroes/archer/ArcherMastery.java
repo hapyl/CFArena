@@ -116,7 +116,7 @@ public class ArcherMastery extends HeroMastery {
         @DisplayField
         private final double radiusIncrease = 1.5d;
 
-        @DisplayField(scaleFactor = 25, suffix = "%", suffixSpace = false)
+        @DisplayField(scale = 25, suffix = "%")
         private final double chargingSpeed = 0.8d;
 
         public MasteryLevelShockingPower(int level) {

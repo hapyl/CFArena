@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Bloodshift extends Talent {
 
@@ -42,7 +43,7 @@ public class Bloodshift extends Talent {
         ));
 
         setType(TalentType.ENHANCE);
-        setItem(Material.BEETROOT);
+        setMaterial(Material.BEETROOT);
 
         setDurationSec(5.0f);
         setCooldownSec(10.0f);
@@ -57,7 +58,7 @@ public class Bloodshift extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         player.setOutline(Outline.RED);
 
         player.schedule(() -> {
@@ -65,7 +66,7 @@ public class Bloodshift extends Talent {
         }, getDuration());
 
         // Fx
-        soundFx.play(player.getPlayer());
+        soundFx.play(player.getEntity());
 
         return Response.OK;
     }

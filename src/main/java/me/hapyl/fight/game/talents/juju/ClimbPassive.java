@@ -11,14 +11,15 @@ public class ClimbPassive extends PassiveTalent {
         super(key, "Climb");
 
         setDescription("""
-                Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 &nanything&7.
+                Raised by the &ajungle&7, Juju mastered the ability to &2climb&7 anything.
                 
-                &6Jump&7 on a wall to grab onto it and &bdesccent&7 slowly.
-                &6Sneak&7 to climb upwards.
-                &6Double Jump&7 to dash backwards.
+                &8• &6Jump&7 onto a wall to grab onto it and descend slowly.
+                &8• &6Jump&7 again to climb upwards.
+                &8• &6Sneak&7 to do a backflip.
                 """
         );
 
-        setItem(Material.LEATHER_BOOTS);
+        setMaterial(Material.LEATHER_BOOTS);
+        setCooldownSec(6);
     }
 }

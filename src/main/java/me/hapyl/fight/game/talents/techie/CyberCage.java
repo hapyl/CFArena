@@ -5,7 +5,6 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.glow.Glowing;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -72,7 +71,7 @@ public class CyberCage {
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());
 
         // Glowing
-        Glowing.glow(victim, ChatColor.RED, 40, player);
+        // Glowing.glow(victim, ChatColor.RED, 40, player);
 
         // Zoom Fx
         PlayerLib.addEffect(victim, PotionEffectType.SLOWNESS, 20, 300);

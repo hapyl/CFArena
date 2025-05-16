@@ -74,7 +74,7 @@ public class AbyssalCurse extends TickingGameTask {
             return;
         }
 
-        final String curseChar = Named.ABYSSAL_CURSE.getCharacter();
+        final String curseChar = Named.ABYSSAL_CURSE.getPrefix();
 
         // Play fx to previous player as well
         this.player.playSound(Sound.ENTITY_EVOKER_CAST_SPELL, 0.75f);

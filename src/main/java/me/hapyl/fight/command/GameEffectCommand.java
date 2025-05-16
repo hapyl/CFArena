@@ -1,66 +1,89 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
-import me.hapyl.eterna.module.math.Numbers;
-import me.hapyl.eterna.module.util.Enums;
-import me.hapyl.fight.game.Manager;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.fight.Message;
+import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.effect.ActiveEffect;
+import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
-public class GameEffectCommand extends SimplePlayerAdminCommand {
+public class GameEffectCommand extends CFCommand {
     public GameEffectCommand(String name) {
-        super(name);
-
-        setUsage("ge (Effect) (stop/int)");
+        super(name, PlayerRank.ADMIN);
+        
+        setUsage("ge (effect) (stop/int) [amplifier]");
         setAliases("ge");
     }
-
+    
     @Override
-    protected void execute(Player player, String[] args) {
-        // ge (Effect) (stop/ticks)
-        if (args.length == 2) {
-
-            if (!Manager.current().isGameInProgress()) {
-                Chat.sendMessage(player, "&cThis command is only available during the game!");
-                return;
-            }
-
-            final EffectType type = Enums.byName(EffectType.class, args[0]);
-            final int ticks = args[1].equalsIgnoreCase("stop") ? -1 : Numbers.getInt(args[1]);
-
-            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
-            if (type == null || gamePlayer == null) {
-                Chat.sendMessage(player, "&cInvalid effect type.");
-                return;
-            }
-
-            if (ticks <= -1) {
-                if (gamePlayer.hasEffect(type)) {
-                    Chat.sendMessage(player, "&cYou don't have %s effect applied!".formatted(type.getEffect().getName()));
-                    return;
-                }
-                gamePlayer.removeEffect(type);
-                Chat.sendMessage(player, "&aStopped %s effect!".formatted(type.getEffect().getName()));
-                return;
-            }
-
-            gamePlayer.addEffect(type, ticks);
-            Chat.sendMessage(player, "&aApplied %s effect for %st!".formatted(type.getEffect().getName(), ticks));
-
+    protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        final GamePlayer gameplayer = GamePlayer.getExistingPlayer(player);
+        
+        if (gameplayer == null) {
+            Message.error(player, "You must be in a game to use this command!");
             return;
         }
-        sendInvalidUsageMessage(player);
+        
+        if (args.length < 2) {
+            Message.error(player, "Invalid usage! &e" + getUsage());
+            return;
+        }
+        
+        final Key key = Key.ofStringOrNull(args.get(0).toString());
+        
+        if (key == null) {
+            Message.error(player, "Invalid key: {%s}!".formatted(args.get(0).toString()));
+            return;
+        }
+        
+        final Effect effect = EffectType.byKey(key);
+        final int ticks = args.getString(1).equalsIgnoreCase("stop") ? -2 : args.getInt(1);
+        final int amplifier = args.getInt(2);
+        
+        final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+        
+        if (effect == null || gamePlayer == null) {
+            Message.error(player, "Invalid effect type: {%s}!".formatted(key));
+            return;
+        }
+        
+        final String effectName = effect.getName();
+        
+        
+        if (ticks == -2) {
+            if (!gamePlayer.hasEffect(effect)) {
+                Message.error(player, "You don't have %s effect!".formatted(effectName));
+                return;
+            }
+            
+            gamePlayer.removeEffect(effect);
+            Message.success(player, "Stopped %s effect!".formatted(effectName));
+            return;
+        }
+        
+        final ActiveEffect activeEffect = gamePlayer.getActiveEffect(effect);
+        
+        if (activeEffect != null && activeEffect.amplifier() > amplifier) {
+            Message.error(player, "Unable to add the effect because you already have a stronger effect!");
+            return;
+        }
+        
+        gamePlayer.addEffect(effect, amplifier, ticks);
+        Message.success(player, "Applied {%s} {%s} effect for {%s}t!".formatted(effectName, RomanNumber.toRoman(amplifier + 1), ticks));
     }
-
+    
     @Override
     protected List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return completerSort(arrayToList(EffectType.values()), args);
+            return completerSort(EffectType.keys(), args);
         }
         return null;
     }

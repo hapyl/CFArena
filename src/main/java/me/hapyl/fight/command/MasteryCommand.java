@@ -12,8 +12,8 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 
 public class MasteryCommand extends CFCommand {
-    public MasteryCommand(@Nonnull String name, @Nonnull PlayerRank rank) {
-        super(name, rank);
+    public MasteryCommand(@Nonnull String name) {
+        super(name, PlayerRank.ADMIN);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class Rush extends DeathmatchKills {
         }
 
         CF.getAlivePlayers().forEach(player -> {
-            player.addEnergy(1);
+            player.incrementEnergy(1);
         });
     }
 }

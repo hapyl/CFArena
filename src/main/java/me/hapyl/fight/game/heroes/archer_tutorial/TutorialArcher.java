@@ -20,7 +20,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TutorialArcher extends Hero implements Disabled, Listener {
 
@@ -31,7 +30,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
         super(key, "Archer");
 
         final HeroAttributes attributes = getAttributes();
-        attributes.setCooldownModifier(25);
+        attributes.setFatigue(25);
 
         final HeroEquipment equipment = getEquipment();
         equipment.setFromEquipment(archer.getEquipment());
@@ -59,14 +58,14 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
         }
     }
 
-    @Nullable
+    @Nonnull
     @Override
     public String disableReason() {
         return "Enforce non selectability.";
     }
 
     @EventHandler()
-    public void handleDamage(GameDamageEvent ev) {
+    public void handleDamage(GameDamageEvent.Process ev) {
         final LivingGameEntity entity = ev.getEntity();
         final double damage = ev.getDamage();
 
@@ -122,7 +121,7 @@ public class TutorialArcher extends Hero implements Disabled, Listener {
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
             });
         }

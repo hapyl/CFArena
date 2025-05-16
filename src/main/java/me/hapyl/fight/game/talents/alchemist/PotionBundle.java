@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PotionBundle extends Talent {
 
@@ -24,14 +25,14 @@ public class PotionBundle extends Talent {
                 Dash forward and throw a deadly potion behind.
                 """);
 
-        setItem(Material.BUNDLE);
+        setMaterial(Material.BUNDLE);
         setType(TalentType.MOVEMENT);
 
         setCooldownSec(9);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Vector direction = location.getDirection();
 

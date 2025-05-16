@@ -11,6 +11,7 @@ import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class ShadowAssassinTalent extends Talent {
 
@@ -21,7 +22,7 @@ public abstract class ShadowAssassinTalent extends Talent {
         super(key, name);
     }
 
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         final ShadowAssassinData data = getData(player);
         final AssassinMode mode = data.getMode();
         final ShadowAssassin hero = HeroRegistry.SHADOW_ASSASSIN;

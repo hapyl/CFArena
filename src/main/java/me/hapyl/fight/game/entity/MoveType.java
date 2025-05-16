@@ -6,7 +6,8 @@ public enum MoveType {
     /**
      * Last time player has moved their move or walked.
      */
-    MOUSE,
+    MOUSE_OR_KEYBOARD,
+    
     /**
      * Last time player has moved at least a little.
      */

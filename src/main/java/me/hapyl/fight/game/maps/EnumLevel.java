@@ -12,10 +12,11 @@ import me.hapyl.fight.game.maps.features.CloudFeatures;
 import me.hapyl.fight.game.maps.features.japan.JapanFeature;
 import me.hapyl.fight.game.maps.features.library.LibraryCat;
 import me.hapyl.fight.game.maps.features.library.LibraryVoid;
-import me.hapyl.fight.game.maps.gamepack.PackType;
 import me.hapyl.fight.game.maps.maps.DragonsGorge;
 import me.hapyl.fight.game.maps.maps.DwarfVault;
 import me.hapyl.fight.game.maps.maps.moon.MoonBase;
+import me.hapyl.fight.game.maps.supply.Supplies;
+import me.hapyl.fight.game.maps.supply.SupplyPlatform;
 import me.hapyl.fight.game.maps.winery.WineryMap;
 import me.hapyl.fight.util.handle.EnumHandleFunction;
 import org.bukkit.Location;
@@ -74,12 +75,12 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .setSize(Size.MEDIUM)
             .setTicksBeforeReveal(100)
             .addLocation(500, 64, 0)
-            .addPackLocation(PackType.HEALTH, 479, 77, 22)
-            .addPackLocation(PackType.HEALTH, 500, 63, 13)
-            .addPackLocation(PackType.HEALTH, 489, 66, -26)
-            .addPackLocation(PackType.CHARGE, 516, 63, 8)
-            .addPackLocation(PackType.CHARGE, 487, 65, -5)
-            .addPackLocation(PackType.CHARGE, 513, 72, -32)
+            .addPackLocation(Supplies.HEALTH, 479, 77, 22)
+            .addPackLocation(Supplies.HEALTH, 500, 63, 13)
+            .addPackLocation(Supplies.HEALTH, 489, 66, -26)
+            .addPackLocation(Supplies.ENERGY, 516, 63, 8)
+            .addPackLocation(Supplies.ENERGY, 487, 65, -5)
+            .addPackLocation(Supplies.ENERGY, 513, 72, -32)
     ),
 
     JAPAN(
@@ -144,12 +145,12 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(3001, 52, 0, -90f, 0f)
             .addLocation(2981, 76, 0, -90f, 0f)
             .addLocation(3020, 64, 0, -90f, 0f)
-            .addPackLocation(PackType.HEALTH, 3045, 64, 3)
-            .addPackLocation(PackType.HEALTH, 3045, 64, -11)
-            .addPackLocation(PackType.HEALTH, 3010, 71, 0)
-            .addPackLocation(PackType.HEALTH, 3010, 72, 21)
-            .addPackLocation(PackType.CHARGE, 3045, 64, 11)
-            .addPackLocation(PackType.CHARGE, 3010, 72, -35)
+            .addPackLocation(Supplies.HEALTH, 3045, 64, 3)
+            .addPackLocation(Supplies.HEALTH, 3045, 64, -11)
+            .addPackLocation(Supplies.HEALTH, 3010, 71, 0)
+            .addPackLocation(Supplies.HEALTH, 3010, 72, 21)
+            .addPackLocation(Supplies.ENERGY, 3045, 64, 11)
+            .addPackLocation(Supplies.ENERGY, 3010, 72, -35)
     ),
 
     CLOUDS(
@@ -163,11 +164,11 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(3521, 63.5, -17)
             .addLocation(3489, 63, 24, -90f, 0f)
             .addLocation(3547, 68, -11, 90f, 0f)
-            .addPackLocation(PackType.HEALTH, 3521, 60, -17)
-            .addPackLocation(PackType.HEALTH, 3523, 54, -46)
-            .addPackLocation(PackType.HEALTH, 3504, 88, -69)
-            .addPackLocation(PackType.CHARGE, 3502, 51, -13)
-            .addPackLocation(PackType.CHARGE, 3525, 73, -12)
+            .addPackLocation(Supplies.HEALTH, 3521, 60, -17)
+            .addPackLocation(Supplies.HEALTH, 3523, 54, -46)
+            .addPackLocation(Supplies.HEALTH, 3504, 88, -69)
+            .addPackLocation(Supplies.ENERGY, 3502, 51, -13)
+            .addPackLocation(Supplies.ENERGY, 3525, 73, -12)
     ),
 
     LIBRARY(
@@ -181,12 +182,12 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(4000, 64.1, 0, -180f, 0f)
             .addLocation(3991, 74, 5, -180f, 0f)
             .addLocation(4018, 74, -7, 90f, 0f)
-            .addPackLocation(PackType.HEALTH, 3990, 65, -15)
-            .addPackLocation(PackType.HEALTH, 4015, 67, -4)
-            .addPackLocation(PackType.HEALTH, 4000, 72, -29)
-            .addPackLocation(PackType.HEALTH, 3991, 74, -13)
-            .addPackLocation(PackType.CHARGE, 4013, 66.5, -14)
-            .addPackLocation(PackType.CHARGE, 3960, 75, 5)
+            .addPackLocation(Supplies.HEALTH, 3990, 65, -15)
+            .addPackLocation(Supplies.HEALTH, 4015, 67, -4)
+            .addPackLocation(Supplies.HEALTH, 4000, 72, -29)
+            .addPackLocation(Supplies.HEALTH, 3991, 74, -13)
+            .addPackLocation(Supplies.ENERGY, 4013, 66.5, -14)
+            .addPackLocation(Supplies.ENERGY, 3960, 75, 5)
     ),
 
     DRAGONS_GORGE(DragonsGorge::new), // complex map, stored in separate file
@@ -266,7 +267,12 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     public String getName() {
         return level.getName();
     }
-
+    
+    @Nonnull
+    public List<SupplyPlatform> createSupplyPlatforms() {
+        return level.createSupplyPlatforms();
+    }
+    
     @Nonnull
     public static List<CommissionLevel> commissionLevels() {
         return Lists.newArrayList(COMMISSIONS);

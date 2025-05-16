@@ -118,7 +118,7 @@ public class PlayerTablist extends Tablist {
         entryList.append();
 
         final String mapName = manager.currentEnumLevel().getName();
-        final IGameInstance game = manager.getCurrentGame();
+        final IGameInstance game = manager.currentInstance();
 
         if (!manager.isGameInProgress()) {
             entryList.append("&b&lLobby:", EntryTexture.AQUA);

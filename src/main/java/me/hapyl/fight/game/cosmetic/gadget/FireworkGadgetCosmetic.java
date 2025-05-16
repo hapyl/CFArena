@@ -19,7 +19,7 @@ public class FireworkGadgetCosmetic extends Gadget {
         super(key, "Firework");
 
         setDescription("""
-                Launch a firework that explodes with the color of your level.
+                Launch a firework that explodes with the displayColor of your level.
                 """
         );
 
@@ -42,13 +42,13 @@ public class FireworkGadgetCosmetic extends Gadget {
                     .with(Enums.getRandomValue(FireworkEffect.Type.class, FireworkEffect.Type.BALL))
                     .withFlicker();
 
-            for (ChatColor color : experienceColor.getColors()) {
-                if (!color.isColor()) {
+            for (ChatColor displayColor : experienceColor.getColors()) {
+                if (!displayColor.isColor()) {
                     builder.withTrail();
                     continue;
                 }
 
-                final java.awt.Color javaColor = color.asBungee().getColor();
+                final java.awt.Color javaColor = displayColor.asBungee().getColor();
                 builder.withColor(
                         Color.fromRGB(javaColor.getRed(), javaColor.getGreen(), javaColor.getBlue())
                 );

@@ -1,9 +1,11 @@
 package me.hapyl.fight.game.commission;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.MapMaker;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
+import me.hapyl.fight.game.Constants;
+import me.hapyl.fight.game.attribute.*;
+import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
@@ -13,9 +15,12 @@ public class Commission {
 
     public static final int MAX_PLAYER_LEVEL;
     public static final int MAX_LEVEL = 200;
-
+    
+    private static final double FLAT_HEALTH_BONUS = 1000;
+    
     private static final Map<AttributeType, DoubleScale> ATTRIBUTE_SCALE_PER_LEVEL;
     private static final LinkedHashMap<Integer, Long> EXP_MAP;
+    private static final ModifierSource MODIFIER_SOURCE;
 
     static {
         MAX_PLAYER_LEVEL = 50;
@@ -28,6 +33,7 @@ public class Commission {
                           .makeImmutableMap();
 
         EXP_MAP = Maps.newLinkedHashMap();
+        MODIFIER_SOURCE = new ModifierSource(Key.ofString("blood_blessing"), true);
 
         final int baseXP = 100;
 
@@ -53,7 +59,7 @@ public class Commission {
             }
         }
 
-        return 0;
+        return MAX_PLAYER_LEVEL;
     }
 
     @Nonnull
@@ -62,11 +68,15 @@ public class Commission {
     }
 
     public static void scaleAttributes(@Nonnull EntityAttributes attributes, int level) {
-        ATTRIBUTE_SCALE_PER_LEVEL.forEach((type, scale) -> {
-            final double base = attributes.getBase(type);
-            final double scaled = base * scale.scale(level);
-
-            attributes.set(type, scaled - base);
+        attributes.addModifier(MODIFIER_SOURCE, Constants.INFINITE_DURATION, modifier -> {
+            ATTRIBUTE_SCALE_PER_LEVEL.forEach((type, scale) -> {
+                modifier.of(type, ModifierType.ADDITIVE, scale.scale(level));
+                
+                // Add flat health bonus to players because I don't know how to scale shit
+                if (attributes.getEntity() instanceof GamePlayer && type == AttributeType.MAX_HEALTH) {
+                    modifier.of(AttributeType.MAX_HEALTH, ModifierType.FLAT, FLAT_HEALTH_BONUS);
+                }
+            });
         });
     }
 

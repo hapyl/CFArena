@@ -7,9 +7,6 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -42,10 +39,6 @@ import java.util.Set;
 
 public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData>, UIComponent, Disabled {
 
-    private final TemperInstance temperInstance = Temper.SHARK.newInstance("Oceanborn")
-            .increase(AttributeType.ATTACK, 1.2d)
-            .increase(AttributeType.DEFENSE, 0.5d);
-
     private final PlayerDataMap<SharkData> playerData = PlayerMap.newDataMap(player -> new SharkData(this, player));
 
     private final int heartBeatSoundEffectDuration = 40;
@@ -73,7 +66,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
                 .cleanToItemSack());
 
-        setWeapon(Weapon.builder(Material.QUARTZ, Key.ofString("claws"))
+        setWeapon(Weapon.createBuilder(Material.QUARTZ, Key.ofString("claws"))
                 .name("Claws")
                 .description("Using one's claws is a better idea than using a stick, don't you think so?")
                 .damage(7.0d)
@@ -181,7 +174,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
         final SharkData data = getPlayerData(player);
         final int stacks = data.getBloodThirstStacks();
 
-        return "&4%s &c&l%s".formatted(Named.BLOOD_THIRST.getCharacter(), stacks);
+        return "&4%s &c&l%s".formatted(Named.BLOOD_THIRST.getPrefix(), stacks);
     }
 
     private class SharkUltimate extends UltimateTalent {
@@ -204,7 +197,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                     """.formatted(EnumTerm.PIERCING_DAMAGE)
             );
 
-            setItem(Material.WATER_BUCKET);
+            setMaterial(Material.WATER_BUCKET);
 
             setDurationSec(3);
             setCastDuration(20);
@@ -213,7 +206,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             final SharkData data = getPlayerData(player);
             final int stacks = data.getBloodThirstStacks();
             final boolean strongAttack = stacks >= minBloodThirst;

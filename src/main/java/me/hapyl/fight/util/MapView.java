@@ -1,7 +1,7 @@
 package me.hapyl.fight.util;
 
 import me.hapyl.eterna.module.annotate.FactoryMethod;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

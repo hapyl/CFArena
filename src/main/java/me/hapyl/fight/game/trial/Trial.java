@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
@@ -30,6 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * This is a repayable trial as a {@link HeroRegistry#TUTORIAL_ARCHER}
@@ -109,7 +109,7 @@ public class Trial extends TickingGameTask implements Lifecycle {
         profile.setSelectedHero(previousHero);
         profile.resetGamePlayer();
 
-        final Player bukkitPlayer = player.getPlayer();
+        final Player bukkitPlayer = player.getEntity();
 
         player.getInventory().clear();
         player.teleport(EnumLevel.SPAWN.getLevel().getLocation());
@@ -123,7 +123,7 @@ public class Trial extends TickingGameTask implements Lifecycle {
     }
 
     @Nonnull
-    public TrialEntity spawnEntity(@Nonnull Location location, @Nonnull ConsumerFunction<Husk, TrialEntity> consumer) {
+    public TrialEntity spawnEntity(@Nonnull Location location, @Nonnull Function<Husk, TrialEntity> consumer) {
         final TrialEntity gameEntity = CF.createEntity(location, Entities.HUSK, entity -> {
             // The entity should only be visible to the player whose trial it is
             entity.setVisibleByDefault(false);
@@ -135,8 +135,6 @@ public class Trial extends TickingGameTask implements Lifecycle {
         });
 
         player.showEntity(gameEntity);
-
-        consumer.andThen(gameEntity);
         entities.add(gameEntity);
 
         husksThisStage++;

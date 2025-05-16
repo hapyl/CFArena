@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class Akciy extends Talent implements Listener {
@@ -34,7 +35,7 @@ public class Akciy extends Talent implements Listener {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.SLIME_BALL);
+        setMaterial(Material.SLIME_BALL);
         setDuration(100);
         setCooldownSec(40);
     }
@@ -55,7 +56,7 @@ public class Akciy extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final LivingGameEntity target = Collect.targetEntityDot(player, 50.0d, 0.8d, entity -> !player.isSelfOrTeammate(entity));
 
         if (target == null) {
@@ -75,7 +76,7 @@ public class Akciy extends Talent implements Listener {
     }
 
     @EventHandler()
-    public void handleGameDamageEvent(GameDamageEvent ev) {
+    public void handleGameDamageEvent(GameDamageEvent.Process ev) {
         final LivingGameEntity entity = ev.getEntity();
         final GameEntity damager = ev.getDamager();
 

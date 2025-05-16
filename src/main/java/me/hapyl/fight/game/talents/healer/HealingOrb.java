@@ -14,7 +14,7 @@ public class HealingOrb extends InputTalent {
     public HealingOrb(@Nonnull Key key) {
         super(key, "Healing Aura");
 
-        setItem(Material.NETHER_WART);
+        setMaterial(Material.NETHER_WART);
 
         leftData.setAction("heal teammate").setCooldownSec(10);
         rightData.setAction("heal yourself").setCooldownSec(15);

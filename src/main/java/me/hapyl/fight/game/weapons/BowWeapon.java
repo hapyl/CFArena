@@ -25,15 +25,16 @@ public class BowWeapon extends Weapon {
         this.cooldown = cooldown;
         return this;
     }
-
+    
+    
     @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
+    public void juice(@Nonnull ItemBuilder builder) {
         builder.addLore();
         builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs:");
-
+        
         addDynamicLore(builder, " ғɪʀᴇ ʀᴀᴛᴇ: &f&l%s", cooldown, t -> Tick.round(t.intValue()) + "s");
     }
-
+    
     @Nonnull
     public static BowWeapon of(@Nonnull Key key, @Nonnull String name, @Nonnull String description, double damage) {
         final BowWeapon weapon = new BowWeapon(key);

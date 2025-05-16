@@ -24,7 +24,7 @@ public class SkinEffectManager implements Listener, Lifecycle {
             @Override
             public void run(int tick) {
                 for (final GamePlayer player : CF.getAlivePlayers()) {
-                    final PlayerProfile profile = CF.getProfile(player.getPlayer());
+                    final PlayerProfile profile = CF.getProfile(player.getEntity());
 
                     if (!player.isValidForCosmetics()) {
                         continue;

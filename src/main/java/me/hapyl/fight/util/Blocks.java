@@ -101,7 +101,7 @@ public final class Blocks {
 
         CF.getPlayers().forEach(player -> {
             blocks.forEach(block -> {
-                player.getPlayer().sendBlockChange(block.getLocation(), data);
+                player.getEntity().sendBlockChange(block.getLocation(), data);
             });
         });
     }

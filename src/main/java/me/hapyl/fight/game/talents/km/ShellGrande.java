@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShellGrande extends Talent {
 
@@ -32,7 +33,7 @@ public class ShellGrande extends Talent {
                 """
         );
 
-        setItem(Material.FIREWORK_STAR);
+        setMaterial(Material.FIREWORK_STAR);
         setCooldownSec(11);
 
         fireworkStarRed = new ItemStack(Material.FIREWORK_STAR);
@@ -45,7 +46,7 @@ public class ShellGrande extends Talent {
 
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         // Fx

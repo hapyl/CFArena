@@ -8,10 +8,12 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -42,6 +44,8 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
     protected final int pillarHealthHeightDifference = pillarHealth / pillarHeight;
 
     @DisplayField protected final int explosionDelay = Tick.fromSecond(12);
+    @DisplayField(suffix = " blocks") protected final double explosionRadius = 50;
+    @DisplayField(percentage = true, suffix = " of Max Health") protected final double damage = 20.0;
 
     private final Set<FirePillar> firePillars;
 
@@ -53,11 +57,11 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
         setDescription("""
                 Start channeling a &6Fire Pillar&7 that lands nearby after {cast}.
                 
-                Upon landing, it must be destroyed within &b{explosionDelay}&7 or everyone &4dies&7.
-                """);
+                Upon landing, it must be destroyed within &b{explosionDelay}&7 or enemies within &a{explosionRadius}&7 takes damage equal to &4%.0f%%&7 of their %s as %s.
+                """.formatted(damage * 100, AttributeType.MAX_HEALTH, EnumTerm.TRUE_DAMAGE));
 
         setType(TalentType.DAMAGE);
-        setItem(Material.MAGMA_BLOCK);
+        setMaterial(Material.MAGMA_BLOCK);
 
         setCastDurationSec(5.0f);
         setCooldownSec(60);
@@ -84,7 +88,7 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
 
     @Nonnull
     @Override
-    public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+    public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
         final Location landLocation = getLocationLocation(player.getLocation());
 
         if (landLocation == null) {
@@ -134,7 +138,7 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
         for (int i = 0; i < pillarHeight; i++) {
             final Block relative = block.getRelative(BlockFace.UP, i);
 
-            if (!relative.getType().isEmpty()) {
+            if (!relative.getType().isAir()) {
                 return false;
             }
         }
@@ -165,14 +169,14 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
 
         @Override
         public void onExecute() {
-            onPlayerDied();
+            onPlayerDied(player);
 
             // Spawn the pillar
             createPillar(new FirePillar(InfernoUltimate.this, player, landLocation));
         }
 
         @Override
-        public void onPlayerDied() {
+        public void onPlayerDied(@Nonnull GamePlayer player) {
             CFUtils.clearCollectionAnd(fxStands, ArmorStand::remove);
         }
 

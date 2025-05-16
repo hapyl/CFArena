@@ -2,8 +2,8 @@ package me.hapyl.fight.game.ui;
 
 import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.UltimateColor;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.util.StrBuilder;
 
 import javax.annotation.Nonnull;
@@ -15,7 +15,7 @@ public class UIFormat {
 
     public static final String DIV_RAW = "⁑";
     public static final String DIV = " &8⁑&r ";
-    public static final UIFormat DEFAULT = new UIFormat("{Health} {Div} {Ultimate} &b※");
+    public static final UIFormat DEFAULT = new UIFormat("{Health} {Div} {Ultimate}");
 
     private final String format;
 
@@ -30,11 +30,11 @@ public class UIFormat {
     }
 
     @Nonnull
-    public String format(@Nonnull GamePlayer player, @Nonnull UltimateColor ultimateColor) {
+    public String format(@Nonnull GamePlayer player, @Nonnull UltimateTalent.DisplayColor type) {
         final StrBuilder builder = new StrBuilder(format);
 
         builder.replace("{Health}", player.getHealthFormatted());
-        builder.replace("{Ultimate}", player.getUltimateString(ultimateColor));
+        builder.replace("{Ultimate}", player.getUltimateString(type));
         builder.replace("{Div}", DIV);
 
         // UIComponent

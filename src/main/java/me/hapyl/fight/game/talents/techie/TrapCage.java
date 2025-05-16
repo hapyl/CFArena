@@ -44,7 +44,7 @@ public class TrapCage extends ChargedTalent implements Listener {
                 """
         );
 
-        setItem(Material.IRON_TRAPDOOR);
+        setMaterial(Material.IRON_TRAPDOOR);
         setCooldownSec(2);
     }
 
@@ -54,7 +54,14 @@ public class TrapCage extends ChargedTalent implements Listener {
         //getCages(player).forEach(CyberCage::remove);
         //cageMap.remove(player);
     }
-
+    
+    @Nonnull
+    @Override
+    public Response execute(@Nonnull GamePlayer player, int charges) {
+        //getCages(player).add(new CyberCage(player));
+        return Response.OK;
+    }
+    
     @Override
     public void onStop(@Nonnull GameInstance instance) {
         super.onStop(instance);
@@ -64,12 +71,6 @@ public class TrapCage extends ChargedTalent implements Listener {
             set.clear();
         });
         cageMap.clear();
-    }
-
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        //getCages(player).add(new CyberCage(player));
-        return Response.OK;
     }
 
     @EventHandler()

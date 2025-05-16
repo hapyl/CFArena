@@ -24,6 +24,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShadowPrism extends Talent {
 
@@ -71,7 +72,7 @@ public class ShadowPrism extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final ArmorStand prism = getPrism(player);
 
         // Deploy Prism
@@ -97,14 +98,14 @@ public class ShadowPrism extends Talent {
                 self.getLocation().setYaw(playerLocation.getYaw());
 
                 if (self.getEquipment() != null) {
-                    self.getEquipment().setHelmet(this.getItem());
+                    self.getEquipment().setHelmet(this.getItem(player));
                 }
 
                 self.setVisibleByDefault(false);
             });
 
             playerPrism.put(player, entity);
-            startCd(player, deployCd); // fix instant use
+            startCooldown(player, deployCd); // fix instant use
 
             // Hide prism for everyone but player
             //Visibility.of(entity, player);
@@ -143,10 +144,9 @@ public class ShadowPrism extends Talent {
         }
 
         // Teleport to Prism
-        startCd(player, 9999);
+        startCooldown(player, 9999);
         final float pitchPerTick = 2.0f / windupTime;
 
-        player.addEffect(EffectType.SLOW, 100, windupTime);
         player.addEffect(EffectType.SLOW_FALLING, 0, windupTime);
 
         GameTask.runTaskTimerTimes((task, i) -> {
@@ -158,7 +158,7 @@ public class ShadowPrism extends Talent {
                 return;
             }
 
-            startCd(player, teleportCd);
+            startCooldown(player, teleportCd);
 
             final Location prismLocation = prism.getLocation();
             final Location location = new Location(

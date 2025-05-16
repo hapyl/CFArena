@@ -3,24 +3,31 @@ package me.hapyl.fight.game.heroes.tamer;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.MaterialData;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.tamer.MineOBall;
+import me.hapyl.fight.game.talents.tamer.TamingTheEarth;
+import me.hapyl.fight.game.talents.tamer.TamingTheTime;
 import me.hapyl.fight.game.talents.tamer.TamingTheWind;
 import me.hapyl.fight.game.talents.tamer.pack.ActiveTamerPack;
 import me.hapyl.fight.game.talents.tamer.pack.DrWitch;
+import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -37,169 +44,181 @@ import org.bukkit.event.player.PlayerFishEvent;
 import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class Tamer extends Hero implements Listener, UIComponent {
-
-    private final double WEAPON_DAMAGE = 7.0d; // since it's a fishing rod, we're storing the damage here
-    private final int WEAPON_COOLDOWN = 15;
-
+public class Tamer extends Hero implements Listener, UIComponent, PlayerDataHandler<TamerData> {
+    
     public final double ultimateMultiplier = 2.0d;
     public final Map<ThrownPotion, DrWitch.WitchData> potionMap = Maps.newHashMap();
-
+    
+    private final double weaponDamage = 7.0d; // since it's a fishing rod, we're storing the damage here
+    private final int weaponCooldown = 15;
+    
+    private final PlayerDataMap<TamerData> playerData = PlayerMap.newDataMap(TamerData::new);
+    
     public Tamer(@Nonnull Key key) {
         super(key, "Tamer");
-
+        
         setDescription("""
-                A former circus pet trainer who gained the ability to tame the elements.
-                """);
-
+                       A former circus pet trainer who gained the ability to tame the elements.
+                       """);
+        
         setItem("fbad693d041db13ff36b81480b06456cd0ad6a57655338b956ea015a150516e2");
-
+        
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.SELF_BUFF);
         profile.setGender(Gender.MALE);
-
+        
         final HeroAttributes attributes = getAttributes();
         attributes.setSpeed(70);
-
+        
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(222, 35, 22);
         equipment.setLeggings(48, 119, 227);
         equipment.setBoots(38, 0, 0);
-
-        setWeapon(Weapon.builder(Material.FISHING_ROD, Key.ofString("tamer_weapon"))
-                .name("Lash")
-                .description("An old lash used to train beasts and monsters.")
-                .damage(2.0d)); // This is melee damage, weapon damage is handled in the event
-
+        
+        setWeapon(Weapon.createBuilder(Material.FISHING_ROD, Key.ofString("tamer_weapon"))
+                        .name("Lash")
+                        .description("An old lash used to train beasts and monsters.")
+                        .damage(2.0d)); // This is melee damage, weapon damage is handled in the event
+        
         setUltimate(new TamerUltimate());
     }
-
-    public ActiveTamerPack getPlayerPack(GamePlayer player) {
-        return getFirstTalent().getPack(player);
-    }
-
+    
     @EventHandler()
-    public void handleWitchPotion(PotionSplashEvent ev) {
+    public void handlePotionSplashEvent(PotionSplashEvent ev) {
         final ThrownPotion potion = ev.getPotion();
         final DrWitch.WitchData witchData = potionMap.remove(potion);
-
+        
         if (witchData == null) {
             return;
         }
-
+        
         witchData.target().heal(witchData.healing());
     }
-
+    
     @EventHandler()
-    public void handle(PlayerFishEvent ev) {
+    public void handlePlayerFishEvent(PlayerFishEvent ev) {
         final Player player = ev.getPlayer();
         final PlayerFishEvent.State state = ev.getState();
-
+        
         if (state != PlayerFishEvent.State.CAUGHT_FISH) {
             return;
         }
-
+        
         if (!validatePlayer(player)) {
             return;
         }
-
+        
         Registries.achievements().TAMER_FISHING_TIME.complete(player);
     }
-
+    
     @EventHandler()
-    public void handleLash(ProjectileHitEvent ev) {
+    public void handleProjectileHitEvent(ProjectileHitEvent ev) {
         if (!(ev.getEntity() instanceof FishHook hook) || !(hook.getShooter() instanceof Player player)) {
             return;
         }
-
+        
         final GamePlayer gamePlayer = CF.getPlayer(player);
-
+        
         if (gamePlayer == null || !validatePlayer(player) || player.hasCooldown(Material.FISHING_ROD)) {
             return;
         }
-
+        
         final Block hitBlock = ev.getHitBlock();
-
+        
         if (hitBlock != null) {
             hook.remove();
             return;
         }
-
+        
         if (ev.getHitEntity() instanceof LivingEntity living) {
             CF.getEntityOptional(living).ifPresent(gameEntity -> {
                 if (gamePlayer.isSelfOrTeammate(gameEntity)) {
                     return;
                 }
-
+                
                 gameEntity.setLastDamager(gamePlayer);
-                gameEntity.damage(WEAPON_DAMAGE, DamageCause.LEASHED);
+                gameEntity.damage(weaponDamage, DamageCause.LEASHED);
             });
-
+            
             hook.remove();
         }
-
-        gamePlayer.cooldownManager.setCooldown(getWeapon(), WEAPON_COOLDOWN);
+        
+        gamePlayer.cooldownManager.setCooldown(getWeapon(), weaponCooldown);
     }
-
+    
     @Override
     public MineOBall getFirstTalent() {
         return TalentRegistry.MINE_O_BALL;
     }
-
+    
     @Override
     public TamingTheWind getSecondTalent() {
         return TalentRegistry.TAMING_THE_WIND;
     }
-
+    
     @Override
-    public Talent getThirdTalent() {
+    public TamingTheEarth getThirdTalent() {
         return TalentRegistry.TAMING_THE_EARTH;
     }
-
+    
     @Override
-    public Talent getFourthTalent() {
+    public TamingTheTime getFourthTalent() {
         return TalentRegistry.TAMING_THE_TIME;
     }
-
+    
     @Override
     public Talent getPassiveTalent() {
-        return null;
+        return null; // fixme -> Why is it still null!!!
     }
-
+    
+    @Override
+    public void onStart(@Nonnull GameInstance instance) {
+        new GameTask() {
+            @Override
+            public void run() {
+                playerData.values().forEach(TamerData::tick);
+            }
+        }.runTaskTimer(0, 1);
+    }
+    
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
-        final ActiveTamerPack pack = getPlayerPack(player);
-
+        final TamerData data = getPlayerData(player);
+        final ActiveTamerPack pack = data.activePack;
+        
         if (pack == null) {
             return "";
         }
-
-        final int duration = pack.getDuration();
-
-        return pack.getName() + " " + pack.getPack().toString(pack) + " &e⌚ " + CFUtils.formatTick(duration);
+        
+        return "%s %s &e⌚ %s".formatted(pack.getName(), pack.getPack().toString(pack), CFUtils.formatTick(pack.getDuration()));
     }
-
+    
+    @Nonnull
+    @Override
+    public PlayerDataMap<TamerData> getDataMap() {
+        return playerData;
+    }
+    
     private class TamerUltimate extends UltimateTalent {
         public TamerUltimate() {
             super(Tamer.this, "Improve! Overcome!", 50);
-
+            
             setDescription("""
-                    Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
-                    """);
-
+                           Improve the &bduration&7 and &aeffectiveness&7 of your talents and beasts.
+                           """);
+            
             setType(TalentType.ENHANCE);
-            setItem(Material.LINGERING_POTION, builder -> {
-                builder.setPotionColor(Color.ORANGE);
-            });
+            setMaterial(MaterialData.of(Material.LINGERING_POTION, builder -> builder.setPotionColor(Color.ORANGE)));
+            
             setCooldownSec(70);
             setDurationSec(60);
-
+            
         }
-
+        
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             // TODO (Sun, Nov 10 2024 @xanyjl): Yeah add at least fx idk this is fucking empty
             return execute(() -> {
             });

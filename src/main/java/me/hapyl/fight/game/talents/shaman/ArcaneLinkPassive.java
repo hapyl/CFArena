@@ -17,6 +17,6 @@ public class ArcaneLinkPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.CHAIN);
+        setMaterial(Material.CHAIN);
     }
 }

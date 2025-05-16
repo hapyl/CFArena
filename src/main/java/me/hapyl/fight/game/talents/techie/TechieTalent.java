@@ -31,6 +31,7 @@ public abstract class TechieTalent extends Talent implements DeviceHack {
     @Nonnull
     public abstract String getHackDescription();
 
+    @Nonnull
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
         startDevice(player);

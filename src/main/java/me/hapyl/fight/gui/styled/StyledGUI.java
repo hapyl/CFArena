@@ -34,7 +34,7 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
 
     @Override
     public final void openInventory() {
-        if (checkCanOpen(player)) {
+        if (!isCanOpen(player)) {
             return;
         }
 

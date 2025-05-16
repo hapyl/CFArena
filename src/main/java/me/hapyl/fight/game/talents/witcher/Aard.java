@@ -15,6 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Aard extends Talent {
 
@@ -29,12 +30,12 @@ public class Aard extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.HEART_OF_THE_SEA);
+        setMaterial(Material.HEART_OF_THE_SEA);
         setCooldownSec(5);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection().setY(0.125d).multiply(2.0d);
         final Location inFront = player.getLocation().add(vector);
 

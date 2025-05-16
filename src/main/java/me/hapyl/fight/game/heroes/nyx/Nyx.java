@@ -7,7 +7,7 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Tuple;
-import me.hapyl.fight.event.custom.AttributeTemperEvent;
+import me.hapyl.fight.event.custom.AttributeModifyEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
@@ -15,12 +15,14 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.EnumResource;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.talents.ChargeType;
 import me.hapyl.fight.game.talents.OverchargeUltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.nyx.ChaosGround;
 import me.hapyl.fight.game.talents.nyx.NyxPassive;
+import me.hapyl.fight.game.talents.nyx.WitherRosePath;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.util.ParticleDrawer;
@@ -72,17 +74,15 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         setItem("e4e7d05432c07cbbe6414def96196f434ffc8759a528202463257f42f304670d");
 
         setWeapon(new NyxWeapon());
-
-
         setUltimate(new NyxUltimate());
     }
 
     @EventHandler()
-    public void handleAttributeChange(AttributeTemperEvent ev) {
+    public void handleAttributeChange(AttributeModifyEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
         final LivingGameEntity applier = ev.getApplier();
 
-        if (!(applier instanceof GamePlayer playerApplier) || ev.isBuff()) {
+        if (!(applier instanceof GamePlayer playerApplier) || !ev.hasModification(AttributeModifyEvent.ModificationType.DEBUFF)) {
             return;
         }
 
@@ -116,12 +116,12 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public WitherRosePath getFirstTalent() {
         return TalentRegistry.WITHER_ROSE_PATH;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public ChaosGround getSecondTalent() {
         return TalentRegistry.CHAOS_GROUND;
     }
 
@@ -136,7 +136,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         final NyxData data = getPlayerData(player);
         final int chaosStacks = data.getChaosStacks();
 
-        return "&5%s &d%s".formatted(Named.THE_CHAOS.getCharacter(), chaosStacks);
+        return "&5%s &d%s".formatted(Named.THE_CHAOS.getPrefix(), chaosStacks);
     }
 
     public void drawParticle(@Nonnull Location location) {
@@ -165,7 +165,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
         return validatePlayer(player)
                 && getPlayerData(player).getChaosStacks() > 0
                 && player.isAlive() // Yeah, kinda make sure the player is alive
-                && !passive.hasCd(player);
+                && !passive.hasCooldown(player);
     }
 
     public static class NyxTuple<V> extends Tuple<V, V> {
@@ -235,7 +235,7 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                     Summon a &8void portal&7 in front of you.
                     
                     After a short casting time, spears of chaos will rise from the portal, dealing &crapid damage&7 and reducing %s to &cenemies&7 within.
-                    """.formatted(Named.ENERGY)
+                    """.formatted(EnumResource.ENERGY)
             );
 
             setOverchargeDescription("""
@@ -243,17 +243,17 @@ public class Nyx extends Hero implements Listener, PlayerDataHandler<NyxData>, U
                     &8› &7Increases the damage by %s.
                     &8› &7Increases the duration by %s.
                     
-                    Adds a &cfinal slash&7, that decreases all &cenemies&7 %s by &b%s&7.
+                    Adds a &cfinal slash&7, that decreases all &cenemies&7 %s by &b%.0f&7.
                     &8&oThe slash is considered to be an effect.
                     """.formatted(
                     distance.differenceInPercent(),
                     damage.differenceInPercent(),
                     duration.differenceInPercent(),
-                    Named.ENERGY,
+                    EnumResource.ENERGY,
                     overchargedEnergyDecrease
             ));
 
-            setItem(Material.DRIED_KELP);
+            setMaterial(Material.DRIED_KELP);
         }
 
         @Nonnull

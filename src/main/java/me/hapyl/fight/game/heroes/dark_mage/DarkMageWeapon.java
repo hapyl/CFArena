@@ -30,7 +30,8 @@ public class DarkMageWeapon extends Weapon {
                     While in this mode, combine %s&7 and %s&7 runes using &a&nleft&7 and &c&nright&7 clicks respectively.
                     
                     Successfully combining two runes will &bcast&7 the &acorresponding&7 spell.
-                    """, SpellButton.LEFT, SpellButton.RIGHT);
+                    """.formatted(SpellButton.LEFT, SpellButton.RIGHT)
+            );
         }
     }
 }

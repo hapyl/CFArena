@@ -15,6 +15,7 @@ import me.hapyl.fight.util.Describable;
 import org.bukkit.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class DemonSplitTalent extends Talent implements Describable {
 
@@ -35,7 +36,7 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
                 %s&4Demonsplit talents share a cooldown!
                 """.formatted(type.getName(), describe(), describeReform()));
 
-        setItem(material);
+        setMaterial(material);
 
         setDurationSec(10);
         setCooldownSec(20);
@@ -69,7 +70,7 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
     }
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         final InfernoData data = player.getPlayerData(HeroRegistry.INFERNO);
 
         if (data.currentDemon != null) {
@@ -81,7 +82,7 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
         final InfernoDemon demon = type.createDemon(this, player);
         data.currentDemon = demon;
 
-        player.addEffect(EffectType.INVISIBILITY, getDuration());
+        player.addEffect(EffectType.INVISIBLE, getDuration());
 
         // Form
         demonInstance.onForm(player, data);

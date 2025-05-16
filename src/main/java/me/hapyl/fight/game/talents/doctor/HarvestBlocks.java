@@ -9,7 +9,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
@@ -25,8 +24,10 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,13 +53,13 @@ public class HarvestBlocks extends Talent {
                 """
         );
 
-        setItem(Material.IRON_PICKAXE);
+        setMaterial(Material.IRON_PICKAXE);
         setCooldownSec(30);
         setPoint(5);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location start = player.getLocation().add(3, 3, 3);
         final Location end = player.getLocation().subtract(3, 3, 3);
 
@@ -156,7 +157,7 @@ public class HarvestBlocks extends Talent {
         }.runTaskTimer(0, 2);
 
         player.schedule(() -> launchProjectile(player, damage.get()), collectDelay);
-        player.addEffect(EffectType.SLOW, 10, collectDelay);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 10, collectDelay);
 
         return Response.OK;
     }

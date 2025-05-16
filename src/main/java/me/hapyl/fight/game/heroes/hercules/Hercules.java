@@ -6,14 +6,16 @@ import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
@@ -154,7 +156,7 @@ public class Hercules extends Hero implements Listener, Disabled {
         trident.remove();
 
         player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
-        player.getInventory().setItem(0, this.getWeapon().getItem());
+        player.getInventory().setItem(0, this.getWeapon().createItem());
         player.updateInventory();
 
         fragileTrident.remove(player);
@@ -183,7 +185,6 @@ public class Hercules extends Hero implements Listener, Disabled {
         final double plungeDamage = 5.0d + (1.5d * distance);
 
         player.playWorldSound(Sound.ITEM_TRIDENT_RIPTIDE_2, 1.75f);
-        player.addEffect(EffectType.JUMP_BOOST, 255, 80);
 
         player.setVelocity(new Vector(0.0d, -1.0d, 0.0d));
         player.addTag("plunging");
@@ -197,7 +198,6 @@ public class Hercules extends Hero implements Listener, Disabled {
                     this.cancel();
 
                     player.removeTag("plunging");
-                    player.removeEffect(EffectType.JUMP_BOOST);
 
                     Registries.cosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
 
@@ -235,14 +235,14 @@ public class Hercules extends Hero implements Listener, Disabled {
                     """
             );
 
-            setItem(Material.NETHERITE_HELMET);
+            setMaterial(Material.NETHERITE_HELMET);
             setDurationSec(12);
             setCooldownSec(30);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return null;
         }
     }

@@ -74,7 +74,7 @@ public class Booster {
 
     public Entity launchAndRide(GamePlayer player, boolean flag) {
         final Entity piggy = launch(flag);
-        piggy.addPassenger(player.getPlayer());
+        piggy.addPassenger(player.getEntity());
 
         player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 200);
         player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 2.0f);

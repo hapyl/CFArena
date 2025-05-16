@@ -14,9 +14,10 @@ import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.rogue.ExtraCut;
 import me.hapyl.fight.game.talents.rogue.SecondWind;
+import me.hapyl.fight.game.talents.rogue.Swayblade;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -39,13 +40,13 @@ import javax.annotation.Nonnull;
 public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UIComponent, DisplayFieldProvider, Listener {
 
     private final PlayerDataMap<RogueData> rogueData = PlayerMap.newDataMap(RogueData::new);
-    private final String secondWindSmallCaps = "%s %s".formatted(Named.SECOND_WIND.getCharacter(), SmallCaps.format(Named.SECOND_WIND.getName()));
+    private final String secondWindSmallCaps = "%s %s".formatted(Named.SECOND_WIND.getPrefix(), SmallCaps.format(Named.SECOND_WIND.getName()));
 
     public Rogue(@Nonnull Key key) {
         super(key, "Rogue");
 
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.DAMAGE);
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE);
         profile.setAffiliation(Affiliation.MERCENARY);
         profile.setGender(Gender.MALE);
 
@@ -56,7 +57,6 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         setItem("73abc6192f1a559ed566e50fddf6a7b50c42cb0a15862091411487ace1d60ab8");
 
         final HeroAttributes attributes = getAttributes();
-
         attributes.setMaxHealth(60);
         attributes.setSpeed(130);
         attributes.setAttackSpeed(150);
@@ -67,7 +67,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         equipment.setLeggings(36, 14, 4, TrimPattern.DUNE, TrimMaterial.NETHERITE);
         equipment.setBoots(23, 7, 0, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("scarificial_dagger"))
+        setWeapon(Weapon.createBuilder(Material.GOLDEN_SWORD, Key.ofString("scarificial_dagger"))
                         .name("Sacrificial Dagger")
                         .description("""
                                 An ornate ceremonial dagger.
@@ -105,12 +105,12 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public ExtraCut getFirstTalent() {
         return TalentRegistry.EXTRA_CUT;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public Swayblade getSecondTalent() {
         return TalentRegistry.SWAYBLADE;
     }
 
@@ -154,14 +154,14 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
                     """.formatted(EffectType.BLEED.getName(), Named.SECOND_WIND)
             );
 
-            setItem(Material.LIGHTNING_ROD);
+            setMaterial(Material.LIGHTNING_ROD);
 
             setCastDurationSec(0.75f);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return new UltimateInstance() {
                 @Override
                 public void onCastStart() {

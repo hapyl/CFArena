@@ -142,7 +142,7 @@ public abstract class GuessWhoGUI extends StyledGUI {
 
         builder.addLore();
         builder.addLore("ᴜʟᴛɪᴍᴀᴛᴇ &8(%s)".formatted(ultimate.getType().getName()));
-        builder.addLore(" &f⌚ ᴄᴅ %s &7∣ &b※ ᴄᴏsᴛ %s".formatted(ultimate.getCooldownFormatted(), ultimate.getCost()));
+        builder.addLore(" &f⌚ ᴄᴅ %s &7∣ &b※ ᴄᴏsᴛ %s".formatted(ultimate.getCooldownFormatted(), ultimate.cost()));
 
         return builder;
     }

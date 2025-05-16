@@ -11,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ReviveTotem extends Talent {
 
@@ -24,7 +25,7 @@ public class ReviveTotem extends Talent {
                 """
         );
 
-        setItem(Material.TOTEM_OF_UNDYING); // fixme -> this might actually trigger totem, needs testing
+        setMaterial(Material.TOTEM_OF_UNDYING); // fixme -> this might actually trigger totem, needs testing
 
         this.playerCatalysts = PlayerMap.newMap();
     }
@@ -43,7 +44,7 @@ public class ReviveTotem extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Block targetBlock = player.getTargetBlockExact(5);
 
         if (targetBlock == null) {

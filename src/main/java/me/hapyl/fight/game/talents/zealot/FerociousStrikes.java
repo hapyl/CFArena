@@ -23,6 +23,6 @@ public class FerociousStrikes extends PassiveTalent {
                 """.formatted(AttributeType.FEROCITY, Named.FEROCIOUS_STRIKE)
         );
 
-        setItem(Material.RED_DYE);
+        setMaterial(Material.RED_DYE);
     }
 }

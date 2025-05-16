@@ -169,7 +169,7 @@ public final class Collect {
                 location,
                 radius,
                 entity -> entity instanceof GamePlayer
-                        && entity.isNot(exclude)
+                        && !entity.getEntity().equals(entity)
                         && Manager.current().isPlayerInGame((GamePlayer) entity)
                         && !GameTeam.isTeammate(Entry.of(exclude), Entry.of(entity))
         );
@@ -209,7 +209,7 @@ public final class Collect {
         final LivingGameEntity nearestPlayer = nearestEntity(
                 location,
                 radius,
-                check -> check.is(Player.class) && predicate.test(check)
+                check -> check instanceof GamePlayer && predicate.test(check)
         );
 
         if (nearestPlayer != null) {

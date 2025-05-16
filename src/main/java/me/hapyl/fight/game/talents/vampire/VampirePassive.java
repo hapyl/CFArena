@@ -18,7 +18,7 @@ public class VampirePassive extends PassiveTalent {
                 &8&o;;When healed, the debt is restored first before any health recovery.
                 """.formatted(Named.BLOOD_DEBT));
 
-        setItem(Material.REDSTONE);
+        setMaterial(Material.REDSTONE);
     }
 
 }

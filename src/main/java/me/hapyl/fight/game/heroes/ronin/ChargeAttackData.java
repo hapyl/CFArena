@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.ronin;
 
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ronin.ChargeAttack;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
 
 public class ChargeAttackData extends GameTask {
 
@@ -49,7 +49,7 @@ public class ChargeAttackData extends GameTask {
         }
 
         // Slow player down a little
-        player.addEffect(EffectType.SLOW, 2, 2);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 2, 2);
     }
 
     public boolean isPerfect() {

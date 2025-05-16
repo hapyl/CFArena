@@ -29,7 +29,6 @@ import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -89,7 +88,7 @@ public class RoninWeapon extends Weapon {
         }
 
         @EventHandler
-        public void handleGameDamageEvent(GameDamageEvent ev) {
+        public void handleGameDamageEvent(GameDamageEvent.Process ev) {
             if (!(ev.getEntity() instanceof GamePlayer player)) {
                 return;
             }
@@ -146,7 +145,7 @@ public class RoninWeapon extends Weapon {
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             if (deflectMap.containsKey(player)) {
                 return Response.AWAIT;
             }

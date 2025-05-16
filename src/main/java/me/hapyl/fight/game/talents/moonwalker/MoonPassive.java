@@ -19,7 +19,7 @@ public class MoonPassive extends PassiveTalent {
     public MoonPassive(@Nonnull Key key) {
         super(key, "Moonlit Energy");
 
-        setItem(Material.END_CRYSTAL);
+        setMaterial(Material.END_CRYSTAL);
 
         setDescription("""
                 A type of alien energy that can power weapons.

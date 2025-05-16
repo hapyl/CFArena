@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.inferno;
 
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.inferno.InfernoData;
-import me.hapyl.fight.game.talents.Removable;
 
 import javax.annotation.Nonnull;
 

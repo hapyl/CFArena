@@ -44,7 +44,7 @@ public class StatContainer extends NonNullableElementHolder<GamePlayer> {
     }
 
     public Player getPlayer() {
-        return this.getElement().getPlayer();
+        return this.getElement().getEntity();
     }
 
     public Map<Talent, Long> getUsedAbilities() {

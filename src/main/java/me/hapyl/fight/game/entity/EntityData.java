@@ -9,8 +9,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.IGameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.ActiveGameEffect;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.effect.ActiveEffect;
+import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.effect.Type;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
@@ -18,41 +18,37 @@ import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Used to store named damage, effects, etc.
+ * Represents an entity data.
  */
 public final class EntityData implements Ticking {
-
+    
     private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
-
-    private final Map<EffectType, ActiveGameEffect> gameEffects;
-    private final Map<GamePlayer, Double> damageTaken;
+    
+    public final Map<Effect, ActiveEffect> effects;
+    public final Map<GamePlayer, Double> damageTaken;
+    
     private final Map<DamageCause, Integer> attackCooldown;
-
     private final Cache<GamePlayer> assistingPlayers;
-
     private final LivingGameEntity entity;
-
+    
     @Important(value = "Notifies the event that the damage is named, not vanilla.")
     boolean wasHit;
-
+    
     @Nullable private GameEntity lastDamager;
     @Nullable private DamageCause lastDamageCause;
-
-    public EntityData(@Nonnull LivingGameEntity entity) {
+    
+    EntityData(@Nonnull LivingGameEntity entity) {
         this.entity = entity;
         this.damageTaken = Maps.newHashMap();
-        this.gameEffects = Maps.newConcurrentMap();
+        this.effects = Maps.newHashMap();
         this.attackCooldown = Maps.newConcurrentMap();
         this.assistingPlayers = Cache.ofSet(ASSIST_DURATION);
     }
-
+    
     /**
      * Returns true if current damage instance is executed used EntityData.
      *
@@ -61,7 +57,7 @@ public final class EntityData implements Ticking {
     public boolean isCustomDamage() {
         return wasHit;
     }
-
+    
     /**
      * Returns true if current damage instance is native.
      *
@@ -70,27 +66,7 @@ public final class EntityData implements Ticking {
     public boolean isNativeDamage() {
         return !wasHit;
     }
-
-    /**
-     * Gets the actual map of the game effects.
-     *
-     * @return game effect map.
-     */
-    @Nonnull
-    public Map<EffectType, ActiveGameEffect> getGameEffects() {
-        return gameEffects;
-    }
-
-    /**
-     * Gets the actual map of damage taken.
-     *
-     * @return damage taken map.
-     */
-    @Nonnull
-    public Map<GamePlayer, Double> getDamageTaken() {
-        return damageTaken;
-    }
-
+    
     /**
      * Gets the cause of the last taken damage.
      *
@@ -100,7 +76,7 @@ public final class EntityData implements Ticking {
     public DamageCause getLastDamageCause() {
         return lastDamageCause;
     }
-
+    
     /**
      * Sets the cause of the last-taken damage.
      *
@@ -109,7 +85,7 @@ public final class EntityData implements Ticking {
     public void setLastDamageCause(@Nullable DamageCause cause) {
         this.lastDamageCause = cause;
     }
-
+    
     /**
      * Gets the cause of the last taken damage, defaults to {@link DamageCause#ENTITY_ATTACK}.
      *
@@ -119,7 +95,7 @@ public final class EntityData implements Ticking {
     public DamageCause getLastDamageCauseNonNull() {
         return lastDamageCause == null ? DamageCause.ENTITY_ATTACK : lastDamageCause;
     }
-
+    
     /**
      * Gets owning entity of this data.
      *
@@ -129,7 +105,7 @@ public final class EntityData implements Ticking {
     public LivingGameEntity getEntity() {
         return entity;
     }
-
+    
     /**
      * Gets the last damager.
      *
@@ -143,10 +119,10 @@ public final class EntityData implements Ticking {
                 lastDamager = null;
             }
         }
-
+        
         return lastDamager;
     }
-
+    
     /**
      * Sets the last damager.
      *
@@ -155,7 +131,7 @@ public final class EntityData implements Ticking {
     public void setLastDamager(@Nullable GameEntity lastDamager) {
         this.lastDamager = lastDamager;
     }
-
+    
     /**
      * Gets the last damage as living damager if it's not null and is a living game entity.
      *
@@ -165,7 +141,7 @@ public final class EntityData implements Ticking {
     public LivingGameEntity getLastDamagerAsLiving() {
         return lastDamager() instanceof LivingGameEntity livingDamager ? livingDamager : null;
     }
-
+    
     /**
      * Roots to the actual entity damager.
      */
@@ -174,18 +150,18 @@ public final class EntityData implements Ticking {
         if (lastDamager == null) {
             return null;
         }
-
+        
         if (lastDamager instanceof Projectile projectile) {
             if (projectile.getShooter() instanceof LivingEntity living) {
                 return living;
             }
-
+            
             return null;
         }
-
+        
         return lastDamager.getEntity();
     }
-
+    
     /**
      * Sets the last damage cause if the last damage was native.
      *
@@ -196,7 +172,7 @@ public final class EntityData implements Ticking {
             lastDamageCause = DamageCause.byBukkitCause(cause);
         }
     }
-
+    
     /**
      * Sets the last damager if the last damage was native.
      *
@@ -207,71 +183,65 @@ public final class EntityData implements Ticking {
             lastDamager = living;
         }
     }
-
-    /**
-     * Adds effect to this entity.
-     *
-     * @param type      - Effect type.
-     * @param amplifier - Amplifier.
-     * @param duration  - Duration. {@code -1} for infinite duration.
-     */
-    public void addEffect(@Nonnull EffectType type, int amplifier, int duration) {
+    
+    public void addEffect(@Nonnull Effect type, int amplifier, int duration, @Nullable LivingGameEntity applier) {
+        final Type effectType = type.getType();
+        
         // Check for effect resistance
-        if (type.getEffect().getType() == Type.NEGATIVE && entity.hasEffectResistanceAndNotify()) {
+        if (effectType == Type.NEGATIVE && entity.hasEffectResistanceAndNotify(applier)) {
             return;
         }
-
-        final ActiveGameEffect effect = gameEffects.get(type);
-
+        
+        final ActiveEffect effect = effects.get(type);
+        
+        // If effect already exists, update the remaining duration, applier and call onUpdate()
         if (effect != null) {
-            effect.triggerUpdate();
-            effect.setRemainingTicks(duration);
+            // Don't override stronger effects
+            if (amplifier >= effect.amplifier()) {
+                effect.amplifier(amplifier);
+                effect.applier(applier);
+                effect.tick(duration);
+                
+                effect.effect().onUpdate(effect);
+            }
         }
+        // Otherwise create effect
         else {
-            gameEffects.put(type, new ActiveGameEffect(entity, type, amplifier, duration));
+            effects.put(type, new ActiveEffect(entity, applier, type, amplifier, duration));
+        }
+        
+        // Trigger buff/de-buff if there is an applier
+        if (applier != null) {
+            switch (effectType) {
+                case POSITIVE -> entity.triggerBuff(applier);
+                case NEGATIVE -> entity.triggerDebuff(applier);
+            }
         }
     }
-
-    /**
-     * Clears the effect.
-     * <b>Note that this does not call onStop()</b>
-     *
-     * @param type - Type.
-     */
-    public void clearEffect(EffectType type) {
-        gameEffects.remove(type);
-    }
-
+    
     /**
      * Removes the effect from this entity.
      *
      * @param type - Type.
      */
-    public void removeEffect(EffectType type) {
-        final ActiveGameEffect gameEffect = gameEffects.get(type);
+    public void removeEffect(Effect type) {
+        final ActiveEffect gameEffect = effects.remove(type);
+        
         if (gameEffect != null) {
-            gameEffect.forceStop();
+            gameEffect.remove();
         }
     }
-
+    
     /**
      * Returns true if this entity has the given effect.
      *
      * @param type - Type.
      * @return true if this entity has the given effect.
      */
-    public boolean hasEffect(EffectType type) {
-        return gameEffects.containsKey(type);
+    public boolean hasEffect(Effect type) {
+        return effects.containsKey(type);
     }
-
-    /**
-     * Clears all the effects.
-     * <b>Note that this does not call onStop()</b>
-     */
-    public void clearEffects() {
-        this.gameEffects.clear();
-    }
-
+    
     /**
      * Resets all the damage data, such as:
      * <ul>
@@ -283,11 +253,11 @@ public final class EntityData implements Ticking {
         lastDamager = null;
         lastDamageCause = null;
     }
-
+    
     public void addAssistingPlayer(@Nonnull GamePlayer player) {
         this.assistingPlayers.add(player);
     }
-
+    
     /**
      * Gets a copy of players who has assisted in the last {@link #ASSIST_DURATION}.
      *
@@ -297,33 +267,36 @@ public final class EntityData implements Ticking {
     public Set<GamePlayer> getAssistingPlayers() {
         return new HashSet<>(assistingPlayers);
     }
-
+    
     @Override
     public void tick() {
         // Tick effects
-        gameEffects.values().forEach(ActiveGameEffect::tick);
-
+        final Collection<ActiveEffect> effects = this.effects.values();
+        
+        effects.removeIf(ActiveEffect::removeIfShould);
+        effects.forEach(ActiveEffect::tick);
+        
         // Tick attack cooldowns
         tickAttackCooldowns();
     }
-
+    
     public boolean hasAttackCooldown(@Nonnull DamageCause cause) {
         final int cooldown = attackCooldown.getOrDefault(cause, 0);
-
+        
         return !cause.isEnvironmentDamage() && cooldown > 0;
     }
-
+    
     public void startAttackCooldown(@Nonnull DamageCause cause, int cooldown) {
         attackCooldown.put(cause, cooldown);
     }
-
+    
     private void tickAttackCooldowns() {
         final Iterator<Map.Entry<DamageCause, Integer>> iterator = attackCooldown.entrySet().iterator();
-
+        
         while (iterator.hasNext()) {
             final Map.Entry<DamageCause, Integer> next = iterator.next();
             final int value = next.getValue() - 1;
-
+            
             if (value > 0) {
                 next.setValue(value);
             }
@@ -332,7 +305,7 @@ public final class EntityData implements Ticking {
             }
         }
     }
-
+    
     /**
      * Gets the entity data for the given entity from the current game instance.
      *
@@ -343,29 +316,29 @@ public final class EntityData implements Ticking {
     @Deprecated(forRemoval = true)
     public static EntityData of(@Nonnull LivingEntity entity) {
         final LivingGameEntity gameEntity = CF.getEntity(entity);
-
+        
         if (gameEntity == null) {
             throw new IllegalStateException("cannot find game entity for " + entity);
         }
-
+        
         return gameEntity.getEntityData();
     }
-
+    
     public static void die(@Nonnull LivingEntity livingEntity) {
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
         if (gameEntity == null) {
             return;
         }
-
+        
         gameEntity.dieBy(DamageCause.SUICIDE);
     }
-
+    
     /**
      * Reset damage data for every entity in the current game instance.
      */
     public static void resetDamageData() {
-        final IGameInstance instance = Manager.current().getCurrentGame();
-
+        final IGameInstance instance = Manager.current().currentInstance();
+        
         if (instance instanceof GameInstance) {
             CF.getEntities(LivingGameEntity.class).forEach(entity -> entity.getEntityData().resetDamage());
         }

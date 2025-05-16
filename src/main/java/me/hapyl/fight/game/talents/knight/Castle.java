@@ -3,10 +3,9 @@ package me.hapyl.fight.game.talents.knight;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -56,7 +55,7 @@ public class Castle extends TimedGameTask implements Removable {
     public void remove() {
         cancel0();
 
-        player.getAttributes().resetTemper(Temper.STONE_CASTLE);
+        player.getAttributes().removeModifier(talent.modifierSource);
 
         armorStands.forEach(ArmorStand::remove);
         armorStands.clear();

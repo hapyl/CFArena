@@ -57,7 +57,7 @@ public class Ender extends Hero implements Listener {
     public void handleTeleportEvent(EnderPearlTeleportEvent ev) {
         final GamePlayer player = ev.getPlayer();
 
-        if (!validatePlayer(player.getPlayer())) {
+        if (!validatePlayer(player.getEntity())) {
             return;
         }
 
@@ -71,7 +71,7 @@ public class Ender extends Hero implements Listener {
             public void run(int tick) {
                 // Damage players in water
                 HeroRegistry.ENDER.getAlivePlayers().forEach(player -> {
-                    if (!player.getPlayer().isInWater()) {
+                    if (!player.getEntity().isInWater()) {
                         return;
                     }
 
@@ -109,14 +109,14 @@ public class Ender extends Hero implements Listener {
             );
 
             setType(TalentType.MOVEMENT);
-            setItem(Material.SHULKER_SHELL);
+            setMaterial(Material.SHULKER_SHELL);
             setSound(Sound.ENTITY_GUARDIAN_HURT_LAND, 0.75f);
             setCooldownSec(20);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             if (!getSecondTalent().hasBeacon(player)) {
                 return error("The beacon is not placed!");
             }

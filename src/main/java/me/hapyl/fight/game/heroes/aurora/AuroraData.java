@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.heroes.aurora;
 
-import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -41,7 +40,7 @@ public class AuroraData extends PlayerData {
     public void setArrow(@Nullable AuroraArrowTalent arrow) {
         // Start cooldown for the previous arrow
         if (this.arrow != null) {
-            this.arrow.startCd(player);
+            this.arrow.startCooldown(player);
 
             //player.sendSubtitle("&c- %s".formatted(this.arrow.getColor() + this.arrow.getName()), 5, 15, 5);
             player.playSound(Sound.ENTITY_HORSE_SADDLE, 1.25f);
@@ -75,7 +74,7 @@ public class AuroraData extends PlayerData {
         }
 
         final Aurora.AuroraUltimate ultimate = HeroRegistry.AURORA.getUltimate();
-        ultimate.startCd(player, ultimate.cooldown);
+        ultimate.startCooldown(player, ultimate.cooldown);
 
         final LivingGameEntity entity = bond.getEntity();
 
@@ -91,7 +90,10 @@ public class AuroraData extends PlayerData {
         player.playWorldSound(Sound.ENTITY_ALLAY_DEATH, 0.75f);
 
         // In case we're in the air (we're 99% are) add parachute effect (lol funny name haha)
-        player.addEffect(EffectType.PARACHUTE, Constants.INFINITE_DURATION);
+        player.addEffect(EffectType.PARACHUTE, 100);
+        
+        // Snap to weapon
+        player.snapToWeapon();
     }
 
 }

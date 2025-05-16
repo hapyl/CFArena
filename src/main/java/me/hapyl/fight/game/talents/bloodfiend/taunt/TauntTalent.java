@@ -19,8 +19,9 @@ public abstract class TauntTalent extends Talent {
 
     protected final PlayerMap<Taunt> playerTaunt;
 
-    @DisplayField(suffix = "blocks") private final double radius;
+    @DisplayField(suffix = " blocks") private final double radius;
     @DisplayField private final int period; // -1 means it's passive
+    @DisplayField protected int castingTime = 30;
 
     public TauntTalent(@Nonnull Key key, @Nonnull String name, double radius, int period) {
         super(key, name);
@@ -56,7 +57,7 @@ public abstract class TauntTalent extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Taunt taunt = playerTaunt.remove(player);
 
         if (taunt != null) {
@@ -72,7 +73,7 @@ public abstract class TauntTalent extends Talent {
         }
 
         playerTaunt.put(player, createTaunt(player, location));
-        startCd(player, 100000);
+        startCooldown(player, 100000);
 
         return Response.AWAIT;
     }

@@ -81,7 +81,7 @@ public enum InfernoDemonType implements Named {
                     }
 
                     // Inherit player attributes
-                    final BaseAttributes attributesCopy = player.getEffectiveAttributes();
+                    final BaseAttributes attributesCopy = player.getAttributes().snapshot();
                     attributesCopy.setMaxHealth(999999); // Don't kill demon entities
 
                     final LivingGameEntity entity = new LivingGameEntity(bukkitEntity, attributesCopy) {
@@ -105,7 +105,7 @@ public enum InfernoDemonType implements Named {
 
                     // Show the entity
                     Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
-                        if (player.is(onlinePlayer)) {
+                        if (onlinePlayer.equals(player.getEntity())) {
                             return;
                         }
 

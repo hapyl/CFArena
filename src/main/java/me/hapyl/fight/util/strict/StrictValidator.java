@@ -2,6 +2,7 @@ package me.hapyl.fight.util.strict;
 
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.entity.Shield;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public class StrictValidator {
     public static void validatePackages() {
         validatePackage(Talent.class);
         validatePackage(Hero.class);
+        validatePackage(Shield.class);
     }
 
     public static void validateClassName(@Nonnull Class<?> clazz, @Nonnull String stringPattern) {

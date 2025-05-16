@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
 
 public class GuardianAngel extends PassiveTalent {
 
-    @DisplayField(suffix = "blocks") public final double maxDistance = 50d;
+    @DisplayField(suffix = " blocks") public final double maxDistance = 50d;
     @DisplayField public final double healingRadius = 3d;
-    @DisplayField public final double healing = 5.0d;
+    @DisplayField(percentage = true) public final double healing = 0.05;
     @DisplayField public final double lookupRadius = 2.0d;
 
     @DisplayField public final int teleportDelay = 10;
@@ -29,7 +29,7 @@ public class GuardianAngel extends PassiveTalent {
                 """);
 
         setType(TalentType.MOVEMENT);
-        setItem(Material.FEATHER);
+        setMaterial(Material.FEATHER);
 
         setCooldownSec(8);
     }

@@ -31,7 +31,7 @@ public class ShadowClone extends DarkMageTalent {
         );
 
         setType(TalentType.SUPPORT);
-        setItem(Material.NETHERITE_SCRAP);
+        setMaterial(Material.NETHERITE_SCRAP);
         setDurationSec(15);
         setCooldownSec(20);
     }
@@ -58,7 +58,7 @@ public class ShadowClone extends DarkMageTalent {
         clones.put(player, new ShadowCloneNPC(this, player));
 
         // Fx
-        startCd(player, 5);
+        startCooldown(player, 5);
 
         return Response.AWAIT;
     }

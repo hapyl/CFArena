@@ -2,11 +2,11 @@ package me.hapyl.fight.store;
 
 import me.hapyl.eterna.module.entity.packet.PacketItem;
 import me.hapyl.eterna.module.hologram.Hologram;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
-import me.hapyl.fight.game.talents.Removable;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 

@@ -20,8 +20,8 @@ public class NickCommand extends CFCommand implements DisabledCommand {
     private final Set<String> disallowedNames;
     private final Pattern namePattern = Pattern.compile("^[a-zA-Z0-9_]{3,16}[^_]$");
 
-    public NickCommand() {
-        super("nick", PlayerRank.PREMIUM);
+    public NickCommand(@Nonnull String name) {
+        super(name, PlayerRank.PREMIUM);
 
         disallowedNames = Sets.newHashSet();
         disallowedNames.add("hapyl");

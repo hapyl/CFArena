@@ -4,9 +4,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.Disabled;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -22,9 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 
 public class Warden extends Hero implements Disabled {
-    private final TemperInstance temperInstance = Temper.PARADOX.newInstance()
-            .decrease(AttributeType.ATTACK,0.15);
-
+    
     public Warden(@NotNull Key key){
         super(key, "Void Warden");
         final HeroProfile profile = getProfile();
@@ -45,7 +40,7 @@ public class Warden extends Hero implements Disabled {
         equipment.setLeggings(90, 90, 90);
         equipment.setBoots(90, 90, 90);
 
-        setWeapon(Weapon.builder(Material.NETHER_STAR, Key.ofString("disorder"))
+        setWeapon(Weapon.createBuilder(Material.NETHER_STAR, Key.ofString("disorder"))
                 .name("Disorder")
                 .description("""
                          Void Warden's personal defense weapon, it's hard to comprehend what it resembles.
@@ -71,7 +66,7 @@ public class Warden extends Hero implements Disabled {
             player.heal(10);
             Debug.info("&4&lREALITY: &7You healed for 10 HP.");
         } else {
-            temperInstance.temper(entity, 5);
+            // entity.getAttributes().temper(Temper.PARADOX, 5).relative(AttributeType.ATTACK,-0.15);
             Debug.info("&0&lABYSS: &7You reduced the enemy's attack.");
         }
 
@@ -100,7 +95,7 @@ public class Warden extends Hero implements Disabled {
                     clone
                     """);
 
-                setItem(Material.ENDER_EYE);
+                setMaterial(Material.ENDER_EYE);
                 setDurationSec(50);
                 setCooldownSec(60);
                 //9d7116e9186be505a8512b67ffbb83b29b041b6e12464ee1490bb146ffbf38e3 -> The Self head (use for clone)
@@ -109,7 +104,7 @@ public class Warden extends Hero implements Disabled {
 
             @Nonnull
             @Override
-            public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+            public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
                 return execute(() -> {
 
                 });

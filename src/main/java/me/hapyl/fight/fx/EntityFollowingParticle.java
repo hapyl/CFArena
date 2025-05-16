@@ -1,6 +1,6 @@
 package me.hapyl.fight.fx;
 
-import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.annotate.ClonedBeforeMutation;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingStepGameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -15,7 +15,7 @@ public abstract class EntityFollowingParticle extends TickingStepGameTask {
     public final Location location;
     public final LivingGameEntity target;
 
-    public EntityFollowingParticle(int speed, @ForceCloned Location location, @Nonnull LivingGameEntity target) {
+    public EntityFollowingParticle(int speed, @ClonedBeforeMutation Location location, @Nonnull LivingGameEntity target) {
         super(speed);
 
         this.location = location.clone();

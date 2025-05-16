@@ -10,6 +10,7 @@ import me.hapyl.fight.game.talents.Talent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class HimariTalent extends Talent {
 
@@ -33,16 +34,16 @@ public abstract class HimariTalent extends Talent {
 
     // Allow executing this talent
     public void allowExecution(@Nonnull GamePlayer player) {
-        stopCd(player);
+        stopCooldown(player);
     }
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        startCd(player, Constants.INDEFINITE_COOLDOWN);
+        startCooldown(player, Constants.INDEFINITE_COOLDOWN);
     }
 
     @Override
-    public final Response execute(@NotNull GamePlayer player) {
+    public final @Nullable Response execute(@NotNull GamePlayer player) {
         HimariData data = player.getPlayerData(HeroRegistry.HIMARI);
         HimariTalent talent = data.getTalent();
 

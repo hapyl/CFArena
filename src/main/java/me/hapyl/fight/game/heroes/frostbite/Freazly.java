@@ -4,13 +4,17 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.frostbite.IceCageTalent;
+import me.hapyl.fight.game.talents.frostbite.Icicles;
 import me.hapyl.fight.game.talents.frostbite.IcyShardsPassive;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Color;
@@ -56,7 +60,7 @@ public class Freazly extends Hero {
 
         // Launch icicles
         talent.launchIcicles(player);
-        talent.startCd(player);
+        talent.startCooldown(player);
     }
 
     @Nonnull
@@ -66,12 +70,12 @@ public class Freazly extends Hero {
     }
 
     @Override
-    public Talent getFirstTalent() {
+    public Icicles getFirstTalent() {
         return TalentRegistry.ICICLES;
     }
 
     @Override
-    public Talent getSecondTalent() {
+    public IceCageTalent getSecondTalent() {
         return TalentRegistry.ICE_CAGE;
     }
 
@@ -85,11 +89,11 @@ public class Freazly extends Hero {
         @DisplayField public final int blockCount = 24;
         @DisplayField public final double distance = 10.0d;
 
-        @DisplayField public final double critChanceReduction = 1;
-        @DisplayField public final double critDamageReduction = 1;
-        @DisplayField public final double cooldownIncrease = 0.5d;
+        @DisplayField public final double critChanceReduction = -50;
+        @DisplayField public final double critDamageReduction = -100;
+        @DisplayField public final double fatigueIncrease = 50;
 
-        @DisplayField public final int debuffDuration = 20;
+        @DisplayField public final int debuffDuration = 30;
 
         public FrostbiteUltimate(int pointCost) {
             super(Freazly.this, "Eternal Freeze", pointCost);
@@ -105,13 +109,13 @@ public class Freazly extends Hero {
             );
 
             setType(TalentType.IMPAIR);
-            setItem(Material.HEART_OF_THE_SEA);
+            setMaterial(Material.HEART_OF_THE_SEA);
             setDurationSec(10);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 new EternalFreeze(player, this);
             });

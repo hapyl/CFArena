@@ -32,9 +32,9 @@ import java.util.regex.Pattern;
 public class Database extends DependencyInjector<Main> {
 
     private static final Pattern CLINK_PATTERN = Pattern.compile("srv://(.*?):");
+    private static final String DATABASE_NAME = "classes_fight";
 
     private final FileConfiguration fileConfig;
-    private final NamedDatabase namedDatabase;
     private final Map<NamedCollection, MongoCollection<Document>> collections;
 
     private MongoClient client;
@@ -44,16 +44,7 @@ public class Database extends DependencyInjector<Main> {
         super(main);
 
         this.fileConfig = main.getConfig();
-        this.namedDatabase = NamedDatabase.byName(fileConfig.getString("database.type"));
         this.collections = Maps.newHashMap();
-    }
-
-    public NamedDatabase getNamedDatabase() {
-        return namedDatabase;
-    }
-
-    public boolean isDevelopment() {
-        return namedDatabase.isDevelopment();
     }
 
     public void stopConnection() {
@@ -67,7 +58,7 @@ public class Database extends DependencyInjector<Main> {
 
     public void createConnection() {
         try {
-            final String connectionLink = fileConfig.getString("database.connection_link");
+            final String connectionLink = fileConfig.getString("database_connection_link");
 
             if (connectionLink == null || connectionLink.equals("null")) {
                 breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!", null);
@@ -82,7 +73,7 @@ public class Database extends DependencyInjector<Main> {
             }
 
             // load database
-            database = client.getDatabase(namedDatabase.getName());
+            database = client.getDatabase(DATABASE_NAME);
 
             getPlugin().getLogger().info(getDatabaseString());
 
@@ -97,11 +88,11 @@ public class Database extends DependencyInjector<Main> {
 
     @Nonnull
     public String getDatabaseString() {
-        return "&a&lMONGOdb &fConnected Database: &6&l%s&f on &e'%s'&f.".formatted(namedDatabase.name(), connectionName());
+        return "&a&lMONGOdb &f&oCurrently connected to '%s'.".formatted(connectionName());
     }
 
     private String connectionName() {
-        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(fileConfig.getString("database.connection_link")));
+        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(fileConfig.getString("database_connection_link")));
 
         return matcher.find() ? matcher.group(1) : "localhost";
     }

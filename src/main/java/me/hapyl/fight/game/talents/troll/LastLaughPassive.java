@@ -21,6 +21,6 @@ public class LastLaughPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.BLAZE_POWDER);
+        setMaterial(Material.BLAZE_POWDER);
     }
 }

@@ -12,7 +12,7 @@ public class LibrarianShield extends LibrarianTalent {
         super(key, "Voidless Shield");
 
         addDescription("Creates a shield with voidless capacity of absorbing damage for &b<scaled>&7 seconds.");
-        setItem(Material.SHIELD);
+        setMaterial(Material.SHIELD);
     }
 
     @Override

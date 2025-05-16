@@ -56,7 +56,7 @@ public class DwarfVault extends Level implements Listener {
     }
 
     @EventHandler
-    public void handleDamage(GameDamageEvent ev) {
+    public void handleDamage(GameDamageEvent.Process ev) {
         final LivingGameEntity entity = ev.getEntity();
         final DamageCause cause = ev.getCause();
 

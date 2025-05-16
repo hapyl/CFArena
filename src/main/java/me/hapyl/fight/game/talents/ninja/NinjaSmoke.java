@@ -17,12 +17,13 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class NinjaSmoke extends Talent {
 
-    @DisplayField(percentage = true) public final double dodgeIncrease = 0.5d;
+    @DisplayField public final double dodgeIncrease = 50;
     @DisplayField public final int buffDuration = Tick.fromSecond(6);
-    @DisplayField(suffix = "blocks") private final double smokeDistance = 4.0d;
+    @DisplayField(suffix = " blocks") private final double smokeDistance = 4.0d;
 
     public NinjaSmoke(@Nonnull Key key) {
         super(key, "Smoke Bomb");
@@ -39,17 +40,17 @@ public class NinjaSmoke extends Talent {
         );
 
         setType(TalentType.ENHANCE);
-        setItem(Material.INK_SAC);
+        setMaterial(Material.INK_SAC);
         setDurationSec(6);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getMidpointLocation();
         final int duration = getDuration();
 
-        player.addEffect(EffectType.INVISIBILITY, duration);
+        player.addEffect(EffectType.INVISIBLE, duration);
 
         // Fx
         new TimedGameTask(duration) {

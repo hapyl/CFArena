@@ -6,13 +6,15 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
+
 public class Disunion extends Talent {
     public Disunion(@NotNull Key key) {
         super(key, "Disunion");
     }
 
     @Override
-    public Response execute(@NotNull GamePlayer player) {
+    public @Nullable Response execute(@NotNull GamePlayer player) {
         return null;
     }
 }

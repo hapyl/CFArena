@@ -12,10 +12,11 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Repulsor extends Talent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 10.0d;
+    @DisplayField(suffix = " blocks") private final double radius = 10.0d;
 
     public Repulsor(@Nonnull Key key) {
         super(key, "Repulsor");
@@ -26,12 +27,12 @@ public class Repulsor extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.IRON_BOOTS);
+        setMaterial(Material.IRON_BOOTS);
         setCooldown(200);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         Collect.nearbyEntities(player.getLocation(), radius).forEach(victim -> {
             if (player.isSelfOrTeammateOrHasEffectResistance(victim)) {
                 return;

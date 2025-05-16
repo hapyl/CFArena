@@ -103,7 +103,7 @@ public class HeroMastery implements Iterable<HeroMasteryLevel> {
     }
 
     protected int getLevel(@Nonnull GamePlayer player) {
-        final GameInstance gameInstance = Manager.current().getGameInstance();
+        final GameInstance gameInstance = Manager.current().currentInstanceOrNull();
 
         return gameInstance != null ? gameInstance.heroMastery().getMastery(player) : 0;
     }

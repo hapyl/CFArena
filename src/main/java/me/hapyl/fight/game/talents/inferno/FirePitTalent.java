@@ -15,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public class FirePitTalent extends Talent {
@@ -57,7 +58,7 @@ public class FirePitTalent extends Talent {
                 Stepping in fire deals &4{damage}&7 of &cenemy&7's %s as %s.
                 """.formatted(AttributeType.MAX_HEALTH, EnumTerm.TRUE_DAMAGE));
 
-        setItem(Material.FIRE_CHARGE);
+        setMaterial(Material.FIRE_CHARGE);
         setType(TalentType.DAMAGE);
 
         setDurationSec(2.5f);
@@ -70,7 +71,7 @@ public class FirePitTalent extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         handlerList.add(new FirePitHandler(player, this));
         return Response.OK;
     }

@@ -10,6 +10,7 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class NinjaDash extends Talent {
 
@@ -22,12 +23,12 @@ public class NinjaDash extends Talent {
                 Instantly propel yourself into the direction you're looking.
                 """);
 
-        setItem(Material.FEATHER);
+        setMaterial(Material.FEATHER);
         setCooldown(100);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection();
 
         player.setVelocity(new Vector(vector.getX(), 0, vector.getZ()).normalize().multiply(magnitude));

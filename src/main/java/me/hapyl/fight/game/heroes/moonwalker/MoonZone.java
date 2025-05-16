@@ -4,12 +4,12 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.fx.EntityFollowingParticle;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -60,7 +60,7 @@ public class MoonZone implements Ticking, Removable {
         LocationHelper.offset(centre, 0, hologramOffset(), 0, () -> this.hologram.create(centre));
 
         // Show to self (Maybe show to teammates as well?)
-        this.hologram.show(player.getPlayer());
+        this.hologram.show(player.getEntity());
     }
 
     @Override
@@ -79,7 +79,7 @@ public class MoonZone implements Ticking, Removable {
 
         // Update hologram
         hologram.setLinesAndUpdate(
-                "&6&l%.0f %s &8| &b&l%.1fs".formatted(energy, Named.MOONLIT_ENERGY.getCharacter(), (duration - tick) / 20d)
+                "&6&l%.0f %s &8| &b&l%.1fs".formatted(energy, Named.MOONLIT_ENERGY.getPrefix(), (duration - tick) / 20d)
         );
 
         // Rush energy towards the owner if within the range

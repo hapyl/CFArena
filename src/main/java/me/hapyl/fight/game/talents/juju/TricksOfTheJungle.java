@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TricksOfTheJungle extends Talent implements Listener {
 
@@ -27,15 +28,15 @@ public class TricksOfTheJungle extends Talent implements Listener {
         setCooldownSec(20);
 
         setType(TalentType.ENHANCE);
-        setItem(Material.OAK_SAPLING);
+        setMaterial(Material.OAK_SAPLING);
 
         // Have to keep the description last
         setDescription(ArrowType.ELUSIVE.getTalentDescription(this));
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        HeroRegistry.JUJU.setArrowType(player, ArrowType.ELUSIVE, getDuration());
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        HeroRegistry.JUJU.getPlayerData(player).arrowType(ArrowType.ELUSIVE, getDuration());
 
         return Response.OK;
     }

@@ -15,10 +15,10 @@ public enum Affiliation implements Prefixed {
     KINGDOM(Color.DARK_GOLDENROD + "🏰", "Kingdom", "A royal kingdom."),
     THE_WITHERS(Color.WITHERS + "👾", "The Withers", "An ancient race of withers, who bear hatred towards humanity."),
     THE_JUNGLE(Color.FOREST_GREEN + "\uD83C\uDF3A", "The Jungle", "A massive jungle filled with trees and bandits."),
-    MERCENARY(Color.CRIMSON.boldAndDefault("\uD83D\uDD74"), "The Mercenaries", "A group of mercenaries and bounty hunters."),
-    CHATEAU(Color.BLOOD.boldAndDefault("🦇"), "Château", "A mansion filled with vampires."),
-    SPACE(Color.SPACE.boldAndDefault("🌌"), "The Space", "\"The galaxy is vast beyond compare.\""),
-    HELL(Color.HELL.boldAndDefault("⛓"), "Hell", "Some say it lies down below the world."),
+    MERCENARY(Color.CRIMSON.boldThenReset("\uD83D\uDD74"), "The Mercenaries", "A group of mercenaries and bounty hunters."),
+    CHATEAU(Color.BLOOD.boldThenReset("🦇"), "Château", "A mansion filled with vampires."),
+    SPACE(Color.SPACE.boldThenReset("🌌"), "The Space", "\"The galaxy is vast beyond compare.\""),
+    HELL(Color.HELL.boldThenReset("⛓"), "Hell", "Some say it lies down below the world."),
 
     UNKNOWN(Color.DEFAULT + "❓", "Unknown", "The origin of this hero is a mystery...");
 

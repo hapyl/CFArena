@@ -1,59 +1,45 @@
 package me.hapyl.fight.util.hitbox;
 
-import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.BaseAttributes;
-import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Slime;
 
 import javax.annotation.Nonnull;
 
-public class HitboxEntity extends LivingGameEntity {
-
-    private final Hitbox hitbox;
-    private final String name;
-
-    HitboxEntity(@Nonnull LivingEntity entity, @Nonnull String name, double health, @Nonnull Hitbox hitbox) {
-        super(entity, defaultAttributes(health));
-
-        this.hitbox = hitbox;
-        this.name = name;
+public abstract class HitboxEntity extends LivingGameEntity implements Hitbox {
+    
+    /// @see Hitbox#create(Location, double, double, Hitbox)
+    protected HitboxEntity(@Nonnull Slime slime, double scale) {
+        super(slime, defaultAttributes());
+        
+        // Have to rescale the entity because of attributes
+        rescale(scale);
     }
-
-    @Override
-    public void onDeath() {
-        super.onDeath();
-        hitbox.onDeath();
+    
+    public void rescale(double newScale) {
+        setAttributeValue(Attribute.SCALE, Math.clamp(newScale, 1, 10));
     }
-
+    
     @Nonnull
     @Override
     public String getName() {
-        return name;
+        return "Hitbox";
     }
-
+    
     @Override
-    public void onDamageTaken(@Nonnull DamageInstance instance) {
-        hitbox.onDamageTaken(instance);
+    public final void onRemove() {
+        super.onRemove();
+        this.onDespawn();
     }
-
-    @Override
-    public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
-        hitbox.onTeammateDamage(lastDamager);
-    }
-
-    @Override
-    public void onInteract(@Nonnull GamePlayer player) {
-        hitbox.onInteract(player);
-    }
-
-    private static BaseAttributes defaultAttributes(double health) {
+    
+    private static BaseAttributes defaultAttributes() {
         final BaseAttributes attributes = new BaseAttributes();
-
-        attributes.setMaxHealth(health);
-        attributes.set(AttributeType.EFFECT_RESISTANCE, 1.0d); // Kinda cheap way but it's ok
-
+        
+        attributes.setEffectResistance(100);
+        
         return attributes;
     }
+    
 }

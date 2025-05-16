@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
@@ -19,6 +18,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class LaserEye extends Talent {
 
@@ -36,17 +36,17 @@ public class LaserEye extends Talent {
                 """);
 
         setType(TalentType.DAMAGE);
-        setItem(Material.ENDER_EYE);
+        setMaterial(Material.ENDER_EYE);
 
         setDurationSec(2);
         setCooldownSec(12);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration();
 
-        player.addEffect(EffectType.MOVEMENT_CONTAINMENT, duration);
+        // player.addEffect(EffectType.MOVEMENT_CONTAINMENT, duration);
 
         new PlayerTickingGameTask(player) {
             @Override

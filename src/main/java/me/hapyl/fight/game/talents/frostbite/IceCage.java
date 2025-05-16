@@ -1,11 +1,11 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
@@ -19,7 +19,7 @@ import org.bukkit.block.data.BlockData;
 
 import java.util.Set;
 
-public class IceCage extends TimedGameTask implements Removable{
+public class IceCage extends TimedGameTask implements Removable {
 
     private static final double[][] LOCATION_OFFSETS = {
             { 1, 0, 0 },

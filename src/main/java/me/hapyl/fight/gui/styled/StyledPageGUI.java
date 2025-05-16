@@ -26,17 +26,20 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
     public Size getStyleSize() {
         return size;
     }
-
+    
+    @Override
+    public void preProcessInventory(@Nonnull Player player, int page) {
+        if (!isCanOpen(player)) {
+            closeInventory();
+        }
+    }
+    
     public final void update() {
         openInventory(1);
     }
-
+    
     @Override
     public final void postProcessInventory(@Nonnull Player player, int page) {
-        if (checkCanOpen(player)) {
-            return;
-        }
-
         StaticStyledGUI.updateInventory(this);
 
         // Override page arrows

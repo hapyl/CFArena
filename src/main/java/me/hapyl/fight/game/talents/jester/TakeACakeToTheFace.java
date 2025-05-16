@@ -6,6 +6,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TakeACakeToTheFace extends Talent {
     public TakeACakeToTheFace(@Nonnull Key key) {
@@ -13,7 +14,7 @@ public class TakeACakeToTheFace extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         return null;
     }
 }

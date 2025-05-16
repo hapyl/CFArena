@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.alchemist;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -48,6 +49,11 @@ public abstract class AlchemistPotion implements Timed, Described {
         return name;
     }
 
+    @Nonnull
+    public Key getNameAsKey() {
+        return Key.ofString(name.replace(" ", "_").toLowerCase());
+    }
+    
     @Nonnull
     @Override
     public String getDescription() {

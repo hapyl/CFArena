@@ -10,32 +10,31 @@ import javax.annotation.Nonnull;
 
 public class SpiritualBonesPassive extends PassiveTalent {
 
-    @DisplayField public final short MAX_BONES = 6;
-    @DisplayField public final short START_BONES = 1;
-    @DisplayField public final double DAMAGE_AMPLIFIER_PER_BONE = 2.0d;
-    @DisplayField public final double DAMAGE_REDUCE_PER_BONE = 3.0d;
-    @DisplayField public final double HEALING_PER_BONE = 3.0d;
+    @DisplayField public final short maxBones = 6;
+    @DisplayField public final short startBones = 1;
+    
+    @DisplayField(percentage = true) public final double damageAmplifierPerBone = 0.05;
+    @DisplayField(percentage = true) public final double damageReductionPerBone = 0.03;
+    @DisplayField(percentage = true) public final double healingPerBone = 0.03;
 
     public SpiritualBonesPassive(@Nonnull Key key) {
         super(key, "Spiritual Bones");
 
         setDescription("""
-                You may possess up to &b{MAX_BONES}&7 %s that orbit around you.
+                You may possess up to &b{maxBones}&7 %s that orbit around you.
                 
-                &nEach&7 bone provides the following effects:
+                Each bone provides the following effects:
+                 &8├ &7Deal &c{damageAmplifierPerBone}&7 more damage.
+                 &8├ &7Take &b{damageReductionPerBone}&7 less damage.
+                 &8└ &7Heal for &c{healingPerBone} &c❤&7 of the damage dealt.
                 """.formatted(Named.SPIRITUAL_BONES)
         );
 
-        addDescription("""
-                &b└ &7Deal &c&l{DAMAGE_AMPLIFIER_PER_BONE}%% &7more damage &nper&7 bone.
-                &b└ &7Take &b&l{DAMAGE_REDUCE_PER_BONE}%% &7less damage &nper&7 bone.
-                &b└ &7Heal for &c&l{HEALING_PER_BONE}%% &c❤&7 &nper&7 bone of the damage dealt.
-                
-                &8;;You will start with {START_BONES} bone.
-                """
-        );
-
-        setItem(Material.BONE);
+        setMaterial(Material.BONE);
     }
-
+    
+    @Override
+    public boolean isDisplayAttributes() {
+        return true;
+    }
 }

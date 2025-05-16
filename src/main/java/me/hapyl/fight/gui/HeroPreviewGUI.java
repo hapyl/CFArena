@@ -11,8 +11,8 @@ import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
-import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
@@ -28,93 +28,113 @@ import javax.annotation.Nullable;
 import java.util.Set;
 
 public class HeroPreviewGUI extends StyledGUI {
-
+    
     private final Hero hero;
     private final Set<Talent> attributeDisplay;
     private final int returnPage;
-
+    
     public HeroPreviewGUI(Player player, Hero hero, int returnPage) {
         super(player, "Hero Preview - " + hero.getName(), Size.FIVE);
         this.hero = hero;
         this.attributeDisplay = Sets.newHashSet();
         this.returnPage = returnPage;
-
+        
         openInventory();
     }
-
+    
     @Nullable
     @Override
     public ReturnData getReturnData() {
         return ReturnData.of("Hero Selection", player -> new HeroSelectGUI(player, returnPage), 2);
     }
-
+    
     @Override
     public void onUpdate() {
         setHeader(hero.getItemMaker().makeItem(HeroPlayerItemMaker.Type.DETAILS, player));
-
+        
         // Fill with panels
         fillColumn(0, ItemStacks.BLACK_BAR);
         fillColumn(8, ItemStacks.BLACK_BAR);
-
+        
         // Set talents
         final SmartComponent component = new SmartComponent();
-
+        
         hero.getTalentsSorted().forEach(talent -> {
             if (talent == null) {
                 return;
             }
-
+            
             // Display attributes
             if (attributeDisplay.contains(talent)) {
-                component.add(talentAttributeOrAir(talent), player -> {
-                    attributeDisplay.remove(talent);
-
-                    plingAndUpdate();
-                });
+                component.add(
+                        talentAttributeOrAir(talent), player -> {
+                            attributeDisplay.remove(talent);
+                            
+                            plingAndUpdate();
+                        }
+                );
                 return;
             }
-
+            
             // Talent
             if (talent.isDisplayAttributes()) {
-                component.add(talentItemOrAir(talent), player -> {
-                    attributeDisplay.add(talent);
-
-                    plingAndUpdate();
-                });
+                component.add(
+                        talentItemOrAir(talent), player -> {
+                            attributeDisplay.add(talent);
+                            
+                            plingAndUpdate();
+                        }
+                );
             }
             else {
                 component.add(talentItemOrAir(talent));
             }
         });
-
+        
         component.apply(this, SlotPattern.DEFAULT, 2);
         fixTalentItemsCount();
-
+        
         // Weapon
         final Weapon weapon = hero.getWeapon();
-        setItem(30, weapon.getItem());
-
+        setItem(30, weapon.createItem());
+        
+        // If weapon has abilities, add a icon that hints to check the abilities
+        if (weapon.hasAbilities()) {
+            setItem(
+                    29, ItemBuilder.playerHeadUrl("1035c528036b384c53c9c8a1a125685e16bfb369c197cc9f03dfa3b835b1aa55")
+                                   .setName("&d>&6>&a>&b>&d>&6>&a>&b>&d>&6>&a>&b>")
+                                   .addTextBlockLore("""
+                                                     The weapon has some unique abilities, make sure to check them out!
+                                                     """)
+                                   .asIcon()
+            );
+        }
+        
         // Ultimate
         final UltimateTalent ultimate = hero.getUltimate();
         final boolean showingUltimateAttributes = attributeDisplay.contains(ultimate);
-
+        
         setItem(32, showingUltimateAttributes ? talentAttributeOrAir(ultimate) : talentItemOrAir(ultimate));
-
+        
         if (showingUltimateAttributes) {
-            setClick(32, player -> {
-                attributeDisplay.remove(ultimate);
-
-                plingAndUpdate();
-            });
+            setClick(
+                    32, player -> {
+                        attributeDisplay.remove(ultimate);
+                        
+                        plingAndUpdate();
+                    }
+            );
         }
         else {
-            setClick(32, player -> {
-                attributeDisplay.add(ultimate);
-
-                plingAndUpdate();
-            });
+            setClick(
+                    32, player -> {
+                        attributeDisplay.add(ultimate);
+                        
+                        plingAndUpdate();
+                    }
+            );
         }
-
+        
         // Skins
         setItem(
                 26,
@@ -129,10 +149,10 @@ public class HeroPreviewGUI extends StyledGUI {
                     new SkinGUI(player, hero, returnPage);
                 }
         );
-
+        
         // Favourite
         final boolean favourite = hero.isFavourite(getPlayer());
-
+        
         setItem(
                 35,
                 new ItemBuilder(favourite ? Material.LIME_DYE : Material.GRAY_DYE)
@@ -147,7 +167,7 @@ public class HeroPreviewGUI extends StyledGUI {
                         .toItemStack(),
                 player -> {
                     hero.setFavourite(player, !favourite);
-
+                    
                     Chat.sendMessage(
                             player,
                             "&a%s %s %s from your favourites.".formatted(
@@ -156,13 +176,13 @@ public class HeroPreviewGUI extends StyledGUI {
                                     (favourite ? "from" : "to")
                             )
                     );
-
+                    
                     plingAndUpdate();
                 }
         );
-
+        
         final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
-
+        
         // Mastery
         setItem(
                 18,
@@ -175,60 +195,62 @@ public class HeroPreviewGUI extends StyledGUI {
                         .addLore(Color.BUTTON + "Click for details")
                         .asIcon(), player -> new MasteryGUI(player, hero, returnPage)
         );
-
+        
         // Story
-        setItem(27, StyledTexture.ICON_STORY
-                .toBuilder()
-                .addLore()
-                .addLore(Color.ERROR + "Find at least one chapter to unlock!")
-                .asIcon()
+        setItem(
+                27, StyledTexture.ICON_STORY
+                        .toBuilder()
+                        .addLore()
+                        .addLore(Color.ERROR + "Find at least one chapter to unlock!")
+                        .asIcon()
         );
-
+        
         // Global stats
         setItem(
                 51,
                 ItemBuilder.of(Material.CREEPER_BANNER_PATTERN, "Global Statistics")
-                        .addLore()
-                        .addSmartLore("View global statistics of this hero, such as playtime, kills, deaths, etc.")
-                        .addLore()
-                        .addLore(Color.BUTTON + "Click to view!")
-                        .asIcon(),
+                           .addLore()
+                           .addSmartLore("View global statistics of this hero, such as playtime, kills, deaths, etc.")
+                           .addLore()
+                           .addLore(Color.BUTTON + "Click to view!")
+                           .asIcon(),
                 player -> new HeroStatisticGUI(player, this.hero, returnPage)
         );
     }
-
+    
     private void plingAndUpdate() {
         PlayerLib.plingNote(player, 2.0f);
         update();
     }
-
+    
     @Nonnull
     private ItemStack talentAttributeOrAir(Talent talent) {
         if (talent == null) {
             return ItemStacks.AIR;
         }
-
-        return new ItemBuilder(talent.getItemAttributes())
-                .addLore()
-                .addLore(Color.BUTTON + "Click to hide details")
-                .asIcon();
+        
+        return talent.itemFactory().details.createBuilder()
+                                           .addLore()
+                                           .addLore(Color.BUTTON + "Click to hide details")
+                                           .asIcon();
     }
-
+    
     @Nonnull
     private ItemStack talentItemOrAir(Talent talent) {
         if (talent == null) {
             return ItemStacks.AIR;
         }
-
+        
         final boolean isDisplayAttributes = talent.isDisplayAttributes();
-
+        
         return new ItemBuilder(talent.getItem())
                 .addLoreIf("", isDisplayAttributes)
                 .addLoreIf(Color.BUTTON + "Click for details", isDisplayAttributes)
                 .asIcon();
     }
-
+    
     private void fixTalentItemsCount() {
+        // Very hardcoded
         for (int i = 0, slot = 19, amount = 1; i < 6; i++, slot++) {
             final ItemStack item = getInventory().getItem(slot);
             if (item == null) {
@@ -237,5 +259,5 @@ public class HeroPreviewGUI extends StyledGUI {
             item.setAmount(amount++);
         }
     }
-
+    
 }

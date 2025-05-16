@@ -8,6 +8,7 @@ import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class EchoTalent extends Talent {
     protected EchoTalent(@Nonnull Key key, @Nonnull String name) {
@@ -25,7 +26,7 @@ public abstract class EchoTalent extends Talent {
     public abstract Response executeEcho(@Nonnull GamePlayer player);
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         if (!HeroRegistry.ECHO.getPlayerData(player).isInEchoWorld()) {
             return Response.error("Cannot use this in the \"real\" world!");
         }

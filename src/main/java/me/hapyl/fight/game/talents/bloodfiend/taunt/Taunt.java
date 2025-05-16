@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.annotate.DoNotMutate;
 import me.hapyl.fight.fx.SwiftTeleportAnimation;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -42,26 +42,33 @@ public abstract class Taunt extends GameTask {
         this.location = location;
         this.bloodfiend = HeroRegistry.BLOODFIEND;
 
-        animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.location) {
+        animation = new SwiftTeleportAnimation(player.getLocationBehindFromEyes(1), this.location, talent.castingTime) {
             @Override
-            public void onAnimationStep(Location location) {
+            public void onStep(@Nonnull Location location) {
                 Taunt.this.onAnimationStep(location);
             }
-
+            
             @Override
-            public void onAnimationStop() {
+            public void onStop(@Nonnull Location location) {
                 isAnimation = false;
                 Taunt.this.onAnimationEnd();
             }
         };
 
         isAnimation = true;
-        animation.setSlope(2.0d).start(0, 1);
+        animation.height(2.0d);
+        animation.start(0);
 
         // Fx
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DEATH, 0.0f);
     }
-
+    
+    @Nonnull
+    @DoNotMutate
+    public Location location() {
+        return location;
+    }
+    
     @Nonnull
     public TauntTalent getTalent() {
         return talent;
@@ -86,7 +93,7 @@ public abstract class Taunt extends GameTask {
         animation.cancel();
         cancel();
 
-        talent.startCd(player);
+        talent.startCooldown(player);
     }
 
     public int getTimeLeft() {
@@ -134,7 +141,7 @@ public abstract class Taunt extends GameTask {
     @Nonnull
     public Set<LivingGameEntity> getSuckedEntitiesWithinRange() {
         final Bloodfiend bloodfiend = getBloodfiend();
-        final BloodfiendData data = bloodfiend.getData(player);
+        final BloodfiendData data = bloodfiend.getPlayerData(player);
         final Set<LivingGameEntity> suckedEntities = data.getSuckedEntities();
 
         suckedEntities.removeIf(entity -> CFUtils.distance(entity.getLocation(), location) > talent.getRadius());
@@ -170,7 +177,7 @@ public abstract class Taunt extends GameTask {
     }
 
     public boolean isSuckedEntityAndWithinRange(@Nonnull LivingGameEntity entity) {
-        final BloodfiendData data = getBloodfiend().getData(player);
+        final BloodfiendData data = getBloodfiend().getPlayerData(player);
 
         return data.isSuckedEntity(entity) && CFUtils.distance(entity.getLocation(), location) <= talent.getRadius();
     }

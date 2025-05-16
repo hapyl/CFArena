@@ -3,8 +3,8 @@ package me.hapyl.fight.game.talents.techie;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -24,47 +24,46 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CipherLock extends TechieTalent {
-
+    
     @DisplayField private final double maxFlightTime = Tick.fromSecond(3);
     @DisplayField private final int impairDuration = Tick.fromSecond(20);
-
+    
+    @DisplayField(percentage = true) private final double attackDecrease = -0.2;
+    @DisplayField private final double speedDecrease = -20;
+    
+    private final ModifierSource modifierSource = new ModifierSource(Key.ofString("cipher_lock"));
     private final double step = 3;
-    private final TemperInstance temperInstance = Temper.CIPHER_LOCK.newInstance()
-            .decrease(AttributeType.ATTACK, 0.2d)  //
-            .decrease(AttributeType.SPEED, 0.04d); // 20%
-
+    
     public CipherLock(@Nonnull Key key) {
         super(key, "Cipher Lock");
-
+        
         setType(TalentType.IMPAIR);
-        setItem(Material.SPECTRAL_ARROW);
+        setMaterial(Material.SPECTRAL_ARROW);
         setCooldownSec(16);
         setCastingTime(15);
     }
-
+    
     @Nonnull
     @Override
     public String getHackDescription() {
         return """
-                launch an &benergy blast&7 in front of you.
-                                
-                The energy &btravels forward&7 until it hits an &cenemy&7 or a &8block&7.
-                                
-                Upon hitting an &cenemy&7, &eimpair&7 them and &dlock&7 a random &dtalent&7 for &b{impairDuration}&7.
-                """;
+               launch an energy blast in forward of you.
+               
+               The energy &eimpairs&7 the first &cenemy&7 it hits, locking a random &dtalent&7 for &b{impairDuration}&7.
+               """;
     }
-
+    
     @Override
     public void onHack(@Nonnull GamePlayer player) {
         final DirectionalMatrix matrix = player.getLookAlongMatrix();
         final Location location = player.getEyeLocation();
         final Vector direction = location.getDirection().normalize();
-
+        
         new TickingGameTask() {
             private final double maxFlightTimeScaled = maxFlightTime * step;
             private double d;
             private double flownDistance;
-
+            
             @Override
             public void run(int tick) {
                 for (int i = 0; i < step; i++) {
@@ -74,90 +73,94 @@ public class CipherLock extends TechieTalent {
                     }
                 }
             }
-
+            
             private void hit(@Nullable LivingGameEntity entity) {
                 player.spawnWorldParticle(location, Particle.ELECTRIC_SPARK, 20, 0.1d, 0.1d, 0.1d, 0.5f);
                 player.playWorldSound(location, Sound.BLOCK_GLASS_BREAK, 0.0f);
-
+                
                 if (entity == null) {
                     return;
                 }
-
+                
                 entity.playWorldSound(location, Sound.ENTITY_ENDERMAN_HURT, 0.75f);
-
-                temperInstance.temper(entity, impairDuration, player);
-
+                
+                entity.getAttributes().addModifier(
+                        modifierSource, impairDuration, player, modifier -> modifier
+                                .of(AttributeType.ATTACK, ModifierType.ADDITIVE, attackDecrease)
+                                .of(AttributeType.SPEED, ModifierType.FLAT, speedDecrease)
+                );
+                
                 if (!(entity instanceof GamePlayer hitPlayer)) {
                     return;
                 }
-
+                
                 final HotBarSlot lockedSlot = hitPlayer.getTalentLock().setLockRandomly(impairDuration);
-
+                
                 if (lockedSlot == null) {
                     return;
                 }
-
+                
                 final Talent lockedTalent = hitPlayer.getHero().getTalent(lockedSlot);
-
+                
                 if (lockedTalent == null) {
                     return;
                 }
-
+                
                 final String talentName = lockedTalent.getName();
-
+                
                 player.sendMessage("&5🔒 &dYou locked %s's &l%s&d!".formatted(entity.getName(), talentName));
                 entity.sendMessage("&5🔒 &d%s's locked your &l%s&d!".formatted(player.getName(), talentName));
             }
-
+            
             private boolean next(int i) {
                 if (flownDistance > maxFlightTimeScaled) {
                     return true;
                 }
-
+                
                 // Block hit
                 if (location.getBlock().getType().isOccluding()) {
                     hit(null);
                     return true;
                 }
-
+                
                 final LivingGameEntity hitEntity = Collect.nearestEntity(location, 1, player);
-
+                
                 if (hitEntity != null) {
                     hit(hitEntity);
                     return true;
                 }
-
+                
                 final double x = Math.sin(d) * 0.25d;
                 final double y = Math.cos(d) * 0.25d;
                 final double z = d / 64;
-
+                
                 final Vector vector = matrix.transform(x, y, z);
                 location.add(vector);
-
+                
                 // Travel Fx
                 // Only display on first iteration
                 if (i == 0) {
                     player.spawnWorldParticle(location, Particle.WITCH, 1);
                     player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 1);
-
+                    
                     player.playWorldSound(
                             location,
                             Sound.ENTITY_ENDERMAN_AMBIENT,
                             (float) (1.5f + (0.5f / maxFlightTimeScaled * flownDistance))
                     );
                 }
-
+                
                 location.subtract(vector);
-
+                
                 d += Math.PI / 20;
                 flownDistance++;
-
+                
                 // Traverse
                 location.add(direction);
-
+                
                 return false;
             }
-
+            
         }.runTaskTimer(0, 1);
     }
 }

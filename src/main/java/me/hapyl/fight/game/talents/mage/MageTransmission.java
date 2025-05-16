@@ -16,59 +16,61 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MageTransmission extends Talent {
-
-    @DisplayField(suffix = "blocks") private final double maxDistance = 30.0d;
-
+    
+    @DisplayField(suffix = " blocks") private final double maxDistance = 30.0d;
+    
     public MageTransmission(@Nonnull Key key) {
         super(key, "Transmission");
-
+        
         setDescription("""
-                Instantly &bteleport&7 to your &etarget&7 block, but lose the ability to &nmove&7 for a short duration.
-                """
+                       Instantly &bteleport&7 to your &etarget&7 block, but lose the ability to &nmove&7 for a short duration.
+                       """
         );
-
+        
         setType(TalentType.MOVEMENT);
-        setItem(Material.ENDER_PEARL);
+        setMaterial(Material.ENDER_PEARL);
         setCooldownSec(16);
     }
-
+    
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = getTargetLocation(player);
-
+        
         if (location == null) {
             return Response.error("No valid block in sight!");
         }
-
+        
         location.setYaw(player.getLocation().getYaw());
         location.setPitch(player.getLocation().getPitch());
-
+        
         if (!location.getBlock().getType().isAir() || location.getBlock().getRelative(BlockFace.UP).getType().isOccluding()) {
             return Response.error("Location is not safe!");
         }
-
+        
         player.teleport(location);
-        player.addEffect(EffectType.SLOW, 10, 20);
+        
+        player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 20);
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.65f);
-
+        
         if (location.getWorld() != null) {
             location.getWorld().playEffect(location, Effect.ENDER_SIGNAL, 0);
         }
-
+        
         return Response.OK;
     }
-
+    
     private Location getTargetLocation(GamePlayer player) {
         final Block block = player.getTargetBlockExact((int) maxDistance);
-
+        
         if (block == null) {
             return null;
         }
-
+        
         return block.getRelative(BlockFace.UP).getLocation().add(0.5, 0, 0.5);
     }
-
-
+    
+    
 }

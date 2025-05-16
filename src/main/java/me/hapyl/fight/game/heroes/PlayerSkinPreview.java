@@ -78,7 +78,7 @@ public class PlayerSkinPreview extends TickingGameTask {
             npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
         }
 
-        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
+        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().createItem());
         npc.show(player);
 
         runTaskTimer(1, 1);

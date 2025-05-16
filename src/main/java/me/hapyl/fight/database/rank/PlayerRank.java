@@ -267,7 +267,7 @@ public enum PlayerRank {
     }
 
     public boolean isOrHigher(@Nonnull GamePlayer player) {
-        return isOrHigher(player.getPlayer());
+        return isOrHigher(player.getEntity());
     }
 
     // static members

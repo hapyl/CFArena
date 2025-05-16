@@ -15,6 +15,7 @@ public class Environment {
     public final EnvironmentProperty.BooleanEnvironmentProperty debug;
     public final EnvironmentProperty.BooleanEnvironmentProperty allowDisabledHeroes;
     public final EnvironmentProperty.BooleanEnvironmentProperty ignoreCooldowns;
+    public final EnvironmentProperty.BooleanEnvironmentProperty considerSelfAsEnemy;
 
     protected final EnvironmentAsynchronousDocument document;
     protected final Map<String, EnvironmentProperty<?>> byName;
@@ -26,6 +27,7 @@ public class Environment {
         this.debug = register(EnvironmentProperty.ofBoolean("debug", false));
         this.allowDisabledHeroes = register(EnvironmentProperty.ofBoolean("allow_disabled_heroes", false));
         this.ignoreCooldowns = register(EnvironmentProperty.ofBoolean("ignore_cooldowns", false));
+        this.considerSelfAsEnemy = register(EnvironmentProperty.ofBoolean("consider_self_as_enemy", false));
     }
 
     @Nullable

@@ -12,6 +12,9 @@ public class InTheShadowsPassive extends PassiveTalent {
 
     @DisplayField public final short moodyLight = 7;
     @DisplayField public final int buffDuration = 60;
+    
+    @DisplayField(percentage = true) public final double attackIncrease = 0.5;
+    @DisplayField public final double speedIncrease = 25;
 
     public InTheShadowsPassive(@Nonnull Key key) {
         super(key, "In the Shadows");
@@ -21,6 +24,6 @@ public class InTheShadowsPassive extends PassiveTalent {
                 """.formatted(AttributeType.ATTACK, AttributeType.SPEED)
         );
 
-        setItem(Material.DRIED_KELP);
+        setMaterial(Material.DRIED_KELP);
     }
 }

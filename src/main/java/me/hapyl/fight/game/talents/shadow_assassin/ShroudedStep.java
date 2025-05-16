@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShroudedStep extends Talent {
 
@@ -42,11 +43,11 @@ public class ShroudedStep extends Talent {
         );
 
         setCooldown(600);
-        setItem(Material.NETHERITE_BOOTS);
+        setMaterial(Material.NETHERITE_BOOTS);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (!player.isSneaking()) {
             return Response.error("You must be in &lDark Cover &cto use this!");
         }

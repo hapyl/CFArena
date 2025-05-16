@@ -10,9 +10,6 @@ import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 
-/**
- * Represents a blueprint for a pack of entities.
- */
 public abstract class TamerPack implements Described, TamerTimed, DisplayFieldProvider {
 
     protected final BaseAttributes attributes;
@@ -32,7 +29,7 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
 
     @Nonnull
     public String toString(ActiveTamerPack pack) {
-        final TamerEntity<?> firstEntity = pack.getFirstEntity();
+        final TamerEntity firstEntity = pack.getFirstEntity();
 
         return firstEntity != null ? firstEntity.getHealthFormatted() : "";
     }

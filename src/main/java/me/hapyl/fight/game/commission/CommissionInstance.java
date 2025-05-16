@@ -16,8 +16,6 @@ import org.bukkit.Sound;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Objects;
 
 public class CommissionInstance extends GameInstance {
 
@@ -75,16 +73,13 @@ public class CommissionInstance extends GameInstance {
 
         player.sendCenteredMessage("&c&lBLOOD BLESSING &4%s:".formatted(RomanNumber.toRoman(level)));
 
-        final Map<AttributeType, DoubleScale> attributeTypeDoubleScaleMap = Commission.attributeScalePerLevel();
-
         for (AttributeType type : SCALED_ATTRIBUTES) {
-            final DoubleScale scale = Objects.requireNonNull(attributeTypeDoubleScaleMap.get(type), "Unscaled attribute!");
-            final double base = attributes.getBase(type);
+            final double base = attributes.base(type);
 
             player.sendCenteredMessage(
                     "  &8%s &b➠ &a%s %s".formatted(
                             type.toString(base),
-                            type.toString(base * scale.scale(level)),
+                            type.toString(attributes.get(type)),
                             type.toString()
                     ));
         }
@@ -108,7 +103,7 @@ public class CommissionInstance extends GameInstance {
     @Override
     protected void createGamePlayers() {
         super.createGamePlayers();
-
+        
         // Put all players in the same team
         COMMISSION_TEAM.empty();
         CF.getAlivePlayers().forEach(COMMISSION_TEAM::addPlayerForce);

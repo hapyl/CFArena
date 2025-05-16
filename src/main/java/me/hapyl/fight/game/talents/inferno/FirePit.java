@@ -2,9 +2,9 @@ package me.hapyl.fight.game.talents.inferno;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;

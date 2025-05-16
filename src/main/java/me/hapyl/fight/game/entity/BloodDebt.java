@@ -21,7 +21,7 @@ public class BloodDebt {
         final boolean isNew = this.amount == 0 && newAmount > 0;
 
         // Call event
-        if (new BloodDebtChangeEvent(entity, this.amount, newAmount).call()) {
+        if (new BloodDebtChangeEvent(entity, this.amount, newAmount).callEvent()) {
             return;
         }
 

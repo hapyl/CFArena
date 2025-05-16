@@ -2,14 +2,12 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.loadout.HotBarLoadout;
 import me.hapyl.fight.game.loadout.HotBarSlot;
-import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -120,31 +118,18 @@ public class TalentLock implements Ticking {
 
             // Use the real texture
             if (newValue == 0) {
-                final Talent talent = hero.getTalent(slot);
                 player.giveTalentItem(slot);
 
                 // Fx here because charged talent thingy
                 player.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.0f);
                 player.playSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-
-                if (talent instanceof ChargedTalent chargedTalent) {
-                    final int chargesAvailable = chargedTalent.getChargesAvailable(player);
-                    final ItemStack item = player.getItem(slot);
-
-                    if (item == null || chargesAvailable == 0) {
-                        player.setItem(slot, chargedTalent.noChargesItem());
-                        return;
-                    }
-
-                    item.setAmount(chargesAvailable);
-                }
                 return;
             }
 
             // Fx
             if (tick % 5 == 0) {
                 final ItemStack item = getRandomDyeItem();
-                item.setAmount(Numbers.clamp(tick / 20, 1, 64));
+                item.setAmount(Math.clamp(tick / 20, 1, 64));
 
                 player.setItem(slot, item);
             }

@@ -58,7 +58,7 @@ public class CelestialBond extends TickingGameTask {
         player.snapTo(HotBarSlot.HERO_ITEM);
 
         // Affect
-        entity.heal(ultimate.healing, player);
+        entity.healRelativeToMaxHealth(ultimate.healing, player);
 
         // Update entity info
         if (entity instanceof GamePlayer entityPlayer) {
@@ -88,13 +88,8 @@ public class CelestialBond extends TickingGameTask {
         final double y = Math.atan(theta * 5) * 0.1d;
         final double z = Math.cos(theta) * 1.25d;
 
-        LocationHelper.offset(location, x, y, z, () -> {
-            HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f);
-        });
-
-        LocationHelper.offset(location, z, y, x, () -> {
-            HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f);
-        });
+        LocationHelper.offset(location, x, y, z, () -> HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f));
+        LocationHelper.offset(location, z, y, x, () -> HeroRegistry.AURORA.spawnParticles(location, 5, 0.2f, 0.1f, 0.2f));
 
         theta += Math.PI / 16;
     }

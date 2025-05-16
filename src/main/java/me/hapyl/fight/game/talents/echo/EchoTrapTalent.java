@@ -34,7 +34,7 @@ public class EchoTrapTalent extends EchoTalent {
                 """.formatted(Named.DECAY)
         );
 
-        setItem(Material.NETHER_BRICK_FENCE);
+        setMaterial(Material.NETHER_BRICK_FENCE);
         setType(TalentType.IMPAIR);
 
         setCooldownSec(6);
@@ -43,7 +43,7 @@ public class EchoTrapTalent extends EchoTalent {
     @Nonnull
     @Override
     public Response executeEcho(@Nonnull GamePlayer player) {
-        final List<Block> lastTwoBlocks = player.getPlayer().getLastTwoTargetBlocks(null, 10);
+        final List<Block> lastTwoBlocks = player.getEntity().getLastTwoTargetBlocks(null, 10);
 
         if (lastTwoBlocks.size() != 2) {
             return Response.error("Nowhere to place the trap!");

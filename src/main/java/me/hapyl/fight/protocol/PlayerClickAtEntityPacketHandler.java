@@ -52,7 +52,7 @@ public class PlayerClickAtEntityPacketHandler implements Listener {
                     return;
                 }
 
-                if (new PlayerClickAtEntityEvent(player, entity, isLeftClick).call()) {
+                if (new PlayerClickAtEntityEvent(player, entity, isLeftClick).callEvent()) {
                     return;
                 }
 

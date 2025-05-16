@@ -226,7 +226,7 @@ public class HeroEquipment implements Described, Lore {
     }
 
     public void equip(GamePlayer gamePlayer) {
-        equip(gamePlayer.getPlayer());
+        equip(gamePlayer.getEntity());
     }
 
     public void setFromEquipment(@Nonnull HeroEquipment equipment) {

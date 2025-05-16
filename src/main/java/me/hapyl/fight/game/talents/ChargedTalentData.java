@@ -1,104 +1,155 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.GameTask;
-import org.bukkit.entity.Player;
+import org.bukkit.Sound;
+import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
-public class ChargedTalentData {
-
-    private final GamePlayer player;
-    private final ChargedTalent talent;
-
-    private GameTask currentTask;
-    private int queueTask;
-    private HotBarSlot lastKnownSlot;
-    private int chargesAvailable;
-
-    public ChargedTalentData(GamePlayer player, ChargedTalent talent) {
+public class ChargedTalentData implements Removable {
+    
+    protected final GamePlayer player;
+    protected final ChargedTalent talent;
+    
+    protected int queue;
+    protected int charges;
+    
+    private Task task;
+    
+    ChargedTalentData(@Nonnull GamePlayer player, @Nonnull ChargedTalent talent) {
         this.player = player;
         this.talent = talent;
-        this.chargesAvailable = talent.getMaxCharges();
-        this.lastKnownSlot = null;
+        this.charges = talent.maxCharges();
     }
-
-    public Player getPlayer() {
-        return player.getPlayer();
+    
+    public int charges() {
+        return charges;
     }
-
-    public int getQueueTask() {
-        return queueTask;
-    }
-
-    public void setQueueTask(int queueTask) {
-        this.queueTask = queueTask;
-    }
-
-    @Nullable
-    public HotBarSlot getLastKnownSlot() {
-        return lastKnownSlot;
-    }
-
-    public void setLastKnownSlot(@Nullable HotBarSlot lastKnownSlot) {
-        this.lastKnownSlot = lastKnownSlot;
-    }
-
-    public int getChargesAvailable() {
-        return chargesAvailable;
-    }
-
-    public void reset() {
-        if (currentTask != null) {
-            currentTask.cancel();
-            currentTask = null;
+    
+    @Override
+    public void remove() {
+        if (task != null) {
+            task.cancel();
+            task = null;
         }
-
-        queueTask = 0;
-        chargesAvailable = talent.getMaxCharges();
-        lastKnownSlot = null;
+        
+        queue = 0;
+        charges = talent.maxCharges();
     }
-
-    public void removeCharge() {
-        chargesAvailable--;
-    }
-
-    public void addCharge() {
-        chargesAvailable++;
-    }
-
-    public void workTask() {
-        if (currentTask != null) {
-            queueTask++;
+    
+    public void decrementCharge() {
+        // Don't allow underflow
+        if (charges <= 0) {
             return;
         }
-
-        createTask();
+        
+        charges--;
+        
+        // If already on cooldown, increment queue
+        if (task != null) {
+            queue++;
+        }
+        // Else start the task
+        else {
+            createTask();
+        }
+        
+        updateItem();
     }
-
-    public void maxCharge() {
-        chargesAvailable = talent.getMaxCharges();
+    
+    public void incrementCharge() {
+        charges++;
+        updateItem();
+        
+        // Fx
+        player.playSound(Sound.ENTITY_CHICKEN_EGG, 1.0f);
     }
-
-    private void createTask() {
-        currentTask = new GameTask() {
-            @Override
-            public void run() {
-                // start another task
-                if (queueTask >= 1) {
-                    --queueTask;
-                    createTask();
-                }
-                // nullate tasks and queue
-                else {
-                    currentTask = null;
-                    queueTask = 0;
-                }
-
-                talent.grantCharge(player);
+    
+    public void recharge() {
+        remove();
+        updateItem();
+        
+        // Fx
+        player.playSound(Sound.ENTITY_CHICKEN_EGG, 1.0f);
+    }
+    
+    protected void updateItem() {
+        final HotBarSlot slot = talentSlot();
+        final ItemStack item = talent.getItem();
+        
+        item.setAmount(Math.max(1, charges));
+        player.setItem(slot, item);
+        
+        // If charges > 0, start internal cooldown to prevent accidental usage
+        if (charges > 0) {
+            talent.startCooldown(player, talent.internalCooldown());
+        }
+        else {
+            // If the task is null, it means that the talent does not recharge, so just start infinite cooldown
+            if (task == null) {
+                player.cooldownManager.setCooldownIgnoreCooldownModifier(item, Constants.INDEFINITE_COOLDOWN);
             }
-        }.runTaskLater(player.scaleCooldown(talent.getRechargeTime()));
+            else {
+                // Internal cooldown so ignore fatigue
+                player.cooldownManager.setCooldownIgnoreCooldownModifier(item, getNextChargeIn());
+            }
+        }
     }
-
+    
+    public int getNextChargeIn() {
+        return task != null ? (int) (task.cooldown * 50L - (System.currentTimeMillis() - task.startedAt)) / 50 : 0;
+    }
+    
+    @Nonnull
+    private HotBarSlot talentSlot() {
+        return player.getHero().getTalentSlotByHandle(talent);
+    }
+    
+    private void createTask() {
+        // Don't bother if talent does not recharge
+        if (talent.getCooldown() == Constants.INFINITE_DURATION) {
+            return;
+        }
+        
+        // Always cancel the task
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
+        
+        task = new Task();
+    }
+    
+    private class Task extends GameTask {
+        
+        private final long startedAt;
+        private final int cooldown;
+        
+        private Task() {
+            this.startedAt = System.currentTimeMillis();
+            this.cooldown = player.cooldownManager.scaleCooldown(talent.getCooldown(), false);
+            
+            runTaskLater(cooldown);
+        }
+        
+        @Override
+        public void run() {
+            incrementCharge();
+            
+            // Reschedule the task if queued talent
+            if (queue > 0) {
+                queue--;
+                createTask();
+            }
+            else {
+                // Nullate task to indicate that nothing on cooldown
+                task = null;
+            }
+        }
+    }
+    
 }

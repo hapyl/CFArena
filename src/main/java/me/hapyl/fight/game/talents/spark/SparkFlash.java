@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SparkFlash extends Talent {
 
@@ -40,12 +41,12 @@ public class SparkFlash extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.WHITE_DYE);
+        setMaterial(Material.WHITE_DYE);
         setCooldown(300);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
 
         final Item item = player.getWorld().dropItem(location, new ItemStack(Material.WHITE_DYE), self -> {
@@ -74,7 +75,7 @@ public class SparkFlash extends Talent {
                 CF.getAlivePlayers().forEach(victim -> {
                     // Check for dot instead of line of sight
                     final Vector playerDirection = itemLocation.clone().subtract(victim.getLocation()).toVector().normalize();
-                    final Vector vector = victim.getPlayer().getLocation().getDirection().normalize();
+                    final Vector vector = victim.getEntity().getLocation().getDirection().normalize();
 
                     final double dotProduct = vector.dot(playerDirection);
                     final double distance = victim.getLocation().distance(itemLocation);

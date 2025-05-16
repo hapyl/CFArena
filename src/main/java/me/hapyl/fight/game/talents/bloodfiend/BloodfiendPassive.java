@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 public class BloodfiendPassive extends PassiveTalent {
 
     @DisplayField public final int biteDuration = Tick.fromSecond(15);
-    @DisplayField public final double healthDeduction = 10;
+    @DisplayField(percentage = true) public final double healthDeduction = -0.1;
 
     public BloodfiendPassive(@Nonnull Key key) {
         super(key, "Vampire's Bite");
@@ -23,7 +23,7 @@ public class BloodfiendPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.RED_DYE);
+        setMaterial(Material.RED_DYE);
     }
 
     @Override

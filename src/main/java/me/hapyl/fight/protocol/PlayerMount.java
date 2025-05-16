@@ -30,7 +30,7 @@ public class PlayerMount {
             self.setSmall(true);
             self.setSilent(true);
             self.setInvisible(true);
-            self.addPassenger(player.getPlayer());
+            self.addPassenger(player.getEntity());
         });
     }
 

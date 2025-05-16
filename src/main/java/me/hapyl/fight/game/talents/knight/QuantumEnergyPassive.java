@@ -18,6 +18,6 @@ public class QuantumEnergyPassive extends PassiveTalent {
                 """.formatted(TalentRegistry.DISCHARGE.getName())
         );
 
-        setItem(Material.SHIELD);
+        setMaterial(Material.SHIELD);
     }
 }

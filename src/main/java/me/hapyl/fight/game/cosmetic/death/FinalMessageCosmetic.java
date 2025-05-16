@@ -73,7 +73,7 @@ public class FinalMessageCosmetic extends Cosmetic {
         });
 
         // Remove upon respawn in respawn allowed types.
-        final GameType currentMode = Manager.current().getCurrentGame().getMode();
+        final GameType currentMode = Manager.current().currentInstance().getMode();
         if (currentMode.isAllowRespawn()) {
             GameTask.runLater(stand::remove, currentMode.getRespawnTime());
         }

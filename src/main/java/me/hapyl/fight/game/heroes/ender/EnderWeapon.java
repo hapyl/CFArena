@@ -19,7 +19,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -54,7 +53,7 @@ public class EnderWeapon extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             // Cancel
             if (hasLocation(player)) {
                 targetLocation.remove(player);
@@ -162,7 +161,7 @@ public class EnderWeapon extends Weapon {
                     player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
                     targetLocation.remove(player);
 
-                    new EnderPearlTeleportEvent(player, location).call();
+                    new EnderPearlTeleportEvent(player, location).callEvent();
                 }
             }.runTaskTimer(0, 1);
 

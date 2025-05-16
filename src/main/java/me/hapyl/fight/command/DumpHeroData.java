@@ -6,11 +6,13 @@ import me.hapyl.eterna.module.command.SimpleAdminCommand;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.displayfield.DisplayFieldInstance;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -134,10 +136,14 @@ public class DumpHeroData extends SimpleAdminCommand {
 
                 writer.nl();
                 writer.header("Attributes");
-
-                attributes.forEachMandatoryAndNonDefault((type, value) -> {
-                    writer.append(" %s: %s".formatted(type.getName(), type.getFormatted(attributes)));
-                });
+                
+                for (AttributeType attributeType : AttributeType.values()) {
+                    final double value = attributes.get(attributeType);
+                    
+                    if (attributeType.isMandatory() || value != attributeType.defaultValue()) {
+                        writer.append(" %s: %s".formatted(attributeType.getName(), attributeType.toString(value)));
+                    }
+                }
 
                 // Weapon
                 writer.nl();
@@ -161,7 +167,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                     writer.append(talent.getTypeFormattedWithClassType());
                     writer.nl();
 
-                    final String description = StaticFormat.formatTalent(talent.getDescription(), talent);
+                    final String description = StaticTalentFormat.format(talent.getDescription(), talent);
 
                     writer.append(description);
 
@@ -200,7 +206,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                         writer.append("| Point%s Generation: %s".formatted(point == 1 ? "" : "s", point));
                     }
 
-                    final List<String> fields = DisplayFieldSerializer.serialize(talent, DisplayFieldSerializer.DEFAULT_FORMATTER);
+                    final List<DisplayFieldInstance> fields = DisplayFieldSerializer.serialize(talent);
 
                     fields.forEach(field -> writer.append("| " + field));
 

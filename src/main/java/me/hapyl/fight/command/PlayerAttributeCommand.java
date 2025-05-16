@@ -24,14 +24,14 @@ public class PlayerAttributeCommand extends CFCommand {
         final AttributeType type = args.get(0).toEnum(AttributeType.class);
         final double newValue = args.get(1).toDouble();
 
-        GamePlayer.getPlayerOptional(player)
+        GamePlayer.getOptionalPlayer(player)
                   .ifPresent(gamePlayer -> {
                       final EntityAttributes attributes = gamePlayer.getAttributes();
 
                       // Reset
                       if (args.get(0).toString().equalsIgnoreCase("reset")) {
                           attributes.reset();
-                          gamePlayer.updateAttributes();
+                          gamePlayer.getAttributes().updateAttributes();
 
                           gamePlayer.sendMessage(Message.SUCCESS, "Reset all attributes to base.");
                           return;
@@ -46,11 +46,11 @@ public class PlayerAttributeCommand extends CFCommand {
                       if (newValue == 0.0d) {
                           final double value = attributes.get(type);
 
-                          gamePlayer.sendMessage(Message.SUCCESS, "Your {%s} attribute is {%.1f} &8(%.0f)&f!".formatted(type.getName(), value, type.scaleUp(value)));
+                          gamePlayer.sendMessage(Message.SUCCESS, "Your {%s} attribute is {%.1f}!".formatted(type.getName(), value));
                           return;
                       }
 
-                      attributes.set(type, newValue - attributes.getBase(type));
+                      attributes.set(type, newValue);
                       gamePlayer.sendMessage(Message.SUCCESS, "Set your {%s} attribute to {%s}!".formatted(type.getName(), attributes.get(type)));
                   });
     }

@@ -18,6 +18,6 @@ public class NinjaStylePassive extends PassiveTalent {
                 """.formatted(AttributeType.SPEED)
         );
 
-        setItem(Material.ELYTRA);
+        setMaterial(Material.ELYTRA);
     }
 }

@@ -103,7 +103,7 @@ public class GameResult {
                             return;
                         }
 
-                        final Player player = gamePlayer.getPlayer();
+                        final Player player = gamePlayer.getEntity();
                         final StatContainer stat = gamePlayer.getStats();
 
                         Chat.sendMessage(player, "");

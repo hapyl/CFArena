@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.zealot;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.MaterialCooldown;
-import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.entity.EntityUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

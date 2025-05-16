@@ -14,11 +14,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class IceBarrier extends Talent {
 
     @DisplayField protected final int buildDelay = 4;
-    @DisplayField(suffix = "blocks") protected final double radius = 3.5d;
+    @DisplayField(suffix = " blocks") protected final double radius = 3.5d;
     @DisplayField protected final double healingPerTick = 2.0d;
 
     public IceBarrier() {
@@ -30,13 +31,13 @@ public class IceBarrier extends Talent {
                 While active, the wall will periodically unleash freezing energy, healing yourself and slowing enemies down.
                 """);
 
-        setItem(Material.PACKED_ICE);
+        setMaterial(Material.PACKED_ICE);
         setCooldownSec(30);
         setDuration(Tick.fromSecond(15));
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (true) {
             return Response.OK;
         }

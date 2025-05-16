@@ -6,7 +6,6 @@ import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.loadout.HotBarSlot;
-import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Sound;
@@ -32,16 +31,15 @@ public class HeroEventHandler {
 
         final TalentPreconditionEvent event = new TalentPreconditionEvent(player);
 
-        if (event.call()) {
-            player.sendMessage("&4&l※ &c" + event.getReason());
+        if (event.callEvent()) {
+            player.sendMessage("&4&l\uD83C\uDF1F &c" + event.getReason());
             return;
         }
 
         // Ultimate is not ready
         if (!player.isUltimateReady()) {
-            player.sendTitle("&4&l※", "&c" + ERROR_NOT_READY, 5, 15, 5);
-            player.sendMessage("&4&l※ &c" + ERROR_NOT_READY);
-
+            player.sendTitle("&4&l\uD83C\uDF1F", "&c" + ERROR_NOT_READY, 5, 15, 5);
+            player.sendMessage("&4&l\uD83C\uDF1F &c" + ERROR_NOT_READY);
             return;
         }
 
@@ -59,7 +57,8 @@ public class HeroEventHandler {
         final int lock = player.getTalentLock(slot);
 
         if (lock > 0) {
-            player.sendMessage("&cTalent is locked for %ss!".formatted(Tick.round(lock)));
+            Response.error("Talent is locked for %ss!".formatted(Tick.round(lock))).sendError(player);
+            
             player.playSound(Sound.ENTITY_ENDERMAN_SCREAM, 0.0f);
             player.snapToWeapon();
             return false;
@@ -103,18 +102,13 @@ public class HeroEventHandler {
         }
 
         // \/ Talent executed \/
-        if (talent instanceof ChargedTalent chargedTalent) {
-            chargedTalent.getData(player).setLastKnownSlot(slot);
-            chargedTalent.removeChargeAndStartCooldown(player);
-        }
-
         final int point = talent.getPoint();
 
         if (point > 0) {
-            player.addEnergy(point);
+            player.incrementEnergy(point);
         }
 
-        talent.startCd(player);
+        talent.startCooldown(player);
         return true;
     }
 

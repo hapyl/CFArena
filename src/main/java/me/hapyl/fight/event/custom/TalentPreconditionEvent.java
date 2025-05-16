@@ -27,7 +27,7 @@ public class TalentPreconditionEvent extends GamePlayerEvent implements Cancella
     }
 
     public static boolean call(@Nonnull GamePlayer player) {
-        return new TalentPreconditionEvent(player).call();
+        return new TalentPreconditionEvent(player).callEvent();
     }
 
     @Override

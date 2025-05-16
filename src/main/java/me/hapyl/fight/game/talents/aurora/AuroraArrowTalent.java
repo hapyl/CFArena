@@ -18,6 +18,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public abstract class AuroraArrowTalent extends Talent {
@@ -88,7 +89,7 @@ public abstract class AuroraArrowTalent extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final AuroraData data = HeroRegistry.AURORA.getPlayerData(player);
 
         if (data.hasBond()) {

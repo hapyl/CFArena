@@ -17,6 +17,6 @@ public class EyesOfTheGalaxyPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.ENDER_EYE);
+        setMaterial(Material.ENDER_EYE);
     }
 }

@@ -23,12 +23,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ShadowAssassinClone extends ShadowAssassinTalent implements Listener {
 
     @DisplayField protected final double cloneDamage = 10.0d;
-    @DisplayField protected final double defenseReduction = 0.4d;
+    @DisplayField protected final double defenseReduction = -0.4d;
     @DisplayField protected final int defenseReductionDuration = Tick.fromSecond(6);
     @DisplayField protected final short cloneLimit = 3;
     @DisplayField protected final short energyRegen = 25;
@@ -43,13 +44,13 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         super(key, "Shadow Clone");
 
         setType(TalentType.IMPAIR);
-        setItem(Material.DRAGON_EGG);
+        setMaterial(Material.DRAGON_EGG);
 
         setTalents(new Stealth(), new Fury(50));
     }
 
     @EventHandler()
-    public void handleDamage(GameDamageEvent ev) {
+    public void handleDamage(GameDamageEvent.Process ev) {
 
     }
 
@@ -91,7 +92,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             final PlayerCloneList playerClones = getPlayerClones(player);
 
             playerClones.createClone(player.getLocationAnchored()).schedule();
@@ -117,7 +118,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             final PlayerCloneList clones = getPlayerClones(player);
 
             final Location location = player.getLocation();

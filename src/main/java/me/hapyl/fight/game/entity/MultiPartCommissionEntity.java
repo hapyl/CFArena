@@ -3,8 +3,8 @@ package me.hapyl.fight.game.entity;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.entity.commission.CommissionEntityType;
 import me.hapyl.fight.game.entity.commission.CommissionEntity;
+import me.hapyl.fight.game.entity.commission.CommissionEntityType;
 import me.hapyl.fight.game.task.GameTask;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * These entities are made with multiple ones, but they share the health.
@@ -28,7 +29,7 @@ public class MultiPartCommissionEntity extends CommissionEntity {
     }
 
     public <E extends LivingEntity> Part<E> createPart(@Nonnull Location location, @Nonnull Entities<E> type, @Nullable Consumer<Part<E>> consumer) {
-        final Part<E> gameEntity = CF.createEntity(location, type, new ConsumerFunction<>() {
+        final Part<E> gameEntity = CF.createEntity(location, type, new Function<>() {
             @Nonnull
             @Override
             public Part<E> apply(@Nonnull E t) {

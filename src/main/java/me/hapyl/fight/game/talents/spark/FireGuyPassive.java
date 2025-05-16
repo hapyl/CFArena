@@ -15,6 +15,6 @@ public class FireGuyPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.LAVA_BUCKET);
+        setMaterial(Material.LAVA_BUCKET);
     }
 }

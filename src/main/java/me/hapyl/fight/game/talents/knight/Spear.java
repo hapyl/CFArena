@@ -2,6 +2,7 @@ package me.hapyl.fight.game.talents.knight;
 
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.MaterialData;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -14,6 +15,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Spear extends Talent {
 
@@ -27,13 +29,14 @@ public class Spear extends Talent {
                 A knight without a spear is not a knight! Use your spear to dash forward and damage opponents on the way.
                 """);
 
-        setItem(Material.TIPPED_ARROW, builder -> builder.setPotionColor(Color.GRAY));
+        setMaterial(MaterialData.of(Material.TIPPED_ARROW, builder -> builder.setPotionColor(Color.GRAY)));
+        
         setDuration(15);
         setCooldown(100);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         player.setVelocity(player.getLocation().getDirection().setY(0.0d).multiply(1.5d));
 
         new GameTask() {

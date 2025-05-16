@@ -3,11 +3,11 @@ package me.hapyl.fight.game.heroes.nyx;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.ChargeType;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TickingStepGameTask;
@@ -118,7 +118,7 @@ public class VoidPortal extends TickingGameTask implements Removable {
                     entity.damageNoKnockback(damage, player, DamageCause.CHAOS);
 
                     if (entity instanceof GamePlayer playerEntity) {
-                        playerEntity.removeEnergy(energyDecrease, player);
+                        playerEntity.decrementEnergy(energyDecrease, player);
                     }
                 });
 
@@ -146,7 +146,7 @@ public class VoidPortal extends TickingGameTask implements Removable {
         Collect.nearbyEntities(location, distance, player::isNotSelfOrTeammateOrHasEffectResistance)
                 .forEach(entity -> {
                     if (entity instanceof GamePlayer playerEnemy) {
-                        playerEnemy.removeEnergy(ultimate.overchargedEnergyDecrease, player);
+                        playerEnemy.decrementEnergy(ultimate.overchargedEnergyDecrease, player);
                     }
                 });
 

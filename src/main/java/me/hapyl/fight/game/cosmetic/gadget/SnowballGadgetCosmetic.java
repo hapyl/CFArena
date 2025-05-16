@@ -43,7 +43,7 @@ public class SnowballGadgetCosmetic extends Gadget implements Listener {
         super(key, "Colored Snowball");
 
         setDescription("""
-                Throw a snowball that colors blocks it lands on into the color of your team.
+                Throw a snowball that colors blocks it lands on into the displayColor of your team.
                 """);
 
         setRarity(Rarity.RARE);
@@ -154,10 +154,10 @@ public class SnowballGadgetCosmetic extends Gadget implements Listener {
 
         Bukkit.getOnlinePlayers().forEach(player -> {
             affectedBlocks.forEach(block -> {
-                // Pick random color
-                final BlockData color = CollectionUtils.randomElementOrFirst(colors);
+                // Pick random displayColor
+                final BlockData displayColor = CollectionUtils.randomElementOrFirst(colors);
 
-                player.sendBlockChange(block.getLocation(), color);
+                player.sendBlockChange(block.getLocation(), displayColor);
             });
         });
 

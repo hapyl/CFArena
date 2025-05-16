@@ -3,7 +3,7 @@ package me.hapyl.fight.anticheat;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.infraction.HexID;
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

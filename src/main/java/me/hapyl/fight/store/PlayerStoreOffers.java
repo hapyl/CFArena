@@ -1,7 +1,7 @@
 package me.hapyl.fight.store;
 
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
-import me.hapyl.fight.game.talents.Removable;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;

@@ -12,7 +12,7 @@ import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.Size;
 import me.hapyl.fight.game.maps.features.Turbine;
 import me.hapyl.fight.game.maps.features.TurbineFeature;
-import me.hapyl.fight.game.maps.gamepack.PackType;
+import me.hapyl.fight.game.maps.supply.Supplies;
 import me.hapyl.fight.util.BoundingBoxCollector;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -64,14 +64,14 @@ public class MoonBase extends Level {
         rooms.add(new MoonRoomWater());
 
         // Packs
-        addPackLocation(PackType.HEALTH, 5530, 63, -22);
-        addPackLocation(PackType.HEALTH, 5524, 63, 28);
-        addPackLocation(PackType.HEALTH, 5497, 62, -38);
-        addPackLocation(PackType.HEALTH, 5452, 62, -20);
+        addPackLocation(Supplies.HEALTH, 5530, 63, -22);
+        addPackLocation(Supplies.HEALTH, 5524, 63, 28);
+        addPackLocation(Supplies.HEALTH, 5497, 62, -38);
+        addPackLocation(Supplies.HEALTH, 5452, 62, -20);
 
-        addPackLocation(PackType.CHARGE, 5530, 63, 22);
-        addPackLocation(PackType.CHARGE, 5531, 74, 39);
-        addPackLocation(PackType.CHARGE, 5518, 63, -27);
+        addPackLocation(Supplies.ENERGY, 5530, 63, 22);
+        addPackLocation(Supplies.ENERGY, 5531, 74, 39);
+        addPackLocation(Supplies.ENERGY, 5518, 63, -27);
 
         // Turbines
         final TurbineFeature turbines = new TurbineFeature();

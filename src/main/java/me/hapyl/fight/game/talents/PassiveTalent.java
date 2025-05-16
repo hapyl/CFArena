@@ -6,10 +6,11 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PassiveTalent extends Talent {
 
-    protected PassiveTalent(@Nonnull Key key, @Nonnull String name) {
+    public PassiveTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
         setType(TalentType.ENHANCE); // Default passives to enhance because most of them are
@@ -17,7 +18,7 @@ public class PassiveTalent extends Talent {
     }
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         player.sendMessage(Message.ERROR, "Do not execute passive talents!");
         return Response.OK;
     }

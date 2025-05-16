@@ -7,7 +7,8 @@ import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
@@ -42,7 +43,7 @@ public class DarkCover extends ShadowAssassinTalent {
         super(key, "Dark Cover");
 
         setType(TalentType.DAMAGE);
-        setItem(Material.NETHERITE_BOOTS);
+        setMaterial(Material.NETHERITE_BOOTS);
 
         // Make sure setTalents is last
         setTalents(new Stealth(), new Fury(25));
@@ -100,7 +101,7 @@ public class DarkCover extends ShadowAssassinTalent {
             final FireworkMeta meta = self.getFireworkMeta();
             final FireworkEffect.Builder builder = FireworkEffect.builder()
                     .with(FireworkEffect.Type.BALL)
-                    .withColor(Color.PURPLE_SHADOW.getBukkitColor())
+                    .withColor(org.bukkit.Color.fromRGB(Color.PURPLE_SHADOW.value))
                     .withFlicker();
 
             meta.addEffect(builder.build());
@@ -119,14 +120,14 @@ public class DarkCover extends ShadowAssassinTalent {
 
     public void setDarkCover(GamePlayer player, boolean flag) {
         if (flag) {
-            player.addEffect(EffectType.INVISIBILITY, 999999);
+            player.addEffect(EffectType.INVISIBLE, 999999);
             playDarkCoverFx(player, true);
         }
 
         else {
             darkCoverTask.remove(player);
 
-            player.removeEffect(EffectType.INVISIBILITY);
+            player.removeEffect(EffectType.INVISIBLE);
             playDarkCoverFx(player, false);
         }
     }
@@ -172,7 +173,7 @@ public class DarkCover extends ShadowAssassinTalent {
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             setDarkCover(player, true);
 
             final GameTask oldTask = darkCoverTask.remove(player);
@@ -189,6 +190,8 @@ public class DarkCover extends ShadowAssassinTalent {
 
     private class Fury extends FuryTalent {
 
+        private final ModifierSource modifierSource = new ModifierSource(Key.ofString("dark_cover"), true);
+        
         public Fury(int furyCost) {
             super(DarkCover.this, furyCost);
 
@@ -202,10 +205,10 @@ public class DarkCover extends ShadowAssassinTalent {
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             executeAoEDamage(player.getLocationInFront(2.5d).add(0.0d, 1.0d, 0.0), player, explosionDamage * furyDamageMultiplier, false);
-
-            player.getAttributes().increaseTemporary(Temper.DARK_COVER, AttributeType.ATTACK, attackIncrease, attackIncreaseDuration);
+            
+            player.getAttributes().addModifier(modifierSource, attackIncreaseDuration, modifier -> modifier.of(AttributeType.ATTACK, ModifierType.MULTIPLICATIVE, attackIncrease));
 
             return Response.OK;
         }

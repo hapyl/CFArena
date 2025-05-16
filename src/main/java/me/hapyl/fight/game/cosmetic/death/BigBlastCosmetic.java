@@ -25,7 +25,7 @@ public class BigBlastCosmetic extends Cosmetic implements Listener {
         super(key, "Big Blast", Type.DEATH);
 
         setDescription("""
-                A big explosion with a random color.
+                A big explosion with a random displayColor.
                 """
         );
 

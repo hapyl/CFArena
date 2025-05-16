@@ -14,10 +14,11 @@ import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BloodCup extends Talent {
 
-    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) public final double chance = 0.25d;
+    @DisplayField(scale = 100, suffix = "%") public final double chance = 0.25d;
     @DisplayField public final short maxBlood = 6;
     @DisplayField public final double healingPerBottle = 6.0d;
 
@@ -38,6 +39,7 @@ public class BloodCup extends Talent {
         setCooldownSec(15);
 
         bloodTextures = new String[] {
+                "f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e",
                 "e1a3dba81fdf89157c177693b7eb2240c53e52cc0db1959a9aace0a01d2f5c6",
                 "5cf7cfe1b2c5ce5e3c992e4634d98a480b8ed3a28686653f6a47d86a31f3ba71",
                 "b2f50a860e81b7c07ed46a8ab6fac9d837ef3985d093ebea0d2199bfa446fc1a",
@@ -63,8 +65,8 @@ public class BloodCup extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final BloodfiendData data = HeroRegistry.BLOODFIEND.getData(player);
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final BloodfiendData data = HeroRegistry.BLOODFIEND.getPlayerData(player);
         final int blood = data.getBlood();
 
         if (blood <= 0) {
@@ -84,7 +86,7 @@ public class BloodCup extends Talent {
     }
 
     private String getTexture(int blood) {
-        return blood == 0 ? getTexture64() : bloodTextures[blood - 1];
+        return bloodTextures[blood];
     }
 
 }

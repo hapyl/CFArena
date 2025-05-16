@@ -84,20 +84,20 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
     public final void onDeath(@Nonnull GamePlayer player) {
         playerAmmo.remove(player);
     }
-
+    
     @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
+    public void juice(@Nonnull ItemBuilder builder) {
         builder.addLore();
         builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs");
-
+        
         addDynamicLore(builder, " ғɪʀᴇ ʀᴀᴛᴇ: &f&l%s", cooldown, t -> Tick.round(t.intValue()) + "s");
         addDynamicLore(builder, " ᴍᴀx ᴅɪsᴛᴀɴᴄᴇ: &f&l%s", maxDistance, Object::toString);
         addDynamicLore(builder, " ᴅᴀᴍᴀɢᴇ: &f&l%s", damage, Object::toString);
-
+        
         builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s".formatted(maxAmmo));
         builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%ss".formatted(Tick.round(reloadTime)));
     }
-
+    
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
@@ -200,7 +200,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
 
     public void reload(@Nonnull GamePlayer player) {
         final ItemStack item = player.getItem(HotBarSlot.WEAPON);
-        final int reloadTimeScaled = player.scaleCooldown(reloadTime);
+        final int reloadTimeScaled = player.cooldownManager.scaleCooldown(reloadTime, false);
 
         // force reload
         playerAmmo.put(player, 0);
@@ -249,7 +249,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
     public int getWeaponCooldownScale(GamePlayer player) {
         final int weaponCooldown = getWeaponCooldown(player);
 
-        return player.getAttributes().calculateRangeAttackSpeed(weaponCooldown);
+        return player.getAttributes().calculate().rangeAttackSpeed(weaponCooldown);
     }
 
     private int subtractAmmo(GamePlayer player) {
@@ -284,7 +284,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             if (player.cooldownManager.hasCooldown(RangeWeapon.this)) {
                 return null;
             }

@@ -15,6 +15,6 @@ public class DarkCoverPassive extends PassiveTalent {
                 """
         );
 
-        setItem(Material.NETHERITE_CHESTPLATE);
+        setMaterial(Material.NETHERITE_CHESTPLATE);
     }
 }

@@ -16,7 +16,6 @@ public abstract class TotemResonance implements Described, DisplayFieldProvider 
     private final String name;
     private final String description;
 
-    private int interval;
     private TalentType type;
     private DisplayData displayData;
 
@@ -24,10 +23,6 @@ public abstract class TotemResonance implements Described, DisplayFieldProvider 
         this.material = material;
         this.name = name;
         this.description = description;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
     }
 
     public void setDisplayData(@Nonnull String data) {
@@ -43,13 +38,11 @@ public abstract class TotemResonance implements Described, DisplayFieldProvider 
         return displayData;
     }
 
-    /**
-     * Resonates with a totem at the given {@link #interval}.
-     *
-     * @param totem - A totem.
-     */
     public abstract void resonate(@Nonnull Totem totem);
 
+    public void tick(@Nonnull Totem totem, int tick) {
+    }
+    
     @Nonnull
     @Override
     public String getName() {
@@ -65,10 +58,6 @@ public abstract class TotemResonance implements Described, DisplayFieldProvider 
     @Nonnull
     public Material getMaterial() {
         return material;
-    }
-
-    public int getInterval() {
-        return interval;
     }
 
     @Nonnull

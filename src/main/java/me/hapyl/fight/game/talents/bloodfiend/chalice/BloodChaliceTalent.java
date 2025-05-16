@@ -19,7 +19,7 @@ public class BloodChaliceTalent extends TauntTalent {
         super(key, "Blood Chalice", 8, -1);
 
         setType(TalentType.SUPPORT);
-        setItem(Material.SKELETON_SKULL);
+        setMaterial(Material.SKELETON_SKULL);
         setDurationSec(15);
         setCooldownSec(15);
     }
@@ -36,9 +36,8 @@ public class BloodChaliceTalent extends TauntTalent {
     @Nonnull
     @Override
     public String getHowToRemove() {
-        // TODO (Mon, Feb 10 2025 @xanyjl): Maybe change to twinclaw like the original?
         return """
-                &4Unremovable.
+                Can only be removed by own &aTwin Claws&7.
                 """;
     }
 

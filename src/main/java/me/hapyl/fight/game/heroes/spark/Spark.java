@@ -127,14 +127,14 @@ public class Spark extends Hero implements PlayerDataHandler<SparkData> {
             );
 
             setType(TalentType.ENHANCE);
-            setItem(Material.TOTEM_OF_UNDYING);
+            setMaterial(Material.TOTEM_OF_UNDYING);
             setDurationSec(6);
             setCooldownSec(40);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             final SparkData data = getPlayerData(player);
 
             if (data.runItBack != null) {

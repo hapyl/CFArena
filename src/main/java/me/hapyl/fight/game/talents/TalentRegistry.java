@@ -63,9 +63,10 @@ import me.hapyl.fight.game.talents.bloodfiend.SpectralForm;
 import me.hapyl.fight.game.talents.bloodfiend.TwinClaws;
 import me.hapyl.fight.game.talents.bloodfiend.candlebane.CandlebaneTalent;
 import me.hapyl.fight.game.talents.bloodfiend.chalice.BloodChaliceTalent;
+import me.hapyl.fight.game.talents.bounty_hunter.BountyHunterPassive;
 import me.hapyl.fight.game.talents.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
-import me.hapyl.fight.game.talents.bounty_hunter.SmokeBombPassive;
+import me.hapyl.fight.game.talents.bounty_hunter.SmokeBombTalent;
 import me.hapyl.fight.game.talents.dark_mage.*;
 import me.hapyl.fight.game.talents.doctor.BlockMaelstromPassive;
 import me.hapyl.fight.game.talents.doctor.ConfusionPotion;
@@ -75,10 +76,7 @@ import me.hapyl.fight.game.talents.echo.EchoWorldTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
 import me.hapyl.fight.game.talents.ender.TeleportPearl;
 import me.hapyl.fight.game.talents.ender.TransmissionBeacon;
-import me.hapyl.fight.game.talents.engineer.EngineerRecall;
-import me.hapyl.fight.game.talents.engineer.EngineerSentry;
-import me.hapyl.fight.game.talents.engineer.EngineerTurret;
-import me.hapyl.fight.game.talents.engineer.MagneticAttractionPassive;
+import me.hapyl.fight.game.talents.engineer.*;
 import me.hapyl.fight.game.talents.frostbite.ChillAuraPassive;
 import me.hapyl.fight.game.talents.frostbite.IceCageTalent;
 import me.hapyl.fight.game.talents.frostbite.Icicles;
@@ -89,7 +87,7 @@ import me.hapyl.fight.game.talents.harbinger.TidalWaveTalent;
 import me.hapyl.fight.game.talents.healer.HealingOrb;
 import me.hapyl.fight.game.talents.healer.RevivePassive;
 import me.hapyl.fight.game.talents.healer.ReviveTotem;
-import me.hapyl.fight.game.talents.heavy_knight.PerfectSequencePassive;
+import me.hapyl.fight.game.talents.heavy_knight.SwordMasterPassive;
 import me.hapyl.fight.game.talents.heavy_knight.Slash;
 import me.hapyl.fight.game.talents.heavy_knight.Updraft;
 import me.hapyl.fight.game.talents.heavy_knight.Uppercut;
@@ -150,6 +148,7 @@ import me.hapyl.fight.game.talents.swooper.SmokeBomb;
 import me.hapyl.fight.game.talents.swooper.SwooperPassive;
 import me.hapyl.fight.game.talents.taker.DeathSwap;
 import me.hapyl.fight.game.talents.taker.FatalReap;
+import me.hapyl.fight.game.talents.taker.Shadowfall;
 import me.hapyl.fight.game.talents.taker.SpiritualBonesPassive;
 import me.hapyl.fight.game.talents.tamer.MineOBall;
 import me.hapyl.fight.game.talents.tamer.TamingTheEarth;
@@ -168,7 +167,7 @@ import me.hapyl.fight.game.talents.witcher.*;
 import me.hapyl.fight.game.talents.zealot.BrokenHeartRadiation;
 import me.hapyl.fight.game.talents.zealot.FerociousStrikes;
 import me.hapyl.fight.game.talents.zealot.MaledictionVeil;
-import me.hapyl.fight.game.talents.zealot.MalevolentHitshield;
+import me.hapyl.fight.game.talents.zealot.MalevolentHitshieldTalent;
 import me.hapyl.fight.registry.AbstractStaticRegistry;
 
 import javax.annotation.Nonnull;
@@ -335,12 +334,13 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      */
     public static final FatalReap FATAL_REAP;
     public static final DeathSwap DEATH_SWAP;
+    public static final Shadowfall SHADOWFALL;
     public static final SpiritualBonesPassive SPIRITUAL_BONES;
 
     /**
      * {@link JuJu}
      */
-    public static final ArrowShield ARROW_SHIELD;
+    public static final ArrowShieldTalent ARROW_SHIELD;
     @Deprecated public static final Climb CLIMB;
     public static final TricksOfTheJungle TRICKS_OF_THE_JUNGLE;
     public static final PoisonZone POISON_ZONE;
@@ -418,14 +418,15 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
     public static final BloodDebtTalent BLOOD_DEBT;
     public static final BatTransferTalent BAT_TRANSFER;
-    public static final VampirePassive VANPIRE_PASSIVE;
+    public static final VampirePassive VAMPIRE_PASSIVE;
 
     /**
      * {@link BountyHunter}
      */
     public static final ShortyShotgun SHORTY;
     public static final GrappleHookTalent GRAPPLE;
-    public static final SmokeBombPassive SMOKE_BOMB;
+    public static final SmokeBombTalent SMOKE_BOMB;
+    public static final BountyHunterPassive BOUNTY_HUNTER_PASSIVE;
 
     /**
      * {@link SwordMaster}
@@ -433,7 +434,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     public static final Uppercut UPPERCUT;
     public static final Updraft UPDRAFT;
     public static final Slash SLASH;
-    public static final PerfectSequencePassive SWORD_MASTER_PASSIVE;
+    public static final SwordMasterPassive SWORD_MASTER_PASSIVE;
 
     /**
      * {@link Orc}
@@ -445,9 +446,10 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     /**
      * {@link Engineer}
      */
-    public static final EngineerSentry ENGINEER_SENTRY;
-    public static final EngineerTurret ENGINEER_TURRET;
-    public static final EngineerRecall ENGINEER_RECALL;
+    @Deprecated public static final EngineerSpotter ENGINEER_SENTRY;
+    @Deprecated public static final EngineerRecall ENGINEER_RECALL;
+    public static final EngineerSentry ENGINEER_TURRET;
+    public static final EngineerDispenser ENGINEER_DISPENSER;
     public static final MagneticAttractionPassive ENGINEER_PASSIVE;
 
     /**
@@ -464,7 +466,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      * {@link Zealot}
      */
     public static final BrokenHeartRadiation BROKEN_HEART_RADIATION;
-    public static final MalevolentHitshield MALEVOLENT_HITSHIELD;
+    public static final MalevolentHitshieldTalent MALEVOLENT_HITSHIELD;
     public static final FerociousStrikes FEROCIOUS_STRIKES;
     @Deprecated public static final MaledictionVeil MALEDICTION_VEIL;
 
@@ -635,9 +637,10 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
 
         FATAL_REAP = register("fatal_reap", FatalReap::new);
         DEATH_SWAP = register("death_swap", DeathSwap::new);
+        SHADOWFALL = register("shadowfall", Shadowfall::new);
         SPIRITUAL_BONES = register("spiritual_bones", SpiritualBonesPassive::new);
 
-        ARROW_SHIELD = register("arrow_shield", ArrowShield::new);
+        ARROW_SHIELD = register("arrow_shield", ArrowShieldTalent::new);
         CLIMB = register("climb", Climb::new);
         TRICKS_OF_THE_JUNGLE = register("tricks_of_the_jungle", TricksOfTheJungle::new);
         POISON_ZONE = register("poison_zone", PoisonZone::new);
@@ -685,16 +688,17 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         BLOOD_DEBT = register("blood_debt", BloodDebtTalent::new);
         BAT_SWARM = register("bat_swarm", BatSwarm::new);
         BAT_TRANSFER = register("bat_transfer", BatTransferTalent::new);
-        VANPIRE_PASSIVE = register("vampire_passive", VampirePassive::new);
+        VAMPIRE_PASSIVE = register("vampire_passive", VampirePassive::new);
 
         SHORTY = register("shorty", ShortyShotgun::new);
         GRAPPLE = register("grapple", GrappleHookTalent::new);
-        SMOKE_BOMB = register("smoke_bomb", SmokeBombPassive::new);
-
+        SMOKE_BOMB = register("smoke_bomb", SmokeBombTalent::new);
+        BOUNTY_HUNTER_PASSIVE = register("bounty_hunter_passive", BountyHunterPassive::new);
+        
         UPPERCUT = register("uppercut", Uppercut::new);
         UPDRAFT = register("updraft", Updraft::new);
         SLASH = register("slash", Slash::new);
-        SWORD_MASTER_PASSIVE = register("sword_master_passive", PerfectSequencePassive::new);
+        SWORD_MASTER_PASSIVE = register("sword_master_passive", SwordMasterPassive::new);
 
         // Orc talents
         ORC_GROWN = register("orc_grown", OrcGrowl::new);
@@ -702,8 +706,9 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         ORC_PASSIVE = register("orc_passive", DontAngerMePassive::new);
 
         // Engineer talents
-        ENGINEER_SENTRY = register("engineer_sentry", EngineerSentry::new);
-        ENGINEER_TURRET = register("engineer_turret", EngineerTurret::new);
+        ENGINEER_SENTRY = register("engineer_sentry", EngineerSpotter::new);
+        ENGINEER_TURRET = register("engineer_turret", EngineerSentry::new);
+        ENGINEER_DISPENSER = register("engineer_dispenser", EngineerDispenser::new);
         ENGINEER_RECALL = register("engineer_recall", EngineerRecall::new);
         ENGINEER_PASSIVE = register("engineer_passive", MagneticAttractionPassive::new);
 
@@ -715,7 +720,7 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         SUCCULENCE = register("succulence", BloodfiendPassive::new);
 
         BROKEN_HEART_RADIATION = register("broken_heart_radiation", BrokenHeartRadiation::new);
-        MALEVOLENT_HITSHIELD = register("malevolent_hitshield", MalevolentHitshield::new);
+        MALEVOLENT_HITSHIELD = register("malevolent_hitshield", MalevolentHitshieldTalent::new);
         FEROCIOUS_STRIKES = register("ferocious_strikes", FerociousStrikes::new);
         MALEDICTION_VEIL = register("malediction_veil", MaledictionVeil::new);
 

@@ -48,13 +48,13 @@ public class CooldownCommand extends SimplePlayerAdminCommand {
                 continue;
             }
 
-            talent.stopCd(gamePlayer);
+            talent.stopCooldown(gamePlayer);
             if (talent instanceof ChargedTalent chargedTalent) {
                 chargedTalent.grantAllCharges(gamePlayer);
             }
         }
 
-        gamePlayer.getUltimate().stopCd(gamePlayer);
+        gamePlayer.getUltimate().stopCooldown(gamePlayer);
         gamePlayer.setUsingUltimate(false);
 
         Message.success(player, "Stopped all cooldowns!");

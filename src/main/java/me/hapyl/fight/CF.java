@@ -11,7 +11,6 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.crate.CrateManager;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -38,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -166,7 +166,7 @@ public final class CF {
      * @return a newly created {@link GameEntity} instance.
      */
     @Nonnull
-    public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull ConsumerFunction<T, E> consumer) {
+    public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Function<T, E> consumer) {
         return Manager.current().createEntity(location, type, consumer);
     }
 
@@ -174,7 +174,7 @@ public final class CF {
     public static <T extends LivingEntity> LivingGameEntity createEntity(@Nonnull Location location, @Nonnull Entities<T> type) {
         return createEntity(location, type, LivingGameEntity::new);
     }
-
+    
     @Nonnull
     public static CommissionOverlayEntity createOverlayEntity(@Nonnull Location location, @Nonnull BiFunction<Location, Husk, CommissionOverlayEntity> fn) {
         return Manager.current().createOverlayEntity(location, fn);
@@ -560,5 +560,5 @@ public final class CF {
     public static Environment environment() {
         return plugin.environment();
     }
-
+    
 }

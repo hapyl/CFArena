@@ -55,7 +55,7 @@ public class DrWitch extends TamerPack {
     public record WitchData(GameTeam team, GamePlayer target, double healing) {
     }
 
-    private class DrWitchEntity extends TamerEntity<Witch> {
+    private class DrWitchEntity extends TamerEntity {
 
         private int nextPotion;
 

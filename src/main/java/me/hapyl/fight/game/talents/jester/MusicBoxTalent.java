@@ -11,6 +11,7 @@ import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MusicBoxTalent extends Talent {
 
@@ -32,7 +33,7 @@ public class MusicBoxTalent extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final JesterData data = HeroRegistry.JESTER.getPlayerData(player);
 
         // Remove previous music box

@@ -5,6 +5,7 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.MaterialData;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -18,6 +19,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ConfusionPotion extends Talent {
 
@@ -37,15 +39,14 @@ public class ConfusionPotion extends Talent {
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.POTION, builder -> {
-            builder.setPotionColor(Color.fromRGB(208, 207, 252));
-        });
+        setMaterial(MaterialData.of(Material.POTION, builder -> builder.setPotionColor(Color.fromRGB(208, 207, 252))));
+        
         setDuration(200);
         setCooldownSec(30);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocationAnchored();
         final Location centre = location.clone();
 
@@ -55,7 +56,7 @@ public class ConfusionPotion extends Talent {
                     self.setSilent(true);
                     self.setMarker(true);
                     self.setVisible(false);
-                    self.getEquipment().setHelmet(getItem());
+                    self.getEquipment().setHelmet(getItem(player));
                 }
         );
 

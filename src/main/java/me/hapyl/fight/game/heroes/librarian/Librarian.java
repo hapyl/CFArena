@@ -91,7 +91,7 @@ public class Librarian extends Hero implements Listener, Disabled {
             @Override
             public void run() {
                 getAlivePlayers().forEach(player -> {
-                    final Player playerPlayer = player.getPlayer();
+                    final Player playerPlayer = player.getEntity();
                     final Grimoire grimoire = grimoireMap.get(player);
 
                     if (grimoire.isMaxed()) {
@@ -162,7 +162,7 @@ public class Librarian extends Hero implements Listener, Disabled {
         applyICD(player);
 
         talentMap.forEach((slot, talent) -> {
-            inventory.setItem(slot, talent.getItem());
+            inventory.setItem(slot, talent.getItem(player));
             if (slot == 2) {
                 Nulls.runIfNotNull(inventory.getItem(2), item -> item.setAmount(3));
             }

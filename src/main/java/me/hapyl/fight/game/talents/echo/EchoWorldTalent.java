@@ -12,6 +12,7 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EchoWorldTalent extends Talent {
 
@@ -28,7 +29,7 @@ public class EchoWorldTalent extends Talent {
                 """.formatted(Named.ECHO_WORLD, Named.ECHO_WORLD.getName())
         );
 
-        setItem(Material.NETHERITE_INGOT);
+        setMaterial(Material.NETHERITE_INGOT);
         setType(TalentType.ENHANCE);
 
         setCooldownSec(2);
@@ -36,7 +37,7 @@ public class EchoWorldTalent extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final EchoData data = HeroRegistry.ECHO.getPlayerData(player);
 
         data.toggleEchoWorld();

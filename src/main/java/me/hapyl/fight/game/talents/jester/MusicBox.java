@@ -4,9 +4,9 @@ import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.block.display.DisplayEntity;
 import me.hapyl.eterna.module.block.display.animation.AnimationFrame;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Removable;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;

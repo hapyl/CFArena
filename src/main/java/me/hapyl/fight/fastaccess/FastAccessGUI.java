@@ -51,7 +51,7 @@ public class FastAccessGUI extends StyledPageGUI<FastAccess> implements IFastAcc
         closeInventory();
 
         // Fx
-        Message.success(player, "Set Quick Access slot {%s} to {%s}!".formatted(slot, content.getName()));
+        Message.success(player, "Set Quick Access slot {%s} to {%s}!".formatted(slot + 1, content.getName()));
         Message.sound(player, Sound.ENTITY_VILLAGER_YES, 1.0f);
     }
 

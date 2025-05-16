@@ -51,7 +51,7 @@ public class Troll extends Hero implements Listener, PlayerDataHandler<TrollData
         equipment.setLeggings(255, 204, 84);
         equipment.setBoots(255, 204, 84);
 
-        setWeapon(Weapon.builder(Material.STICK, Key.ofString("stickonator"))
+        setWeapon(Weapon.createBuilder(Material.STICK, Key.ofString("stickonator"))
                         .name("Stickonator")
                         .description("""
                                 - What's brown and sticky?
@@ -93,7 +93,7 @@ public class Troll extends Hero implements Listener, PlayerDataHandler<TrollData
 
         final LastLaughPassive passiveTalent = getPassiveTalent();
 
-        if (damager.random.checkBound(1 - passiveTalent.chance)) {
+        if (damager.random.checkBound(passiveTalent.chance)) {
             entity.setLastDamager(damager);
             entity.dieBy(DamageCause.TROLL_LAUGH);
 
@@ -106,7 +106,7 @@ public class Troll extends Hero implements Listener, PlayerDataHandler<TrollData
             damager.sendMessage("&aYou laughed at %s!".formatted(entity.getName()));
             damager.playWorldSound(Sound.ENTITY_EVOKER_PREPARE_WOLOLO, 2.0f);
 
-            registry.TROLL_LAUGHING_OUT_LOUD.complete(damager.getPlayer());
+            registry.TROLL_LAUGHING_OUT_LOUD.complete(damager.getEntity());
         }
     }
 
@@ -146,13 +146,13 @@ public class Troll extends Hero implements Listener, PlayerDataHandler<TrollData
 
             setSound(Sound.ENTITY_SPIDER_AMBIENT, 1.0f);
             setType(TalentType.IMPAIR);
-            setItem(Material.COBWEB);
+            setMaterial(Material.COBWEB);
             setCooldownSec(20);
         }
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 final TrollData data = getPlayerData(player);
 

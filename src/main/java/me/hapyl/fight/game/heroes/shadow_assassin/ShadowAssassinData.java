@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.shadow_assassin;
 
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.task.GameTask;
@@ -43,7 +44,7 @@ public class ShadowAssassinData extends PlayerData {
                 return;
             }
 
-            entity.damage(1, player);
+            entity.damage(1, player, DamageCause.SHADOW_CLONE);
         });
 
         playSwitchFx();
@@ -68,7 +69,6 @@ public class ShadowAssassinData extends PlayerData {
 
     @Override
     public void remove() {
-
     }
 
     private void playSwitchFx() {

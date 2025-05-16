@@ -18,6 +18,6 @@ public class ShadowEnergyPassive extends PassiveTalent {
                 """.formatted(Named.SHADOW_ENERGY)
         );
 
-        setItem(Material.CHORUS_FRUIT);
+        setMaterial(Material.CHORUS_FRUIT);
     }
 }

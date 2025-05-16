@@ -25,6 +25,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TransmissionBeacon extends Talent implements Listener {
 
@@ -43,12 +44,12 @@ public class TransmissionBeacon extends Talent implements Listener {
                 """
         );
 
-        setItem(Material.BEACON);
+        setMaterial(Material.BEACON);
         setType(TalentType.MOVEMENT);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (hasBeacon(player)) {
             return Response.error("The beacon is already placed!");
         }
@@ -120,7 +121,7 @@ public class TransmissionBeacon extends Talent implements Listener {
         ev.setCancelled(true);
 
         beacon.remove();
-        startCd(owner, cooldownIfDestroyed);
+        startCooldown(owner, cooldownIfDestroyed);
 
         // Fx
         ev.getPlayer().sendMessage("&aYou broke %s's %s!".formatted(owner.getName(), getName()));
@@ -149,7 +150,7 @@ public class TransmissionBeacon extends Talent implements Listener {
         BukkitUtils.mergePitchYaw(player.getLocation(), location);
         player.teleport(location);
 
-        new EnderPearlTeleportEvent(player, location).call();
+        new EnderPearlTeleportEvent(player, location).callEvent();
 
         player.addEffect(EffectType.BLINDNESS, 1, 20);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);

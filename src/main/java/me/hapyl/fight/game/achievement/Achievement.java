@@ -159,7 +159,7 @@ public class Achievement implements Keyed {
                .append(Component.text("Reward:", NamedTextColor.GRAY))
                .appendNewline()
                .append(
-                       Component.text("%s %s %s".formatted(pointReward, Named.ACHIEVEMENT_POINT.getCharacter(), Named.ACHIEVEMENT_POINT.getName()), NamedTextColor.BLUE)
+                       Component.text("%s %s %s".formatted(pointReward, Named.ACHIEVEMENT_POINT.getPrefix(), Named.ACHIEVEMENT_POINT.getName()), NamedTextColor.BLUE)
                );
 
         player.sendMessage(
@@ -192,7 +192,7 @@ public class Achievement implements Keyed {
     }
 
     public final boolean complete(@Nonnull GamePlayer player) {
-        return complete(player.getPlayer());
+        return complete(player.getEntity());
     }
 
     public final boolean complete(@Nonnull GameTeam team) {
@@ -255,7 +255,7 @@ public class Achievement implements Keyed {
     }
 
     public final boolean hasCompletedAtLeastOnce(@Nonnull GamePlayer player) {
-        return hasCompletedAtLeastOnce(player.getPlayer());
+        return hasCompletedAtLeastOnce(player.getEntity());
     }
 
     /**

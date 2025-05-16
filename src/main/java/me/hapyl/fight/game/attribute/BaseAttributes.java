@@ -1,474 +1,278 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Maps;
-import me.hapyl.eterna.module.util.Copyable;
-import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.damage.DamageFlag;
-import me.hapyl.fight.game.damage.DamageType;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.LivingEntity;
+import me.hapyl.eterna.builtin.Debuggable;
+import me.hapyl.eterna.module.annotate.SelfReturn;
+import me.hapyl.fight.game.color.Color;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
-public class BaseAttributes implements Copyable {
-
-    public static final double DEFENSE_SCALING;
-    public static final double ATTACK_SPEED_SCALING;
-
-    private static final Map<DamageType, AttributeType> CAUSE_DAMAGE_BONUS_MAP;
-
-    static {
-        DEFENSE_SCALING = 0.5d;
-        ATTACK_SPEED_SCALING = Math.PI * 2 / 10;
-
-        CAUSE_DAMAGE_BONUS_MAP = Map.of(
-                DamageType.DIRECT_MELEE, AttributeType.DIRECT_DAMAGE_BONUS,
-                DamageType.DIRECT_RANGE, AttributeType.DIRECT_DAMAGE_BONUS,
-                DamageType.TALENT, AttributeType.TALENT_DAMAGE_BONUS,
-                DamageType.ULTIMATE, AttributeType.ULTIMATE_DAMAGE_BONUS
-        );
-    }
-
-    protected final Map<AttributeType, Double> mapped;
+public class BaseAttributes implements Iterable<AttributeView>, Debuggable {
+    
+    protected final Map<AttributeType, Double> attributes;
     protected final AttributeRandom random;
-
-    public BaseAttributes(@Nonnull LivingEntity entity) {
-        this();
-        setMaxHealth(entity.getHealth());
-    }
-
+    
     public BaseAttributes() {
-        mapped = Maps.newHashMap();
-        random = new AttributeRandom(this);
-
-        // write defaults
-        for (AttributeType value : AttributeType.values()) {
-            mapped.put(value, value.getDefaultValue());
+        this.attributes = Maps.newHashMap();
+        this.random = new AttributeRandom(this);
+        
+        // Write defaults
+        for (AttributeType type : AttributeType.values()) {
+            this.attributes.put(type, type.defaultValue());
         }
     }
-
-    /**
-     * Calculates the outgoing healing with the formula:
-     * <pre>
-     *     healing * mending
-     * </pre>
-     *
-     * @param healing - Healing.
-     * @return the calculated outgoing healing
-     */
-    public final double calculateOutgoingHealing(double healing) {
-        return healing * get(AttributeType.MENDING);
+    
+    public BaseAttributes(@Nonnull BaseAttributes other) {
+        this();
+        
+        // Copy base attributes
+        this.attributes.putAll(other.attributes);
     }
-
-    /**
-     * Calculates the incoming healing with the formula:
-     * <pre>
-     *     healing * vitality
-     * </pre>
-     *
-     * @param healing - Healing.
-     * @return the calculated incoming healing.
-     */
-    public final double calculateIncomingHealing(double healing) {
-        return healing * get(AttributeType.VITALITY);
-    }
-
-    /**
-     * Calculates the incoming damage with the formula:
-     * <pre>
-     *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
-     * </pre>
-     *
-     * @param damage  - Damage.
-     * @param damager - The damager.
-     * @param cause   - The cause.
-     * @return the calculated incoming damage.
-     */
-    public final double calculateIncomingDamage(double damage, @Nullable LivingGameEntity damager, @Nonnull DamageCause cause) {
-        // True damage assumed the defense is 0
-        if (cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
-            return calculateDefense(damage, 0.0d);
-        }
-
-        double defense = get(AttributeType.DEFENSE);
-
-        if (damager != null) {
-            defense *= (1 - damager.getAttributes().get(AttributeType.DEFENSE_IGNORE));
-        }
-
-        return calculateDefense(damage, defense);
-    }
-
-    /**
-     * Calculates the incoming damage with the formula:
-     * <pre>
-     *     damage / (defense * {@link #DEFENSE_SCALING} + (1 - ({@link #DEFENSE_SCALING}))
-     * </pre>
-     *
-     * @param damage - Damage.
-     * @return the calculated incoming damage.
-     */
-    public final double calculateDefense(double damage, double defense) {
-        return damage / (defense * DEFENSE_SCALING + (1 - DEFENSE_SCALING));
-    }
-
-    /**
-     * Calculates the outgoing damage with the formula:
-     * <pre>{@code
-     *      damage * attack * (1 + causeBonus)
-     * }</pre>
-     *
-     * @param damage - Damage.
-     * @param cause  - The damage cause.
-     * @return the calculated outgoing damage.
-     */
-    public final double calculateOutgoingDamage(double damage, @Nonnull DamageCause cause) {
-        return damage * AttributeType.ATTACK.get(this) + damageCauseBonus(cause);
-    }
-
-    /**
-     * Gets the damage bonus for the given cause or {@code 0} if not applicable to the given cause.
-     *
-     * @param cause - The cause.
-     * @return the damage bonus for the given cause or {@code 0} if not applicable to the given cause.
-     */
-    public final double damageCauseBonus(@Nonnull DamageCause cause) {
-        final AttributeType type = CAUSE_DAMAGE_BONUS_MAP.get(cause.type());
-
-        return type != null ? get(type) : 0.0d;
-    }
-
-    /**
-     * Calculates the range attack speed with the formula:
-     * <pre>
-     *     speed / (attackSpeed * {@link #ATTACK_SPEED_SCALING} + (1 - ({@link #ATTACK_SPEED_SCALING}))
-     * </pre>
-     */
-    public final int calculateRangeAttackSpeed(int speed) {
-        final double attackSpeed = get(AttributeType.ATTACK_SPEED);
-
-        return (int) Math.max(0, speed / (attackSpeed * ATTACK_SPEED_SCALING + (1 - ATTACK_SPEED_SCALING)));
-    }
-
-    public final boolean calculateDodge() {
-        return random.checkBound(AttributeType.DODGE);
-    }
-
-    public final boolean calculateCrowdControlResistance() {
-        return random.checkBound(AttributeType.EFFECT_RESISTANCE);
-    }
-
-    public final boolean isCritical() {
-        return random.checkBound(AttributeType.CRIT_CHANCE);
-    }
-
-    public final double scaleCritical(double damage, boolean isCritical) {
-        return isCritical ? damage + (damage * AttributeType.CRIT_DAMAGE.get(this)) : damage;
-    }
-
-    public final double calculateAttribute(@Nonnull AttributeType type, double mul) {
-        final double value = get(type);
-
-        return value == 0 ? 0 : value == 1 ? mul : value * mul;
-    }
-
-    public final double calculateAttributeScaled(@Nonnull AttributeType type, double mul) {
-        return calculateAttribute(type, mul * 100);
-    }
-
-    /**
-     * Gets the {@link AttributeType#MAX_HEALTH} value for this attribute.
-     *
-     * @return the max health.
-     */
-    public double getMaxHealth() {
-        return get(AttributeType.MAX_HEALTH);
-    }
-
-    /**
-     * Sets the {@link AttributeType#MAX_HEALTH} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setMaxHealth(double value) {
-        setValueScaled(AttributeType.MAX_HEALTH, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#ATTACK} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setAttack(double value) {
-        setValueScaled(AttributeType.ATTACK, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#DEFENSE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setDefense(double value) {
-        setValueScaled(AttributeType.DEFENSE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#SPEED} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setSpeed(double value) {
-        setValueScaled(AttributeType.SPEED, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#CRIT_CHANCE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setCritChance(double value) {
-        setValueScaled(AttributeType.CRIT_CHANCE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#CRIT_DAMAGE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setCritDamage(double value) {
-        setValueScaled(AttributeType.CRIT_DAMAGE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#FEROCITY} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setFerocity(double value) {
-        setValueScaled(AttributeType.FEROCITY, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#VITALITY} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setMending(double value) {
-        setValueScaled(AttributeType.MENDING, value);
-    }
-
-    public void setVitality(double value) {
-        setValueScaled(AttributeType.VITALITY, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#DODGE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setDodge(double value) {
-        setValueScaled(AttributeType.DODGE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#COOLDOWN_MODIFIER} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setCooldownModifier(double value) {
-        setValueScaled(AttributeType.COOLDOWN_MODIFIER, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#ATTACK_SPEED} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setAttackSpeed(double value) {
-        setValueScaled(AttributeType.ATTACK_SPEED, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#KNOCKBACK_RESISTANCE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setKnockbackResistance(double value) {
-        setValueScaled(AttributeType.KNOCKBACK_RESISTANCE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#EFFECT_RESISTANCE} value for this attribute.
-     *
-     * @param value - New value.
-     */
-    public void setEffectResistance(double value) {
-        setValueScaled(AttributeType.EFFECT_RESISTANCE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#HEIGHT} value for this attribute.
-     *
-     * @param value - New height.
-     */
-    public void setHeight(double value) {
-        setValueScaled(AttributeType.HEIGHT, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#ENERGY_RECHARGE} value for this attribute.
-     *
-     * @param value - New height.
-     */
-    public void setEnergyRecharge(double value) {
-        setValueScaled(AttributeType.ENERGY_RECHARGE, value);
-    }
-
-    /**
-     * Sets the {@link AttributeType#JUMP_STRENGTH} value for this attribute.
-     *
-     * @param value - New height.
-     */
-    public void setJumpStrength(double value) {
-        setValueScaled(AttributeType.JUMP_STRENGTH, value);
-    }
-
-    /**
-     * Gets or computes the value into the map.
-     *
-     * @param type - Type.
-     * @return the value.
-     */
+    
     public double get(@Nonnull AttributeType type) {
-        return Math.min(mapped.computeIfAbsent(type, t -> 0.0d), type.maxValue());
+        return attributes.getOrDefault(type, 0.0);
     }
-
-    /**
-     * Sets a new value to an attribute.
-     *
-     * @param type  - Attribute type.
-     * @param value - New value.
-     */
+    
+    public final double base(@Nonnull AttributeType type) {
+        return attributes.getOrDefault(type, 0.0);
+    }
+    
+    public double normalized(@Nonnull AttributeType type) {
+        return get(type) / 100;
+    }
+    
     public void set(@Nonnull AttributeType type, double value) {
-        mapped.put(type, value);
+        this.attributes.put(type, value);
     }
-
+    
+    public void add(@Nonnull AttributeType type, double value) {
+        set(type, base(type) + value);
+    }
+    
+    public void subtract(@Nonnull AttributeType type, double value) {
+        add(type, -value);
+    }
+    
+    @SelfReturn
     public BaseAttributes put(@Nonnull AttributeType type, double value) {
         set(type, value);
         return this;
     }
-
-    public BaseAttributes putScaled(@Nonnull AttributeType type, double value) {
-        setValueScaled(type, value);
-        return this;
-    }
-
-    public final void reset() {
-        mapped.clear();
-    }
-
-    /**
-     * Removes the value.
-     * <p>
-     * If {@link #get(AttributeType)} is called, it will compute the value to 0, NOT default.
-     *
-     * @param type - Type.
-     */
-    public final void reset(@Nonnull AttributeType type) {
-        mapped.remove(type);
-    }
-
-    public void forEach(@Nonnull BiConsumer<AttributeType, Double> consumer) {
-        for (AttributeType type : AttributeType.values()) { // use values to keep sorted
-            consumer.accept(type, get(type));
+    
+    public void reset() {
+        for (AttributeType type : AttributeType.values()) {
+            reset(type);
         }
     }
-
-    public void forEachNonZero(@Nonnull BiConsumer<AttributeType, Double> consumer) {
-        forEach((type, value) -> {
-            if (value > 0.0d) {
-                consumer.accept(type, value);
-            }
-        });
+    
+    public void reset(@Nonnull AttributeType type) {
+        this.attributes.put(type, type.defaultValue());
     }
-
-    public void forEachMandatoryAndNonDefault(@Nonnull BiConsumer<AttributeType, Double> consumer) {
-        forEach((type, value) -> {
-            final double defaultValue = type.getDefaultValue();
-            if (type.isMandatory() || value != defaultValue) {
-                consumer.accept(type, value);
-            }
-        });
+    
+    public void zero() {
+        this.attributes.replaceAll((type, value) -> 0.0);
     }
-
+    
+    public double getMaxHealth() {
+        return get(AttributeType.MAX_HEALTH);
+    }
+    
+    public void setMaxHealth(double value) {
+        set(AttributeType.MAX_HEALTH, value);
+    }
+    
+    public double getAttack() {
+        return get(AttributeType.ATTACK);
+    }
+    
+    public void setAttack(double value) {
+        set(AttributeType.ATTACK, value);
+    }
+    
+    public double getDefense() {
+        return get(AttributeType.DEFENSE);
+    }
+    
+    public void setDefense(double value) {
+        set(AttributeType.DEFENSE, value);
+    }
+    
+    public double getSpeed() {
+        return get(AttributeType.SPEED);
+    }
+    
+    public void setSpeed(double value) {
+        set(AttributeType.SPEED, value);
+    }
+    
+    public double getCritChance() {
+        return get(AttributeType.CRIT_CHANCE);
+    }
+    
+    public void setCritChance(double value) {
+        set(AttributeType.CRIT_CHANCE, value);
+    }
+    
+    public double getCritDamage() {
+        return get(AttributeType.CRIT_DAMAGE);
+    }
+    
+    public void setCritDamage(double value) {
+        set(AttributeType.CRIT_DAMAGE, value);
+    }
+    
+    public double getFerocity() {
+        return get(AttributeType.FEROCITY);
+    }
+    
+    public void setFerocity(double value) {
+        set(AttributeType.FEROCITY, value);
+    }
+    
+    public double getMending() {
+        return get(AttributeType.MENDING);
+    }
+    
+    public void setMending(double value) {
+        set(AttributeType.MENDING, value);
+    }
+    
+    public double getVitality() {
+        return get(AttributeType.VITALITY);
+    }
+    
+    public void setVitality(double value) {
+        set(AttributeType.VITALITY, value);
+    }
+    
+    public double getDodge() {
+        return get(AttributeType.DODGE);
+    }
+    
+    public void setDodge(double value) {
+        set(AttributeType.DODGE, value);
+    }
+    
+    public double getFatigue() {
+        return get(AttributeType.FATIGUE);
+    }
+    
+    public void setFatigue(double value) {
+        set(AttributeType.FATIGUE, value);
+    }
+    
+    public double getAttackSpeed() {
+        return get(AttributeType.ATTACK_SPEED);
+    }
+    
+    public void setAttackSpeed(double value) {
+        set(AttributeType.ATTACK_SPEED, value);
+    }
+    
+    public double getKnockbackResistance() {
+        return get(AttributeType.KNOCKBACK_RESISTANCE);
+    }
+    
+    public void setKnockbackResistance(double value) {
+        set(AttributeType.KNOCKBACK_RESISTANCE, value);
+    }
+    
+    public double getEffectResistance() {
+        return get(AttributeType.EFFECT_RESISTANCE);
+    }
+    
+    public void setEffectResistance(double value) {
+        set(AttributeType.EFFECT_RESISTANCE, value);
+    }
+    
+    public double getHeight() {
+        return get(AttributeType.HEIGHT);
+    }
+    
+    public void setHeight(double value) {
+        set(AttributeType.HEIGHT, value);
+    }
+    
+    public double getEnergyRecharge() {
+        return get(AttributeType.ENERGY_RECHARGE);
+    }
+    
+    public void setEnergyRecharge(double value) {
+        set(AttributeType.ENERGY_RECHARGE, value);
+    }
+    
+    public double getJumpStrength() {
+        return get(AttributeType.JUMP_STRENGTH);
+    }
+    
+    public void setJumpStrength(double value) {
+        set(AttributeType.JUMP_STRENGTH, value);
+    }
+    
+    public double getDirectDamageBonus() {
+        return get(AttributeType.DIRECT_DAMAGE_BONUS);
+    }
+    
+    public void setDirectDamageBonus(double value) {
+        set(AttributeType.DIRECT_DAMAGE_BONUS, value);
+    }
+    
+    public double getTalentDamageBonus() {
+        return get(AttributeType.TALENT_DAMAGE_BONUS);
+    }
+    
+    public void setTalentDamageBonus(double value) {
+        set(AttributeType.TALENT_DAMAGE_BONUS, value);
+    }
+    
+    public double getUltimateDamageBonus() {
+        return get(AttributeType.ULTIMATE_DAMAGE_BONUS);
+    }
+    
+    public void setUltimateDamageBonus(double value) {
+        set(AttributeType.ULTIMATE_DAMAGE_BONUS, value);
+    }
+    
     @Nonnull
-    public String getLore(AttributeType type) {
+    public final AttributeCalculator calculate() {
+        return new AttributeCalculator(this);
+    }
+    
+    @Nonnull
+    public String getLore(@Nonnull AttributeType type) {
         return " &7" + type.getName() + ": " + getStar(type);
     }
-
+    
     @Nonnull
-    public String getStar(AttributeType type) {
-        final double defaultValue = type.getDefaultValue();
-        final double value = get(type);
-
-        int scale = 1;
-        final double d = value / defaultValue;
-
-        if (d >= 0.75d && d < 1.0d) {
-            scale = 2;
-        }
-        else if (d == 1.0d) {
-            scale = 3;
-        }
-        else if (d > 1.0 && d <= 1.25d) {
-            scale = 4;
-        }
-        else if (d > 1.25d && d <= 1.5d) {
-            scale = 5;
-        }
-
-        final String character = type.attribute.getCharacter();
-        final ChatColor color = type.attribute.getColor();
-
-        return (color + character.repeat(scale)) + (ChatColor.DARK_GRAY + character.repeat(5 - scale));
+    public String getStar(@Nonnull AttributeType type) {
+        double defaultValue = type.defaultValue();
+        double value = get(type);
+        double ratio = value / defaultValue;
+        
+        final int star = Math.max(1, Math.min(5, (int) Math.round(3 * ratio)));
+        
+        final String character = type.getCharacter();
+        final Color color = type.getColor();
+        
+        return color + character.repeat(star) + Color.DARK_GRAY + character.repeat(5 - star);
     }
-
+    
     @Nonnull
     @Override
-    public BaseAttributes createCopy() {
-        final BaseAttributes copy = new BaseAttributes();
-        copy.mapped.putAll(mapped);
-
-        return copy;
+    public Iterator<AttributeView> iterator() {
+        return Stream.of(AttributeType.values())
+                     .map(attributeType -> new AttributeView(attributeType, get(attributeType)))
+                     .iterator();
     }
-
-    public int calculateAttackCooldown(double cooldown) {
-        return (int) (cooldown * (1 / get(AttributeType.ATTACK_SPEED)));
-    }
-
+    
+    @Nonnull
     @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder("{");
-
-        int i = 0;
-        for (AttributeType type : AttributeType.values()) {
-            if (i++ != 0) {
-                builder.append(", ");
-            }
-
-            final double v = get(type);
-            builder.append(" ").append(type.name()).append(" = ").append(v);
-        }
-
-        return builder.append("}").toString();
+    public String toDebugString() {
+        return "BaseAttributes{" +
+                "attributes=" + attributes.entrySet().stream().map(entry -> "%s=%.1f".formatted(entry.getKey().name(), entry.getValue())).toList() +
+                '}';
     }
-
-    private void setValueScaled(AttributeType type, double value) {
-        set(type, type.scaleDown(value));
-    }
-
 }

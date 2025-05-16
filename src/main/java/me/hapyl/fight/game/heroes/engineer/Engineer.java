@@ -9,12 +9,14 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
-import me.hapyl.fight.game.talents.engineer.Construct;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.game.ui.UIComponent;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.engineer.EngineerDispenser;
+import me.hapyl.fight.game.talents.engineer.EngineerSentry;
+import me.hapyl.fight.game.talents.engineer.MagneticAttractionPassive;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.ui.UIComplexComponent;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -22,269 +24,168 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
-public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComponent, DisplayFieldProvider {
-
-    public final Weapon ironFist = Weapon.builder(Material.IRON_BLOCK, Key.ofString("iron_fist"))
-            .name("&6&lIron Fist")
-            .damage(8.0d)
-            .build();
-
+public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComplexComponent, DisplayFieldProvider {
+    
+    public final Weapon ironFist = Weapon.createBuilder(Material.IRON_BLOCK, Key.ofString("iron_fist"))
+                                         .name("&6&lIron Fist")
+                                         .damage(8.0d)
+                                         .build();
+    
     @DisplayField public final double ultimateInWaterDamage = 10;
     @DisplayField public final int ultimateHitCd = 5;
-
-    protected final int maxIron = 10;
-    protected final int startIron = 2;
-
-    private final int ironRechargeRate = 60;
-    private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(player, this));
-
+    
+    private final PlayerDataMap<EngineerData> playerData = PlayerMap.newDataMap(player -> new EngineerData(this, player));
+    
     public Engineer(@Nonnull Key key) {
         super(key, "Engineer");
-
+        
         final HeroProfile profile = getProfile();
-        profile.setArchetypes(Archetype.STRATEGY);
-        profile.setGender(Gender.MALE); // male? robot, idk
-
+        profile.setArchetypes(Archetype.STRATEGY, Archetype.TALENT_DAMAGE, Archetype.SUPPORT);
+        profile.setGender(Gender.MALE);
+        
         setDescription("""
-                A Genius with 12 PhDs.
-                
-                He made all of his buildings himself, though he uses just two of those.
-                
-                And your best hope - Not pointed at you.
-                """);
+                       A Genius with 12 PhDs.
+                       
+                       Out of all his inventions, he only brought two to the fight, and your best hope is that they're pointing at you.
+                       """);
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
-
-        setWeapon(Weapon.builder(Material.IRON_HOE, Key.ofString("prototype_wrench"))
-                .name("Prototype Wrench")
-                .description("""
-                        A prototype wrench for all the needs.
-                        It... probably hurts to be hit with it.
-                        """
-                )
-                .damage(5.0d)
+        
+        setWeapon(Weapon.createBuilder(Material.IRON_HOE, Key.ofString("prototype_wrench"))
+                        .name("Prototype Wrench")
+                        .description("""
+                                     A prototype wrench for all the needs.
+                                     It... probably hurts to be hit with it.
+                                     """
+                        )
+                        .damage(5.0d)
         );
-
+        
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(255, 0, 0);
         equipment.setLeggings(0, 0, 0);
         equipment.setBoots(0, 0, 0);
-
+        
         setUltimate(new EngineerUltimate());
     }
-
-    @EventHandler()
-    public void handleEntityInteractEvent(PlayerInteractAtEntityEvent ev) {
-        final GamePlayer player = CF.getPlayer(ev.getPlayer());
-        final EquipmentSlot hand = ev.getHand();
-        final Talent passiveTalent = getPassiveTalent();
-
-        if (!validatePlayer(player) || hand == EquipmentSlot.OFF_HAND) {
-            return;
-        }
-
-        final ItemStack heldItem = player.getHeldItem();
-
-        // Didn't click with iron
-        if (heldItem.getType() != passiveTalent.getMaterial()) {
-            return;
-        }
-
-        final Entity entity = ev.getRightClicked();
-        final EngineerData data = getPlayerData(player);
-        final Construct construct = data.getConstruct();
-
-        if (construct == null || !construct.checkEntity(entity)) {
-            return;
-        }
-
-        // internal cd
-        if (player.cooldownManager.hasCooldown(passiveTalent)) {
-            return;
-        }
-
-        player.cooldownManager.setCooldown(passiveTalent, 10);
-
-        final int iron = data.getIron();
-
-        if (iron < construct.getUpgradeCost()) {
-            player.sendMessage("&6&l🔧 &cNot enough iron to upgrade!");
-            return;
-        }
-
-        if (!construct.levelUp()) {
-            return;
-        }
-
-        data.subtractIron(construct.getUpgradeCost());
-    }
-
+    
     @EventHandler()
     public void handlePlayerSwing(PlayerInteractEvent ev) {
         final GamePlayer player = CF.getPlayer(ev.getPlayer());
         final Action action = ev.getAction();
-
+        
         if (!validatePlayer(player) || ev.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
-
+        
         if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
             return;
         }
-
+        
         swingMechaHand(player);
     }
-
-    @Nullable
-    public Construct getConstruct(GamePlayer player) {
-        return getPlayerData(player).getConstruct();
-    }
-
+    
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer damager = instance.getDamagerAsPlayer();
-
+        
         swingMechaHand(damager);
     }
-
+    
     @Override
     public boolean processInvisibilityDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, double damage) {
+        // Ultimate makes the player themselves invisible
         return !player.isUsingUltimate();
     }
-
-    public int getIron(GamePlayer player) {
-        return getPlayerData(player).getIron();
-    }
-
-    public void subtractIron(GamePlayer player, int amount) {
-        addIron(player, -amount);
-    }
-
-    public void addIron(GamePlayer player, int amount) {
-        getPlayerData(player).addIron(amount);
-    }
-
+    
     @Override
     public void onStart(@Nonnull GameInstance instance) {
-        new GameTask() {
+        new TickingGameTask() {
             @Override
-            public void run() {
-                getAlivePlayers().forEach(player -> {
-                    if (player.isUsingUltimate()) {
-                        return;
-                    }
-
-                    addIron(player, 1);
-                });
+            public void run(int tick) {
+                playerData.values().forEach(data -> data.tick(tick));
             }
-        }.runTaskTimer(ironRechargeRate, ironRechargeRate);
+        }.runTaskTimer(0, 1);
     }
-
+    
     @Override
-    public Talent getFirstTalent() {
-        return TalentRegistry.ENGINEER_SENTRY;
-    }
-
-    @Override
-    public Talent getSecondTalent() {
+    public EngineerSentry getFirstTalent() {
         return TalentRegistry.ENGINEER_TURRET;
     }
-
-    @Nullable
+    
     @Override
-    public Talent getThirdTalent() {
-        return TalentRegistry.ENGINEER_RECALL;
+    public EngineerDispenser getSecondTalent() {
+        return TalentRegistry.ENGINEER_DISPENSER;
     }
-
+    
     @Override
-    public Talent getPassiveTalent() {
+    public MagneticAttractionPassive getPassiveTalent() {
         return TalentRegistry.ENGINEER_PASSIVE;
     }
-
+    
     @Nonnull
     @Override
     public EngineerUltimate getUltimate() {
         return (EngineerUltimate) super.getUltimate();
     }
-
-    public void removeConstruct(@Nonnull GamePlayer player) {
-        final EngineerData data = getPlayerData(player);
-        final Construct construct = data.setConstruct(null);
-
-        if (construct == null) {
-            return;
-        }
-
-        construct.remove();
-    }
-
-    public void setConstruct(@Nonnull GamePlayer player, @Nonnull Construct construct) {
-        final EngineerData data = getPlayerData(player);
-
-        data.setConstruct(construct);
-        construct.runTaskTimer(0, 1);
-    }
-
+    
     @Nonnull
     @Override
     public PlayerDataMap<EngineerData> getDataMap() {
         return playerData;
     }
-
-    @Nonnull
+    
+    @Nullable
     @Override
-    public String getString(@Nonnull GamePlayer player) {
-        final EngineerData data = getPlayerData(player);
-        final MechaIndustries mecha = data.getMechaIndustries();
-
-        return mecha != null ? mecha.toString() : "";
+    public List<String> getStrings(@Nonnull GamePlayer player) {
+        return getPlayerData(player).getStrings(player);
     }
-
+    
     private void swingMechaHand(GamePlayer player) {
         getPlayerData(player).swingMechaIndustriesHand();
     }
-
+    
     public class EngineerUltimate extends UltimateTalent {
-
+        
         @DisplayField public final double mechaHealth = 100;
         @DisplayField public final double mechaDefense = 150;
-
+        
         public EngineerUltimate() {
             super(Engineer.this, "Mecha-Industries", 50);
-
+            
             setDescription("""
-                    Instantly create a &fmech suit&7 and pilot it for {duration}.
-                    
-                    The suit provides &cattack&7 power.
-                    &8;;Looks like a wire sticking out of it, probably should keep away from water.
-                    """);
-
-            setItem(Material.IRON_SWORD);
+                           Instantly create a &fmech suit&7 and pilot it for {duration}.
+                           
+                           The suit provides &cattack&7 power, but you cannot use talents while piloting.
+                           &8&o;;Looks like a wire sticking out of it, probably should keep away from water.
+                           """);
+            
+            setType(TalentType.ENHANCE);
+            setTexture("b69d0d4711153a089c5567a749b27879c769d3bdcea6fda9d6f66e93dd8c4512");
+            
             setDurationSec(12);
             setCooldownSec(35);
+            
             setSound(Sound.BLOCK_ANVIL_USE, 0.25f);
-
         }
-
+        
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 final EngineerData data = getPlayerData(player);
                 data.createMechaIndustries(Engineer.this);
-
-                player.schedule(data::removeMechaIndustries, getUltimateDuration());
+                
+                player.schedule(data::removeMechaIndustries, getUltimate().getDuration());
             });
         }
     }

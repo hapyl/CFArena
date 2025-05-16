@@ -23,7 +23,8 @@ public class EntityPacketFactory implements PacketFactory {
 
     public final void sendPacket(@Nonnull Packet<?> packet) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if (entity.is(player)) {
+            // Don't send packets to self
+            if (entity.getEntity().equals(player)) {
                 return;
             }
 

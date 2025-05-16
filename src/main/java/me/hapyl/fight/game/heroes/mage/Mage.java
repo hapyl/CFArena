@@ -120,7 +120,7 @@ public class Mage extends Hero implements UIComponent {
                     """.formatted(spellWyvernHeart.getFormatted(), spellDragonSkin.getFormatted())
             );
 
-            setItem(Material.WRITABLE_BOOK);
+            setMaterial(Material.WRITABLE_BOOK);
             setType(TalentType.ENHANCE);
 
             setManualDuration();
@@ -129,7 +129,7 @@ public class Mage extends Hero implements UIComponent {
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 player.setUsingUltimate(true);
 

@@ -70,7 +70,7 @@ public class KillingMachine extends Hero implements Disabled {
 
         @Nonnull
         @Override
-        public UltimateInstance newInstance(@Nonnull GamePlayer player) {
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
             });
         }

@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx.beam;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
