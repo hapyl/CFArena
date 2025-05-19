@@ -33,7 +33,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
     public RateHeroCommand(String name) {
         super(name);
 
-        setCooldownTick(Tick.fromSecond(10));
+        setCooldownTick(Tick.fromSeconds(10));
     }
 
     @Override

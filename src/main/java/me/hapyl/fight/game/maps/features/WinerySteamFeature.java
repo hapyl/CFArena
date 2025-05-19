@@ -20,15 +20,15 @@ public class WinerySteamFeature extends LevelFeature {
         geysers = Sets.newHashSet();
 
         createGeyser(4982, 67, 14, Direction.NORTH)
-                .setMinDelay(Tick.fromSecond(8))
-                .setMaxDelay(Tick.fromSecond(16))
-                .setDuration(Tick.fromSecond(2))
+                .setMinDelay(Tick.fromSeconds(8))
+                .setMaxDelay(Tick.fromSeconds(16))
+                .setDuration(Tick.fromSeconds(2))
                 .setRange(6);
 
         createGeyser(4983, 67, 21, Direction.EAST)
-                .setMinDelay(Tick.fromSecond(8))
-                .setMaxDelay(Tick.fromSecond(16))
-                .setDuration(Tick.fromSecond(2))
+                .setMinDelay(Tick.fromSeconds(8))
+                .setMaxDelay(Tick.fromSeconds(16))
+                .setDuration(Tick.fromSeconds(2))
                 .setRange(4);
 
         createGeyser(4986, 62, 27, Direction.DOWN);

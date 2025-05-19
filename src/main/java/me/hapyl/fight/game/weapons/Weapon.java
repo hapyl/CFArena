@@ -370,7 +370,7 @@ public class Weapon
     }
     
     @Nonnull
-    public static Builder createBuilder(@Nonnull Material material, @Nonnull Key key) {
+    public static Builder builder(@Nonnull Material material, @Nonnull Key key) {
         return new Builder(material, key);
     }
     

@@ -75,7 +75,7 @@ public class PlayerUI extends TickingGameTask {
         
         // Create tablist
         this.tablist = new PlayerTablist(this);
-        this.tablist.show(player);
+        this.tablist.show();
         
         if (EnumSetting.HIDE_UI.isEnabled(player)) {
             hideScoreboard();

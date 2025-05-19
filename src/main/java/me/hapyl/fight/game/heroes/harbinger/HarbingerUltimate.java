@@ -39,7 +39,7 @@ public class HarbingerUltimate extends UltimateTalent {
     
     @DisplayField(scale = 0.001) private final long flowThreshold = 3_000L;
     @DisplayField private final double arrowSpeed = 250;
-    @DisplayField private final int maxFlightDuration = Tick.fromSecond(10);
+    @DisplayField private final int maxFlightDuration = Tick.fromSeconds(10);
     
     @DisplayField private final double typhoonDamageBank = 300;
     @DisplayField private final double typhoonDamage = 20;

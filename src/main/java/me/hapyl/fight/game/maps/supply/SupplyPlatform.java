@@ -30,7 +30,7 @@ public class SupplyPlatform implements Ticking, Removable {
                 "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:smooth_stone_slab\",Properties:{type:\"bottom\"}},transformation:[1f,0f,0f,-0.5f,0f,1f,0f,-0.375f,0f,0f,1f,-0.5f,0f,0f,0f,1f]}]}"
         );
         
-        displayThreshold = Tick.fromSecond(30);
+        displayThreshold = Tick.fromSeconds(30);
     }
     
     private final Supply supply;

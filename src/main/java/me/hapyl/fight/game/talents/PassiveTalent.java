@@ -16,7 +16,12 @@ public class PassiveTalent extends Talent {
         setType(TalentType.ENHANCE); // Default passives to enhance because most of them are
         setPoint(0);                 // Passive talents don't regen ultimate
     }
-
+    
+    @Override
+    public final double pointCooldownRatio() {
+        return 0;
+    }
+    
     @Override
     public final @Nullable Response execute(@Nonnull GamePlayer player) {
         player.sendMessage(Message.ERROR, "Do not execute passive talents!");

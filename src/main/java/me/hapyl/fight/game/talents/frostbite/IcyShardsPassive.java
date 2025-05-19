@@ -23,7 +23,7 @@ public class IcyShardsPassive extends PassiveTalent {
     
     @DisplayField public final double chance = 0.25d;
     
-    @DisplayField private final int impairDuration = Tick.fromSecond(6);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(6);
     @DisplayField private final short icicles = 8;
     @DisplayField private final double damage = 3.0d;
     @DisplayField private final double startDistance = 0.75f;

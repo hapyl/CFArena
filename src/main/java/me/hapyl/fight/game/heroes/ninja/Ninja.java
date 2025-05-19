@@ -56,7 +56,7 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
             .withCooldown(10)
             .build();
     
-    private final int doubleJumpCooldown = Tick.fromSecond(5);
+    private final int doubleJumpCooldown = Tick.fromSeconds(5);
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("shadowstrike"));
     
     public Ninja(@Nonnull Key key) {

@@ -35,7 +35,7 @@ public class BatSwarm extends Talent {
     @DisplayField private final double hitboxSize = 1.5d;
     
     @DisplayField(percentage = true) private final double healthDecrease = -0.1;
-    @DisplayField private final int impairDuration = Tick.fromSecond(8);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(8);
     @DisplayField private final int affectPeriod = 2;
     
     public BatSwarm(@Nonnull Key key) {

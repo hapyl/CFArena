@@ -21,7 +21,7 @@ public abstract class AlchemistPotion implements Timed, Described {
     private final int intoxication;
     private final Color potionColor;
 
-    private final int duration = Tick.fromSecond(10);
+    private final int duration = Tick.fromSeconds(10);
 
     private String description = "set description";
     private ItemStack potionItem;

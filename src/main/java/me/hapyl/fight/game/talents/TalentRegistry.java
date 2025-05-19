@@ -8,6 +8,7 @@ import me.hapyl.fight.game.heroes.aurora.Aurora;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
+import me.hapyl.fight.game.heroes.dylan.Dylan;
 import me.hapyl.fight.game.heroes.doctor.DrEd;
 import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;
@@ -71,6 +72,7 @@ import me.hapyl.fight.game.talents.dark_mage.*;
 import me.hapyl.fight.game.talents.doctor.BlockMaelstromPassive;
 import me.hapyl.fight.game.talents.doctor.ConfusionPotion;
 import me.hapyl.fight.game.talents.doctor.HarvestBlocks;
+import me.hapyl.fight.game.talents.dylan.*;
 import me.hapyl.fight.game.talents.echo.EchoTrapTalent;
 import me.hapyl.fight.game.talents.echo.EchoWorldTalent;
 import me.hapyl.fight.game.talents.ender.EnderPassive;
@@ -530,7 +532,17 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
     public static final DemonSplitTalentQuazii DEMON_SPLIT_QUAZII;
     public static final DemonSplitTalentTyphoeus DEMON_SPLIT_TYPHOEUS;
     public static final DemonKindPassiveTalent DEMON_KIND;
-
+    
+    /**
+     * {@link Dylan}
+     */
+    public static final SummonWhelp SUMMON_WHELP;
+    public static final HellfireWard HELLFIRE_WARD;
+    public static final Blightwhirl BLIGHTWHIRL;
+    public static final WhelpAttack WHELP_ATTACK;
+    
+    public static final DylanPassive DYLAN_PASSIVE;
+    
     /*/ don't put anything below here /*/
     private static final Set<Talent> values;
 
@@ -757,6 +769,13 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         DEMON_SPLIT_QUAZII = register("demon_split_quazii", DemonSplitTalentQuazii::new);
         DEMON_SPLIT_TYPHOEUS = register("demon_split_typhoeus", DemonSplitTalentTyphoeus::new);
         DEMON_KIND = register("demon_kind", DemonKindPassiveTalent::new);
+        
+        SUMMON_WHELP = register("summon_whelp", SummonWhelp::new);
+        HELLFIRE_WARD = register("hellfire_ward", HellfireWard::new);
+        BLIGHTWHIRL  = register("blightwhirl", Blightwhirl::new);
+        WHELP_ATTACK = register("whelp_attack", WhelpAttack::new);
+        
+        DYLAN_PASSIVE = register("dylan_passive", DylanPassive::new);
     }
 
     @Nonnull
@@ -779,8 +798,8 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
         return AbstractStaticRegistry.ofStringOrNull(values, string);
     }
 
-    private static <E extends Talent> E register(@Nonnull String string, @Nonnull KeyFunction<E> fn) {
-        final E talent = fn.apply(Key.ofString(string));
+    private static <E extends Talent> E register(@Nonnull String key, @Nonnull KeyFunction<E> fn) {
+        final E talent = fn.apply(Key.ofString(key));
 
         values.add(talent);
         return talent;

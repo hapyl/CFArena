@@ -11,7 +11,7 @@ import org.bukkit.Material;
 public class NinjaWeapon extends Weapon {
 
     public final Weapon noAbilityWeapon;
-    @DisplayField public final int stunCd = Tick.fromSecond(10);
+    @DisplayField public final int stunCd = Tick.fromSeconds(10);
 
     public NinjaWeapon() {
         super(Material.STONE_SWORD, Key.ofString("ninja_sword_strong"));

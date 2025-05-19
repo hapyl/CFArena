@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 public class MalevolentHitshieldTalent extends Talent {
 
     @DisplayField private final short shieldStrength = 7;
-    @DisplayField private final int cooldown = Tick.fromSecond(30);
+    @DisplayField private final int cooldown = Tick.fromSeconds(30);
 
     public MalevolentHitshieldTalent(@Nonnull Key key) {
         super(key, "Malevolent Hitshield");

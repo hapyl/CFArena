@@ -30,7 +30,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
 
     @DisplayField protected final double cloneDamage = 10.0d;
     @DisplayField protected final double defenseReduction = -0.4d;
-    @DisplayField protected final int defenseReductionDuration = Tick.fromSecond(6);
+    @DisplayField protected final int defenseReductionDuration = Tick.fromSeconds(6);
     @DisplayField protected final short cloneLimit = 3;
     @DisplayField protected final short energyRegen = 25;
 

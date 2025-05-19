@@ -38,7 +38,7 @@ public class ExtraCut extends Talent {
     @DisplayField private final double step = 1.75d;
     @DisplayField private final double damage = 15.0d;
     @DisplayField private final double speedDecrease = -75;
-    @DisplayField private final int impairDuration = Tick.fromSecond(2);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(2);
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("throwing_knife"), true);
     

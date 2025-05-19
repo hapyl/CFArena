@@ -12,7 +12,7 @@ import javax.annotation.Nonnull;
 
 public class SwooperPassive extends PassiveTalent {
 
-    @DisplayField public final int sneakThreshold = Tick.fromSecond(3);
+    @DisplayField public final int sneakThreshold = Tick.fromSeconds(3);
     @DisplayField public final double stealthDamageMultiplier = 2.0d;
     @DisplayField(suffix = " blocks") public final double maxNestStrayDistance = 1.0d;
 

@@ -17,7 +17,7 @@ public class AlchemistPotionHealing extends AlchemistPotion {
     private final double healing = 30;
     private final double extraHealing = 10;
 
-    private final int extraHealingThreshold = Tick.fromSecond(3);
+    private final int extraHealingThreshold = Tick.fromSeconds(3);
 
     public AlchemistPotionHealing() {
         super("Potion of Healing", 20, Color.fromRGB(209, 13, 19));

@@ -42,6 +42,7 @@ public enum Named implements NamedColoredPrefixed {
     MOONLIT_ZONE("\uD83C\uDF19", "Moonlit Zone", Color.MOON),
     OMEN("&4&l👻", "Omen", Color.DARK_RED),
     SHAMANS_MARK("&2&l\uD83D\uDC38", "Shaman's Mark", Color.ITS_WEDNESDAY_MY_DUDES),
+    SCORCH("♨", "Scorch", Color.SCORCH),
     
     ;
 

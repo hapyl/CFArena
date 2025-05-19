@@ -53,7 +53,7 @@ public class Nightmare extends Hero implements DisplayFieldProvider, PlayerDataH
         setDescription("A spirit from the worst nightmares, blinds enemies and strikes from behind!");
         setItem("79c55e0e4af71824e8da68cde87de717b214f92e9949c4b16da22b357f97b1fc");
         
-        setWeapon(Weapon.createBuilder(Material.NETHERITE_SWORD, Key.ofString("oathbreaker"))
+        setWeapon(Weapon.builder(Material.NETHERITE_SWORD, Key.ofString("oathbreaker"))
                         .name("Oathbreaker")
                         .description("A sword that is capable of splitting dreams in half.")
                         .damage(7.0d)

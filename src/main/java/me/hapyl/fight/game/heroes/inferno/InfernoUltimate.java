@@ -43,7 +43,7 @@ public class InfernoUltimate extends UltimateTalent implements Listener {
     @DisplayField protected final short pillarHeight = 4;
     protected final int pillarHealthHeightDifference = pillarHealth / pillarHeight;
 
-    @DisplayField protected final int explosionDelay = Tick.fromSecond(12);
+    @DisplayField protected final int explosionDelay = Tick.fromSeconds(12);
     @DisplayField(suffix = " blocks") protected final double explosionRadius = 50;
     @DisplayField(percentage = true, suffix = " of Max Health") protected final double damage = 20.0;
 

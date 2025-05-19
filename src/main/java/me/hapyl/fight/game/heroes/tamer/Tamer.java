@@ -75,7 +75,7 @@ public class Tamer extends Hero implements Listener, UIComponent, PlayerDataHand
         equipment.setLeggings(48, 119, 227);
         equipment.setBoots(38, 0, 0);
         
-        setWeapon(Weapon.createBuilder(Material.FISHING_ROD, Key.ofString("tamer_weapon"))
+        setWeapon(Weapon.builder(Material.FISHING_ROD, Key.ofString("tamer_weapon"))
                         .name("Lash")
                         .description("An old lash used to train beasts and monsters.")
                         .damage(2.0d)); // This is melee damage, weapon damage is handled in the event

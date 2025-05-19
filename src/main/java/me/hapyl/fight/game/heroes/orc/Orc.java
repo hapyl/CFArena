@@ -78,7 +78,7 @@ public class Orc extends Hero implements Listener, Disabled {
         }
         
         if (damageMap.computeIfAbsent(player, DamageData::new).addHitAndCheck()) {
-            enterBerserk(player, Tick.fromSecond(3));
+            enterBerserk(player, Tick.fromSeconds(3));
         }
     }
     

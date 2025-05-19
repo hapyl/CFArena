@@ -75,7 +75,7 @@ public class Vampire extends Hero implements Listener {
         equipment.setChestPlate(191, 57, 66, TrimPattern.COAST, TrimMaterial.NETHERITE);
         equipment.setLeggings(191, 57, 66, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         
-        setWeapon(Weapon.createBuilder(Material.GHAST_TEAR, Key.ofString("vampires_fang"))
+        setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang"))
                         .name("Vampire's Fang")
                         .description("""
                                      A very sharp fang.
@@ -129,7 +129,7 @@ public class Vampire extends Hero implements Listener {
     
     private class VampireUltimate extends UltimateTalent {
         
-        @DisplayField private final int batsDuration = Tick.fromSecond(20);
+        @DisplayField private final int batsDuration = Tick.fromSeconds(20);
         
         @DisplayField private final int armyCount = 11;
         @DisplayField private final double homingSpeed = 0.5d;

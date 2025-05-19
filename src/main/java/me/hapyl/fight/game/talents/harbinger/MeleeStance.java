@@ -35,7 +35,7 @@ public class MeleeStance extends Talent {
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("melee_stance"), false);
     
-    private final Weapon abilityItem = Weapon.createBuilder(Material.DIAMOND_SWORD, Key.ofString("raging_blade"))
+    private final Weapon abilityItem = Weapon.builder(Material.DIAMOND_SWORD, Key.ofString("raging_blade"))
                                              .name(Color.STANCE_RANGE + "Raging Blade")
                                              .description("A blade forged from pure water.")
                                              .damage(8.0d)

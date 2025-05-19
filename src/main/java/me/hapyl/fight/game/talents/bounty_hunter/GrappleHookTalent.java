@@ -30,7 +30,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
     @DisplayField protected final double strafeStrength = 0.5;
     
     @DisplayField protected final short cutsToRemove = 3;
-    @DisplayField protected final int maxAirTicks = Tick.fromSecond(8);
+    @DisplayField protected final int maxAirTicks = Tick.fromSeconds(8);
     
     @DisplayField private final int cooldown = 200;
     

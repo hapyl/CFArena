@@ -178,7 +178,7 @@ public class Shaman extends Hero implements PlayerDataHandler<ShamanData>, UICom
         
         @DisplayField private final double increaseRadius = 7.5d;
         @DisplayField private final double effectResIncrease = 50;
-        @DisplayField private final int effectResIncreaseDuration = Tick.fromSecond(12);
+        @DisplayField private final int effectResIncreaseDuration = Tick.fromSeconds(12);
         
         private final ModifierSource modifierSource = new ModifierSource(Key.ofString("spiritual_cleansing"));
         

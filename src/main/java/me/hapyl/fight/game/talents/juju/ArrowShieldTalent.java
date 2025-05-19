@@ -38,7 +38,7 @@ public class ArrowShieldTalent extends Talent implements Listener {
     @DisplayField private final double explosionRadius = 5.0;
     @DisplayField private final double explosionDamage = 5.0;
     
-    @DisplayField private final int poisonDuration = Tick.fromSecond(3);
+    @DisplayField private final int poisonDuration = Tick.fromSeconds(3);
     
     @DisplayField private final short shieldCharges = 5;
     @DisplayField private final short poisonStrength = 2;

@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 
 public class BloodfiendPassive extends PassiveTalent {
 
-    @DisplayField public final int biteDuration = Tick.fromSecond(15);
+    @DisplayField public final int biteDuration = Tick.fromSeconds(15);
     @DisplayField(percentage = true) public final double healthDeduction = -0.1;
 
     public BloodfiendPassive(@Nonnull Key key) {

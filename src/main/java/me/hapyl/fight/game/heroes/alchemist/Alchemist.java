@@ -48,7 +48,7 @@ import static org.bukkit.Sound.*;
 
 public class Alchemist extends Hero implements UIComplexComponent, PlayerDataHandler<AlchemistData>, Listener {
     
-    public final Weapon stickMissing = Weapon.createBuilder(Material.CLAY_BALL, Key.ofString("alchemist_stick_missing"))
+    public final Weapon stickMissing = Weapon.builder(Material.CLAY_BALL, Key.ofString("alchemist_stick_missing"))
                                              .name("&4The Stick is Missing!")
                                              .description("""
                                                           Your stick is currently brewing a potion!
@@ -62,7 +62,7 @@ public class Alchemist extends Hero implements UIComplexComponent, PlayerDataHan
     private final PlayerDataMap<AlchemistData> playerData = PlayerMap.newDataMap(AlchemistData::new);
     private final Set<AbyssalCurse> curseSet = Sets.newHashSet();
     
-    private final int alchemicalMadnessPositiveDuration = Tick.fromSecond(20);
+    private final int alchemicalMadnessPositiveDuration = Tick.fromSeconds(20);
     private final int alchemicalMadnessNegativeDuration = alchemicalMadnessPositiveDuration / 2;
     
     private final AlchemistEffect[][] alchemicalMadnessEffects;

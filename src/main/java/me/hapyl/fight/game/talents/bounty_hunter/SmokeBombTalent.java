@@ -31,7 +31,7 @@ public class SmokeBombTalent extends Talent {
     @DisplayField private final double smokeRadius = 3.0d;
     
     @DisplayField private final double speedIncrease = 50;
-    @DisplayField private final int speedIncreaseDuration = Tick.fromSecond(3);
+    @DisplayField private final int speedIncreaseDuration = Tick.fromSeconds(3);
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("smoke_bomb"));
     
@@ -83,7 +83,7 @@ public class SmokeBombTalent extends Talent {
     }
     
     @Override
-    public boolean hasCooldown(@Nonnull GamePlayer player) {
+    public boolean isOnCooldown(@Nonnull GamePlayer player) {
         // Never has cooldown, special ability just like all of bh abilities what the fuck is she so special or something
         return false;
     }

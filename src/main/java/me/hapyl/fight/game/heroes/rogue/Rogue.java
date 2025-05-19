@@ -67,7 +67,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
         equipment.setLeggings(36, 14, 4, TrimPattern.DUNE, TrimMaterial.NETHERITE);
         equipment.setBoots(23, 7, 0, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
 
-        setWeapon(Weapon.createBuilder(Material.GOLDEN_SWORD, Key.ofString("scarificial_dagger"))
+        setWeapon(Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("scarificial_dagger"))
                         .name("Sacrificial Dagger")
                         .description("""
                                 An ornate ceremonial dagger.
@@ -137,7 +137,7 @@ public class Rogue extends Hero implements PlayerDataHandler<RogueData>, UICompo
 
         @DisplayField private final double explosionRadius = 4.0d;
         @DisplayField private final double explosionDamage = 30.0d;
-        @DisplayField private final int maxExplosionDelay = Tick.fromSecond(4);
+        @DisplayField private final int maxExplosionDelay = Tick.fromSeconds(4);
         @DisplayField private final double magnitude = 1.3d;
         @DisplayField private final int bleedDuration = 60;
 

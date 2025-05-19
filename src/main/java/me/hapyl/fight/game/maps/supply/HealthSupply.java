@@ -16,7 +16,7 @@ public class HealthSupply extends Supply {
     private final double healingPercent = 0.2;
     
     HealthSupply() {
-        super(Tick.fromMinute(3), "Health", "466a5f7bcd3c1c225a9366eee6dfab1cc66a6bf7363fed087512e6ef47a1d");
+        super(Tick.fromMinutes(3), "Health", "466a5f7bcd3c1c225a9366eee6dfab1cc66a6bf7363fed087512e6ef47a1d");
         
         setDescription("""
                        Instantly heals for &c%.0f%%&7 of %s.

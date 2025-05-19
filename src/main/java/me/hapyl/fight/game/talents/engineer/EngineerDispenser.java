@@ -26,7 +26,7 @@ public class EngineerDispenser extends EngineerConstructTalent {
             Supplies.CRIT
     };
     
-    @DisplayField private final int spawnPeriod = Tick.fromSecond(8);
+    @DisplayField private final int spawnPeriod = Tick.fromSeconds(8);
     
     public EngineerDispenser(@Nonnull Key key) {
         super(

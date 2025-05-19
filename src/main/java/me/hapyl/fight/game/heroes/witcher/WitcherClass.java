@@ -54,7 +54,7 @@ public class WitcherClass extends Hero implements UIComponent, Disabled {
         equipment.setLeggings(60, 66, 69, TrimPattern.RIB, TrimMaterial.COPPER);
         equipment.setBoots(102, 55, 38, TrimPattern.SILENCE, TrimMaterial.COPPER);
         
-        setWeapon(Weapon.createBuilder(Material.IRON_SWORD, Key.ofString("aerondight"))
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("aerondight"))
                         .name("Aerondight")
                         .description("""
                                      Light, sharp as a razor, and fits the hand neatly.

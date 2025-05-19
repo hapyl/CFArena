@@ -1,29 +1,35 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.fight.game.entity.GamePlayer;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Response {
     
-    public static final Response OK = new Response(null, Type.OK);
-    public static final Response ERROR = new Response(null, Type.ERROR);
-    public static final Response AWAIT = new Response(null, Type.AWAIT);
+    public static final Response OK = new Response("", Type.OK);
+    public static final Response ERROR = new Response("", Type.ERROR);
+    public static final Response AWAIT = new Response("", Type.AWAIT);
+    
     public static final Response ERROR_DEFAULT = error("Incomplete talent, report this!");
     public static final Response DEPRECATED = error("Deprecated talent.");
     
     private final String reason;
     private final Type type;
     
-    public Response(String reason, Type type) {
+    private Response(@Nonnull String reason, @Nonnull Type type) {
         this.reason = reason;
         this.type = type;
     }
     
-    @Nullable
-    public String getReason() {
+    @Nonnull
+    public String reason() {
         return reason;
+    }
+    
+    @Nonnull
+    public Type type() {
+        return type;
     }
     
     public boolean isOk() {
@@ -39,7 +45,7 @@ public class Response {
     }
     
     public void sendError(@Nonnull GamePlayer player) {
-        if (isError() && reason != null) {
+        if (isError() && !reason.isEmpty()) {
             player.sendMessage("&8[&c❌&8] &4" + reason);
         }
     }
@@ -59,6 +65,7 @@ public class Response {
     }
     
     @Nonnull
+    @ApiStatus.Obsolete // Just use static constant
     public static Response ok() {
         return OK;
     }

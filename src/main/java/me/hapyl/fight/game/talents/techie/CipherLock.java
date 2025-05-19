@@ -25,8 +25,8 @@ import javax.annotation.Nullable;
 
 public class CipherLock extends TechieTalent {
     
-    @DisplayField private final double maxFlightTime = Tick.fromSecond(3);
-    @DisplayField private final int impairDuration = Tick.fromSecond(20);
+    @DisplayField private final double maxFlightTime = Tick.fromSeconds(3);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(20);
     
     @DisplayField(percentage = true) private final double attackDecrease = -0.2;
     @DisplayField private final double speedDecrease = -20;

@@ -2,10 +2,7 @@ package me.hapyl.fight.game.ui;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.tablist.EntryList;
-import me.hapyl.eterna.module.player.tablist.EntryTexture;
-import me.hapyl.eterna.module.player.tablist.PingBars;
-import me.hapyl.eterna.module.player.tablist.Tablist;
+import me.hapyl.eterna.module.player.tablist.*;
 import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
@@ -35,6 +32,7 @@ import me.hapyl.fight.store.StoreOffer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -58,7 +56,9 @@ public class PlayerTablist extends Tablist {
     private final Manager manager;
     private final Store store;
 
-    public PlayerTablist(PlayerUI ui) {
+    public PlayerTablist(@Nonnull PlayerUI ui) {
+        super(ui.getPlayer());
+        
         this.ui = ui;
         this.profile = ui.profile;
         this.player = ui.getPlayer();
@@ -108,7 +108,7 @@ public class PlayerTablist extends Tablist {
 
         // TODO (Tue, Aug 27 2024 @xanyjl): Add ...and N more if there are a lot of players
 
-        setColumn(0, entryList);
+        setColumn(TablistColumn.FIRST, entryList);
     }
 
     private void updateSystem() {
@@ -195,7 +195,7 @@ public class PlayerTablist extends Tablist {
             entryList.append("&8- " + (isStoreUnlocked ? offer.toString() : "???"));
         }
 
-        setColumn(1, entryList);
+        setColumn(TablistColumn.SECOND, entryList);
     }
 
     private void updateTheEye() {
@@ -275,7 +275,7 @@ public class PlayerTablist extends Tablist {
             entryList.append("  &7&o%s".formatted(challenge.getDescription()));
         }
 
-        setColumn(2, entryList);
+        setColumn(TablistColumn.THIRD, entryList);
     }
 
     private void updateStatistics() {
@@ -295,7 +295,7 @@ public class PlayerTablist extends Tablist {
 
         forEachStats(stat -> statisticEntry.getHeroStat(hero, stat), entryList);
 
-        setColumn(3, entryList);
+        setColumn(TablistColumn.FOURTH, entryList);
     }
 
     private void forEachStats(Function<StatType, Double> fn, EntryList list) {

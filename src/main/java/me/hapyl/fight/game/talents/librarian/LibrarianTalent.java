@@ -13,8 +13,6 @@ import javax.annotation.Nullable;
 
 public abstract class LibrarianTalent extends Talent {
 
-    protected Response ERROR = new Response(null, Response.Type.ERROR);
-
     public LibrarianTalent(@Nonnull Key key, @Nonnull String name) {
         super(key, name);
 
@@ -27,7 +25,7 @@ public abstract class LibrarianTalent extends Talent {
     @Override
     public final @Nullable Response execute(@Nonnull GamePlayer player) {
         if (HeroRegistry.LIBRARIAN.hasICD(player)) {
-            return ERROR; // should never happen
+            return Response.DEPRECATED; // should never happen
         }
 
         final Response response = executeGrimoire(player);

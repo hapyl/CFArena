@@ -51,7 +51,7 @@ public class Troll extends Hero implements Listener, PlayerDataHandler<TrollData
         equipment.setLeggings(255, 204, 84);
         equipment.setBoots(255, 204, 84);
 
-        setWeapon(Weapon.createBuilder(Material.STICK, Key.ofString("stickonator"))
+        setWeapon(Weapon.builder(Material.STICK, Key.ofString("stickonator"))
                         .name("Stickonator")
                         .description("""
                                 - What's brown and sticky?

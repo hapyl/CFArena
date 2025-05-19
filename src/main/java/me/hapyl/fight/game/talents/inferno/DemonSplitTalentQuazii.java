@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 public class DemonSplitTalentQuazii extends DemonSplitTalent {
 
     @DisplayField(percentage = true) private final double decayPercent = 0.25d;
-    @DisplayField private final int decayDuration = Tick.fromSecond(8);
+    @DisplayField private final int decayDuration = Tick.fromSeconds(8);
 
     @DisplayField(percentage = true) private final double healingPerEnemyHit = 0.3d;
 

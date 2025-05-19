@@ -46,7 +46,7 @@ public class BalloonGadgetCosmetic extends Gadget implements Listener {
 
     private final PotionEffect potionEffect = new PotionEffect(PotionEffectType.LEVITATION, 2, 1, false, false, false);
 
-    private final int duration = Tick.fromSecond(10);
+    private final int duration = Tick.fromSeconds(10);
     private final int balloonAnimationDuration = 10;
 
     private final double balloonStartingSize = 0.3d;

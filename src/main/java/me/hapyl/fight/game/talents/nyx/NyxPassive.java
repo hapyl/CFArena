@@ -34,7 +34,7 @@ public class NyxPassive extends PassiveTalent {
     @DisplayField(percentage = true) private final double shieldCapacityScaling = 0.10d;
     @DisplayField(percentage = true) private final double damageScaling = 0.065d;
     
-    @DisplayField private final int buffDuration = Tick.fromSecond(6);
+    @DisplayField private final int buffDuration = Tick.fromSeconds(6);
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("reverberation"));
     
     public NyxPassive(@Nonnull Key key) {

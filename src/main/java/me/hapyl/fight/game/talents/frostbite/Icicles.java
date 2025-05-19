@@ -39,7 +39,7 @@ public class Icicles extends Talent {
     @DisplayField private final double critDamageReduction = -50;
     @DisplayField(percentage = true) private final double attackReduction = -0.15d;
     
-    @DisplayField private final int debuffDuration = Tick.fromSecond(10);
+    @DisplayField private final int debuffDuration = Tick.fromSeconds(10);
     
     private final Random random = new Random();
     private final ItemStack[] fxItems = {

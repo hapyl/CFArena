@@ -23,7 +23,7 @@ public class EtherealArrow extends AuroraArrowTalent {
     @DisplayField(percentage = true) public final double critDamageBoost = 0.2;
     
     @DisplayField public final short maxStacks = 3;
-    @DisplayField public final int buffDuration = Tick.fromSecond(6);
+    @DisplayField public final int buffDuration = Tick.fromSeconds(6);
     
     private final int lingerEffect = 20;
     

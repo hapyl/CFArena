@@ -39,8 +39,8 @@ public class Shadowfall extends Talent {
     @DisplayField(percentage = true) private final double speedDecrease = -0.25;
     @DisplayField(percentage = true) private final double defenseDecrease = -0.6;
     
-    @DisplayField private final int timeSpendInZoneToTakeDamage = Tick.fromSecond(8);
-    @DisplayField private final int impairDuration = Tick.fromSecond(2);
+    @DisplayField private final int timeSpendInZoneToTakeDamage = Tick.fromSeconds(8);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(2);
     @DisplayField private final int formDuration = 15;
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("shadowfall"));

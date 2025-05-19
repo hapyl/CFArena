@@ -206,7 +206,7 @@ public class JuJu extends Hero implements Listener, UIComplexComponent, PlayerDa
                 getAlivePlayers().forEach(player -> {
                     final JujuData data = getPlayerData(player);
                     
-                    if (climbTalent.hasCooldown(player)) {
+                    if (climbTalent.isOnCooldown(player)) {
                         return;
                     }
                     

@@ -59,7 +59,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider, Pl
         equipment.setLeggings(0, 0, 0, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         equipment.setBoots(28, 28, 28, TrimPattern.SILENCE, TrimMaterial.QUARTZ);
         
-        setWeapon(Weapon.createBuilder(Material.IRON_HOE, Key.ofString("reaper_scythe"))
+        setWeapon(Weapon.builder(Material.IRON_HOE, Key.ofString("reaper_scythe"))
                         .name("Reaper Scythe")
                         .description("""
                                      The sharpest of them all!

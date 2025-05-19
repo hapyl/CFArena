@@ -37,9 +37,9 @@ public class Slash extends Talent {
     public final Talent[] perfectSequence = { TalentRegistry.UPPERCUT, TalentRegistry.UPDRAFT, this };
     
     @DisplayField(scale = 0.001) public final long perfectSequenceWindow = 2500;
-    @DisplayField public final int perfectSequenceCooldown = Tick.fromSecond(10);
+    @DisplayField public final int perfectSequenceCooldown = Tick.fromSeconds(10);
     
-    @DisplayField public final int empoweredSlashDuration = Tick.fromSecond(2);
+    @DisplayField public final int empoweredSlashDuration = Tick.fromSeconds(2);
     
     @DisplayField private final double distance = 3.0d;
     @DisplayField private final double damage = 4.0d;
@@ -48,7 +48,7 @@ public class Slash extends Talent {
     @DisplayField private final double empoweredHorizontalOffset = 2.0;
     @DisplayField private final double empoweredRadius = 3.0;
     
-    @DisplayField private final int effectDuration = Tick.fromSecond(4);
+    @DisplayField private final int effectDuration = Tick.fromSeconds(4);
     
     @DisplayField private final double speedReduction = -25;
     @DisplayField(percentage = true) private final double defenseReduction = -0.25;

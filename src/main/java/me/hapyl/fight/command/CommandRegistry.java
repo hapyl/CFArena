@@ -53,6 +53,7 @@ import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.database.entry.*;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.filter.ProfanityFilter;
 import me.hapyl.fight.fx.EntityFollowingParticle;
 import me.hapyl.fight.fx.GiantItem;
@@ -87,6 +88,7 @@ import me.hapyl.fight.game.heroes.bloodfield.BatCloud;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
+import me.hapyl.fight.game.heroes.dylan.DylanData;
 import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
@@ -266,6 +268,26 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new NamedPreviewCommand("previewNamed"));
         
         // *=* Inner commands *=* //
+        register("applyHellfireShieldToSelf", (plauer, args) -> {
+            GamePlayer.getOptionalPlayer(plauer).ifPresent(gameplayer -> {
+                TalentRegistry.HELLFIRE_WARD.applyShield(gameplayer, gameplayer);
+                
+                gameplayer.sendMessage(Message.SUCCESS, "Done!");
+            });
+        });
+        
+        register("allowRebukeSelf", (player, args) -> {
+            GamePlayer.getOptionalPlayer(player)
+                              .ifPresent(gameplayer -> {
+                                  final DylanData data = HeroRegistry.DYLAN.getPlayerData(gameplayer);
+                                  
+                                  data.allowRebuke(gameplayer, new DamageInstance(gameplayer, 20));
+                                  
+                                  gameplayer.sendMessage(Message.SUCCESS, "Done!");
+                              });
+            
+        });
+        
         register(
                 "testTotemAnimaion", (player, args) -> {
                     final Material material = args.get(0).toEnum(Material.class);

@@ -107,9 +107,15 @@ public class TalentItemFactory extends ItemFactory<Talent> {
         @OverridingMethodsMustInvokeSuper
         public ItemBuilder createBuilder() {
             final ItemBuilder builder = new ItemBuilder(product.material.material())
-                    .setName(Color.SUCCESS + product.name)
-                    .addLore("&8" + product.getTypeFormattedWithClassType())
-                    .addLore();
+                    .setName(Color.SUCCESS + product.name);
+            
+            // Append talent type if not empty
+            final String talentType = product.getTypeFormattedWithClassType();
+            
+            if (!talentType.isEmpty()) {
+                builder.addLore("&8" + talentType);
+                builder.addLore();
+            }
             
             // Execute function if present
             // - The function now handles both extra data AND texture

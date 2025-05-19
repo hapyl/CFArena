@@ -225,7 +225,7 @@ public class BountyHunter extends Hero implements DisplayFieldProvider, PlayerDa
         @DisplayField private final double speedIncrease = 30;
         @DisplayField(percentage = true) private final double defenseIgnore = 0.25;
         
-        @DisplayField private final int buffDuration = Tick.fromSecond(15);
+        @DisplayField private final int buffDuration = Tick.fromSeconds(15);
         
         private final ModifierSource modifierSource = new ModifierSource(Key.ofString("blood_bounty"));
         

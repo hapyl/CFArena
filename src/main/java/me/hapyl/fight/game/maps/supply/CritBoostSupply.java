@@ -23,7 +23,7 @@ public class CritBoostSupply extends Supply {
     
     private final double critChanceIncrease = 20;
     private final double critDamageIncrease = 40;
-    private final int duration = Tick.fromSecond(6);
+    private final int duration = Tick.fromSeconds(6);
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("critical_boost_supply"));
     

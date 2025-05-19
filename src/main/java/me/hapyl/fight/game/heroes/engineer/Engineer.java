@@ -36,7 +36,7 @@ import java.util.List;
 
 public class Engineer extends Hero implements Listener, PlayerDataHandler<EngineerData>, UIComplexComponent, DisplayFieldProvider {
     
-    public final Weapon ironFist = Weapon.createBuilder(Material.IRON_BLOCK, Key.ofString("iron_fist"))
+    public final Weapon ironFist = Weapon.builder(Material.IRON_BLOCK, Key.ofString("iron_fist"))
                                          .name("&6&lIron Fist")
                                          .damage(8.0d)
                                          .build();
@@ -60,7 +60,7 @@ public class Engineer extends Hero implements Listener, PlayerDataHandler<Engine
                        """);
         setItem("55f0bfea3071a0eb37bcc2ca6126a8bdd79b79947734d86e26e4d4f4c7aa9");
         
-        setWeapon(Weapon.createBuilder(Material.IRON_HOE, Key.ofString("prototype_wrench"))
+        setWeapon(Weapon.builder(Material.IRON_HOE, Key.ofString("prototype_wrench"))
                         .name("Prototype Wrench")
                         .description("""
                                      A prototype wrench for all the needs.

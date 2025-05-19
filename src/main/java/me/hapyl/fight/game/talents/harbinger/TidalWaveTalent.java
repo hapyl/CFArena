@@ -27,13 +27,13 @@ import javax.annotation.Nullable;
 
 public class TidalWaveTalent extends Talent {
     
-    @DisplayField private final int talentLockDuration = Tick.fromSecond(3);
+    @DisplayField private final int talentLockDuration = Tick.fromSeconds(3);
     
     @DisplayField private final double arrowSpeed = 0.5;
     @DisplayField private final double speedDecrease = -10;
     @DisplayField private final double radius = 3;
     @DisplayField private final short riptideAmount = 200;
-    @DisplayField private final int impairDuration = Tick.fromSecond(3);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(3);
     
     private final DisplayData display = BDEngine.parse(
             "/summon block_display ~-0.5 ~ ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:tube_coral_fan\",Properties:{}},transformation:[2f,0f,0f,-1f,0f,0f,-2f,1.0625f,0f,2f,0f,0f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:tube_coral_wall_fan\",Properties:{facing:\"east\"}},transformation:[1.7320508076f,1f,0f,-0.49125f,0f,0f,-2f,1.0625f,-1f,1.7320508076f,0f,-0.70625f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:tube_coral_wall_fan\",Properties:{facing:\"east\"}},transformation:[-1.7320508076f,1f,0f,-0.509375f,0f,0f,-2f,1.0625f,-1f,-1.7320508076f,0f,1.025625f,0f,0f,0f,1f]},{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:frogspawn\",Properties:{}},transformation:[1f,0f,0f,-0.5f,0f,0f,1f,-0.4375f,0f,-1f,0f,0.265625f,0f,0f,0f,1f]}]}"

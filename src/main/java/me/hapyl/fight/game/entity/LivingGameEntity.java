@@ -933,7 +933,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         cooldown.stopCooldowns();
         bloodDebt.reset();
         
-        shield = null;
+        if (shield != null) {
+            shield.onRemove(Shield.Cause.DEATH);
+            shield = null;
+        }
+        
         decay = null;
         
         memory.forgetEverything();

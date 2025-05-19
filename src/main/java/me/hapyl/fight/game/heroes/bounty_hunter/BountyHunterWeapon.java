@@ -27,7 +27,7 @@ public class BountyHunterWeapon extends Weapon {
     protected final BloodBountyAbility ability;
     
     @DisplayField private final double maxDistance = 5.0;
-    @DisplayField private final int bleedDuration = Tick.fromSecond(5);
+    @DisplayField private final int bleedDuration = Tick.fromSeconds(5);
     
     private final Particle.DustTransition dustTransition = new Particle.DustTransition(Color.fromRGB(209, 38, 63), Color.fromRGB(135, 1, 21), 1);
     

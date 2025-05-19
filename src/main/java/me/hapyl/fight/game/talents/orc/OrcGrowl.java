@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 
 public class OrcGrowl extends Talent {
     
-    @DisplayField private final int debuffDuration = Tick.fromSecond(6);
+    @DisplayField private final int debuffDuration = Tick.fromSeconds(6);
     @DisplayField private final double distance = 8.0;
     @DisplayField(scale = 100) private final double attackDecrease = -0.2d;
     @DisplayField private final double speedDecrease = -50;

@@ -12,7 +12,6 @@ import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.player.dialog.DialogInstance;
 import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.eterna.module.util.Opt;
-import me.hapyl.eterna.module.util.Reference;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
@@ -71,10 +70,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -132,7 +128,7 @@ public final class Manager extends BukkitRunnable {
         skinEffectManager = new SkinEffectManager(main);
         
         // start auto save timer
-        autoSave = new AutoSync(Tick.fromMinute(10));
+        autoSave = new AutoSync(Tick.fromMinutes(10));
         
         fairMode = FairMode.UNFAIR;
         
@@ -614,7 +610,7 @@ public final class Manager extends BukkitRunnable {
      * <p>
      * Only one game instance can be active at a time.
      */
-    public void createNewGameInstance(@Nonnull Reference<GameInstance> instance, boolean force) {
+    public void createNewGameInstance(@Nonnull Supplier<GameInstance> instance, boolean force) {
         if (!canStartGame() && !force) {
             return;
         }
@@ -637,7 +633,7 @@ public final class Manager extends BukkitRunnable {
         }
         
         // Create new instance and call onStart methods
-        this.gameInstance = instance.refer();
+        this.gameInstance = instance.get();
         this.gameInstance.onStart();
         
         // Init skin manager

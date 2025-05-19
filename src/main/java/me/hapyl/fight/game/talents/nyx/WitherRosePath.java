@@ -42,7 +42,7 @@ public class WitherRosePath extends Talent {
     @DisplayField private final double maxDistance = 30;
     @DisplayField private final double damage = 5.0d;
     
-    @DisplayField private final int impairDuration = Tick.fromSecond(6);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(6);
     @DisplayField private final int spikeDelay = 25;
     
     private final DisplayData spike = BDEngine.parse(

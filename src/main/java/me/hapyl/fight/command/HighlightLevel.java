@@ -85,7 +85,7 @@ public class HighlightLevel extends SimplePlayerAdminCommand {
 
                 Debug.info("Removed highlighted.");
             }
-        }.runTaskLater(Main.getPlugin(), Tick.fromSecond(30));
+        }.runTaskLater(Main.getPlugin(), Tick.fromSeconds(30));
     }
 
     private void spawn(Location location, Consumer<ItemDisplay> consumer, String text) {

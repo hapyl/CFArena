@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class ShadowAssassinWeapon extends Weapon {
     
-    @DisplayField private final int cooldown = Tick.fromSecond(20);
+    @DisplayField private final int cooldown = Tick.fromSeconds(20);
     @DisplayField private final double defenseReduction = -0.1d;
     @DisplayField private final double speedReduction = -50;
     @DisplayField private final int defenseReductionDuration = 60;

@@ -333,7 +333,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return;
         }
         
-        lastPlayerDamager.heal(lastPlayerDamager.getMaxHealth() * HEALING_AT_KILL);
+        lastPlayerDamager.healRelativeToMaxHealth(HEALING_AT_KILL);
         lastPlayerDamager.incrementEnergy(lastPlayerDamager.getUltimate().resource().playerElimination());
         
         // Progress Bond
@@ -425,6 +425,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             
             assistingPlayers.add(damager);
         });
+        
+        // If the damager is a pet, add its owner to assists
+        if (lastDamager instanceof Pet pet) {
+            assistingPlayers.add(pet.owner());
+        }
         
         // Actually award assisting players, not this player you dumbo
         assistingPlayers.forEach(assist -> {
@@ -1080,7 +1085,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
     
     public void cancelInputTalent() {
-        if (inputTalent != null && !inputTalent.hasCooldown(this)) {
+        if (inputTalent != null && !inputTalent.isOnCooldown(this)) {
             sendTitle("&c&lᴄᴀɴᴄᴇʟʟᴇᴅ", inputTalent.getName(), 0, 10, 5);
             playSound(Sound.ENTITY_HORSE_SADDLE, 0.75f);
             

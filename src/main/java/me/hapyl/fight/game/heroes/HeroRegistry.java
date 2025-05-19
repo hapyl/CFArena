@@ -13,7 +13,7 @@ import me.hapyl.fight.game.heroes.aurora.Aurora;
 import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
 import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunter;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
-import me.hapyl.fight.game.heroes.dlan.Dylan;
+import me.hapyl.fight.game.heroes.dylan.Dylan;
 import me.hapyl.fight.game.heroes.doctor.DrEd;
 import me.hapyl.fight.game.heroes.echo.Echo;
 import me.hapyl.fight.game.heroes.ender.Ender;

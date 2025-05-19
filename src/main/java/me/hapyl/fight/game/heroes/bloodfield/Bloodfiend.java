@@ -86,7 +86,7 @@ public class Bloodfiend extends Hero implements PlayerDataHandler<BloodfiendData
         equipment.setLeggings(28, 3, 7);
         equipment.setBoots(5, 3, 23, TrimPattern.HOST, TrimMaterial.NETHERITE);
         
-        setWeapon(Weapon.createBuilder(Material.GHAST_TEAR, Key.ofString("vampires_fang_bloodfiend"))
+        setWeapon(Weapon.builder(Material.GHAST_TEAR, Key.ofString("vampires_fang_bloodfiend"))
                         .name("Vampire's Fang")
                         .description("""
                                      A sharp fang.

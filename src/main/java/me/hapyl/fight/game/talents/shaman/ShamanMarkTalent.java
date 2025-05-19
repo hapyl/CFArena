@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 
 public class ShamanMarkTalent extends Talent {
     
-    @DisplayField protected final int outOfSightDuration = Tick.fromSecond(2);
+    @DisplayField protected final int outOfSightDuration = Tick.fromSeconds(2);
     @DisplayField protected final double attackSpeedIncrease = 50;
     @DisplayField protected final double speedIncrease = 50;
     @DisplayField(percentage = true) protected final double attackIncrease = 0.5;

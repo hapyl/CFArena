@@ -19,7 +19,7 @@ public class EnergySupply extends Supply {
     private final double rechargePercent = 0.1;
     
     EnergySupply() {
-        super(Tick.fromMinute(5), "Energy", "d884ed1950bb8b198ada8191684400bd6640e03710481c8122b780b9ed1bd98c");
+        super(Tick.fromMinutes(5), "Energy", "d884ed1950bb8b198ada8191684400bd6640e03710481c8122b780b9ed1bd98c");
         
         setDescription("""
                        Regenerates &b%.0f%%&7 of %s, regardless of resource type.

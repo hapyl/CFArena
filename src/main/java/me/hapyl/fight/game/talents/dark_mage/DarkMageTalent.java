@@ -78,7 +78,7 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     public final void executeDarkMage(@Nonnull GamePlayer player) {
-        if (hasCooldown(player)) {
+        if (isOnCooldown(player)) {
             player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCooldownTimeLeft(player))), 0, 20, 5);
             return;
         }
@@ -86,7 +86,7 @@ public abstract class DarkMageTalent extends Talent {
         final Response response = Talent.precondition(player);
 
         if (!response.isOk()) {
-            player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);
+            player.sendTitle("&c" + response.reason(), null, 0, 20, 5);
             return;
         }
 
@@ -102,7 +102,7 @@ public abstract class DarkMageTalent extends Talent {
         final Response spellResponse = executeSpell(player);
 
         if (spellResponse.isError()) {
-            player.sendTitle("&c" + spellResponse.getReason(), null, 0, 20, 5);
+            player.sendTitle("&c" + spellResponse.reason(), null, 0, 20, 5);
             return;
         }
 

@@ -33,7 +33,7 @@ public class IceBarrier extends Talent {
 
         setMaterial(Material.PACKED_ICE);
         setCooldownSec(30);
-        setDuration(Tick.fromSecond(15));
+        setDuration(Tick.fromSeconds(15));
     }
 
     @Override

@@ -28,7 +28,7 @@ public class PoisonZone extends Talent {
     @DisplayField private final double damagePerTick = 1.0d;
     @DisplayField private final int damagePeriod = 5;
     @DisplayField(scale = 100) private final double defenseReduction = -0.7d;
-    @DisplayField private final int defenseReductionDuration = Tick.fromSecond(5);
+    @DisplayField private final int defenseReductionDuration = Tick.fromSeconds(5);
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("poison_ivy"));
     private final Color leavesColor = Color.fromARGB(200, 32, 140, 7);

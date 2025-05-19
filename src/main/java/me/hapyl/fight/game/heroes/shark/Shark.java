@@ -66,7 +66,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
                 .cleanToItemSack());
 
-        setWeapon(Weapon.createBuilder(Material.QUARTZ, Key.ofString("claws"))
+        setWeapon(Weapon.builder(Material.QUARTZ, Key.ofString("claws"))
                 .name("Claws")
                 .description("Using one's claws is a better idea than using a stick, don't you think so?")
                 .damage(7.0d)

@@ -30,7 +30,7 @@ public class Uppercut extends Talent {
     @DisplayField private final double height = 3.0d;
     @DisplayField private final double damage = 2.5d;
     
-    @DisplayField private final int impairDuration = Tick.fromSecond(5);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(5);
     @DisplayField private final RomanInt dazeAmplifier = RomanInt.of(2);
     
     public Uppercut(@Nonnull Key key) {

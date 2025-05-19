@@ -39,9 +39,9 @@ public class Geyser {
         this.location = location;
         this.direction = direction;
         this.range = 3.0d;
-        this.minDelay = Tick.fromSecond(new Random().nextInt(6, 24));
+        this.minDelay = Tick.fromSeconds(new Random().nextInt(6, 24));
         this.maxDelay = minDelay * 2 - 20;
-        this.duration = Tick.fromSecond(2);
+        this.duration = Tick.fromSeconds(2);
 
         // Calculate spawn location
         this.spawnLocation = BukkitUtils.newLocation(location);

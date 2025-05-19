@@ -85,7 +85,7 @@ public abstract class UltimateTalent extends Talent {
     
     @Override
     public final @Nullable Response execute(@Nonnull GamePlayer player) {
-        if (hasCooldown(player)) {
+        if (isOnCooldown(player)) {
             if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
                 final int timeLeft = getCooldownTimeLeft(player);
                 
@@ -114,7 +114,7 @@ public abstract class UltimateTalent extends Talent {
         
         // Predicate fails
         if (response.isError()) {
-            player.sendErrorMessage("Cannot use ultimate! " + response.getReason());
+            player.sendErrorMessage("Cannot use ultimate! " + response.reason());
             player.playSound(SoundEffect.ERROR);
             return null;
         }
@@ -346,13 +346,13 @@ public abstract class UltimateTalent extends Talent {
         if (player.isUsingUltimate()) {
             final long durationLeftMillis = player.getUltimateDurationTimeLeft();
             
-            return color + "&lIN USE &8(%s) %s".formatted(CFUtils.formatTick(Tick.fromMinute(durationLeftMillis)), prefix);
+            return color + "&lIN USE &8(%s) %s".formatted(CFUtils.formatTick(Tick.fromMinutes(durationLeftMillis)), prefix);
         }
         
         final String cargeString = getChargeString(displayColor, energy);
         
         // If on cooldown, show the desaturated percentage with cooldown left
-        if (hasCooldown(player)) {
+        if (isOnCooldown(player)) {
             return "&8&l%s %s(%s) %s".formatted(cargeString, color, CFUtils.formatTick(getCooldownTimeLeft(player)), prefix);
         }
         

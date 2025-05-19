@@ -68,12 +68,9 @@ public class HeroProfile {
     }
 
     private void iterateArchetypes(BiConsumer<Integer, Archetype> consumer) {
-        // Preserve archetype order
         int index = 0;
-        for (Archetype archetype : Archetype.values()) {
-            if (archetypes.contains(archetype)) {
-                consumer.accept(index++, archetype);
-            }
+        for (Archetype archetype : archetypes) {
+            consumer.accept(index++, archetype);
         }
     }
 

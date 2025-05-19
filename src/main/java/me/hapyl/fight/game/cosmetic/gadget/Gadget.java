@@ -107,7 +107,7 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
         final Response response = execute(player);
 
         if (!response.isOk()) {
-            Message.error(player, "Cannot use gadget! " + response.getReason());
+            Message.error(player, "Cannot use gadget! " + response.reason());
             return;
         }
 

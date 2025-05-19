@@ -18,11 +18,11 @@ public class PigmanRusher extends TamerPack {
     @DisplayField(percentage = true) private final double pigmanInitialSpeed = 150;
     @DisplayField(percentage = true) private final double pigmanMaxSpeed = 250;
 
-    private final Weapon pigmanWeapon = Weapon.createBuilder(Material.GOLDEN_SWORD, Key.ofString("pigman_sword"))
+    private final Weapon pigmanWeapon = Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("pigman_sword"))
             .damage(pigmanBaseDamage)
             .build();
 
-    private final Weapon pigmanUltimateWeapon = Weapon.createBuilder(Material.GOLDEN_SWORD, Key.ofString("pigman_ultimate_sword"))
+    private final Weapon pigmanUltimateWeapon = Weapon.builder(Material.GOLDEN_SWORD, Key.ofString("pigman_ultimate_sword"))
             .damage(pigmanBaseDamage * 2)
             .build();
 

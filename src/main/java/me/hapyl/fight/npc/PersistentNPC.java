@@ -44,7 +44,7 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
     }
 
     public PersistentNPC(@Nonnull Key key, double x, double y, double z, float yaw, float pitch, @Nullable String name) {
-        this(key, BukkitUtils.defLocation(x, y, z, yaw, pitch), name, uuid -> "§8");
+        this(key, BukkitUtils.defLocation(x, y, z, yaw, pitch), name, uuid -> ("§8" + uuid.toString()).substring(0, 16));
     }
 
     protected PersistentNPC(@Nonnull Key key, @Nonnull Location location, @Nullable String name, @Nonnull Function<UUID, String> hexName) {

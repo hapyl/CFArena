@@ -153,6 +153,10 @@ public class DamageCause implements Keyed, CloneableKeyed {
     public static final DamageCause TYPHOON;
     public static final DamageCause BREAK;
     public static final DamageCause EMPOWERED_BREAK;
+    public static final DamageCause HELLISH_REBUKE;
+    public static final DamageCause WHELP_ATTACK;
+    public static final DamageCause WHELP_DESTRUCT;
+    public static final DamageCause SCORCHING_RING;
     
     // Private fields
     private static final int DEFAULT_ATTACK_COOLDOWN;
@@ -313,6 +317,10 @@ public class DamageCause implements Keyed, CloneableKeyed {
         TYPHOON = ofNonCrit(Key.ofString("typhoon"), DamageType.ULTIMATE, "was consumed by {damager}'s typhoon").flags(DamageFlag.IGNORES_ICD, DamageFlag.PIERCING_DAMAGE);
         BREAK = of(Key.ofString("break"), DamageType.TALENT, "was broken in half by {damager}").flags(DamageFlag.IGNORES_ICD);
         EMPOWERED_BREAK = BREAK.cloneAs(Key.ofString("empowered_break"));
+        HELLISH_REBUKE = ofNonCrit(Key.ofString("hellish_rebuke"), DamageType.TALENT, "was rebuked by {damager}").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.IGNORES_ICD);
+        WHELP_ATTACK = ENTITY_ATTACK.cloneAs(Key.ofString("whelp_attack")).flags(DamageFlag.IGNORES_ICD);
+        WHELP_DESTRUCT = ofNonCrit(Key.ofString("whelp_destruct"), DamageType.ULTIMATE, "was annihilated by {damager}").flags(DamageFlag.TRUE_DAMAGE, DamageFlag.IGNORES_ICD);
+        SCORCHING_RING = ofNonCrit(Key.ofString("scorching_ring"), DamageType.TALENT, "was scorched to death by {damager}").flags(DamageFlag.IGNORES_ICD);
     }
     
     private final Key key;

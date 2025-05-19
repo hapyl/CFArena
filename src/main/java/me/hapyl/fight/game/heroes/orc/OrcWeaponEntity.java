@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 
 public abstract class OrcWeaponEntity extends GameTask {
 
-    private static final int MAX_ALIVE_TICKS = Tick.fromSecond(10);
+    private static final int MAX_ALIVE_TICKS = Tick.fromSeconds(10);
     private final double FLIGHT_SPEED = 0.75d;
 
     private final BlockData[] BLOCK_DATA = {

@@ -74,6 +74,7 @@ public abstract class Hero
     public static final String DISABLED_HERO_FLAG = "-IKnowItsDisabledHeroAndWillBreakTheGame";
     
     protected final TalkBehaviour talkBehaviour;
+    protected final Map<Talent, HotBarSlot> talentsMapped;
     
     private final Key key;
     private final HeroStatsAsynchronousDocument stats;
@@ -84,7 +85,6 @@ public abstract class Hero
     private final String name;
     private final HeroPlayerItemMaker itemMaker;
     private final HeroFriendship friendship;
-    private final Map<Talent, HotBarSlot> talentsMapped;
     private final List<DisplayFieldInstance> extraDisplayFields;
     
     protected HeroMastery mastery;
@@ -107,7 +107,7 @@ public abstract class Hero
         this.stats = new HeroStatsAsynchronousDocument(key);
         this.description = "No description provided.";
         this.guiTexture = new ItemStack(Material.PLAYER_HEAD);
-        this.weapon = Weapon.createBuilder(Material.WOODEN_SWORD, Key.ofString("default_weapon")).build();
+        this.weapon = Weapon.builder(Material.WOODEN_SWORD, Key.ofString("default_weapon")).build();
         this.equipment = new HeroEquipment();
         this.attributes = new HeroAttributes(this);
         this.profile = new HeroProfile(this);

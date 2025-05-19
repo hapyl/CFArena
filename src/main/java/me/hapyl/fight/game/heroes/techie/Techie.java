@@ -87,7 +87,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
         equipment.setLeggings(Material.NETHERITE_LEGGINGS, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.WARD, TrimMaterial.NETHERITE);
         
-        setWeapon(Weapon.createBuilder(Material.IRON_SWORD, Key.ofString("nano_sword"))
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("nano_sword"))
                         .name("Nano Sword")
                         .description("""
                                      A sword made with nano energy.
@@ -204,7 +204,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     
     private class TechieUltimate extends UltimateTalent {
         
-        @DisplayField private final int lockdownTalentLockDuration = Tick.fromSecond(30);
+        @DisplayField private final int lockdownTalentLockDuration = Tick.fromSeconds(30);
         @DisplayField private final double ultimateDistance = 20;
         @DisplayField(percentage = true) private final double ultimateLosePercent = 0.75d;
         

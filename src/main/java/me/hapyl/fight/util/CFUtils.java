@@ -578,7 +578,7 @@ public class CFUtils {
     
     @Nonnull
     public static String formatTick(int tick) {
-        return tick > Constants.MAX_COOLDOWN || tick == Constants.INFINITE_DURATION ? INF_CHAR : Tick.round(tick, "s");
+        return tick > Constants.MAX_COOLDOWN || tick == Constants.INFINITE_DURATION ? INF_CHAR : Tick.format(tick);
     }
     
     @Nonnull

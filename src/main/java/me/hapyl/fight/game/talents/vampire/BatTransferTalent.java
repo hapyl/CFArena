@@ -32,7 +32,7 @@ public class BatTransferTalent extends Talent {
     @DisplayField private final double hitBoxSize = 1.5d;
     @DisplayField(percentage = true) private final double healthDecrease = -0.1;
     
-    @DisplayField private final int impairDuration = Tick.fromSecond(8);
+    @DisplayField private final int impairDuration = Tick.fromSeconds(8);
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("swarm"));
     

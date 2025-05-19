@@ -11,7 +11,10 @@ import me.hapyl.eterna.module.util.Runnables;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.event.custom.*;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.GameEntityHealEvent;
+import me.hapyl.fight.event.custom.GamePlayerShieldEvent;
+import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
 import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
@@ -448,7 +451,7 @@ public final class PlayerHandler implements Listener {
             final GameTeam entityTeam = gameEntity.getTeam();
             
             // Teammate check
-            if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager))) {
+            if (entityTeam != null && lastDamager != null && !gameEntity.equals(lastDamager) && entityTeam.isEntry(Entry.of(lastDamager)) && !CF.environment().considerSelfAsEnemy.isEnabled()) {
                 boolean cancelDamage = true;
                 
                 if (lastDamager instanceof GamePlayer lastPlayerDamager) {
@@ -1134,7 +1137,7 @@ public final class PlayerHandler implements Listener {
         }
         
         // cooldown check
-        if (talent.hasCooldown(player)) {
+        if (talent.isOnCooldown(player)) {
             if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
                 final int timeLeft = talent.getCooldownTimeLeft(player);
                 

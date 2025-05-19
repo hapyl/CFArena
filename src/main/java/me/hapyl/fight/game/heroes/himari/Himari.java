@@ -51,7 +51,7 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
         equipment.setLeggings(59, 59, 57, TrimPattern.FLOW, TrimMaterial.NETHERITE);
         equipment.setBoots(51, 49, 49, TrimPattern.FLOW, TrimMaterial.NETHERITE);
         
-        setWeapon(Weapon.createBuilder(Material.ENCHANTED_BOOK, Key.ofString("teachings_of_freedom"))
+        setWeapon(Weapon.builder(Material.ENCHANTED_BOOK, Key.ofString("teachings_of_freedom"))
                         .name("Teachings of Freedom")
                         .description("""
                                      A book that contains a lot of teachings and theory.

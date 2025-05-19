@@ -61,7 +61,7 @@ public class RoninWeapon extends Weapon {
 
     public class DeflectAbility extends Ability implements Listener {
 
-        @DisplayField private final int cooldownIfDeflected = Tick.fromSecond(5);
+        @DisplayField private final int cooldownIfDeflected = Tick.fromSeconds(5);
         @DisplayField private final double deflectDamageRadius = 2.0d;
 
         public DeflectAbility() {

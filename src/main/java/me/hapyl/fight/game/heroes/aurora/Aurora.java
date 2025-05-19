@@ -206,7 +206,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
         final GuardianAngel talent = getPassiveTalent();
 
-        if (talent.hasCooldown(player)) {
+        if (talent.isOnCooldown(player)) {
             return;
         }
 
@@ -396,7 +396,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
         final GuardianAngel passiveTalent = getPassiveTalent();
         final LivingGameEntity target = data.target;
 
-        if (passiveTalent.hasCooldown(player)) {
+        if (passiveTalent.isOnCooldown(player)) {
             return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCooldownTimeLeft(player));
         }
 
@@ -446,7 +446,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     public class AuroraUltimate extends UltimateTalent {
 
         @DisplayField public final double healing = 0.01;
-        @DisplayField public final int cooldown = Tick.fromSecond(25);
+        @DisplayField public final int cooldown = Tick.fromSeconds(25);
         @DisplayField public final double maxStrayDistance = 250;
 
         public AuroraUltimate() {

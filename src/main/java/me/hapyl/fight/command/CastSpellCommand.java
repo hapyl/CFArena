@@ -64,7 +64,7 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
         final Response response = force ? talent.execute(gamePlayer) : talent.execute0(gamePlayer);
 
         if (!response.isOk()) {
-            Chat.sendMessage(player, "&c" + response.getReason());
+            Chat.sendMessage(player, "&c" + response.reason());
         }
         else {
             Chat.sendMessage(player, "&aCasted spell!");

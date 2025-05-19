@@ -131,11 +131,11 @@ public abstract class ChargedTalent extends Talent {
     }
     
     @Override
-    public final boolean hasCooldown(@Nonnull GamePlayer player) {
+    public final boolean isOnCooldown(@Nonnull GamePlayer player) {
         final ChargedTalentData data = getData(player);
         
         // Don't check for cooldown if no charts
-        return data.charges != 0 && super.hasCooldown(player);
+        return data.charges != 0 && super.isOnCooldown(player);
     }
     
     @Override

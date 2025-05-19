@@ -23,7 +23,7 @@ import java.util.Random;
 public class WineryMap extends Level {
 
     private final Material lightningMarkerBlock = Material.CAVE_AIR;
-    private final int howlPeriod = Tick.fromMinute(3);
+    private final int howlPeriod = Tick.fromMinutes(3);
     private final double howlRange = 42.0d;
 
     private final WineryOwl[] owls = new WineryOwl[] { // FIXME (Sun, Feb 16 2025 @xanyjl):

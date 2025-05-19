@@ -40,7 +40,7 @@ public class Warden extends Hero implements Disabled {
         equipment.setLeggings(90, 90, 90);
         equipment.setBoots(90, 90, 90);
 
-        setWeapon(Weapon.createBuilder(Material.NETHER_STAR, Key.ofString("disorder"))
+        setWeapon(Weapon.builder(Material.NETHER_STAR, Key.ofString("disorder"))
                 .name("Disorder")
                 .description("""
                          Void Warden's personal defense weapon, it's hard to comprehend what it resembles.

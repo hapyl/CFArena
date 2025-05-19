@@ -79,7 +79,7 @@ public class BlastKnight extends Hero implements UIComponent, PlayerDataHandler<
         equipment.setLeggings(170, 55, 204);
         equipment.setBoots(Material.NETHERITE_BOOTS);
         
-        setWeapon(Weapon.createBuilder(Material.IRON_SWORD, Key.ofString("royal_sword"))
+        setWeapon(Weapon.builder(Material.IRON_SWORD, Key.ofString("royal_sword"))
                         .name("Royal Sword")
                         .description("""
                                      A royal sword, forget of the best quality ore possible.

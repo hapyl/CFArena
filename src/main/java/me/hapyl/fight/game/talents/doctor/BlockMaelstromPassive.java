@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 
 public class BlockMaelstromPassive extends PassiveTalent {
 
-    @DisplayField public final int cooldown = Tick.fromSecond(10);
+    @DisplayField public final int cooldown = Tick.fromSeconds(10);
 
     public BlockMaelstromPassive(@Nonnull Key key) {
         super(key, "Block Maelstrom");

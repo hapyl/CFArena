@@ -114,11 +114,11 @@ public final class EntityData implements Ticking {
     @Nullable
     public GameEntity lastDamager() {
         // Validate if the damage is still alive, unless it's a player
-        if (lastDamager != null) {
-            if (!(lastDamager instanceof GamePlayer) && lastDamager instanceof LivingGameEntity livingDamager && livingDamager.isDead()) {
-                lastDamager = null;
-            }
-        }
+        // if (lastDamager != null) {
+        //     if (!(lastDamager instanceof GamePlayer) && lastDamager instanceof LivingGameEntity livingDamager && livingDamager.isDead()) {
+        //         lastDamager = null;
+        //     }
+        // }
         
         return lastDamager;
     }

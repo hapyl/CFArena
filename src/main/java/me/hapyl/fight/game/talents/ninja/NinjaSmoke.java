@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 public class NinjaSmoke extends Talent {
 
     @DisplayField public final double dodgeIncrease = 50;
-    @DisplayField public final int buffDuration = Tick.fromSecond(6);
+    @DisplayField public final int buffDuration = Tick.fromSeconds(6);
     @DisplayField(suffix = " blocks") private final double smokeDistance = 4.0d;
 
     public NinjaSmoke(@Nonnull Key key) {

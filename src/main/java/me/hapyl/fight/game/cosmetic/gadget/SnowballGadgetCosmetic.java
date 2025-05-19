@@ -37,7 +37,7 @@ public class SnowballGadgetCosmetic extends Gadget implements Listener {
     private final Map<GameTeam, List<BlockData>> mappedMaterials = Maps.newHashMap();
 
     private final double radius = 6;
-    private final int duration = Tick.fromSecond(4);
+    private final int duration = Tick.fromSeconds(4);
 
     public SnowballGadgetCosmetic(@Nonnull Key key) {
         super(key, "Colored Snowball");

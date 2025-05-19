@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 
 public class VortexSlash extends Talent {
 
-    @DisplayField private final int maxDuration = Tick.fromSecond(3);
+    @DisplayField private final int maxDuration = Tick.fromSeconds(3);
     @DisplayField private final double damage = 1.0d;
     @DisplayField private final double collectDistance = 2.0d;
     @DisplayField private final double shiftDistance = 0.5;

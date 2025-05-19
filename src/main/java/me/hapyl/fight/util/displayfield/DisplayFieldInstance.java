@@ -41,7 +41,7 @@ public final class DisplayFieldInstance {
                 // Handle percentages
                 if (display.percentage()) {
                     scale = 100;
-                    suffix = "%";
+                    suffix = "%" + display.suffix();
                 }
                 
                 final Object value = field.get(instance);

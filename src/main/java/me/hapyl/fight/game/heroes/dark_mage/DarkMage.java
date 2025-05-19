@@ -223,7 +223,7 @@ public class DarkMage extends Hero implements Listener, PlayerDataHandler<DarkMa
         @DisplayField(percentage = true) public final double cooldownReduction = 0.5d;
         @DisplayField(percentage = true) public final double durationIncrease = 0.3d;
         @DisplayField private final int durationIncreasePerStack = 30;
-        @DisplayField private final int baseDuration = Tick.fromSecond(12);
+        @DisplayField private final int baseDuration = Tick.fromSeconds(12);
 
         public DarkMageUltimate() {
             super(DarkMage.this, "Witherborn", 60);

@@ -34,7 +34,7 @@ public class Updraft extends Talent implements Listener {
     @DisplayField private final double plungeRadius = 5.0d;
     @DisplayField private final double plungeDamage = 7.5d;
     @DisplayField private final double dazedDamageMultiplier = 1.5;
-    @DisplayField private final int maxPlungingTime = Tick.fromSecond(10);
+    @DisplayField private final int maxPlungingTime = Tick.fromSeconds(10);
     
     public Updraft(@Nonnull Key key) {
         super(key, "Touchdown");

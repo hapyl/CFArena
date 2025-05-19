@@ -45,7 +45,7 @@ import java.util.Set;
 
 public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherData> {
 
-    protected final Weapon boomBow = Weapon.createBuilder(Material.BOW, Key.ofString("boom_bow"))
+    protected final Weapon boomBow = Weapon.builder(Material.BOW, Key.ofString("boom_bow"))
             .damage(1.0)
             .name("&6&lBOOM BOW!")
             .build();

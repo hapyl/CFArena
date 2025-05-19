@@ -168,7 +168,6 @@ public class Shield implements Ticking {
             return;
         }
         
-        
         entity.shield = null; // Can't call setShield() because it calls onRemove
         onRemove(Cause.EXPIRED);
     }
@@ -209,7 +208,12 @@ public class Shield implements Ticking {
         /**
          * The shield was replaced with another shield.
          */
-        REPLACED
+        REPLACED,
+        
+        /**
+         * The shield was removed because the entity died.
+         */
+        DEATH
     }
     
     public static class Builder {

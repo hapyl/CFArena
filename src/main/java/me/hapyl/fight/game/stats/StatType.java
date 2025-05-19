@@ -19,7 +19,7 @@ public enum StatType implements KeyedEnum {
     ),
 
     ASSISTS(
-            "You've assisted &a%s&7 opponents this game!",
+            "You've assisted &a%.0f&7 teammates this game!",
             "You haven't assisted anyone this game."
     ),
 

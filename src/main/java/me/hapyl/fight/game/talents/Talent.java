@@ -11,7 +11,6 @@ import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.MaterialData;
 import me.hapyl.fight.annotate.AutoRegisteredListener;
-import me.hapyl.fight.annotate.ExecuteOrder;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.custom.TalentPreconditionEvent;
 import me.hapyl.fight.event.custom.TalentUseEvent;
@@ -59,6 +58,8 @@ public abstract class Talent
         Named, Described, Timed,
         Cooldown, Keyed, ItemFactoryProvider {
     
+    private static final int POINT_AUTO = -2;
+    
     private final Key key;
     private final List<DisplayFieldInstance> extraDisplayFields;
     private final TalentItemFactory itemFactory;
@@ -83,7 +84,7 @@ public abstract class Talent
         this.material = () -> Material.BEDROCK;
         this.altUsage = "This talent is not given when the game starts, but there is a way to use it.";
         this.autoAdd = true;
-        this.point = 1;
+        this.point = POINT_AUTO;
         this.duration = 0;
         this.itemFactory = new TalentItemFactory(this);
         
@@ -153,11 +154,6 @@ public abstract class Talent
         return Objects.hashCode(this.key);
     }
     
-    // defaults to 1 point per 10 seconds of cooldown
-    public void defaultPointGeneration() {
-        point = calcPointGeneration(cd);
-    }
-    
     public void setAltUsage(String altUsage) {
         this.altUsage = altUsage;
     }
@@ -182,7 +178,6 @@ public abstract class Talent
         return point;
     }
     
-    @ExecuteOrder(after = { "setCooldown(int)", "setCooldownSec(int)" })
     public void setPoint(int point) {
         this.point = point;
     }
@@ -359,7 +354,7 @@ public abstract class Talent
         player.cooldownManager.setCooldown(cooldownKey(), 0);
     }
     
-    public boolean hasCooldown(@Nonnull GamePlayer player) {
+    public boolean isOnCooldown(@Nonnull GamePlayer player) {
         return getCooldownTimeLeft(player) > 0L;
     }
     
@@ -373,11 +368,24 @@ public abstract class Talent
     }
     
     @Override
-    @ExecuteOrder(before = { "setPoint(int)" })
     public Talent setCooldown(int cd) {
         this.cd = cd;
-        defaultPointGeneration();
+        
+        // Calculate point generation if it wasn't set manually
+        if (this.point == POINT_AUTO) {
+            this.point = (int) (cd * pointCooldownRatio());
+        }
+        
         return this;
+    }
+    
+    public double pointCooldownRatio() {
+        return 0.1;
+    }
+    
+    @Override
+    public Talent setCooldownSec(float cd) {
+        return setCooldown((int) (cd * 20));
     }
     
     @Nonnull
@@ -387,12 +395,6 @@ public abstract class Talent
         }
         
         return Tick.round(cd) + "s";
-    }
-    
-    @Override
-    @ExecuteOrder(before = { "setPoint(int)" })
-    public Talent setCooldownSec(float cd) {
-        return setCooldown((int) (cd * 20));
     }
     
     @Override

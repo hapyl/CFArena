@@ -29,12 +29,12 @@ import javax.annotation.Nullable;
 
 public class DarkCover extends ShadowAssassinTalent {
 
-    @DisplayField private final int darkCoverDuration = Tick.fromSecond(6);
+    @DisplayField private final int darkCoverDuration = Tick.fromSeconds(6);
     @DisplayField private final short energyRegen = 10;
     @DisplayField private final double explosionRadius = 3.5d;
     @DisplayField private final double explosionDamage = 10.0d;
     @DisplayField(percentage = true) private final double attackIncrease = 0.25d;
-    @DisplayField private final int attackIncreaseDuration = Tick.fromSecond(3);
+    @DisplayField private final int attackIncreaseDuration = Tick.fromSeconds(3);
     @DisplayField private final double furyDamageMultiplier = 2.0d;
 
     private final PlayerMap<GameTask> darkCoverTask = PlayerMap.newMap();

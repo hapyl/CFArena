@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -15,13 +15,13 @@ public final class StaticTalentFormat<T> {
             = create("{name}", nameable -> "&a" + nameable.getName() + "&7");
 
     public static final StaticTalentFormat<Timed> DURATION
-            = create("{duration}", timed -> "&b" + BukkitUtils.roundTick(timed.getDuration()) + "s&7");
+            = create("{duration}", timed -> "&b" + Tick.round(timed.getDuration()) + "&7");
 
     public static final StaticTalentFormat<Cooldown> COOLDOWN
-            = create("{cooldown}", cooldown -> "&b" + BukkitUtils.roundTick(cooldown.getCooldown()) + "s&7");
+            = create("{cooldown}", cooldown -> "&b" + Tick.round(cooldown.getCooldown()) + "&7");
 
     public static final StaticTalentFormat<UltimateTalent> ULTIMATE_CAST_DURATION
-            = create("{cast}", ultimate -> "&b" + BukkitUtils.roundTick(ultimate.getCastDuration()) + "s&7");
+            = create("{cast}", ultimate -> "&b" + Tick.round(ultimate.getCastDuration()) + "&7");
 
     private final String target;
     private final Function<T, String> function;

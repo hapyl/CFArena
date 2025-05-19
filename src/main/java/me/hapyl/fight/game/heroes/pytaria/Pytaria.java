@@ -59,7 +59,7 @@ public class Pytaria extends Hero {
         attributes.setCritDamage(50);
         attributes.setHeight(170);
 
-        setWeapon(Weapon.createBuilder(Material.ALLIUM, Key.ofString("annihilallium"))
+        setWeapon(Weapon.builder(Material.ALLIUM, Key.ofString("annihilallium"))
                         .name("Annihilallium")
                         .description("A beautiful flower, nothing more.")
                         .damage(8.0)

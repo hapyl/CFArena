@@ -128,6 +128,7 @@ public class Color implements TextColor {
     public static final Color BLOOD_RED = of("#a30000");
     public static final Color STONE_GRAY = of("#999999");
     public static final Color MUTED_PURPLE = of("#D1B3FF");
+    public static final Color SCORCH = of("#FF4500");
     
     // *-----------------------------------------------------*
     
