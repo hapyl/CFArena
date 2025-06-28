@@ -115,8 +115,8 @@ public class Genie extends CommissionEntityType {
         }
 
         @Override
-        public void remove(boolean playDeathAnimation) {
-            super.remove(playDeathAnimation);
+        public void remove() {
+            super.remove();
 
             riptide.remove();
             child.remove();

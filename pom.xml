@@ -81,7 +81,7 @@
         <dependency>
             <groupId>io.github.hapyl</groupId>
             <artifactId>eternaapi</artifactId>
-            <version>4.11.2</version>
+            <version>4.12.0</version>
             <scope>provided</scope> <!-- Why was this not compile anyways? -->
         </dependency>
 

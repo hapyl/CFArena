@@ -9,7 +9,6 @@ Damage Changes
 
 * Increase max damage `32,767` >> `9,999,999`.
 * True damage no longer ignores attacker's Damage attribute.
-* The `last damager` is now cleared before applying damage calculations if they have died (Unless player).
 
 ---
 
@@ -317,6 +316,8 @@ Bounty Hunter
 Heavy Knight
 ---
 
+* Increased Speed 60 >> 75.
+
 ### Uppercut
 
 * Now applies Daze effect which increases the chance for target to miss their attack.
@@ -332,9 +333,13 @@ Heavy Knight
     * Instead of increasing damage, spawns two slashes that deal additional damage.
     * Empowers the Leap ability to pull and daze enemies as well as resetting the cooldown of Break.
 
-### TBD (NEW! Passive)
+### Enchanted Armor (NEW! Passive)
 
-### TBD (NEW! Ultimate)
+* Your enchanted armor is undestructible, preventing your Defense from decreasing.
+
+### Siegebreaker (NEW! Ultimate)
+
+* Summons a sword and dashes forward, knocking enemies back and applying Daze.
 
 ---
 Engineer
@@ -456,6 +461,13 @@ Himari
 Inferno
 ---
 
+### Demonsplit: Typhoeus
+* Reduce fire damage 10% >> 5% of Max Health.
+* Improve fire mechanics.
+
+### Fire Pit
+* Improve fire mechanics.
+
 ### Fire Pillar (Ultimate)
 * Change the pillar to damage any enemy within distance instead of only enemy players.
 
@@ -478,5 +490,6 @@ Inferno
 * Fixed a bug where Twin Claws bite damage multiplier only applied for players.
 * Fixed a bug where dying would not cancel Impel.
 * Fixed a bug where Broken Heart Radiation would affect teammates.
+* Fixed a bug where Inferno fire could damage teammates.
 
 ---

@@ -70,7 +70,7 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
     @Nonnull
     public Hero getRandomHero() {
         final Set<Archetype> include = getInclude();
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return HeroRegistry.defaultHero();

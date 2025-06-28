@@ -20,8 +20,8 @@ import javax.annotation.Nullable;
 
 public class SummonWhelp extends Talent {
     
-    @DisplayField(percentage = true, suffix = " of D'lan's Max Health") public final double whelpHealth = 0.8;
-    @DisplayField(percentage = true) private final double healing = 0.4;
+    @DisplayField(percentage = true, suffix = " of D'lan's Max Health") public final double whelpHealth = 0.5;
+    @DisplayField(percentage = true) private final double healing = 0.2;
     
     public SummonWhelp(@Nonnull Key key) {
         super(key, "Summon Whelp");

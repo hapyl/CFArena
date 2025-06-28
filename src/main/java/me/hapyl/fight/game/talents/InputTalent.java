@@ -5,15 +5,19 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.util.CFUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Function;
 
 /**
  * This talent requires a mouse input to be executed.
  * fixme -> I don't like how this works
  */
 public abstract class InputTalent extends Talent {
+    
+    private static final String arrowChar = "⇄";
     
     protected final InputTalentData leftData;
     protected final InputTalentData rightData;
@@ -67,6 +71,18 @@ public abstract class InputTalent extends Talent {
                 rightData.getType().getName(),
                 format(rightData)
         ));
+    }
+    
+    @Nonnull
+    @Override
+    public String getCooldownFormatted() {
+        return arrowSplit(data -> CFUtils.formatTick(data.getCooldown()));
+    }
+    
+    @Nonnull
+    @Override
+    public String getTypeAsString() {
+        return arrowSplit(data -> data.getType().getName());
     }
     
     @Nonnull
@@ -183,6 +199,10 @@ public abstract class InputTalent extends Talent {
         if (point > 0) {
             player.incrementEnergy(point);
         }
+    }
+    
+    private String arrowSplit(Function<InputTalentData, String> fn) {
+        return "%s %s %s".formatted(fn.apply(leftData), arrowChar, fn.apply(rightData));
     }
     
     private String format(InputTalentData data) {

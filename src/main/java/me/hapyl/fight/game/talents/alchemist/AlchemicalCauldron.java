@@ -8,6 +8,7 @@ import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -26,7 +27,7 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class AlchemicalCauldron extends TickingGameTask {
+public class AlchemicalCauldron extends TickingGameTask implements Removable {
     
     private static final DisplayData DISPLAY_CAULDRON;
     
@@ -74,8 +75,6 @@ public class AlchemicalCauldron extends TickingGameTask {
             
             @Override
             public void onDespawn() {
-                cancel();
-                
                 // Fx
                 final Location fxLocation = location.add(0, 1, 0);
                 
@@ -139,11 +138,11 @@ public class AlchemicalCauldron extends TickingGameTask {
     }
     
     @Override
-    public void onTaskStop() {
+    public void remove() {
         this.entity.remove();
         this.hologram.destroy();
         this.animation.remove();
-        this.hitBoxEntity.forceRemove();
+        this.hitBoxEntity.remove();
         
         // Return the weapon
         if (status) {
@@ -152,7 +151,18 @@ public class AlchemicalCauldron extends TickingGameTask {
     }
     
     @Override
+    public void onTaskStop() {
+       remove();
+    }
+    
+    @Override
     public void run(final int tick) {
+        // Check for health here because it bad design to call from inner to outer
+        if (hitBoxEntity.isDead()) {
+            cancel();
+            return;
+        }
+        
         animate();
         
         // Update hologram
@@ -160,7 +170,7 @@ public class AlchemicalCauldron extends TickingGameTask {
         
         this.hologram.setLinesAndUpdate(
                 "&a%s's Cauldron &8| &c%.0f ❤".formatted(player.getName(), hitBoxEntity.getHealth()),
-                "&b%ss".formatted(Tick.round(timeLeft)),
+                "&b%s".formatted(Tick.round(timeLeft)),
                 "",
                 !status ? (isDarkRed ? "&4&l" : "&c&l") + "THE STICK IS MISSING!" : ""
         );

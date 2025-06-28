@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.entity;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.ai.AI;
 import me.hapyl.eterna.module.ai.MobAI;
@@ -20,20 +21,23 @@ import me.hapyl.eterna.module.reflect.glowing.Glowing;
 import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.eterna.module.util.collection.Cache;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.Important;
 import me.hapyl.fight.annotate.InverseOf;
 import me.hapyl.fight.annotate.PreprocessingMethod;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.event.custom.AttributeModifyEvent;
 import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.custom.GameEntityHealEvent;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.EntityState;
+import me.hapyl.fight.game.*;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.damage.DamageFlag;
+import me.hapyl.fight.game.dot.Dot;
+import me.hapyl.fight.game.dot.DotInstance;
 import me.hapyl.fight.game.effect.*;
 import me.hapyl.fight.game.effect.Effect;
 import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
@@ -55,6 +59,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffect;
@@ -64,10 +69,8 @@ import org.jetbrains.annotations.Range;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -79,34 +82,52 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     private static final Draw FEROCITY_PARTICLE_DATA = new FerocityFx();
     private static final int FEROCITY_HIT_CD = 9;
+    private static final long ASSIST_DURATION = TimeUnit.SECONDS.toMillis(10);
     private static final double ACTUAL_ENTITY_HEALTH = 0.1d;
     private static final String CC_SMALL_CAPS_NAME = "&lᴇꜰꜰᴇᴄᴛ ʀᴇꜱ";
-    private static final Map<Attribute, Double> DEFAULT_ATTRIBUTE_VALUES = Map.of(
-            Attribute.KNOCKBACK_RESISTANCE, 0.0d,
-            Attribute.ATTACK_SPEED, 2.0d,
-            Attribute.ATTACK_DAMAGE, 1.0d,
-            Attribute.ARMOR, -100.0d
-    );
     private static final String BLOOD_DEBT_CHAR = "&4&l🩸";
+    
+    private static final Map<Attribute, Double> DEFAULT_ATTRIBUTE_VALUES = Map.of(
+            Attribute.KNOCKBACK_RESISTANCE, 0d,
+            Attribute.ATTACK_SPEED, 2d,
+            Attribute.ATTACK_DAMAGE, 1d,
+            Attribute.ARMOR, -100d, // To remove vanilla armor bars
+            Attribute.ARMOR_TOUGHNESS, 0d,
+            Attribute.ATTACK_KNOCKBACK, 0d,
+            Attribute.STEP_HEIGHT, 0.6d
+    );
     
     public final EntityRandom random;
     public final EntityTicker ticker;
-    protected final EntityData entityData;
+    
     protected final EntityAttributes attributes;
+    protected final Map<Effect, ActiveEffect> effects;
+    protected final Map<GamePlayer, Double> damageTaken;
+    protected final Map<Dot, DotInstance> dotInstanceMap;
+    
+    private final Map<DamageCause, Integer> attackCooldown;
+    private final Cache<GamePlayer> assistingPlayers;
     private final Set<DamageCause> immunityCauses = Sets.newHashSet();
     private final EntityCooldownHandler cooldown;
     private final EntityPacketFactory packetFactory;
     private final EntityMemory memory;
+    
     @Nonnull
     protected EntityState state;
     protected double health;
     protected Shield shield;
     protected Decay decay;
     protected BloodDebt bloodDebt;
+    
+    @Important(value = "Notifies the event that the damage is named, not vanilla.")
+    private boolean wasHit;
     private AI ai;
     private boolean informImmune = true;
+    
     @Nullable private Hologram aboveHead;
     @Nullable private Overlay overlay;
+    @Nullable private GameEntity lastDamager;
+    @Nullable private DamageCause lastDamageCause;
     
     public LivingGameEntity(@Nonnull LivingEntity entity) {
         this(entity, new BaseAttributes().put(AttributeType.MAX_HEALTH, entity.getHealth()));
@@ -115,13 +136,18 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public LivingGameEntity(@Nonnull LivingEntity entity, @Nonnull BaseAttributes attributes) {
         super(entity);
         this.attributes = new EntityAttributes(this, attributes);
-        this.entityData = new EntityData(this);
         this.state = EntityState.ALIVE;
         this.cooldown = new EntityCooldownHandler(this);
         this.packetFactory = new EntityPacketFactory(this);
         this.memory = new EntityMemory(this);
         this.random = new EntityRandom();
         this.ticker = new EntityTicker(this);
+        
+        this.damageTaken = Maps.newHashMap();
+        this.effects = Maps.newHashMap();
+        this.attackCooldown = Maps.newConcurrentMap(); // why is this concurrent again?
+        this.assistingPlayers = Cache.ofSet(LivingGameEntity.ASSIST_DURATION);
+        this.dotInstanceMap = Maps.newHashMap();
         
         this.health = attributes.get(AttributeType.MAX_HEALTH);
         this.bloodDebt = new BloodDebt(this);
@@ -140,6 +166,189 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         entity.setMaximumNoDamageTicks(0);
         
         applyAttributes();
+    }
+    
+    
+    /**
+     * Returns true if current damage instance is executed used EntityData.
+     *
+     * @return true if current damage instance is executed used EntityData.
+     */
+    public boolean isCustomDamage() {
+        return wasHit;
+    }
+    
+    /**
+     * Returns true if current damage instance is native.
+     *
+     * @return true if current damage instance is native.
+     */
+    public boolean isNativeDamage() {
+        return !wasHit;
+    }
+    
+    /**
+     * Gets the cause of the last taken damage.
+     *
+     * @return the last cause of the taken damage.
+     */
+    @Nonnull
+    public DamageCause getLastDamageCause() {
+        return lastDamageCause != null ? lastDamageCause : DamageCause.ENTITY_ATTACK;
+    }
+    
+    /**
+     * Sets the cause of the last-taken damage.
+     *
+     * @param cause - Cause.
+     */
+    public void setLastDamageCause(@Nonnull DamageCause cause) {
+        this.lastDamageCause = cause;
+    }
+    
+    /**
+     * Gets the last damager.
+     *
+     * @return the last damager.
+     */
+    @Nullable
+    public GameEntity lastDamager() {
+        // Validate if the damage is still alive, unless it's a player
+        // if (lastDamager != null) {
+        //     if (!(lastDamager instanceof GamePlayer) && lastDamager instanceof LivingGameEntity livingDamager && livingDamager.isDead()) {
+        //         lastDamager = null;
+        //     }
+        // }
+        
+        return lastDamager;
+    }
+    
+    /**
+     * Gets the last damage as living damager if it's not null and is a living game entity.
+     *
+     * @return last damager or null.
+     */
+    @Nullable
+    public LivingGameEntity getLastDamagerAsLiving() {
+        return lastDamager() instanceof LivingGameEntity livingDamager ? livingDamager : null;
+    }
+    
+    /**
+     * Roots to the actual entity damager.
+     */
+    @Nullable
+    public LivingEntity rootLastDamager() {
+        if (lastDamager == null) {
+            return null;
+        }
+        
+        if (lastDamager instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof LivingEntity living) {
+                return living;
+            }
+            
+            return null;
+        }
+        
+        return lastDamager.getEntity();
+    }
+    
+    /**
+     * Sets the last damage cause if the last damage was native.
+     *
+     * @param cause - Bukkit cause.
+     */
+    public void setLastDamageCauseIfNative(@Nonnull EntityDamageEvent.DamageCause cause) {
+        if (isNativeDamage()) {
+            lastDamageCause = DamageCause.byBukkitCause(cause);
+        }
+    }
+    
+    /**
+     * Sets the last damager if the last damage was native.
+     *
+     * @param living - New damager.
+     */
+    public void setLastDamagerIfNative(LivingGameEntity living) {
+        if (isNativeDamage()) {
+            lastDamager = living;
+        }
+    }
+    
+    /**
+     * Removes the effect from this entity.
+     *
+     * @param type - Type.
+     */
+    public void removeEffect(@Nonnull Effect type) {
+        final ActiveEffect gameEffect = effects.remove(type);
+        
+        if (gameEffect != null) {
+            gameEffect.remove();
+        }
+    }
+    
+    /**
+     * Returns true if this entity has the given effect.
+     *
+     * @param type - Type.
+     * @return true if this entity has the given effect.
+     */
+    public boolean hasEffect(@Nonnull Effect type) {
+        return effects.containsKey(type);
+    }
+    
+    /**
+     * Resets all the damage data, such as:
+     * <ul>
+     *     <li>{@link #lastDamager}</li>
+     *     <li>{@link #lastDamageCause}</li>
+     * </ul>
+     */
+    public void resetDamage() {
+        lastDamager = null;
+        lastDamageCause = DamageCause.ENTITY_ATTACK;
+    }
+    
+    public void addAssistingPlayer(@Nonnull GamePlayer player) {
+        this.assistingPlayers.add(player);
+    }
+    
+    /**
+     * Gets a copy of players who has assisted in the last {@link LivingGameEntity#ASSIST_DURATION}.
+     *
+     * @return a copy of players who has assisted in the last {@link LivingGameEntity#ASSIST_DURATION}.
+     */
+    @Nonnull
+    public Set<GamePlayer> getAssistingPlayers() {
+        return new HashSet<>(assistingPlayers);
+    }
+    
+    public boolean hasAttackCooldown(@Nonnull DamageCause cause) {
+        final int cooldown = attackCooldown.getOrDefault(cause, 0);
+        
+        return !cause.isEnvironmentDamage() && cooldown > 0;
+    }
+    
+    public void startAttackCooldown(@Nonnull DamageCause cause, int cooldown) {
+        attackCooldown.put(cause, cooldown);
+    }
+    
+    @Nullable
+    public DotInstance dotInstance(@Nonnull Dot dot) {
+        return dotInstanceMap.get(dot);
+    }
+    
+    public void addDotStacks(@Nonnull Dot dot, int stacks) {
+        addDotStacks(dot, stacks, null);
+    }
+    
+    public void addDotStacks(@Nonnull Dot dot, int stacks, @Nullable LivingGameEntity applier) {
+        doWorkDot(dot, applier, instance -> instance.incrementStacks(stacks, applier));
+    }
+    
+    public void setDotStacks(@Nonnull Dot dot, int stacks, @Nullable LivingGameEntity applier) {
+        doWorkDot(dot, applier, instance -> instance.setStacksMax(stacks, applier));
     }
     
     public boolean hasAboveHead() {
@@ -209,7 +418,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @return true if an entity has died during the game and currently spectating or waiting for respawn.
      */
     public boolean isDead() {
-        return state == EntityState.DEAD || entity.isDead();
+        return state == EntityState.DEAD;
     }
     
     public boolean isDeadOrRespawning() {
@@ -233,6 +442,41 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @Nonnull
     public EntityAttributes getAttributes() {
         return attributes;
+    }
+    
+    public void addEffect(@Nonnull Effect type, int amplifier, int duration, @Nullable LivingGameEntity applier) {
+        final Type effectType = type.getType();
+        
+        // Check for effect resistance
+        if (effectType == Type.NEGATIVE && hasEffectResistanceAndNotify(applier)) {
+            return;
+        }
+        
+        final ActiveEffect effect = effects.get(type);
+        
+        // If effect already exists, update the remaining duration, applier and call onUpdate()
+        if (effect != null) {
+            // Don't override stronger effects
+            if (amplifier >= effect.amplifier()) {
+                effect.amplifier(amplifier);
+                effect.applier(applier);
+                effect.tick(duration);
+                
+                effect.effect().onUpdate(effect);
+            }
+        }
+        // Otherwise create effect
+        else {
+            effects.put(type, new ActiveEffect(this, applier, type, amplifier, duration));
+        }
+        
+        // Trigger buff/de-buff if there is an applier
+        if (applier != null) {
+            switch (effectType) {
+                case POSITIVE -> triggerBuff(applier);
+                case NEGATIVE -> triggerDebuff(applier);
+            }
+        }
     }
     
     /**
@@ -274,56 +518,29 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
     
     /**
-     * Adds the given {@link Effect} to the entity.
-     *
-     * @param effect    - The effect to add.
-     * @param amplifier - The amplifier of the effect.
-     *                  <i>Only applicable to {@link VanillaEffect}</i>.
-     * @param duration  - The duration of the effect.
-     * @param applier   - The applier.
-     *                  <i>If present, appliers {@link AttributeType#EFFECT_HIT_RATE} will be considered and either a buff or a de-buff will be triggered.</i>
-     * @see EffectType
-     */
-    public void addEffect(@Nonnull Effect effect, int amplifier, int duration, @Nullable LivingGameEntity applier) {
-        entityData.addEffect(effect, amplifier, duration, applier);
-    }
-    
-    /**
-     * Returns true if this entity has the given {@link EffectType}; false otherwise.
-     *
-     * @param effect - Effect to check.
-     * @return true if this entity has the given {@link EffectType}; false otherwise.
-     */
-    public boolean hasEffect(@Nonnull Effect effect) {
-        return entityData.hasEffect(effect);
-    }
-    
-    public void removeEffect(@Nonnull Effect effect) {
-        entityData.removeEffect(effect);
-    }
-    
-    /**
      * Removes all the effect from this entity with the given type.
      *
      * @param type - Type.
      */
     public void removeEffectsByType(@Nonnull Type type) {
-        entityData.effects.values().removeIf(effect -> {
-            if (!effect.isInfiniteDuration() && effect.effect().getType() == type) {
-                effect.remove();
-                return true;
-            }
-            
-            return false;
-        });
+        effects.values().removeIf(
+                effect -> {
+                    if (!effect.isInfiniteDuration() && effect.effect().getType() == type) {
+                        effect.remove();
+                        return true;
+                    }
+                    
+                    return false;
+                }
+        );
     }
     
     /**
      * Kills an entity with the death animation.
      */
     @Override
-    public void remove(boolean playDeathAnimation) {
-        super.remove(playDeathAnimation);
+    public void remove() {
+        super.remove();
         state = EntityState.DEAD;
     }
     
@@ -341,17 +558,17 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         // That's the whole point of the system to
         // award the last damager even if player killed themselves.
         if (damager != null && !this.equals(damager)) {
-            entityData.setLastDamager(damager);
+            lastDamager = damager;
         }
         
         if (cause != null) {
-            entityData.setLastDamageCause(cause);
+            lastDamageCause = cause;
         }
         
         // Call the damage event
-        entityData.wasHit = true; // This tag is VERY important for calculations
+        wasHit = true; // This tag is VERY important for calculations
         entity.damage(damage, damager == null ? null : damager.getEntity());
-        entityData.wasHit = false;
+        wasHit = false;
     }
     
     public void damage(double d, DamageCause cause) {
@@ -366,11 +583,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         damage(damage, CF.getEntity(damager), cause);
     }
     
-    public void damageNoKnockback(double damage, @Nonnull LivingGameEntity damager) {
+    public void damageNoKnockback(double damage, @Nullable LivingGameEntity damager) {
         damageNoKnockback(damage, damager, null);
     }
     
-    public void damageNoKnockback(double damage, @Nonnull LivingGameEntity damager, @Nullable DamageCause cause) {
+    public void damageNoKnockback(double damage, @Nullable LivingGameEntity damager, @Nullable DamageCause cause) {
         setLastDamager(damager);
         damage(damage, cause);
     }
@@ -545,7 +762,16 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     @OverridingMethodsMustInvokeSuper
     public void tick() {
         // Tick entity data
-        entityData.tick();
+        final Collection<ActiveEffect> effects = this.effects.values();
+        
+        effects.removeIf(ActiveEffect::removeIfShould);
+        effects.forEach(ActiveEffect::tick);
+        
+        // Tick dot
+        tickDots();
+        
+        // Tick attack cooldowns
+        tickAttackCooldowns();
         
         // Tick decay
         if (decay != null) {
@@ -720,7 +946,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @deprecated Prefer healing based on max health using {@link #healRelativeToMaxHealth(double)}.
      */
     @Nonnull
-    @Deprecated
     public HealingOutcome heal(double amount) {
         return heal(amount, null);
     }
@@ -913,7 +1138,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     @Nonnull
     public MapView<Effect, ActiveEffect> getActiveEffectsView() {
-        return MapView.of(entityData.effects);
+        return MapView.of(effects);
+    }
+    
+    @Nonnull
+    public MapView<Dot, DotInstance> getDotInstanceView() {
+        return MapView.of(dotInstanceMap);
     }
     
     public void dieBy(@Nonnull DamageCause cause) {
@@ -927,8 +1157,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             return;
         }
         
-        // FIXME (Tue, Feb 4 2025 @xanyjl): Make this DEAD but like why doesn't it work for gp?
-        state = deathState();
+        state = EntityState.DEAD;
         
         cooldown.stopCooldowns();
         bloodDebt.reset();
@@ -942,7 +1171,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         
         memory.forgetEverything();
         
-        onDeath();
+        remove();
     }
     
     @Nonnull
@@ -1046,7 +1275,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             final int baseAttackCooldown = cause.isDirectDamage() ? livingDamager.getAttackCooldown() : cause.attackCooldown();
             final int attackCooldown = attributes.calculate().attackCooldown(baseAttackCooldown);
             
-            livingDamager.entityData.startAttackCooldown(cause, attackCooldown);
+            livingDamager.startAttackCooldown(cause, attackCooldown);
         }
         
         // Apply environment cooldown
@@ -1070,15 +1299,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public void onDamageDealt(@Nonnull DamageInstance instance) {
     }
     
-    @Nonnull
-    public DamageCause getLastDamageCause() {
-        return entityData.getLastDamageCauseNonNull();
-    }
-    
-    public void setLastDamageCause(@Nonnull DamageCause lastDamageCause) {
-        entityData.setLastDamageCause(lastDamageCause);
-    }
-    
     public int getAttackCooldown() {
         return DamageCause.defaultAttackCooldown();
     }
@@ -1097,14 +1317,18 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return healthString;
     }
     
-    @Nullable
-    public GameEntity getLastDamager() {
-        return entityData.lastDamager();
+    /**
+     * Sets the last damager.
+     *
+     * @param lastDamager - New last damager.
+     */
+    public void setLastDamager(@Nullable GameEntity lastDamager) {
+        this.lastDamager = lastDamager;
     }
     
     public void setLastDamager(LivingGameEntity lastDamager) {
         if (lastDamager != null) {
-            entityData.setLastDamager(lastDamager);
+            this.lastDamager = lastDamager;
         }
     }
     
@@ -1137,7 +1361,8 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     @Override
     public String toString() {
-        return entity.getType() + "~" + entity.getUniqueId();
+        // ClassName(EntityType)[Id]
+        return "%s(%s)[%s]".formatted(this.getClass().getSimpleName(), entity.getType(), entity.getEntityId());
     }
     
     public double getMinHealth() {
@@ -1153,33 +1378,20 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     }
     
     public void setAttributeValue(@Nonnull Attribute attribute, double value) {
-        final AttributeInstance instance = entity.getAttribute(attribute);
-        
-        if (instance == null) {
-            return;
-        }
-        
-        instance.setBaseValue(value);
-    }
-    
-    public void modifyAttributeValue(@Nonnull Attribute attribute, double value) {
-        setAttributeValue(attribute, getAttributeValue(attribute) + value);
+        workAttribute(
+                attribute, instance -> {
+                    instance.setBaseValue(value);
+                    return null;
+                }, null
+        );
     }
     
     public double getAttributeValue(@Nonnull Attribute attribute) {
-        final AttributeInstance instance = entity.getAttribute(attribute);
-        
-        if (instance == null) {
-            return 0.0d;
-        }
-        
-        return instance.getBaseValue();
+        return workAttribute(attribute, AttributeInstance::getBaseValue, 0d);
     }
     
-    // FIXME @Apr 23, 2025 (xanyjl) -> Probably shouldn't expose entity data
-    @Nonnull
-    public EntityData getEntityData() {
-        return entityData;
+    public void resetAttributeValue(@Nonnull Attribute attribute) {
+        setAttributeValue(attribute, Objects.requireNonNull(DEFAULT_ATTRIBUTE_VALUES.get(attribute), "unregistered attribute: " + attribute));
     }
     
     @Nonnull
@@ -1202,9 +1414,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * Adds a potion effect to this entity.
      *
      * @param effect - Effect to add.
-     * @deprecated prefer {@link EffectType}.
      */
-    @Deprecated
     public void addPotionEffect(@Nonnull PotionEffect effect) {
         entity.addPotionEffect(effect);
     }
@@ -1215,9 +1425,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      * @param type      - Type.
      * @param amplifier - Amplifier.
      * @param duration  - Duration.
-     * @deprecated prefer {@link EffectType}.
      */
-    @Deprecated
     public void addPotionEffect(@Nonnull PotionEffectType type, int amplifier, int duration) {
         addPotionEffect(new PotionEffect(type, duration, amplifier, false, false, false));
     }
@@ -1227,9 +1435,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      *
      * @param type      - Effect type.
      * @param amplifier - Amplifier.
-     * @deprecated prefer {@link EffectType}.
      */
-    @Deprecated
     public void addPotionEffectIndefinitely(@Nonnull PotionEffectType type, int amplifier) {
         addPotionEffect(type, amplifier, PotionEffect.INFINITE_DURATION);
     }
@@ -1327,7 +1533,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     public void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, float speed) {
         PlayerLib.spawnParticle(location, particle, amount, x, y, z, speed);
     }
-    // this spawns globally
     
     public <T> void spawnWorldParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
         spawnWorldParticle(location, particle, amount, x, y, z, 0.0f, data);
@@ -1363,6 +1568,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
             PlayerLib.spawnParticle(player, location, particle, amount, x, y, z, speed);
         });
     }
+    // this spawns globally
     
     public <T> void spawnParticle(Location location, Particle particle, int amount, double x, double y, double z, T data) {
         asPlayer(player -> {
@@ -1552,10 +1758,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         }
     }
     
-    public void resetAttributeValue(@Nonnull Attribute attribute) {
-        setAttributeValue(attribute, DEFAULT_ATTRIBUTE_VALUES.getOrDefault(attribute, 0.0d));
-    }
-    
     public void playHurtAnimation(float yaw) {
         getEntity().playHurtAnimation(yaw);
     }
@@ -1573,12 +1775,12 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     public void redirectDamage(@Nonnull DamageInstance instance) {
         // Set damage cause and damager
-        entityData.setLastDamageCause(instance.getCause());
+        lastDamageCause = instance.getCause();
         
         final LivingGameEntity damager = instance.getDamager();
         
         if (damager != null) {
-            entityData.setLastDamager(damager);
+            lastDamager = damager;
         }
         
         // Actually decrease health
@@ -1595,7 +1797,7 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     @Nullable
     public ActiveEffect getActiveEffect(@Nonnull Effect effect) {
-        return entityData.effects.get(effect);
+        return effects.get(effect);
     }
     
     public void playWorldSoundAtTicks(@Nonnull Location location, @Nonnull Sound sound, float startPitch, float endPitch, @Range(from = 2, to = Integer.MAX_VALUE) int... ticks) {
@@ -1606,13 +1808,27 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         doPlaySoundAtTick(startPitch, endPitch, pitch -> playSound(location, sound, pitch), ticks);
     }
     
-    protected boolean shouldStartAttackCooldown() {
-        return true;
+    public boolean hasDot(@Nonnull Dot dot) {
+        return dotInstanceMap.containsKey(dot);
     }
     
-    @Nonnull
-    protected EntityState deathState() {
-        return EntityState.DEAD;
+    public int getDotStacks(@Nonnull Dot dot) {
+        final DotInstance instance = dotInstanceMap.get(dot);
+        
+        return instance != null ? instance.stacks() : 0;
+    }
+    
+    public void removeDot(@Nonnull Dot dot) {
+        final DotInstance instance = dotInstanceMap.remove(dot);
+        
+        // If instance is not null means it's not new dot, call onStop
+        if (instance != null) {
+            dot.onStop(instance);
+        }
+    }
+    
+    protected boolean shouldStartAttackCooldown() {
+        return true;
     }
     
     protected boolean isInvalidForFerocity() {
@@ -1628,6 +1844,74 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         resetAttributeValue(Attribute.ARMOR); // Remove armor bars
         
         attributes.updateAttributes();
+    }
+    
+    private void doWorkDot(Dot dot, LivingGameEntity applier, Consumer<DotInstance> consumer) {
+        if (hasEffectResistanceAndNotify(applier)) {
+            return;
+        }
+        
+        final boolean newDot = !dotInstanceMap.containsKey(dot);
+        final DotInstance instance = dotInstanceMap.computeIfAbsent(dot, f -> dot.newInstance(this));
+        
+        consumer.accept(instance);
+        
+        // Call onStart
+        if (newDot) {
+            dot.onStart(instance);
+        }
+    }
+    
+    private <T> T workAttribute(Attribute attribute, Function<AttributeInstance, T> fn, T def) {
+        final AttributeInstance instance = entity.getAttribute(attribute);
+        
+        if (instance != null) {
+            return fn.apply(instance);
+        }
+        
+        return def;
+    }
+    
+    private void tickDots() {
+        final Collection<DotInstance> dot = dotInstanceMap.values();
+        final int aliveTicks = aliveTicks();
+        
+        final Iterator<DotInstance> iterator = dot.iterator();
+        
+        while (iterator.hasNext()) {
+            final DotInstance instance = iterator.next();
+            
+            // Always tick
+            instance.tick();
+            
+            if (aliveTicks % instance.dot().affectPeriod() == 0) {
+                instance.affect();
+                
+                // Remove right after ticking because it's DoT is stack-based
+                if (instance.stacks() <= 0) {
+                    iterator.remove();
+                    
+                    // Call onStop
+                    instance.dot().onStop(instance);
+                }
+            }
+        }
+    }
+    
+    private void tickAttackCooldowns() {
+        final Iterator<Map.Entry<DamageCause, Integer>> iterator = attackCooldown.entrySet().iterator();
+        
+        while (iterator.hasNext()) {
+            final Map.Entry<DamageCause, Integer> next = iterator.next();
+            final int value = next.getValue() - 1;
+            
+            if (value > 0) {
+                next.setValue(value);
+            }
+            else {
+                iterator.remove();
+            }
+        }
     }
     
     private void doPlaySoundAtTick(float pitchStart, float pitchEnd, Consumer<Float> cn, int... ticks) {
@@ -1673,5 +1957,25 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     private short randomShort() {
         return (short) (randomDouble(0.0d, 1.0d) * 8192);
+    }
+    
+    public static void die(@Nonnull LivingEntity livingEntity) {
+        final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
+        if (gameEntity == null) {
+            return;
+        }
+        
+        gameEntity.dieBy(DamageCause.SUICIDE);
+    }
+    
+    /**
+     * Reset damage data for every entity in the current game instance.
+     */
+    public static void resetDamageData() {
+        final IGameInstance instance = Manager.current().currentInstance();
+        
+        if (instance instanceof GameInstance) {
+            CF.getEntities(LivingGameEntity.class).forEach(LivingGameEntity::resetDamage);
+        }
     }
 }

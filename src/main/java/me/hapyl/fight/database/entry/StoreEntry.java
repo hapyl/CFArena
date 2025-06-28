@@ -33,7 +33,7 @@ public class StoreEntry extends PlayerDatabaseEntry {
     // }
 
     public Cosmetic[] generateOffers() {
-        final Cosmetic[] offers = Cosmetic.getCosmeticsThatCanAppearInStoreAndNotOwnedBy(getOnlinePlayer());
+        final Cosmetic[] offers = Cosmetic.getCosmeticsThatCanAppearInStoreAndNotOwnedBy(player().orElseThrow());
 
         setValue("offers", MongoUtils.getKeys(offers));
         setValue("day", Challenge.getCurrentDay());

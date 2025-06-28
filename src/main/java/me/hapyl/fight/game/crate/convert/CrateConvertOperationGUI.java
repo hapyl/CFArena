@@ -56,6 +56,8 @@ public class CrateConvertOperationGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(new ItemBuilder(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE)
                 .setName("Convert")
                 .addLore()
@@ -87,7 +89,7 @@ public class CrateConvertOperationGUI extends StyledGUI {
             return;
         }
 
-        final ItemBuilder builder = StyledTexture.CRATE_CONVERT.toBuilder()
+        final ItemBuilder builder = StyledTexture.CRATE_CONVERT.asBuilder()
                                                                .setAmount(conversionTimes)
                                                                .setName("Convert " + conversionTimes + " crates")
                                                                .addLore()

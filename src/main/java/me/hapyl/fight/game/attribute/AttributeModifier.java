@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class AttributeModifier extends GameTask implements Iterable<AttributeModifierEntry> {
@@ -37,6 +38,10 @@ public class AttributeModifier extends GameTask implements Iterable<AttributeMod
     public AttributeModifier of(@Nonnull AttributeType type, @Nonnull ModifierType modifierType, double value) {
         entries.add(new AttributeModifierEntry(type, modifierType, value));
         return this;
+    }
+    
+    public boolean remove(@Nonnull Predicate<AttributeModifierEntry> predicate) {
+        return entries.removeIf(predicate);
     }
     
     @Override
@@ -74,5 +79,10 @@ public class AttributeModifier extends GameTask implements Iterable<AttributeMod
     @Override
     public Iterator<AttributeModifierEntry> iterator() {
         return entries.iterator();
+    }
+    
+    @Nonnull
+    public static AttributeModifier dummyModifier(@Nonnull LivingGameEntity entity) {
+        return new AttributeModifier(entity.getAttributes(), ModifierSource.COMMAND, Constants.INFINITE_DURATION, null);
     }
 }

@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.Response;
@@ -79,7 +80,7 @@ public abstract class DarkMageTalent extends Talent {
 
     public final void executeDarkMage(@Nonnull GamePlayer player) {
         if (isOnCooldown(player)) {
-            player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCooldownTimeLeft(player))), 0, 20, 5);
+            player.sendSubtitle("&cSpell on cooldown for %s!".formatted(Tick.round(getCooldownTimeLeft(player))), 0, 20, 5);
             return;
         }
 

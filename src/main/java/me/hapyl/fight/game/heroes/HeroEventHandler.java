@@ -57,7 +57,7 @@ public class HeroEventHandler {
         final int lock = player.getTalentLock(slot);
 
         if (lock > 0) {
-            Response.error("Talent is locked for %ss!".formatted(Tick.round(lock))).sendError(player);
+            Response.error("Talent is locked for %s!".formatted(Tick.round(lock))).sendError(player);
             
             player.playSound(Sound.ENTITY_ENDERMAN_SCREAM, 0.0f);
             player.snapToWeapon();
@@ -103,7 +103,7 @@ public class HeroEventHandler {
 
         // \/ Talent executed \/
         final int point = talent.getPoint();
-
+        
         if (point > 0) {
             player.incrementEnergy(point);
         }

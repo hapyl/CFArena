@@ -1,11 +1,8 @@
 package me.hapyl.fight.game;
 
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.util.ConstructorAccess;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -14,6 +11,9 @@ import java.time.format.DateTimeFormatter;
 
 public class Debug {
 
+    private Debug() {
+    }
+    
     /**
      * Indicates that this debug logger should not be removed in prod.
      */
@@ -46,10 +46,6 @@ public class Debug {
      */
     public static void severe(Object message) {
         send("&4&l" + message);
-    }
-
-    public static void particle(Location location, Particle particle) {
-        PlayerLib.spawnParticle(location, particle, 1);
     }
 
     public static void uncommentMe(Object reason) {

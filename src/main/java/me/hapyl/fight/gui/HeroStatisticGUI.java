@@ -47,6 +47,7 @@ public class HeroStatisticGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         setHeader(
                 new ItemBuilder(hero.getItem()).setName(this.hero.getName())
                                                .addLore()

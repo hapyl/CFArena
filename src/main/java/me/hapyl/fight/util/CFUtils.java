@@ -578,7 +578,7 @@ public class CFUtils {
     
     @Nonnull
     public static String formatTick(int tick) {
-        return tick > Constants.MAX_COOLDOWN || tick == Constants.INFINITE_DURATION ? INF_CHAR : Tick.format(tick);
+        return tick > Constants.MAX_COOLDOWN || tick == Constants.INFINITE_DURATION ? INF_CHAR : Tick.round(tick);
     }
     
     @Nonnull
@@ -1036,6 +1036,18 @@ public class CFUtils {
         };
     }
     
+    public static boolean compareBlockLocation(@Nonnull Location a, @Nonnull Location b) {
+        final int aX = a.getBlockX();
+        final int aY = a.getBlockY();
+        final int aZ = a.getBlockZ();
+        
+        final int bX = b.getBlockX();
+        final int bY = b.getBlockY();
+        final int bZ = b.getBlockZ();
+        
+        return aX == bX && aY == bY && aZ == bZ;
+    }
+    
     private static double distance0(Location a, Location b, BiFunction<Location, Location, Double> fn) {
         final World aWorld = a.getWorld();
         final World bWorld = b.getWorld();
@@ -1182,7 +1194,7 @@ public class CFUtils {
     
     @Nonnull
     public static String strikethroughText(@Nonnull ChatColor color) {
-        return (color + "&m ").repeat(77);
+        return (color + "&m ").repeat(78);
     }
     
     private static class Helper {

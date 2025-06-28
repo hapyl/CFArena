@@ -25,6 +25,8 @@ public class GameManagementGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final Manager manager = Manager.current();
         final EnumLevel currentMap = manager.currentEnumLevel();
         final EnumGameType currentMode = manager.currentEnumType();
@@ -35,7 +37,7 @@ public class GameManagementGUI extends StyledGUI {
         // Map Select
         setItemRanked(
                 20,
-                StyledTexture.ICON_MAP_SELECT.toBuilder()
+                StyledTexture.ICON_MAP_SELECT.asBuilder()
                                              .addLore()
                                              .addLore("Current Map: &a" + currentMap.getName()),
                 PlayerRank.GAME_MANAGER, "Click to change that!", MapSelectGUI::new
@@ -44,7 +46,7 @@ public class GameManagementGUI extends StyledGUI {
         // Mode Select
         setItemRanked(
                 22,
-                StyledTexture.ICON_MODE_SELECT.toBuilder()
+                StyledTexture.ICON_MODE_SELECT.asBuilder()
                                               .addLore()
                                               .addLore("Current Mode: &a" + currentMode.getMode().getName()),
                 PlayerRank.GAME_MANAGER, "Click to change that!", ModeSelectGUI::new
@@ -66,7 +68,7 @@ public class GameManagementGUI extends StyledGUI {
 
         setItemRanked(42,
                 StyledTexture.ICON_FAIR_MODE
-                        .toBuilder()
+                        .asBuilder()
                         .addLore()
                         .addLore(Color.DEFAULT + "Current Mode")
                         .addLore(" " + fairMode.getName())

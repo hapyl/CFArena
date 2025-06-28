@@ -263,7 +263,7 @@ public class PlayerUI extends TickingGameTask {
         final PlayerDatabase playerDatabase = profile.getDatabase();
         
         builder.getLines().clear();
-        builder.addLines("&8%s %s".formatted(Season.getDateString(), CF.getPlugin().serverType()), "");
+        builder.addLines("&8%s %s".formatted(Season.getDateString(), CF.getPlugin().thisServer()), "");
         
         // Trial
         if (profile.hasTrial()) {

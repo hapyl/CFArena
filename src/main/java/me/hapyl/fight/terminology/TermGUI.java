@@ -36,6 +36,8 @@ public class TermGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(StyledTexture.ICON_TERMS.asIcon());
 
         setItem(22, new ItemBuilder(Material.CREEPER_BANNER_PATTERN)

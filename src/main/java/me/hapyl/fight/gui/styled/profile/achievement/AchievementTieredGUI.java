@@ -51,6 +51,8 @@ public class AchievementTieredGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         // Page arrows
         if (page > 1) {
             setItem(
@@ -93,7 +95,7 @@ public class AchievementTieredGUI extends StyledGUI {
                 final boolean isTierComplete = completeCount >= numericTier;
 
                 final ItemBuilder builder = lastTier
-                        ? (isTierComplete ? StyledTexture.ACHIEVEMENT_TIERED_COMPLETE : StyledTexture.ACHIEVEMENT_TIERED_INCOMPLETE).toBuilder()
+                        ? (isTierComplete ? StyledTexture.ACHIEVEMENT_TIERED_COMPLETE : StyledTexture.ACHIEVEMENT_TIERED_INCOMPLETE).asBuilder()
                         : (isTierComplete ? ItemBuilder.of(Material.LIME_STAINED_GLASS_PANE) : ItemBuilder.of(Material.RED_STAINED_GLASS_PANE)
                 );
 

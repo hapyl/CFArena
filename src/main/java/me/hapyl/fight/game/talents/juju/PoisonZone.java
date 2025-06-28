@@ -9,7 +9,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
@@ -26,9 +26,11 @@ public class PoisonZone extends Talent {
     
     @DisplayField private final double radius = 5.0d;
     @DisplayField private final double damagePerTick = 1.0d;
-    @DisplayField private final int damagePeriod = 5;
     @DisplayField(scale = 100) private final double defenseReduction = -0.7d;
+    
+    @DisplayField private final int damagePeriod = 5;
     @DisplayField private final int defenseReductionDuration = Tick.fromSeconds(5);
+    @DisplayField private final short poisonStacks = 5;
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("poison_ivy"));
     private final Color leavesColor = Color.fromARGB(200, 32, 140, 7);
@@ -57,7 +59,7 @@ public class PoisonZone extends Talent {
                         living.damageNoKnockback(damagePerTick, player, DamageCause.POISON_IVY);
                     }
                     
-                    living.addEffect(EffectType.POISON, 1, defenseReductionDuration);
+                    living.setDotStacks(DotType.POISON, poisonStacks, player);
                     living.getAttributes().addModifier(modifierSource, defenseReductionDuration, player, modifier -> modifier.of(AttributeType.DEFENSE, ModifierType.MULTIPLICATIVE, defenseReduction));
                 });
                 
@@ -70,9 +72,11 @@ public class PoisonZone extends Talent {
                     final double y = Math.sin(Math.toRadians(tick) * 5) * 0.2 + 0.5;
                     final double z = Math.cos(theta + offset * index) * radius;
                     
-                    LocationHelper.offset(location, x, y, z, () -> {
-                        player.spawnWorldParticle(location, Particle.TINTED_LEAVES, 0, 1, 1, 1, 1, leavesColor);
-                    });
+                    LocationHelper.offset(
+                            location, x, y, z, () -> {
+                                player.spawnWorldParticle(location, Particle.TINTED_LEAVES, 0, 1, 1, 1, 1, leavesColor);
+                            }
+                    );
                 }
                 
                 theta += Math.PI / 32;

@@ -48,10 +48,10 @@ public class MultiPartCommissionEntity extends CommissionEntity {
     }
 
     @Override
-    public void remove(boolean playDeathAnimation) {
-        super.remove(playDeathAnimation);
+    public void remove() {
+        super.remove();
 
-        parts.forEach(Part::forceRemove);
+        parts.forEach(Part::remove);
         parts.clear();
     }
 

@@ -5,14 +5,13 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.block.display.BDEngine;
 import me.hapyl.eterna.module.block.display.DisplayData;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
-import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.Shield;
@@ -38,10 +37,10 @@ public class ArrowShieldTalent extends Talent implements Listener {
     @DisplayField private final double explosionRadius = 5.0;
     @DisplayField private final double explosionDamage = 5.0;
     
-    @DisplayField private final int poisonDuration = Tick.fromSeconds(3);
+    @DisplayField private final int impairDuration = 60;
     
     @DisplayField private final short shieldCharges = 5;
-    @DisplayField private final short poisonStrength = 2;
+    @DisplayField private final short poisonStacks = 4;
     
     @DisplayField(percentage = true) private final double defenseReduction = -0.2;
     
@@ -55,8 +54,8 @@ public class ArrowShieldTalent extends Talent implements Listener {
         setDescription("""
                        Creates an &eshield&7 of arrows for {duration} that blocks &nany&7 damage.
                        
-                       When hit, an arrow triggers a rapid &4explosion&7 in small &cAoE&7, dealing &cdamage&7, applying &2poison&7, and reducing %s.
-                       """.formatted(AttributeType.DEFENSE)
+                       When hit, an arrow triggers a rapid &4explosion&7 in small &cAoE&7, dealing &cdamage&7, applying &b{poisonStacks}&7 stacks of %s, and reducing %s.
+                       """.formatted(DotType.POISON, AttributeType.DEFENSE)
         );
         
         setType(TalentType.DEFENSE);
@@ -106,7 +105,7 @@ public class ArrowShieldTalent extends Talent implements Listener {
             this.arrows.clear();
             
             switch (cause) {
-                case BROKEN -> this.entity.sendMessage("&6&l〰 &4Your shield has broke!");
+                case BROKEN -> this.entity.sendMessage("&6&l〰 &4Your shield broke!");
                 case EXPIRED -> this.entity.sendMessage("&6&l〰 &eYour shield has expired!");
             }
         }
@@ -157,12 +156,12 @@ public class ArrowShieldTalent extends Talent implements Listener {
             Collect.nearbyEntities(location, explosionRadius, entity::isNotSelfOrTeammate)
                    .forEach(entity -> {
                        entity.getAttributes().addModifier(
-                               modifierSource, poisonDuration, ArrowShield.this.entity, modifier -> modifier
+                               modifierSource, impairDuration, ArrowShield.this.entity, modifier -> modifier
                                        .of(AttributeType.DEFENSE, ModifierType.ADDITIVE, defenseReduction)
                        );
                        
                        entity.damage(explosionDamage, ArrowShield.this.entity, DamageCause.POISON_IVY);
-                       entity.addEffect(EffectType.POISON, poisonStrength, poisonDuration);
+                       entity.addDotStacks(DotType.POISON, poisonStacks, ArrowShield.this.entity);
                    });
             
             // Fx

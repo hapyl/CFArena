@@ -3,9 +3,9 @@ package me.hapyl.fight.game.damage;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.registry.CloneableKeyed;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
-import me.hapyl.fight.util.CloneableKeyed;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Range;
 
@@ -183,9 +183,9 @@ public class DamageCause implements Keyed, CloneableKeyed {
         BLOCK_EXPLOSION = minecraft(Key.ofString("block_explosion"), "was exploded", "by");
         ENTITY_EXPLOSION = BLOCK_EXPLOSION.cloneAs(Key.ofString("entity_explosion"));
         VOID = minecraft(Key.ofString("void"), "fell into the void", "with help from");
-        POISON = minecraft(Key.ofString("poison"), "was poisoned to death", "by").removeFlags(DamageFlag.CAN_KILL);
+        POISON = minecraft(Key.ofString("poison"), "was poisoned to death", "by").removeFlags(DamageFlag.CAN_KILL).flags(DamageFlag.IGNORES_ICD);
         MAGIC = minecraft(Key.ofString("magic"), "magically died", "with help from");
-        WITHER = minecraft(Key.ofString("wither"), "withered to death", "by");
+        WITHER = minecraft(Key.ofString("wither"), "withered to death", "by").flags(DamageFlag.IGNORES_ICD);
         FALLING_BLOCK = minecraft(Key.ofString("falling_block"), "should've been wearing a helmet", "and {damager} knew that");
         DRAGON_BREATH = minecraft(Key.ofString("dragon_breath"), "didn't like the smell of dragon", "wait... it's not a dragon, it's");
         CRAMMING = minecraft(Key.ofString("cramming"), "was crushed by {damager}'s weight");

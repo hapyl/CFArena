@@ -175,7 +175,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
         setCloseMenuItem(40);
         setPanelItem(
                 3,
-                StyledTexture.CRATE_CONVERT.toBuilder()
+                StyledTexture.CRATE_CONVERT.asBuilder()
                                            .setName("Crate Conversion")
                                            .addTextBlockLore("""
                                 Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.

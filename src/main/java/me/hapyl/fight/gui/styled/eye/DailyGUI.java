@@ -45,6 +45,7 @@ public class DailyGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         setHeader(StyledTexture.DAILY.asIcon());
 
         final PlayerChallenge[] challenges = challengeList.getChallenges();

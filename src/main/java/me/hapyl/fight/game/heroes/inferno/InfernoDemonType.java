@@ -82,15 +82,17 @@ public enum InfernoDemonType implements Named {
 
                     // Inherit player attributes
                     final BaseAttributes attributesCopy = player.getAttributes().snapshot();
-                    attributesCopy.setMaxHealth(999999); // Don't kill demon entities
 
                     final LivingGameEntity entity = new LivingGameEntity(bukkitEntity, attributesCopy) {
                         @Override
                         public void onDamageTaken(@Nonnull DamageInstance instance) {
-                            // Redirect damage to the player
                             player.redirectDamage(instance);
                         }
-
+                        
+                        @Override
+                        public double getMaxHealth() {
+                            return player.getMaxHealth();
+                        }
                     };
 
                     entity.aboveHead("&4\uD83D\uDC7F %s".formatted(demonName));

@@ -46,6 +46,7 @@ public class AchievementGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         final Hero hero = profile.getHero();
 
         setHeader(StyledTexture.ICON_ACHIEVEMENTS.asIcon());

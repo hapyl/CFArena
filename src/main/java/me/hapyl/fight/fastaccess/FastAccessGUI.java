@@ -48,7 +48,7 @@ public class FastAccessGUI extends StyledPageGUI<FastAccess> implements IFastAcc
     @Override
     public void onClick(@Nonnull Player player, @Nonnull FastAccess content, int index, int page, @Nonnull ClickType clickType) {
         playerFastAccess.setFastAccess(slot, content);
-        closeInventory();
+        player.closeInventory();
 
         // Fx
         Message.success(player, "Set Quick Access slot {%s} to {%s}!".formatted(slot + 1, content.getName()));

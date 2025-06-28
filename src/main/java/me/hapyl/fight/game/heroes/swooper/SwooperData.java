@@ -97,7 +97,7 @@ public class SwooperData extends PlayerData {
         final double z = Math.cos(radians * 5) * passiveTalent.maxNestStrayDistance;
         
         LocationHelper.offset(nestLocation, x, y, z, () -> player.spawnWorldParticle(nestLocation, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData));
-        LocationHelper.offset(nestLocation, z, y, z, () -> player.spawnWorldParticle(nestLocation, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData));
+        LocationHelper.offset(nestLocation, z, y, x, () -> player.spawnWorldParticle(nestLocation, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0, nestParticleData));
         
         // Ambient
         player.spawnWorldParticle(nestLocation, Particle.FALLING_DUST, 2, 0.8d, 0.4d, 0.8d, 0, nestParticleData2);
@@ -181,8 +181,7 @@ public class SwooperData extends PlayerData {
         final Map<EquipmentSlot, ItemStack> map = Maps.newHashMap();
         
         for (EquipmentSlot slot : EquipmentSlot.values()) {
-            if (slot == EquipmentSlot.BODY) {
-                // FIXME: Calling BODY slot on a player throws an exception because exceptions are fun
+            if (slot == EquipmentSlot.BODY || slot == EquipmentSlot.SADDLE) { // Fuck me both break the player
                 continue;
             }
             

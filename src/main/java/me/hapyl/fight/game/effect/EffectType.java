@@ -19,15 +19,13 @@ import java.util.stream.Collectors;
 public final class EffectType implements Iterable<Effect> {
     
     // *=* Vanilla Effects *=*
-    // Not all effects are present because some are either useless or replaced with an attribute.
+    // Not all effects are present because some are either useless or replaced with an attribute or DoT.
     
     public static final Effect NAUSEA;
     public static final Effect FIRE_RESISTANCE;
     public static final Effect WATER_BREATHING;
     public static final Effect BLINDNESS;
     public static final Effect NIGHT_VISION;
-    public static final Effect POISON;
-    public static final Effect WITHER;
     public static final Effect LEVITATION;
     public static final Effect SLOW_FALLING;
     public static final Effect DARKNESS;
@@ -40,7 +38,6 @@ public final class EffectType implements Iterable<Effect> {
     public static final InvisibilityEffect INVISIBLE;
     public static final RespawnResistanceEffect RESPAWN_RESISTANCE;
     public static final ArcaneMuteEffect ARCANE_MUTE;
-    public static final BleedEffect BLEED;
     public static final ParachuteEffect PARACHUTE;
     public static final MovementContainmentEffect MOVEMENT_CONTAINMENT;
     public static final LingerEffect LINGER;
@@ -67,8 +64,6 @@ public final class EffectType implements Iterable<Effect> {
                 }
         );
         NIGHT_VISION = of("night_vision", key -> new VanillaEffect(key, "\uD83D\uDC41", "Night Vision", Color.EMERALD_GREEN, PotionEffectType.NIGHT_VISION, Type.POSITIVE));
-        POISON = of("poison", key -> new VanillaEffect(key, "☣", "Poison", Color.NEON_GREEN, PotionEffectType.POISON, Type.NEGATIVE));
-        WITHER = of("wither", key -> new VanillaEffect(key, "☠", "Wither", Color.SLATE_GRAY, PotionEffectType.WITHER, Type.NEGATIVE));
         LEVITATION = of("levitation", key -> new VanillaEffect(key, "☁", "Levitation", Color.PEACH, PotionEffectType.LEVITATION, Type.NEUTRAL));
         SLOW_FALLING = of("slow_falling", key -> new VanillaEffect(key, "\uD83C\uDF41", "Slow Falling", Color.DUSTY_BLUE, PotionEffectType.SLOW_FALLING, Type.NEUTRAL));
         DARKNESS = of("darkness", key -> new VanillaEffect(key, "\uD83D\uDC26", "Darkness", Color.MIDNIGHT_BLUE, PotionEffectType.DARKNESS, Type.NEGATIVE));
@@ -80,7 +75,6 @@ public final class EffectType implements Iterable<Effect> {
         INVISIBLE = of("invisibility", InvisibilityEffect::new);
         RESPAWN_RESISTANCE = of("respawn_resistance", RespawnResistanceEffect::new);
         ARCANE_MUTE = of("arcane_mute", ArcaneMuteEffect::new);
-        BLEED = of("bleed", BleedEffect::new);
         PARACHUTE = of("parachute", ParachuteEffect::new);
         MOVEMENT_CONTAINMENT = of("movement_containment", MovementContainmentEffect::new);
         LINGER = of("linger", LingerEffect::new);

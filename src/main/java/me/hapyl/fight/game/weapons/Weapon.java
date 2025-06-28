@@ -31,6 +31,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -201,10 +202,7 @@ public class Weapon
     
     @Nonnull
     public ItemBuilder createBuilder() {
-        final ItemBuilder builder = new ItemBuilder(this.material);
-        
-        builder.setKey(this.key);
-        builder.setCooldownGroup(this.key);
+        final ItemBuilder builder = new ItemBuilder(this.material, this.key);
         
         builder.setName(Color.SUCCESS + this.name);
         builder.addLore(this instanceof RangeWeapon ? "&8Ranged Weapon" : "&8Weapon");
@@ -239,30 +237,32 @@ public class Weapon
             final Action[] clickTypes = type.getClickTypes();
             
             if (clickTypes != null) {
-                final ItemFunction function = builder.addFunction(player -> {
-                    final GamePlayer gamePlayer = CF.getPlayer(player);
-                    
-                    if (gamePlayer == null) {
-                        return;
+                final ItemFunction function = new ItemFunction(clickTypes) {
+                    @Override
+                    public void execute(@Nonnull Player player) {
+                        final GamePlayer gamePlayer = CF.getPlayer(player);
+                        
+                        if (gamePlayer == null) {
+                            return;
+                        }
+                        
+                        final Response response = Talent.precondition(gamePlayer);
+                        
+                        if (response.isError()) {
+                            response.sendError(gamePlayer);
+                        }
+                        else {
+                            ability.execute0(gamePlayer);
+                        }
                     }
-                    
-                    final Response response = Talent.precondition(gamePlayer);
-                    
-                    if (response.isError()) {
-                        response.sendError(gamePlayer);
-                    } else {
-                        ability.execute0(gamePlayer);
-                    }
-                });
-                
-                for (Action action : clickTypes) {
-                    function.accept(action);
-                }
+                };
                 
                 // Don't cancel clicks for these items
                 switch (material) {
-                    case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> function.setCancelClicks(false);
+                    case BOW, CROSSBOW, TRIDENT, FISHING_ROD, SHIELD -> function.cancelClicks(false);
                 }
+                
+                builder.addFunction(function);
             }
         });
         

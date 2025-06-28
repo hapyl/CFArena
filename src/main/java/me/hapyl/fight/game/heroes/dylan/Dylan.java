@@ -35,6 +35,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class Dylan extends Hero implements Listener, PlayerDataHandler<DylanData>, UIComponent {
@@ -59,9 +60,9 @@ public class Dylan extends Hero implements Listener, PlayerDataHandler<DylanData
         profile.setGender(Gender.MALE);
         
         final HeroEquipment equipment = getEquipment();
-        equipment.setChestPlate(59, 47, 47, TrimPattern.TIDE, TrimMaterial.IRON);
-        equipment.setLeggings(Material.IRON_LEGGINGS, TrimPattern.TIDE, TrimMaterial.NETHERITE);
-        equipment.setBoots(59, 47, 47, TrimPattern.EYE, TrimMaterial.IRON);
+        equipment.setChestPlate(156, 138, 140, TrimPattern.FLOW, TrimMaterial.IRON);
+        equipment.setLeggings(156, 138, 140, TrimPattern.SILENCE, TrimMaterial.IRON);
+        equipment.setBoots(Material.NETHERITE_BOOTS, TrimPattern.FLOW, TrimMaterial.IRON);
         
         setWeapon(Weapon.builder(Material.TALL_DRY_GRASS, Key.ofString("dylan_weapon"))
                         .name("Vox")
@@ -253,6 +254,8 @@ public class Dylan extends Hero implements Listener, PlayerDataHandler<DylanData
             final DylanFamiliar.FamiliarEntity entity = familiar.entity();
             
             return new UltimateInstance() {
+                @Nullable private LivingGameEntity target;
+                
                 @Override
                 public void onCastStart() {
                     // Fx
@@ -278,7 +281,30 @@ public class Dylan extends Hero implements Listener, PlayerDataHandler<DylanData
                 public void onTick(int tick) {
                     // If already self-destructed, then end ultimate
                     if (familiar.selfDestruct() != DylanFamiliar.SelfDestructState.COMBUST) {
-                        forceEndUltimate();
+                        forceEndUltimate(false);
+                        return;
+                    }
+                    
+                    final Location location = entity.getLocation();
+                    
+                    // If target exists, chase them towards it
+                    if (target != null) {
+                        final Location targetLocation = target.getLocation();
+                        final double distance = location.distance(targetLocation);
+                        
+                        // Explode if close enough
+                        if (distance <= 0.75) {
+                            forceEndUltimate(true);
+                            onEnd();
+                            return;
+                        }
+                        
+                        final double strength = distance * 0.4;
+                        
+                        final Vector vector = targetLocation.toVector().subtract(location.toVector()).normalize().multiply(strength);
+                        location.add(vector);
+                        
+                        entity.teleport(location);
                         return;
                     }
                     
@@ -286,13 +312,12 @@ public class Dylan extends Hero implements Listener, PlayerDataHandler<DylanData
                     final Vector direction = player.getLocation().getDirection().normalize();
                     direction.multiply(rushSpeed);
                     
-                    final Location location = entity.getLocation();
                     location.add(direction);
                     
-                    // Collision
-                    if (!Collect.nearbyEntities(location, 0.75, player::isNotSelfOrTeammate).isEmpty()) {
-                        forceEndUltimate();
-                        onEnd();
+                    // Entity collision
+                    target = Collect.nearestEntity(location, 1.5, entity::isNotSelfOrTeammate);
+                    
+                    if (target != null) {
                         return;
                     }
                     

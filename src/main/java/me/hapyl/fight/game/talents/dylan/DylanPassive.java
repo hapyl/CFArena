@@ -23,8 +23,8 @@ import javax.annotation.Nonnull;
 
 public class DylanPassive extends PassiveTalent {
     
-    @DisplayField public final int threshold = 15;
-    @DisplayField(percentage = true) public final double rebukeDamage = 6.66;
+    @DisplayField public final int threshold = 10;
+    @DisplayField(percentage = true) public final double rebukeDamage = 2.5;
     @DisplayField public final int fireDuration = Tick.fromSeconds(3);
     
     @DisplayField public final short maxScorchStacks = 3;
@@ -51,7 +51,7 @@ public class DylanPassive extends PassiveTalent {
         setType(TalentType.ENHANCE);
         setMaterial(Material.BLAZE_POWDER);
         
-        setCooldownSec(9);
+        setCooldownSec(12);
     }
     
     @Override

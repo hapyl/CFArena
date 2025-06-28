@@ -3,13 +3,14 @@ package me.hapyl.fight.event;
 import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.builtin.manager.ParkourManager;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.parkour.Data;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.eterna.module.util.Runnables;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
+import me.hapyl.fight.activity.ActivityHandler;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.event.custom.GameEntityHealEvent;
@@ -38,10 +39,7 @@ import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.game.team.LocalTeamManager;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.fight.guesswho.GuessWho;
 import me.hapyl.fight.npc.PersistentNPCManager;
-import me.hapyl.fight.proxy.ServerType;
-import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.util.CFUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -72,7 +70,6 @@ import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Set;
 
@@ -98,52 +95,32 @@ public final class PlayerHandler implements Listener {
         final Player player = ev.getPlayer();
         final Manager manager = Manager.current();
         final PlayerProfile profile = manager.handlePlayer(player);
+        final boolean isTransfer = player.isTransferred();
         
+        // Remove join message, we're using broadcast()
         ev.joinMessage(null);
         
-        // Check for transfer
-        if (player.isTransferred()) {
-            player.retrieveCookie(TransferManager.FROM_SERVER).thenAcceptAsync(data -> {
-                if (data == null) {
-                    kickIllegalLogin(player, "INVALID_COOKIE");
-                    return;
-                }
-                
-                final ServerType fromServer = Enums.byName(ServerType.class, new String(data, StandardCharsets.UTF_8));
-                
-                if (fromServer == null) {
-                    kickIllegalLogin(player, "INVALID_TRANSFER");
-                    return;
-                }
-                
-                TransferManager.accept(player, fromServer, CF.getPlugin().serverType());
-            });
-            return;
-        }
-        
+        // Handle in-game login
         if (manager.isGameInProgress()) {
-            final GameInstance gameInstance = (GameInstance) manager.currentInstance();
-            
-            gameInstance.getMode().onJoin(gameInstance, player);
-            
-            // Fix skin
-            final PlayerSkin skin = profile.getHero().getSkin();
-            
-            if (skin != null) {
-                skin.apply(player);
-            }
-        }
-        else {
-            if (!player.hasPlayedBefore()) {
-                //new Tutorial(player);
-            }
+            manager.currentInstanceOptional().ifPresent(instance -> {
+                instance.getMode().onJoin(instance, player);
+                
+                // Fix hero skin
+                final PlayerSkin skin = profile.getHero().getSkin();
+                
+                if (skin != null) {
+                    skin.apply(player);
+                }
+            });
         }
         
-        // Broadcast
-        broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(true));
-        
-        if (profile.getRank().isStaff()) {
-            Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
+        // Broadcast join message unless transferred
+        if (!isTransfer) {
+            broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(true));
+            
+            if (profile.getRank().isStaff()) {
+                Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
+            }
         }
         
         LocalTeamManager.updateAll();
@@ -151,6 +128,11 @@ public final class PlayerHandler implements Listener {
         
         for (ParkourCourse value : ParkourCourse.values()) {
             value.getParkour().updateLeaderboardIfExists();
+        }
+        
+        // Work transfer last to now throw any exceptions
+        if (isTransfer) {
+            CF.getPlugin().transferManager().handleJoin(ev);
         }
     }
     
@@ -168,15 +150,11 @@ public final class PlayerHandler implements Listener {
         ev.quitMessage(null);
         
         // GuessWho
-        final GuessWho guessWhoGame = manager.getGuessWhoGame();
-        
-        if (guessWhoGame != null) {
-            guessWhoGame.loseBecauseLeft(player);
-        }
+        // FIXME @Jun 07, 2025 (xanyjl) -> guess who... fuck OOP?
         
         if (manager.isGameInProgress()) {
             final IGameInstance game = manager.currentInstance();
-            final GamePlayer gamePlayer = GamePlayer.getExistingPlayer(player);
+            final GamePlayer gamePlayer = profile.getGamePlayer();
             
             if (gamePlayer != null) {
                 game.getMode().onLeave((GameInstance) game, player);
@@ -193,10 +171,13 @@ public final class PlayerHandler implements Listener {
         PersistentNPCManager.handleOnQuit(player);
         
         // Save database
-        manager.getProfile(player).getDatabase().save();
+        profile.getDatabase().save();
         
         // Delete database instance
         PlayerDatabase.uninstantiate(player.getUniqueId());
+        
+        // Kick from activity
+        ActivityHandler.handleKick(player);
         
         // Delete profile
         manager.deleteProfile(player);
@@ -328,7 +309,7 @@ public final class PlayerHandler implements Listener {
         
         // Check instant death
         if (instantDeathCauses.contains(damageCause)) {
-            EntityData.die(livingEntity);
+            LivingGameEntity.die(livingEntity);
             return;
         }
         
@@ -366,7 +347,6 @@ public final class PlayerHandler implements Listener {
         
         final double initialDamage = ev.getDamage();
         DamageInstance instance = new DamageInstance(gameEntity, ev.getDamage());
-        final EntityData data = gameEntity.getEntityData();
         
         // REASSIGNMENT STATE
         // If an entity wasn't hit by using DamageHandler, we
@@ -374,13 +354,13 @@ public final class PlayerHandler implements Listener {
         // since it is now the 'real' data.
         
         // Reassign cause
-        data.setLastDamageCauseIfNative(damageCause);
-        instance.cause = data.getLastDamageCauseNonNull();
+        gameEntity.setLastDamageCauseIfNative(damageCause);
+        instance.cause = gameEntity.getLastDamageCause();
         
         // FIXME:
         // For some reason this was missing?
         // If something breaks after this update, remove this ig
-        instance.setLastDamager(data.getLastDamagerAsLiving());
+        instance.setLastDamager(gameEntity.getLastDamagerAsLiving());
         
         // PRE-EVENTS TESTS, SUCH AS GAME EFFECT, ETC.
         
@@ -401,7 +381,7 @@ public final class PlayerHandler implements Listener {
                             instance.overrideInitialDamage(initialDamage / 1.5F);
                         }
                         
-                        data.setLastDamagerIfNative(CF.getPlayer(player));
+                        gameEntity.setLastDamagerIfNative(CF.getPlayer(player));
                     }
                     // Check for projectile damage
                     case Projectile projectile -> {
@@ -422,20 +402,20 @@ public final class PlayerHandler implements Listener {
                         
                         // Reassign damager to shooter
                         if (projectile.getShooter() instanceof LivingEntity living) {
-                            data.setLastDamagerIfNative(CF.getEntity(living));
+                            gameEntity.setLastDamagerIfNative(CF.getEntity(living));
                         }
                         
                         // Store projectile for further use
                         finalProjectile = projectile;
                     }
                     // Default to damager if they're living
-                    case LivingEntity living -> data.setLastDamagerIfNative(CF.getEntity(living));
+                    case LivingEntity living -> gameEntity.setLastDamagerIfNative(CF.getEntity(living));
                     default -> {
                     }
                 }
             }
             
-            final LivingGameEntity lastDamager = data.getLastDamagerAsLiving();
+            final LivingGameEntity lastDamager = gameEntity.getLastDamagerAsLiving();
             instance.setLastDamager(lastDamager);
             
             if (lastDamager instanceof GamePlayer gamePlayer && gamePlayer.hasEffect(EffectType.INVISIBLE)) {
@@ -489,7 +469,7 @@ public final class PlayerHandler implements Listener {
                 instance.setCause(customWeaponCause);
                 
                 // Also update entity data
-                data.setLastDamageCause(customWeaponCause);
+                gameEntity.setLastDamageCause(customWeaponCause);
             }
         }
         
@@ -497,7 +477,7 @@ public final class PlayerHandler implements Listener {
         final int noEnvironmentDamageTicksTick = gameEntity.ticker.noEnvironmentDamageTicks.getTick();
         
         // Check for attack cooldown
-        if (damager != null && damager.getEntityData().hasAttackCooldown(cause)) {
+        if (damager != null && damager.hasAttackCooldown(cause)) {
             if (damager instanceof GamePlayer playerDamager && playerDamager.isSettingEnabled(EnumSetting.ATTACK_COOLDOWN_SOUND)) {
                 damager.playSound(Sound.BLOCK_LAVA_POP, 2.0f);
             }
@@ -779,7 +759,14 @@ public final class PlayerHandler implements Listener {
         final Player player = (Player) ev.getWhoClicked();
         final PlayerProfile profile = CF.getProfile(player);
         
-        if (player.getGameMode() != GameMode.CREATIVE || profile.hasTrial() || Manager.current().isGameInProgress()) {
+        final PlayerGUI gui = PlayerGUI.getPlayerGUI(player);
+        
+        // If player in GUI, ignore
+        if (gui != null) {
+            return;
+        }
+        
+        if (profile.hasTrial() || Manager.current().isGameInProgress()) {
             ev.setCancelled(true);
         }
     }

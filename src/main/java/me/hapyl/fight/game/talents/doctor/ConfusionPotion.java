@@ -34,7 +34,7 @@ public class ConfusionPotion extends Talent {
                 Swiftly throw a potion in the air that flips and spills a special &9serum&7 field for {duration}.
                 
                 Enemies who step in the field forget how to move properly.
-                &8&o;;The effect persists for additional %ss after leaving the field.
+                &8&o;;The effect persists for additional %s after leaving the field.
                 """.formatted(Tick.round(persistDuration))
         );
 

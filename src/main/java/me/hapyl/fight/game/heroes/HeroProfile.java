@@ -67,7 +67,7 @@ public class HeroProfile {
         this.archetypes.addAll(Arrays.asList(archetypes));
     }
 
-    private void iterateArchetypes(BiConsumer<Integer, Archetype> consumer) {
+    public void iterateArchetypes(BiConsumer<Integer, Archetype> consumer) {
         int index = 0;
         for (Archetype archetype : archetypes) {
             consumer.accept(index++, archetype);

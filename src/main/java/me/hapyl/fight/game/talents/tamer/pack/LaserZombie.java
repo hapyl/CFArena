@@ -56,9 +56,9 @@ public class LaserZombie extends TamerPack {
             guardian = pack.player.spawnAlliedEntity(
                     location, Entities.GUARDIAN, self -> new LivingGameEntity(self) {
                         @Override
-                        public void remove(boolean playDeathAnimation) {
+                        public void remove() {
                             entity.remove();
-                            super.remove(playDeathAnimation);
+                            super.remove();
                         }
                     }
             );
@@ -105,8 +105,8 @@ public class LaserZombie extends TamerPack {
         }
         
         @Override
-        public void remove(boolean playDeathAnimation) {
-            super.remove(playDeathAnimation);
+        public void remove() {
+            super.remove();
             guardian.remove();
         }
         

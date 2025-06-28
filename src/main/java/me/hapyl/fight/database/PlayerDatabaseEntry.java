@@ -8,26 +8,27 @@ import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bson.Document;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class PlayerDatabaseEntry {
-
+    
     protected final PlayerDatabase database;
     protected final Document root;
     protected final String parent;
-
+    
     public PlayerDatabaseEntry(@Nonnull PlayerDatabase database, @Nonnull String parent) {
         this.database = database;
         this.root = database.getDocument();
         this.parent = parent;
     }
-
+    
     /**
      * Returns the database associated with this entry.
      *
@@ -37,7 +38,7 @@ public class PlayerDatabaseEntry {
     public PlayerDatabase getDatabase() {
         return database;
     }
-
+    
     /**
      * Gets the root {@link Document}.
      *
@@ -47,64 +48,50 @@ public class PlayerDatabaseEntry {
     public Document getRootDocument() {
         return database.getDocument();
     }
-
+    
     /**
-     * Gets this {@link PlayerDatabaseEntry} {@link Document} in the root.
+     * Gets or computes this {@link PlayerDatabaseEntry} {@link Document} in the root.
      *
      * @return this entry's document.
      */
     @Nonnull
     public Document getDocument() {
-        return getRootDocument().get(parent, new Document());
+        return (Document) getRootDocument().computeIfAbsent(parent, fn -> new Document());
     }
-
-    /**
-     * Gets the {@link OfflinePlayer} associated with this entry.
-     *
-     * @return the offline player.
-     */
+    
     @Nonnull
-    public OfflinePlayer getPlayer() {
-        return this.database.getPlayer();
+    public Optional<Player> player() {
+        return database.player();
     }
-
-    /**
-     * Gets the {@link Player} associated with this entry; or null if they're offline.
-     *
-     * @return the player associated with this entry; or null if they're offline.
-     */
-    @Nullable
-    public Player getOnlinePlayer() {
-        return getPlayer().getPlayer();
+    
+    @Nonnull
+    public UUID uuid() {
+        return database.getUuid();
     }
-
+    
     public void sendMessage(@Nonnull Message.Channel channel, @Nonnull String message) {
-        final Player player = getOnlinePlayer();
-
-        if (player != null) {
-            channel.send(player, message);
-        }
+        player().ifPresent(player -> channel.send(player, message));
     }
-
+    
     /**
      * Called right before writing the root {@link Document} into the remote database.
      */
     @EventLike
     public void onSave() {
     }
-
+    
     /**
      * Called once after loading all the entries.
      */
     @EventLike
     public void onLoad() {
     }
-
+    
     @Nonnull
     public final String makeKey(@Path String path) {
         return this.parent + "." + path;
     }
-
+    
     /**
      * Sets the given value to the given {@link Path}.
      *
@@ -115,7 +102,7 @@ public class PlayerDatabaseEntry {
     protected final <T> void setValue(@Nonnull @Path String path, @Nullable T value) {
         MongoUtils.set(root, makeKey(path), value);
     }
-
+    
     /**
      * Gets a value at the given {@link Path}.
      *
@@ -126,7 +113,7 @@ public class PlayerDatabaseEntry {
     protected final <T> T getValue(@Nonnull @Path String path, @Nullable T def) {
         return MongoUtils.get(root, makeKey(path), def);
     }
-
+    
     /**
      * Fetches a value from the {@link Document} at the given {@link Path},
      * applies the given {@link Consumer} and sets it to the same {@link Path}.
@@ -157,11 +144,11 @@ public class PlayerDatabaseEntry {
      */
     protected <E> void fetchDocumentValue(@Nonnull @Path String path, @Nonnull E def, @Nonnull Consumer<E> action) {
         final E value = getValue(path, def);
-
+        
         action.accept(value);
         setValue(path, value);
     }
-
+    
     /**
      * Fetches a {@link Document} at the given {@link Path}, applies the given {@link Consumer} and sets it to the same {@link Path}.
      *
@@ -184,11 +171,11 @@ public class PlayerDatabaseEntry {
      */
     protected final void fetchDocument(@Nonnull @Path String path, @Nonnull Consumer<Document> consumer) {
         final Document document = getValue(path, new Document());
-
+        
         consumer.accept(document);
         setValue(path, document);
     }
-
+    
     /**
      * Fetches a value from the {@link Document} at the given {@link Path}.
      *
@@ -212,10 +199,10 @@ public class PlayerDatabaseEntry {
      */
     protected final <T> T fetchFromDocument(@Nonnull String path, @Nonnull Function<Document, T> function) {
         final Document document = getValue(path, new Document());
-
+        
         return function.apply(document);
     }
-
+    
     /**
      * Gets a {@link Registry} value at the given {@link Path}.
      * <pre>{@code
@@ -235,7 +222,7 @@ public class PlayerDatabaseEntry {
     protected <T extends Keyed> T getRegistryValue(@Nonnull Registry<T> registry, @Nonnull @Path String path) {
         return registry.get(getValue(path, ""));
     }
-
+    
     /**
      * Gets an {@link Enum} value at the given {@link Path}.
      *
@@ -255,10 +242,10 @@ public class PlayerDatabaseEntry {
     @Nullable
     protected <T extends Enum<T>> T getEnumValue(@Nonnull Class<T> clazz, @Nonnull @Path String paths) {
         final String value = getValue(paths, "");
-
+        
         return Enums.byName(clazz, value);
     }
-
+    
     /**
      * Attempts to get player's {@link PlayerProfile}.
      *
@@ -266,9 +253,7 @@ public class PlayerDatabaseEntry {
      */
     @Nullable
     protected PlayerProfile getProfile() {
-        final Player player = getOnlinePlayer();
-
-        return player != null ? CF.getProfile(player) : null;
+        return player().map(CF::getProfile).orElse(null);
     }
-
+    
 }

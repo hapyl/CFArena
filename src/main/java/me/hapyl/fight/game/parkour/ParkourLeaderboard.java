@@ -6,9 +6,7 @@ import me.hapyl.eterna.module.math.nn.IntInt;
 import me.hapyl.eterna.module.parkour.Stats;
 import me.hapyl.eterna.module.util.Runnables;
 import org.bson.Document;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
@@ -95,8 +93,6 @@ public class ParkourLeaderboard {
             final UUID uuid = UUID.fromString(key);
 
             final long time = record.get("time", 0L);
-            final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-
             if (time > 0) {
                 // strikethrough offline players
                 final LeaderboardData data = new LeaderboardData(uuid, time);

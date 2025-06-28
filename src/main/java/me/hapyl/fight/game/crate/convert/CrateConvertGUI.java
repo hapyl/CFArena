@@ -56,7 +56,7 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
         final Crates convertProduct = convert.getConvertProduct();
         final int convertProductAmount = convert.getConvertProductAmount();
 
-        final ItemBuilder builder = StyledTexture.CRATE_CONVERT.toBuilder()
+        final ItemBuilder builder = StyledTexture.CRATE_CONVERT.asBuilder()
                                                                .setName(content.getName())
                                                                .addLore()
                                                                .addSmartLore(content.getDescription())
@@ -85,7 +85,7 @@ public class CrateConvertGUI extends StyledPageGUI<CrateConverts> {
 
     @Override
     public void onUpdate() {
-        setHeader(StyledTexture.CRATE_CONVERT.toBuilder()
+        setHeader(StyledTexture.CRATE_CONVERT.asBuilder()
                                              .setName("Crate Conversion")
                                              .addLore()
                                              .addSmartLore("Convert lower rarity crates into a higher ones!")

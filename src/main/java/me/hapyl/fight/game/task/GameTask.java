@@ -128,14 +128,13 @@ public abstract class GameTask implements Runnable, BukkitTask {
     
     /**
      * Attempts to cancel this task without calling {@link #onTaskStop()}.
-     * <br>This method is stricter than {@link #cancel()} since it throws a {@link IllegalStateException}.
      *
      * @see GameTask#cancel()
      */
     @ApiStatus.Internal
     public synchronized void cancel0() throws IllegalStateException {
         if (bukkitTask == null || bukkitTask.isCancelled()) {
-            throw new IllegalStateException("Tried to cancel %s task!".formatted((bukkitTask == null ? "an inactive" : "a cancelled (%s)".formatted(bukkitTask.getTaskId()))));
+            return;
         }
         
         Bukkit.getScheduler().cancelTask(getId());

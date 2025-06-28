@@ -132,6 +132,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     private long combatTag;
     private int killStreak;
     private InputTalent inputTalent;
+    private HeartStyle heartStyle;
     
     public GamePlayer(@Nonnull PlayerProfile profile) {
         super(profile.getPlayer(), profile.getHero().getAttributes());
@@ -146,8 +147,18 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.playerPing = new PlayerPing(this);
         this.uiComponentCache = new UIComponentCache();
         this.cooldownManager = new GamePlayerCooldownManager(this);
+        this.heartStyle = null;
         
         markLastMoved();
+    }
+    
+    @Nullable
+    public HeartStyle heartStyle() {
+        return heartStyle;
+    }
+    
+    public void heartStyle(@Nullable HeartStyle heartStyle) {
+        this.heartStyle = heartStyle;
     }
     
     public int getTalentLock(@Nonnull HotBarSlot slot) {
@@ -187,6 +198,16 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         
         super.tick();
         talentLock.tick();
+        
+        // Tick heart type
+        if (heartStyle != null) {
+            if (heartStyle.tick-- <= 0) {
+                heartStyle = null;
+            }
+            else {
+                heartStyle.apply(this);
+            }
+        }
     }
     
     public int getSneakTicks() {
@@ -208,7 +229,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         ticker.noCCTicks.zero();
         
         // Actually stop the effects before applying the data
-        entityData.effects.values().removeIf(effect -> {
+        effects.values().removeIf(effect -> {
             if (effect.isInfiniteDuration()) {
                 return false;
             }
@@ -217,8 +238,11 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
             return true;
         });
         
-        // Fixme -> There was resetAttributes() from the old system but it's no longer needed and using raw
-        //  values is the wrong way of doing it, so unless a developer is stupid - don't add it
+        // Clear DoTs
+        dotInstanceMap.clear();
+        
+        // Reset attribute to hero defaults
+        attributes.merge(getHero().getAttributes());
         
         markLastMoved();
         setHealth(getMaxHealth());
@@ -250,7 +274,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         
         setOutline(Outline.CLEAR);
         
-        entityData.damageTaken.clear();
+        damageTaken.clear();
         inputTalent = null;
         
         player.setGameMode(GameMode.SURVIVAL);
@@ -267,7 +291,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
      */
     @Override
     @Deprecated
-    public void remove(boolean playDeathAnimation) {
+    public void remove() {
         // Don't remove player BUT do call onRemove()
         onRemove();
     }
@@ -314,10 +338,10 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
     
     @Override
-    public void onDeath() {
-        super.onDeath();
+    public void onRemove() {
+        super.onRemove();
         
-        final GameEntity lastDamager = entityData.lastDamager();
+        final GameEntity lastDamager = lastDamager();
         
         // Call skin
         callSkinIfHas(skin -> {
@@ -359,7 +383,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         sendTitle("&c&lʏᴏᴜ ᴅɪᴇᴅ", "", 5, 25, 10);
         
         // Award killer coins for kill
-        final GameEntity lastDamager = entityData.lastDamager();
+        final GameEntity lastDamager = lastDamager();
         
         if (lastDamager instanceof LivingGameEntity gameKiller && !equals(gameKiller)) {
             // Don't add stats for teammates either, BUT display the kill cosmetic
@@ -410,9 +434,9 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         }
         
         // Award assists
-        final Set<GamePlayer> assistingPlayers = entityData.getAssistingPlayers();
+        final Set<GamePlayer> assistingPlayers = getAssistingPlayers();
         
-        entityData.damageTaken.forEach((damager, damage) -> {
+        damageTaken.forEach((damager, damage) -> {
             if (damager.equals(lastDamager) || damager.equals(this)) {
                 return;
             }
@@ -667,7 +691,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     }
     
     public void triggerOnDeath() {
-        this.onDeath();
+        this.onRemove();
         
         usedUltimateAt = 0L;
         
@@ -896,7 +920,7 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         this.energy = Math.max(0, this.energy - energyToRemove);
         
         if (remover != null) {
-            this.entityData.addAssistingPlayer(remover);
+            addAssistingPlayer(remover);
         }
     }
     
@@ -920,12 +944,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
     
     @Nonnull
     public <T extends LivingEntity> LivingGameEntity spawnAlliedLivingEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Consumer<LivingGameEntity> consumer) {
-        return spawnAlliedEntity(location, type, t -> {
-            final LivingGameEntity entity = new LivingGameEntity(t);
-            consumer.accept(entity);
-            
-            return entity;
-        });
+        return spawnAlliedEntity(
+                location, type, t -> {
+                    final LivingGameEntity entity = new LivingGameEntity(t);
+                    consumer.accept(entity);
+                    
+                    return entity;
+                }
+        );
     }
     
     @Nonnull
@@ -1592,10 +1618,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         getEntity().setCooldown(material, cd);
     }
     
-    public void sendErrorMessage(@Nonnull String message) {
-        sendMessage("&8[&c❌&8] &4" + message);
-    }
-    
     public void spectate(@Nullable Entity entity) {
         final Player player = getEntity();
         
@@ -1672,12 +1694,6 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         final long timeLeft = (duration + castDuration) * 50L;
         
         return timeLeft != 0 ? timeLeft - (System.currentTimeMillis() - usedUltimateAt) : 0L;
-    }
-    
-    @Nonnull
-    @Override
-    protected EntityState deathState() {
-        return EntityState.ALIVE;
     }
     
     private List<Block> getBlocksRelative(BiFunction<Location, World, Boolean> fn, Consumer<Location> consumer) {

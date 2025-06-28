@@ -105,7 +105,7 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
                 demonInstance.onTick(player, data, tick);
 
                 // Sync demon
-                demon.entity().teleport(player);
+                demon.entity().teleport(player.getLocation());
 
                 // Reform
                 if (tick > getDuration()) {
@@ -120,6 +120,9 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
                     player.playWorldSound(Sound.ENTITY_BLAZE_DEATH, 0.75f);
                     player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.75f);
 
+                    // Remove above head
+                    player.aboveHead();
+                    
                     drawParticleBox(player, location -> player.spawnWorldParticle(location, Particle.FALLING_LAVA, 1), 2.0d);
                 }
             }

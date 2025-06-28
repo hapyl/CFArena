@@ -18,8 +18,8 @@ public class TrialEntity extends LivingGameEntity {
     }
 
     @Override
-    public void onDeath() {
-        super.onDeath();
+    public void onRemove() {
+        super.onRemove();
 
         trial.entities.remove(this);
 

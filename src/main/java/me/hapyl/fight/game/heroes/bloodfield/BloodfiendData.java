@@ -3,7 +3,7 @@ package me.hapyl.fight.game.heroes.bloodfield;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.util.Ticking;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
@@ -95,8 +95,8 @@ public class BloodfiendData extends PlayerData implements Ticking {
             }
             else {
                 // Fx
-                EffectType.BLEED.spawnParticle(player.getLocation().add(0, 0.5, 0));
-                EffectType.BLEED.spawnParticle(this.player.getLocation().add(0, 0.5, 0));
+                DotType.BLEED.spawnParticle(player.getLocation().add(0, 0.5, 0));
+                DotType.BLEED.spawnParticle(this.player.getLocation().add(0, 0.5, 0));
             }
         });
     }

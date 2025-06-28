@@ -1,8 +1,35 @@
 ###############################
 
-1230128031289012890318290381290 check for working
-- Cryptshade abilities
-- Extra Cut
+*TEST*
+[✔️] Rebuke way too strong
+[✔️] Taker bones should sync onStart not onReveal
+[✔️] Teammate glowing doesn't work
+[✔️] Add health above teammates
+[✔️] Hotbar creative
+[✔️] Swooper broken
+[✔️] Can click on UI items in game
+[✔️] Glowing reveals enemies healths
+[✔️] DoT not removed after death
+[✔️] Summon Whelp cd not reset?
+[✔️] Ezel starts with 1 stack
+[✔️] Rebuke CD
+[✔️] Demons can be killed?
+[✔️] BH bounty make only for players
+[✔️] Inferno damage
+[✔️] Inferno fire
+[✔️] Swooper circle wrong
+
+- Update Guess Who
+
+- Slowness effect from dialog
+- Parkour leaderboard is broken?
+
+- Add option to only show unlocked cosmetic
+- Avalance win effect broken
+- Contrail doesn't work
+- A lot of double "ss" for tick formatting
+
+###############################
 
 - Scratch cards
 - Leaderboard
@@ -10,8 +37,6 @@
 - Cant see contrail?
 - Stats should really be separate for PvP/PvE
 - Obtain coins is broken description
-- Don't set game instance if it failed to create
-- Man I really want to swap attributes to be GOOD
 
 - [!] Out of Charged item should have cooldown until next charge not total cooldown
 - Add manual reload and setting to swap DROP >< CTRL DROP

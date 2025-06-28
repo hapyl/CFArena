@@ -17,11 +17,13 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.commission.CommissionOverlayEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Husk;
@@ -40,19 +42,20 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * This is a more of a "user-friendly" way of getting stuff, like {@link org.bukkit.Bukkit}.
  */
 public final class CF {
-
+    
     static Main plugin;
     static Manager manager;
     static CommandProcessor commandProcessor;
-
+    
     private CF() {
     }
-
+    
     /**
      * Gets the main class of the plugin.
      *
@@ -62,7 +65,7 @@ public final class CF {
     public static Main getPlugin() {
         return plugin;
     }
-
+    
     /**
      * Gets the {@link Database} singleton.
      *
@@ -72,7 +75,7 @@ public final class CF {
     public static Database getServerDatabase() {
         return plugin.getDatabase();
     }
-
+    
     /**
      * Gets player's {@link PlayerDatabase} instance.
      *
@@ -83,7 +86,7 @@ public final class CF {
     public static PlayerDatabase getDatabase(@Nonnull Player player) {
         return getDatabase(player.getUniqueId());
     }
-
+    
     /**
      * Gets player's {@link PlayerDatabase} instance.
      *
@@ -94,7 +97,7 @@ public final class CF {
     public static PlayerDatabase getDatabase(@Nonnull UUID uuid) {
         return PlayerDatabase.getDatabase(uuid);
     }
-
+    
     /**
      * Gets the {@link CrateManager} singleton.
      *
@@ -104,7 +107,7 @@ public final class CF {
     public static CrateManager getCrateManager() {
         return plugin.getCrateManager();
     }
-
+    
     /**
      * Gets an optional {@link LivingGameEntity} from a bukkit entity.
      *
@@ -116,10 +119,10 @@ public final class CF {
         if (entity == null) {
             return Optional.empty();
         }
-
+        
         return Optional.ofNullable(getEntity(entity.getUniqueId()));
     }
-
+    
     /**
      * Gets an optional {@link LivingGameEntity} from a bukkit entity.
      *
@@ -132,15 +135,15 @@ public final class CF {
         if (entity == null) {
             return Optional.empty();
         }
-
+        
         final LivingGameEntity gameEntity = getEntity(entity);
         if (as.isInstance(gameEntity)) {
             return Optional.of(as.cast(gameEntity));
         }
-
+        
         return Optional.empty();
     }
-
+    
     /**
      * Gets a {@link LivingGameEntity} from a bukkit entity.
      *
@@ -152,11 +155,11 @@ public final class CF {
         if (entity == null) {
             return null;
         }
-
+        
         final LivingGameEntity gameEntity = getEntity(entity.getUniqueId());
         return gameEntity == null ? null : gameEntity.getGameEntity();
     }
-
+    
     /**
      * Creates a {@link GameEntity}.
      *
@@ -169,7 +172,7 @@ public final class CF {
     public static <T extends LivingEntity, E extends GameEntity> E createEntity(@Nonnull Location location, @Nonnull Entities<T> type, @Nonnull Function<T, E> consumer) {
         return Manager.current().createEntity(location, type, consumer);
     }
-
+    
     @Nonnull
     public static <T extends LivingEntity> LivingGameEntity createEntity(@Nonnull Location location, @Nonnull Entities<T> type) {
         return createEntity(location, type, LivingGameEntity::new);
@@ -179,7 +182,7 @@ public final class CF {
     public static CommissionOverlayEntity createOverlayEntity(@Nonnull Location location, @Nonnull BiFunction<Location, Husk, CommissionOverlayEntity> fn) {
         return Manager.current().createOverlayEntity(location, fn);
     }
-
+    
     /**
      * Gets a {@link LivingGameEntity} by its {@link UUID}.
      *
@@ -190,7 +193,7 @@ public final class CF {
     public static LivingGameEntity getEntity(@Nonnull UUID uuid) {
         return manager.getEntity(uuid);
     }
-
+    
     /**
      * Gets a {@link GamePlayer} from a bukkit player.
      *
@@ -202,10 +205,10 @@ public final class CF {
         if (player == null) {
             return null;
         }
-
+        
         return manager.getPlayer(player);
     }
-
+    
     /**
      * Gets a {@link GamePlayer} by their {@link UUID}.
      *
@@ -216,7 +219,7 @@ public final class CF {
     public static GamePlayer getPlayer(@Nonnull UUID uuid) {
         return manager.getPlayer(uuid);
     }
-
+    
     /**
      * Gets a {@link GamePlayer} by their {@link OfflinePlayer}.
      *
@@ -227,7 +230,7 @@ public final class CF {
     public static GamePlayer getPlayer(@Nonnull OfflinePlayer player) {
         return manager.getPlayer(player.getUniqueId());
     }
-
+    
     /**
      * Gets a {@link GamePlayer} from a {@link PlayerEvent}.
      *
@@ -237,10 +240,10 @@ public final class CF {
     @Nullable
     public static GamePlayer getPlayer(@Nonnull PlayerEvent ev) {
         final Player player = ev.getPlayer();
-
+        
         return getPlayer(player);
     }
-
+    
     /**
      * Gets an optional of {@link GamePlayer}.
      *
@@ -251,7 +254,7 @@ public final class CF {
     public static Optional<GamePlayer> getPlayerOptional(@Nonnull Player player) {
         return Optional.ofNullable(manager.getPlayer(player));
     }
-
+    
     /**
      * Gets a copy of existing {@link GamePlayer}s.
      *
@@ -261,12 +264,12 @@ public final class CF {
     public static Set<GamePlayer> getPlayers() {
         return manager.getPlayers();
     }
-
+    
     @Nonnull
     public static Set<GamePlayer> getPlayers(@Nonnull Predicate<GamePlayer> predicate) {
         return manager.getPlayers(predicate);
     }
-
+    
     /**
      * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()}.
      *
@@ -276,7 +279,7 @@ public final class CF {
     public static Set<GamePlayer> getAlivePlayers() {
         return manager.getAlivePlayers();
     }
-
+    
     /**
      * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and match the {@link Predicate}.
      *
@@ -287,7 +290,7 @@ public final class CF {
     public static Set<GamePlayer> getAlivePlayers(@Nonnull Predicate<GamePlayer> predicate) {
         return manager.getAlivePlayers(predicate);
     }
-
+    
     /**
      * Gets a copy of existing {@link GamePlayer}s who is {@link GamePlayer#isAlive()} and have a matching {@link Hero} selected.
      *
@@ -298,7 +301,7 @@ public final class CF {
     public static Set<GamePlayer> getAlivePlayers(@Nonnull Hero enumHero) {
         return manager.getAlivePlayers(enumHero);
     }
-
+    
     /**
      * Gets a copy {@link Hero} that are being used by at least one existing {@link GamePlayer}.
      *
@@ -308,7 +311,7 @@ public final class CF {
     public static Set<Hero> getActiveHeroes() {
         return manager.getActiveHeroes();
     }
-
+    
     /**
      * Gets a copy of all existing {@link GameEntity}s.
      *
@@ -318,7 +321,7 @@ public final class CF {
     public static Set<GameEntity> getEntities() {
         return manager.getEntities();
     }
-
+    
     /**
      * Gets a copy of all existing {@link GameEntity}s that match a given class.
      *
@@ -329,7 +332,7 @@ public final class CF {
     public static <T extends GameEntity> Set<T> getEntities(@Nonnull Class<T> clazz) {
         return manager.getEntities(clazz);
     }
-
+    
     /**
      * Gets a copy of all existing {@link GameEntity} excluding {@link GamePlayer}s.
      *
@@ -339,7 +342,7 @@ public final class CF {
     public static Set<GameEntity> getEntitiesExcludePlayers() {
         return manager.getEntitiesExcludePlayers();
     }
-
+    
     /**
      * Create an AoE explosion at the given location.
      *
@@ -352,16 +355,23 @@ public final class CF {
      * @return list of affected entities.
      */
     @Nonnull
-    public static List<LivingGameEntity> damageAoE(@Nonnull Location location, double damage, double radius, @Nullable LivingGameEntity damager, @Nullable DamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
+    public static List<LivingGameEntity> damageAoE(
+            @Nonnull Location location,
+            double damage,
+            double radius,
+            @Nullable LivingGameEntity damager,
+            @Nullable DamageCause cause,
+            @Nonnull Predicate<LivingGameEntity> predicate
+    ) {
         final List<LivingGameEntity> entities = Collect.nearbyEntities(location, radius).stream().filter(predicate).toList();
-
+        
         for (LivingGameEntity entity : entities) {
             entity.damage(damage, damager, cause);
         }
-
+        
         return entities;
     }
-
+    
     /**
      * Create an AoE explosion at the given location.
      *
@@ -374,10 +384,17 @@ public final class CF {
      * @return list of affected entities.
      */
     @Nonnull
-    public static List<LivingGameEntity> damageAoE(Location location, double damage, double radius, @Nullable LivingEntity damager, @Nullable DamageCause cause, @Nonnull Predicate<LivingGameEntity> predicate) {
+    public static List<LivingGameEntity> damageAoE(
+            Location location,
+            double damage,
+            double radius,
+            @Nullable LivingEntity damager,
+            @Nullable DamageCause cause,
+            @Nonnull Predicate<LivingGameEntity> predicate
+    ) {
         return damageAoE(location, damage, radius, CF.getEntity(damager), cause, predicate);
     }
-
+    
     /**
      * Gets the logger for the plugin.
      *
@@ -387,7 +404,7 @@ public final class CF {
     public static Logger getLogger() {
         return plugin.getLogger();
     }
-
+    
     /**
      * Registers the given {@link Listener} to the plugin.
      *
@@ -396,7 +413,7 @@ public final class CF {
     public static void registerEvents(@Nonnull Listener listener) {
         Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
-
+    
     /**
      * Registers the given {@link Listener}s to the plugin.
      *
@@ -407,7 +424,7 @@ public final class CF {
             registerEvents(listener);
         }
     }
-
+    
     /**
      * Gets an {@link GameEntity} by its entity Id.
      *
@@ -418,7 +435,7 @@ public final class CF {
     public static GameEntity getEntityById(int entityId) {
         return manager.getEntityById(entityId);
     }
-
+    
     /**
      * Gets the string version of the game.
      *
@@ -428,7 +445,7 @@ public final class CF {
     public static String getVersion() {
         return plugin.getDescription().getVersion();
     }
-
+    
     /**
      * Gets the string version of the game without '-SNAPSHOT'.
      *
@@ -438,7 +455,7 @@ public final class CF {
     public static String getVersionNoSnapshot() {
         return getVersion().replace("-SNAPSHOT", "");
     }
-
+    
     /**
      * Gets the server's most recent tps.
      *
@@ -447,12 +464,12 @@ public final class CF {
     public static double getTps() {
         return Math.min(Reflect.getMinecraftServer().recentTps[0], 20);
     }
-
+    
     @Nonnull
     public static String getTpsFormatted() {
         String color;
         final double tps = getTps();
-
+        
         if (tps >= 20) {
             color = "&2";
         }
@@ -474,10 +491,10 @@ public final class CF {
         else {
             color = "&4&l";
         }
-
+        
         return color + "%.1f".formatted(tps);
     }
-
+    
     /**
      * Gets online player count, respecting player's hidden status.
      *
@@ -485,20 +502,20 @@ public final class CF {
      */
     public static int getOnlinePlayerCount() {
         int onlineCount = 0;
-
+        
         for (Player player : Bukkit.getOnlinePlayers()) {
             final PlayerProfile profile = CF.getProfileOrNull(player);
-
+            
             if (profile == null || profile.isHidden()) {
                 continue;
             }
-
+            
             onlineCount++;
         }
-
+        
         return onlineCount;
     }
-
+    
     /**
      * Gets the name of the game.
      *
@@ -508,57 +525,71 @@ public final class CF {
     public static String getName() {
         return Main.GAME_NAME;
     }
-
+    
     @Nonnull
     public static CommandProcessor getCommandProcessor() {
         if (commandProcessor == null) {
             commandProcessor = new CommandProcessor(getPlugin());
         }
-
+        
         return commandProcessor;
     }
-
+    
     public static void registerCommand(@Nonnull SimpleCommand command) {
         getCommandProcessor().registerCommand(command);
     }
-
+    
     @Nonnull
     public static AntiCheat getAntiCheat() {
         return AntiCheat.getInstance();
     }
-
+    
     @Nonnull
     public static String getMinecraftVersion() {
         return Bukkit.getMinecraftVersion();
     }
-
+    
     @Nonnull
     public static VehicleManager getVehicleManager() {
         return plugin.getVehicleManager();
     }
-
+    
     @Nullable
     public static PlayerProfile getProfileOrNull(@Nonnull Player player) {
         return manager.getProfileOrNull(player);
     }
-
+    
     @Nonnull
     public static PlayerProfile getProfile(@Nonnull Player player) {
         return manager.getProfile(player);
     }
-
+    
     public static boolean hasProfile(@Nonnull Player player) {
         return manager.hasProfile(player);
     }
-
+    
     @Nonnull
     public static CFQuestHandler getQuestHandler() {
         return plugin.getQuestHandler();
     }
-
+    
     @Nonnull
     public static Environment environment() {
         return plugin.environment();
     }
     
+    @Nonnull
+    public static NamespacedKey makeKey(@Nonnull String key) {
+        return new NamespacedKey(plugin, key);
+    }
+    
+    @Nonnull
+    public static TransferManager transferManager() {
+        return plugin.transferManager();
+    }
+    
+    @Nonnull
+    public static Stream<PlayerProfile> streamProfiles() {
+        return manager.streamProfiles();
+    }
 }

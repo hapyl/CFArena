@@ -43,7 +43,7 @@ public class MasteryEntry extends PlayerDatabaseEntry {
     }
 
     public void playMasteryLevelUpEffect(@Nonnull Hero hero, int currentLevel, int newLevel) {
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return;

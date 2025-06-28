@@ -255,7 +255,7 @@ public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData
                 }
 
                 private void doLand() {
-                    forceEndUltimate();
+                    forceEndUltimate(false);
 
                     final Location location = player.getLocation();
 

@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.GUIEventListener;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
@@ -14,20 +15,24 @@ import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CollectionGUI extends StyledGUI {
+public class CollectionGUI extends StyledGUI implements GUIEventListener {
 
     public CollectionGUI(Player player) {
         super(player, "Collection", Size.FOUR);
-        setOpenEvent(e -> {
-            PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 1.0f);
-        });
 
         openInventory();
     }
-
+    
+    @Override
+    public void onOpen(@Nonnull InventoryOpenEvent event) {
+        PlayerLib.playSound(player, Sound.BLOCK_CHEST_OPEN, 1.0f);
+    }
+    
     @Nullable
     @Override
     public ReturnData getReturnData() {
@@ -36,7 +41,9 @@ public class CollectionGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final CosmeticEntry cosmetics = CF.getDatabase(getPlayer()).cosmeticEntry;
+        super.onUpdate();
+        
+        final CosmeticEntry cosmetics = CF.getDatabase(player).cosmeticEntry;
         final SmartComponent component = newSmartComponent();
 
         setHeader(StyledTexture.ICON_COSMETICS.asIcon());

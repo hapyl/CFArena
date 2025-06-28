@@ -38,6 +38,8 @@ public class CommissionLevelRewardsGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(StyledTexture.ICON_COMMISSIONS.asIcon());
 
         final SmartComponent component = newSmartComponent();

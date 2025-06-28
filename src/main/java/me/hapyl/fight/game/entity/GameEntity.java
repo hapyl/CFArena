@@ -8,7 +8,6 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
-import me.hapyl.fight.annotate.IfOverridingMethodsDoNotInvokeSuperTheyMustInvoke;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.team.Entry;
@@ -96,6 +95,7 @@ public class GameEntity {
         return entity.getEyeLocation();
     }
     
+    @Deprecated // bad design
     public void asPlayer(Consumer<Player> consumer) {
         if (!(entity instanceof Player player)) {
             return;
@@ -214,39 +214,18 @@ public class GameEntity {
     
     /**
      * Removes this entity from the world.
-     *
-     * @param playDeathAnimation - Whether the death animation of falling on the side should be played.
      */
     @OverridingMethodsMustInvokeSuper
-    @IfOverridingMethodsDoNotInvokeSuperTheyMustInvoke({ "onRemove()" })
-    public void remove(boolean playDeathAnimation) {
-        if (playDeathAnimation) {
+    public void remove() {
+        // Mobs die with animations
+        if (entity instanceof Mob) {
             entity.setHealth(0.0d);
         }
+        // Other entities don't
         else {
             entity.remove();
         }
         
-        onRemove();
-    }
-    
-    /**
-     * Removes this entity from the world without death animation.
-     */
-    public final void remove() {
-        this.remove(false);
-    }
-    
-    /**
-     * Calls entity removal without the death animation.
-     * Does <b>nothing</b> to players.
-     */
-    public final void forceRemove() {
-        if (entity instanceof Player) {
-            return;
-        }
-        
-        entity.remove();
         onRemove();
     }
     
@@ -256,20 +235,11 @@ public class GameEntity {
     
     @EventLike
     public void onStop(@Nonnull GameInstance instance) {
-        forceRemove();
+        remove();
     }
     
     /**
      * Called whenever the entity health reached {@code 0} and it dies.
-     */
-    @EventLike
-    @OverridingMethodsMustInvokeSuper
-    public void onDeath() {
-        remove(true); // Do play the death animation actually
-    }
-    
-    /**
-     * Called whenever the entity is <b>removed</b> from the world.
      */
     @EventLike
     public void onRemove() {
@@ -283,6 +253,14 @@ public class GameEntity {
     
     public void sendMessage(@Nonnull String message) {
         Chat.sendMessage(entity, message);
+    }
+    
+    public void sendErrorMessage(@Nonnull String message) {
+        Message.error(entity, message);
+    }
+    
+    public void sendSuccessMessage(@Nonnull String message) {
+        Message.success(entity, message);
     }
     
     public void sendMessage(@Nonnull Component component) {

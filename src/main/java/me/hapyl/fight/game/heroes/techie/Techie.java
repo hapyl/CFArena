@@ -263,7 +263,7 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                             final TalentLock talentLock = entityPlayer.getTalentLock();
                             talentLock.setLockAll(lockdownTalentLockDuration);
                             
-                            entityPlayer.getEntityData().addAssistingPlayer(player); // Mark assist
+                            entityPlayer.addAssistingPlayer(player); // Mark assist
                             entityPlayer.setEnergy((int) (entityPlayer.getEnergy() * (1 - ultimateLosePercent)));
                             
                             // Fx

@@ -52,6 +52,8 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(LobbyItems.HERO_SELECT.getItem().getItemStack());
 
         // Add sort button
@@ -65,7 +67,7 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
         final RandomHeroEntry entry = profile.getDatabase().randomHeroEntry;
         final boolean randomHeroEnabled = entry.isEnabled();
 
-        final ItemBuilder builder = StyledTexture.RANDOM_HERO_PREFERENCES.toBuilder();
+        final ItemBuilder builder = StyledTexture.RANDOM_HERO_PREFERENCES.asBuilder();
         final Set<Archetype> include = entry.getInclude();
 
         builder.addLore();
@@ -110,11 +112,11 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
                         """).toItemStack()
         );
 
-        setClick(41, click -> {
+        setAction(41, click -> {
             new HeroPreferencesGUI(profile);
         }, ClickType.LEFT, ClickType.SHIFT_LEFT);
 
-        setClick(41, click -> {
+        setAction(41, click -> {
             entry.setEnabled(!randomHeroEnabled);
 
             // Restore hero
@@ -153,7 +155,7 @@ public class HeroSelectGUI extends StyledPageGUI<Hero> {
     @Override
     public ItemStack asItem(@Nonnull Player player, Hero hero, int index, int page) {
         if (hero.isLocked(player)) {
-            return StyledTexture.LOCKED_HERO.toBuilder()
+            return StyledTexture.LOCKED_HERO.asBuilder()
                                             .addLore("&7Reach level &b%s &7to unlock!".formatted(hero.getMinimumLevel()))
                                             .asIcon();
         }

@@ -41,7 +41,7 @@ public class BaseAttributes implements Iterable<AttributeView>, Debuggable {
     }
     
     public double normalized(@Nonnull AttributeType type) {
-        return get(type) / 100;
+        return get(type) / 100d;
     }
     
     public void set(@Nonnull AttributeType type, double value) {
@@ -274,5 +274,9 @@ public class BaseAttributes implements Iterable<AttributeView>, Debuggable {
         return "BaseAttributes{" +
                 "attributes=" + attributes.entrySet().stream().map(entry -> "%s=%.1f".formatted(entry.getKey().name(), entry.getValue())).toList() +
                 '}';
+    }
+    
+    public void merge(@Nonnull BaseAttributes attributes) {
+        this.attributes.replaceAll((t, d) -> attributes.get(t));
     }
 }

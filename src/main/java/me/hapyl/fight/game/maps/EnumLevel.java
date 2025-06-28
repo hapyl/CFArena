@@ -25,11 +25,12 @@ import org.bukkit.WeatherType;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public enum EnumLevel implements Selectable, KeyedEnum {
-
+    
     // april fools maps (replaces spawn and arena with classic maps)
     SPAWN_APRIL_FOOLS(handle -> new NonPlayableLevel(
             handle,
@@ -42,7 +43,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             0f
     )),
     ARENA_APRIL_FOOLS(handle -> new NonPlayableLevel(handle, "Classic Arena", "A classic arena from Classes Fight v1.0", -1000, 64, 0)),
-
+    
     // non-playable map, storing here for easy coordinate grab and consistency
     TRAINING_GROUNDS(handle -> new NonPlayableLevel(handle, "Training Grounds", "Test heroes talents here!", -1500, 64, 0, -90, 0)),
     SPAWN(handle -> new NonPlayableLevel(handle, "Spawn", "You spawn here!", 0, 64, 0) {
@@ -52,13 +53,13 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             if (ServerEvents.APRIL_FOOLS.isActive()) {
                 return SPAWN_APRIL_FOOLS.getLevel().getLocation();
             }
-
+            
             return super.getLocation();
         }
     }.setMaterial(Material.NETHER_STAR)),
-
+    
     // *=* PvP Levels *=* //
-
+    
     ARENA(handle -> new Level(handle, "Arena") {
         @Nonnull
         @Override
@@ -66,7 +67,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             if (ServerEvents.APRIL_FOOLS.isActive()) {
                 return ARENA_APRIL_FOOLS.getLevel().getLocation();
             }
-
+            
             return super.getLocation();
         }
     }
@@ -82,7 +83,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(Supplies.ENERGY, 487, 65, -5)
             .addPackLocation(Supplies.ENERGY, 513, 72, -32)
     ),
-
+    
     JAPAN(
             "Japan", level -> level
             .setDescription("This map is based on real-life temple &e平等院 (Byōdō-in)&7!")
@@ -92,7 +93,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addFeature(new JapanFeature())
             .addLocation(1000, 64, 6, 180, 0)
     ),
-
+    
     GREENHOUSE(
             "Greenhouse", level -> level
             .setDescription("This greenhouse has a lot of flowers to hide, and bunch of secret passages.__&8&oWho's made them?")
@@ -104,7 +105,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(1486, 65, 0, -90f, 0f)
             .addLocation(1500, 65, 14, -180f, 0f)
     ),
-
+    
     RAILWAY(
             "Railway", level -> level
             .setDescription("The action happening in the unknown Railway Station. Big area to fight, and to hide.")
@@ -114,14 +115,14 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(1984.0, 70, 0.0, -90f, 0f)
             .addLocation(2034.0, 70, 0.0, 90f, 0)
     ),
-
+    
     MIDJOURNEY(
             "Mid Journey", level -> level
             .setDescription("""
-                    DiDenPro add description.
-                    DiDenPro add description.
-                    DiDenPro add description.
-                    """)
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            DiDenPro add description.
+                            """)
             .setMaterial(Material.CRIMSON_NYLIUM)
             .setSize(Size.MEDIUM)
             .setTicksBeforeReveal(100)
@@ -131,7 +132,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addLocation(2500, 72, 27, -180f, 0f)
             .addLocation(2500, 72, -27)
     ),
-
+    
     RAILWAY_STATION(
             "Railway Station", level -> level
             .setDescription("{}")
@@ -152,7 +153,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(Supplies.ENERGY, 3045, 64, 11)
             .addPackLocation(Supplies.ENERGY, 3010, 72, -35)
     ),
-
+    
     CLOUDS(
             "The Clouds", level -> level
             .setDescription("Ruined city built on the clouds somewhere in the sky.")
@@ -170,7 +171,7 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(Supplies.ENERGY, 3502, 51, -13)
             .addPackLocation(Supplies.ENERGY, 3525, 73, -12)
     ),
-
+    
     LIBRARY(
             "Infinity Library", level -> level
             .setDescription("A library that stuck in the void.")
@@ -189,80 +190,80 @@ public enum EnumLevel implements Selectable, KeyedEnum {
             .addPackLocation(Supplies.ENERGY, 4013, 66.5, -14)
             .addPackLocation(Supplies.ENERGY, 3960, 75, 5)
     ),
-
+    
     DRAGONS_GORGE(DragonsGorge::new), // complex map, stored in separate file
     WINERY(WineryMap::new), // complex map, stored in separate file
     MOON_BASE(MoonBase::new), // complex map, stored in separate file
     DWARF_VAULT(DwarfVault::new),
     LIMBO(LimboMap::new),
-
+    
     FORGOTTEN_CHURCH(
             "Forgotten Church", level -> level
             .setDescription("""
-                    All forgotten church covered in snow.
-                    
-                    A long time has passed since it last seen guests.
-                    """)
+                            All forgotten church covered in snow.
+                            
+                            A long time has passed since it last seen guests.
+                            """)
             .setMaterial(Material.TOTEM_OF_UNDYING)
             .setSize(Size.MEDIUM)
             .setWeather(WeatherType.DOWNFALL)
             .setTicksBeforeReveal(100)
             .addLocation(7000, 64, 0)
     ),
-
+    
     // *=* Commission Levels *=* //
     THE_CRYPT(CommissionLevelCrypt::new),
-
+    
     ;
-
+    
     private static final List<CommissionLevel> COMMISSIONS;
-
+    
     static {
         COMMISSIONS = Lists.newArrayList();
-
+        
         for (EnumLevel level : values()) {
             if (level.level instanceof CommissionLevel commissionLevel) {
                 COMMISSIONS.add(commissionLevel);
             }
         }
     }
-
+    
     private final Level level;
-
+    
     EnumLevel(@Nonnull String name, @Nonnull EnumHandleFunction.Handler<EnumLevel, Level> handler) {
         this(e -> handler.apply(new Level(e, name)));
     }
-
+    
     EnumLevel(@Nonnull EnumHandleFunction<EnumLevel, Level> function) {
         this.level = function.apply(this);
     }
-
+    
     public boolean isPlayable() {
         return level.isPlayable();
     }
-
+    
     @Nonnull
     public Level getLevel() {
         return level;
     }
-
+    
     @Override
     public boolean isSelected(@Nonnull Player player) {
         return Manager.current().currentEnumLevel() == this;
     }
-
+    
     @Override
     public void select(@Nonnull Player player) {
         if (Manager.current().currentEnumLevel() == this) {
             Message.error(player, "This map is already selected!");
             return;
         }
-
+        
         Manager.current().setCurrentMap(this);
-
+        
         Chat.broadcast("&2&lMAP! &a%s selected &l%s&a!".formatted(player.getName(), getName()));
     }
-
+    
     @Nonnull
     public String getName() {
         return level.getName();
@@ -277,10 +278,10 @@ public enum EnumLevel implements Selectable, KeyedEnum {
     public static List<CommissionLevel> commissionLevels() {
         return Lists.newArrayList(COMMISSIONS);
     }
-
+    
     public static List<EnumLevel> getPlayableMaps() {
         final List<EnumLevel> maps = new ArrayList<>();
-
+        
         for (final EnumLevel value : values()) {
             if (value == null || !value.isPlayable()) {
                 continue;
@@ -289,11 +290,11 @@ public enum EnumLevel implements Selectable, KeyedEnum {
         }
         return maps;
     }
-
-    public static EnumLevel byName(String str, EnumLevel def) {
-        final EnumLevel gm = Enums.byName(EnumLevel.class, str == null ? ARENA.name() : str);
-        return gm == null ? def : gm;
+    
+    @Nullable
+    public static EnumLevel byName(@Nonnull String str) {
+        return Enums.byName(EnumLevel.class, str);
     }
-
-
+    
+    
 }

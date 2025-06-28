@@ -8,7 +8,6 @@ import org.bukkit.event.HandlerList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public class AttributeModifyEvent extends GameEntityEvent implements Cancellable {
@@ -18,7 +17,7 @@ public class AttributeModifyEvent extends GameEntityEvent implements Cancellable
     private final AttributeModifier modifier;
     private boolean cancel;
     
-    public AttributeModifyEvent(@Nonnull LivingGameEntity entity, @Nullable AttributeModifier modifier) {
+    public AttributeModifyEvent(@Nonnull LivingGameEntity entity, @Nonnull AttributeModifier modifier) {
         super(entity);
         
         this.modifier = modifier;
@@ -26,7 +25,7 @@ public class AttributeModifyEvent extends GameEntityEvent implements Cancellable
     
     @Nonnull
     public final AttributeModifier modifier() {
-        return Objects.requireNonNull(modifier, "Illegal event creation!");
+        return modifier;
     }
     
     @Nullable
@@ -89,16 +88,16 @@ public class AttributeModifyEvent extends GameEntityEvent implements Cancellable
                 return BUFF.negate().test(entry);
             }
         };
-    
+        
     }
-
+    
     public static class AttributeModifyDummyEvent extends AttributeModifyEvent {
         
         private final LivingGameEntity applier;
         private final ModificationType modificationType;
         
         AttributeModifyDummyEvent(LivingGameEntity entity, LivingGameEntity applier, ModificationType modificationType) {
-            super(entity, null);
+            super(entity, AttributeModifier.dummyModifier(entity));
             
             this.applier = applier;
             this.modificationType = modificationType;

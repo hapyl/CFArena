@@ -13,6 +13,8 @@ import me.hapyl.fight.game.cosmetic.gadget.FireworkGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.SnowballGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.dice.DiceGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.gadget.dice.HighClassDiceCosmetic;
+import me.hapyl.fight.game.cosmetic.gadget.guesswho.GuessWhoGadgetCosmetic;
+import me.hapyl.fight.game.cosmetic.gadget.wordle.WordleGadgetCosmetic;
 import me.hapyl.fight.game.cosmetic.kill.*;
 import me.hapyl.fight.game.cosmetic.prefix.AdminPrefixCosmetic;
 import me.hapyl.fight.game.cosmetic.prefix.PrefixCosmetic;
@@ -83,6 +85,8 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
     public final HighClassDiceCosmetic DICE_HIGH_CLASS;
     public final SnowballGadgetCosmetic SNOWBALL_GADGET;
     public final BalloonGadgetCosmetic BALLOON;
+    public final WordleGadgetCosmetic WORDLE;
+    public final GuessWhoGadgetCosmetic GUESS_WHO;
 
     //////////////////////////////
     // *=* Prefix Cosmetics *=* //
@@ -176,6 +180,8 @@ public class CosmeticRegistry extends SimpleRegistry<Cosmetic> {
         DICE_HIGH_CLASS = register("dice_high_class", HighClassDiceCosmetic::new);
         SNOWBALL_GADGET = register("snowball_gadget", SnowballGadgetCosmetic::new);
         BALLOON = register("balloon", BalloonGadgetCosmetic::new);
+        WORDLE = register("wordle", WordleGadgetCosmetic::new);
+        GUESS_WHO = register("guess_who", GuessWhoGadgetCosmetic::new);
 
         //////////////////////////////
         // *=* Prefix Cosmetics *=* //

@@ -50,6 +50,8 @@ public class HeroPreviewGUI extends StyledGUI {
     
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(hero.getItemMaker().makeItem(HeroPlayerItemMaker.Type.DETAILS, player));
         
         // Fill with panels
@@ -117,7 +119,7 @@ public class HeroPreviewGUI extends StyledGUI {
         setItem(32, showingUltimateAttributes ? talentAttributeOrAir(ultimate) : talentItemOrAir(ultimate));
         
         if (showingUltimateAttributes) {
-            setClick(
+            setAction(
                     32, player -> {
                         attributeDisplay.remove(ultimate);
                         
@@ -126,7 +128,7 @@ public class HeroPreviewGUI extends StyledGUI {
             );
         }
         else {
-            setClick(
+            setAction(
                     32, player -> {
                         attributeDisplay.add(ultimate);
                         
@@ -151,7 +153,7 @@ public class HeroPreviewGUI extends StyledGUI {
         );
         
         // Favourite
-        final boolean favourite = hero.isFavourite(getPlayer());
+        final boolean favourite = hero.isFavourite(player);
         
         setItem(
                 35,
@@ -187,7 +189,7 @@ public class HeroPreviewGUI extends StyledGUI {
         setItem(
                 18,
                 StyledTexture.ICON_MASTERY
-                        .toBuilder()
+                        .asBuilder()
                         .addLore()
                         .addLore(entry.makeMasteryHeader(hero))
                         .addLore(entry.makeProgressBar(hero))
@@ -199,7 +201,7 @@ public class HeroPreviewGUI extends StyledGUI {
         // Story
         setItem(
                 27, StyledTexture.ICON_STORY
-                        .toBuilder()
+                        .asBuilder()
                         .addLore()
                         .addLore(Color.ERROR + "Find at least one chapter to unlock!")
                         .asIcon()

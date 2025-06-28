@@ -26,27 +26,29 @@ public class EyeGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final PlayerDatabase database = CF.getDatabase(getPlayer());
+        super.onUpdate();
+        
+        final PlayerDatabase database = CF.getDatabase(player);
         final PlayerRank playerRank = database.getRank();
 
         setHeader(StyledTexture.THE_EYE.asIcon());
 
         setItem(20, StyledTexture.RELIC_HUNT.asButton("view relics"), RelicHuntGUI::new);
         setItem(22, StyledTexture.DAILY.asButton("view bonds"), DailyGUI::new);
-        setItem(24, StyledTexture.TOKEN_STORE.asIconWithLore("", "&cCOMING SOON"));
+        setItem(24, StyledTexture.TOKEN_STORE.asIcon("", "&cCOMING SOON"));
 
         // Daily rewards
         final DailyRewardEntry rewardEntry = database.dailyRewardEntry;
 
         int slot = 30;
         for (DailyRewardEntry.Type type : DailyRewardEntry.Type.values()) {
-            final ItemBuilder builder = type.texture.toBuilder();
+            final ItemBuilder builder = type.texture.asBuilder();
             final DailyReward reward = type.reward;
             final PlayerRank rankRequired = type.rank;
 
             if (reward == null) {
                 Message.error(player, "Error loading rewards, try again before reporting this!");
-                closeInventory();
+                player.closeInventory();
                 return;
             }
 
@@ -87,7 +89,7 @@ public class EyeGUI extends StyledGUI {
             setItem(slot, builder.asIcon());
 
             if (canClaim) {
-                setClick(
+                setAction(
                         slot, click -> {
                             if (!playerRank.isOrHigher(rankRequired)) {
                                 Message.error(player, lowRankString);
@@ -102,7 +104,7 @@ public class EyeGUI extends StyledGUI {
                 );
             }
             else {
-                setClick(
+                setAction(
                         slot, click -> {
                             Chat.sendMessage(player, comeBackString);
                             PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);

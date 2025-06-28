@@ -19,9 +19,6 @@ import me.hapyl.eterna.module.command.*;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.EventListener;
-import me.hapyl.eterna.module.inventory.gui.GUI;
-import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Cuboid;
 import me.hapyl.eterna.module.math.Numbers;
@@ -73,6 +70,9 @@ import me.hapyl.fight.game.commission.Monster;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.CosmeticCollection;
 import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.cosmetic.gadget.guesswho.GuessWhoActivity;
+import me.hapyl.fight.game.cosmetic.gadget.guesswho.GuessWhoGUI;
+import me.hapyl.fight.game.cosmetic.gadget.wordle.*;
 import me.hapyl.fight.game.crate.Crates;
 import me.hapyl.fight.game.crate.convert.CrateConvert;
 import me.hapyl.fight.game.crate.convert.CrateConverts;
@@ -155,7 +155,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -266,18 +265,224 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new TestNpcDeathAnimationCommand("testNpcDeathAnimation"));
         register(new RitualCommand("ritual"));
         register(new NamedPreviewCommand("previewNamed"));
+        register(new DotCommand("dot"));
+        register(new WordleCommand("wordle"));
         
         // *=* Inner commands *=* //
-        register("applyHellfireShieldToSelf", (plauer, args) -> {
-            GamePlayer.getOptionalPlayer(plauer).ifPresent(gameplayer -> {
-                TalentRegistry.HELLFIRE_WARD.applyShield(gameplayer, gameplayer);
+        register(
+                "testGuessWhoGUI", (player, args) -> {
+                    Message.warning(player, "Opening a debug guess who activity...");
+                    Message.warning(player, "Debug activities aren't supported and will cause bugs, only use if you really know that you're doing!");
+                    
+                    final GuessWhoActivity activity = new GuessWhoActivity(player, player);
+                    
+                    new GuessWhoGUI(activity.player1, () -> "debug") {
+                        @Override
+                        public void onClick(@Nonnull Hero hero) {
+                            onUpdate(); // Update GUI because of hot-swap
+                        }
+                    }.openInventory();
+                }
+        );
+        
+        register(
+                "adminWordle", (player, args) -> {
+                    final int index = args.getInt(0);
+                    final WordleWord word = Wordle.byIndex(index);
+                    
+                    if (word == null) {
+                        Message.error(player, "Illegal index: {%s}!".formatted(index));
+                        return;
+                    }
+                    
+                    new WordleGUI(new WordleInstance(player, word) {
+                        
+                        @Nonnull
+                        @Override
+                        public String type() {
+                            return "Admin";
+                        }
+                        
+                        @Nullable
+                        @Override
+                        protected Reward reward() {
+                            return null;
+                        }
+                        
+                        @Override
+                        protected void saveInstance() {
+                        }
+                    });
+                }
+        );
+        
+        register(
+                "indexOfWordleWord", (player, args) -> {
+                    final String query = args.getString(0);
+                    
+                    if (query.length() != Wordle.WORD_LENGTH) {
+                        Message.error(player, "The word must be %s letters long!".formatted(Wordle.WORD_LENGTH));
+                        return;
+                    }
+                    
+                    @Nullable final WordleWord word = Wordle.indexOf(query);
+                    
+                    if (word == null) {
+                        Message.error(player, "Word {%s} is not in the dictionary!".formatted(query));
+                        return;
+                    }
+                    
+                    Message.success(player, "The word {%s} is at index {#%s}.".formatted(word.word(), word.index()));
+                }
+        );
+        
+        register(
+                "debugWordleResult", (player, args) -> {
+                    final int index = args.getInt(0);
+                    final WordleResult result = CF.getDatabase(player).wordleEntry.result(index);
+                    
+                    if (result == null) {
+                        Message.error(player, "No result for wordle #%s!".formatted(index));
+                        return;
+                    }
+                    
+                    Message.success(player, "Result for wordle #%s!".formatted(index));
+                    Message.info(player, result.toString());
+                }
+        );
+        
+        register(
+                "debugWordleDay", (player, args) -> {
+                    final WordleWord word = Wordle.todayWord();
+                    
+                    Message.success(player, "Today's word: %s".formatted(word.toString()));
+                }
+        );
+        
+        register(
+                "debugWordleGuess", (player, args) -> {
+                    final String word = args.getString(0);
+                    final String guess = args.getString(1);
+                    
+                    if (word.length() != Wordle.WORD_LENGTH || guess.length() != Wordle.WORD_LENGTH) {
+                        Message.error(player, "Both word and guess length must be {%s}!".formatted(Wordle.WORD_LENGTH));
+                        return;
+                    }
+                    
+                    final WordleGuess wordleGuess = new WordleGuess(guess, new WordleWord(0, word, "debug"));
+                    
+                    Message.info(player, wordleGuess.toString());
+                }
+        );
+        
+        register(
+                "testTemperStats", (player, args) -> {
+                    GamePlayer.getOptionalPlayer(player).ifPresent(gameplayer -> {
+                        gameplayer.getAttributes().addModifier(
+                                ModifierSource.COMMAND, 100, modifier -> modifier
+                                        .of(AttributeType.DEFENSE, ModifierType.FLAT, -100)
+                                        .of(AttributeType.SPEED, ModifierType.FLAT, 10)
+                                        .of(AttributeType.MAX_HEALTH, ModifierType.FLAT, 50)
+                        );
+                    });
+                }
+        );
+        
+        register(
+                "testGlowing", (player, args) -> {
+                    final Player target = args.get(0).toPlayer();
+                    
+                    if (target == null) {
+                        Message.error(player, "Cannot find the target player!");
+                        return;
+                    }
+                    
+                    if (target == player) {
+                        Message.error(player, "Cannot glow for self!");
+                        return;
+                    }
+                    
+                    Glowing.setGlowing(player, target, GlowingColor.AQUA, 60);
+                    Message.success(player, "Done!");
+                }
+        );
+        
+        register(
+                "mountPlayer", (player, args) -> {
+                    final Player target = args.get(0).toPlayer();
+                    
+                    if (target == null) {
+                        Message.error(player, "Cannot find the target player!");
+                        return;
+                    }
+                    
+                    if (target == player) {
+                        Message.error(player, "Cannot mount self!");
+                        return;
+                    }
+                    
+                    target.addPassenger(player);
+                    Message.success(player, "Mounted {%s}!".formatted(target.getName()));
+                }
+        );
+        
+        register(
+                "testHeartStyle", (player, args) -> {
+                    GamePlayer.getOptionalPlayer(player).ifPresent(gameplayer -> {
+                        final String arg = args.getString(0).toLowerCase();
+                        
+                        HeartStyle style = switch (arg) {
+                            case "green" -> HeartStyle.green();
+                            case "black" -> HeartStyle.black();
+                            case "white" -> HeartStyle.white();
+                            default -> null;
+                        };
+                        
+                        gameplayer.heartStyle(style);
+                        gameplayer.sendSuccessMessage(style != null ? ("Set heart style to " + arg) : "Reset heart style!");
+                        
+                    });
+                }
+        );
+        
+        register(new SimplePlayerAdminCommand("testRuleTrigger") {
+            
+            private final TestRuleTrigger trigger = new TestRuleTrigger();
+            
+            @Override
+            protected void execute(Player player, String[] args) {
+                trigger.player = player;
+                trigger.tryTrigger();
+            }
+            
+            private static class TestRuleTrigger extends RuleTrigger {
+                private volatile Player player;
                 
-                gameplayer.sendMessage(Message.SUCCESS, "Done!");
-            });
+                TestRuleTrigger() {
+                    super(defaultRule());
+                }
+                
+                @Override
+                public void trigger() {
+                    player.sendMessage("Trigger! [%s, %s]".formatted(hits, System.currentTimeMillis() - lastTrigger));
+                }
+            }
         });
         
-        register("allowRebukeSelf", (player, args) -> {
-            GamePlayer.getOptionalPlayer(player)
+        
+        register(
+                "applyHellfireShieldToSelf", (player, args) -> {
+                    GamePlayer.getOptionalPlayer(player).ifPresent(gameplayer -> {
+                        TalentRegistry.HELLFIRE_WARD.applyShield(gameplayer, gameplayer);
+                        
+                        gameplayer.sendMessage(Message.SUCCESS, "Done!");
+                    });
+                }
+        );
+        
+        register(
+                "allowRebukeSelf", (player, args) -> {
+                    GamePlayer.getOptionalPlayer(player)
                               .ifPresent(gameplayer -> {
                                   final DylanData data = HeroRegistry.DYLAN.getPlayerData(gameplayer);
                                   
@@ -285,8 +490,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                                   
                                   gameplayer.sendMessage(Message.SUCCESS, "Done!");
                               });
-            
-        });
+                    
+                }
+        );
         
         register(
                 "testTotemAnimaion", (player, args) -> {
@@ -1653,12 +1859,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
         
         register(
-                "stopGuessWho", (player, args) -> {
-                    Manager.current().stopGuessWhoGame();
-                }
-        );
-        
-        register(
                 "spawnBlastPackWallEntity", (player, args) -> {
                     final float yaw = args.get(0).toFloat();
                     final float pitch = args.get(1).toFloat();
@@ -1731,7 +1931,7 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                         final int duration = args.get(0).toInt(30);
                         
                         TalentRegistry.AKCIY.stun(gamePlayer, gamePlayer, duration);
-                        Chat.sendMessage(player, "&aStunned for %ss!".formatted(duration));
+                        Chat.sendMessage(player, "&aStunned for %s!".formatted(duration));
                     });
                 }
         );
@@ -2099,21 +2299,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                     Chat.sendMessage(player, "&7Convert Data:");
                     Chat.sendMessage(player, convert.toString());
                 }
-            }
-        });
-        
-        register(new SimpleAdminCommand("lastHapylGUI") {
-            @Override
-            protected void execute(CommandSender sender, String[] args) {
-                final Player hapyl = Bukkit.getPlayer("hapyl");
-                
-                if (hapyl == null) {
-                    Chat.sendMessage(sender, "&chapyl is not online!");
-                    return;
-                }
-                
-                final GUI lastGUI = GUI.getPlayerLastGUI(hapyl);
-                Debug.info("lastGUI=" + (lastGUI == null ? "NONE!" : lastGUI.getName()));
             }
         });
         
@@ -3408,32 +3593,10 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
         
-        
-        register(new SimplePlayerAdminCommand("debugDamageData") {
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final GamePlayer gamePlayer = CF.getPlayer(player);
-                
-                if (gamePlayer == null) {
-                    Chat.sendMessage(player, "&cNo handle.");
-                    return;
-                }
-                
-                final LivingGameEntity targetEntity = Collect.targetEntityDot(gamePlayer, 20.0d, 0.9d, e -> !e.equals(gamePlayer));
-                
-                if (targetEntity == null) {
-                    Chat.sendMessage(player, gamePlayer.getEntityData());
-                    return;
-                }
-                
-                Chat.sendMessage(player, targetEntity.getEntityData());
-            }
-        });
-        
         register(new SimpleAdminCommand("listProfiles") {
             @Override
             protected void execute(CommandSender commandSender, String[] strings) {
-                Manager.current().listProfiles();
+                Manager.current().streamProfiles();
             }
         });
         
@@ -3578,28 +3741,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 Chat.sendMessage(player, "&aSet value to %s!".formatted(newValue));
             }
         });
-        
-        register(
-                "testTradeGUi", ((player, strings) -> {
-                    final PlayerGUI gui = new PlayerGUI(player, 6);
-                    
-                    gui.fillColumn(4, ItemBuilder.of(Material.BLACK_WOOL).asIcon());
-                    gui.setEventListener(new EventListener() {
-                        @Override
-                        public void listen(Player player, GUI gui, InventoryClickEvent event) {
-                            final int clickedSlot = event.getRawSlot();
-                            final int module = clickedSlot % 9;
-                            
-                            boolean leftSide = module < 4;
-                            boolean rightSide = module > 4;
-                            
-                            Chat.sendMessage(player, "&aSide: " + (leftSide ? "LEFT" : rightSide ? "RIGHT" : "MIDDLE"));
-                        }
-                    });
-                    
-                    gui.openInventory();
-                })
-        );
         
         register(new SimplePlayerAdminCommand("riptide") {
             

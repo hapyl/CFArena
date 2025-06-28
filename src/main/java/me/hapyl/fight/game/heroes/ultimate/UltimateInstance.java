@@ -1,16 +1,24 @@
 package me.hapyl.fight.game.heroes.ultimate;
 
+import me.hapyl.fight.annotate.BoolGuide;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represent an active ultimate instance.
  */
 public abstract class UltimateInstance {
     
-    private boolean forceEndUltimate;
+    @BoolGuide(
+            whenNull = "Does nothing",
+            whenTrue = "Ends ultimate and calls onEnd()",
+            whenFalse = "Ends ultimate without calling onEnd()"
+    )
+    @Nullable
+    protected Boolean forceEndUltimate;
     
     /**
      * Gets the response of this instance, use {@link UltimateTalent#error(String)}.
@@ -72,12 +80,8 @@ public abstract class UltimateInstance {
     public void onPlayerDied(@Nonnull GamePlayer player) {
     }
     
-    protected boolean isForceEndUltimate() {
-        return forceEndUltimate;
-    }
-    
-    protected void forceEndUltimate() {
-        this.forceEndUltimate = true;
+    protected void forceEndUltimate(boolean callOnEnd) {
+        this.forceEndUltimate = callOnEnd;
     }
     
 }

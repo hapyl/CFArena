@@ -3,6 +3,7 @@ package me.hapyl.fight.command;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
@@ -185,9 +186,9 @@ public class DumpHeroData extends SimpleAdminCommand {
                     final int cd = talent.getCooldown();
 
                     if (cd > 0) {
-                        writer.append("| Cooldown%s: %ss".formatted(
+                        writer.append("| Cooldown%s: %s".formatted(
                                 talent instanceof ChargedTalent ? " between charges" : "",
-                                BukkitUtils.roundTick(cd)
+                                Tick.round(cd)
                         ));
                     }
                     else if (cd <= -1) {
@@ -197,7 +198,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                     final int duration = talent.getDuration();
 
                     if (duration > 0) {
-                        writer.append("| Duration: %ss".formatted(BukkitUtils.roundTick(duration)));
+                        writer.append("| Duration: %s".formatted(Tick.round(duration)));
                     }
 
                     final int point = talent.getPoint();

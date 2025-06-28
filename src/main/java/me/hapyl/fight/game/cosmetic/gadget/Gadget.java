@@ -44,13 +44,9 @@ public abstract class Gadget extends Cosmetic implements Cooldown {
     @Nonnull
     public ItemStack getItem(@Nonnull Player player) {
         if (item == null) {
-            final Key key = getKey();
-
             final ItemBuilder builder = createItem(player)
                     .setName(getName() + Color.BUTTON.bold() + " RIGHT CLICK")
-                    .setCooldownGroup(key)
                     .setLore(0, "&8Gadget") // Change the first line of the lore because I like it what way
-                    .setKey(key)
                     .addClickEvent(this::execute0);
 
             if (texture != null) {

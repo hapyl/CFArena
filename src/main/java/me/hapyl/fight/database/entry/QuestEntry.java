@@ -57,7 +57,7 @@ public class QuestEntry extends PlayerDatabaseEntry {
         final CFQuestHandler questHandler = CF.getQuestHandler();
         final Set<QuestData> questDataSet = new HashSet<>();
 
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         // Don't load quests for offline players
         if (player == null) {

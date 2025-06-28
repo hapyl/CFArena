@@ -40,6 +40,8 @@ public class RelicHuntGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final List<EnumLevel> mapsWithRelics = relicHunt.getMapsWithRelics();
 
         setHeader(StyledTexture.RELIC_HUNT.asIcon());
@@ -122,7 +124,7 @@ public class RelicHuntGUI extends StyledGUI {
                 continue;
             }
 
-            final List<Relic> foundByType = relicHunt.getFoundListByType(getPlayer(), type);
+            final List<Relic> foundByType = relicHunt.getFoundListByType(player, type);
             final int foundSize = foundByType.size();
             final double percentDone = (double) foundSize / relics.size();
             final Color color

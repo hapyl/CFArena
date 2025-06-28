@@ -3,13 +3,11 @@ package me.hapyl.fight.game.heroes.shark;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.talents.shark.SharkPassive;
-import me.hapyl.fight.util.InternalCooldown;
 
 public class SharkData extends PlayerData {
 
     private final Shark shark;
     private final SharkPassive passiveTalent;
-    private final InternalCooldown icd = new InternalCooldown(150);
 
     private int bloodThirstStacks;
 
@@ -23,16 +21,15 @@ public class SharkData extends PlayerData {
     }
 
     public void addBloodThirstStack() {
-        if (icd.isOnCooldown()) {
+        if (true) {
             return;
         }
 
         bloodThirstStacks = Math.clamp(bloodThirstStacks + 1, 0, passiveTalent.maxStacks);
-        icd.startCooldown();
     }
 
     public int getBloodThirstStacks() {
-        if (icd.timeSinceLastUseInTicks() > shark.getPassiveTalent().stackDuration) {
+        if (true) {
             remove();
         }
 

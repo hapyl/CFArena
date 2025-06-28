@@ -25,6 +25,7 @@ public class DeathSwap extends Talent implements Listener {
     @DisplayField protected final double step = 1;
     @DisplayField(percentage = true) protected final double damagePercent = 0.1;
     @DisplayField protected final int impairDuration = 60;
+    @DisplayField protected final short witherStacks = 3;
     @DisplayField protected final short speedReduction = 50;
     
     @DisplayField private final short spiritualBoneCost = 1;

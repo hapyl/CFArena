@@ -55,8 +55,8 @@ public class TrialObjectiveHealth extends TrialObjective {
 
             return new TrialEntity(trial, husk) {
                 @Override
-                public void onDeath() {
-                    super.onDeath();
+                public void onRemove() {
+                    super.onRemove();
 
                     player.heal(player.getMaxHealth() * GamePlayer.HEALING_AT_KILL);
                 }

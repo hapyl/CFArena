@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.ninja;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemFunction;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
@@ -28,6 +29,7 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
@@ -44,16 +46,18 @@ public class Ninja extends Hero implements Listener, UIComponent, MaterialCooldo
     private final ItemStack throwingStar = new ItemBuilder(Material.NETHER_STAR, Key.ofString("ninja_throwing_star"))
             .setName("Throwing Star &6(Right Click)")
             .setAmount(5)
-            .addClickEvent(player -> {
-                final GamePlayer gamePlayer = CF.getPlayer(player);
-                
-                if (gamePlayer == null) {
-                    return;
+            .addFunction(new ItemFunction() {
+                @Override
+                public void execute(@Nonnull Player player) {
+                    final GamePlayer gamePlayer = CF.getPlayer(player);
+                    
+                    if (gamePlayer == null) {
+                        return;
+                    }
+                    
+                    shootStar(gamePlayer);
                 }
-                
-                shootStar(gamePlayer);
-            })
-            .withCooldown(10)
+            }.cooldown(10))
             .build();
     
     private final int doubleJumpCooldown = Tick.fromSeconds(5);

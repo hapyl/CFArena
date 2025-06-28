@@ -1,7 +1,6 @@
 package me.hapyl.fight.gui;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.database.entry.RandomHeroEntry;
 import me.hapyl.fight.game.heroes.Archetype;
@@ -10,10 +9,12 @@ import me.hapyl.fight.gui.styled.*;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class HeroPreferencesGUI extends StyledGUI {
 
@@ -40,6 +41,8 @@ public class HeroPreferencesGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final int maxItemsPerPage = SLOTS.length;
 
         setHeader(StyledTexture.RANDOM_HERO_PREFERENCES.asIcon());
@@ -118,7 +121,7 @@ public class HeroPreferencesGUI extends StyledGUI {
                             .toItemStack()
             );
 
-            final Action action = player -> {
+            final Consumer<Player> action = player -> {
                 if (isEnabled) {
                     include.remove(archetype);
                 }
@@ -130,8 +133,8 @@ public class HeroPreferencesGUI extends StyledGUI {
                 update();
             };
 
-            setClick(slot, action);
-            setClick(slot + 9, action);
+            setAction(slot, action);
+            setAction(slot + 9, action);
         }
 
         // Confirm

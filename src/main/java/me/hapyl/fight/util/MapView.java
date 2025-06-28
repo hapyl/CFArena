@@ -1,6 +1,5 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.eterna.module.annotate.FactoryMethod;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nonnull;
@@ -111,19 +110,16 @@ public final class MapView<K, V> implements Map<K, V> {
     }
 
     @Nonnull
-    @FactoryMethod(MapView.class)
     public static <K, V> MapView<K, V> of(@Nonnull Map<K, V> map) {
         return new MapView<>(map);
     }
 
     @Nonnull
-    @FactoryMethod(MapView.class)
     public static <K, V> MapView<K, V> ofOrEmpty(@Nullable Map<K, V> map) {
         return (map == null || map.isEmpty()) ? empty() : of(map);
     }
 
     @Nonnull
-    @FactoryMethod(MapView.class)
     public static <K, V> MapView<K, V> empty() {
         return new MapView<>(Map.of());
     }

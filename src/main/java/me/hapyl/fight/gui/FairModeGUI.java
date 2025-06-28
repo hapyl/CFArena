@@ -36,6 +36,8 @@ public class FairModeGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(StyledTexture.ICON_FAIR_MODE.asIcon());
 
         final FairMode currentMode = manager.getFairMode();

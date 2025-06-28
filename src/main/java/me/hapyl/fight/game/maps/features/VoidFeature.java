@@ -3,7 +3,7 @@ package me.hapyl.fight.game.maps.features;
 import me.hapyl.eterna.module.math.Numbers;
 import me.hapyl.fight.alphabet.AlphabetImpl;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.util.collection.player.PlayerMap;
@@ -65,7 +65,7 @@ public class VoidFeature extends LevelFeature {
             case 7 -> {
                 subtitle = "Void Consuming You";
                 player.damage(30, DamageCause.LIBRARY_VOID);
-                player.addEffect(EffectType.WITHER, 0, 20);
+                player.addDotStacks(DotType.WITHER, 2);
             }
         }
 

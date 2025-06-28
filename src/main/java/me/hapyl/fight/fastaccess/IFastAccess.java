@@ -25,7 +25,7 @@ public interface IFastAccess extends Styled {
         setPanelItem(
                 5,
                 StyledTexture.TNT
-                        .toBuilder()
+                        .asBuilder()
                         .setName("&cReset Quick Access")
                         .addLore()
                         .addSmartLore("Reset the quick access to default, removing any action assigned to it.")

@@ -22,7 +22,7 @@ public class LibrarianShield extends LibrarianTalent {
         player.setInvulnerable(true);
         player.schedule(() -> player.setInvulnerable(false), value);
 
-        player.sendMessage("&aApplied shield for %ss!".formatted(getCurrentValue(player)));
+        player.sendMessage("&aApplied shield for %s!".formatted(getCurrentValue(player)));
 
         return Response.OK;
     }

@@ -220,16 +220,17 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
         members.removeIf(Entry::isNotPlayer);
     }
     
-    public void glowTeammates() {
+    public void glowTeammates(@Nonnull Player player) {
         final List<Player> players = getBukkitPlayers();
         
-        for (Player player : players) {
-            for (Player other : players) {
-                if (other != player) {
-                    Glowing.setGlowing(player, other, GlowingColor.GREEN);
-                }
+        players.forEach(teammate -> {
+            // Don't glow for self
+            if (player == teammate) {
+                return;
             }
-        }
+            
+            Glowing.setGlowing(player, teammate, GlowingColor.GREEN);
+        });
     }
     
     @Nonnull

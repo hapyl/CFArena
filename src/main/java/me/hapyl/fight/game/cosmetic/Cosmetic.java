@@ -83,7 +83,7 @@ public abstract class Cosmetic implements Keyed, Purchasable, Formatted {
 
     @Nonnull
     public ItemBuilder createItem(Player player) {
-        final ItemBuilder builder = new ItemBuilder(icon);
+        final ItemBuilder builder = new ItemBuilder(icon, key);
 
         builder.setName(name);
         builder.addLore(rarity.toString(type.getName()));

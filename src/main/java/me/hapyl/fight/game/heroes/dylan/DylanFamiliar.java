@@ -52,6 +52,7 @@ public class DylanFamiliar implements Ticking, Removable {
     public DylanFamiliar(@Nonnull GamePlayer player, @Nonnull SummonWhelp summonWhelp) {
         this.player = player;
         this.action = FamiliarAction.followDylan(player);
+        this.actionDuration = Constants.INFINITE_DURATION;
         
         final Location spawnLocation = player.getLocation().add(0, 6, 0);
         this.entity = player.spawnAlliedEntity(
@@ -266,8 +267,7 @@ public class DylanFamiliar implements Ticking, Removable {
                 // Fx
                 player.spawnWorldParticle(location, Particle.EXPLOSION_EMITTER, 1);
                 
-                // We have to delay the removal because damage credit
-                GameTask.runLater(familiar::remove, 10);
+                familiar.remove();
             }
             
             private void damage(FamiliarEntity familiar, Location location, double damage, double radius) {

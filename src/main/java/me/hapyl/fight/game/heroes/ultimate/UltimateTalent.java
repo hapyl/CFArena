@@ -90,10 +90,10 @@ public abstract class UltimateTalent extends Talent {
                 final int timeLeft = getCooldownTimeLeft(player);
                 
                 if (timeLeft >= Constants.MAX_COOLDOWN) {
-                    player.sendErrorMessage("Your ultimate is on cooldown!");
+                    Response.error(player, "Your ultimate is on cooldown!");
                 }
                 else {
-                    player.sendErrorMessage("Your ultimate is on cooldown for %s!".formatted(CFUtils.formatTick(timeLeft)));
+                    Response.error(player, "Your ultimate is on cooldown for %s!".formatted(CFUtils.formatTick(timeLeft)));
                 }
                 
                 player.playSound(SoundEffect.ERROR);
@@ -102,7 +102,7 @@ public abstract class UltimateTalent extends Talent {
         }
         
         if (player.isUsingUltimate()) {
-            player.sendErrorMessage("You are already using ultimate!");
+            Response.error(player, "You are already using ultimate!");
             player.playSound(SoundEffect.ERROR);
             return null;
         }
@@ -114,7 +114,7 @@ public abstract class UltimateTalent extends Talent {
         
         // Predicate fails
         if (response.isError()) {
-            player.sendErrorMessage("Cannot use ultimate! " + response.reason());
+            Response.error(player, "Cannot use ultimate! " + response.reason());
             player.playSound(SoundEffect.ERROR);
             return null;
         }
@@ -133,8 +133,19 @@ public abstract class UltimateTalent extends Talent {
             
             @Override
             public void run() {
-                // Force end ultimate
-                if (instance.isForceEndUltimate() || !player.isUsingUltimate()) {
+                // Check for force end
+                if (instance.forceEndUltimate != null) {
+                    doEndUltimate(true);
+                    
+                    // Only call onEnd if the value is true
+                    if (instance.forceEndUltimate) {
+                        instance.onEnd();
+                    }
+                    return;
+                }
+                
+                // Not using ultimate anymore
+                if (!player.isUsingUltimate()) {
                     doEndUltimate(true);
                     return;
                 }

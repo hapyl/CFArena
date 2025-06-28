@@ -3,8 +3,7 @@ package me.hapyl.fight.gui.styled.hotbar;
 import com.google.common.collect.Maps;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.CancelType;
-import me.hapyl.eterna.module.inventory.gui.EventListener;
-import me.hapyl.eterna.module.inventory.gui.GUI;
+import me.hapyl.eterna.module.inventory.gui.GUIEventListener;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
@@ -29,13 +28,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
+public class HotbarLoadoutGUI extends StyledGUI implements GUIEventListener {
     
     private static final Material EMPTY_SLOT_MATERIAL = Material.LIME_STAINED_GLASS_PANE;
     private static final ItemStack EMPTY_SLOT = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE)
             .setName("&aEmpty Slot!")
             .setSmartLore("There will be nothing in this slot.")
             .asIcon();
+    
     private final int[] HOTBAR_SLOTS = { 27, 28, 29, 30, 31, 32, 33, 34, 35 };
     private final int UNMODIFIABLE_SLOT = 35;
     private final PlayerProfile profile;
@@ -61,13 +61,14 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
         putToMap(HotBarSlot.HERO_ITEM, hero.getItem());
         putToMap(HotBarSlot.ARTIFACT, null);
         
-        setEventListener(this);
         setCancelType(CancelType.INVENTORY);
         openInventory();
     }
     
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(StyledTexture.ICON_LOADOUT.asIcon());
         fillMiddleRow();
         
@@ -114,9 +115,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
     }
     
     @Override
-    public void listen(Player player, GUI gui, InventoryClickEvent event) {
-        final int slot = event.getRawSlot();
-        
+    public void onClick(int slot, @Nonnull InventoryClickEvent event) {
         if (!event.getClick().isLeftClick()) {
             wrongClicks++;
             Message.error(player, (wrongClicks > 0 && wrongClicks % 5 == 0) ? "LEFT CLICK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" : "Left click!");
@@ -135,7 +134,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             return;
         }
         
-        final ItemStack item = gui.getItem(slot);
+        final ItemStack item = getItem(slot);
         final ItemStack cursor = event.getCursor();
         
         if (item == null || item.getType() == EMPTY_SLOT.getType()) {
@@ -144,7 +143,7 @@ public class HotbarLoadoutGUI extends StyledGUI implements EventListener {
             
             GameTask.runLater(
                     () -> {
-                        gui.setItem(slot, cursor);
+                        setItem(slot, cursor);
                         fillMiddleRow();
                     }, 1
             );

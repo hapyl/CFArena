@@ -28,7 +28,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
 
         // Only update if exp changed
         final Experience experience = CF.getPlugin().getExperience();
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player != null) {
             type.onSet(player, value);
@@ -48,11 +48,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
     }
 
     public void update() {
-        final Player player = getOnlinePlayer();
-
-        if (player != null) {
-            CF.getPlugin().getExperience().triggerUpdate(player);
-        }
+        player().ifPresent(player -> CF.getPlugin().getExperience().triggerUpdate(player));
     }
 
     public enum Type implements KeyedEnum {

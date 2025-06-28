@@ -78,7 +78,7 @@ public class NyxPassive extends PassiveTalent {
         Collect.nearbyEntities(location, explosionRadius, entity -> !player.isSelfOrTeammate(entity))
                .forEach(entity -> {
                    // Add assist to nyx
-                   entity.getEntityData().addAssistingPlayer(nyx);
+                   entity.addAssistingPlayer(nyx);
                    
                    // Make the player who triggered the followup the damager,
                    // nyx gets the assist if entity dies from this attack

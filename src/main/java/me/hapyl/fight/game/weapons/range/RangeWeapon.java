@@ -95,7 +95,7 @@ public abstract class RangeWeapon extends Weapon implements UIComponent {
         addDynamicLore(builder, " ᴅᴀᴍᴀɢᴇ: &f&l%s", damage, Object::toString);
         
         builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s".formatted(maxAmmo));
-        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%ss".formatted(Tick.round(reloadTime)));
+        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%s".formatted(Tick.round(reloadTime)));
     }
     
     @Nonnull

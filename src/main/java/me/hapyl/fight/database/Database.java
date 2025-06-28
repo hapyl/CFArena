@@ -7,9 +7,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.config.CFConfig;
 import org.bson.Document;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -29,12 +30,12 @@ import java.util.regex.Pattern;
  * {@link Database} is the main class that handles the connection to the database.
  * {@link PlayerDatabaseEntry} is an instance of database value, that handles specific fields.
  */
-public class Database extends DependencyInjector<Main> {
+public class Database extends DependencyInjector<@NotNull Main> {
 
     private static final Pattern CLINK_PATTERN = Pattern.compile("srv://(.*?):");
     private static final String DATABASE_NAME = "classes_fight";
 
-    private final FileConfiguration fileConfig;
+    private final CFConfig config;
     private final Map<NamedCollection, MongoCollection<Document>> collections;
 
     private MongoClient client;
@@ -43,7 +44,7 @@ public class Database extends DependencyInjector<Main> {
     public Database(@Nonnull Main main) {
         super(main);
 
-        this.fileConfig = main.getConfig();
+        this.config = main.config();
         this.collections = Maps.newHashMap();
     }
 
@@ -58,9 +59,9 @@ public class Database extends DependencyInjector<Main> {
 
     public void createConnection() {
         try {
-            final String connectionLink = fileConfig.getString("database_connection_link");
+            final String connectionLink = config.databaseConnectionLink();
 
-            if (connectionLink == null || connectionLink.equals("null")) {
+            if (connectionLink.equals("null")) {
                 breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!", null);
                 return;
             }
@@ -92,7 +93,7 @@ public class Database extends DependencyInjector<Main> {
     }
 
     private String connectionName() {
-        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(fileConfig.getString("database_connection_link")));
+        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(config.databaseConnectionLink()));
 
         return matcher.find() ? matcher.group(1) : "localhost";
     }
@@ -108,8 +109,7 @@ public class Database extends DependencyInjector<Main> {
 
     @Nonnull
     public MongoCollection<Document> collection(@Nonnull NamedCollection collection) {
-        final MongoCollection<Document> documentMongoCollection = collections.get(collection);
-        return documentMongoCollection;
+        return collections.get(collection);
     }
 
     private void breakConnectionAndDisablePlugin(String message, RuntimeException e) {

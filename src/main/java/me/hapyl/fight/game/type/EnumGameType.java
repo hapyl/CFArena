@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.type;
 
 import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
@@ -14,6 +15,7 @@ import me.hapyl.fight.util.handle.EnumHandleFunction;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,5 +104,10 @@ public enum EnumGameType implements Selectable, KeyedEnum {
         }
 
         return selectableGameTypes;
+    }
+    
+    @Nullable
+    public static EnumGameType byName(@Nonnull String name) {
+        return Enums.byName(EnumGameType.class, name);
     }
 }

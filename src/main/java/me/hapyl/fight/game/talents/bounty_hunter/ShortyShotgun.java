@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -24,6 +25,7 @@ public class ShortyShotgun extends ChargedTalent {
     
     @DisplayField(suffix = " blocks") private final double bleedThreshold = 1.0;
     @DisplayField private final int impairDuration = 100;
+    @DisplayField private final short bleedStacks = 6;
     
     @DisplayField private final short pellets = 12;
     @DisplayField private final double maxDamagePerPellet = 5.0;
@@ -47,7 +49,7 @@ public class ShortyShotgun extends ChargedTalent {
                        If you hit &cenemy&7 point-blank, apply %s and %s for &b{impairDuration}&7.
                        
                        &8&o;;This talent can be used %s consecutively before reloading.
-                       """.formatted(EffectType.BLEED, EffectType.VULNERABLE, CFUtils.toWordCount(maxCharges()))
+                       """.formatted(DotType.BLEED, EffectType.VULNERABLE, CFUtils.toWordCount(maxCharges()))
         );
         
         setMaterial(Material.CROSSBOW);
@@ -73,7 +75,7 @@ public class ShortyShotgun extends ChargedTalent {
             
             // Apply bleed
             if (result.isPointBlank) {
-                entity.addEffect(EffectType.BLEED, impairDuration, player);
+                entity.addDotStacks(DotType.BLEED, bleedStacks, player);
                 entity.addEffect(EffectType.VULNERABLE, impairDuration, player);
             }
             

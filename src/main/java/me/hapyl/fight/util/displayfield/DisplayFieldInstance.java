@@ -1,6 +1,6 @@
 package me.hapyl.fight.util.displayfield;
 
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.eterna.module.math.Tick;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -53,7 +53,7 @@ public final class DisplayFieldInstance {
                     case Float decimal -> scaleFormat(decimal * scale);
                     
                     // Integers are ALWAYS considered as ticks, use short for other cases
-                    case Integer tick -> CFUtils.formatTick(tick);
+                    case Integer tick -> Tick.round(tick);
                     
                     // Other numbers are parsed as integers
                     case Number number -> scaleFormat(number.intValue() * scale);

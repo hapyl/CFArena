@@ -30,7 +30,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
 
     public void unsetSelected(@Nonnull Type type) {
         final Cosmetic selected = getSelected(type);
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         setValue("selected.%s".formatted(type.getKeyAsString()), null);
 
@@ -40,7 +40,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
     }
 
     public void setSelected(@Nonnull Type type, @Nonnull Cosmetic cosmetic) {
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player != null && !cosmetic.canObtain(player)) {
             Message.error(player, "You cannot select this cosmetic!");
@@ -63,7 +63,7 @@ public class CosmeticEntry extends PlayerDatabaseEntry {
             return;
         }
 
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player != null && !cosmetic.canObtain(player)) {
             Message.error(player, "You cannot own this cosmetic!");

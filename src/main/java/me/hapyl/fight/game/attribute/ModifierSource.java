@@ -10,7 +10,7 @@ import java.util.Objects;
  * Represents the source of an attribute modifier, used as a key in a mapping of
  * {@code Map<ModifierSource, AttributeModifier>}.
  * <p>
- * Each instance is uniquely identified by a {@link Key} and can optionally specify a display name and whether its application should be silent.
+ * Each instance is uniquely identified by a {@link Key} and can optionally specify whether its application should be silent.
  */
 public final class ModifierSource implements Keyed {
     

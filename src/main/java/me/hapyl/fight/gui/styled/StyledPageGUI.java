@@ -1,6 +1,5 @@
 package me.hapyl.fight.gui.styled;
 
-import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
 import me.hapyl.fight.game.color.Color;
 import org.bukkit.entity.Player;
@@ -9,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Styled {
 
@@ -28,10 +28,13 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
     }
     
     @Override
-    public void preProcessInventory(@Nonnull Player player, int page) {
+    public void openInventory() {
         if (!isCanOpen(player)) {
-            closeInventory();
+            player.closeInventory();
+            return;
         }
+        
+        super.openInventory();
     }
     
     public final void update() {
@@ -39,10 +42,14 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
     }
     
     @Override
-    public final void postProcessInventory(@Nonnull Player player, int page) {
+    public void onUpdate() {
+        super.onUpdate();
+        
         StaticStyledGUI.updateInventory(this);
-
+        
         // Override page arrows
+        final int page = currentPage();
+        
         if (page > 1) {
             setItem(
                     getSize() - 7,
@@ -50,7 +57,7 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
                     pl -> openInventory(page - 1)
             );
         }
-
+        
         if (page < getMaxPage()) {
             setItem(
                     getSize() - 3,
@@ -59,13 +66,13 @@ public abstract class StyledPageGUI<T> extends PlayerPageGUI<T> implements Style
             );
         }
     }
-
+    
     public void setHeader(@Nonnull ItemStack item) {
         StaticStyledGUI.setHeader(this, item);
     }
 
     @Override
-    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Action action, @Nullable ClickType... clickTypes) {
+    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Consumer<Player> action, @Nullable ClickType... clickTypes) {
         StaticStyledGUI.setPanelItem(this, index, item, action, clickTypes);
     }
 

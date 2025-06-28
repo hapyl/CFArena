@@ -53,7 +53,7 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
 
     public boolean canClaim(@Nonnull Type type, int index) {
         final RelicHunt relicHunt = CF.getPlugin().getRelicHunt();
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return false;
@@ -72,7 +72,7 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
     }
 
     public boolean canLevelUpStabilizer() {
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return false;

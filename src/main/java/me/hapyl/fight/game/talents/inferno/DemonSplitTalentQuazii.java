@@ -6,6 +6,7 @@ import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.Decay;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -52,8 +53,8 @@ public class DemonSplitTalentQuazii extends DemonSplitTalent {
                 &6Ability: ROFLcopter
                 A deadly beam that spins around the demon.
                 
-                Colliding with the beam applies &4decay&7 worth &b{decayPercent}&7 of %s.
-                """.formatted(AttributeType.MAX_HEALTH);
+                Colliding with the beam applies %s worth &b{decayPercent}&7 of %s.
+                """.formatted(Named.DECAY, AttributeType.MAX_HEALTH);
     }
 
     @Override

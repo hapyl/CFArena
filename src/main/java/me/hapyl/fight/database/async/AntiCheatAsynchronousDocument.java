@@ -4,7 +4,7 @@ import com.mongodb.client.MongoCollection;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.anticheat.PunishmentReport;
 import me.hapyl.fight.database.NamedCollection;
-import me.hapyl.fight.database.serialize.MongoSerializer;
+import me.hapyl.fight.database.serialize.MongoSerializable;
 import me.hapyl.fight.infraction.HexID;
 import org.bson.Document;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,7 +31,7 @@ public class AntiCheatAsynchronousDocument {
      * @param report - Report to post.
      */
     public static void post(@Nonnull PunishmentReport report) {
-        async(() -> collection().insertOne(MongoSerializer.serialize(report)));
+        async(() -> collection().insertOne(report.serialize()));
     }
 
     /**
@@ -43,14 +43,14 @@ public class AntiCheatAsynchronousDocument {
     @Nullable
     public static PunishmentReport get(@Nonnull HexID hexId) {
         final Document punishmentDocument = collection()
-                .find(new Document("punishmentId", hexId.toString()))
+                .find(new Document("punishment_id", hexId.toString()))
                 .first();
 
         if (punishmentDocument == null) {
             return null;
         }
 
-        return MongoSerializer.deserialize(punishmentDocument, PunishmentReport.class);
+        return MongoSerializable.deserialize(PunishmentReport.class, punishmentDocument);
     }
 
     /**
@@ -64,9 +64,9 @@ public class AntiCheatAsynchronousDocument {
         final List<PunishmentReport> reports = new ArrayList<>();
 
         collection()
-                .find(new Document("punisherId", uuid.toString()))
+                .find(new Document("punisher_id", uuid.toString()))
                 .forEach((Consumer<Document>) document -> {
-                    reports.add(MongoSerializer.deserialize(document, PunishmentReport.class));
+                    reports.add(MongoSerializable.deserialize(PunishmentReport.class, document));
                 });
 
         return reports;

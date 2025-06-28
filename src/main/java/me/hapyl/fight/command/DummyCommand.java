@@ -136,8 +136,8 @@ public class DummyCommand extends SimplePlayerAdminCommand {
         }
         
         @Override
-        public void onDeath() {
-            super.onDeath();
+        public void onRemove() {
+            super.onRemove();
             
             display.remove();
             text.remove();

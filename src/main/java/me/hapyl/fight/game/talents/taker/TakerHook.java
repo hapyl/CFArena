@@ -12,7 +12,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
@@ -125,7 +125,7 @@ public class TakerHook implements Removable {
                                         modifierSource, talent.impairDuration, player, modifier -> modifier.of(AttributeType.SPEED, ModifierType.FLAT, talent.speedReduction)
                                 );
                                 
-                                target.addEffect(EffectType.WITHER, talent.impairDuration);
+                                target.addDotStacks(DotType.WITHER, talent.witherStacks, player);
                                 
                                 target.sendMessage("&4☠ &cOuch! %s hooked you, and you lost &e%.0f%%&c of your health!".formatted(
                                         player.getName(),

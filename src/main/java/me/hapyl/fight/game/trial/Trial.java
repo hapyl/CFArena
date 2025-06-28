@@ -34,6 +34,7 @@ import java.util.function.Function;
 /**
  * This is a repayable trial as a {@link HeroRegistry#TUTORIAL_ARCHER}
  */
+@Deprecated
 public class Trial extends TickingGameTask implements Lifecycle {
 
     private static final Hero trialHero = HeroRegistry.TUTORIAL_ARCHER;
@@ -116,7 +117,7 @@ public class Trial extends TickingGameTask implements Lifecycle {
 
         LobbyItems.giveAll(bukkitPlayer);
 
-        entities.forEach(LivingGameEntity::forceRemove);
+        entities.forEach(LivingGameEntity::remove);
         entities.clear();
 
         cancel();

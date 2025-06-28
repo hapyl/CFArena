@@ -7,9 +7,9 @@ import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.dylan.FamiliarAction;
 import me.hapyl.fight.game.heroes.dylan.Dylan;
 import me.hapyl.fight.game.heroes.dylan.DylanFamiliar;
+import me.hapyl.fight.game.heroes.dylan.FamiliarAction;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -24,11 +24,11 @@ import java.util.function.Supplier;
 
 public class WhelpAttack extends WhelpTalent {
     
-    @DisplayField private final double maxDistance = 10;
+    @DisplayField private final double maxDistance = 16;
     @DisplayField private final double damage = 3;
     
     @DisplayField private final int attackPeriod = 10;
-    @DisplayField private final double attackRange = 0.75;
+    @DisplayField private final double attackRange = 1.5;
     
     public WhelpAttack(@Nonnull Key key) {
         super(key, "Whelp Attack!");
@@ -43,9 +43,7 @@ public class WhelpAttack extends WhelpTalent {
         setTexture("6b0a6a5f6d0073185c950a1b57444ba6a87f4361cb221d87b0637903dc1c6e52");
         setType(TalentType.DAMAGE);
         
-        // AoE fire swirl
-        
-        setCooldownSec(5);
+        setCooldownSec(6);
         setDurationSec(3);
     }
     
@@ -110,7 +108,7 @@ public class WhelpAttack extends WhelpTalent {
                     return;
                 }
                 
-                final List<LivingGameEntity> entities = Collect.nearbyEntities(destination(), attackRange, player::isNotSelfOrTeammate);
+                final List<LivingGameEntity> entities = Collect.nearbyEntities(ezel.getLocation(), attackRange, player::isNotSelfOrTeammate);
                 
                 entities.forEach(entity -> {
                     entity.damageNoKnockback(damage, ezel, DamageCause.WHELP_ATTACK);

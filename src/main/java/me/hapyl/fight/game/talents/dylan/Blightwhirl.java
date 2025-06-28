@@ -10,12 +10,12 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.EntityAttributes;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
-import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.entity.Decay;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dylan.Dylan;
 import me.hapyl.fight.game.heroes.dylan.DylanFamiliar;
 import me.hapyl.fight.game.heroes.dylan.FamiliarAction;
-import me.hapyl.fight.terminology.EnumTerm;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -29,11 +29,15 @@ import javax.annotation.Nonnull;
 
 public class Blightwhirl extends WhelpTalent {
     
-    @DisplayField private final double maxDistance = 10;
+    @DisplayField private final double maxDistance = 16;
     
-    @DisplayField private final double attackDamage = 2;
-    @DisplayField private final double attackPeriod = 10;
-    @DisplayField private final double attackRadius = 4;
+    @DisplayField private final double affectPeriod = 10;
+    @DisplayField private final double affectRadius = 5;
+    
+    @DisplayField(percentage = true) private final double decay = 0.3;
+    @DisplayField private final int decayDuration = 60;
+    
+    @DisplayField private final double pullStrength = 0.3;
     
     private final ModifierSource modifierSource = new ModifierSource(Key.ofString("blightwhirl"));
     
@@ -44,13 +48,14 @@ public class Blightwhirl extends WhelpTalent {
                        With your command, &3%1$s&7 floats towards the &etarget&7 location and starts channeling &4Blightwhirl&7.
                        
                        &6Blightwhirl
-                       &3%1$s&7 continuously spawns soul fire around itself, dealing &cdamage&7 in small AoE.
+                       &3%1$s&7 continuously conjures soul fire around itself, pulling &cenemies&7 in and inflicting %2$s equal to &b{decay}&7 of their %3$s.
                        &8&o%1$s cannot take other actions, including self-destruct, until channeling ends.
                        
-                       After &b{duration}&7, &3%1$s&7 returns back and gains one stack of %3$s.
-                       """.formatted(Dylan.familiarName, EnumTerm.TRUE_DAMAGE, Named.SCORCH));
+                       After &b{duration}&7, &3%1$s&7 returns back and gains one stack of %4$s.
+                       """.formatted(Dylan.familiarName, Named.DECAY, AttributeType.MAX_HEALTH, Named.SCORCH));
         
         setTexture("c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd");
+        setType(TalentType.IMPAIR);
         
         setDurationSec(6);
         setCooldownSec(12);
@@ -85,7 +90,7 @@ public class Blightwhirl extends WhelpTalent {
         final EntityAttributes attributes = familiar.entity().getAttributes();
         attributes.addModifier(
                 modifierSource, duration, modifier -> modifier
-                        .of(AttributeType.DEFENSE, ModifierType.FLAT, 20)
+                        .of(AttributeType.DEFENSE, ModifierType.FLAT, 50)
                         .of(AttributeType.EFFECT_RESISTANCE, ModifierType.FLAT, 100)
         );
         
@@ -110,8 +115,8 @@ public class Blightwhirl extends WhelpTalent {
                         
                         final double actionDuration = familiar.actionDuration();
                         
-                        for (double z = -attackRadius; z <= attackRadius; z += 0.25) {
-                            final double progress = z / (attackRadius * 2);
+                        for (double z = -affectRadius; z <= affectRadius; z += 0.25) {
+                            final double progress = z / (affectRadius * 2);
                             final double x = Math.cos(Math.PI * progress) * z;
                             final double angle = Math.toRadians(actionDuration * 5);
                             
@@ -135,10 +140,28 @@ public class Blightwhirl extends WhelpTalent {
                             );
                         }
                         
+                        final DylanFamiliar.FamiliarEntity ezel = familiar.entity();
+                        
                         // Damage is done by simple radius check
-                        if (actionDuration % attackPeriod == 0) {
-                            Collect.nearbyEntities(location, attackRadius, player::isNotSelfOrTeammate)
-                                   .forEach(entity -> entity.damageNoKnockback(attackDamage, entity, DamageCause.WHELP_ATTACK));
+                        if (actionDuration % affectPeriod == 0) {
+                            Collect.nearbyEntities(location, affectRadius, player::isNotSelfOrTeammate)
+                                   .forEach(entity -> {
+                                       // Apply decay
+                                       final double decayAmount = decay * entity.getMaxHealth();
+                                       
+                                       entity.setDecay(new Decay(decayAmount, decayDuration));
+                                       entity.triggerDebuff(ezel);
+                                       
+                                       // Pull
+                                       if (entity.hasEffectResistanceAndNotify(ezel)) {
+                                           return;
+                                       }
+                                       
+                                       final Vector vector = destination().toVector().subtract(entity.getLocation().toVector()).normalize().multiply(pullStrength);
+                                       vector.setY(-0.3);
+                                       
+                                       entity.setVelocity(vector);
+                                   });
                             
                             // Attack fx
                             player.playWorldSound(location, Sound.BLOCK_SOUL_SAND_BREAK, 1.0f);

@@ -5,7 +5,7 @@ import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
@@ -72,7 +72,7 @@ public class Ronin extends Hero implements Listener, PlayerDataHandler<RoninData
         
         // Apply bleed
         if (player.isUsingUltimate()) {
-            entity.addEffect(EffectType.BLEED, 60);
+            entity.addDotStacks(DotType.BLEED, 4);
         }
     }
     

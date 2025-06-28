@@ -17,14 +17,17 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
 public @interface SensitiveParameter {
-
+    
     @Nonnull
     String throwsIllegalArgumentException() default "";
-
+    
     @Nonnull
     String throwsIllegalStateException() default "";
-
+    
+    @Nonnull
+    String throwsNullPointerException() default "";
+    
     @Nonnull
     String throwsOther() default "";
-
+    
 }

@@ -47,6 +47,7 @@ public class RelicRewardGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         final CollectibleEntry entry = CF.getDatabase(player).collectibleEntry;
 
         setHeader(StyledTexture.ICON_RELIC_REWARDS.asIcon());

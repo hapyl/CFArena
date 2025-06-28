@@ -32,6 +32,8 @@ public class DeliveryGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final List<Deliveries> unclaimedList = Deliveries.getUnclaimedDeliveries(player);
 
         if (unclaimedList.isEmpty()) {

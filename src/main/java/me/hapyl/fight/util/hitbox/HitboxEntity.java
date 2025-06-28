@@ -16,10 +16,17 @@ public abstract class HitboxEntity extends LivingGameEntity implements Hitbox {
         
         // Have to rescale the entity because of attributes
         rescale(scale);
+        
+        setValidState(true); // make always valid
     }
     
     public void rescale(double newScale) {
         setAttributeValue(Attribute.SCALE, Math.clamp(newScale, 1, 10));
+    }
+    
+    @Override
+    public void onTeammateDamage(@Nonnull LivingGameEntity lastDamager) {
+        super.onTeammateDamage(lastDamager);
     }
     
     @Nonnull

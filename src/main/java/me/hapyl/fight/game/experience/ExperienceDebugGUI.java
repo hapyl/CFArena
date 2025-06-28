@@ -12,15 +12,21 @@ import java.util.List;
 public class ExperienceDebugGUI extends PlayerGUI {
     public ExperienceDebugGUI(Player player) {
         super(player, "Experience Debug GUI &4&lDEBUG", 6);
-
+        
+        openInventory();
+    }
+    
+    @Override
+    public void onUpdate() {
         final Experience experience = CF.getPlugin().getExperience();
+        
         experience.getExperienceLevelMap().forEach((lvl, expLevel) -> {
             final ItemBuilder builder = new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE)
                     .setName("Level " + lvl)
                     .setAmount(lvl.intValue());
-
+            
             final List<Reward> rewards = expLevel.getRewards();
-
+            
             if (rewards.isEmpty()) {
                 builder.addLore("&cNo rewards!");
             }
@@ -32,16 +38,12 @@ public class ExperienceDebugGUI extends PlayerGUI {
                     });
                 });
             }
-
+            
             builder.addLore();
             builder.addLore("&aTotal Exp Needed:");
             builder.addLore("%,d".formatted(expLevel.getExpRequired()));
-
+            
             setItem(lvl.intValue() - 1, builder.asIcon());
         });
-
-        openInventory();
     }
-
-
 }

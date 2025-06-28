@@ -37,7 +37,7 @@ public class LeaderboardData implements Comparator<Long> {
 
     @Nonnull
     public String getName() {
-        return database.getName();
+        return database.playerNameWithFallback();
     }
 
     @Nonnull

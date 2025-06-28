@@ -71,7 +71,7 @@ public class Taker extends Hero implements UIComponent, DisplayFieldProvider, Pl
     }
     
     @Override
-    public void onPlayersRevealed(@Nonnull GameInstance instance) {
+    public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
             @Override
             public void run() {

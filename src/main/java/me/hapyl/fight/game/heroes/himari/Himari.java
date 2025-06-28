@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.damage.DamageCause;
-import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
@@ -24,6 +23,7 @@ import org.bukkit.Sound;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -129,17 +129,17 @@ public class Himari extends Hero implements Listener, PlayerDataHandler<HimariDa
             actionList.append(new HimariAction() {
                 @Override
                 public void execute(@Nonnull GamePlayer player) {
-                    final GameEntity lastAttacker = player.getLastDamager();
+                    final GameEntity lastAttacker = player.lastDamager();
                     
                     if (lastAttacker instanceof LivingGameEntity livingAttacker) {
-                        livingAttacker.addEffect(EffectType.WITHER, witherAmplifier, witherDuration);
+                        livingAttacker.addPotionEffect(PotionEffectType.WITHER, witherAmplifier, witherDuration); // kinda ass replace with wither DoT ig?
                         playRollFx(player, "They will regret...");
                     }
                 }
                 
                 @Override
                 public boolean canExecute(@Nonnull GamePlayer player) {
-                    final GameEntity lastAttacker = player.getLastDamager();
+                    final GameEntity lastAttacker = player.lastDamager();
                     
                     return lastAttacker instanceof LivingGameEntity;
                 }

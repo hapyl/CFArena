@@ -95,7 +95,7 @@ public class EchoWorld extends TickingGameTask {
         player.schedule(() -> player.teleport(location), 1);
         player.show();
 
-        body.forceRemove();
+        body.remove();
     }
 
     @Override
@@ -194,7 +194,7 @@ public class EchoWorld extends TickingGameTask {
                         return;
                     }
 
-                    forceRemove();
+                    remove();
                 }
             };
         });

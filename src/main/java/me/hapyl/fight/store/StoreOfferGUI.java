@@ -32,6 +32,8 @@ public class StoreOfferGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(StyledTexture.ICON_STORE.asIcon());
 
         final Cosmetic cosmetic = offer.getOffer();

@@ -1,31 +1,24 @@
 package me.hapyl.fight.anticheat;
 
-import me.hapyl.fight.database.serialize.MongoSerializableConstructor;
-import me.hapyl.fight.database.serialize.MongoSerializableField;
 import me.hapyl.fight.database.serialize.MongoSerializable;
+import me.hapyl.fight.database.serialize.MongoSerializableConstructor;
 import me.hapyl.fight.infraction.HexID;
+import org.bson.Document;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class PunishmentReport implements MongoSerializable {
-
-    @MongoSerializableField
+    
     private HexID punishmentId;
-
-    @MongoSerializableField
     private UUID punisherId;
-
-    @MongoSerializableField
     private String reason;
-
-    @MongoSerializableField
     private long timeStamp;
-
+    
     @MongoSerializableConstructor
-    PunishmentReport() {
+    private PunishmentReport() {
     }
-
+    
     public PunishmentReport(
             @Nonnull HexID punishmentId,
             @Nonnull UUID punisherId,
@@ -37,33 +30,41 @@ public class PunishmentReport implements MongoSerializable {
         this.reason = reason;
         this.timeStamp = timeStamp;
     }
-
+    
     @Nonnull
-    public HexID getPunishmentId() {
+    public HexID punishmentId() {
         return punishmentId;
     }
-
+    
     @Nonnull
-    public UUID getPunisherId() {
+    public UUID punisherId() {
         return punisherId;
     }
-
+    
     @Nonnull
-    public String getReason() {
+    public String reason() {
         return reason;
     }
-
-    public long getTimeStamp() {
+    
+    public long timeStamp() {
         return timeStamp;
     }
-
+    
+    @Nonnull
     @Override
-    public String toString() {
-        return "PunishmentReport{" +
-                "punishmentId=" + punishmentId +
-                ", punisherId=" + punisherId +
-                ", reason=" + reason +
-                ", timeStamp=" + timeStamp +
-                "}";
+    public Document serialize() {
+        return new Document()
+                .append("punishment_id", this.punishmentId.toString())
+                .append("punisher_id", this.punisherId.toString())
+                .append("reason", this.reason)
+                .append("time_stamp", this.timeStamp);
+    }
+    
+    @Override
+    public void deserialize(@Nonnull Document document) {
+        this.punishmentId = HexID.fromString(document.getString("punishment_id"));
+        this.punisherId = UUID.fromString(document.getString("punisher_id"));
+        this.reason = document.getString("reason");
+        this.timeStamp = document.getLong("time_stamp");
     }
 }

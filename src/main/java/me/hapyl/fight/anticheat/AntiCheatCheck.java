@@ -75,7 +75,7 @@ public enum AntiCheatCheck {
                     """.formatted(
                     AntiCheat.PREFIX,
                     message,
-                    report.getPunishmentId()
+                    report.punishmentId()
             )));
         }
 

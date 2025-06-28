@@ -23,6 +23,8 @@ public class FastAccessCategoryGUI extends StyledGUI implements IFastAccess {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final SmartComponent component = newSmartComponent();
 
         for (Category category : Category.values()) {

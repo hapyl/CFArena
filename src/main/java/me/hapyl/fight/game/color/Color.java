@@ -175,7 +175,7 @@ public class Color implements TextColor {
      * @see GradientColor#color(Object)
      */
     @Nonnull
-    @ApiStatus.Obsolete
+    @ApiStatus.Obsolete // Not deprecated because GradientColor requires `color(string)` and cannot simply do `this + string`
     public String color(@Nonnull Object string) {
         return this + string.toString();
     }

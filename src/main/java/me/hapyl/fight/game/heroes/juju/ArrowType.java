@@ -7,6 +7,7 @@ import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentRegistry;
@@ -66,8 +67,8 @@ public enum ArrowType implements Described {
     },
     POISON_IVY(
             "Poison Ivy Arrow", """
-                                Creates a &atoxic field&7 upon impact that reduces %s&7 and deals &brapid&7 damage.
-                                """.formatted(AttributeType.DEFENSE)
+                                Creates a &atoxic field&7 upon impact that reduces %s and applies %s.
+                                """.formatted(AttributeType.DEFENSE, DotType.POISON)
     
     ) {
         @Override
@@ -138,7 +139,7 @@ public enum ArrowType implements Described {
     @Nonnull
     public String getTalentDescription(@Nonnull Timed timed) {
         return """
-               Equip %1$s for &b%2$ss&7.
+               Equip %1$s for &b%2$s&7.
                
                &a🏹 &l%1$s
                &7 ;;%3$s

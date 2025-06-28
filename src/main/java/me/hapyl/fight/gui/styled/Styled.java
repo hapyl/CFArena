@@ -10,10 +10,9 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public interface Styled {
-    void onUpdate();
-    
     @Nonnull
     Size getStyleSize();
     
@@ -30,7 +29,7 @@ public interface Styled {
         setPanelItem(index, item, null);
     }
     
-    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable me.hapyl.eterna.module.inventory.gui.Action action, @Nullable ClickType... clickTypes);
+    void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Consumer<Player> action, @Nullable ClickType... clickTypes);
     
     void fillRow(int row, @Nonnull ItemStack item);
     

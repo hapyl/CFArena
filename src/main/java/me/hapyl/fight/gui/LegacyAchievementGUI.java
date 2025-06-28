@@ -38,52 +38,54 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
         setCategory(category);
         openInventory(1);
     }
-
+    
     @Override
-    public void postProcessInventory(Player player, int page) {
+    public void onUpdate() {
+        super.onUpdate();
+        
         fillItem(0, 8, ItemStacks.BLACK_BAR);
         fillItem(45, 53, ItemStacks.BLACK_BAR);
-
+        
         setPreviousPageSlot(47);
         setNextPageSlot(51);
         setCloseMenuItem(49);
-
+        
         // Update header
         final SmartComponent component = newSmartComponent();
-
+        
         for (Category value : Category.values()) {
             final boolean currentCategory = value == category;
-
+            
             component.add(new ItemBuilder(Material.STONE).setName(value.getName())
-                    .addLore()
-                    .addSmartLore(value.getDescription())
-                    .predicate(currentCategory, ItemBuilder::glow)
-                    .addLore()
-                    .addLoreIf("&aCurrently selected!", currentCategory)
-                    .addLoreIf("&eClick to select!", !currentCategory)
-                    .asIcon(), click -> {
+                                                         .addLore()
+                                                         .addSmartLore(value.getDescription())
+                                                         .predicate(currentCategory, ItemBuilder::glow)
+                                                         .addLore()
+                                                         .addLoreIf("&aCurrently selected!", currentCategory)
+                                                         .addLoreIf("&eClick to select!", !currentCategory)
+                                                         .asIcon(), click -> {
                 if (currentCategory) {
                     return;
                 }
-
+                
                 setCategory(value);
                 openInventory(1);
-
+                
                 // Fx
                 PlayerLib.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 1.0f);
             });
         }
-
+        
         component.apply(this, SlotPattern.DEFAULT, 0);
     }
-
+    
     public void setCategory(Category category) {
         this.category = category;
         final LinkedList<Achievement> achievements = registry.byCategory(category);
-
+        
         // remove hidden non-complete achievement
         achievements.removeIf(achievement -> achievement.isHidden() && !achievement.hasCompletedAtLeastOnce(player));
-
+        
         achievements.sort((a, b) -> {
             if (a.hasCompletedAtLeastOnce(player) && !b.hasCompletedAtLeastOnce(player)) {
                 return -1;
@@ -93,10 +95,11 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
             }
             return 0;
         });
-
+        
         // Update contents
         setContents(achievements);
     }
+    
 
     @Nonnull
     @Override

@@ -18,7 +18,7 @@ public class BlockMaelstromPassive extends PassiveTalent {
 
         setDescription("""
                 Creates a &bblock&7 that orbits around you, dealing &cdamage&7 upon contact with an enemy based on the element.
-                &8&o;;Refreshes every %ss.
+                &8&o;;Refreshes every %s.
                 """.formatted(Tick.round(cooldown))
         );
 

@@ -62,6 +62,7 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
 
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setAffiliation(Affiliation.KINGDOM);
         profile.setGender(Gender.MALE);
         profile.setRace(Race.HUMAN);
 

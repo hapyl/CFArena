@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Deliveries are automatically given to players upon login.
  */
-// FIXME (Fri, Aug 30 2024 @xanyjl):
+// FIXME (Fri, Aug 30 2024 @xanyjl): deprecated
 public enum Deliveries implements Handle<Delivery> {
 
 

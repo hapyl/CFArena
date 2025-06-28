@@ -18,6 +18,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,7 +56,7 @@ public class LuckyDay extends Talent {
         setCooldownSec(18);
         
         actionList.append(player -> {
-            player.addEffect(EffectType.WITHER, 4, 115);
+            player.addPotionEffect(PotionEffectType.WITHER, 4, 115); // same as ultimate, effects are outdated
             player.addEffect(EffectType.BLINDNESS, 2, 100);
             
             player.sendSubtitle("&4Feel the cost!", 2, 110, 6);
@@ -89,7 +90,7 @@ public class LuckyDay extends Talent {
             //damage buff
             attributes.addModifier(
                     modifierSource, damageBuffDuration, modifier -> {
-                        modifier.of(AttributeType.SPEED, ModifierType.ADDITIVE, damageBuff);
+                        modifier.of(AttributeType.ATTACK, ModifierType.ADDITIVE, damageBuff);
                     }
             );
             player.sendSubtitle("&aYou feel stronger right away!", 2, 100, 6);

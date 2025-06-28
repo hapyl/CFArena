@@ -82,8 +82,8 @@ public class AstralStar implements Ticking {
                         }
                         
                         @Override
-                        public void onDeath() {
-                            super.onDeath();
+                        public void onRemove() {
+                            super.onRemove();
                             
                             playWorldSound(Sound.ENTITY_BLAZE_DEATH, 0.25f);
                             playWorldSound(Sound.ENTITY_PLAYER_BREATH, 0.25f);
@@ -171,7 +171,7 @@ public class AstralStar implements Ticking {
     }
     
     public void remove() {
-        this.entity.forceRemove();
+        this.entity.remove();
         this.displayEntity.remove();
     }
     

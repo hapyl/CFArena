@@ -53,6 +53,7 @@ public class MasteryGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         setHeader(StyledTexture.ICON_MASTERY.asIcon());
 
         final HeroMastery mastery = hero.getMastery();

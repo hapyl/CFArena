@@ -51,6 +51,8 @@ public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> exten
 
     @Override
     public final void onUpdate() {
+        super.onUpdate();
+        
         final SmartComponent component = newSmartComponent();
 
         setHeader(getHeaderItem());

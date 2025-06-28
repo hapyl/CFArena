@@ -30,6 +30,8 @@ public abstract class HelpGUI extends StyledGUI {
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onUpdate() {
+        super.onUpdate();
+        
         final ItemStack border = new ItemBuilder(getBorder()).asIcon();
 
         fillRow(0, border);

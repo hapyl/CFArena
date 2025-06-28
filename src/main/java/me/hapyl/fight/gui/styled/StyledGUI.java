@@ -1,7 +1,6 @@
 package me.hapyl.fight.gui.styled;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.Action;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.inventory.gui.StrictAction;
 import me.hapyl.fight.Message;
@@ -14,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.function.Consumer;
 
 public abstract class StyledGUI extends PlayerGUI implements Styled {
 
@@ -31,22 +32,25 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
     public Size getStyleSize() {
         return size;
     }
-
+    
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void onUpdate() {
+        StaticStyledGUI.updateInventory(this);
+    }
+    
     @Override
     public final void openInventory() {
         if (!isCanOpen(player)) {
             return;
         }
-
-        clearItems();
-        clearClickEvents();
-
-        StaticStyledGUI.updateInventory(this);
+        
         super.openInventory();
     }
 
     @Override
     public final void update() {
+        // TODO @Jun 12, 2025 (xanyjl) -> diff on open/close inv
         openInventory();
     }
 
@@ -56,7 +60,7 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
     }
 
     @Override
-    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Action action, @Nullable ClickType... clickTypes) {
+    public void setPanelItem(int index, @Nonnull ItemStack item, @Nullable Consumer<Player> action, @Nullable ClickType... clickTypes) {
         StaticStyledGUI.setPanelItem(this, index, item, action, clickTypes);
     }
 
@@ -65,7 +69,7 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
         StaticStyledGUI.fillRow(this, row, item);
     }
 
-    protected void setItemRanked(int slot, @Nonnull ItemBuilder builder, @Nonnull PlayerRank rank, @Nonnull String actionString, @Nonnull Action action) {
+    protected void setItemRanked(int slot, @Nonnull ItemBuilder builder, @Nonnull PlayerRank rank, @Nonnull String actionString, @Nonnull Consumer<Player> action) {
         final boolean hasRank = rank.isOrHigher(player);
         final String prefix = rank.getPrefixWithFallback();
 
@@ -89,7 +93,7 @@ public abstract class StyledGUI extends PlayerGUI implements Styled {
                     return;
                 }
 
-                action.invoke(player);
+                action.accept(player);
             }
         });
     }

@@ -49,6 +49,8 @@ public class DailyResetGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(new ItemBuilder(Material.RED_GLAZED_TERRACOTTA)
                 .setName("&cReset Bonds")
                 .asIcon());

@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.annotate.SelfReturn;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.Described;
@@ -24,6 +23,7 @@ import me.hapyl.fight.game.loadout.HotBarLoadout;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.registry.Registries;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.SingletonBehaviour;
 import me.hapyl.fight.util.displayfield.DisplayFieldInstance;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
@@ -59,6 +59,7 @@ public abstract class Talent
         Cooldown, Keyed, ItemFactoryProvider {
     
     private static final int POINT_AUTO = -2;
+    private static final int MAX_POINT_REGEN = 10;
     
     private final Key key;
     private final List<DisplayFieldInstance> extraDisplayFields;
@@ -179,7 +180,7 @@ public abstract class Talent
     }
     
     public void setPoint(int point) {
-        this.point = point;
+        this.point = Math.min(point, MAX_POINT_REGEN);
     }
     
     public String getCastMessage() {
@@ -373,14 +374,14 @@ public abstract class Talent
         
         // Calculate point generation if it wasn't set manually
         if (this.point == POINT_AUTO) {
-            this.point = (int) (cd * pointCooldownRatio());
+            this.point = Math.min((int) (cd * pointCooldownRatio()), MAX_POINT_REGEN);
         }
         
         return this;
     }
     
     public double pointCooldownRatio() {
-        return 0.1;
+        return 0.005; // of tick, so tick / 20 * 0.1
     }
     
     @Override
@@ -390,11 +391,7 @@ public abstract class Talent
     
     @Nonnull
     public String getCooldownFormatted() {
-        if (cd <= 0) {
-            return "Dynamic";
-        }
-        
-        return Tick.round(cd) + "s";
+        return CFUtils.formatTick(cd);
     }
     
     @Override
@@ -475,6 +472,11 @@ public abstract class Talent
     @Nonnull
     public ItemStack getItem(@Nonnull GamePlayer player) {
         return getItem();
+    }
+    
+    @Nonnull
+    public String getTypeAsString() {
+        return type.getName();
     }
     
     public static int calcPointGeneration(int cd) {

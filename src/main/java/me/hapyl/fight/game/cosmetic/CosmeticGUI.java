@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.cosmetic;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.inventory.gui.GUI;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Message;
@@ -26,7 +26,7 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetic> {
     private final Type type;
 
     public CosmeticGUI(Player player, Type type) {
-        super(player, "Cosmetic " + GUI.ARROW_FORWARD + " " + type.getName(), Size.FOUR);
+        super(player, PlayerGUI.menuArrowSplit("Cosmetic", type.getName()), Size.FOUR);
         this.type = type;
 
         final List<Cosmetic> cosmetics = Registries.cosmetics().byType(type);
@@ -42,10 +42,10 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetic> {
 
         // Sort by owned
         cosmetics.sort((a, b) -> {
-            if (a.isUnlocked(getPlayer()) && !b.isUnlocked(getPlayer())) {
+            if (a.isUnlocked(player) && !b.isUnlocked(player)) {
                 return -1;
             }
-            else if (!a.isUnlocked(getPlayer()) && b.isUnlocked(getPlayer())) {
+            else if (!a.isUnlocked(player) && b.isUnlocked(player)) {
                 return 1;
             }
             return 0;
@@ -65,6 +65,8 @@ public class CosmeticGUI extends StyledPageGUI<Cosmetic> {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(ItemBuilder.of(type.getMaterial(), type.getName(), type.getDescription()).asIcon());
 
         final CosmeticEntry entry = CF.getDatabase(player).cosmeticEntry;

@@ -47,6 +47,7 @@ public class ExperienceGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         final long playerLevel = experience.getLevel(player);
         final ExperienceLevel[] feed = experience.getLevelFeed(playerLevel);
 

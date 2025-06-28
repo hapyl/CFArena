@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.talents.techie;
 
 import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.Plural;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.Named;
@@ -16,7 +17,6 @@ import me.hapyl.fight.game.maps.supply.SupplyInstance;
 import me.hapyl.fight.game.maps.supply.SupplyPlatform;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Plural;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;

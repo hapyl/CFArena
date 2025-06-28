@@ -10,7 +10,6 @@ import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
@@ -41,8 +40,9 @@ public class BlastPack extends ChargedTalent {
                        """
         );
         
+        setTexture("35ffc131dcd4f03b72f3d05df8faa190588c2dbeea2bd48d55338225efdadec9");
         setType(TalentType.MOVEMENT);
-        setMaterial(Material.DETECTOR_RAIL);
+        
         setCooldownSec(8);
     }
     

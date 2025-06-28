@@ -2,11 +2,10 @@ package me.hapyl.fight.game.heroes.bounty_hunter;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Geometry;
-import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.HeroRegistry;
@@ -27,7 +26,7 @@ public class BountyHunterWeapon extends Weapon {
     protected final BloodBountyAbility ability;
     
     @DisplayField private final double maxDistance = 5.0;
-    @DisplayField private final int bleedDuration = Tick.fromSeconds(5);
+    @DisplayField private final short bleedStacks = 6;
     
     private final Particle.DustTransition dustTransition = new Particle.DustTransition(Color.fromRGB(209, 38, 63), Color.fromRGB(135, 1, 21), 1);
     
@@ -45,7 +44,7 @@ public class BountyHunterWeapon extends Weapon {
     }
     
     public void affect(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
-        entity.addEffect(EffectType.BLEED, bleedDuration, player);
+        entity.addDotStacks(DotType.BLEED, bleedStacks, player);
         
         // Fx
         drawFx(player, entity.getLocation(), entity.getEyeHeight());
@@ -72,13 +71,13 @@ public class BountyHunterWeapon extends Weapon {
         BloodBountyAbility() {
             super(
                     "Blood Bounty", """
-                                    Put a &cbounty&7 on the target &cenemy&7.
+                                    Put a &cbounty&7 on the target &cenemy&7 &nplayer&7.
                                     
                                     While the bounty is active:
                                      &8├&7 You can &f&nonly&7 damage the target.
                                      &8├&7 Your hits ignore &2%.0f%%&7 of target's %s.
                                      &8├&7 Your &c%s&7 applies %s and clears the bounty.
-                                    """.formatted(defenseIgnore * 100, AttributeType.DEFENSE, Chat.stNdTh(hitsForBleed), EffectType.BLEED)
+                                    """.formatted(defenseIgnore * 100, AttributeType.DEFENSE, Chat.stNdTh(hitsForBleed), DotType.BLEED)
             );
             
             setCooldownSec(30);
@@ -93,10 +92,10 @@ public class BountyHunterWeapon extends Weapon {
                 return Response.error("Already has bounty!");
             }
             
-            final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, 1.25, player::isNotSelfOrTeammateOrHasEffectResistance);
+            final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, 1.25, entity -> entity instanceof GamePlayer && !player.isSelfOrTeammateOrHasEffectResistance(entity));
             
             if (target == null) {
-                return Response.error("Not valid target!");
+                return Response.error("No valid target!");
             }
             
             data.bounty = new BloodBounty(player, target);

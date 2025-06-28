@@ -9,8 +9,7 @@ import javax.annotation.Nullable;
 public interface RankFormatter {
 
     @Nonnull
-    @InsteadOfNull("Empty String")
-    String prefix();
+    Prefix prefix();
 
     @Nonnull
     @InsteadOfNull("Empty String")

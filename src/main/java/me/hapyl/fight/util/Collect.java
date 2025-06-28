@@ -333,14 +333,14 @@ public final class Collect {
                     }
 
                     final LivingGameEntity livingEntity = CF.getEntity(living);
-
+                    
                     if (livingEntity == null) {
                         return false;
                     }
 
                     final Location entityLocation = livingEntity.getLocation();
                     final double distance = entityLocation.distance(location);
-
+                    
                     return livingEntity.isValid() && distance <= (radius * 2);
                 })
                 .forEach(entity -> entities.add(CF.getEntity(entity)));

@@ -16,6 +16,7 @@ import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.entity.HeartStyle;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
@@ -159,7 +160,8 @@ public class Alchemist extends Hero implements UIComplexComponent, PlayerDataHan
             public void run() {
                 getAlivePlayers().forEach(player -> {
                     if (isToxinLevelBetween(player, 60, 80)) {
-                        player.addEffect(EffectType.POISON, 20);
+                        player.heartStyle(HeartStyle.green(21));
+                        player.damage(1, DamageCause.POISON);
                     }
                     else if (isToxinLevelBetween(player, 80, 99)) {
                         player.damage(1, DamageCause.TOXIN);
