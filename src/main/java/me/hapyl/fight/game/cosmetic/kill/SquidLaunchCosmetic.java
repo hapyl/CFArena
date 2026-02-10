@@ -2,7 +2,6 @@ package me.hapyl.fight.game.cosmetic.kill;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
@@ -15,6 +14,7 @@ import org.bukkit.entity.Squid;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SquidLaunchCosmetic extends Cosmetic {
     public SquidLaunchCosmetic(@Nonnull Key key) {
@@ -34,7 +34,7 @@ public class SquidLaunchCosmetic extends Cosmetic {
     @Override
     public void onDisplay(@Nonnull Display display) {
 
-        final Squid squid = (ThreadRandom.nextFloatAndCheckBetween(0.9f, 1.0f) ? Entities.GLOW_SQUID : Entities.SQUID).spawn(
+        final Squid squid = (ThreadLocalRandom.current().nextFloat() < 0.9 ? Entities.GLOW_SQUID : Entities.SQUID).spawn(
                 display.getLocation(),
                 self -> {
                     self.setInvulnerable(true);

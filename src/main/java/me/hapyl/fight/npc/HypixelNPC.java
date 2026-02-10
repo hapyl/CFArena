@@ -1,6 +1,7 @@
 package me.hapyl.fight.npc;
 
-import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.npc.NpcPose;
+import me.hapyl.eterna.module.reflect.Skin;
 import me.hapyl.eterna.module.registry.Key;
 import org.bukkit.entity.Player;
 
@@ -8,18 +9,16 @@ import javax.annotation.Nonnull;
 
 public class HypixelNPC extends PersistentNPC {
     public HypixelNPC(@Nonnull Key key) {
-        super(key, 10, 65, 24, 102.5f, 0.0f, null);
-
-        setSkin(
+        super(key, 10, 65, 24, 102.5f, 0.0f, null, Skin.of(
                 "eyJ0aW1lc3RhbXAiOjE1ODY5NTMzOTMyMjMsInByb2ZpbGVJZCI6ImRlNTcxYTEwMmNiODQ4ODA4ZmU3YzlmNDQ5NmVjZGFkIiwicHJvZmlsZU5hbWUiOiJNSEZfTWluZXNraW4iLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzMwMGI1M2Y2Y2RmZmZhNDg1MTM3YjdmMzRmN2ZkMjQyNjUwNWJiZjQ1NGU2MWNiZGY2ZmFjMGRkODRhNDc2ZTUifX19",
                 "RJBBaFik7HpM7SMIpjbB6BP2LOSc/iBTKRutAEYYV8GtbVQzUoKw1mnLQAi2GKilzP65i/qBKUBpgZM805uMXT6SFVuvnLlO54e6T6Hs71hYR366Fd03NCohD7W+ssMqdoMRyM/e/90h7Mt5mCBzvVnhtxeAZBxkF/7+Y8jCwIY8ozBX696k6gxCpRTiAnh21NCs6ZH+AEcAqLd0CcSGVzUCeXC6x5PERUYKh2uR/fr1ouvh9F7jAkTiTEwtYties/Rzl8EgQxstRDaiJVCBhb4adOKwG14tQhLPPLJD0HvXOqEsblWR8dRzFK6ZzkgsXEgJ66rGhgkKACLmVycleLMtashKMFlXwYAsV/6uq2xdyHiRIya+p9F8pSHqTuLQzuUGg4tT9Z4eDtNszsa+sm4II6T5q/vdm+Qd+zvhKtlXJ9hXcY+8pDqjoEaGbuhEMCrQvTl64ACEApu8Mj7NDldINuBkHKz1YFIlBpNkpDtV6M5Qz48AriYZ0eWNhxa6Gl6una7iSBR8GfTv7D9OrKvHlb2H/O8QA9HNEyfJ3a05eOGX4jUqfEmasoeYCrbu6lNnCKTeIPyuLfogWlhrkWuLmRjz92o4ygWoNksHrXUmDn/zYaufKqxrLBgDweRkJDs/5XeGR6ouTbdPR+owM3gnPBV3JiB6CqDt1QHUxxc="
-        );
+        ));
 
-        setLookAtCloseDist(0);
+        getProperties().setLookAtClosePlayerDistance(0);
     }
 
     @Override
     public void onSpawn(@Nonnull Player player) {
-        setPose(NPCPose.CROUCHING);
+        setPose(NpcPose.CROUCHING);
     }
 }

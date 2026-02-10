@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.parkour.storage;
 
 import com.mongodb.client.model.Updates;
-import me.hapyl.eterna.module.parkour.Data;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.BoundingBoxCollector;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -15,50 +16,52 @@ import org.bukkit.util.BoundingBox;
 import javax.annotation.Nullable;
 
 public class SlimeParkour extends CFParkour {
-
+    
     private final BoundingBox boundingBox;
-
+    
     public SlimeParkour() {
-        super("Slime Parkour",
+        super(
+                Key.ofString("slime_parkour"),
+                "Slime Parkour",
                 0, 63, 28, 0.0f, 0.0f,
                 0, 65, 40
         );
-
+        
         boundingBox = new BoundingBoxCollector(-4, 56, 25, 5, 61, 36);
-
+        
         setLeaderboard(new ParkourLeaderboard(this, -2.5, 63.0, 22.5));
         setQuitLocation(BukkitUtils.defLocation(0.5, 62.0, 22.5));
     }
-
+    
     public void addFails() {
         database.write(Updates.inc("fails", 1));
     }
-
+    
     public int getFails() {
         return database.read("fails", 0);
     }
-
+    
     @Nullable
     @Override
-    public Response onStart(Player player, Data data) {
-        Registries.npcs().UNDEAD_WATCHER.sendNpcMessage(player, "This parkour is way too dangerous!");
-
+    public Response onStart(Player player) {
+        Registries.npcs().UNDEAD_WATCHER.sendMessage(player, Component.text("This parkour is way too dangerous!"));
+        
         player.teleport(getQuitLocation());
         return Response.CANCEL;
     }
-
+    
     @Override
     public void onDamage(Player player, EntityDamageEvent.DamageCause cause) {
         if (cause != EntityDamageEvent.DamageCause.FALL) {
             return;
         }
-
+        
         final Location location = player.getLocation();
-
+        
         if (!boundingBox.contains(location.getX(), location.getY(), location.getZ())) {
             return;
         }
-
+        
         addFails();
     }
 }

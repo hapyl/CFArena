@@ -1,15 +1,19 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.inventory.Equipment;
+import me.hapyl.eterna.module.npc.Npc;
+import me.hapyl.eterna.module.npc.NpcAnimation;
+import me.hapyl.eterna.module.npc.appearance.AppearanceBuilder;
+import me.hapyl.eterna.module.npc.appearance.AppearanceHumanoid;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.ItemSlot;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.skin.Skin;
 import me.hapyl.fight.game.task.TickingGameTask;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -29,7 +33,7 @@ public class PlayerSkinPreview extends TickingGameTask {
     public final me.hapyl.eterna.module.player.PlayerSkin skin;
     public final HeroEquipment equipment;
 
-    protected HumanNPC npc;
+    protected Npc npc;
     private double rotation = 0;
 
     public PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Skin skin) {
@@ -68,19 +72,23 @@ public class PlayerSkinPreview extends TickingGameTask {
             return;
         }
 
-        npc = new HumanNPC(location, null);
-        npc.setSkin(skin.getTexture(), skin.getSignature());
-
+        npc = new Npc(location, Component.empty(), AppearanceBuilder.ofMannequin(skin));
+        
+        final AppearanceHumanoid appearance = npc.getAppearance(AppearanceHumanoid.class);
+        final Equipment.Builder builder = Equipment.builder();
+        
         if (equipment != null) {
-            npc.setItem(ItemSlot.HEAD, equipment.getItem(Slot.HELMET));
-            npc.setItem(ItemSlot.CHEST, equipment.getItem(Slot.CHESTPLATE));
-            npc.setItem(ItemSlot.LEGS, equipment.getItem(Slot.LEGGINGS));
-            npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
+            builder.helmet(equipment.getItem(Slot.HELMET));
+            builder.chestPlate(equipment.getItem(Slot.CHESTPLATE));
+            builder.leggings(equipment.getItem(Slot.LEGGINGS));
+            builder.body(equipment.getItem(Slot.BOOTS));
         }
 
-        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().createItem());
+        builder.mainHand(hero.getWeapon().createItem());
+        
+        appearance.setEquipment(builder.build());
+        
         npc.show(player);
-
         runTaskTimer(1, 1);
     }
 
@@ -94,7 +102,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         final Location location = npc.getLocation();
 
         if (rotation > FULL_CIRCLE_PLUS_A_LITTLE_BIT) {
-            npc.remove();
+            npc.destroy();
             cancel();
 
             // Fx
@@ -104,12 +112,12 @@ public class PlayerSkinPreview extends TickingGameTask {
 
         // Swing
         if (rotation > 0 && rotation % (100 / ROTATION_PER_TICK) == 0) {
-            npc.swingMainHand();
+            npc.playAnimation(NpcAnimation.SWING_MAIN_HAND);
             PlayerLib.playSound(player, location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f);
         }
 
         location.setYaw((float) (location.getYaw() + ROTATION_PER_TICK));
-        npc.teleport(location);
+        npc.setLocation(location);
 
         rotation += ROTATION_PER_TICK;
     }

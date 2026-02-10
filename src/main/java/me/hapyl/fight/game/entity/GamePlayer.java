@@ -62,7 +62,7 @@ import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
 import me.hapyl.fight.vehicle.Vehicle;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -636,7 +636,8 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         final PlayerInventory inventory = player.getInventory();
         inventory.setHeldItemSlot(inventory.firstEmpty());
         
-        Reflect.sendPacket(player, new PacketPlayOutAnimation(Reflect.getMinecraftPlayer(player), 1));
+        // FIXME: No idea what that `1` means, not in the class anymore, maybe swing
+        Reflect.sendPacket(player, new ClientboundAnimatePacket(Reflect.getHandle(player), 1));
         
         GameTask.runLater(this::snapToWeapon, 1);
         
@@ -1412,15 +1413,14 @@ public class GamePlayer extends LivingGameEntity implements Ticking {
         final StatContainer stats = getStats();
         final GameTeam winnerTeam = getTeam();
         
-        return Chat.bformat(
-                "{Team} &7⁑ &6{Hero} &e&l{Name} &7⁑ &c&l{Health}  &b&l{Kills} &b🗡  &c&l{Deaths} &c☠",
+        return Chat.format("%s &7⁑ &6%s &e&l%s &7⁑ &c&l%s  &b&l%s &b🗡  &c&l%s &c☠".formatted(
                 winnerTeam.getFirstLetterCaps(),
                 getHero().getNameSmallCaps(),
                 getName(),
                 getHealthFormatted(),
                 stats.getValue(StatType.KILLS),
                 stats.getValue(StatType.DEATHS)
-        );
+        ));
     }
     
     public void setWorldBorder(@Nullable WorldBorder worldBorder) {

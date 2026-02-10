@@ -12,10 +12,7 @@ import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.terminology.EnumTerm;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -116,7 +113,7 @@ public class FlowerEscape extends Talent {
 
                 if (lastTick) {
                     player.playWorldSound(location, Sound.ITEM_TOTEM_USE, 2.0f);
-                    player.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.25d, 0.25d, 0.1f);
+                    player.spawnWorldParticle(location, Particle.EFFECT, 20, 0.25d, 0.25d, 0.25d, 0.1f, new Particle.Spell(Color.NAVY, 1));
                 }
             }
         }.runTaskTimer(1, 1);

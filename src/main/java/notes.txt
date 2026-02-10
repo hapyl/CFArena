@@ -18,8 +18,20 @@
 [✔️] Inferno damage
 [✔️] Inferno fire
 [✔️] Swooper circle wrong
+[✔️] Update Guess Who
+[✔️] Random can select disabled hero
+[✔️] SA speed
+[✔️] SA clone glow always make it
+[✔️] Deadeye damage
 
-- Update Guess Who
+- Bounty hook spams sound
+
+- Ronin dash
+- Archer mastery triple shot
+- Dylan ward
+- Remove mastery?
+- Ninja GOVNO
+- Tomato gadget
 
 - Slowness effect from dialog
 - Parkour leaderboard is broken?

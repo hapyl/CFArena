@@ -3,8 +3,10 @@ package me.hapyl.fight.game.cosmetic.death;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.npc.Npc;
+import me.hapyl.eterna.module.npc.appearance.AppearanceBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.reflect.Skin;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Display;
@@ -13,6 +15,7 @@ import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 import me.hapyl.fight.util.Nulls;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -49,13 +52,13 @@ public class ElectrocuteCosmetic extends Cosmetic {
 
         final Set<ArmorStand> chamber = Sets.newHashSet();
         final Location location = player.getLocation();
-        final HumanNPC npc = new HumanNPC(location, "", player.getName());
+        final Npc npc = new Npc(location, Component.empty(), AppearanceBuilder.ofMannequin(Skin.ofPlayer(player)));
 
         location.subtract(0.0d, 1.3d, 0.0d);
         location.setYaw(0);
         location.setPitch(0);
 
-        npc.setCollision(false);
+        npc.getProperties().setCollidable(false);
         npc.showAll();
 
         // Create chamber
@@ -84,7 +87,7 @@ public class ElectrocuteCosmetic extends Cosmetic {
 
         GameTask.runTaskTimerTimes((task, tick) -> {
             if (tick == 0) {
-                npc.remove();
+                npc.destroy();
                 chamber.forEach(ArmorStand::remove);
                 chamber.clear();
 

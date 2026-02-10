@@ -3,7 +3,6 @@ package me.hapyl.fight;
 import me.hapyl.eterna.module.command.CommandProcessor;
 import me.hapyl.eterna.module.command.SimpleCommand;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.config.Environment;
 import me.hapyl.fight.database.Database;
@@ -17,9 +16,9 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.commission.CommissionOverlayEntity;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.ExceptionHandlingRunnable;
 import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -31,6 +30,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -462,7 +462,7 @@ public final class CF {
      * @return the server's most recent tps.
      */
     public static double getTps() {
-        return Math.min(Reflect.getMinecraftServer().recentTps[0], 20);
+        return Math.min(Bukkit.getTPS()[0], 20);
     }
     
     @Nonnull
@@ -584,12 +584,21 @@ public final class CF {
     }
     
     @Nonnull
-    public static TransferManager transferManager() {
-        return plugin.transferManager();
-    }
-    
-    @Nonnull
     public static Stream<PlayerProfile> streamProfiles() {
         return manager.streamProfiles();
+    }
+    
+    public static void synchronizeToMainThread(@Nonnull ExceptionHandlingRunnable runnable) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                try {
+                    runnable.run();
+                }
+                catch (Exception ex) {
+                    runnable.exception(ex);
+                }
+            }
+        }.runTask(getPlugin());
     }
 }

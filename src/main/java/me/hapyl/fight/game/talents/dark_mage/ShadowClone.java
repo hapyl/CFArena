@@ -38,12 +38,12 @@ public class ShadowClone extends DarkMageTalent {
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        clones.removeAnd(player, ShadowCloneNPC::remove);
+        clones.removeAnd(player, ShadowCloneNPC::destroy);
     }
 
     @Override
     public void onStop(@Nonnull GamePlayer player) {
-        clones.forEachAndClear(ShadowCloneNPC::remove);
+        clones.forEachAndClear(ShadowCloneNPC::destroy);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ShadowClone extends DarkMageTalent {
         final ShadowCloneNPC clone = clones.remove(player);
 
         if (clone != null) {
-            clone.remove();
+            clone.destroy();
         }
     }
 

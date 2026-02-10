@@ -50,7 +50,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     private final GameType mode;
     private final GameReport gameReport;
     private final GameResult gameResult;
-    private final GamePlayerHeroMastery heroMastery;
     private final SupplyLevelHandler supplies;
     
     private long timeLimitInTicks;
@@ -67,7 +66,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
         
         this.gameReport = new GameReport(this);
         this.gameResult = new GameResult(this);
-        this.heroMastery = new GamePlayerHeroMastery(this);
         
         this.gameState = State.PRE_GAME;
         this.hexCode = generateHexCode();
@@ -85,11 +83,6 @@ public class GameInstance extends TickingGameTask implements IGameInstance, Life
     @Nonnull
     public SupplyLevelHandler supplies() {
         return supplies;
-    }
-    
-    @Nonnull
-    public GamePlayerHeroMastery heroMastery() {
-        return heroMastery;
     }
     
     public void increaseTimeLimit(int increase) {

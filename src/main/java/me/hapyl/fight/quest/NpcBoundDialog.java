@@ -1,6 +1,6 @@
 package me.hapyl.fight.quest;
 
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
+import me.hapyl.eterna.module.npc.Npc;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -12,10 +12,10 @@ public class NpcBoundDialog extends CFDialog {
 
     private static final double DISTANCE_THRESHOLD = 20.0d;
 
-    private final HumanNPC npc;
+    private final Npc npc;
     private int tick;
 
-    public NpcBoundDialog(@Nonnull HumanNPC npc) {
+    public NpcBoundDialog(@Nonnull Npc npc) {
         this.npc = npc;
     }
 

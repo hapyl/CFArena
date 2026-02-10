@@ -4,7 +4,7 @@ import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.builtin.manager.ParkourManager;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
-import me.hapyl.eterna.module.parkour.Data;
+import me.hapyl.eterna.module.parkour.ParkourData;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.util.Runnables;
@@ -95,7 +95,6 @@ public final class PlayerHandler implements Listener {
         final Player player = ev.getPlayer();
         final Manager manager = Manager.current();
         final PlayerProfile profile = manager.handlePlayer(player);
-        final boolean isTransfer = player.isTransferred();
         
         // Remove join message, we're using broadcast()
         ev.joinMessage(null);
@@ -115,12 +114,10 @@ public final class PlayerHandler implements Listener {
         }
         
         // Broadcast join message unless transferred
-        if (!isTransfer) {
-            broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(true));
-            
-            if (profile.getRank().isStaff()) {
-                Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
-            }
+        broadcastJoinOrQuitMessage(profile.getJoinOrQuitMessage(true));
+        
+        if (profile.getRank().isStaff()) {
+            Message.broadcastStaff("{%s} joined.".formatted(player.getName()));
         }
         
         LocalTeamManager.updateAll();
@@ -128,11 +125,6 @@ public final class PlayerHandler implements Listener {
         
         for (ParkourCourse value : ParkourCourse.values()) {
             value.getParkour().updateLeaderboardIfExists();
-        }
-        
-        // Work transfer last to now throw any exceptions
-        if (isTransfer) {
-            CF.getPlugin().transferManager().handleJoin(ev);
         }
     }
     
@@ -323,8 +315,8 @@ public final class PlayerHandler implements Listener {
         // Check for vehicle
         // Player will 100% take either fall or suffocation damage while on vehicle, CANCEL it!
         if (livingEntity instanceof Player player
-                && CF.getVehicleManager().isRiding(player)
-                && (damageCause == EntityDamageEvent.DamageCause.FALL || damageCause == EntityDamageEvent.DamageCause.SUFFOCATION)) {
+            && CF.getVehicleManager().isRiding(player)
+            && (damageCause == EntityDamageEvent.DamageCause.FALL || damageCause == EntityDamageEvent.DamageCause.SUFFOCATION)) {
             ev.setCancelled(true);
             return;
         }
@@ -375,9 +367,9 @@ public final class PlayerHandler implements Listener {
                     case Player player -> {
                         // Remove vanilla critical hit
                         if (player.getFallDistance() > 0.0F
-                                && !player.isOnGround()
-                                && !player.hasPotionEffect(PotionEffectType.BLINDNESS)
-                                && player.getVehicle() == null) {
+                            && !player.isOnGround()
+                            && !player.hasPotionEffect(PotionEffectType.BLINDNESS)
+                            && player.getVehicle() == null) {
                             instance.overrideInitialDamage(initialDamage / 1.5F);
                         }
                         
@@ -722,8 +714,8 @@ public final class PlayerHandler implements Listener {
         final Entity hitEntity = ev.getHitEntity();
         
         if (!(hitEntity instanceof Enderman enderman)
-                || !(shooter instanceof Player player)
-                || !(projectile instanceof AbstractArrow arrow)) {
+            || !(shooter instanceof Player player)
+            || !(projectile instanceof AbstractArrow arrow)) {
             return;
         }
         
@@ -1039,7 +1031,7 @@ public final class PlayerHandler implements Listener {
         ev.setCancelled(true);
         
         final ParkourManager parkourManager = (Eterna.getManagers()).parkour;
-        final Data data = parkourManager.getData(player);
+        final ParkourData data = parkourManager.getData(player);
         
         if (data == null) {
             return;

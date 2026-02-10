@@ -25,7 +25,6 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
 import me.hapyl.fight.game.heroes.friendship.HeroFriendship;
-import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
@@ -87,7 +86,6 @@ public abstract class Hero
     private final HeroFriendship friendship;
     private final List<DisplayFieldInstance> extraDisplayFields;
     
-    protected HeroMastery mastery;
     protected UltimateTalent ultimate;
     protected HeroStory story;
     
@@ -118,7 +116,6 @@ public abstract class Hero
         this.friendship = new HeroFriendship(this);
         this.talentsMapped = Maps.newHashMap();
         this.extraDisplayFields = Lists.newArrayList();
-        this.mastery = new HeroMastery(this);
         this.talkBehaviour = new TalkBehaviour(this);
         
         // Map talents
@@ -487,15 +484,6 @@ public abstract class Hero
      */
     @EventLike
     public void onDeath(@Nonnull GamePlayer player) {
-    }
-    
-    @Nonnull
-    public HeroMastery getMastery() {
-        return this.mastery;
-    }
-    
-    protected void setMastery(@Nonnull HeroMastery mastery) {
-        this.mastery = mastery;
     }
     
     @Nonnull

@@ -130,7 +130,6 @@ public class Color implements TextColor {
     public static final Color MUTED_PURPLE = of("#D1B3FF");
     public static final Color SCORCH = of("#FF4500");
     
-    // *-----------------------------------------------------*
     
     /**
      * Represents the actual bukkit color.

@@ -49,7 +49,6 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
     public final GuessWhoEntry guessWhoEntry;
     public final ChallengeEntry challengeEntry;
     public final SkinEntry skinEntry;
-    public final MasteryEntry masteryEntry;
     public final StoreEntry storeEntry;
     public final QuestEntry questEntry;
     public final CommissionEntry commissionEntry;
@@ -97,7 +96,6 @@ public sealed class PlayerDatabase implements Iterable<PlayerDatabaseEntry> perm
         this.guessWhoEntry = load(new GuessWhoEntry(this));
         this.challengeEntry = load(new ChallengeEntry(this));
         this.skinEntry = load(new SkinEntry(this));
-        this.masteryEntry = load(new MasteryEntry(this));
         this.storeEntry = load(new StoreEntry(this));
         this.questEntry = load(new QuestEntry(this));
         this.commissionEntry = load(new CommissionEntry(this));

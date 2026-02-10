@@ -2,7 +2,6 @@ package me.hapyl.fight.game.effect;
 
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import org.bukkit.Location;
@@ -11,6 +10,7 @@ import org.bukkit.SoundGroup;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ParanoiaEffect extends Effect {
     
@@ -38,14 +38,15 @@ public class ParanoiaEffect extends Effect {
     @Override
     public void onTick(@Nonnull ActiveEffect effect) {
         final LivingGameEntity entity = effect.entity();
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
         
         // Plays a sound every 20 ticks or with 10% chance
         if (effect.tick % 20 == 0 || entity.random.checkBound(0.1)) {
             // Get a random location to play decoy sound
             final Location location = entity.getLocation();
-            location.add(ThreadRandom.nextDouble(-10, 10), 0, ThreadRandom.nextDouble(-10, 10));
+            location.add(random.nextDouble(-10, 10), 0, random.nextDouble(-10, 10));
             
-            if (ThreadRandom.nextFloatAndCheckBetween(0.6f, 1.0f) && !location.getBlock().getType().isAir()) {
+            if (random.nextFloat() < 0.6 && !location.getBlock().getType().isAir()) {
                 final SoundGroup soundGroup = location.getBlock().getBlockData().getSoundGroup();
                 entity.playSound(location, soundGroup.getStepSound(), 1);
             }

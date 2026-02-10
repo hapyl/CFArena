@@ -6,7 +6,6 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.math.Cuboid;
 import me.hapyl.eterna.module.math.nn.DoubleDouble;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -32,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class HarvestBlocks extends Talent {
@@ -118,20 +118,21 @@ public class HarvestBlocks extends Talent {
                     double deltaZ = playerLocation.getZ() - entityLocation.getZ();
 
                     double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-
+                    final ThreadLocalRandom random = ThreadLocalRandom.current();
+                    
                     if (distance > distancePerTick) {
                         double ratio = distancePerTick / distance;
-                        double x = (entityLocation.getX() + deltaX * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
-                        double y = (entityLocation.getY() + deltaY * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
-                        double z = (entityLocation.getZ() + deltaZ * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
+                        double x = (entityLocation.getX() + deltaX * ratio) + random.nextDouble(-0.1, 0.1);
+                        double y = (entityLocation.getY() + deltaY * ratio) + random.nextDouble(-0.1, 0.1);
+                        double z = (entityLocation.getZ() + deltaZ * ratio) + random.nextDouble(-0.1, 0.1);
                         entity.teleport(new Location(entity.getWorld(), x, y, z, entityLocation.getYaw(), entityLocation.getPitch()));
                     }
                     else {
                         entity.teleport(playerLocation.clone()
                                 .add(
-                                        ThreadRandom.nextDouble(-0.1, 0.1),
-                                        ThreadRandom.nextDouble(-0.1, 0.1),
-                                        ThreadRandom.nextDouble(-0.1, 0.1)
+                                        random.nextDouble(-0.1, 0.1),
+                                        random.nextDouble(-0.1, 0.1),
+                                        random.nextDouble(-0.1, 0.1)
                                 ));
                     }
 

@@ -6,8 +6,6 @@ import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.SlotPattern;
 import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.fight.CF;
-import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.heroes.HeroPlayerItemMaker;
@@ -183,24 +181,9 @@ public class HeroPreviewGUI extends StyledGUI {
                 }
         );
         
-        final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
-        
-        // Mastery
-        setItem(
-                18,
-                StyledTexture.ICON_MASTERY
-                        .asBuilder()
-                        .addLore()
-                        .addLore(entry.makeMasteryHeader(hero))
-                        .addLore(entry.makeProgressBar(hero))
-                        .addLore()
-                        .addLore(Color.BUTTON + "Click for details")
-                        .asIcon(), player -> new MasteryGUI(player, hero, returnPage)
-        );
-        
         // Story
         setItem(
-                27, StyledTexture.ICON_STORY
+                18, StyledTexture.ICON_STORY
                         .asBuilder()
                         .addLore()
                         .addLore(Color.ERROR + "Find at least one chapter to unlock!")

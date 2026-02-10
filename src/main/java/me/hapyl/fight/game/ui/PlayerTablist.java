@@ -29,6 +29,7 @@ import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.store.PlayerStoreOffers;
 import me.hapyl.fight.store.Store;
 import me.hapyl.fight.store.StoreOffer;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -124,7 +125,7 @@ public class PlayerTablist extends Tablist {
             entryList.append("&b&lLobby:", EntryTexture.AQUA);
             entryList.append(" &7ᴍᴀᴘ: &f" + mapName);
             entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.currentEnumType().getName());
-            entryList.append(" &7ꜰᴀɪʀ ᴍᴏᴅᴇ: &f" + ChatColor.stripColor(manager.getFairMode().getMastery()));
+            // entryList.append("");
         }
         else {
             final GamePlayer gamePlayer = CF.getPlayer(player);
@@ -151,8 +152,8 @@ public class PlayerTablist extends Tablist {
         else {
             final ChatColor color = playerTeam.getColor();
             final List<GamePlayer> gamePlayers = playerTeam.getPlayers();
-
-            entryList.append(playerTeam.getColor() + "&lTeam: &7(%s)".formatted(playerTeam.getName()), EntryTexture.of(color));
+            
+            entryList.append(playerTeam.getColor() + "&lTeam: &7(%s)".formatted(playerTeam.getName()), EntryTexture.of(bukkitChatColorToNameTextColor(color)));
 
             int toFill = 4;
 
@@ -197,7 +198,7 @@ public class PlayerTablist extends Tablist {
 
         setColumn(TablistColumn.SECOND, entryList);
     }
-
+    
     private void updateTheEye() {
         final EntryList entryList = new EntryList();
         final PlayerDatabase database = profile.getDatabase();
@@ -277,7 +278,7 @@ public class PlayerTablist extends Tablist {
 
         setColumn(TablistColumn.THIRD, entryList);
     }
-
+    
     private void updateStatistics() {
         final EntryList entryList = new EntryList();
         final Hero hero = profile.getHero();
@@ -313,6 +314,28 @@ public class PlayerTablist extends Tablist {
             final Double value = fn.apply(statType);
             list.append(" %s: &b%,.0f".formatted((mod ? Color.GRAY : Color.GRAYER) + name, value));
         }
+    }
+
+    private static NamedTextColor bukkitChatColorToNameTextColor(ChatColor color) {
+        return switch (color) {
+            case BLACK -> NamedTextColor.BLACK;
+            case DARK_BLUE -> NamedTextColor.DARK_BLUE;
+            case DARK_GREEN -> NamedTextColor.DARK_GREEN;
+            case DARK_AQUA -> NamedTextColor.DARK_AQUA;
+            case DARK_RED -> NamedTextColor.DARK_RED;
+            case DARK_PURPLE -> NamedTextColor.DARK_PURPLE;
+            case GOLD -> NamedTextColor.GOLD;
+            case GRAY -> NamedTextColor.GRAY;
+            case DARK_GRAY -> NamedTextColor.DARK_GRAY;
+            case BLUE -> NamedTextColor.BLUE;
+            case GREEN -> NamedTextColor.GREEN;
+            case AQUA -> NamedTextColor.AQUA;
+            case RED -> NamedTextColor.RED;
+            case LIGHT_PURPLE -> NamedTextColor.LIGHT_PURPLE;
+            case YELLOW -> NamedTextColor.YELLOW;
+            case WHITE -> NamedTextColor.WHITE;
+            default -> throw new IllegalArgumentException("Unsupported.");
+        };
     }
 
 }

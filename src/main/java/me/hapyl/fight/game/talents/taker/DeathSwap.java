@@ -48,7 +48,7 @@ public class DeathSwap extends Talent implements Listener {
         );
         
         setType(TalentType.IMPAIR);
-        setMaterial(Material.CHAIN);
+        setMaterial(Material.IRON_CHAIN);
         setCooldownSec(16);
     }
     

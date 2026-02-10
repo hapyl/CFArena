@@ -2,8 +2,8 @@ package me.hapyl.fight.game.heroes.doctor;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.locaiton.Located;
 import me.hapyl.eterna.module.particle.ParticleBuilder;
-import me.hapyl.eterna.module.util.Located;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;

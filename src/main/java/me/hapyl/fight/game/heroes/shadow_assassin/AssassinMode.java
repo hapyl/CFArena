@@ -33,7 +33,7 @@ public enum AssassinMode {
             player.getAttributes().addModifier(
                     assassin.modifierSource, Constants.INFINITE_DURATION, modifier -> modifier
                             .of(AttributeType.ATTACK, ModifierType.MULTIPLICATIVE, assassin.attackIncrease)
-                            .of(AttributeType.SPEED, ModifierType.FLAT, 25)
+                            .of(AttributeType.SPEED, ModifierType.FLAT, assassin.speedDecrease)
             );
         }
     };

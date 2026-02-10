@@ -12,10 +12,7 @@ import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.vehicle.Vehicle;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.network.protocol.game.PacketPlayOutTileEntityData;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -223,7 +220,7 @@ public class EchoWorld extends TickingGameTask {
     private record BlockInf(Block block, BlockData data, BlockState state) {
         public void reset(@Nonnull GamePlayer gamePlayer) {
             final Player player = gamePlayer.getEntity();
-            final WorldServer world = Reflect.getMinecraftWorld(player.getWorld());
+            final ServerLevel serverLevel = Reflect.getHandle(player.getWorld());
 
             Promise.promise(() -> {
                         player.sendBlockChange(block.getLocation(), data);
@@ -234,16 +231,16 @@ public class EchoWorld extends TickingGameTask {
                         // Even though we can send the update async, we'd have to
                         // wait for the block change to actually update
                         if (state instanceof Skull) {
-                            final TileEntity tileEntity = world.getBlockEntity(
-                                    new BlockPosition(block.getX(), block.getY(), block.getZ()),
-                                    false
-                            );
-
-                            if (tileEntity != null) {
-                                final PacketPlayOutTileEntityData packet = PacketPlayOutTileEntityData.a(tileEntity);
-
-                                gamePlayer.sendPacket(packet);
-                            }
+                            // final TileEntity tileEntity = world.getBlockEntity(
+                            //         new BlockPosition(block.getX(), block.getY(), block.getZ()),
+                            //         false
+                            // );
+                            //
+                            // if (tileEntity != null) {
+                            //     final PacketPlayOutTileEntityData packet = PacketPlayOutTileEntityData.a(tileEntity);
+                            //
+                            //     gamePlayer.sendPacket(packet);
+                            // }
                         }
                     });
         }

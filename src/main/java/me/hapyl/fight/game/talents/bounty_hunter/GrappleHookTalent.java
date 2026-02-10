@@ -104,7 +104,7 @@ public class GrappleHookTalent extends ChargedTalent implements Listener {
         
         // Fx
         player.playWorldSound(Sound.ENTITY_BAT_TAKEOFF, 1.0f);
-        player.playWorldSound(Sound.ENTITY_LEASH_KNOT_PLACE, 0.0f);
+        player.playWorldSound(Sound.ITEM_LEAD_BREAK, 0.0f);
         
         return Response.OK;
     }

@@ -2,14 +2,16 @@ package me.hapyl.fight.game.talents.tamer.pack;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTargetWitch;
-import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestHealableRaider;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableWitchTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestHealableRaiderTargetGoal;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,10 +65,12 @@ public class DrWitch extends TamerPack {
             super(pack, entity);
 
             this.targetClosestEntities = false;
-            this.ai.removeAllGoals(goal -> {
-                return goal instanceof PathfinderGoalNearestAttackableTargetWitch || goal instanceof PathfinderGoalNearestHealableRaider;
-            });
 
+            // Remove default AI so witch doesn't attack player or trier to heal raiders
+            ((Mob) Reflect.getHandle(entity)).goalSelector.removeAllGoals(goal -> {
+                return goal instanceof NearestAttackableWitchTargetGoal || goal instanceof NearestHealableRaiderTargetGoal;
+            });
+            
             this.nextPotion = witchHealingPeriod;
         }
 

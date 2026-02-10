@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.FunctionalInterfaces;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
@@ -16,6 +14,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -52,7 +51,7 @@ public class Display {
 
     public <T> void particle0(@Nonnull Location location, @Nonnull Particle particle, int amount, double offsetX, double offsetY, double offsetZ, float speed, @Nullable Predicate<Player> filter, @Nullable T data) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player == this.player || (FunctionalInterfaces.test(filter, player))) {
+            if (player == this.player || (filter != null && filter.test(player))) {
                 player.spawnParticle(particle, location, amount, offsetX, offsetY, offsetZ, speed, data);
             }
         }
@@ -106,7 +105,7 @@ public class Display {
     public Item dropItem(@Nonnull Material material, int lifeTicks) {
         final Item item = location.getWorld().dropItemNaturally(
                 location,
-                new ItemBuilder(material).setName(String.valueOf(ThreadRandom.nextFloat())).toItemStack()
+                new ItemBuilder(material).setName(String.valueOf(ThreadLocalRandom.current().nextFloat())).toItemStack()
         );
 
         SynchronizedGarbageEntityCollector.add(item);

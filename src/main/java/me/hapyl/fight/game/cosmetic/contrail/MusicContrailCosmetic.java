@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.cosmetic.contrail;
 
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MusicContrailCosmetic extends ParticleContrailCosmetic {
 
@@ -19,13 +19,15 @@ public class MusicContrailCosmetic extends ParticleContrailCosmetic {
 
     @Override
     public void onMove(@Nonnull Display display, int tick) {
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        
         // This is really the weirdest way to handle particle color.
         display.particle(
                 getParticle(),
                 0,
-                ThreadRandom.nextDouble(0.0d, 1.0d),
-                ThreadRandom.nextDouble(0.0d, 1.0d),
-                ThreadRandom.nextDouble(0.0d, 1.0d),
+                random.nextDouble(0.0d, 1.0d),
+                random.nextDouble(0.0d, 1.0d),
+                random.nextDouble(0.0d, 1.0d),
                 1.0f
         );
     }

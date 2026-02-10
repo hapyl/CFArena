@@ -2,9 +2,7 @@ package me.hapyl.fight.game.heroes;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
-import me.hapyl.fight.database.entry.MasteryEntry;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.color.Color;
@@ -51,17 +49,10 @@ public class HeroPlayerItemMaker {
                 final PlayerRating averageRating = maker.stats.getAverageRating();
 
                 // Mastery
-                final PlayerDatabase database = CF.getDatabase(player);
-                final MasteryEntry entry = database.masteryEntry;
-                final long exp = entry.getExp(hero);
-
                 final StringBuilder name = new StringBuilder(hero.getName());
 
                 if (averageRating != null) {
                     name.append(" ").append(averageRating);
-                }
-                if (exp > 0) {
-                    name.append(" ").append("&8(&6%s&8)".formatted(entry.getLevelString(hero)));
                 }
 
                 final ItemBuilder builder = new ItemBuilder(hero.getItem())

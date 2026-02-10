@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.CollectionUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 
@@ -27,6 +28,11 @@ public final class ComponentUtils {
         }
 
         return builder.build();
+    }
+    
+    @Nonnull
+    public static Component random(@Nonnull Component... components) {
+        return CollectionUtils.randomElementOrFirst(components);
     }
 
 }

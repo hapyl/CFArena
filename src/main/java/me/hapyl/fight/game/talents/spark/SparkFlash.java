@@ -4,6 +4,7 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -91,7 +92,7 @@ public class SparkFlash extends Talent {
 
                 // Fx
                 player.playWorldSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
-                player.spawnWorldParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0);
+                player.spawnWorldParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0, Color.WHITE);
 
                 item.remove();
             }

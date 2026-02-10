@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.heroes.techie;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.component.ComponentList;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerSkin;
@@ -12,6 +14,7 @@ import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.ModifierType;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.entity.TalentLock;
@@ -34,6 +37,8 @@ import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -47,6 +52,7 @@ import org.bukkit.inventory.meta.trim.TrimPattern;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Techie extends Hero implements UIComplexComponent, Listener, PlayerDataHandler<TechieData>, DisplayFieldProvider {
     
@@ -55,7 +61,9 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     private final int neuralTheftEnergy = 4;
     
     private final PlayerDataMap<TechieData> playerData = PlayerMap.newDataMap(TechieData::new);
-    private final String neuralTheftTitle = "&3&lɴᴇᴜʀᴀʟ ᴛʜᴇғᴛ";
+    
+    private final String neuralTheftTitle = "ɴᴇᴜʀᴀʟ ᴛʜᴇғᴛ";
+    private final String neuralTheftTitleColored = "&3&l" + neuralTheftTitle;
     
     public Techie(@Nonnull Key key) {
         super(key, "Cryptshade");
@@ -109,26 +117,26 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
     public void revealEntity(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, @Nonnull Set<BugType> bugs) {
         entity.setGlowingFor(player, GlowingColor.AQUA, neuralTheftDuration);
         
-        final Hologram hologram = new Hologram()
-                .create(entity.getLocationToTheLeft(1.5).add(0, 0.5, 0))
-                .setLines(
-                        neuralTheftTitle, // todo: Maybe add some classified name for lore here
-                        "&fName: " + entity.getName(),
-                        "&cHealth: " + entity.getHealthFormatted()
-                );
+        final Hologram hologram = Hologram.ofArmorStand(entity.getLocationToTheLeft(1.5).add(0, 0.5, 0));
+        final ComponentList array = ComponentList.empty();
+        
+        array.append(Component.text(neuralTheftTitle, Color.DARK_AQUA, TextDecoration.BOLD));
+        array.append(Component.text("ID: %s".formatted(entity.getName()), Color.WHITE));
+        array.append(Component.text("HP: %s".formatted(Chat.format(entity.getHealthFormatted())), Color.RED));
         
         if (entity instanceof GamePlayer gamePlayer) {
-            hologram.addLine("&bUltimate: " + gamePlayer.getUltimateString());
+            array.append(Component.text("ULT: %s".formatted(gamePlayer.getUltimateString()), Color.AQUA));
         }
         
-        final StringBuilder builder = new StringBuilder();
-        for (BugType bug : bugs) {
-            builder.append(bug.getName()).append(" ");
-        }
+        // Append bugs
+        array.append(Component.text(
+                "BUGS: %s".formatted(bugs.stream()
+                                         .map(bug -> bug.getName() + " ")
+                                         .collect(Collectors.joining())
+                                         .trim()), Color.DARK_RED
+        ));
         
-        hologram.addLine("&4Bugs: " + builder.toString().trim());
-        hologram.updateLines();
-        
+        hologram.setLines(pl -> array);
         hologram.show(player.getEntity());
         
         GameTask.runLater(hologram::destroy, neuralTheftDuration).setShutdownAction(ShutdownAction.IGNORE);
@@ -156,13 +164,13 @@ public class Techie extends Hero implements UIComplexComponent, Listener, Player
                         if (!player.isUltimateReady() && entity instanceof GamePlayer entityPlayer) {
                             energyStolen += neuralTheftEnergy;
                             entityPlayer.decrementEnergy(neuralTheftEnergy, player);
-                            entityPlayer.spawnDebuffDisplay(neuralTheftTitle, 20);
+                            entityPlayer.spawnDebuffDisplay(neuralTheftTitleColored, 20);
                         }
                     }
                     
                     if (energyStolen > 0) {
                         player.incrementEnergy(energyStolen);
-                        player.spawnBuffDisplay(neuralTheftTitle + " &b+" + energyStolen + EnumResource.ENERGY.getPrefix(), 20);
+                        player.spawnBuffDisplay(neuralTheftTitleColored + " &b+" + energyStolen + EnumResource.ENERGY.getPrefix(), 20);
                     }
                     
                     // Sfx

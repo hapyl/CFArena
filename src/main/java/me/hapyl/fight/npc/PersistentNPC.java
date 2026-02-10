@@ -1,10 +1,13 @@
 package me.hapyl.fight.npc;
 
 import me.hapyl.eterna.module.annotate.EventLike;
-import me.hapyl.eterna.module.hologram.StringArray;
-import me.hapyl.eterna.module.reflect.npc.ClickType;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.NPCFormat;
+import me.hapyl.eterna.module.npc.ClickType;
+import me.hapyl.eterna.module.npc.Npc;
+import me.hapyl.eterna.module.npc.NpcProperties;
+import me.hapyl.eterna.module.npc.appearance.AppearanceBuilder;
+import me.hapyl.eterna.module.npc.tag.TagLayout;
+import me.hapyl.eterna.module.npc.tag.TagPart;
+import me.hapyl.eterna.module.reflect.Skin;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.eterna.module.util.BukkitUtils;
@@ -15,6 +18,8 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.task.DelegateTask;
 import me.hapyl.fight.game.task.PersistentTask;
 import me.hapyl.fight.util.Delegate;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -23,44 +28,43 @@ import org.bukkit.event.Listener;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.UUID;
-import java.util.function.Function;
 
 @AutoRegisteredListener
-public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate {
-
-    private static final NPCFormat FORMAT = new NPCFormat(
-            new NPCFormat.TextFormat("&e[NPC] %s{name}: &f{text}".formatted(Color.SUCCESS)),
-            new NPCFormat.NameFormat("%s{name}".formatted(Color.SUCCESS))
-    );
-
+public class PersistentNPC extends Npc implements Ticking, Keyed, Delegate {
+    
     @Nonnull protected final Key key;
     @Nonnull protected PersistentNPCSound sound;
-
+    
     protected int tick;
-
-    public PersistentNPC(@Nonnull Key key, double x, double y, double z, @Nullable String name) {
-        this(key, x, y, z, 0.0f, 0.0f, name);
+    
+    public PersistentNPC(@Nonnull Key key, double x, double y, double z, @Nullable Component name, @Nonnull Skin skin) {
+        this(key, x, y, z, 0.0f, 0.0f, name, skin);
     }
-
-    public PersistentNPC(@Nonnull Key key, double x, double y, double z, float yaw, float pitch, @Nullable String name) {
-        this(key, BukkitUtils.defLocation(x, y, z, yaw, pitch), name, uuid -> ("§8" + uuid.toString()).substring(0, 16));
+    
+    public PersistentNPC(@Nonnull Key key, double x, double y, double z, float yaw, float pitch, @Nullable Component name, @Nonnull Skin skin) {
+        this(key, BukkitUtils.defLocation(x, y, z, yaw, pitch), name, skin);
     }
-
-    protected PersistentNPC(@Nonnull Key key, @Nonnull Location location, @Nullable String name, @Nonnull Function<UUID, String> hexName) {
-        super(location, name, null, hexName);
-
+    
+    protected PersistentNPC(@Nonnull Key key, @Nonnull Location location, @Nullable Component name, @Nonnull Skin skin) {
+        super(location, name != null ? name : Component.empty(), AppearanceBuilder.ofMannequin(skin));
+        
         this.key = key;
         this.sound = new PersistentNPCSound();
-
-        setFormat(FORMAT);
-        setLookAtCloseDist(8);
-
+        
+        final NpcProperties properties = getProperties();
+        properties.setLookAtClosePlayerDistance(8);
+        
+        setTagLayout(
+                name != null
+                ? new TagLayout(TagPart.name(), TagPart.literal(Component.text("CLICK", Color.GOLD, TextDecoration.BOLD)))
+                : new TagLayout()
+        );
+        
         // Register listener if needed
         if (this instanceof Listener listener) {
             CF.registerEvents(listener);
         }
-
+        
         // Delegate task
         DelegateTask.delegate(
                 this, new PersistentTask() {
@@ -71,28 +75,29 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
                 }.runTaskTimer(0, 1)
         );
     }
-
+    
     @Override
-    public final void sendNpcMessage(@Nonnull Player player, @Nonnull String message) {
-        super.sendNpcMessage(player, message);
-
-        sound.play(player);
+    public void sendMessage(@Nonnull Player player, @Nonnull Component message) {
+        super.sendMessage(player, message);
+        this.sound.play(player);
     }
-
+    
     @EventLike
     public void onSpawn(@Nonnull Player player) {
+        super.onSpawn(player);
     }
-
-    @EventLike
+    
+    @Override
     public void onClick(@Nonnull Player player, @Nonnull ClickType clickType) {
+        super.onClick(player, clickType);
     }
-
+    
     @Override
     public final void show(@Nonnull Player player) {
         if (!shouldCreate(player)) {
             return;
         }
-
+        
         super.show(player);
         onSpawn(player);
     }
@@ -101,39 +106,26 @@ public class PersistentNPC extends HumanNPC implements Ticking, Keyed, Delegate 
     public void showAll() {
         Bukkit.getOnlinePlayers().forEach(this::show);
     }
-
+    
     public boolean shouldCreate(@Nonnull Player player) {
         return true;
     }
-
+    
     @Nonnull
     @Override
     public final Key getKey() {
         return key;
     }
-
+    
     @Override
     @OverridingMethodsMustInvokeSuper
     public void tick() {
+        super.tick();
         ++tick;
-
-        // Update the name once a second
-        if (tick % 20 == 0) {
-            // This will update NPC name
-            setBelowHead(player -> {
-                if (!hasName()) {
-                    return StringArray.empty();
-                }
-
-                return StringArray.of(Color.BUTTON.bold() + "CLICK");
-            });
-        }
     }
-
+    
     @Nonnull
-    protected StringArray blink(@Nonnull String message) {
-        return StringArray.of(
-                (tick % 2 <= 0 ? "&6&l" : "&e&l") + message
-        );
+    protected Component blink(@Nonnull String message) {
+        return Component.text(message, tick % 2 <= 0 ? Color.GOLD : Color.YELLOW, TextDecoration.BOLD);
     }
 }

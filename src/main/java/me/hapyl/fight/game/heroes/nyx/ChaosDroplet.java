@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.nyx;
 
 import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.Located;
 import me.hapyl.eterna.module.reflect.glowing.Glowing;
 import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
 import me.hapyl.eterna.module.util.ComparableTo;
-import me.hapyl.eterna.module.util.Located;
 import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;

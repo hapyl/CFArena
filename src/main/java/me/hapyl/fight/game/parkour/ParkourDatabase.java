@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.parkour.Data;
-import me.hapyl.eterna.module.parkour.Stats;
+import me.hapyl.eterna.module.parkour.ParkourData;
+import me.hapyl.eterna.module.parkour.ParkourStatistics;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.database.async.AsynchronousDocument;
@@ -10,6 +10,7 @@ import me.hapyl.fight.game.Debug;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,26 +52,27 @@ public class ParkourDatabase extends AsynchronousDocument {
         write("players", players);
     }
 
-    public void syncData(Data data) {
+    public void syncData(ParkourData data) {
         final Document players = getPlayers();
-        final String uuid = data.get().getUniqueId().toString();
-        final Document player = players.get(uuid, new Document());
-        final Document stats = player.get("stats", new Document());
+        final Player player = data.getPlayer();
+        final String uuid = player.getUniqueId().toString();
+        final Document playerDocument = players.get(uuid, new Document());
+        final Document statsDocument = playerDocument.get("stats", new Document());
 
-        player.put("name", data.get().getName());
-        player.put("time", data.getCompletionTime());
-        player.put("completed", true);
+        playerDocument.put("name", player.getName());
+        playerDocument.put("time", data.getCompletionTime());
+        playerDocument.put("completed", true);
 
-        player.remove("is_dirty"); // force removes dirty tag if completed after modifications
+        playerDocument.remove("is_dirty"); // force removes dirty tag if completed after modifications
 
-        final Stats dataStats = data.getStats();
+        final ParkourStatistics dataStats = data.getStats();
 
-        for (Stats.Type value : Stats.Type.values()) {
-            stats.put(value.name().toLowerCase(), dataStats.getStat(value));
+        for (ParkourStatistics.Type value : ParkourStatistics.Type.values()) {
+            statsDocument.put(value.name().toLowerCase(), dataStats.getStat(value));
         }
 
-        player.put("stats", stats);
-        write("players." + uuid, player, then -> {
+        playerDocument.put("stats", statsDocument);
+        write("players." + uuid, playerDocument, then -> {
             // Update leaderboard
             parkour.updateLeaderboardIfExists();
         });
@@ -86,12 +88,12 @@ public class ParkourDatabase extends AsynchronousDocument {
         return player.get("completed", false);
     }
 
-    public Map<Stats.Type, Long> getStats(UUID uuid) {
+    public Map<ParkourStatistics.Type, Long> getStats(UUID uuid) {
         final Document player = getPlayer(uuid);
         final Document stats = player.get("stats", new Document());
-        final Map<Stats.Type, Long> map = new HashMap<>();
+        final Map<ParkourStatistics.Type, Long> map = new HashMap<>();
 
-        for (Stats.Type value : Stats.Type.values()) {
+        for (ParkourStatistics.Type value : ParkourStatistics.Type.values()) {
             map.put(value, stats.get(value.name().toLowerCase(), 0L));
         }
 

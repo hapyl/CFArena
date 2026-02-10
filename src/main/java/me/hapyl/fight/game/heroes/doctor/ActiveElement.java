@@ -169,7 +169,7 @@ public class ActiveElement {
             final Field field = skull.getClass().getDeclaredField("profile");
             field.setAccessible(true);
             final GameProfile profile = (GameProfile) field.get(skull);
-            final Collection<Property> textures = profile.getProperties().get("textures");
+            final Collection<Property> textures = profile.properties().get("textures");
 
             for (Property texture : textures) {
                 return texture.value();

@@ -3,7 +3,9 @@ package me.hapyl.fight.game.parkour;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.parkour.*;
 import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.challenge.ChallengeType;
 import org.bukkit.Bukkit;
@@ -20,19 +22,22 @@ public class CFParkour extends Parkour implements ParkourHandler {
     protected final ParkourDatabase database;
     private ParkourLeaderboard leaderboard;
 
-    public CFParkour(String name, int startX, int startY, int startZ, float yaw, float pitch, int finishX, int finishY, int finishZ) {
+    public CFParkour(@Nonnull Key key, @Nonnull String name, int startX, int startY, int startZ, float yaw, float pitch, int finishX, int finishY, int finishZ) {
         super(
+                key,
                 name,
-                BukkitUtils.defLocation(startX, startY, startZ, yaw, pitch),
-                BukkitUtils.defLocation(finishX, finishY, finishZ)
+                ParkourPosition.of(BukkitUtils.defWorld(), startX, startY, startZ, yaw, pitch),
+                ParkourPosition.of(BukkitUtils.defWorld(), finishX, finishY, finishZ)
         );
 
         this.database = new ParkourDatabase(this);
+        
         this.setFormatter(new ParkourFormatter() {
 
             @Override
-            public void sendCheckpointPassed(@Nonnull Data data) {
-                final Player player = data.get();
+            public void sendCheckpointPassed(@Nonnull ParkourData data) {
+                final Player player = data.getPlayer();
+                
                 Chat.sendMessage(
                         player,
                         "&6&lCHECKPOINT! &eYou passed a checkpoint! &7(%s/%s) &8(%ss)".formatted(
@@ -45,66 +50,85 @@ public class CFParkour extends Parkour implements ParkourHandler {
                 PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
             }
 
+            @Override
             public void sendResetTime(@Nonnull Player player, @Nonnull Parkour parkour) {
                 Chat.sendMessage(player, "&eReset time for %s!".formatted(parkour.getName()));
                 PlayerLib.playSound(player, Sound.UI_BUTTON_CLICK, 1.0F);
             }
 
+            @Override
             public void sendParkourStarted(@Nonnull Player player, @Nonnull Parkour parkour) {
                 Chat.sendMessage(player, "&aStarted %s!".formatted(parkour.getName()));
                 PlayerLib.playSound(player, Sound.UI_BUTTON_CLICK, 1.0F);
             }
 
-            public void sendParkourFinished(@Nonnull Data data) {
+            @Override
+            public void sendParkourFinished(@Nonnull ParkourData data) {
                 // handled in onFinish
             }
 
-            public void sendParkourFailed(@Nonnull Data data, @Nonnull FailType type) {
-                Player player = data.get();
-                Chat.sendMessage(player, "&cParkour failed, &4%s&c!".formatted(type.getReason()));
+            @Override
+            public void sendParkourFailed(@Nonnull ParkourData data, @Nonnull FailType type) {
+                final Player player = data.getPlayer();
+                
+                Chat.sendMessage(player, "&cParkour failed, &4%s&c!".formatted(type.reason()));
                 PlayerLib.playSound(player, Sound.ENTITY_VILLAGER_NO, 1.0F);
             }
 
-            public void sendHaventPassedCheckpoint(@Nonnull Data data) {
-                Player player = data.get();
+            @Override
+            public void sendHaventPassedCheckpoint(@Nonnull ParkourData data) {
+                final Player player = data.getPlayer();
+                
                 Chat.sendMessage(player, "&cYou haven't passed any checkpoints yet!");
                 PlayerLib.endermanTeleport(player, 0.0F);
             }
 
-            public void sendQuit(@Nonnull Data data) {
-                Chat.sendMessage(data.get(), "&cQuit %s!".formatted(data.getParkour().getName()));
+            @Override
+            public void sendQuit(@Nonnull ParkourData data) {
+                Chat.sendMessage(data.getPlayer(), "&cQuit %s!".formatted(data.getParkour().getName()));
             }
 
-            public void sendTickActionbar(@Nonnull Data data) {
+            @Override
+            public void sendTickActionbar(@Nonnull ParkourData data) {
                 Chat.sendActionbar(
-                        data.get(),
+                        data.getPlayer(),
                         "&a&l%s: &b%ss".formatted(data.getParkour().getName(), data.getTimePassedFormatted())
                 );
             }
 
-            public void sendCheckpointTeleport(@Nonnull Data data) {
-                PlayerLib.endermanTeleport(data.get(), 1.25F);
+            @Override
+            public void sendCheckpointTeleport(@Nonnull ParkourData data) {
+                PlayerLib.endermanTeleport(data.getPlayer(), 1.25F);
             }
 
+            @Override
             public void sendErrorParkourNotStarted(@Nonnull Player player, @Nonnull Parkour parkour) {
                 Chat.sendMessage(player, "&cYou must first start this parkour!");
                 PlayerLib.endermanTeleport(player, 0.0F);
             }
 
-            public void sendErrorMissedCheckpointCannotFinish(Data data) {
-                Chat.sendMessage(data.get(), "&cYou missed &l%s&c checkpoints!".formatted(data.missedCheckpointsCount()));
+            @Override
+            public void sendErrorMissedCheckpointCannotFinish(@Nonnull ParkourData data) {
+                Chat.sendMessage(data.getPlayer(), "&cYou missed &l%s&c checkpoints!".formatted(data.missedCheckpointsCount()));
             }
 
-            public void sendErrorMissedCheckpoint(Data data) {
-                Player player = data.get();
+            @Override
+            public void sendErrorMissedCheckpoint(@Nonnull ParkourData data) {
+                final Player player = data.getPlayer();
+                
                 Chat.sendMessage(player, "&cYou missed a checkpoint!");
                 PlayerLib.endermanTeleport(player, 0.0F);
+            }
+            
+            @Override
+            public void sendErrorCannotBreakParkourBlocks(@Nonnull Player player) {
+                Message.error(player, "Cannot break parkour blocks!");
             }
         });
     }
 
-    public CFParkour(String name, int startX, int startY, int startZ, int finishX, int finishY, int finishZ) {
-        this(name, startX, startY, startZ, 0.0f, 0.0f, finishX, finishY, finishZ);
+    public CFParkour(@Nonnull Key key, @Nonnull String name, int startX, int startY, int startZ, int finishX, int finishY, int finishZ) {
+        this(key, name, startX, startY, startZ, 0.0f, 0.0f, finishX, finishY, finishZ);
     }
 
     public void updateLeaderboardIfExists() {
@@ -139,26 +163,26 @@ public class CFParkour extends Parkour implements ParkourHandler {
 
     @Nullable
     @Override
-    public Response onStart(Player player, Data data) {
+    public Response onStart(Player player) {
         if (Manager.current().isGameInProgress()) {
             Chat.sendMessage(player, "&cCannot start parkour while a game is in progress!");
             player.teleport(getQuitLocation());
             return Response.CANCEL;
         }
-
+        
         if (!Bukkit.getOnlineMode()) {
             Chat.sendMessage(player, "&cParkour is unavailable in offline mode!");
             Chat.sendMessage(player, "&cSet &e'online-mode'&c to &etrue&c in your &eserver.properties&c!");
             player.teleport(getQuitLocation());
             return Response.CANCEL;
         }
-
+        
         return null;
     }
-
+    
     @Nullable
     @Override
-    public Response onFinish(Player player, Data data) {
+    public Response onFinish(Player player, ParkourData data) {
         final UUID uuid = player.getUniqueId();
 
         final long completionTime = data.getCompletionTime();
@@ -195,13 +219,13 @@ public class CFParkour extends Parkour implements ParkourHandler {
 
     @Nullable
     @Override
-    public Response onFail(Player player, Data data, FailType failType) {
+    public Response onFail(Player player, @Nonnull ParkourData data, @Nonnull FailType failType) {
         return null;
     }
 
     @Nullable
     @Override
-    public Response onCheckpoint(Player player, Data data, ParkourPosition position, Type type) {
+    public Response onCheckpoint(Player player, @Nonnull ParkourData data, @Nonnull ParkourPosition position, @Nonnull Type type) {
         return null;
     }
 
@@ -212,6 +236,6 @@ public class CFParkour extends Parkour implements ParkourHandler {
             leaderboard.update();
         }
 
-        spawnWorldEntities();
+        createWorldEntities();
     }
 }

@@ -18,6 +18,7 @@ public final class CFQuestHandler extends QuestHandler {
         // Register quests
         Registries.npcs().THE_EYE.registerQuests(this);
         Registries.npcs().STORE_OWNER.registerQuests(this);
+        Registries.npcs().UNDEAD_WATCHER.registerQuests(this);
     }
 
     @Override

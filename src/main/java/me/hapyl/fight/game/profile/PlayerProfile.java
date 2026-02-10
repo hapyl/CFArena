@@ -315,7 +315,7 @@ public class PlayerProfile {
         final RankFormatter format = getRank().getFormat();
         final String message = format.joinMessage();
         
-        return message != null ? Chat.bformat("&8[&a+&8] " + message, display().toString()) : null;
+        return message != null ? Chat.format("&8[&a+&8] " + message.formatted(display().toString())) : null;
     }
     
     @Nullable
@@ -323,18 +323,13 @@ public class PlayerProfile {
         final RankFormatter format = getRank().getFormat();
         final String message = format.leaveMessage();
         
-        return message != null ? Chat.bformat("&8[&c-&8] " + message, display().toString()) : null;
+        return message != null ? Chat.format("&8[&c-&8] " + message.formatted(display().toString())) : null;
     }
     
     @Nullable
     public String getJoinOrQuitMessage(boolean join) {
         // If the game is in progress, don't send join/quit messages
         if (Manager.current().isGameInProgress()) {
-            return null;
-        }
-        
-        // Don't send messages for transferred players
-        if (player.isTransferred()) {
             return null;
         }
         

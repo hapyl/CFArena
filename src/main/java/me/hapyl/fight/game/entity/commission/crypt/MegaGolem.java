@@ -1,7 +1,5 @@
 package me.hapyl.fight.game.entity.commission.crypt;
 
-import me.hapyl.eterna.module.ai.AI;
-import me.hapyl.eterna.module.ai.goal.AttackNearestTargetGoal;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
@@ -10,7 +8,6 @@ import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.entity.commission.CommissionEntity;
 import me.hapyl.fight.game.entity.commission.CommissionEntityType;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
@@ -36,11 +33,6 @@ public class MegaGolem extends CommissionEntityType {
         public MegaGolemEntity(@Nonnull LivingEntity entity) {
             super(MegaGolem.this, entity);
 
-            final AI ai = getMobAI();
-
-            ai.removeAllGoals();
-            ai.addGoal(1, new AttackNearestTargetGoal<>(ai, EntityType.PLAYER, 10, false, true, p -> true));
-            ai.addGoal(1, new AttackNearestTargetGoal<>(ai, EntityType.ZOMBIE, 10, false, true, p -> true));
         }
     }
 }

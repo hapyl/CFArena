@@ -423,8 +423,8 @@ public class Achievement implements Keyed {
         @Nonnull
         @Override
         public Achievement build() {
-            Validate.notNull(name, "Name must be set!");
-            Validate.notNull(description, "Description must be set!");
+            Validate.nonNull(name, "Name must be set!");
+            Validate.nonNull(description, "Description must be set!");
 
             final Achievement achievement = isSecret ? new HiddenAchievement(key, name, description) : new Achievement(
                     key,

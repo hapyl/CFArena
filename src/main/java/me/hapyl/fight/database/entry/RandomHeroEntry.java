@@ -6,11 +6,13 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.heroes.Archetype;
 import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 public class RandomHeroEntry extends PlayerDatabaseEntry {
@@ -76,19 +78,32 @@ public class RandomHeroEntry extends PlayerDatabaseEntry {
             return HeroRegistry.defaultHero();
         }
 
+        // If all archetypes allowed, return randomHero()
         if (include.isEmpty()) {
             return HeroRegistry.randomHero(player);
         }
 
-        final Set<Hero> availableHeroes = Sets.newHashSet();
-
-        include.forEach(archetype -> {
-            final Set<Hero> heroes = HeroRegistry.byArchetype(archetype);
-            heroes.removeIf(hero -> hero.isLocked(player));
-
-            availableHeroes.addAll(heroes);
+        // Else filter by archetype
+        final List<Hero> availableHeroes = HeroRegistry.playable();
+        
+        availableHeroes.removeIf(hero -> {
+            if (hero.isLocked(player)) {
+                return true;
+            }
+            else {
+                final HeroProfile profile = hero.getProfile();
+                final List<Archetype> archetypes = profile.getArchetypes();
+                
+                for (Archetype archetype : include) {
+                    if (!archetypes.contains(archetype)) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
         });
-
+        
         return CollectionUtils.randomElement(availableHeroes, HeroRegistry.defaultHero());
     }
 }

@@ -117,7 +117,7 @@ public class GrappleHook extends TickingGameTask implements Removable {
                 remove();
                 
                 message("&cYour hook broke because it got too tired!");
-                player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
+                player.playSound(Sound.ITEM_LEAD_BREAK, 0.0f);
                 return;
             }
             
@@ -160,7 +160,7 @@ public class GrappleHook extends TickingGameTask implements Removable {
                     remove();
                     
                     message("&cYour hook broke!");
-                    player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
+                    player.playSound(Sound.ITEM_LEAD_BREAK, 0.0f);
                     return;
                 }
                 

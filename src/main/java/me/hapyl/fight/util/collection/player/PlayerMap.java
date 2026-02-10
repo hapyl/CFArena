@@ -4,6 +4,7 @@ import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.PlayerData;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -69,7 +70,17 @@ public interface PlayerMap<V> extends Map<GamePlayer, V> {
             consumer.accept(player, vClazz.cast(v));
         });
     }
-
+    
+    @Nullable
+    default GamePlayer getByValue(@Nonnull V v) {
+        return entrySet()
+                .stream()
+                .filter(entry -> v.equals(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+    }
+    
     // *==* Static Members *==* //
 
     /**

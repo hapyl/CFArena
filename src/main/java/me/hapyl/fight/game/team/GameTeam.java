@@ -121,7 +121,7 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
                 entryTeam.removeEntry(entry);
             }
             
-            sendMessage(entry, Color.SUCCESS + "Joined {} team!", getNameCaps() + Color.SUCCESS);
+            sendMessage(entry, Color.SUCCESS + "Joined %s team!".formatted(getNameCaps() + Color.SUCCESS));
             playerCount++;
         }
         
@@ -371,14 +371,12 @@ public enum GameTeam implements Described, SmallCapsDescriber, Selectable, Lifec
         return false;
     }
     
-    private void sendMessage(Entry entry, String string, Object... format) {
+    private void sendMessage(Entry entry, String string) {
         final Player player = entry.getPlayer();
         
-        if (player == null) {
-            return;
+        if (player != null) {
+            Chat.sendMessage(player, getFlagColored() + " " + string);
         }
-        
-        Chat.sendMessage(player, getFlagColored() + " " + Chat.bformat(string, format));
     }
     
     /**

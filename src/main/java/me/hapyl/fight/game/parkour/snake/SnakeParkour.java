@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.parkour.snake;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.ProfileInitializationEvent;
@@ -20,6 +21,7 @@ public class SnakeParkour extends CFParkour implements Listener {
 
     public SnakeParkour() {
         super(
+                Key.ofString("snake_parkour"),
                 "Snake Parkour",
                 27, 65, -8, 180, 0,
                 22, 65, -22

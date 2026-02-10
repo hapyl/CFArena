@@ -2,7 +2,6 @@ package me.hapyl.fight.game.stats;
 
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.registry.KeyedEnum;
-import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -47,22 +46,6 @@ public enum StatType implements KeyedEnum {
             "You've used your ultimate &b%.0f&7 times this game!",
             "You haven't used your ultimate this game."
     ),
-
-    MASTERY_EARNED(
-            "You've earned &6%.0f&7 mastery this game!",
-            "You haven't earned any mastery this game."
-    ) {
-        @Override
-        public double value(@Nonnull StatContainer container) {
-            long earnedExp = 0;
-
-            if (container.isWinner()) {
-                earnedExp += HeroMastery.EXP_WIN;
-            }
-
-            return earnedExp + (long) (container.getValue(StatType.KILLS) * HeroMastery.EXP_ELIMINATION);
-        }
-    },
 
     // Used to store in the database, but unused in player stats
     WINS,

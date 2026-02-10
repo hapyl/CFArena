@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.knight;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -26,6 +25,7 @@ import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Discharge extends Talent implements Listener {
 
@@ -79,7 +79,9 @@ public class Discharge extends Talent implements Listener {
             @Override
             public void run(int tick) {
                 if (!modulo(dischargeDelayPerShieldCharge)) {
-                    stand.setHeadPose(new EulerAngle(ThreadRandom.nextDouble(), ThreadRandom.nextDouble(), ThreadRandom.nextDouble()));
+                    final ThreadLocalRandom random = ThreadLocalRandom.current();
+                    
+                    stand.setHeadPose(new EulerAngle(random.nextDouble(), random.nextDouble(), random.nextDouble()));
                     player.playWorldSound(location, Sound.ENTITY_WITCH_HURT, 0.5f + (1.5f / maxTick * tick));
                 }
 

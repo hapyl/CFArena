@@ -3,7 +3,6 @@ package me.hapyl.fight.game.cosmetic.gadget.dice;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
@@ -14,6 +13,8 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DiceRoll extends TickingGameTask {
 
@@ -64,10 +65,12 @@ public class DiceRoll extends TickingGameTask {
 
         // Fx
         if (modulo(2)) {
+            final ThreadLocalRandom random = ThreadLocalRandom.current();
+            
             stand.setHeadPose(new EulerAngle(
-                    ThreadRandom.nextDouble(50),
-                    ThreadRandom.nextDouble(50),
-                    ThreadRandom.nextDouble(50)
+                    random.nextDouble(50),
+                    random.nextDouble(50),
+                    random.nextDouble(50)
             ));
 
             PlayerLib.playSound(location, Sound.BLOCK_WOOD_STEP, 0.0f);

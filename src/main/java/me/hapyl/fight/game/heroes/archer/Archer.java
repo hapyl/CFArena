@@ -44,69 +44,58 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherData> {
-
+    
     protected final Weapon boomBow = Weapon.builder(Material.BOW, Key.ofString("boom_bow"))
-            .damage(1.0)
-            .name("&6&lBOOM BOW!")
-            .build();
-
+                                           .damage(1.0)
+                                           .name("&6&lBOOM BOW!")
+                                           .build();
+    
     private final Set<Arrow> boomArrows = new HashSet<>();
-    private final PlayerDataMap<ArcherData> playerData;
-
+    private final PlayerDataMap<ArcherData> playerData = PlayerMap.newDataMap(player -> new ArcherData(player, this));
+    
     private final int boomBowPerShotCd = 5;
-
+    
     private final Color hawkeyeArrowColors = Color.fromRGB(19, 81, 143);
-
+    
     public Archer(@Nonnull Key key) {
         super(key, "Archer");
-
+        
         final HeroProfile profile = getProfile();
         profile.setArchetypes(Archetype.DAMAGE, Archetype.RANGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
         profile.setAffiliation(Affiliation.KINGDOM);
         profile.setGender(Gender.MALE);
         profile.setRace(Race.HUMAN);
-
+        
         setDescription("One of the best archers joins the fight! Not alone though but with his custom-made bow.");
         setItem("106c16817c73ff64a4a49b590d2cdb25bcfa52c630fe7281a177eabacdaa857b");
-
+        
         setWeapon(BowWeapon
-                .of(Key.ofString("destiny_bow"), "Bow of Destiny", "A named-made bow with some unique abilities!", 5.0d)
-                .setShotCooldown(7)
+                          .of(Key.ofString("destiny_bow"), "Bow of Destiny", "A named-made bow with some unique abilities!", 5.0d)
+                          .setShotCooldown(7)
         );
-
+        
         final HeroAttributes attributes = getAttributes();
         attributes.setSpeed(115);
         attributes.setDefense(70);
-
+        
         final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(86, 86, 87);
         equipment.setLeggings(75, 75, 87);
         equipment.setBoots(51, 51, 51);
-
-        setMastery(new ArcherMastery(this));
-
-        final ArcherUltimate ultimate = new ArcherUltimate();
-
-        playerData = PlayerMap.newDataMap(player -> new ArcherData(player, ultimate));
-        setUltimate(ultimate);
+        
+        setUltimate(new ArcherUltimate());
     }
-
-    @Nonnull
-    @Override
-    public ArcherMastery getMastery() {
-        return CFUtils.castNullable(this.mastery, ArcherMastery.class);
-    }
-
+    
     @Override
     public void onStart(@Nonnull GamePlayer player) {
         player.setArrowItem();
     }
-
+    
     @Override
     public void onStop(@Nonnull GameInstance instance) {
         CFUtils.clearCollection(boomArrows);
     }
-
+    
     @Override
     public void onStart(@Nonnull GameInstance instance) {
         new GameTask() {
@@ -116,207 +105,204 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
                     if (arrow.isDead()) {
                         return;
                     }
-
+                    
                     final Location location = arrow.getLocation();
-
+                    
                     if (!(arrow.getShooter() instanceof Player player)) {
                         return;
                     }
-
+                    
                     final GamePlayer gamePlayer = CF.getPlayer(player);
-
+                    
                     if (gamePlayer == null) {
                         return;
                     }
-
+                    
                     if (gamePlayer.runSkin(AbstractSkinArcher.class, skin -> skin.boomArrowTick(gamePlayer, location))) {
                         return;
                     }
-
+                    
                     gamePlayer.spawnWorldParticle(location, Particle.FLAME, 2, 0, 0, 0, 0.015f);
                     gamePlayer.playWorldSound(location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
                 });
             }
         }.runTaskTimer(0, 2);
     }
-
+    
     @EventHandler()
     public void handleProjectileHitEvent(ProjectileHitEvent ev) {
         final ArcherUltimate ultimate = getUltimate();
         
         if (ev.getEntity() instanceof Arrow arrow && boomArrows.contains(arrow)) {
             final ProjectileSource shooter = arrow.getShooter();
-
+            
             if (shooter instanceof Player player) {
                 final GamePlayer gamePlayer = CF.getPlayer(player);
-
+                
                 if (gamePlayer == null) {
                     return;
                 }
-
+                
                 gamePlayer.createExplosion(arrow.getLocation(), ultimate.explosionRadius, ultimate.explosionDamage, DamageCause.BOOM_BOW);
             }
         }
     }
-
+    
     @EventHandler()
     public void handleProjectileLaunchEvent(ProjectilePostLaunchEvent ev) {
         if (ev.getProjectile() instanceof Arrow arrow) {
             // Handle ultimate arrows
             final Color color = arrow.getColor();
             final GamePlayer player = ev.getShooter();
-
+            
             if (!validatePlayer(player)) {
                 return;
             }
-
+            
             if (player.isUsingUltimate() && color == null) {
                 boomArrows.add(arrow);
-
+                
                 player.cooldownManager.setCooldown(boomBow, boomBowPerShotCd);
-
+                
                 // Decrement fuse
                 final ArcherData data = getPlayerDataOrNull(player);
-
+                
                 if (data != null) {
                     data.decrementFuse();
                 }
-
+                
                 return;
             }
-
+            
             // Handle hawkeye arrows
             if (!player.isHeldSlot(HotBarSlot.WEAPON) || !arrow.isCritical() || !player.isSneaking()) {
                 return;
             }
-
-            final ArcherMastery mastery = getMastery();
-            final double passiveChance = mastery.getPassiveChance(player, getPassiveTalent().chance);
-
-            if (!player.random.checkBound(passiveChance)) {
+            
+            if (!player.random.checkBound(getPassiveTalent().chance)) {
                 return;
             }
-
+            
             arrow.setColor(
                     player.getSkinValue(AbstractSkinArcher.class, AbstractSkinArcher::getHawkeyeArrowColor, hawkeyeArrowColors)
             );
-
+            
             new GameTask() {
                 private int tick;
-
+                
                 @Override
                 public void run() {
                     if (arrow.isDead()) {
                         this.cancel();
                         return;
                     }
-
+                    
                     ++tick;
-
+                    
                     final Entity target = findHomingTarget(player, arrow.getLocation());
-
+                    
                     // Fx
                     final Location location = arrow.getLocation();
-
+                    
                     if (tick % 2 == 0) {
                         if (!player.runSkin(AbstractSkinArcher.class, skin -> skin.hawkeyeArrowTick(player, location))) {
                             player.spawnWorldParticle(location, Particle.ENCHANTED_HIT, 5, 0, 0, 0, 0);
                             player.playWorldSound(location, Sound.ENTITY_ELDER_GUARDIAN_AMBIENT_LAND, 2.0f);
                         }
                     }
-
+                    
                     if (target == null) {
                         return;
                     }
-
+                    
                     final Vector vector = target.getLocation()
-                            .add(0.0d, 0.5d, 0.0d)
-                            .toVector()
-                            .subtract(arrow.getLocation().toVector())
-                            .normalize()
-                            .multiply(0.7d);
-
+                                                .add(0.0d, 0.5d, 0.0d)
+                                                .toVector()
+                                                .subtract(arrow.getLocation().toVector())
+                                                .normalize()
+                                                .multiply(0.7d);
+                    
                     arrow.setVelocity(vector);
-
+                    
                 }
             }.runTaskTimer(0, 1);
-
+            
             // Fx
             player.playSound(Sound.ENCHANT_THORNS_HIT, 2.0f);
             player.playSound(Sound.ENTITY_ELDER_GUARDIAN_DEATH_LAND, 1.25f);
         }
     }
-
+    
     @Override
     public TripleShot getFirstTalent() {
         return TalentRegistry.TRIPLE_SHOT;
     }
-
+    
     @Override
     public ShockDart getSecondTalent() {
         return TalentRegistry.SHOCK_DART;
     }
-
+    
     @Override
     public HawkeyePassive getPassiveTalent() {
         return TalentRegistry.HAWKEYE_ARROW;
     }
-
+    
     @Nonnull
     @Override
     public PlayerDataMap<ArcherData> getDataMap() {
         return playerData;
     }
-
+    
     @Nonnull
     @Override
     public ArcherUltimate getUltimate() {
         return (ArcherUltimate) super.getUltimate();
     }
-
+    
     private Entity findHomingTarget(GamePlayer shooter, Location location) {
         final LivingGameEntity gameEntity = Collect.nearestEntity(location, getPassiveTalent().homingRadius, shooter);
-
+        
         return gameEntity == null ? null : gameEntity.getEntity();
     }
-
+    
     public class ArcherUltimate extends UltimateTalent {
-
+        
         @DisplayField protected final short baseFuse = 100;
         @DisplayField protected final short fuseShotCost = 20;
         
         @DisplayField(suffix = " blocks") private final double explosionRadius = 3.0d;
         @DisplayField private final double explosionDamage = 40.0d;
-
+        
         public ArcherUltimate() {
             super(Archer.this, "Boom Bow", 70);
-
+            
             setDescription("""
-                    Light the &6fuse&7 and equip a &6&lBOOM BOW&7 that shoots explosive arrows that &cexplode&7 on impact, dealing massive %s&7.
-                    """.formatted(EnumTerm.BREACH_DAMAGE));
-
+                           Light the &6fuse&7 and equip a &6&lBOOM BOW&7 that shoots explosive arrows that &cexplode&7 on impact, dealing massive %s&7.
+                           """.formatted(EnumTerm.BREACH_DAMAGE));
+            
             setMaterial(Material.BLAZE_POWDER);
             setSound(Sound.ITEM_CROSSBOW_SHOOT, 0.25f);
-
+            
             setManualDuration();
             setCooldownSec(20);
         }
-
+        
         @Nonnull
         @Override
         public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
             return execute(() -> {
                 player.setUsingUltimate(true);
-
+                
                 player.setItemAndSnap(HotBarSlot.HERO_ITEM, boomBow.createItem());
                 player.cooldownManager.setCooldown(boomBow, boomBowPerShotCd);
-
+                
                 final ProgressBarBuilder progressBuild = new ProgressBarBuilder("\uD83D\uDD25", ChatColor.GOLD, 10);
                 final ArcherData playerData = getPlayerData(player);
-
-                final float maxFuse = getMastery().getMaxFuse(player, baseFuse);
-                playerData.fuse = maxFuse;
-
+                
+                final float maxFuse = baseFuse;
+                playerData.fuse = baseFuse;
+                
                 new PlayerTickingGameTask(player) {
                     @Override
                     public void run(int tick) {
@@ -324,20 +310,20 @@ public class Archer extends Hero implements Listener, PlayerDataHandler<ArcherDa
                             player.setItem(HotBarSlot.HERO_ITEM, null);
                             player.snapToWeapon();
                             player.setUsingUltimate(false);
-
+                            
                             removePlayerData(player);
                             cancel();
                             return;
                         }
-
+                        
                         // Display fuse
                         player.sendTitle(" ", progressBuild.build((int) playerData.fuse, (int) maxFuse), 0, 5, 0);
-
+                        
                         playerData.fuse--;
                     }
                 }.runTaskTimer(0, 1);
             });
         }
     }
-
+    
 }

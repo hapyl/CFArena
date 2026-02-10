@@ -2,7 +2,6 @@ package me.hapyl.fight.gui.styled.profile.achievement;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.util.BFormat;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
@@ -102,7 +101,7 @@ public class AchievementTieredGUI extends StyledGUI {
                 builder.setAmount(tier.getIndex() + 1);
                 builder.setName(achievement.getName() + " " + tier.getRoman());
                 builder.addLore();
-                builder.addSmartLore(BFormat.format(achievement.getDescription(), "&f" + numericTier + "&7"));
+                builder.addTextBlockLore(achievement.getDescription().replace("{}", "&f" + numericTier + "&7"));
                 builder.addLore();
                 builder.addLore("&b&lTIER REWARD: " + BukkitUtils.checkmark(isTierComplete));
                 builder.addLore(achievement.formatPointReward(tier.getReward()));

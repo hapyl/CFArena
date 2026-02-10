@@ -1,8 +1,9 @@
 package me.hapyl.fight.command;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.util.ArgumentList;
-import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.KeyedToString;
 import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -12,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ArmorMeta;
@@ -107,16 +109,22 @@ public class DumpColorCommand extends CFCommand {
                 if (trim != null) {
                     final TrimPattern pattern = trim.getPattern();
                     final TrimMaterial material = trim.getMaterial();
-
-                    final String patternKey = BukkitUtils.getKey(pattern).getKey().toUpperCase();
-                    final String materialKey = BukkitUtils.getKey(material).getKey().toUpperCase();
+                    
+                    final RegistryAccess registryAccess = RegistryAccess.registryAccess();
+                    
+                    final NamespacedKey patternKey = registryAccess.getRegistry(RegistryKey.TRIM_PATTERN).getKey(pattern);
+                    final NamespacedKey materialKey = registryAccess.getRegistry(RegistryKey.TRIM_MATERIAL).getKey(material);
+                    
+                    
+                    final String patternKeyString = patternKey != null ? patternKey.getKey().toUpperCase() : "null";
+                    final String materialKeyString = materialKey != null ? materialKey.getKey().toUpperCase() : "null";
 
                     // Add commas for color/material
                     command.append(", ");
                     component.append(Component.text(", ").color(NamedTextColor.GRAY));
 
                     // Append trim
-                    command.append("TrimPattern.%s, TrimMaterial.%s".formatted(patternKey, materialKey));
+                    command.append("TrimPattern.%s, TrimMaterial.%s".formatted(patternKeyString, materialKeyString));
                     component.append(
                             Component.text("Trim: ").color(NamedTextColor.AQUA),
                             Component.text("%s, %s".formatted(

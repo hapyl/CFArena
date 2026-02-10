@@ -121,7 +121,7 @@ public abstract class DemonSplitTalent extends Talent implements Describable {
                     player.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CONVERTED, 0.75f);
 
                     // Remove above head
-                    player.aboveHead();
+                    player.aboveHead(null);
                     
                     drawParticleBox(player, location -> player.spawnWorldParticle(location, Particle.FALLING_LAVA, 1), 2.0d);
                 }

@@ -8,7 +8,6 @@ public class NPCRegistry extends SimpleRegistry<PersistentNPC> {
     public final HypixelNPC HYPIXEL;
     public final UndeadWatcherNPC UNDEAD_WATCHER;
     public final BloodfiendNPC BLOODFIEND;
-    public final MuseumManagerNPC MUSEUM_MANAGER;
     public final StoreOwnerNPC STORE_OWNER;
     public final CommissionerNPC COMMISSIONER;
     public final WorkerNPCMale WORKER_MALE;
@@ -19,7 +18,6 @@ public class NPCRegistry extends SimpleRegistry<PersistentNPC> {
         HYPIXEL = register("hypixel", HypixelNPC::new);
         UNDEAD_WATCHER = register("undead_watcher", UndeadWatcherNPC::new);
         BLOODFIEND = register("bloodfiend", BloodfiendNPC::new);
-        MUSEUM_MANAGER = register("museum_manager", MuseumManagerNPC::new);
         STORE_OWNER = register("store_owner", StoreOwnerNPC::new);
         COMMISSIONER = register("commissioner", CommissionerNPC::new);
         WORKER_MALE = register("worker_male", WorkerNPCMale::new);

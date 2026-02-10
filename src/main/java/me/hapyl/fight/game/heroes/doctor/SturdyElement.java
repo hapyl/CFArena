@@ -136,7 +136,7 @@ public class SturdyElement extends Element {
                 Material.BROWN_TERRACOTTA,
                 Material.PRISMARINE_BRICKS,
                 Material.BARREL,
-                Material.CHAIN,
+                Material.IRON_CHAIN,
                 Material.JUNGLE_PLANKS,
                 Material.RED_SANDSTONE_STAIRS,
                 Material.SCULK_CATALYST,

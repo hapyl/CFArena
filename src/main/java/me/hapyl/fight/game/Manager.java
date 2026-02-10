@@ -101,7 +101,6 @@ public final class Manager extends BukkitRunnable {
     
     private StartCountdown startCountdown;
     private GameInstance gameInstance; // @implNote: For now, only one game instance can be active at a time.
-    private FairMode fairMode;
     
     public Manager(@Nonnull Main main) {
         this.main = main;
@@ -127,8 +126,6 @@ public final class Manager extends BukkitRunnable {
         
         // start auto save timer
         autoSave = new AutoSync(Tick.fromMinutes(10));
-        
-        fairMode = FairMode.UNFAIR;
         
         runTaskTimer(main, 0, 1);
     }
@@ -773,7 +770,7 @@ public final class Manager extends BukkitRunnable {
             final TheEyeNPC.EyeNotification notification = theEye.getFirstEyeNotification(player);
             
             if (notification != null) {
-                GameTask.runLater(() -> theEye.sendNpcMessage(player, notification.randomChatString()), 20);
+                GameTask.runLater(() -> theEye.sendMessage(player, notification.randomChatString()), 20);
             }
             
             // Delay rating because too much text
@@ -999,26 +996,6 @@ public final class Manager extends BukkitRunnable {
     
     public void forEachProfile(@Nonnull Consumer<PlayerProfile> consumer) {
         profiles.values().forEach(consumer);
-    }
-    
-    @Nonnull
-    public FairMode getFairMode() {
-        return fairMode;
-    }
-    
-    public void setFairMode(@Nonnull Player player, @Nonnull FairMode fairMode) {
-        if (this.fairMode == fairMode) {
-            Message.error(player, "Already set!");
-            return;
-        }
-        
-        this.fairMode = fairMode;
-        
-        Message.INFO.broadcast("&6\uD83E\uDD32 &lFAIR MODE &a{%s} has set fair mode to {%s}!".formatted(
-                player.getName(),
-                fairMode.getName()
-        ));
-        Message.INFO.broadcast(fairMode.getDescription());
     }
     
     public void doStartOrCancelCountdown(@Nonnull Player player) {

@@ -4,7 +4,6 @@ import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
-import me.hapyl.eterna.module.util.LinkedKeyValMap;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
 import me.hapyl.fight.game.GameInstance;
@@ -15,6 +14,7 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -29,7 +29,8 @@ import javax.annotation.Nullable;
 
 public class TransmissionBeacon extends Talent implements Listener {
 
-    private final LinkedKeyValMap<GamePlayer, Entity> beaconLocation = new LinkedKeyValMap<>();
+    private final PlayerMap<Entity> beaconLocation = PlayerMap.newMap();
+    
     @DisplayField private final int cooldownIfDestroyed = 600;
 
     public TransmissionBeacon(@Nonnull Key key) {
@@ -98,7 +99,7 @@ public class TransmissionBeacon extends Talent implements Listener {
                     player.spawnWorldParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
                     player.spawnWorldParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
                     player.spawnWorldParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-                    player.spawnWorldParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f);
+                    player.spawnWorldParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f, 1.0f);
                 });
             }
         }.runTaskTimer(0, 1);
@@ -106,29 +107,37 @@ public class TransmissionBeacon extends Talent implements Listener {
 
     @EventHandler()
     public void handlePlayerClickAtEntityEvent(PlayerClickAtEntityEvent ev) {
-        final GamePlayer owner = beaconLocation.getKey(ev.getEntity());
-
-        if (owner == null || !ev.isLeftClick()) {
+        final GamePlayer player = ev.getPlayer();
+        final GamePlayer beaconOwner = beaconLocation.getByValue(ev.getEntity());
+        
+        if (beaconOwner == null) {
             return;
         }
-
-        final Entity beacon = beaconLocation.remove(owner);
-
+        
+        if (player.isSelfOrTeammate(beaconOwner)) {
+            player.sendMessage("&cCannot break allied %s!".formatted(getName()));
+            return;
+        }
+        
+        final Entity beacon = beaconLocation.remove(beaconOwner);
+        
         if (beacon == null) {
             return;
         }
-
+        
         ev.setCancelled(true);
-
+        
+        // Start cooldowns
         beacon.remove();
-        startCooldown(owner, cooldownIfDestroyed);
-
+        startCooldown(beaconOwner, cooldownIfDestroyed);
+        
         // Fx
-        ev.getPlayer().sendMessage("&aYou broke %s's %s!".formatted(owner.getName(), getName()));
+        player.sendMessage("&aYou broke %s's %s!".formatted(beaconOwner.getName(), getName()));
+        
+        beaconOwner.sendSubtitle("&cBeacon Destroyed!", 10, 20, 10);
+        beaconOwner.playSound(Sound.BLOCK_GLASS_BREAK, 0.0f);
+        
         PlayerLib.playSound(beacon.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);
-
-        owner.sendSubtitle("&cBeacon Destroyed!", 10, 20, 10);
-        owner.playSound(Sound.BLOCK_GLASS_BREAK, 0.0f);
     }
 
     public boolean hasBeacon(GamePlayer player) {
@@ -136,7 +145,7 @@ public class TransmissionBeacon extends Talent implements Listener {
     }
 
     public void teleportToBeacon(GamePlayer player) {
-        final Entity entity = beaconLocation.getValue(player);
+        final Entity entity = beaconLocation.get(player);
 
         if (player == null || entity == null) {
             return;
@@ -174,18 +183,20 @@ public class TransmissionBeacon extends Talent implements Listener {
             self.setInvulnerable(true);
             self.setVisible(false);
             self.setGravity(false);
-
-            if (self.getEquipment() != null) {
-                self.getEquipment().setHelmet(new ItemStack(Material.BEACON));
-            }
-
+            
+            self.getEquipment().setHelmet(new ItemStack(Material.BEACON));
+            
             CFUtils.lockArmorStand(self);
         }));
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        beaconLocation.useValueAndRemove(player, Entity::remove);
+        final Entity entity = beaconLocation.get(player);
+        
+        if (entity != null) {
+            entity.remove();
+        }
     }
 
     private boolean isSafeLocation(Block block) {

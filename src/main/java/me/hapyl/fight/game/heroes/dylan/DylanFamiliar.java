@@ -21,10 +21,7 @@ import me.hapyl.fight.game.talents.dylan.DylanPassive;
 import me.hapyl.fight.game.talents.dylan.SummonWhelp;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Vex;
 import org.bukkit.inventory.ItemStack;
@@ -76,7 +73,7 @@ public class DylanFamiliar implements Ticking, Removable {
         //  Fx
         player.playWorldSound(spawnLocation, Sound.ENTITY_VEX_CHARGE, 0.75f);
         
-        player.spawnWorldParticle(spawnLocation, Particle.FLASH, 1);
+        player.spawnWorldParticle(spawnLocation, Particle.FLASH, 1, 0, 0, 0, Color.BLUE);
         player.spawnWorldParticle(spawnLocation, Particle.LAVA, 5, 0.3, 0.3, 0.3, 0.025f);
     }
     

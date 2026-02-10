@@ -3,7 +3,6 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
@@ -18,7 +17,6 @@ import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
@@ -49,11 +47,6 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         setTalents(new Stealth(), new Fury(50));
     }
 
-    @EventHandler()
-    public void handleDamage(GameDamageEvent.Process ev) {
-
-    }
-
     @Nonnull
     public PlayerCloneList getPlayerClones(@Nonnull GamePlayer player) {
         return clones.computeIfAbsent(player, fn -> new PlayerCloneList(this, player));
@@ -81,9 +74,9 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
 
             setDescription("""
                     Summon a &8Shadow Clone&7 at your current location.
-                                        
+                    
                     The clone waits patiently for an &cenemy&7 to come close before &cattacking&7, reducing their %s and &cdisappearing&7.
-                                        
+                    
                     Before the clone disappears, you can &bteleport&7 to it, &nregenerating&7 %s{energyRegen} %s.
 
                     &8;;Up to {cloneLimit} clones can exist at the same time.

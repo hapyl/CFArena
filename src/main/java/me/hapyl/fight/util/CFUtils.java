@@ -6,8 +6,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.annotate.TestedOn;
-import me.hapyl.eterna.module.annotate.Version;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.math.Cuboid;
 import me.hapyl.eterna.module.math.Geometry;
@@ -27,8 +25,7 @@ import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
-import net.minecraft.world.entity.boss.wither.EntityWither;
+import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.world.level.block.Blocks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -388,11 +385,6 @@ public class CFUtils {
         throw new IllegalArgumentException(errorMessage);
     }
     
-    @TestedOn(version = Version.V1_21_3)
-    public static void setWitherInvul(Wither wither, int invul) {
-        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).b(invul);
-    }
-    
     /**
      * Forces entity to look at provided location.
      *
@@ -490,7 +482,7 @@ public class CFUtils {
         return def;
     }
     
-    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
+    public static <E> List<String> collectionToStringList(Collection<E> e, Function<E, String> fn) {
         final List<String> list = new ArrayList<>();
         e.forEach(el -> list.add(fn.apply(el)));
         return list;
@@ -559,17 +551,15 @@ public class CFUtils {
     }
     
     public static void playChestAnimation(Block block, boolean open) {
-        net.minecraft.world.level.block.Block nmsBlock = switch (block.getType()) {
-            case CHEST -> Blocks.cv;
-            case TRAPPED_CHEST -> Blocks.gV;
-            case ENDER_CHEST -> Blocks.fG;
-            default -> throw new IllegalArgumentException("invalid chest type: " + block.getType());
-        };
-        
-        final PacketPlayOutBlockAction packet = new PacketPlayOutBlockAction(
+        final ClientboundBlockEventPacket packet = new ClientboundBlockEventPacket(
                 Reflect.getBlockPosition(block),
-                nmsBlock,
-                1,
+                switch (block.getType()) {
+                    case CHEST -> Blocks.CHEST;
+                    case TRAPPED_CHEST -> Blocks.TRAPPED_CHEST;
+                    case ENDER_CHEST -> Blocks.ENDER_CHEST;
+                    default -> throw new IllegalArgumentException("Invalid chest: " + block.getType());
+                },
+                1, // No fucking idea what this 1 means
                 open ? 1 : 0
         );
         
@@ -918,7 +908,7 @@ public class CFUtils {
             final String classLoaderName = trace.getClassLoaderName();
             
             if (classLoaderName == null
-                    || !classLoaderName.contains(pluginName + ".jar")
+                || !classLoaderName.contains(pluginName + ".jar")
             ) {
                 continue;
             }

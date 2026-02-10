@@ -3,7 +3,7 @@ package me.hapyl.fight.gui;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
-import me.hapyl.eterna.module.parkour.Stats;
+import me.hapyl.eterna.module.parkour.ParkourStatistics;
 import me.hapyl.fight.game.parkour.LeaderboardData;
 import me.hapyl.fight.game.parkour.ParkourCourse;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
@@ -34,7 +34,7 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
         final LinkedHashMap<UUID, LeaderboardData> topPlayers = leaderboard.getTop(100);
 
         setContents(topPlayers.values().stream().toList());
-        openInventory(0);
+        openInventory(1);
     }
 
     @Nonnull
@@ -44,7 +44,7 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
                 .setName(data.getNameFormatted())
                 .addLore("&8#" + (index + 1))
                 .addLore()
-                .addLore("Completion Time: &f&l%s&fs".formatted(leaderboard.formatTime(data)))
+                .addLore("Completion Time: &f&l%s&fs".formatted(data.getTimeFormatted()))
                 .addLore();
 
         // Apply texture
@@ -62,7 +62,7 @@ public class ParkourLeaderboardGUI extends PlayerPageGUI<LeaderboardData> {
 
         if (data.hasStats()) {
             builder.addLore("&e&lStats:");
-            for (Stats.Type value : Stats.Type.values()) {
+            for (ParkourStatistics.Type value : ParkourStatistics.Type.values()) {
                 builder.addLore(" &7%s &f&l%s".formatted(Chat.capitalize(value.name()), data.getStat(value)));
             }
         }

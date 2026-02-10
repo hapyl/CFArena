@@ -1,12 +1,16 @@
 package me.hapyl.fight.game.cosmetic.win;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.npc.Npc;
+import me.hapyl.eterna.module.npc.NpcPose;
+import me.hapyl.eterna.module.npc.appearance.AppearanceBuilder;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.npc.Human;
-import me.hapyl.eterna.module.reflect.npc.NPCPose;
+import me.hapyl.eterna.module.reflect.Skin;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.cosmetic.Display;
 import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.task.TickingGameTask;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,11 +23,8 @@ import java.util.Set;
 
 public class TwerkWinCosmetic extends WinCosmetic {
 
-    private final int maxDancers = 25;
-    private final Set<Human> dancers;
-
-    private final NPCPose pose = NPCPose.STANDING;
-
+    private static final int maxDancers = 25;
+    
     public TwerkWinCosmetic(@Nonnull Key key) {
         super(key, "Twerk It!");
 
@@ -34,8 +35,6 @@ public class TwerkWinCosmetic extends WinCosmetic {
 
         setRarity(Rarity.LEGENDARY);
         setIcon(Material.LEATHER_LEGGINGS);
-
-        dancers = Sets.newHashSet();
 
         setMaxTimes(10);
         setStep(10);
@@ -50,32 +49,47 @@ public class TwerkWinCosmetic extends WinCosmetic {
             return;
         }
 
+        final Set<Npc> dancers = Sets.newHashSet();
+        
         for (int i = 0; i < maxDancers; i++) {
-            final Human npc = Human.create(getRandomNearbyLocation(location), "", player.getName());
+            final Npc npc = new Npc(getRandomNearbyLocation(location), Component.empty(), AppearanceBuilder.ofMannequin(Skin.ofPlayer(player)));
             npc.showAll();
 
             dancers.add(npc);
 
             // 50/50 chance to twerk init
-            npc.setPose(new Random().nextBoolean() ? NPCPose.CROUCHING : pose);
+            npc.setPose(new Random().nextBoolean() ? NpcPose.CROUCHING : NpcPose.STANDING);
         }
+        
+        new TickingGameTask() {
+            private int danceTimes;
+            
+            @Override
+            public void run(int tick) {
+                if (danceTimes++ >= 10) {
+                    dancers.forEach(Npc::destroy);
+                    dancers.clear();
+                    
+                    cancel();
+                    return;
+                }
+                
+                dancers.forEach(npc -> {
+                    final NpcPose pose = npc.getPose();
+                    
+                    npc.setPose(pose == NpcPose.CROUCHING ? NpcPose.STANDING : NpcPose.CROUCHING);
+                    PlayerLib.playSound(npc.getLocation(), Sound.BLOCK_LAVA_POP, new Random().nextFloat(0.0f, 2.0f));
+                });
+            }
+        }.runTaskTimer(0, 10);
     }
 
     @Override
     public void onStop(@Nonnull Display display) {
-        dancers.forEach(Human::remove);
-        dancers.clear();
     }
 
     @Override
     public void onTick(@Nonnull Display display, int tick) {
-        for (Human dancer : dancers) {
-            // Switch pose
-            dancer.setPose(dancer.getPose() == pose ? NPCPose.CROUCHING : pose);
-
-            // Fx
-            PlayerLib.playSound(dancer.getLocation(), Sound.BLOCK_LAVA_POP, new Random().nextFloat(0.0f, 2.0f));
-        }
     }
 
     private Location getRandomNearbyLocation(Location origin) {

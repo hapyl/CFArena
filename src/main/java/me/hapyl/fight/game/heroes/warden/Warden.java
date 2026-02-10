@@ -48,8 +48,6 @@ public class Warden extends Hero implements Disabled {
                          """
                 ).damage(5.5d));
 
-        setMastery(new WardenMastery(this));
-
         setUltimate(new Warden.WardenUltimate());
     }
 

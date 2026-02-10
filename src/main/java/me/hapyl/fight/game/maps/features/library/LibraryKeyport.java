@@ -1,7 +1,6 @@
 package me.hapyl.fight.game.maps.features.library;
 
 import me.hapyl.eterna.module.util.CollectionUtils;
-import me.hapyl.eterna.module.util.ThreadRandom;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.BlockLocation;
 import org.bukkit.Location;
@@ -12,6 +11,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class LibraryKeyport {
 
@@ -42,7 +42,7 @@ public class LibraryKeyport {
 
     @Nonnull
     public BlockLocation getRandomButSelf(BlockLocation enter) {
-        final BlockLocation element = portals.values().toArray(new BlockLocation[] {})[ThreadRandom.nextInt(portals.values().size())];
+        final BlockLocation element = portals.values().toArray(new BlockLocation[] {})[ThreadLocalRandom.current().nextInt(portals.size())];
         return portals.get(enter) == element ? getRandomButSelf(enter) : element;
     }
 

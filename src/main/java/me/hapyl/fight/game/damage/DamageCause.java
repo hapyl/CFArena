@@ -2,7 +2,6 @@ package me.hapyl.fight.game.damage;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.registry.CloneableKeyed;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.registry.Keyed;
@@ -445,7 +444,7 @@ public class DamageCause implements Keyed, CloneableKeyed {
     
     @Nonnull
     public String getReadableName() {
-        return Chat.capitalize(key.getKey());
+        return key.capitalize();
     }
     
     public boolean isFireDamage() {

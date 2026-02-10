@@ -23,7 +23,7 @@ public class EntityAttributes extends BaseAttributes implements PlayerElementHan
     
     public EntityAttributes(@Nonnull LivingGameEntity entity, @Nonnull BaseAttributes attributes) {
         super(attributes); // Copy attributes
-        
+    
         this.entity = entity;
         this.modifiers = Maps.newLinkedHashMap();
     }

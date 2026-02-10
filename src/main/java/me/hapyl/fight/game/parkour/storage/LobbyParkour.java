@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.parkour.storage;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.parkour.CFParkour;
 import me.hapyl.fight.game.parkour.ParkourLeaderboard;
@@ -8,6 +9,7 @@ import org.bukkit.Location;
 public class LobbyParkour extends CFParkour {
     public LobbyParkour() {
         super(
+                Key.ofString("lobby_parkour"),
                 "Lobby Parkour",
                 4, 63, -3, 180f, 0.0f,
                 22, 65, 10

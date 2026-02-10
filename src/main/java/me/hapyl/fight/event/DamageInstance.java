@@ -36,6 +36,8 @@ public class DamageInstance implements Cancellable {
     private boolean shielded;
     @Nullable private String damageDisplaySuffix;
     
+    // TODO @Jul 01, 2025 (xanyjl) -> Adds steps
+    
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
         this.entity = entity.getAttributes().snapshot();
         this.initialDamage = damage;

@@ -45,6 +45,7 @@ Other Changes
 
 * Improved all text displays by making them smoother.
 * Show Damage in Chat setting in now called "Show Combat Feedback", and it also shows healing.
+* Removed Hero Mastery
 
 ---
 
@@ -453,6 +454,10 @@ Himari
 
 ### Lucky Day
 * Change healing/Max Health boost 80 >> 80%/+80% ADT.
+
+### Deadeye
+* Fixed damage not ignoring defense.
+* Add a warning for the target.
 
 ### All In (Ultimate)
 * Change healing 40 >> 40%.

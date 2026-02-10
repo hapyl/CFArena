@@ -4,7 +4,6 @@ package me.hapyl.fight.game.talents.vampire;
 import me.hapyl.eterna.module.chat.Chat;
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.registry.Key;
-import me.hapyl.eterna.module.util.LinkedKeyValMap;
 import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -12,6 +11,7 @@ import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public class VampirePet extends Talent {
 
-    private final LinkedKeyValMap<GamePlayer, Bat> pets;
+    private final PlayerMap<Bat> pets;
     private final int ATTACK_PERIOD = 30;
 
     public VampirePet(@Nonnull Key key) {
@@ -38,16 +38,15 @@ public class VampirePet extends Talent {
         setDurationSec(10);
         setCooldown(getDuration() + (8 * 20));
 
-        pets = LinkedKeyValMap.of();
+        pets = PlayerMap.newMap();
     }
 
     public Bat getPet(GamePlayer player) {
-        return pets.getValue(player);
+        return null;
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        pets.useValueAndRemove(player, Bat::remove);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class VampirePet extends Talent {
                 return;
             }
 
-            pets.useValueAndRemove(player, Bat::remove);
+            // pets.useValueAndRemove(player, Bat::remove);
 
             player.playSound(Sound.ENTITY_BAT_DEATH, 0.0f);
             player.sendMessage("&c*bat noises*...");

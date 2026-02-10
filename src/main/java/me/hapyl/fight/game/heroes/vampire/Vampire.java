@@ -1,13 +1,10 @@
 package me.hapyl.fight.game.heroes.vampire;
 
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.Equipment;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.eterna.module.player.PlayerSkin;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.NPCPose;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.eterna.module.util.CollectionUtils;
@@ -171,11 +168,11 @@ public class Vampire extends Hero implements Listener {
     }
     
     private class VampireUltimateInstance extends UltimateInstance {
-        
         private static final PlayerSkin SOLDIER_SKIN = PlayerSkin.of(
                 "ewogICJ0aW1lc3RhbXAiIDogMTY0NzMyMzUzNDEwOSwKICAicHJvZmlsZUlkIiA6ICI4YjgyM2E1YmU0Njk0YjhiOTE0NmE5MWRhMjk4ZTViNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTZXBoaXRpcyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS84OTY5ZmYxN2Q5ZmMzNDlkNGEzMDViMDY1NjM2MDI4ZGI5MDBlMDMyMjMyN2QyYzQ3ZDZmNjI2MmYyYjBkMGYxIgogICAgfQogIH0KfQ==",
                 "ZCT1O4LhteyDt6H7YKr3zxx3ElcCb/Xf2A65UNgL++00b8I7dKeWGotUnyjfVQRALux7LSEFgctpIZjvnpZj3dVBvQkOoEmpbcqDkMEpMbYehCjmKgOuUmwjEHuNblU8pf30rsOSFPP+my/ojdzOuT7FPq8nv4VHq4PZk66DivNKOA84I6jj2vnzag0oEaiCSgJZTYW3kukFkTdWYOI8WOG+qsoRDFC6wXZ2gL6eQYt43lg6ozk6AORS3aMWo3Fa4XK6LikcV5BvpqW18Dsdf94v2AO5HTO0Lz7bTWPFF9+Pxru11LWAiARGsbQmsrCd4hKzkMhzZMVgmVJe5E9zF3ORheZcbtYX5mIwepO1MJiQ8U9R42g+p/z/xkP0sKEh7oj6k6HGjgtrJkqL/Co1RFmL6E97Q58H93PGOX55CMW6nPP+JevXOa20oyu/TwjQ15xVNSJuABCyUxLy56xqbQXZGp8KHaKJShpfMQYfEE0W5sktOZfJ/2R4uqfL/kkZ+lF9/luR3p5MaY87B9oi0U7K8JykbOz8sOeC6DIOc82mm9FX1cFmokCGJ4ucI6qAzkU7+pA53XeOw7hz+9trCIRMXAzU8bSUeJ6xS0bgs94eu5hzRUWLkRtYIROeMGEwMOe1JB3QjdHT8l/63BZqqHEmXpqAMxoygnMvbyodbsk="
         );
+        
         private static final EntityEquipment[] EQUIPMENT = {
                 Equipment.builder().mainHand(Material.IRON_SWORD).build(),
                 Equipment.builder().mainHand(Material.BOW).build(),
@@ -186,12 +183,10 @@ public class Vampire extends Hero implements Listener {
         
         private final VampireUltimate ultimate;
         private final GamePlayer player;
-        private final Set<HumanNPC> army;
         
         private VampireUltimateInstance(VampireUltimate ultimate, GamePlayer player) {
             this.ultimate = ultimate;
             this.player = player;
-            this.army = Sets.newHashSet();
         }
         
         @Override
@@ -207,28 +202,6 @@ public class Vampire extends Hero implements Listener {
         public void onCastTick(int tick) {
             final int castDuration = ultimate.getCastDuration() - SNEAK_TICK_THRESHOLD;
             
-            // Move a little forward for fx
-            army.forEach(soldier -> {
-                final Location location = soldier.getLocation();
-                final Vector vector = location.getDirection().multiply(0.025d);
-                
-                location.add(vector);
-                soldier.teleport(location);
-                
-                // Swing randomly
-                if (player.random.nextDouble() < 0.04f) {
-                    soldier.swingMainHand();
-                }
-                
-                // Sneak
-                if (tick >= castDuration && soldier.getPose() != NPCPose.CROUCHING) {
-                    float chance = (float) ((1d / SNEAK_TICK_THRESHOLD) * (SNEAK_TICK_THRESHOLD - ultimate.getCastDuration() - tick));
-                    
-                    if (player.random.nextDouble() <= chance) {
-                        soldier.setPose(NPCPose.CROUCHING);
-                    }
-                }
-            });
         }
         
         @Override
@@ -236,21 +209,6 @@ public class Vampire extends Hero implements Listener {
             final Set<Bat> bats = Sets.newHashSet();
             
             // Transform into bats
-            CollectionUtils.forEachAndClear(
-                    army, soldier -> {
-                        bats.add(Entities.BAT.spawn(
-                                soldier.getLocation().add(0, 1, 0), self -> {
-                                    self.setInvulnerable(true);
-                                    self.setAwake(true);
-                                    self.setAI(false);
-                                    
-                                    // Fx
-                                }
-                        ));
-                        
-                        soldier.remove();
-                    }
-            );
             
             // Bat task
             new TickingGameTask() {
@@ -332,23 +290,6 @@ public class Vampire extends Hero implements Listener {
         }
         
         private void summonArmy() {
-            for (int i = 0; i < ultimate.armyCount; i++) {
-                final Location location = pickRandomLocationBehindPlayer();
-                final HumanNPC soldier = new HumanNPC(location, "");
-                
-                // Give random equipment
-                soldier.setEquipment(CollectionUtils.randomElementOrFirst(EQUIPMENT));
-                soldier.setSkin(SOLDIER_SKIN.getTexture(), SOLDIER_SKIN.getSignature());
-                soldier.showAll();
-                
-                location.add(0, 1, 0);
-                
-                // Fx
-                player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 5, 0.1, 0.2, 0.1, 0.025f);
-                player.spawnWorldParticle(location, Particle.SMOKE, 5, 0.1, 0.2, 0.1, 0.025f);
-                
-                army.add(soldier);
-            }
         }
         
         private Location pickRandomLocationBehindPlayer() {

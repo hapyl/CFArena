@@ -95,7 +95,7 @@ public interface CrateAnimation {
     CrateTask play(@Nonnull CrateLoot loot, @Nonnull CrateLocation chest);
 
     default void play0(@Nonnull CrateLoot loot, @Nonnull CrateLocation chest) {
-        chest.hologram.hideAll();
+        chest.hologram.destroy();
         chest.playOpenAnimation();
 
         loot.getPlayer().closeInventory();

@@ -487,7 +487,7 @@ public class GameEntity {
     }
     
     public net.minecraft.world.entity.Entity getNMSEntity() {
-        return Reflect.getMinecraftEntity(entity);
+        return Reflect.getHandle(entity);
     }
     
     public double dot(@Nonnull Location other) {

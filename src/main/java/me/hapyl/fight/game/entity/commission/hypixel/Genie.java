@@ -2,7 +2,6 @@ package me.hapyl.fight.game.entity.commission.hypixel;
 
 import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
-import me.hapyl.eterna.module.reflect.npc.Human;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
@@ -52,7 +51,7 @@ public class Genie extends CommissionEntityType {
                 "6b0a6a5f6d0073185c950a1b57444ba6a87f4361cb221d87b0637903dc1c6e52"
         ).asIcon();
 
-        private final Human riptide;
+        // private final Human riptide;
         private final GameEntity child;
         private boolean rage = false;
 
@@ -83,13 +82,15 @@ public class Genie extends CommissionEntityType {
             location.setYaw(90);
             location.setPitch(90);
 
-            riptide = Human.create(location, "", "");
-            riptide.bukkitEntity().setInvisible(true);
-            riptide.setCollision(false);
-            riptide.showAll();
-
-            riptide.setDataWatcherByteValue(8, (byte) 0x04);
-            riptide.updateDataWatcher();
+            // FIXME @Dec 15, 2025 (xanyjl) -> __low
+            
+            // riptide = new HumanNPC(location, "", "");
+            // riptide.bukkitEntity().setInvisible(true);
+            // riptide.setCollision(false);
+            // riptide.showAll();
+            //
+            // riptide.setDataWatcherByteValue(8, (byte) 0x04);
+            // riptide.updateDataWatcher();
 
             entity.setInvisible(true);
 
@@ -118,7 +119,7 @@ public class Genie extends CommissionEntityType {
         public void remove() {
             super.remove();
 
-            riptide.remove();
+            // riptide.remove();
             child.remove();
         }
 
@@ -128,7 +129,7 @@ public class Genie extends CommissionEntityType {
             location.setYaw(90f);
             location.setPitch(90f);
 
-            riptide.teleport(location);
+            // riptide.teleport(location);
             entity.teleport(child.getLocation().add(0.0d, 1.0d, 0.0d));
 
             // Fx

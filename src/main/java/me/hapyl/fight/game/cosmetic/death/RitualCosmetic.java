@@ -72,7 +72,7 @@ public class RitualCosmetic extends Cosmetic {
         
         public RitualCosmeticEffect(@Nonnull Display display, @Nonnull Particle particle) {
             this.display = display;
-            this.particle = Validate.isTrue(particle, RitualCosmeticEffect::isSupportedParticle, "Unsupported particle: " + particle);
+            this.particle = Validate.requireValid(particle, RitualCosmeticEffect::isSupportedParticle, "Unsupported particle: " + particle);
             this.centre = display.getLocation().clone();
         }
         

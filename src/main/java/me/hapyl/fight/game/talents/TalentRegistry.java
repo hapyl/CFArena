@@ -538,8 +538,8 @@ public final class TalentRegistry extends AbstractStaticRegistry<Talent> {
      */
     public static final SummonWhelp SUMMON_WHELP;
     public static final HellfireWard HELLFIRE_WARD;
-    public static final Blightwhirl BLIGHTWHIRL;
     public static final WhelpAttack WHELP_ATTACK;
+    public static final Blightwhirl BLIGHTWHIRL;
     
     public static final DylanPassive DYLAN_PASSIVE;
     

@@ -114,7 +114,6 @@ public class GameResult {
                         StatType.KILLS.sendReportMessage(player, stat);
                         StatType.DEATHS.sendReportMessage(player, stat);
                         StatType.ASSISTS.sendReportMessageIfValueGreaterThanZero(player, stat);
-                        StatType.MASTERY_EARNED.sendReportMessageIfValueGreaterThanZero(player, stat);
 
                         Chat.sendMessage(player, "");
                     }

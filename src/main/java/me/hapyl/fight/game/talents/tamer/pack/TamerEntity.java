@@ -1,6 +1,5 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
-import me.hapyl.eterna.module.ai.AI;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.util.IndexedTicking;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -25,7 +24,6 @@ public class TamerEntity extends LivingGameEntity implements IndexedTicking {
     protected final ActiveTamerPack pack;
     protected final GamePlayer player;
     protected final GameTeam team;
-    protected final AI ai;
     protected int tick;
     protected boolean targetClosestEntities;
     
@@ -40,8 +38,6 @@ public class TamerEntity extends LivingGameEntity implements IndexedTicking {
         // Add helmet if possible
         final EntityEquipment equipment = getEquipment();
         equipment.setHelmet(ItemBuilder.leatherHat(team.getColorAsBukkitColor()).setUnbreakable().asIcon());
-        
-        ai = getMobAI();
     }
     
     @Override

@@ -7,7 +7,6 @@ import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.fx.EntityFollowingParticle;
-import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.moonwalker.MoonPassive;
@@ -56,8 +55,7 @@ public class MoonZone implements Ticking, Removable {
         this.energy = energy;
         this.passive = HeroRegistry.MOONWALKER.getPassiveTalent();
 
-        this.hologram = new Hologram();
-        LocationHelper.offset(centre, 0, hologramOffset(), 0, () -> this.hologram.create(centre));
+        this.hologram = LocationHelper.offset(centre, 0, hologramOffset(), 0, Hologram::ofArmorStand);
 
         // Show to self (Maybe show to teammates as well?)
         this.hologram.show(player.getEntity());
@@ -78,9 +76,9 @@ public class MoonZone implements Ticking, Removable {
         }
 
         // Update hologram
-        hologram.setLinesAndUpdate(
-                "&6&l%.0f %s &8| &b&l%.1fs".formatted(energy, Named.MOONLIT_ENERGY.getPrefix(), (duration - tick) / 20d)
-        );
+        // hologram.setLines(
+        //         "&6&l%.0f %s &8| &b&l%.1fs".formatted(energy, Named.MOONLIT_ENERGY.getPrefix(), (duration - tick) / 20d)
+        // );
 
         // Rush energy towards the owner if within the range
         if (tick % passive.energyConversionRate == 0 && player.isSneaking()) {

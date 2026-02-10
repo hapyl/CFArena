@@ -1,5 +1,6 @@
 package me.hapyl.fight.game;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -58,6 +59,13 @@ public class Response {
     @Nonnull
     public static Response error(@Nonnull String reason) {
         return new Response(reason, Type.ERROR);
+    }
+    
+    @Nonnull
+    public static Response deprecatedDoNoUseThis() {
+        CF.getLogger().warning("Used a deprecated talent!");
+        
+        return error("Deprecated, do not use this!");
     }
     
     public static void error(@Nonnull GamePlayer player, @Nonnull String reason) {

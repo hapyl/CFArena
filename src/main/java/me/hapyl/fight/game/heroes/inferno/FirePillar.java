@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.inferno;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.component.ComponentList;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.fight.game.damage.DamageCause;
@@ -47,7 +48,7 @@ public class FirePillar extends TickingGameTask {
         this.affectedBlocks = Lists.newArrayList();
         this.hitsLeft = ultimate.pillarHealth;
         
-        this.hologram = new Hologram().create(location);
+        this.hologram = Hologram.ofArmorStand(location);
         this.hologram.showAll();
         
         makePillar(ultimate.pillarHeight);
@@ -161,10 +162,10 @@ public class FirePillar extends TickingGameTask {
         }
         
         // Update hologram
-        this.hologram.setLinesAndUpdate(
+        this.hologram.setLines(pl -> ComponentList.ofLegacy(
                 "&c&l\uD83D\uDDFC &6&lFIRE PILLAR &c&l\uD83D\uDDFC",
                 "&e&l%.1fs &e\uD83D\uDCA5  &c&l%s &c❤".formatted((ultimate.explosionDelay - tick) / 20d, hitsLeft)
-        );
+        ));
         
         // Notify victims
         victims.stream()

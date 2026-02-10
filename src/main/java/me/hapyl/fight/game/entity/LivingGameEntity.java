@@ -2,11 +2,10 @@ package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.eterna.module.ai.AI;
-import me.hapyl.eterna.module.ai.MobAI;
 import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.eterna.module.annotate.Super;
 import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.component.ComponentListSupplier;
 import me.hapyl.eterna.module.entity.EntityUtils;
 import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
@@ -16,7 +15,6 @@ import me.hapyl.eterna.module.math.geometry.Draw;
 import me.hapyl.eterna.module.math.geometry.Quality;
 import me.hapyl.eterna.module.math.geometry.WorldParticle;
 import me.hapyl.eterna.module.player.PlayerLib;
-import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glowing.Glowing;
 import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
 import me.hapyl.eterna.module.util.Ticking;
@@ -53,8 +51,6 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.DirectionalMatrix;
 import me.hapyl.fight.util.MapView;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityInsentient;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -121,7 +117,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
     
     @Important(value = "Notifies the event that the damage is named, not vanilla.")
     private boolean wasHit;
-    private AI ai;
     private boolean informImmune = true;
     
     @Nullable private Hologram aboveHead;
@@ -355,9 +350,9 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         return aboveHead != null;
     }
     
-    public void aboveHead(@Nullable String... strings) {
+    public void aboveHead(@Nullable ComponentListSupplier supplier) {
         // Remove armor stand
-        if (strings == null) {
+        if (supplier == null) {
             if (aboveHead != null) {
                 aboveHead.destroy();
                 aboveHead = null;
@@ -368,10 +363,11 @@ public class LivingGameEntity extends GameEntity implements Ticking {
         
         // Create armor stand if it doesn't exist
         if (aboveHead == null) {
-            aboveHead = new Hologram().create(aboveHeadLocation()).showAll();
+            aboveHead = Hologram.ofArmorStand(aboveHeadLocation());
+            aboveHead.showAll();
         }
         
-        aboveHead.setLinesAndUpdate(strings);
+        aboveHead.setLines(supplier);
     }
     
     @Nonnull
@@ -388,28 +384,6 @@ public class LivingGameEntity extends GameEntity implements Ticking {
      */
     public int aliveTicks() {
         return ticker.aliveTicks.getTick();
-    }
-    
-    /**
-     * Gets the {@link AI} of this entity.
-     * The {@link AI} is a {@link me.hapyl.eterna.EternaAPI} module that allows to modify entity's AI easily.
-     *
-     * @return this entity's AI.
-     * @throws IllegalStateException if entity is a {@link Player} or not supported.
-     */
-    @Nonnull
-    public AI getMobAI() throws IllegalStateException {
-        if (ai == null) {
-            final Entity nmsEntity = Reflect.getMinecraftEntity(entity);
-            
-            if (!(nmsEntity instanceof EntityInsentient)) {
-                throw new IllegalArgumentException("MobAI is not supported for " + getName());
-            }
-            
-            ai = MobAI.of(entity);
-        }
-        
-        return ai;
     }
     
     /**

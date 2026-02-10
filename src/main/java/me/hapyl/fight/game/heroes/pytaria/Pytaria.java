@@ -185,9 +185,10 @@ public class Pytaria extends Hero {
             location.add(0, 7, 0);
 
             final Bee bee = Entities.BEE.spawn(
-                    location, me -> {
-                        me.setSilent(true);
-                        me.setAI(false);
+                    location, self -> {
+                        self.setInvulnerable(true);
+                        self.setSilent(true);
+                        self.setAI(false);
                     }
             );
 

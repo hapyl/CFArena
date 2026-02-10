@@ -2,7 +2,6 @@ package me.hapyl.fight.gui;
 
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.FairMode;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.lobby.LobbyItems;
@@ -61,19 +60,6 @@ public class GameManagementGUI extends StyledGUI {
                         .addLore(Color.BUTTON + "Click to select a team!")
                         .asIcon(),
                 TeamSelectGUI::new
-        );
-
-        // Fair Mode
-        final FairMode fairMode = manager.getFairMode();
-
-        setItemRanked(42,
-                StyledTexture.ICON_FAIR_MODE
-                        .asBuilder()
-                        .addLore()
-                        .addLore(Color.DEFAULT + "Current Mode")
-                        .addLore(" " + fairMode.getName())
-                        .addLore("  " + fairMode.getDescription()),
-                PlayerRank.GAME_MANAGER, "Click to adjust", FairModeGUI::new
         );
     }
 

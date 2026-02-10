@@ -2,9 +2,11 @@ package me.hapyl.fight.game.entity.commission;
 
 import com.google.common.collect.Lists;
 import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.component.ComponentList;
 import me.hapyl.fight.game.commission.Commission;
 import me.hapyl.fight.game.entity.EntityType;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
@@ -101,6 +103,7 @@ public class CommissionEntity extends LivingGameEntity {
         return getLocation().add(0, entity.getEyeHeight() + type.getHologramOffset(), 0);
     }
 
+    // FIXME @Sep 25, 2025 (xanyjl) -> Return ComponentSupplier
     @Nullable
     public String[] getExtraHologramLines() {
         return null;
@@ -146,7 +149,15 @@ public class CommissionEntity extends LivingGameEntity {
         }
 
         aboveHead.add(nameFormatted());
-        aboveHead(aboveHead.toArray(String[]::new));
+        aboveHead(pl -> {
+            final ComponentList list = ComponentList.empty();
+            
+            for (String string : aboveHead) {
+                list.append(Component.text(string));
+            }
+            
+            return list;
+        });
     }
 
 }

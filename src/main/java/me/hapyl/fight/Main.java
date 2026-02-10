@@ -3,7 +3,6 @@ package me.hapyl.fight;
 import me.hapyl.eterna.Eterna;
 import me.hapyl.eterna.EternaAPI;
 import me.hapyl.eterna.module.player.tablist.Tablist;
-import me.hapyl.fight.annotate.Promise;
 import me.hapyl.fight.anticheat.AntiCheat;
 import me.hapyl.fight.chat.ChatHandler;
 import me.hapyl.fight.command.CommandRegistry;
@@ -34,8 +33,6 @@ import me.hapyl.fight.protocol.ArcaneMutePacketHandler;
 import me.hapyl.fight.protocol.DismountPacketHandler;
 import me.hapyl.fight.protocol.MotDPacketHandler;
 import me.hapyl.fight.protocol.PlayerClickAtEntityPacketHandler;
-import me.hapyl.fight.proxy.ServerType;
-import me.hapyl.fight.proxy.TransferManager;
 import me.hapyl.fight.quest.CFQuestHandler;
 import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.script.ScriptManager;
@@ -43,7 +40,7 @@ import me.hapyl.fight.store.Store;
 import me.hapyl.fight.util.strict.StrictValidator;
 import me.hapyl.fight.vehicle.VehicleManager;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
+import org.bukkit.GameRules;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -58,9 +55,9 @@ public class Main extends JavaPlugin {
     public static final String GAME_NAME = "&6&lᴄғ &eᴀʀᴇɴᴀ";
     public static final String[] GAME_NAME_LONG = { "ᴄʟᴀꜱꜱᴇꜱ ꜰɪɢʜᴛ", "ᴀʀᴇɴᴀ" };
     
-    public static final UpdateTopic updateTopic = new UpdateTopic("&cSmells Like Hell!");
+    public static final UpdateTopic updateTopic = new UpdateTopic("&dthere are ghasts ig");
     
-    public static final String requireEternaVersion = "4.9.0";
+    public static final String requireEternaVersion = "5.2.0";
     public static final String requireMinecraftVersion = "1.21.3"; // fixme: Either implement this or delete
     
     private static long start;
@@ -84,8 +81,6 @@ public class Main extends JavaPlugin {
     private CFQuestHandler questHandler;
     private Environment environment;
     private CFConfig config;
-    @Promise("!null") private ServerType thisServer;
-    private TransferManager transferManager;
     
     @Override
     public void onEnable() {
@@ -135,21 +130,20 @@ public class Main extends JavaPlugin {
         
         // Preset game rules
         for (final World world : Bukkit.getWorlds()) {
-            world.setGameRule(GameRule.NATURAL_REGENERATION, false);
-            world.setGameRule(GameRule.DO_FIRE_TICK, false);
-            world.setGameRule(GameRule.MOB_GRIEFING, false);
-            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-            world.setGameRule(GameRule.DO_MOB_LOOT, false);
-            world.setGameRule(GameRule.DO_TILE_DROPS, false);
-            world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-            world.setGameRule(GameRule.DISABLE_RAIDS, false);
-            world.setGameRule(GameRule.NATURAL_REGENERATION, false);
-            world.setGameRule(GameRule.KEEP_INVENTORY, true);
-            world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            world.setGameRule(GameRule.COMMAND_BLOCK_OUTPUT, false);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+            world.setGameRule(GameRules.NATURAL_HEALTH_REGENERATION, false);
+            world.setGameRule(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 0);
+            world.setGameRule(GameRules.MOB_GRIEFING, false);
+            world.setGameRule(GameRules.SPAWN_MOBS, false);
+            world.setGameRule(GameRules.MOB_DROPS, false);
+            world.setGameRule(GameRules.BLOCK_DROPS, false);
+            world.setGameRule(GameRules.SPAWN_WANDERING_TRADERS, false);
+            world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
+            world.setGameRule(GameRules.RAIDS, false);
+            world.setGameRule(GameRules.KEEP_INVENTORY, true);
+            world.setGameRule(GameRules.ADVANCE_WEATHER, false);
+            world.setGameRule(GameRules.ADVANCE_TIME, false);
+            world.setGameRule(GameRules.COMMAND_BLOCK_OUTPUT, false);
+            world.setGameRule(GameRules.RANDOM_TICK_SPEED, 0);
             
             // Unload nether and the end
             switch (world.getEnvironment()) {
@@ -195,9 +189,6 @@ public class Main extends JavaPlugin {
         
         StrictValidator.validateAll(this);
         
-        thisServer = ServerType.currentType();
-        transferManager = new TransferManager(this);
-        
         // Bump wordle
         Wordle.subdict(0);
     }
@@ -212,11 +203,6 @@ public class Main extends JavaPlugin {
     @Deprecated(forRemoval = true)
     public FileConfiguration getConfig() throws IllegalStateException {
         throw new IllegalStateException("config()");
-    }
-    
-    @Nonnull
-    public ServerType thisServer() {
-        return Objects.requireNonNull(thisServer, "Illegal server");
     }
     
     @Override
@@ -335,11 +321,6 @@ public class Main extends JavaPlugin {
         return environment;
     }
     
-    @Nonnull
-    public TransferManager transferManager() {
-        return transferManager;
-    }
-    
     private void registerEvents() {
         CF.registerEvents(List.of(
                 new PlayerHandler(),
@@ -358,8 +339,8 @@ public class Main extends JavaPlugin {
                 new ArcaneMutePacketHandler(),
                 new DismountPacketHandler(),
                 new CandlebanePacketHandler(),
-                new PlayerClickAtEntityPacketHandler(),
-                new MotDPacketHandler()
+                new MotDPacketHandler(),
+                new PlayerClickAtEntityPacketHandler()
         ));
     }
     

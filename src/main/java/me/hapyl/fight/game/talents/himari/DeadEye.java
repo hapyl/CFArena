@@ -5,11 +5,11 @@ import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.event.custom.GameDamageEvent;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.ModifierSource;
 import me.hapyl.fight.game.attribute.SnapshotAttributes;
 import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.entity.WarningType;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.util.Collect;
@@ -19,19 +19,18 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class DeadEye extends HimariTalent {
+public class DeadEye extends HimariTalent implements Listener {
     
-    @DisplayField private final double damage = 7;
+    @DisplayField private final double damage = 10;
     @DisplayField private final double maxDistance = 40;
     @DisplayField private final double defenseIgnore = 80;
     @DisplayField private final double critChanceIncrease = 100;
-    
-    private final ModifierSource modifierSource = new ModifierSource(Key.ofString("dead_eye"), true);
     
     public DeadEye(@Nonnull Key key) {
         super(key, "Dead Eye");
@@ -103,6 +102,11 @@ public class DeadEye extends HimariTalent {
                 // Fx
                 final int percentDone = (int) (15d * tick / getDuration());
                 player.sendSubtitle(("&e&l\uD83D\uDC41".repeat(percentDone) + ("&8&l\uD83D\uDC41".repeat(15 - percentDone))), 0, 5, 0);
+                
+                // Send warning to the target
+                if (target instanceof GamePlayer playerTarget) {
+                    playerTarget.sendWarning(WarningType.WARNING, 5);
+                }
             }
             
             private void deadShot() {

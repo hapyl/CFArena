@@ -3,7 +3,7 @@ package me.hapyl.fight.game.crate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.hapyl.eterna.module.chat.Chat;
-import me.hapyl.eterna.module.hologram.PlayerHologram;
+import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
@@ -40,13 +40,13 @@ public class CrateLocation extends Location {
 
     private static final int LOOT_DISPLAY_TIME = 40;
 
-    public final PlayerHologram hologram;
+    public final Hologram hologram;
     private Player occupiedBy;
 
     public CrateLocation(int x, int y, int z) {
         super(BukkitUtils.defWorld(), x + 0.5d, y, z + 0.5d);
 
-        this.hologram = new PlayerHologram(this.addAsNew(0.0d, 1.0d, 0.0d));
+        this.hologram = Hologram.ofArmorStand(this.addAsNew(0.0d, 1.0d, 0.0d));
     }
 
     public void onOpen(@Nonnull CrateLoot crateLoot) {

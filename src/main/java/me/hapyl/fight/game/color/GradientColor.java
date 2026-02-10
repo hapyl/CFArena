@@ -3,7 +3,6 @@ package me.hapyl.fight.game.color;
 import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.gradient.Interpolator;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
-import me.hapyl.eterna.module.util.BFormat;
 
 import javax.annotation.Nonnull;
 
@@ -29,7 +28,7 @@ public class GradientColor extends Color {
     
     @Nonnull
     public String color(@Nonnull Object string, @Nonnull Interpolator interpolator) {
-        final Gradient gradient = new Gradient(BFormat.format(String.valueOf(string)));
+        final Gradient gradient = new Gradient(String.valueOf(string));
         flags(gradient);
         
         return gradient.rgb(color.getColor(), to.color.getColor(), interpolator);

@@ -16,8 +16,8 @@ import me.hapyl.eterna.module.chat.Gradient;
 import me.hapyl.eterna.module.chat.LazyEvent;
 import me.hapyl.eterna.module.chat.gradient.Interpolators;
 import me.hapyl.eterna.module.command.*;
+import me.hapyl.eterna.module.component.ComponentList;
 import me.hapyl.eterna.module.entity.Entities;
-import me.hapyl.eterna.module.hologram.Hologram;
 import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.eterna.module.locaiton.LocationHelper;
 import me.hapyl.eterna.module.math.Cuboid;
@@ -27,13 +27,10 @@ import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.eterna.module.player.PlayerSkin;
 import me.hapyl.eterna.module.player.dialog.DialogInstance;
 import me.hapyl.eterna.module.player.quest.Quest;
-import me.hapyl.eterna.module.reflect.DataWatcherType;
+import me.hapyl.eterna.module.reflect.EntityDataType;
 import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.eterna.module.reflect.glowing.Glowing;
 import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
-import me.hapyl.eterna.module.reflect.npc.Human;
-import me.hapyl.eterna.module.reflect.npc.HumanNPC;
-import me.hapyl.eterna.module.reflect.npc.NPCPose;
 import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.eterna.module.util.*;
 import me.hapyl.eterna.module.util.collection.Cache;
@@ -48,7 +45,10 @@ import me.hapyl.fight.database.NamedCollection;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.async.AntiCheatAsynchronousDocument;
 import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
-import me.hapyl.fight.database.entry.*;
+import me.hapyl.fight.database.entry.DailyRewardEntry;
+import me.hapyl.fight.database.entry.MetadataEntry;
+import me.hapyl.fight.database.entry.SkinEntry;
+import me.hapyl.fight.database.entry.StatisticEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.filter.ProfanityFilter;
@@ -89,7 +89,6 @@ import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
 import me.hapyl.fight.game.heroes.dark_mage.AnimatedWither;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
 import me.hapyl.fight.game.heroes.dylan.DylanData;
-import me.hapyl.fight.game.heroes.mastery.HeroMastery;
 import me.hapyl.fight.game.heroes.nyx.NyxData;
 import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.loadout.HotBarSlot;
@@ -159,9 +158,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.trim.ArmorTrim;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.potion.PotionEffectType;
@@ -244,7 +241,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new DumpHeroData("dumpHeroData"));
         register(new ArchetypeCommand("archetype"));
         register(new TermCommand("term"));
-        register(new MasteryCommand("mastery"));
         register(new LobbyCommand("lobby"));
         register(new HighlightLevel("highlightLevel"));
         register(new VehicleCommand("vehicle"));
@@ -258,11 +254,9 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(new ReadSignsCommand("readSigns"));
         register(new TemperStatCommand("temperStat"));
         register(new BetterMace("betterMace"));
-        register(new ServerCommand("server"));
         register(new CommissionExperienceCommand("commissionExperience"));
         register(new SkinCommand("skin"));
         register(new NickCommand("name"));
-        register(new TestNpcDeathAnimationCommand("testNpcDeathAnimation"));
         register(new RitualCommand("ritual"));
         register(new NamedPreviewCommand("previewNamed"));
         register(new DotCommand("dot"));
@@ -903,7 +897,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 "testPlayerAboveHead", (player, args) -> {
                     GamePlayer.getOptionalPlayer(player)
                               .ifPresent(gameplayer -> {
-                                  gameplayer.aboveHead("test", "test123", "test1231231231321");
+                                  gameplayer.aboveHead(pl -> ComponentList.of(
+                                          Component.text("test"),
+                                          Component.text("test123"),
+                                          Component.text("test1231231231321")
+                                  ));
                               });
                 }
         );
@@ -995,19 +993,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         );
         
         register(
-                "hurricane", (player, args) -> {
-                    GamePlayer.getOptionalPlayer(player)
-                              .ifPresent(gamePlayer -> {
-                                  final int amount = args.get(0).toInt(1);
-                                  final double speed = args.get(1).toDouble(1.0d);
-                                  
-                                  HeroRegistry.ARCHER.getFirstTalent().shoot(gamePlayer, amount, speed);
-                                  gamePlayer.sendMessage("&aShot %s arrows with %s speed!".formatted(amount, speed));
-                              });
-                }
-        );
-        
-        register(
                 "setSelectedHeroWins", (player, args) -> {
                     final Hero hero = CF.getProfile(player).getHero();
                     final StatisticEntry entry = CF.getDatabase(player).statisticEntry;
@@ -1021,21 +1006,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
         );
         
-        register(
-                "debugMasteryExp", (player, args) -> {
-                    GamePlayer.getOptionalPlayer(player)
-                              .ifPresent(gamePlayer -> {
-                                  final GameInstance instance = Manager.current().currentInstanceOrNull();
-                                  assert instance != null;
-                                  
-                                  final int inGameMastery = instance.heroMastery().getMastery(gamePlayer);
-                                  final int totalLevel = gamePlayer.getDatabase().masteryEntry.getLevel(gamePlayer.getHero());
-                                  
-                                  gamePlayer.sendMessage("inGameMastery=" + inGameMastery);
-                                  gamePlayer.sendMessage("totalLevel=" + totalLevel);
-                              });
-                }
-        );
         register(
                 "respawnSnakeParkour", (player, args) -> {
                     final SnakeParkour parkour = (SnakeParkour) ParkourCourse.SNAKE_PARKOUR.getParkour();
@@ -1567,18 +1537,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 set.add(args[0]);
             }
         });
-        
-        register(
-                "playMasteryLevelUpEffect", (player, args) -> {
-                    final MasteryEntry entry = CF.getDatabase(player).masteryEntry;
-                    final Hero hero = Manager.current().getSelectedLobbyHero(player);
-                    final int level = entry.getLevel(hero);
-                    
-                    entry.playMasteryLevelUpEffect(hero, Math.max(level - 1, 0), level);
-                }
-        );
-        
-        register("masteryExp", (player, args) -> HeroMastery.dumpExpMap(player));
         
         register(
                 "giveHideTooltipsItem", (player, args) -> {
@@ -2268,13 +2226,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
         
-        register(new SimplePlayerAdminCommand("spawnNpcThatWillThrowError") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                new HumanNPC(player.getLocation(), "name", "hypixel").showAll();
-            }
-        });
-        
         register(new SimplePlayerCommand("canConvertCrate") {
             @Override
             protected void execute(Player player, String[] args) {
@@ -2582,27 +2533,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 quadrant.setHeight(3);
                 quadrant.runTaskTimer(0, 1);
                 Chat.sendMessage(player, "&aStarted!");
-            }
-        });
-        
-        register(new SimplePlayerAdminCommand("ef") {
-            @Override
-            protected void execute(Player player, String[] args) {
-                final me.hapyl.eterna.module.player.EffectType effectType = getArgument(args, 0).toEnum(me.hapyl.eterna.module.player.EffectType.class);
-                final int effectDuration = getArgument(args, 1).toInt(20);
-                
-                if (effectType == null) {
-                    Chat.sendMessage(player, "&cUnknown effect!");
-                    return;
-                }
-                
-                if (effectDuration < 0) {
-                    Chat.sendMessage(player, "&cDuration cannot be negative!");
-                    return;
-                }
-                
-                player.addPotionEffect(effectType.getType().createEffect(effectDuration, 1));
-                Chat.sendMessage(player, "&aApplied %s for %s!".formatted(effectType, effectDuration));
             }
         });
         
@@ -3100,74 +3030,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                 }
         );
         
-        register(new SimplePlayerAdminCommand("nextTrim") {
-            
-            // bro just make this a fucking enum
-            private final TrimPattern[] PATTERNS = {
-                    TrimPattern.SENTRY,
-                    TrimPattern.DUNE,
-                    TrimPattern.COAST,
-                    TrimPattern.WILD,
-                    TrimPattern.WARD,
-                    TrimPattern.EYE,
-                    TrimPattern.VEX,
-                    TrimPattern.TIDE,
-                    TrimPattern.SNOUT,
-                    TrimPattern.RIB,
-                    TrimPattern.SPIRE,
-                    TrimPattern.WAYFINDER,
-                    TrimPattern.SHAPER,
-                    TrimPattern.SILENCE,
-                    TrimPattern.RAISER,
-                    TrimPattern.HOST
-            };
-            
-            @Override
-            protected void execute(Player player, String[] strings) {
-                final String string = getArgument(strings, 0).toString().toLowerCase();
-                
-                switch (string) {
-                    case "helmet" -> nextTrim(player, EquipmentSlot.HEAD);
-                    case "chestplate", "chest" -> nextTrim(player, EquipmentSlot.CHEST);
-                    case "leggings", "legs" -> nextTrim(player, EquipmentSlot.LEGS);
-                    case "boots" -> nextTrim(player, EquipmentSlot.FEET);
-                    default -> {
-                        Chat.sendMessage(player, "&cInvalid argument, accepting: [helmet, chestplate, chest, leggings, legs, boots]");
-                    }
-                }
-            }
-            
-            private void nextTrim(Player player, EquipmentSlot slot) {
-                final PlayerInventory inventory = player.getInventory();
-                final ItemStack item = inventory.getItem(slot);
-                
-                if (item == null) {
-                    Chat.sendMessage(player, "&cNot a valid item.");
-                    return;
-                }
-                
-                if (!(item.getItemMeta() instanceof ArmorMeta meta)) {
-                    Chat.sendMessage(player, "&cCannot apply trim to this piece!");
-                    return;
-                }
-                
-                final ArmorTrim trim = meta.getTrim();
-                TrimPattern pattern = trim == null ? PATTERNS[0] : trim.getPattern();
-                
-                for (int i = 0; i < PATTERNS.length; i++) {
-                    if (PATTERNS[i] == pattern) {
-                        pattern = i + 1 >= PATTERNS.length ? PATTERNS[0] : PATTERNS[i + 1];
-                        break;
-                    }
-                }
-                
-                meta.setTrim(new ArmorTrim(trim == null ? TrimMaterial.QUARTZ : trim.getMaterial(), pattern));
-                item.setItemMeta(meta);
-                
-                Chat.sendMessage(player, "&aSet %s pattern.".formatted(BukkitUtils.getKey(pattern).getKey()));
-            }
-        });
-        
         register(
                 "readElementTypesCSV", (player, args) -> {
                     Runnables.runAsync(() -> {
@@ -3600,60 +3462,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
         
-        register(new CFCommand("testHologramHeights", PlayerRank.ADMIN) {
-            
-            private List<Hologram> holograms = Lists.newArrayList();
-            private GameTask task;
-            
-            @Override
-            protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
-                final double offsetY = args.get(0).toDouble(0.0d);
-                final Location absoluteLocation = player.getLocation();
-                final Location location = player.getLocation().subtract(0, offsetY, 0);
-                
-                if (task != null) {
-                    task.cancel();
-                    task = null;
-                }
-                
-                holograms.forEach(Hologram::destroy);
-                holograms.clear();
-                
-                task = new GameTask() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < 10; i++) {
-                            absoluteLocation.add(i, 0, 0);
-                            PlayerLib.spawnParticle(absoluteLocation, Particle.HAPPY_VILLAGER, 1);
-                            absoluteLocation.subtract(i, 0, 0);
-                        }
-                    }
-                }.runTaskTimer(0, 1);
-                
-                for (int i = 0; i < 10; i++) {
-                    location.add(1, 0, 0);
-                    
-                    holograms.add(new Hologram()
-                                          .setLines(createArray(i + 1))
-                                          .create(location)
-                                          .showAll());
-                }
-                
-                Chat.sendMessage(player, "&aDone!");
-            }
-            
-            private String[] createArray(int size) {
-                final String[] array = new String[size];
-                
-                for (int i = 0; i < size; i++) {
-                    array[i] = "test" + i;
-                }
-                
-                return array;
-            }
-            
-        });
-        
         register(new CFCommand("testChestAnimation", PlayerRank.ADMIN) {
             @Override
             protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
@@ -3744,64 +3552,17 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         
         register(new SimplePlayerAdminCommand("riptide") {
             
-            private HumanNPC npc;
-            private org.bukkit.entity.Entity entity;
+            private RiptideFx riptideFx;
             
             @Override
             protected void execute(Player player, String[] args) {
-                if (npc != null) {
-                    entity.remove();
-                    entity = null;
-                    npc.remove();
-                    npc = null;
-                    Chat.sendMessage(player, "&aRemoved!");
+                if (riptideFx != null) {
+                    riptideFx.remove();
+                    Message.success(player, "Removed effect!");
                     return;
                 }
                 
-                final Location location = player.getLocation();
-                location.setYaw(90f);
-                location.setPitch(90f);
-                
-                final Entities<? extends org.bukkit.entity.Entity> toSpawn = Entities.ZOMBIE;
-                
-                if (toSpawn == null) {
-                    Chat.sendMessage(player, "&cInvalid entity = " + args[0]);
-                    return;
-                }
-                
-                final HumanNPC npc = new HumanNPC(location.clone().subtract(0.0, GVar.get("riptide", 1d), 0.0), "", player.getName());
-                entity = toSpawn.spawn(
-                        location.clone().subtract(0.0, GVar.get("riptide2", 0.0d), 0.0d), self -> {
-                            self.setGravity(false);
-                        }
-                );
-                
-                npc.bukkitEntity().setInvisible(true);
-                npc.setCollision(false);
-                npc.showAll();
-                
-                npc.setDataWatcherByteValue(8, (byte) 0x04);
-                npc.updateDataWatcher();
-                
-                this.npc = npc;
-                Chat.sendMessage(player, "&aSpawned!");
-                
-                new GameTask() {
-                    @Override
-                    public void run() {
-                        if (entity == null) {
-                            this.cancel();
-                            return;
-                        }
-                        
-                        final Location entityLocation = entity.getLocation();
-                        entityLocation.add(0.0, GVar.get("riptide3", 0.0d), 0.0);
-                        entityLocation.setYaw(90f);
-                        entityLocation.setPitch(90f);
-                        
-                        npc.teleport(entityLocation);
-                    }
-                }.runTaskTimer(0, 1);
+                riptideFx = new RiptideFx(player.getLocation());
             }
         });
         
@@ -4109,44 +3870,11 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
             }
         });
         
-        register(new SimplePlayerAdminCommand("spawnMe") {
-            
-            HumanNPC npc;
-            
-            @Override
-            protected void execute(Player player, String[] strings) {
-                if (npc != null) {
-                    
-                    if (strings.length > 0) {
-                        Chat.sendMessage(player, "&aApplying skin...");
-                        npc.setSkin(strings[0]);
-                        return;
-                    }
-                    
-                    npc.remove();
-                    npc = null;
-                    Chat.sendMessage(player, "&aRemoved!");
-                    return;
-                }
-                
-                npc = new HumanNPC(player.getLocation(), player.getName(), player.getName());
-                npc.setLookAtCloseDist(5);
-                npc.setInteractionDelay(60);
-                
-                npc.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
-                npc.setPose(NPCPose.CROUCHING);
-                
-                npc.show(player);
-                
-                Chat.sendMessage(player, "&aSpawned!");
-            }
-        });
-        
         register(new SimplePlayerAdminCommand("spawnDancingPiglin") {
             @Override
             protected void execute(Player player, String[] args) {
                 final Piglin piglin = Entities.PIGLIN.spawn(player.getLocation());
-                final Entity minecraftEntity = Reflect.getMinecraftEntity(piglin);
+                final Entity minecraftEntity = Reflect.getHandle(piglin);
                 
                 piglin.setCustomName(new Gradient("Dancing Piglin").rgb(java.awt.Color.PINK, java.awt.Color.RED, Interpolators.LINEAR));
                 piglin.setCustomNameVisible(true);
@@ -4161,8 +3889,8 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
                             return;
                         }
                         
-                        Reflect.setDataWatcherValue(minecraftEntity, DataWatcherType.BOOL, 19, true);
-                        Reflect.updateMetadata(minecraftEntity, player);
+                        Reflect.setEntityDataValue(minecraftEntity, EntityDataType.BOOL, 19, true);
+                        Reflect.updateEntityData(minecraftEntity, player);
                     }
                 }.runTaskTimer(main, 0, 1);
             }
@@ -4173,27 +3901,6 @@ public class CommandRegistry extends DependencyInjector<Main> implements Listene
         register(
                 "start", (player, args) -> {
                     player.performCommand("cf start " + Chat.arrayToString(args.array, 0));
-                }
-        );
-        
-        register(
-                "testNpcTeleport", (player, args) -> {
-                    final Human human = HumanNPC.create(player.getLocation());
-                    human.showAll();
-                    
-                    new TickingGameTask() {
-                        @Override
-                        public void run(int tick) {
-                            if (tick >= 100) {
-                                human.remove();
-                                cancel();
-                                Chat.sendMessage(player, "&cRemoved!");
-                                return;
-                            }
-                            
-                            human.teleport(player.getLocation());
-                        }
-                    }.runTaskTimer(0, 1);
                 }
         );
         

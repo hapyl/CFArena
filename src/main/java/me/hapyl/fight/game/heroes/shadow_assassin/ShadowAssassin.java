@@ -46,9 +46,10 @@ import javax.annotation.Nullable;
 public class ShadowAssassin extends Hero implements Listener, UIComponent, PlayerDataHandler<ShadowAssassinData> {
     
     public final HeroEquipment furyEquipment = new HeroEquipment();
-    
     public final ModifierSource modifierSource = new ModifierSource(Key.ofString("shadow_mode"), true);
+    
     public final double attackIncrease = 0.4285714285714286d; // Mimics the old 30 flat attack
+    public final double speedDecrease = -25;
     
     private final PlayerDataMap<ShadowAssassinData> playerData = PlayerMap.newDataMap(player -> new ShadowAssassinData(player, this));
     
