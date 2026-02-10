@@ -1,18 +1,19 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.command.extra.Acceptor;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -106,7 +107,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 }
 
                 CF.getPlayerOptional(player).ifPresentOrElse(gamePlayer -> {
-                    gamePlayer.damage(value, player);
+                    gamePlayer.damage(value, player, DamageCause.COMMAND);
                     sendMessage(player, "&aDealt &l%s&a damage to you!", value);
                 }, () -> {
                     sendMessage(player, "&cCannot find game player instance.");
@@ -137,7 +138,7 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                 }
 
                 gamePlayer.heal(value);
-                gamePlayer.sendMessage("&aHealed you for &l%s&a!", value);
+                gamePlayer.sendMessage("&aHealed you for &l%s&a!".formatted(value));
             }
         });
 
@@ -174,19 +175,20 @@ public class AdminCommand extends SimplePlayerAdminCommand {
                     return;
                 }
 
-                final GameMaps map = Validate.getEnumValue(GameMaps.class, args[0]);
+                final EnumLevel map = Enums.byName(EnumLevel.class, args[0]);
+
                 if (map == null) {
                     sendMessage(player, "&cInvalid map!");
                     return;
                 }
 
-                player.teleport(map.getMap().getLocation());
+                player.teleport(map.getLevel().getLocation());
                 sendMessage(player, "&aTeleported to %s map!", map.getName());
             }
 
             @Override
             public void createAdditionalArguments() {
-                for (GameMaps value : GameMaps.values()) {
+                for (EnumLevel value : EnumLevel.values()) {
                     addArgument(2, value.name().toLowerCase(Locale.ROOT));
                 }
             }

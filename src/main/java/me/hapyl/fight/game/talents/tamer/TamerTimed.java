@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.tamer;
 
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.tamer.Tamer;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.Timed;
@@ -37,7 +37,7 @@ public interface TamerTimed extends Timed {
     }
 
     private Tamer getHero() {
-        return Heroes.TAMER.getHero(Tamer.class);
+        return HeroRegistry.TAMER;
     }
 
 }

@@ -1,19 +1,21 @@
 package me.hapyl.fight.game.talents.witcher;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Igny extends Talent {
 
@@ -26,19 +28,22 @@ public class Igny extends Talent {
     @DisplayField private final double damageFurther = 2.0d;
     @DisplayField private final int fireTicksFurther = 20;
 
-    public Igny() {
-        super("Igni", """
+    public Igny(@Nonnull Key key) {
+        super(key, "Igni");
+
+        setDescription("""
                 Fire &cblazing spirits&7 in front of you that deal &cAoE damage&7 and set &cenemies&7 on &6fire&7.
                 &8;;Damage and burning duration falls off with distance.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.BLAZE_POWDER);
+        setMaterial(Material.BLAZE_POWDER);
         setCooldownSec(10);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
         final Location targetLocation = location.add(player.getLocation().getDirection().multiply(3));
 
@@ -50,15 +55,15 @@ public class Igny extends Talent {
             final double distance = targetLocation.distance(target.getLocation());
 
             if (isBetween(distance, 0, 1)) {
-                target.damage(damageClosest, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageClosest, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireDurationClosest);
             }
             else if (isBetween(distance, 1, 2.5)) {
-                target.damage(damageMedium, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageMedium, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksMedium);
             }
             else if (isBetween(distance, 2.5, 4.1d)) {
-                target.damage(damageFurther, player, EnumDamageCause.ENTITY_ATTACK);
+                target.damage(damageFurther, player, DamageCause.ENTITY_ATTACK);
                 target.setFireTicks(fireTicksFurther);
             }
         });

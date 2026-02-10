@@ -1,245 +1,251 @@
 package me.hapyl.fight.database;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.registry.Registry;
+import me.hapyl.eterna.module.util.Enums;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.Enums;
 import org.bson.Document;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class PlayerDatabaseEntry {
-
-    protected final PlayerDatabase playerDatabase;
-    protected String path;
-
-    public PlayerDatabaseEntry(PlayerDatabase playerDatabase) {
-        this.playerDatabase = playerDatabase;
-        this.path = null;
+    
+    protected final PlayerDatabase database;
+    protected final Document root;
+    protected final String parent;
+    
+    public PlayerDatabaseEntry(@Nonnull PlayerDatabase database, @Nonnull String parent) {
+        this.database = database;
+        this.root = database.getDocument();
+        this.parent = parent;
     }
-
+    
     /**
      * Returns the database associated with this entry.
      *
      * @return - PlayerDatabase.
      */
+    @Nonnull
     public PlayerDatabase getDatabase() {
-        return playerDatabase;
+        return database;
     }
-
+    
     /**
-     * Return current document aka root.
+     * Gets the root {@link Document}.
      *
-     * @return - Document
-     */
-    public Document getDocument() {
-        return playerDatabase.getDocument();
-    }
-
-    /**
-     * Gets the {@link OfflinePlayer} associated with this entry.
-     *
-     * @return the offline player.
+     * @return the root document.
      */
     @Nonnull
-    public OfflinePlayer getPlayer() {
-        return this.playerDatabase.getPlayer();
+    public Document getRootDocument() {
+        return database.getDocument();
     }
-
+    
     /**
-     * Gets the {@link Player} associated with this entry; or null if they're offline.
+     * Gets or computes this {@link PlayerDatabaseEntry} {@link Document} in the root.
      *
-     * @return the player associated with this entry; or null if they're offline.
+     * @return this entry's document.
      */
-    @Nullable
-    public Player getOnlinePlayer() {
-        return getPlayer().getPlayer();
+    @Nonnull
+    public Document getDocument() {
+        return (Document) getRootDocument().computeIfAbsent(parent, fn -> new Document());
     }
-
-    public void sendMessage(@Nonnull String message, @Nullable Object... format) {
-        final Player player = getOnlinePlayer();
-
-        if (player != null) {
-            Chat.sendMessage(player, message.formatted(format));
-        }
+    
+    @Nonnull
+    public Optional<Player> player() {
+        return database.player();
     }
-
+    
+    @Nonnull
+    public UUID uuid() {
+        return database.getUuid();
+    }
+    
+    public void sendMessage(@Nonnull Message.Channel channel, @Nonnull String message) {
+        player().ifPresent(player -> channel.send(player, message));
+    }
+    
     /**
-     * Called right before writing the document into the remote database.
+     * Called right before writing the root {@link Document} into the remote database.
      */
-    @Event
+    @EventLike
     public void onSave() {
     }
-
+    
     /**
      * Called once after loading all the entries.
      */
-    @Event
+    @EventLike
     public void onLoad() {
     }
-
+    
     @Nonnull
-    protected String getPath() throws IllegalStateException {
-        if (this.path == null) {
-            throw new IllegalStateException("Path is not set for " + this.getClass().getSimpleName() + "!");
-        }
-
-        return this.path;
+    public final String makeKey(@Path String path) {
+        return this.parent + "." + path;
     }
-
-    protected void setPath(@Nonnull String path) {
-        this.path = path;
-    }
-
-    @Nonnull
-    protected final String getPathWithDot() throws IllegalStateException {
-        return getPath() + ".";
-    }
-
+    
     /**
-     * Gets the value from a document by a given string.
-     * <p>
-     * The string can be separated by a dot (.) to access nested documents.
-     * </p>
+     * Sets the given value to the given {@link Path}.
      *
-     * @param paths - Path to value.
-     * @param def   - Default value.
-     * @return - Value or def if not found.
-     */
-    protected <T> T getValue(@Nonnull String paths, @Nullable T def) {
-        return MongoUtils.get(getDocument(), paths, def);
-    }
-
-    @Nullable
-    protected <T extends Enum<T>> T getEnumValue(@Nonnull String paths, @Nonnull Class<T> clazz) {
-        final String value = getValue(paths, "");
-
-        return Enums.byName(clazz, value);
-    }
-
-    protected <T extends Enum<T>> void setEnumValue(@Nonnull String paths, @Nullable T value) {
-        setValue(paths, value != null ? value.name().toLowerCase() : null);
-    }
-
-    /**
-     * Gets the value from a document by a given string.
-     * <p>
-     * The string can be separated by a dot (.) to access nested documents.
-     * </p>
-     * <p>
-     * Requires {@link #path} to be set.
-     * </p>
-     *
-     * @param paths - Path to value.
-     * @param def   - Default value.
-     * @return - Value or def if not found.
-     */
-    protected final <T> T getValueInPath(@Nonnull String paths, @Nullable T def) {
-        return getValue(getPathWithDot() + paths, def);
-    }
-
-    /**
-     * Sets the value from a document by a given string.
-     * <p>
-     * The string can be separated by a dot (.) to access nested documents.
-     * If the string does not exist, it will be created.
-     * </p>
-     *
-     * @param paths - Path to value.
+     * @param path  - {@link Path}
      * @param value - Value to set.
+     *              The value will be removed if the given value is null.
      */
-    protected <T> void setValue(@Nonnull String paths, @Nullable T value) {
-        MongoUtils.set(getDocument(), paths, value);
+    protected final <T> void setValue(@Nonnull @Path String path, @Nullable T value) {
+        MongoUtils.set(root, makeKey(path), value);
     }
-
+    
     /**
-     * Sets the value to a document by a given string.
-     * <p>
-     * The string can be separated by a dot (.) to access nested documents.
-     * If the string does not exist, it will be created.
-     * </p>
-     * <p>
-     * Requires {@link #path} to be set.
-     * </p>
+     * Gets a value at the given {@link Path}.
      *
-     * @param paths - Path to value.
-     * @param value - Value to set.
+     * @param path - {@link Path}.
+     * @param def  - Default value.
+     * @return the value at the given {@link Path}.
      */
-    protected final <T> void setValueInPath(@Nonnull String paths, @Nullable T value) {
-        setValue(getPathWithDot() + paths, value);
+    protected final <T> T getValue(@Nonnull @Path String path, @Nullable T def) {
+        return MongoUtils.get(root, makeKey(path), def);
     }
-
-    protected final <T> void setValueIfNotSet(@Nonnull String paths, @Nonnull T value) {
-        if (getValue(paths, null) != null) {
-            return;
-        }
-
-        setValue(paths, value);
-    }
-
+    
     /**
-     * Returns a a document in this (root) document.
-     * <p>
-     * <code>getInDocument("string");</code> will return the following:
-     * </p>
-     * <pre>
+     * Fetches a value from the {@link Document} at the given {@link Path},
+     * applies the given {@link Consumer} and sets it to the same {@link Path}.
+     *
+     * <pre>{@code
+     * fetchDocumentValue("hello", new ArrayList<>(), list -> { list.add(1); })
+     *
+     * root:
+     * {
+     *     hello: [1]
+     * }
+     * }</pre>
+     * <pre>{@code
+     * fetchDocumentValue("hello.world", new ArrayList<>(), list -> { list.add(2); })
+     *
+     * root:
+     * {
+     *     hello:
      *     {
-     *          "string": {
-     *              ...
-     *          }
+     *         world: [2]
      *     }
-     * </pre>
+     * }
+     * }</pre>
      *
-     * @param path - Path to document.
-     * @return - Document
+     * @param path   - {@link Path}.
+     * @param def    - Default value.
+     * @param action - Action to perform either on the value or default value.
      */
-    protected Document getInDocument(String path) {
-        return getDocument().get(path, new Document());
+    protected <E> void fetchDocumentValue(@Nonnull @Path String path, @Nonnull E def, @Nonnull Consumer<E> action) {
+        final E value = getValue(path, def);
+        
+        action.accept(value);
+        setValue(path, value);
     }
-
-    protected Document getInDocument() {
-        return getInDocument(getPath());
-    }
-
+    
     /**
-     * Fetches a document from the root document and puts it in the root document.
+     * Fetches a {@link Document} at the given {@link Path}, applies the given {@link Consumer} and sets it to the same {@link Path}.
      *
-     * @param path     - Path to document.
-     * @param consumer - Consumer to accept the document.
+     * <pre>{@code
+     * fetchDocument("hello", document -> {
+     *     document.put("goodbye", 1);
+     * })
+     *
+     * root:
+     * {
+     *     hello:
+     *     {
+     *         goodbye: 1
+     *     }
+     * }
+     * }</pre>
+     *
+     * @param path     - {@link Path}.
+     * @param consumer - Action to perform.
      */
-    protected void fetchDocument(String path, Consumer<Document> consumer) {
-        final Document document = getInDocument(path);
-
+    protected final void fetchDocument(@Nonnull @Path String path, @Nonnull Consumer<Document> consumer) {
+        final Document document = getValue(path, new Document());
+        
         consumer.accept(document);
-        getDocument().put(path, document);
+        setValue(path, document);
     }
-
-    protected void fetchDocument(Consumer<Document> consumer) {
-        fetchDocument(getPath(), consumer);
-    }
-
+    
     /**
-     * Fetches a document from the root document and gets the value from it according to the function.
+     * Fetches a value from the {@link Document} at the given {@link Path}.
      *
-     * @param path     - Path to document.
-     * @param function - Function to get the value from the document.
-     * @return - Value from the document.
+     * <pre>{@code
+     * fetchFromDocument("hello", document -> {
+     *      return document.get("world", 1);
+     * });
+     *
+     * root:
+     * {
+     *     hello:
+     *     {
+     *         world: 123 // <-- Gets this value
+     *     }
+     * }
+     * }</pre>
+     *
+     * @param path     - {@link Path}.
+     * @param function - Function on how to retrieve the value.
+     * @return a value.
      */
-    protected <T> T fetchFromDocument(String path, Function<Document, T> function) {
-        final Document document = getInDocument(path);
-
+    protected final <T> T fetchFromDocument(@Nonnull String path, @Nonnull Function<Document, T> function) {
+        final Document document = getValue(path, new Document());
+        
         return function.apply(document);
     }
-
-    protected <T> T fetchFromDocument(Function<Document, T> function) {
-        return fetchFromDocument(getPath(), function);
+    
+    /**
+     * Gets a {@link Registry} value at the given {@link Path}.
+     * <pre>{@code
+     * Cosmetic cosmetic = getRegistryValue(Registries.getCosmetics(), "selected");
+     *
+     * root:
+     * {
+     *     selected: "cosmetic_id" // <-- Gets this value
+     * }
+     * }</pre>
+     *
+     * @param registry - Registry.
+     * @param path     - {@link Path}.
+     * @return a registry item, or null if not registered.
+     */
+    @Nullable
+    protected <T extends Keyed> T getRegistryValue(@Nonnull Registry<T> registry, @Nonnull @Path String path) {
+        return registry.get(getValue(path, ""));
     }
-
+    
+    /**
+     * Gets an {@link Enum} value at the given {@link Path}.
+     *
+     * <pre>{@code
+     * DayOfWeek dayOfWeek = getEnumValue(DayOfWeek.class, "day_of_week");
+     *
+     * root:
+     * {
+     *     day_of_week: "monday" // <-- Gets this value
+     * }
+     * }</pre>
+     *
+     * @param clazz - Enum class.
+     * @param paths - {@link Path}.
+     * @return an enum, or null if it doesn't exist.
+     */
+    @Nullable
+    protected <T extends Enum<T>> T getEnumValue(@Nonnull Class<T> clazz, @Nonnull @Path String paths) {
+        final String value = getValue(paths, "");
+        
+        return Enums.byName(clazz, value);
+    }
+    
     /**
      * Attempts to get player's {@link PlayerProfile}.
      *
@@ -247,8 +253,7 @@ public class PlayerDatabaseEntry {
      */
     @Nullable
     protected PlayerProfile getProfile() {
-        final Player player = getOnlinePlayer();
-
-        return player != null ? PlayerProfile.getProfile(player) : null;
+        return player().map(CF::getProfile).orElse(null);
     }
+    
 }

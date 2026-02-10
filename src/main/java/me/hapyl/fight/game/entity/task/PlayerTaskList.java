@@ -1,14 +1,11 @@
 package me.hapyl.fight.game.entity.task;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.player.IPlayerTask;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
-import java.util.Set;
 
 public class PlayerTaskList {
 
@@ -26,7 +23,7 @@ public class PlayerTaskList {
     }
 
     public void add(@Nonnull IPlayerTask task) {
-        final Enum<?> name = task.getEnum();
+        final Class<?> name = task.getEnum();
 
         final IPlayerTask previousTask = tasks.put(new TaskHash(name), task);
 

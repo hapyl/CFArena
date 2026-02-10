@@ -1,15 +1,18 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -21,6 +24,7 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShadowPrism extends Talent {
 
@@ -31,22 +35,25 @@ public class ShadowPrism extends Talent {
 
     private final PlayerMap<ArmorStand> playerPrism = PlayerMap.newMap();
 
-    public ShadowPrism() {
-        super("Shadow Prism", """
+    public ShadowPrism(@Nonnull Key key) {
+        super(key, "Shadow Prism");
+
+        setDescription("""
                 Deploy a teleportation orb that travels in straight line.
-                                
+                
                 &e&lLOOK AT BLOCK &7to place it at fixed block and prevent it from travelling.
-                                
+                
                 Use again to teleport to the orb after a short windup.
-                                
+                
                 &b;;This ability is invisible to your opponents!
-                """);
+                """
+        );
 
         setTexture("83ed4ce23933e66e04df16070644f7599eeb55307f7eafe8d92f40fb3520863c");
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerPrism.clear();
     }
 
@@ -65,7 +72,7 @@ public class ShadowPrism extends Talent {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final ArmorStand prism = getPrism(player);
 
         // Deploy Prism
@@ -91,14 +98,14 @@ public class ShadowPrism extends Talent {
                 self.getLocation().setYaw(playerLocation.getYaw());
 
                 if (self.getEquipment() != null) {
-                    self.getEquipment().setHelmet(this.getItem());
+                    self.getEquipment().setHelmet(this.getItem(player));
                 }
 
                 self.setVisibleByDefault(false);
             });
 
             playerPrism.put(player, entity);
-            startCd(player, deployCd); // fix instant use
+            startCooldown(player, deployCd); // fix instant use
 
             // Hide prism for everyone but player
             //Visibility.of(entity, player);
@@ -137,11 +144,10 @@ public class ShadowPrism extends Talent {
         }
 
         // Teleport to Prism
-        startCd(player, 9999);
+        startCooldown(player, 9999);
         final float pitchPerTick = 2.0f / windupTime;
 
-        player.addEffect(Effects.SLOW, 100, windupTime);
-        player.addEffect(Effects.SLOW_FALLING, 0, windupTime);
+        player.addEffect(EffectType.SLOW_FALLING, 0, windupTime);
 
         GameTask.runTaskTimerTimes((task, i) -> {
             final Location eyeLocation = player.getEyeLocation();
@@ -152,7 +158,7 @@ public class ShadowPrism extends Talent {
                 return;
             }
 
-            startCd(player, teleportCd);
+            startCooldown(player, teleportCd);
 
             final Location prismLocation = prism.getLocation();
             final Location location = new Location(
@@ -169,7 +175,7 @@ public class ShadowPrism extends Talent {
             playerPrism.remove(player);
 
             // Fx
-            player.addEffect(Effects.BLINDNESS, 1, 20);
+            player.addEffect(EffectType.BLINDNESS, 1, 20);
             player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
         }, 1, windupTime);
 

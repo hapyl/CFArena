@@ -5,24 +5,17 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 
 public abstract class CustomEvent extends Event {
-
-    public final void call() {
-        Bukkit.getPluginManager().callEvent(this);
-    }
-
+    
     /**
-     * Returns true if the event was cancelled.
+     * Calls this event and returns {@code true} if the event was cancelled, {@code false} otherwise.
+     * <p>This method always returns {@code false} if the event is not {@link Cancellable}.</p>
      *
-     * @return true if the event was cancelled.
+     * @return {@code true} if the event was cancelled, {@code false} otherwise.
      */
-    public final boolean callAndCheck() {
-        call();
-
-        if (this instanceof Cancellable cancellable) {
-            return cancellable.isCancelled();
-        }
-
-        return false;
+    @Override
+    public boolean callEvent() {
+        Bukkit.getPluginManager().callEvent(this);
+        
+        return this instanceof Cancellable cancellable && cancellable.isCancelled();
     }
-
 }

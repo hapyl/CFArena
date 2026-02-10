@@ -1,15 +1,15 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.maps.Selectable;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,10 +20,6 @@ import java.util.List;
 public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> extends StyledGUI {
 
     private final List<T> values;
-
-    public GameManagementSubGUI(Player player, String name, Size size, T[] values) {
-        this(player, name, size, List.of(values));
-    }
 
     public GameManagementSubGUI(Player player, String name, Size size, List<T> values) {
         super(player, name, size);
@@ -55,6 +51,8 @@ public abstract class GameManagementSubGUI<T extends Enum<T> & Selectable> exten
 
     @Override
     public final void onUpdate() {
+        super.onUpdate();
+        
         final SmartComponent component = newSmartComponent();
 
         setHeader(getHeaderItem());

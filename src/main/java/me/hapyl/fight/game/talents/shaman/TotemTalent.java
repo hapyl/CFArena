@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.talents.shaman;
 
-import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.heroes.shaman.ShamanData;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.shaman.resonance.ResonanceType;
-import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -21,19 +22,19 @@ public class TotemTalent extends InputTalent {
     @DisplayField(percentage = true) protected final double chanceToExplode = 0.2d;
     @DisplayField protected final double explodeDamage = 10.0d;
     @DisplayField protected final int interval = 30;
+    
     @DisplayField private final short maxTotems = 3;
 
-    private final PlayerMap<LinkedList<Totem>> playerTotems = PlayerMap.newMap();
-
-    public TotemTalent() {
-        super("Totem");
+    public TotemTalent(@Nonnull Key key) {
+        super(key, "Totem");
 
         setDescription("""
                 Equip a &aTotem&7 and prepare to toss it.
-                                
-                After a &aTotem&7 lands, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
-                &8;;There is a small chance for totem to explode violently.
-                """);
+                
+                After landing, it &aactivates&7 and does one of the following actions every &b{interval}&7 based on the &3Resonance&7.
+                &8&o;;There is a small chance for totem to explode violently after it expires.
+                """
+        );
 
         leftData.setAction("Resonate Discord");
         leftData.setType(TalentType.DAMAGE);
@@ -45,28 +46,8 @@ public class TotemTalent extends InputTalent {
         rightData.setCooldownSec(10);
         rightData.setDescription(ResonanceType.HEALING_AURA.toString());
 
-        setItem(Material.SPRUCE_FENCE);
+        setMaterial(Material.SPRUCE_FENCE);
         setDurationSec(20);
-    }
-
-    @Override
-    public void onStop() {
-        playerTotems.forEachAndClear(list -> {
-            list.forEach(Totem::cancel);
-            list.clear();
-        });
-
-        playerTotems.clear();
-    }
-
-    @Override
-    public void onDeath(@Nonnull GamePlayer player) {
-        final LinkedList<Totem> totems = playerTotems.remove(player);
-
-        if (totems != null) {
-            totems.forEach(Totem::cancel);
-            totems.clear();
-        }
     }
 
     @Nonnull
@@ -85,22 +66,18 @@ public class TotemTalent extends InputTalent {
         return Response.OK;
     }
 
-    @Nonnull
-    public LinkedList<Totem> getTotems(@Nonnull GamePlayer player) {
-        return playerTotems.computeIfAbsent(player, fn -> Lists.newLinkedList());
-    }
-
     private void throwTotem(GamePlayer player, ResonanceType type) {
-        final LinkedList<Totem> totems = getTotems(player);
-
+        final ShamanData data = HeroRegistry.SHAMAN.getPlayerData(player);
+        final LinkedList<Totem> totems = data.totems;
+        
         if (totems.size() >= maxTotems) {
-            final Totem last = totems.pollFirst();
-
-            if (last != null) {
-                last.cancel();
+            final Totem totem = totems.pollFirst();
+            
+            if (totem != null) {
+                totem.cancel();
             }
         }
-
+        
         totems.add(new Totem(this, player, type.getResonance()));
 
         // Fx

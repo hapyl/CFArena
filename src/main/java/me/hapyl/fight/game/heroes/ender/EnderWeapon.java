@@ -1,5 +1,9 @@
 package me.hapyl.fight.game.heroes.ender;
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
@@ -9,16 +13,12 @@ import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.Blocks;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,10 +27,9 @@ import java.util.List;
 public class EnderWeapon extends Weapon {
 
     public EnderWeapon() {
-        super(Material.NETHER_BRICK);
+        super(Material.NETHER_BRICK, Key.ofString("ender_weapon"));
 
         setName("Fist");
-        setId("ender_weapon");
         setDescription("Just a normal-sized fist.");
         setDamage(7.0);
 
@@ -44,7 +43,7 @@ public class EnderWeapon extends Weapon {
         public Transmission() {
             super("Transition", """
                     Initiate transition to a target block, after a short casting time, teleport to the location.
-                                    
+                    
                     Right Click again to cancel.
                     """);
 
@@ -54,7 +53,7 @@ public class EnderWeapon extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             // Cancel
             if (hasLocation(player)) {
                 targetLocation.remove(player);
@@ -73,6 +72,10 @@ public class EnderWeapon extends Weapon {
 
             // Initiate
             final List<Block> lastTwoTargetBlocks = player.getLastTwoTargetBlocks(25);
+
+            if (lastTwoTargetBlocks.size() != 2) {
+                return Response.error("Cannot teleport there!");
+            }
 
             final Block preLastBlock = lastTwoTargetBlocks.get(0);
             final Block lastBlock = lastTwoTargetBlocks.get(1);
@@ -158,7 +161,7 @@ public class EnderWeapon extends Weapon {
                     player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
                     targetLocation.remove(player);
 
-                    new EnderPearlTeleportEvent(player, location).call();
+                    new EnderPearlTeleportEvent(player, location).callEvent();
                 }
             }.runTaskTimer(0, 1);
 

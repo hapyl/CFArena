@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.heroes.zealot;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
-public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
+public class SoulsRebound extends GameTask {
 
     private final Zealot zealot;
     private final Player player;
@@ -25,16 +23,19 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
         this.player = player;
         this.damageTaken = Maps.newHashMap();
 
-        runTaskLater(zealot.getUltimateDuration());
+        runTaskLater(zealot.getUltimate().getDuration());
     }
 
     @Override
     public final void run() {
         damageTaken.forEach((entity, damage) -> {
-            entity.damage(damage, player, EnumDamageCause.SOULS_REBOUND);
+            entity.damage(damage, player, DamageCause.SOULS_REBOUND);
 
             // Fx
-            entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!", CFUtils.decimalFormat(damage), player.getName());
+            entity.sendMessage("&d👻 &5Took &c%s❤&5 damage from %s's Souls Rebound!".formatted(
+                    CFUtils.decimalFormat(damage),
+                    player.getName()
+            ));
             entity.playSound(Sound.ITEM_SHIELD_BREAK, 0.0f);
             entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.25f);
             entity.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.5f);
@@ -52,9 +53,4 @@ public class SoulsRebound extends GameTask implements HeroReference<Zealot> {
         PlayerLib.playSound(player, Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
     }
 
-    @Nonnull
-    @Override
-    public Zealot getHero() {
-        return zealot;
-    }
 }

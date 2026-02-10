@@ -1,27 +1,31 @@
 package me.hapyl.fight.game.talents.witcher;
 
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 
+import javax.annotation.Nonnull;
+
 public class AxiiData extends TickingGameTask {
 
     private final Akciy talent;
     private final LivingGameEntity entity;
+    private final GamePlayer stunner;
     private final ArmorStand stand;
     private final int duration;
 
     private double theta = 0.0d;
 
-    public AxiiData(Akciy talent, LivingGameEntity entity, int duration) {
+    public AxiiData(Akciy talent, LivingGameEntity entity, GamePlayer stunner, int duration) {
         this.talent = talent;
         this.entity = entity;
+        this.stunner = stunner;
         this.duration = duration;
 
         final Location location = entity.getLocationAnchored();
@@ -34,12 +38,19 @@ public class AxiiData extends TickingGameTask {
             }
         });
 
+        entity.triggerDebuff(stunner);
+
         mountIfNotMounted();
 
         // Fx
         entity.playWorldSound(Sound.BLOCK_ANVIL_LAND, 1.25f);
 
         runTaskTimer(0, 1);
+    }
+
+    @Nonnull
+    public GamePlayer getWhoStunned() {
+        return stunner;
     }
 
     @Override

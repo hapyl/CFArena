@@ -1,75 +1,164 @@
 package me.hapyl.fight.game.dot;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.annotate.AutoRegisteredListener;
+import me.hapyl.fight.game.NamedColoredPrefixed;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Described;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.fight.terminology.EnumTerm;
+import me.hapyl.fight.util.RuleTrigger;
+import org.bukkit.event.Listener;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
-public abstract class Dot implements Described {
-
+@AutoRegisteredListener
+public abstract class Dot implements NamedColoredPrefixed, Keyed, Described {
+    
+    private final Key key;
+    private final String prefix;
     private final String name;
-    private final String description;
-
-    private int period;
-    private int maxStacks;
-    private double damage;
-    @Nonnull private EnumDamageCause cause;
-
-    public Dot(String name, String description) {
+    private final Color color;
+    
+    private final int maxStacks;
+    private final int affectPeriod;
+    
+    @Nonnull private String description;
+    @Nonnull private RuleTrigger.Rule cooldownRule;
+    
+    Dot(
+            @Nonnull Key key,
+            @Nonnull String prefix,
+            @Nonnull String name,
+            @Nonnull Color color,
+            @Range(from = 1, to = Integer.MAX_VALUE) int affectPeriod,
+            @Range(from = 1, to = Integer.MAX_VALUE) int maxStacks
+    ) {
+        this.key = key;
+        this.prefix = prefix;
         this.name = name;
-        this.description = description;
-        this.period = 20;
-        this.maxStacks = 3;
-        this.damage = 0.0d;
-        this.cause = EnumDamageCause.ENTITY_ATTACK;
+        this.description = "No description.";
+        this.color = color;
+        this.maxStacks = maxStacks;
+        this.affectPeriod = affectPeriod;
+        this.cooldownRule = RuleTrigger.defaultRule();
+        
+        if (this instanceof Listener listener) {
+            CF.registerEvents(listener);
+        }
     }
-
-    public abstract void affect(@Nonnull LivingGameEntity entity);
-
-    public void setCause(@Nonnull EnumDamageCause cause) {
-        this.cause = cause;
-    }
-
+    
     @Nonnull
-    public EnumDamageCause getCause() {
-        return cause;
+    public RuleTrigger.Rule cooldownRule() {
+        return cooldownRule;
     }
-
-    public double getDamage() {
-        return damage;
+    
+    public void cooldownRule(@Nonnull RuleTrigger.Rule cooldownRule) {
+        this.cooldownRule = cooldownRule;
     }
-
-    public void setDamage(double damage) {
-        this.damage = Math.max(damage, 0);
+    
+    @Nonnull
+    @Override
+    public String getDescription() {
+        return description;
     }
-
-    public int getMaxStacks() {
+    
+    @Override
+    public void setDescription(@Nonnull String description) {
+        this.description = """
+                           %s
+                           &b🧊 &6On Exhaust
+                           %s
+                           """.formatted(description, exhaustDescription());
+    }
+    
+    public int affectPeriod() {
+        return affectPeriod;
+    }
+    
+    public int maxStacks() {
         return maxStacks;
     }
-
-    public void setMaxStacks(int maxStacks) {
-        this.maxStacks = Numbers.clamp(maxStacks, 1, 20);
+    
+    public abstract void affect(@Nonnull DotInstance instance);
+    
+    public abstract void exhaust(@Nonnull DotInstance instance);
+    
+    @Nonnull
+    public String exhaustDescription() {
+        return "Does nothing.";
     }
-
-    public int getPeriod() {
-        return period;
+    
+    @EventLike
+    public void onStart(@Nonnull DotInstance instance) {
     }
-
-    public void setPeriod(int period) {
-        this.period = Numbers.clamp(period, 1, 100);
+    
+    @EventLike
+    public void onStop(@Nonnull DotInstance instance) {
     }
-
+    
+    @EventLike
+    public void onTick(@Nonnull DotInstance instance) {
+    }
+    
+    @Nonnull
+    public DotInstance newInstance(@Nonnull LivingGameEntity entity) {
+        return new DotInstance(entity, this);
+    }
+    
+    @Nonnull
+    @Override
+    public Key getKey() {
+        return key;
+    }
+    
+    @Nonnull
+    @Override
+    public String getPrefix() {
+        return prefix;
+    }
+    
     @Nonnull
     @Override
     public String getName() {
         return name;
     }
-
+    
     @Nonnull
     @Override
-    public String getDescription() {
-        return description;
+    public Color getColor() {
+        return color;
+    }
+    
+    /**
+     * Gets the string representation of this DoT following the pattern:
+     * <p>`Name <u>DoT</u>`</p>
+     *
+     * @return the string representation of this DoT.
+     */
+    @Override
+    @Nonnull
+    public String toString() {
+        return toString0() + " " + EnumTerm.DAMAGE_OVER_TIME;
+    }
+    
+    @Override
+    public final boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        
+        final Dot that = (Dot) o;
+        return Objects.equals(this.key, that.key);
+    }
+    
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(this.key);
     }
 }

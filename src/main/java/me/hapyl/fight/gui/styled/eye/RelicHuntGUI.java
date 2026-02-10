@@ -1,16 +1,16 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.gui.RelicRewardGUI;
 import me.hapyl.fight.gui.styled.*;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -40,7 +40,9 @@ public class RelicHuntGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final List<GameMaps> mapsWithRelics = relicHunt.getMapsWithRelics();
+        super.onUpdate();
+        
+        final List<EnumLevel> mapsWithRelics = relicHunt.getMapsWithRelics();
 
         setHeader(StyledTexture.RELIC_HUNT.asIcon());
 
@@ -53,8 +55,8 @@ public class RelicHuntGUI extends StyledGUI {
                 break;
             }
 
-            final GameMaps enumMap = mapsWithRelics.get(i);
-            final GameMap map = enumMap.getMap();
+            final EnumLevel enumMap = mapsWithRelics.get(i);
+            final Level map = enumMap.getLevel();
 
             final List<Relic> relicsInMap = relicHunt.byZone(enumMap);
             final List<Relic> relicsFoundInMap = relicHunt.getFoundListIn(player, enumMap);
@@ -109,7 +111,7 @@ public class RelicHuntGUI extends StyledGUI {
         }
 
         setItem(30, createTotalRelicsItem());
-        setItem(32, StyledItem.ICON_RELIC_REWARDS.asButton("browse"), RelicRewardGUI::new);
+        setItem(32, StyledTexture.ICON_RELIC_REWARDS.asButton("browse"), RelicRewardGUI::new);
     }
 
     private ItemStack createTotalRelicsItem() {
@@ -122,7 +124,7 @@ public class RelicHuntGUI extends StyledGUI {
                 continue;
             }
 
-            final List<Relic> foundByType = relicHunt.getFoundListByType(getPlayer(), type);
+            final List<Relic> foundByType = relicHunt.getFoundListByType(player, type);
             final int foundSize = foundByType.size();
             final double percentDone = (double) foundSize / relics.size();
             final Color color
@@ -135,7 +137,7 @@ public class RelicHuntGUI extends StyledGUI {
                             color.color(foundSize),
                             relics.size(),
                             type.getName(),
-                            CFUtils.checkmark(percentDone >= 1 ? true : null)
+                            BukkitUtils.checkmark(percentDone >= 1 ? true : null)
                     )
             );
         }

@@ -1,0 +1,27 @@
+package me.hapyl.fight.npc;
+
+import me.hapyl.eterna.module.registry.SimpleRegistry;
+
+public class NPCRegistry extends SimpleRegistry<PersistentNPC> {
+    
+    public final TheEyeNPC THE_EYE;
+    public final HypixelNPC HYPIXEL;
+    public final UndeadWatcherNPC UNDEAD_WATCHER;
+    public final BloodfiendNPC BLOODFIEND;
+    public final StoreOwnerNPC STORE_OWNER;
+    public final CommissionerNPC COMMISSIONER;
+    public final WorkerNPCMale WORKER_MALE;
+    public final WorkerNPCFemale WORKER_FEMALE;
+
+    public NPCRegistry() {
+        THE_EYE = register("the_eye", TheEyeNPC::new);
+        HYPIXEL = register("hypixel", HypixelNPC::new);
+        UNDEAD_WATCHER = register("undead_watcher", UndeadWatcherNPC::new);
+        BLOODFIEND = register("bloodfiend", BloodfiendNPC::new);
+        STORE_OWNER = register("store_owner", StoreOwnerNPC::new);
+        COMMISSIONER = register("commissioner", CommissionerNPC::new);
+        WORKER_MALE = register("worker_male", WorkerNPCMale::new);
+        WORKER_FEMALE = register("worker_female", WorkerNPCFemale::new);
+    }
+    
+}

@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.talents.frostbite;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.TalentReference;
-import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.fight.game.achievement.AchievementRegistry;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TimedGameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.CFUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,12 +16,10 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.potion.PotionEffectType;
 
-import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class IceCage extends TimedGameTask implements Removable, TalentReference<IceCageTalent> {
+public class IceCage extends TimedGameTask implements Removable {
 
     private static final double[][] LOCATION_OFFSETS = {
             { 1, 0, 0 },
@@ -57,20 +55,22 @@ public class IceCage extends TimedGameTask implements Removable, TalentReference
 
         // Achievement
         if (player.isSelfOrTeammate(entity)) {
-            Achievements.CAGE_SELF.complete(player);
+            final AchievementRegistry registry = Registries.achievements();
+            registry.FROSTBITE_CAGE_SELF.complete(player);
 
             if (!player.equals(entity) && entity instanceof GamePlayer playerEntity) {
-                Achievements.CAGE_SELF_OTHER.complete(playerEntity);
+                registry.FROSTBITE_CAGE_SELF_OTHER.complete(playerEntity);
             }
         }
 
         // Fx
-        player.sendMessage("&b\uD83E\uDD76 &3Your snowball hit %s!", entity.getName());
+        player.sendMessage("&b\uD83E\uDD76 &3Your snowball hit %s!".formatted(entity.getName()));
 
-        entity.sendMessage("&b\uD83E\uDD76 &3You got hit by %s's snowball!", player.getName());
+        entity.sendMessage("&b\uD83E\uDD76 &3You got hit by %s's snowball!".formatted(player.getName()));
         entity.playWorldSound(Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 2.0f);
-        entity.addEffect(Effects.BLINDNESS, 2, 30);
+        entity.addEffect(EffectType.BLINDNESS, 2, 30);
         entity.setFreezeTicks(maxTick);
+        entity.triggerDebuff(player);
 
         runTaskTimer(0, PERIOD);
     }
@@ -114,12 +114,6 @@ public class IceCage extends TimedGameTask implements Removable, TalentReference
 
         // SFx
         player.playWorldSound(location, Sound.BLOCK_GLASS_BREAK, 0.5f + (0.5f / maxTick * tick));
-    }
-
-    @Nonnull
-    @Override
-    public IceCageTalent getTalent() {
-        return talent;
     }
 
     private void createBlob() {

@@ -1,22 +1,21 @@
 package me.hapyl.fight.database.entry;
 
+import me.hapyl.eterna.module.registry.KeyedEnum;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
 import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.gui.styled.StyledTexture;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class DailyRewardEntry extends PlayerDatabaseEntry {
-    public DailyRewardEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+    public DailyRewardEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "reward");
     }
 
     public boolean canClaimAny() {
-        final PlayerRank playerRank = getDatabase().getRank();
-
         for (Type type : Type.values()) {
             if (canClaim(type)) {
                 return true;
@@ -42,21 +41,21 @@ public class DailyRewardEntry extends PlayerDatabaseEntry {
     }
 
     public long lastDaily(@Nonnull Type type) {
-        return getValue("reward.daily.last_" + type.name(), 0L);
+        return getValue("daily.last_" + type.getKeyAsString(), 0L);
     }
 
     public int getStreak(@Nonnull Type type) {
-        return getValue("reward.daily.streak_" + type.name(), 0);
+        return getValue("daily.streak_" + type.getKeyAsString(), 0);
     }
 
     public void increaseStreak(@Nonnull Type type) {
         final int value = getStreak(type) + 1;
 
-        setValue("reward.daily.streak_" + type.name(), value);
+        setValue("daily.streak_" + type.getKeyAsString(), value);
     }
 
     public void setLastDaily(@Nonnull Type type, long l) {
-        setValue("reward.daily.last_" + type.name(), l);
+        setValue("daily.last_" + type.getKeyAsString(), l);
     }
 
     public void markLastDailyReward(@Nonnull Type type) {
@@ -69,10 +68,24 @@ public class DailyRewardEntry extends PlayerDatabaseEntry {
         return streak > 0 && streak % type.bonus == 0;
     }
 
-    public enum Type {
-        DEFAULT(PlayerRank.DEFAULT, StyledTexture.CHEST, new DailyReward(1000, 10, 1).setCrate(Crates.COMMON, 1)),
-        VIP(PlayerRank.VIP, StyledTexture.CHEST_EMERALD, new DailyReward(2500, 25, 1).setCrate(Crates.UNCOMMON, 1)),
-        PREMIUM(PlayerRank.PREMIUM, StyledTexture.CHEST_DIAMOND, new DailyReward(5000, 50, 1).setCrate(Crates.RARE, 2));
+    public enum Type implements KeyedEnum {
+        DEFAULT(
+                PlayerRank.DEFAULT,
+                StyledTexture.CHEST,
+                type -> new DailyReward(type, 1000, 10, 1)
+        ),
+
+        VIP(
+                PlayerRank.VIP,
+                StyledTexture.CHEST_EMERALD,
+                type -> new DailyReward(type, 2500, 25, 1)
+        ),
+
+        PREMIUM(
+                PlayerRank.PREMIUM,
+                StyledTexture.CHEST_DIAMOND,
+                type -> new DailyReward(type, 5000, 50, 1)
+        );
 
         public final PlayerRank rank;
         public final StyledTexture texture;
@@ -80,11 +93,10 @@ public class DailyRewardEntry extends PlayerDatabaseEntry {
 
         public final int bonus = 7;
 
-        Type(PlayerRank rank, StyledTexture texture, DailyReward reward) {
+        Type(PlayerRank rank, StyledTexture texture, Function<Type, DailyReward> fn) {
             this.rank = rank;
             this.texture = texture;
-            this.reward = reward;
-            this.reward.setType(this);
+            this.reward = fn.apply(this);
         }
 
         @Override

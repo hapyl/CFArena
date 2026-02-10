@@ -1,7 +1,5 @@
 package me.hapyl.fight.util.displayfield;
 
-import me.hapyl.fight.game.attribute.AttributeType;
-
 import javax.annotation.Nonnull;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,46 +12,37 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
 public @interface DisplayField {
-
+    
     /**
-     * Name of the field. If not, present, field name will be formatted and used.
+     * Denotes the name display name of the field, defaults to field name if omitted.
      */
     @Nonnull
     String name() default "";
-
+    
     /**
-     * Suffix of the field. If not present, no suffix will be used.
+     * Denotes the suffix of the display to be appended at the end of the display.
      */
     @Nonnull
     String suffix() default "";
-
+    
     /**
-     * Whenever a space should prepend suffix.
+     * The multiplier a numeric field value will be multiplied in the display.
+     * <p>
+     *     Note that {@link Integer} are always parsed as 'ticks' and are not scaled!
+     *     <br>
+     *     If this behavior is unwanted, use {@link Short} or other numeric data types.
+     * </p>
      */
-    boolean suffixSpace() default true;
-
+    double scale() default 1;
+    
     /**
-     * Multiplier by which the numeral value will be scaled.
-     */
-    double scaleFactor() default 1.0d;
-
-    /**
-     * Annotates that this field is a percentage and will be scaled by 100 and appended with "%" without a space.
-     *
-     * @return is percentage.
+     * Denotes that this field is a percentage and should be:
+     * <ul>
+     *     <li>Multiplied by 100
+     *     <li>Suffixed with a '%'
+     * </ul>
+     * So a {@code 0.35} double would look like {@code 35%}
      */
     boolean percentage() default false;
-
-    /**
-     * Annotates custom decimal point.
-     * <br>
-     * -1 to dynamically use 1 dp for <code>float</code> and 2 for <code>double</code>.
-     *
-     * @return the decimal point.
-     */
-    int dp() default -1;
-
-    @Nonnull
-    AttributeType attribute() default AttributeType.MAX_HEALTH;
-
+    
 }

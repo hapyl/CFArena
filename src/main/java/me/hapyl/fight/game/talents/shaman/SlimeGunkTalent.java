@@ -1,13 +1,12 @@
 package me.hapyl.fight.game.talents.shaman;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -24,30 +23,30 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SlimeGunkTalent extends Talent implements Listener {
 
-    @DisplayField(suffix = "blocks") protected final double diameter = 5.0d;
+    @DisplayField(suffix = " blocks") protected final double diameter = 5.0d;
     @DisplayField protected final int period = 5;
 
     protected final BlockData blockData = Material.VINE.createBlockData();
-    protected final TemperInstance temperInstance = Temper.SLIME_GUNK.newInstance()
-            .decrease(AttributeType.SPEED, 0.1); // 50%
 
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
     private final PlayerMap<SlimeGunk> gunkMap = PlayerMap.newMap();
 
-    public SlimeGunkTalent() {
-        super("Gunk of Slime");
+    public SlimeGunkTalent(@Nonnull Key key) {
+        super(key, "Gunk of Slime");
 
         setDescription("""
                 Throw a gunk of slime in the direction you're facing.
-                                
+                
                 Upon landing, creates a &atoxic&7 fields that &2poisons&7 and drastically &3slow &cenemies&7.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.SLIME_BALL);
+        setMaterial(Material.SLIME_BALL);
         setDurationSec(3);
         setCooldownSec(12);
     }
@@ -58,7 +57,7 @@ public class SlimeGunkTalent extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         snowballMap.forEachAndClear(Snowball::remove);
         gunkMap.forEachAndClear(SlimeGunk::cancel);
     }
@@ -96,7 +95,7 @@ public class SlimeGunkTalent extends Talent implements Listener {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         player.launchProjectile(Snowball.class, self -> {
             self.setItem(new ItemStack(getMaterial()));
 

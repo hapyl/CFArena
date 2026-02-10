@@ -1,21 +1,20 @@
 package me.hapyl.fight.game.weapons.range;
 
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.PlayerElement;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
-import me.hapyl.fight.util.collection.RangeTreeMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -26,7 +25,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
-public abstract class RangeWeapon extends Weapon implements GameElement, PlayerElement, UIComponent {
+public abstract class RangeWeapon extends Weapon implements UIComponent {
 
     public static final double HEADSHOT_THRESHOLD = 0.75d;
     public static final double HEADSHOT_MULTIPLIER = 1.5d;
@@ -46,12 +45,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     private Sound sound;
     private float pitch;
 
-    public RangeWeapon(Material material, String id) {
-        super(material);
+    public RangeWeapon(@Nonnull Material material, @Nonnull Key key) {
+        super(material, key);
         this.cooldown = 0;
         this.shift = 0.5d;
         this.maxDistance = 40.0d;
-        this.setId(id);
 
         this.playerAmmo = PlayerMap.newMap();
         this.maxAmmo = 8;
@@ -74,11 +72,11 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     }
 
     @Override
-    public final void onStart() {
+    public final void onStart(@Nonnull GameInstance instance) {
     }
 
     @Override
-    public final void onStop() {
+    public final void onStop(@Nonnull GameInstance instance) {
         playerAmmo.clear();
     }
 
@@ -86,20 +84,20 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public final void onDeath(@Nonnull GamePlayer player) {
         playerAmmo.remove(player);
     }
-
+    
     @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
+    public void juice(@Nonnull ItemBuilder builder) {
         builder.addLore();
-        builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs:");
-
+        builder.addLore("&e&lᴀᴛᴛʀɪʙᴜᴛᴇs");
+        
         addDynamicLore(builder, " ғɪʀᴇ ʀᴀᴛᴇ: &f&l%s", cooldown, t -> Tick.round(t.intValue()) + "s");
         addDynamicLore(builder, " ᴍᴀx ᴅɪsᴛᴀɴᴄᴇ: &f&l%s", maxDistance, Object::toString);
         addDynamicLore(builder, " ᴅᴀᴍᴀɢᴇ: &f&l%s", damage, Object::toString);
-
+        
         builder.addLore(" ᴍᴀx ᴀᴍᴍᴏ: &f&l%s".formatted(maxAmmo));
-        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%ss".formatted(Tick.round(reloadTime)));
+        builder.addLore(" ʀᴇʟᴏᴀᴅ ᴛɪᴍᴇ: &f&l%s".formatted(Tick.round(reloadTime)));
     }
-
+    
     @Nonnull
     @Override
     public String getString(@Nonnull GamePlayer player) {
@@ -190,24 +188,6 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
         return this;
     }
 
-    public int getCooldown(GamePlayer player) {
-        return player.getCooldown(getMaterial());
-    }
-
-    public void startCooldown(GamePlayer player) {
-        if (this.cooldown > 0) {
-            startCooldown(player, this.cooldown);
-        }
-    }
-
-    public void startCooldown(GamePlayer player, int cd) {
-        player.setCooldown(getMaterial(), cd);
-    }
-
-    public boolean hasCooldown(GamePlayer player) {
-        return getCooldown(player) > 0;
-    }
-
     public RangeWeapon setSound(Sound sound, float pitch) {
         this.sound = sound;
         this.pitch = pitch;
@@ -219,8 +199,8 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     }
 
     public void reload(@Nonnull GamePlayer player) {
-        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
-        final int reloadTimeScaled = player.scaleCooldown(reloadTime);
+        final ItemStack item = player.getItem(HotBarSlot.WEAPON);
+        final int reloadTimeScaled = player.cooldownManager.scaleCooldown(reloadTime, false);
 
         // force reload
         playerAmmo.put(player, 0);
@@ -259,7 +239,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
             }
         }.runTaskTimer(0, 1);
 
-        startCooldown(player, reloadTime);
+        player.cooldownManager.setCooldown(this, reloadTime);
     }
 
     public int getPlayerAmmo(@Nonnull GamePlayer player) {
@@ -269,7 +249,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
     public int getWeaponCooldownScale(GamePlayer player) {
         final int weaponCooldown = getWeaponCooldown(player);
 
-        return player.getAttributes().calculateRangeAttackSpeed(weaponCooldown);
+        return player.getAttributes().calculate().rangeAttackSpeed(weaponCooldown);
     }
 
     private int subtractAmmo(GamePlayer player) {
@@ -304,8 +284,8 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            if (player.hasCooldown(getMaterial())) {
+        public Response execute(@Nonnull GamePlayer player) {
+            if (player.cooldownManager.hasCooldown(RangeWeapon.this)) {
                 return null;
             }
 
@@ -323,7 +303,7 @@ public abstract class RangeWeapon extends Weapon implements GameElement, PlayerE
             else {
                 final int weaponCooldownScale = getWeaponCooldownScale(player);
 
-                player.setCooldownIgnoreModifier(getMaterial(), weaponCooldownScale);
+                player.cooldownManager.setCooldownIgnoreCooldownModifier(RangeWeapon.this, weaponCooldownScale);
             }
 
             return Response.OK;

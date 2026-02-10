@@ -1,87 +1,97 @@
 package me.hapyl.fight.game.talents.witcher;
 
+
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.Quality;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
 import org.bukkit.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Irden extends Talent {
-
+    
     @DisplayField private final double radius = 3.5d;
-    @DisplayField private final double defenseReduction = 0.5d;
-    @DisplayField private final double speedReduction = 0.04d; // 20%
+    @DisplayField(percentage = true) private final double defenseReduction = -0.5d;
+    @DisplayField(percentage = true) private final double speedReduction = -0.2d;
     @DisplayField private final int impairDuration = 10;
-
-    private final TemperInstance temperInstance = Temper.YRDED.newInstance()
-            .decrease(AttributeType.DEFENSE, defenseReduction)
-            .decrease(AttributeType.SPEED, speedReduction);
-
+    
     private final Particle.DustTransition dustTransition = new Particle.DustTransition(
             Color.fromRGB(140, 65, 125),
             Color.fromRGB(59, 2, 47),
             1
     );
-
-    public Irden() {
-        super("Yrden", """
-                Creates &dYrden&7 aura at your current location.
-                                
-                &cEnemies&7 &ninside&7 the aura are &eimpaired&7 and aren't affected by &3knockback&7.
-                """);
-
+    
+    private final ModifierSource modifierSource = new ModifierSource(Key.ofString("yrden"));
+    
+    public Irden(@Nonnull Key key) {
+        super(key, "Yrden");
+        
+        setDescription("""
+                       Creates &dYrden&7 aura at your current location.
+                       
+                       &cEnemies&7 &ninside&7 the aura are &eimpaired&7 and aren't affected by &3knockback&7.
+                       """
+        );
+        
         setType(TalentType.IMPAIR);
-        setItem(Material.POPPED_CHORUS_FRUIT);
+        setMaterial(Material.POPPED_CHORUS_FRUIT);
         setDurationSec(10);
         setCooldownSec(25);
     }
-
+    
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-
+        
         new TimedGameTask(this) {
             @Override
             public void run(int tick) {
                 affect(player, location, tick);
             }
         }.runTaskTimer(0, 1);
-
+        
         // Fx
         player.playWorldSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 2);
-
+        
         return Response.OK;
     }
-
+    
     public void affect(@Nonnull GamePlayer player, @Nonnull Location location, int tick) {
         if (tick % 20 == 0 || tick == (getDuration() - 1)) {
-            Geometry.drawCircle(location, radius, Quality.HIGH, loc -> {
-                player.spawnWorldParticle(loc, Particle.WITCH, 3, 0.1d, 0.1d, 0.1d, 0.05f);
-                player.spawnWorldParticle(loc, Particle.DUST_COLOR_TRANSITION, 3, 0.1d, 0.1d, 0.1d, dustTransition);
-            });
+            Geometry.drawCircle(
+                    location, radius, Quality.HIGH, loc -> {
+                        player.spawnWorldParticle(loc, Particle.WITCH, 3, 0.1d, 0.1d, 0.1d, 0.05f);
+                        player.spawnWorldParticle(loc, Particle.DUST_COLOR_TRANSITION, 3, 0.1d, 0.1d, 0.1d, dustTransition);
+                    }
+            );
         }
-
+        
         Collect.nearbyEntities(location, radius).forEach(entity -> {
             if (player.isSelfOrTeammate(entity)) {
                 return;
             }
-
-            temperInstance.temper(entity, impairDuration);
-
-            entity.addEffect(Effects.VULNERABLE, impairDuration, true);
-            entity.addEffect(Effects.IMMOVABLE, impairDuration, true);
+            
+            entity.getAttributes().addModifier(
+                    modifierSource, impairDuration, player, modifier -> modifier
+                            .of(AttributeType.DEFENSE, ModifierType.ADDITIVE, defenseReduction)
+                            .of(AttributeType.SPEED, ModifierType.ADDITIVE, speedReduction)
+                            .of(AttributeType.KNOCKBACK_RESISTANCE, ModifierType.FLAT, 1_000)
+            );
+            
+            entity.addEffect(EffectType.VULNERABLE, impairDuration);
         });
     }
-
+    
 }

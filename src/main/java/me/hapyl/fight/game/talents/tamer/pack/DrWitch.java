@@ -1,14 +1,17 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestAttackableTargetWitch;
-import net.minecraft.world.entity.ai.goal.target.PathfinderGoalNearestHealableRaider;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableWitchTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestHealableRaiderTargetGoal;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,7 +31,7 @@ public class DrWitch extends TamerPack {
                 Periodically splashes a &ahealing&7 potion on a &eteammate&7 with the lowest health.
                 """, TalentType.SUPPORT);
 
-        attributes.setHealth(30);
+        attributes.setMaxHealth(30);
 
         setDurationSec(30);
     }
@@ -54,7 +57,7 @@ public class DrWitch extends TamerPack {
     public record WitchData(GameTeam team, GamePlayer target, double healing) {
     }
 
-    private class DrWitchEntity extends TamerEntity<Witch> {
+    private class DrWitchEntity extends TamerEntity {
 
         private int nextPotion;
 
@@ -62,10 +65,12 @@ public class DrWitch extends TamerPack {
             super(pack, entity);
 
             this.targetClosestEntities = false;
-            this.ai.removeAllGoals(goal -> {
-                return goal instanceof PathfinderGoalNearestAttackableTargetWitch || goal instanceof PathfinderGoalNearestHealableRaider;
-            });
 
+            // Remove default AI so witch doesn't attack player or trier to heal raiders
+            ((Mob) Reflect.getHandle(entity)).goalSelector.removeAllGoals(goal -> {
+                return goal instanceof NearestAttackableWitchTargetGoal || goal instanceof NearestHealableRaiderTargetGoal;
+            });
+            
             this.nextPotion = witchHealingPeriod;
         }
 
@@ -95,7 +100,7 @@ public class DrWitch extends TamerPack {
             final ThrownPotion potion = entity.launchProjectile(ThrownPotion.class);
             potion.setItem(new ItemBuilder(Material.SPLASH_POTION).setPotionColor(Color.RED).asIcon());
 
-            getHero().potionMap.put(potion, new WitchData(team, player, scaleUltimateEffectiveness(player, witchHealingAmount)));
+            HeroRegistry.TAMER.potionMap.put(potion, new WitchData(team, player, scaleUltimateEffectiveness(player, witchHealingAmount)));
         }
 
         private GamePlayer getHealingTarget() {

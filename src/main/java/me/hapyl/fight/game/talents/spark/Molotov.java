@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.talents.spark;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.Vectors;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,95 +22,142 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Molotov extends Talent implements Listener {
 
     @DisplayField private final int maximumAirTime = 60;
-    @DisplayField(suffix = "blocks") private final double fireRadius = 3.0d;
-    @DisplayField private final int fireDuration = 100;
+    @DisplayField(suffix = " blocks") private final double fireRadius = 3.0d;
     @DisplayField private final double fireDamage = 3.0d;
-    @DisplayField(suffix = "&f❤/&fInterval") private final double fireHealing = 1.0d;
+    @DisplayField(scale = 100, suffix = "% of Max Health") private final double fireHealing = 0.4d;
     @DisplayField private final int fireInterval = 5;
 
-    public Molotov() {
-        super(
-                "Hot Hands", """
-                        Throw a fireball in front of you that flies for maximum of &b{maximumAirTime}&7.
-                                                
-                        Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
-                        """
+    private final Vector downVelocity = new Vector(0.0d, -0.25d, 0.0d);
+
+    public Molotov(@Nonnull Key key) {
+        super(key, "Hot Hands");
+
+        setDescription("""
+                Throw a &6fireball&7 in front of you that lands after &b{maximumAirTime}&7 or upon hitting a block.
+                
+                Upon landing, set the ground of &efire&7, &cdamaging&7 enemies and &ahealing&7 yourself.
+                """
         );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.FIRE_CHARGE);
+        setMaterial(Material.FIRE_CHARGE);
+
         setCooldown(700);
+        setDuration(100);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
         final Vector vector = location.getDirection().add(new Vector(0.0d, 0.25, 0.0d));
 
-        final Item item = player.getWorld().dropItem(location, new ItemStack(Material.HONEYCOMB), self -> {
-            self.setPickupDelay(5000);
-            self.setTicksLived(5800);
-            self.setVelocity(vector.multiply(1.5d));
-        });
+        final Item item = player.getWorld().dropItem(
+                location, new ItemStack(Material.HONEYCOMB), self -> {
+                    self.setPickupDelay(5000);
+                    self.setTicksLived(5800);
+                    self.setVelocity(vector.multiply(1.5d));
+                }
+        );
 
-        new GameTask() {
-            private int flightTick = maximumAirTime;
-
+        new TickingGameTask() {
             @Override
-            public void run() {
-                // Fly down if in the air for 3s or more
-                if (flightTick-- <= 0) {
-                    item.setVelocity(new Vector(0.0d, -0.25d, 0.0d));
+            public void run(int tick) {
+                if (tick >= maximumAirTime) {
+                    item.setVelocity(downVelocity);
                 }
 
-                // Spawn molotov
+                // Collision detection
                 if (item.isDead() || item.isOnGround()) {
                     item.remove();
-                    startMolotovTask(item.getLocation(), player);
+                    createMolotov(item.getLocation(), player);
                     cancel();
-                    return;
                 }
 
                 // Fx
-                PlayerLib.spawnParticle(item.getLocation(), Particle.FLAME, 1, 0, 0, 0, 0);
+                player.spawnWorldParticle(item.getLocation(), Particle.FLAME, 1);
             }
         }.runTaskTimer(0, 1);
 
-        // fx
-        PlayerLib.playSound(location, Sound.ENTITY_ARROW_SHOOT, 0.0f);
+        // Fx
+        player.playWorldSound(location, Sound.ENTITY_ARROW_SHOOT, 0.0f);
         return Response.OK;
     }
 
-    private void startMolotovTask(Location location, GamePlayer player) {
-        new GameTask() {
-            private int molotovTime = fireDuration / fireInterval;
+    public void createMolotov(@Nonnull Location location, @Nonnull GamePlayer player) {
+        final Location centre = location.clone();
+
+        // Calculate healing
+        final double maxHealth = player.getMaxHealth();
+        final double healingPerTick = maxHealth * fireHealing / ((double) getDuration() / fireInterval);
+
+        new TickingGameTask() {
+            private double theta;
 
             @Override
-            public void run() {
-                if (molotovTime-- < 0) {
+            public void run(int tick) {
+                if (tick > getDuration()) {
                     cancel();
                     return;
                 }
 
-                Collect.nearbyEntities(location, fireRadius).forEach(entity -> {
-                    if (entity.equals(player)) {
-                        entity.heal(fireHealing);
-                    }
-                    else {
-                        entity.damage(fireDamage, player, EnumDamageCause.FIRE_MOLOTOV);
-                    }
-                });
+                // Damage
+                if (modulo(fireInterval)) {
+                    Collect.nearbyEntities(location, fireRadius, entity -> !player.isTeammate(entity))
+                           .forEach(entity -> {
+                               // Heal
+                               if (player.equals(entity)) {
+                                   player.heal(healingPerTick);
+                               }
+                               else {
+                                   entity.damageNoKnockback(fireDamage, player, DamageCause.FIRE_MOLOTOV);
+                               }
+                           });
 
-                // Fx
-                PlayerLib.playSound(location, Sound.BLOCK_FIRE_AMBIENT, 2.0f);
-                PlayerLib.spawnParticle(location, Particle.FLAME, 15, fireRadius / 2.0d, 0.1d, fireRadius / 2.0f, 0.05f);
-                Geometry.drawCircle(location, fireRadius, Quality.HIGH, new WorldParticle(Particle.FLAME));
+                    // Play sound at intervals
+                    player.playWorldSound(location, Sound.BLOCK_FIRE_AMBIENT, 2.0f);
+                }
+
+                // Draw outline with lava particles
+                for (double d = 0; d < Math.PI * 2; d += Math.PI / 64) {
+                    final double x = Math.sin(d) * fireRadius;
+                    final double z = Math.cos(d) * fireRadius;
+
+                    LocationHelper.offset(location, x, 0.1d, z, () -> {
+                        player.spawnWorldParticle(location, Particle.FALLING_LAVA, 1);
+                    });
+                }
+
+                final double offset = Math.PI * 2 / 4;
+
+                for (int i = 0; i < 16; i++) {
+                    final double x = Math.sin(theta + offset * i) * fireRadius;
+                    final double z = Math.cos(theta + offset * i) * fireRadius;
+
+                    LocationHelper.offset(
+                            location, x, 0.1d, z, () -> {
+                                final Vector vector = Vectors.directionTo(centre, location);
+
+                                player.spawnWorldParticle(
+                                        location,
+                                        Particle.FLAME, 0,
+                                        vector.getX() * 0.4d,
+                                        0.1d,
+                                        vector.getZ() * 0.4d,
+                                        0.4f
+                                );
+                            }
+                    );
+
+                    theta += Math.PI / 32;
+                }
+
             }
-        }.runTaskTimer(0, fireInterval);
+        }.runTaskTimer(0, 1);
     }
 
 }

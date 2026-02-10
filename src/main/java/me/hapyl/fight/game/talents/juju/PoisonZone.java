@@ -1,76 +1,86 @@
 package me.hapyl.fight.game.talents.juju;
 
+
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PoisonZone extends Talent {
-
+    
     @DisplayField private final double radius = 5.0d;
     @DisplayField private final double damagePerTick = 1.0d;
-    @DisplayField private final int damageTick = 5;
-    @DisplayField(scaleFactor = 100) private final double defenseReduction = 0.7d;
-    @DisplayField private final int defenseReductionDuration = Tick.fromSecond(5);
-
-    public PoisonZone() {
-        super("Poison Zone");
-
+    @DisplayField(scale = 100) private final double defenseReduction = -0.7d;
+    
+    @DisplayField private final int damagePeriod = 5;
+    @DisplayField private final int defenseReductionDuration = Tick.fromSeconds(5);
+    @DisplayField private final short poisonStacks = 5;
+    
+    private final ModifierSource modifierSource = new ModifierSource(Key.ofString("poison_ivy"));
+    private final Color leavesColor = Color.fromARGB(200, 32, 140, 7);
+    
+    public PoisonZone(@Nonnull Key key) {
+        super(key, "Poison Zone");
+        
         setDurationSec(6);
     }
-
+    
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
-        return execute(player, player.getLocation());
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
+        execute(player, player.getLocation());
+        return Response.OK;
     }
-
-    public Response execute(GamePlayer player, Location location) {
+    
+    public void execute(@Nonnull GamePlayer player, @Nonnull Location location) {
         new TimedGameTask(this) {
-            private double theta = 0.0d;
-
+            private double theta;
+            
             @Override
             public void run(int tick) {
-                Collect.nearbyEntities(location, radius).forEach(living -> {
-                    living.setLastDamager(player);
-                    living.damageTick(damagePerTick, EnumDamageCause.POISON_IVY, damageTick);
-
-                    final EntityAttributes attributes = living.getAttributes();
-                    attributes.decreaseTemporary(Temper.POISON_IVY, AttributeType.DEFENSE, defenseReduction, defenseReductionDuration);
-
-                    living.addEffect(Effects.POISON, 1, defenseReductionDuration);
+                Collect.nearbyEntities(location, radius, player::isNotSelfOrTeammateOrHasEffectResistance).forEach(living -> {
+                    // Can't use modulo() because we do need to damage at first tick
+                    if (tick % damagePeriod == 0) {
+                        living.damageNoKnockback(damagePerTick, player, DamageCause.POISON_IVY);
+                    }
+                    
+                    living.setDotStacks(DotType.POISON, poisonStacks, player);
+                    living.getAttributes().addModifier(modifierSource, defenseReductionDuration, player, modifier -> modifier.of(AttributeType.DEFENSE, ModifierType.MULTIPLICATIVE, defenseReduction));
                 });
-
+                
                 // Fx
-                for (int i = 1; i <= 5; i++) {
-                    final double x = Math.sin(theta + 2 * i) * radius;
-                    final double z = Math.cos(theta + 2 * i) * radius;
-
-                    location.add(x, 0, z);
-                    player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 3, 0.1d, 0.05d, 0.1d, 0.025f);
-                    player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 1, 0.1d, 0.1d, 0.1d, 0);
-                    location.subtract(x, 0, z);
+                final int points = 6;
+                final double offset = Math.PI * 2 / points;
+                
+                for (int index = 0; index <= points; index++) {
+                    final double x = Math.sin(theta + offset * index) * radius;
+                    final double y = Math.sin(Math.toRadians(tick) * 5) * 0.2 + 0.5;
+                    final double z = Math.cos(theta + offset * index) * radius;
+                    
+                    LocationHelper.offset(
+                            location, x, y, z, () -> {
+                                player.spawnWorldParticle(location, Particle.TINTED_LEAVES, 0, 1, 1, 1, 1, leavesColor);
+                            }
+                    );
                 }
-
-                // Scatter particles
-                player.spawnWorldParticle(location, Particle.TOTEM_OF_UNDYING, 10, radius, 0.25d, radius, 0.1f);
-
-                // Theta
-                theta += Math.PI / 16;
+                
+                theta += Math.PI / 32;
             }
         }.runTaskTimer(0, 1);
-
-        return Response.OK;
     }
 }

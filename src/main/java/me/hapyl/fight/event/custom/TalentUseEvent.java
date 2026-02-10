@@ -2,8 +2,7 @@ package me.hapyl.fight.event.custom;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.event.HandlerList;
 
@@ -35,23 +34,13 @@ public class TalentUseEvent extends GamePlayerEvent {
     }
 
     /**
-     * Gets the talent's handle that was used.
-     *
-     * @return the talent's handle that was used.
-     */
-    @Nonnull
-    public Talents getTalentHandle() {
-        return talent.getHandle();
-    }
-
-    /**
-     * Gets the {@link HotbarSlots} of this talent from the hero.
+     * Gets the {@link HotBarSlot} of this talent from the hero.
      *
      * @return the slot of this talent.
      * @throws IllegalArgumentException if player's hero does not have this talent.
      */
     @Nonnull
-    public HotbarSlots getSlot() throws IllegalArgumentException {
+    public HotBarSlot getSlot() throws IllegalArgumentException {
         return getHero().getTalentSlotByHandle(talent);
     }
 

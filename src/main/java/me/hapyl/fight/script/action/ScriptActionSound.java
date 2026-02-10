@@ -1,9 +1,9 @@
 package me.hapyl.fight.script.action;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.script.ScriptAction;
 import me.hapyl.fight.script.ScriptRunner;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 

@@ -1,8 +1,11 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
+
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,29 +13,33 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TwinClaws extends Talent implements Listener {
 
-    @DisplayField protected final double twinClawDamage = 10.0d;
-    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) protected final double bittenDamageIncrease = 1.5d;
+    @DisplayField protected final double twinClawDamage = 10;
+    @DisplayField(scale = 100, suffix = "%") protected final double bittenDamageIncrease = 1.5;
 
-    public TwinClaws() {
-        super("Twin Claws");
+    public TwinClaws(@Nonnull Key key) {
+        super(key, "Twin Claws");
 
         setDescription("""
                 Launch two &6giant claws&7. One in front, one behind.
-                                
+                
                 If a &6claw&7 hits an &cenemy&7, it deals &c{twinClawDamage} ❤ &cdamage&7 to them.
                 &8;;Bitten enemies suffer more damage.
-                """);
+                """
+        );
 
-        setItem(Material.ACACIA_FENCE);
+        setMaterial(Material.ACACIA_FENCE);
+        setType(TalentType.DAMAGE);
+        
         setDuration(30);
         setCooldownSec(15);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
 
         final Vector vectorFront = location.getDirection().normalize().multiply(0.5d);

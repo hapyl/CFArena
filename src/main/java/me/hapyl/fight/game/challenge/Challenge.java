@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.challenge;
 
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.eterna.module.util.TimeFormat;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.util.Described;
 
 import javax.annotation.Nonnull;
 import java.util.Calendar;
@@ -131,4 +132,8 @@ public class Challenge implements Described {
         return nextDayInMillis - millis;
     }
 
+    @Nonnull
+    public static String getTimeUntilResetFormatted() {
+        return TimeFormat.format(getTimeUntilReset(), TimeFormat.HOURS, TimeFormat.MINUTES);
+    }
 }

@@ -1,21 +1,21 @@
 package me.hapyl.fight.game.talents.swooper;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.witcher.Akciy;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.block.display.BlockStudioParser;
-import me.hapyl.spigotutils.module.block.display.DisplayData;
-import me.hapyl.spigotutils.module.block.display.DisplayEntity;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -24,15 +24,17 @@ import javax.annotation.Nonnull;
 
 public class BlastPackEntity extends TickingGameTask {
 
-    public static final DisplayData data = BlockStudioParser.parse(
+    public static final DisplayData data = BDEngine.parse(
             "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:detector_rail\",Properties:{powered:\"false\",shape:\"east_west\"}},transformation:[-0.0000f,0.0000f,-0.7500f,0.3750f,0.7500f,-0.0000f,-0.0000f,0.0000f,-0.0000f,-0.7500f,0.0000f,0.0000f,0.0000f,0.0000f,0.0000f,1.0000f]}]}"
     );
     private static final double blockOffset = 0.37d;
+    private static final ItemStack FAKE_AIR = new ItemBuilder(Material.DIAMOND).setItemModel(Material.AIR).toItemStack();
 
     private final BlastPack talent;
     private final GamePlayer player;
-    private final Item entity;
-    private DisplayEntity wallEntity;
+    private final Item item;
+    @Nonnull private Display display;
+    
     private int aliveTime;
     private boolean isArmed;
 
@@ -43,17 +45,19 @@ public class BlastPackEntity extends TickingGameTask {
         final Location location = player.getEyeLocation();
         final Vector direction = location.getDirection();
 
-        this.entity = player.getWorld().dropItem(location, new ItemStack(talent.getMaterial()));
-        this.entity.setPickupDelay(Integer.MAX_VALUE);
-        this.entity.setVelocity(direction);
-        this.entity.setOwner(player.getUUID());
+        this.item = player.getWorld().dropItem(location, new ItemStack(FAKE_AIR));
+        this.item.setPickupDelay(Integer.MAX_VALUE);
+        this.item.setVelocity(direction);
+        this.item.setOwner(player.getUUID());
 
+        this.display = talent.display.spawnInterpolated(location);
+        
         runTaskTimer(0, 1);
     }
 
     @Nonnull
     public Location getLocation() {
-        return wallEntity != null ? wallEntity.getHead().getLocation() : entity.getLocation();
+        return this.display.getLocation();
     }
 
     @Override
@@ -68,17 +72,20 @@ public class BlastPackEntity extends TickingGameTask {
             final int maxLifeTime = talent.maxLifeTime;
 
             if (isFibonacci(maxLifeTime - aliveTime, maxLifeTime)) {
-                player.playWorldSound(entity.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1.25f);
-                player.playWorldSound(entity.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.75f + (0.75f / maxLifeTime * aliveTime));
+                player.playWorldSound(item.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 1.25f);
+                player.playWorldSound(item.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.75f + (0.75f / maxLifeTime * aliveTime));
             }
         }
 
+        // Sync display to item
+        display.teleport(item);
+        
         // Collision detection
-        if (entity.isDead()) {
+        if (item.isDead()) {
             return;
         }
 
-        final Location location = entity.getLocation();
+        final Location location = item.getLocation();
 
         for (WallSide side : WallSide.values()) {
             final double x = side.doubles[0] * blockOffset;
@@ -110,16 +117,16 @@ public class BlastPackEntity extends TickingGameTask {
             // Push the player
             if (player.equals(entity)) {
                 player.setVelocity(vector.multiply(talent.selfMagnitude));
-                player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 100, true);
+                player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
                 return;
             }
 
             // Damage and stun non-teammates
             if (!player.isTeammate(entity)) {
-                entity.damageNoKnockback(talent.damage, player, EnumDamageCause.SATCHEL);
+                entity.damageNoKnockback(talent.damage, player, DamageCause.SATCHEL);
 
                 if (shouldStun()) {
-                    Talents.AKCIY.getTalent(Akciy.class).stun(entity, talent.stunDuration);
+                    TalentRegistry.AKCIY.stun(entity, player, talent.stunDuration);
                 }
             }
 
@@ -142,13 +149,8 @@ public class BlastPackEntity extends TickingGameTask {
 
     @Override
     public void onTaskStop() {
-        if (entity != null) {
-            entity.remove();
-        }
-
-        if (wallEntity != null) {
-            wallEntity.remove();
-        }
+        item.remove();
+        display.remove();
     }
 
     private boolean isFibonacci(int i, int max) {
@@ -173,14 +175,15 @@ public class BlastPackEntity extends TickingGameTask {
     }
 
     private void makeWallEntity(WallSide side) {
-        final Location location = entity.getLocation();
+        final Location location = item.getLocation();
 
-        entity.remove();
+        item.remove();
+        display.remove();
         aliveTime = 0;
         isArmed = true;
-
-        wallEntity = data.spawn(side.mutate(location));
-
+        
+        display = talent.display.spawnInterpolated(side.mutate(location));
+        
         // Fx
         player.playWorldSound(location, Sound.ITEM_ARMOR_EQUIP_CHAIN, 0.0f);
     }

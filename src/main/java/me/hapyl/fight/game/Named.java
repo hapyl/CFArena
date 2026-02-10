@@ -4,13 +4,16 @@ import me.hapyl.fight.game.color.Color;
 import net.md_5.bungee.api.ChatColor;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * An enum collection of named objects, such as abilities etc.
  */
-public enum Named {
+public enum Named implements NamedColoredPrefixed {
 
+    // Global terms //
+    ACHIEVEMENT_POINT("\uD83C\uDF1F", "Achievement Points", Color.ROYAL_BLUE),
+
+    // Hero-specific terms //
     BERSERK("💢", "Berserk", Color.DARK_RED),
     CURSE_OF_GREED("\uD83E\uDDFF", "Curse of Greed", Color.GOLD),
     SHADOW_ENERGY("🕳", "Shadow Energy", Color.PURPLE_SHADOW),
@@ -21,7 +24,6 @@ public enum Named {
     STANCE_MELEE("⚔", "Melee Stance", Color.STANCE_MELEE),
     RIPTIDE(ChatColor.BOLD + "\uD83D\uDCA6", "Riptide", Color.RIPTIDE),
     BUG(ChatColor.BOLD + "🐜", "Disruptive Bug", Color.WHITE),
-    ENERGY("※", "Energy", Color.AQUA),
     OVERHEAL(ChatColor.DARK_GREEN + "⚕", "Overheal", Color.GREEN),
     SECOND_WIND("&l\uD83E\uDD8B", "Second Wind", Color.WHITE),
     FEROCIOUS_STRIKE("\uD83C\uDF00", "Ferocious Strike", Color.DARK_RED),
@@ -29,8 +31,19 @@ public enum Named {
     WITHER_ROSE(ChatColor.DARK_GRAY + "\uD83C\uDF39", "Wither Rose", Color.WITHERS),
     MOONLIT_ENERGY(ChatColor.YELLOW + "&e☄", "Moonlit Energy", Color.MOON),
     ETHEREAL_SPIRIT(ChatColor.AQUA + "\uD83D\uDCAB", "Ethereal Spirit", Color.ETHEREAL),
-    THE_CHAOS("", "The Chaos", Color.BLUE),
-
+    THE_CHAOS(ChatColor.BOLD + "\uD83E\uDEA8", "Chaos", Color.DARK_PURPLE),
+    BLOOD_THIRST("&l🩸", "Blood Thirst", Color.BLOOD),
+    THE_JOKER("\uD83D\uDE08", "The Joker", Color.SOFT_PINK),
+    ECHO_WORLD("\uD83D\uDD18", "Echo World", Color.ECHO_WORLD),
+    DECAY("\uD83D\uDC94", "Decay", Color.GRAYER),
+    BLOOD_DEBT("&l🩸", "Blood Debt", Color.BLOOD),
+    ABYSS_CORROSION("&5&l☣", "Abyssal Corrosion", Color.ABYSS),
+    ABYSSAL_CURSE("&5&l\uD83D\uDDEF", "Abyssal Curse", Color.ABYSS),
+    MOONLIT_ZONE("\uD83C\uDF19", "Moonlit Zone", Color.MOON),
+    OMEN("&4&l👻", "Omen", Color.DARK_RED),
+    SHAMANS_MARK("&2&l\uD83D\uDC38", "Shaman's Mark", Color.ITS_WEDNESDAY_MY_DUDES),
+    SCORCH("♨", "Scorch", Color.SCORCH),
+    
     ;
 
     private final String character;
@@ -44,42 +57,27 @@ public enum Named {
     }
 
     @Nonnull
-    public String getCharacterColored() {
-        return color + character;
-    }
-
-    @Nonnull
-    public String getCharacter() {
+    @Override
+    public String getPrefix() {
         return character;
     }
 
     @Nonnull
+    @Override
     public String getName() {
         return name;
     }
 
     @Nonnull
+    @Override
     public Color getColor() {
         return color;
     }
 
     @Nonnull
-    public String toString(@Nullable String prefix, @Nullable String suffix) {
-        return prefix + this + suffix;
-    }
-
     @Override
     public String toString() {
-        return color + character + " " + color + name + "&7";
+        return toString0();
     }
 
-    @Nonnull
-    public String toStringRaw() {
-        return character + " " + name;
-    }
-
-    @Nonnull
-    public String getCharacterNoColor() {
-        return ChatColor.stripColor(character);
-    }
 }

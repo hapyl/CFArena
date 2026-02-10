@@ -2,24 +2,26 @@ package me.hapyl.fight.game.talents.moonwalker;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.Compute;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Compute;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -30,24 +32,27 @@ public class GravityZone extends Talent {
     @DisplayField private final double radiusY = 7.0d;
     @DisplayField private final double damagePerTick = 2.0d;
 
-    public GravityZone() {
-        super("Gravity Pull", """
+    public GravityZone(@Nonnull Key key) {
+        super(key, "Gravity Pull");
+
+        setDescription("""
                 Create a gravity zone at the &etarget&7 location that will charge over time.
-                T                
+                
                 While charging, pull all enemies within range up and slow them down.
-                                
+                
                 When charged, slam all enemies within range down and deal damage to them.
                 &8;;The damage is scaled with how long an enemy was in the gravity pull.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.PURPLE_DYE);
+        setMaterial(Material.PURPLE_DYE);
         setDuration(80);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Block block = player.getTargetBlockExact(10);
 
         if (block == null) {
@@ -80,11 +85,11 @@ public class GravityZone extends Talent {
 
                         // Damage
                         final int ticksInPull = this.ticksInPull.getOrDefault(entity, 1);
-                        entity.damage(ticksInPull * damagePerTick, player, EnumDamageCause.GRAVITY);
+                        entity.damage(ticksInPull * damagePerTick, player, DamageCause.GRAVITY);
 
                         final Vector velocity = entity.getVelocity();
                         entity.setVelocity(new Vector(velocity.getX() / 2, -2.0d, velocity.getZ() / 2));
-                        entity.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 60, true);
+                        entity.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 60);
                     });
 
                     ticksInPull.clear();

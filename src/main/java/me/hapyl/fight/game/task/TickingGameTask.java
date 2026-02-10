@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.task;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
@@ -39,7 +39,7 @@ public abstract class TickingGameTask extends GameTask {
         tick += increment;
     }
 
-    @Event
+    @EventLike
     public void onFirstTick() {
     }
 

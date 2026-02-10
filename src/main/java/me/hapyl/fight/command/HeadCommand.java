@@ -1,8 +1,8 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

@@ -1,7 +1,8 @@
 package me.hapyl.fight.gui.styled.profile.achievement;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
 import me.hapyl.fight.game.achievement.Tier;
@@ -11,8 +12,7 @@ import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BFormat;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -32,13 +32,13 @@ public class AchievementTieredGUI extends StyledGUI {
     public AchievementTieredGUI(Player player) {
         super(player, "Achievements (Tiered)", Size.FIVE);
 
-        final AchievementRegistry registry = Main.getPlugin().getAchievementRegistry();
+        final AchievementRegistry registry = Registries.achievements();
         page = 1;
 
         achievements = Lists.newLinkedList();
         registry.byCategory(Category.TIERED).forEach(achievement -> {
             if (!(achievement instanceof TieredAchievement tieredAchievement)) {
-                throw new IllegalArgumentException("%s is not a tiered achievement but assigned as such!".formatted(achievement.getId()));
+                throw new IllegalArgumentException("%s is not a tiered achievement but assigned as such!".formatted(achievement.getKey()));
             }
 
             achievements.add(tieredAchievement);
@@ -50,6 +50,8 @@ public class AchievementTieredGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         // Page arrows
         if (page > 1) {
             setItem(
@@ -92,16 +94,16 @@ public class AchievementTieredGUI extends StyledGUI {
                 final boolean isTierComplete = completeCount >= numericTier;
 
                 final ItemBuilder builder = lastTier
-                        ? (isTierComplete ? StyledTexture.ACHIEVEMENT_TIERED_COMPLETE : StyledTexture.ACHIEVEMENT_TIERED_INCOMPLETE).toBuilder()
+                        ? (isTierComplete ? StyledTexture.ACHIEVEMENT_TIERED_COMPLETE : StyledTexture.ACHIEVEMENT_TIERED_INCOMPLETE).asBuilder()
                         : (isTierComplete ? ItemBuilder.of(Material.LIME_STAINED_GLASS_PANE) : ItemBuilder.of(Material.RED_STAINED_GLASS_PANE)
                 );
 
                 builder.setAmount(tier.getIndex() + 1);
                 builder.setName(achievement.getName() + " " + tier.getRoman());
                 builder.addLore();
-                builder.addSmartLore(BFormat.format(achievement.getDescription(), "&f" + numericTier + "&7"));
+                builder.addTextBlockLore(achievement.getDescription().replace("{}", "&f" + numericTier + "&7"));
                 builder.addLore();
-                builder.addLore("&b&lTIER REWARD:" + achievement.checkmark(isTierComplete));
+                builder.addLore("&b&lTIER REWARD: " + BukkitUtils.checkmark(isTierComplete));
                 builder.addLore(achievement.formatPointReward(tier.getReward()));
                 builder.addLore();
 

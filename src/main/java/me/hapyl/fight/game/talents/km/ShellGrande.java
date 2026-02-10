@@ -1,19 +1,21 @@
 package me.hapyl.fight.game.talents.km;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.*;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShellGrande extends Talent {
 
@@ -22,14 +24,16 @@ public class ShellGrande extends Talent {
     private final int explosionDelay = 40;
 
     public ShellGrande() {
-        super("Grenade");
+        super(Key.empty(), "Grenade");
+
         setDescription("""
                 Throw a grenade that bounces off walls. Explodes after &b{explosionDelay} &7ane deals AoE damage to nearby opponents.
-                                        
+                
                 &e&lSNEAK &7while throwing to toss closer.
-                """);
+                """
+        );
 
-        setItem(Material.FIREWORK_STAR);
+        setMaterial(Material.FIREWORK_STAR);
         setCooldownSec(11);
 
         fireworkStarRed = new ItemStack(Material.FIREWORK_STAR);
@@ -42,7 +46,7 @@ public class ShellGrande extends Talent {
 
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
 
         // Fx
@@ -65,7 +69,7 @@ public class ShellGrande extends Talent {
 
             if (tick == 0) {
                 item.remove();
-                CFUtils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, EnumDamageCause.ENTITY_EXPLOSION, null);
+                CFUtils.createExplosion(item.getLocation(), 5.0d, 20.0d, player, DamageCause.ENTITY_EXPLOSION, null);
             }
 
         }, 1, 40);

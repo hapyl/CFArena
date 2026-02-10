@@ -1,5 +1,9 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.entry.CurrencyEntry;
@@ -8,9 +12,6 @@ import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public class DailyResetGUI extends StyledGUI {
     public DailyResetGUI(Player player) {
         super(player, "Reset Bonds", Size.FIVE);
 
-        this.profile = PlayerProfile.getProfileOrThrow(player);
+        this.profile = CF.getProfile(player);
         this.database = profile.getDatabase();
 
         this.entry = database.currencyEntry;
@@ -48,6 +49,8 @@ public class DailyResetGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         setHeader(new ItemBuilder(Material.RED_GLAZED_TERRACOTTA)
                 .setName("&cReset Bonds")
                 .asIcon());
@@ -88,7 +91,7 @@ public class DailyResetGUI extends StyledGUI {
                     setItem(slot, builder
                             .addLore(Color.ERROR + "Not enough rubies!")
                             .asIcon(), player -> {
-                        Notifier.error(player, "You don't have enough rubies!");
+                        Message.error(player, "You don't have enough rubies!");
                         PlayerLib.villagerNo(player);
                     });
                 }
@@ -139,14 +142,14 @@ public class DailyResetGUI extends StyledGUI {
                             &7&o;;I see you're ready to sacrifice these precious rubies...
                             """)
                     .addLore()
-                    .addLore(Color.ERROR + "This will consumer %s rubies!".formatted(rubyPriceTotal))
+                    .addLore(Color.ERROR + "This will consume %s rubies!".formatted(rubyPriceTotal))
                     .addLore(Color.ERROR + "New bonds will inherit the remaining duration!")
                     .addLore(Color.ERROR + "You can only reset once per day!")
                     .addLore()
                     .addLore(Color.BUTTON + "Click to reset!")
                     .asIcon(), player -> {
                 if (!entry.has(Currency.RUBIES, rubyPriceTotal)) {
-                    Notifier.error(player, "You somehow don't have the rubies anymore!");
+                    Message.error(player, "You somehow don't have the rubies anymore!");
                     player.closeInventory();
                     return;
                 }
@@ -159,8 +162,8 @@ public class DailyResetGUI extends StyledGUI {
                 player.closeInventory();
 
                 // Fx
-                Notifier.success(player, "Reset bonds!");
-                Notifier.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
+                Message.success(player, "Reset bonds!");
+                Message.info(player, " &4- " + Currency.RUBIES.formatProduct(3L));
 
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.25f);
                 PlayerLib.playSound(Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 0.75f);

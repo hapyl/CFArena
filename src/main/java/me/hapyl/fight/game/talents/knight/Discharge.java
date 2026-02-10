@@ -1,20 +1,18 @@
 package me.hapyl.fight.game.talents.knight;
 
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.knight.BlastKnight;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.knight.BlastKnightData;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -26,8 +24,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class Discharge extends Talent implements Listener, HeroReference<BlastKnight> {
+public class Discharge extends Talent implements Listener {
 
     @DisplayField private final short minChargesToDischarge = 3;
     @DisplayField private final int dischargeDelayPerShieldCharge = 3;
@@ -37,23 +37,24 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
 
     private final ItemStack fxItem = ItemBuilder.playerHeadUrl("d81fcffb53acbc7c00c53bc7121ca259371b5b76c001dc52139e1804c287e54").asIcon();
 
-    public Discharge() {
-        super("Quantum Discharge");
+    public Discharge(@Nonnull Key key) {
+        super(key, "Quantum Discharge");
 
         setDescription("""
                 Spend all &dQuantum Energy&7 to launch a &ddevice&7 that charges overtime.
-                                
+                
                 Once charged, create &fNova Explosion&7 that deals &cAoE damage&7 and knocks enemies back.
-                """);
+                """
+        );
 
         setType(TalentType.DAMAGE);
-        setItem(Material.POPPED_CHORUS_FRUIT);
+        setMaterial(Material.POPPED_CHORUS_FRUIT);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final BlastKnightData data = getHero().getPlayerData(player);
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final BlastKnightData data = HeroRegistry.BLAST_KNIGHT.getPlayerData(player);
         final int shieldCharge = data.getShieldCharge();
 
         if (shieldCharge < minChargesToDischarge) {
@@ -78,7 +79,9 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
             @Override
             public void run(int tick) {
                 if (!modulo(dischargeDelayPerShieldCharge)) {
-                    stand.setHeadPose(new EulerAngle(ThreadRandom.nextDouble(), ThreadRandom.nextDouble(), ThreadRandom.nextDouble()));
+                    final ThreadLocalRandom random = ThreadLocalRandom.current();
+                    
+                    stand.setHeadPose(new EulerAngle(random.nextDouble(), random.nextDouble(), random.nextDouble()));
                     player.playWorldSound(location, Sound.ENTITY_WITCH_HURT, 0.5f + (1.5f / maxTick * tick));
                 }
 
@@ -97,10 +100,12 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
                 explode(location, player, damage);
 
                 // Give shield back
-                player.setItem(EquipmentSlot.OFF_HAND, getHero().shieldItem);
-                player.setCooldown(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
+                player.setItem(EquipmentSlot.OFF_HAND, HeroRegistry.BLAST_KNIGHT.shieldItem);
 
-                startCd(player);
+                // This has to be shield because cooldown prevents player from blocking
+                player.setCooldownInternal(Material.SHIELD, shieldCooldownPerCharge * shieldCharge);
+
+                startCooldown(player);
             }
         }.runTaskTimer(0, 1);
 
@@ -113,7 +118,7 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
                 return;
             }
 
-            entity.damage(damage, player, EnumDamageCause.NOVA_EXPLOSION);
+            entity.damage(damage, player, DamageCause.NOVA_EXPLOSION);
             entity.setVelocity(entity.getLocation().getDirection().normalize().multiply(-2.0d));
         });
 
@@ -128,9 +133,4 @@ public class Discharge extends Talent implements Listener, HeroReference<BlastKn
         player.playWorldSound(location, Sound.ENTITY_WARDEN_DEATH, 0.0f);
     }
 
-    @Nonnull
-    @Override
-    public BlastKnight getHero() {
-        return Heroes.BLAST_KNIGHT.getHero(BlastKnight.class);
-    }
 }

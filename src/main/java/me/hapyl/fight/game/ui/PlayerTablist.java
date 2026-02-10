@@ -1,6 +1,9 @@
 package me.hapyl.fight.game.ui;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.tablist.*;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.PlayerDatabase;
@@ -17,22 +20,20 @@ import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.tablist.EntryList;
-import me.hapyl.spigotutils.module.player.tablist.EntryTexture;
-import me.hapyl.spigotutils.module.player.tablist.PingBars;
-import me.hapyl.spigotutils.module.player.tablist.Tablist;
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.fight.registry.Registries;
+import me.hapyl.fight.store.PlayerStoreOffers;
+import me.hapyl.fight.store.Store;
+import me.hapyl.fight.store.StoreOffer;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -54,12 +55,16 @@ public class PlayerTablist extends Tablist {
     private final PlayerProfile profile;
     private final Player player;
     private final Manager manager;
+    private final Store store;
 
-    public PlayerTablist(PlayerUI ui) {
+    public PlayerTablist(@Nonnull PlayerUI ui) {
+        super(ui.getPlayer());
+        
         this.ui = ui;
         this.profile = ui.profile;
         this.player = ui.getPlayer();
         this.manager = Manager.current();
+        this.store = CF.getPlugin().getStore();
     }
 
     public void update() {
@@ -80,7 +85,7 @@ public class PlayerTablist extends Tablist {
 
         profiles.removeIf(PlayerProfile::isHidden);
 
-        final Experience experience = Main.getPlugin().getExperience();
+        final Experience experience = CF.getPlugin().getExperience();
 
         profiles.sort((p1, p2) -> {
             final long p1Level = experience.getLevel(p1.getPlayer());
@@ -97,12 +102,14 @@ public class PlayerTablist extends Tablist {
         });
 
         for (PlayerProfile profile : profiles) {
-            final String displayNameTab = profile.getDisplay().toStringTab();
+            final String displayNameTab = profile.display().toStringTab();
 
             entryList.append(displayNameTab, EntryTexture.of(profile.getPlayer()), PingBars.byValue(profile.getPlayer().getPing()));
         }
 
-        setColumn(0, entryList);
+        // TODO (Tue, Aug 27 2024 @xanyjl): Add ...and N more if there are a lot of players
+
+        setColumn(TablistColumn.FIRST, entryList);
     }
 
     private void updateSystem() {
@@ -111,14 +118,14 @@ public class PlayerTablist extends Tablist {
         entryList.append("   &e&lsʏsᴛᴇᴍ &7(%s&7 tps)".formatted(CF.getTpsFormatted()), EntryTexture.YELLOW);
         entryList.append();
 
-        final String mapName = manager.getCurrentMap().getName();
-        final IGameInstance game = manager.getCurrentGame();
+        final String mapName = manager.currentEnumLevel().getName();
+        final IGameInstance game = manager.currentInstance();
 
         if (!manager.isGameInProgress()) {
             entryList.append("&b&lLobby:", EntryTexture.AQUA);
             entryList.append(" &7ᴍᴀᴘ: &f" + mapName);
-            entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.getCurrentMode().getName());
-            entryList.append(); // Empty line to keep teammates at the same line ¯\_(ツ)_/¯
+            entryList.append(" &7ᴍᴏᴅᴇ: &f" + manager.currentEnumType().getName());
+            // entryList.append("");
         }
         else {
             final GamePlayer gamePlayer = CF.getPlayer(player);
@@ -145,18 +152,17 @@ public class PlayerTablist extends Tablist {
         else {
             final ChatColor color = playerTeam.getColor();
             final List<GamePlayer> gamePlayers = playerTeam.getPlayers();
-
-            entryList.append(playerTeam.getColor() + "&lTeam: &7(%s)".formatted(playerTeam.getName()), EntryTexture.of(color));
+            
+            entryList.append(playerTeam.getColor() + "&lTeam: &7(%s)".formatted(playerTeam.getName()), EntryTexture.of(bukkitChatColorToNameTextColor(color)));
 
             int toFill = 4;
 
             // If gamePlayers are empty means not in a game
             if (!gamePlayers.isEmpty()) {
                 for (GamePlayer teammate : gamePlayers) {
-                    entryList.append("&8- &a%s &7⁑ &c&l%s  &b%s".formatted(
+                    entryList.append("&8- &a%s &7⁑ %s".formatted(
                             teammate.getName(),
-                            teammate.getHealthFormatted(player),
-                            teammate.getUltimateString(ChatColor.AQUA)
+                            teammate.getTabString(player)
                     ));
 
                     toFill--;
@@ -166,15 +172,10 @@ public class PlayerTablist extends Tablist {
                 final List<Player> bukkitPlayers = playerTeam.getBukkitPlayers();
 
                 for (Player bukkitPlayer : bukkitPlayers) {
-                    final PlayerProfile profile = PlayerProfile.getProfile(bukkitPlayer);
+                    final PlayerProfile profile = CF.getProfile(bukkitPlayer);
                     toFill--;
 
-                    if (profile == null) {
-                        entryList.append("&4Error loading profile for " + bukkitPlayer.getName());
-                        continue;
-                    }
-
-                    entryList.append("&8- %s &8(%s&8)".formatted(profile.getDisplay().getNamePrefixed(), profile.getSelectedHeroString()));
+                    entryList.append("&8- %s &8(%s&8)".formatted(profile.display().toString(), profile.getSelectedHeroString()));
                 }
             }
 
@@ -183,23 +184,21 @@ public class PlayerTablist extends Tablist {
             }
         }
 
-        // Crates
-        final PlayerDatabase database = profile.getDatabase();
-        final long totalCrates = database.crateEntry.getTotalCratesCount();
+        // Store
+        final PlayerStoreOffers offers = store.getOffers(player);
 
         entryList.append();
-        entryList.append("&6&lCrates:", EntryTexture.GOLD);
+        entryList.append("&6&lStore: &8(%s)".formatted(Challenge.getTimeUntilResetFormatted()), EntryTexture.GOLD);
 
-        if (totalCrates == 0) {
-            entryList.append(" &8No crates!");
-        }
-        else {
-            entryList.append(" &a%,1d unopened crates!".formatted(totalCrates));
+        final boolean isStoreUnlocked = Registries.npcs().STORE_OWNER.isStoreUnlocked(player);
+
+        for (StoreOffer offer : offers.getOffers()) {
+            entryList.append("&8- " + (isStoreUnlocked ? offer.toString() : "???"));
         }
 
-        setColumn(1, entryList);
+        setColumn(TablistColumn.SECOND, entryList);
     }
-
+    
     private void updateTheEye() {
         final EntryList entryList = new EntryList();
         final PlayerDatabase database = profile.getDatabase();
@@ -235,7 +234,7 @@ public class PlayerTablist extends Tablist {
         entryList.append("&b&lRelic Hunt:", EntryTexture.AQUA);
 
         final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
-        final GameMaps currentMap = manager.isGameInProgress() ? manager.getCurrentMap() : GameMaps.SPAWN;
+        final EnumLevel currentMap = manager.isGameInProgress() ? manager.currentEnumLevel() : EnumLevel.SPAWN;
 
         final int totalRelics = relicHunt.getTotalRelics();
         final int totalRelicsFound = collectibleEntry.getFoundList().size();
@@ -255,7 +254,7 @@ public class PlayerTablist extends Tablist {
         // Daily challenges
         entryList.append();
         entryList.append(
-                "&a&lDaily Bonds: &8(%s)".formatted(TimeFormat.format(Challenge.getTimeUntilReset(), TimeFormat.HOURS)),
+                "&a&lDaily Bonds: &8(%s)".formatted(Challenge.getTimeUntilResetFormatted()),
                 EntryTexture.GREEN
         );
 
@@ -277,12 +276,12 @@ public class PlayerTablist extends Tablist {
             entryList.append("  &7&o%s".formatted(challenge.getDescription()));
         }
 
-        setColumn(2, entryList);
+        setColumn(TablistColumn.THIRD, entryList);
     }
-
+    
     private void updateStatistics() {
         final EntryList entryList = new EntryList();
-        final Heroes hero = profile.getHero();
+        final Hero hero = profile.getHero();
         final PlayerDatabase database = profile.getDatabase();
         final StatisticEntry statisticEntry = database.statisticEntry;
 
@@ -297,7 +296,7 @@ public class PlayerTablist extends Tablist {
 
         forEachStats(stat -> statisticEntry.getHeroStat(hero, stat), entryList);
 
-        setColumn(3, entryList);
+        setColumn(TablistColumn.FOURTH, entryList);
     }
 
     private void forEachStats(Function<StatType, Double> fn, EntryList list) {
@@ -315,6 +314,28 @@ public class PlayerTablist extends Tablist {
             final Double value = fn.apply(statType);
             list.append(" %s: &b%,.0f".formatted((mod ? Color.GRAY : Color.GRAYER) + name, value));
         }
+    }
+
+    private static NamedTextColor bukkitChatColorToNameTextColor(ChatColor color) {
+        return switch (color) {
+            case BLACK -> NamedTextColor.BLACK;
+            case DARK_BLUE -> NamedTextColor.DARK_BLUE;
+            case DARK_GREEN -> NamedTextColor.DARK_GREEN;
+            case DARK_AQUA -> NamedTextColor.DARK_AQUA;
+            case DARK_RED -> NamedTextColor.DARK_RED;
+            case DARK_PURPLE -> NamedTextColor.DARK_PURPLE;
+            case GOLD -> NamedTextColor.GOLD;
+            case GRAY -> NamedTextColor.GRAY;
+            case DARK_GRAY -> NamedTextColor.DARK_GRAY;
+            case BLUE -> NamedTextColor.BLUE;
+            case GREEN -> NamedTextColor.GREEN;
+            case AQUA -> NamedTextColor.AQUA;
+            case RED -> NamedTextColor.RED;
+            case LIGHT_PURPLE -> NamedTextColor.LIGHT_PURPLE;
+            case YELLOW -> NamedTextColor.YELLOW;
+            case WHITE -> NamedTextColor.WHITE;
+            default -> throw new IllegalArgumentException("Unsupported.");
+        };
     }
 
 }

@@ -1,79 +1,98 @@
 package me.hapyl.fight.game.maps.winery;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.HiddenMapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.HiddenLevelFeature;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.maps.features.WinerySteamFeature;
-import me.hapyl.fight.game.maps.gamepack.PackType;
+import me.hapyl.fight.game.maps.supply.Supplies;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
+import javax.annotation.Nonnull;
 import java.util.Random;
 
-public class WineryMap extends GameMap {
+public class WineryMap extends Level {
 
     private final Material lightningMarkerBlock = Material.CAVE_AIR;
-    private final int howlPeriod = Tick.fromMinute(3);
+    private final int howlPeriod = Tick.fromMinutes(3);
     private final double howlRange = 42.0d;
-    private final WineryOwl[] owls = new WineryOwl[] {
+
+    private final WineryOwl[] owls = new WineryOwl[] { // FIXME (Sun, Feb 16 2025 @xanyjl):
             new WineryOwl(5064, 77, 11),
             new WineryOwl(5033, 80, -22),
             new WineryOwl(4986, 76, -33),
             new WineryOwl(4956, 76, 47),
     };
 
-    public WineryMap() {
-        super("Winery \"Drunk Cat\"");
+    public WineryMap(@Nonnull EnumLevel handle) {
+        super(handle, "Winery \"Drunk Cat\"");
 
-        setDescription("");
+        setDescription("""
+                A winery of a drunk cat.
+                """);
         setMaterial(Material.SWEET_BERRIES);
         setTicksBeforeReveal(100);
 
-        addLocation(5001, 64, 0);
-        addLocation(5020, 66.65, 18);
-        addLocation(5002, 64, 45, -180f, 0f);
-        addLocation(4985, 60, 14);
-        addLocation(5019, 74, 17, -180f, 0f);
-        addLocation(4967, 64, 21, -90f, 0f);
-        addLocation(4985, 66, 36, -180f, 0f);
+        addLocation(4994, 68.0, 0, 0, 0);
+        addLocation(4963, 68.0, 2, 0, 0);
+        addLocation(4975, 75.0, 8, 0, 0);
+        addLocation(4973, 66.0, -14, 0, 0);
+        addLocation(4966, 58.0, -1, 0, 0);
+        addLocation(5016, 91.0, 20, 0, 0);
+        addLocation(5023, 73.0, 17, 0, 0);
+        addLocation(5016, 65.0, -6, 0, 0);
+        addLocation(5021, 66.0, 8, 0, 0);
+        addLocation(4977, 63.0, 2, 0, 0);
+        addLocation(5025, 61.0, 15, 0, 0);
+        addLocation(5036, 65.0, -5, 0, 0);
+        addLocation(5025, 81.0, 21, 0, 0);
+        addLocation(5026, 80.0, 38, 0, 0);
+        addLocation(5026, 73.0, 34, 0, 0);
+        addLocation(4990, 65.0, 28, 0, 0);
 
-        addPackLocation(PackType.HEALTH, 4978, 60, 35);
-        addPackLocation(PackType.HEALTH, 5035, 61, 16);
-        addPackLocation(PackType.HEALTH, 4972, 64, 13);
-        addPackLocation(PackType.HEALTH, 5026, 74, 19);
+        addPackLocation(Supplies.HEALTH, 5021, 81.0, 12);
+        addPackLocation(Supplies.HEALTH, 4980, 83.0, 1);
+        addPackLocation(Supplies.HEALTH, 5030, 65.0, -7);
+        addPackLocation(Supplies.HEALTH, 5030, 61.0, 16);
 
-        addPackLocation(PackType.CHARGE, 4990, 60, 15);
-        addPackLocation(PackType.CHARGE, 4982, 81, 30);
-        addPackLocation(PackType.CHARGE, 4982, 81, 30);
-        addPackLocation(PackType.CHARGE, 4972, 64, 35);
+        addPackLocation(Supplies.ENERGY, 5016, 91.0, 18);
+        addPackLocation(Supplies.ENERGY, 5021, 80.0, 37);
+        addPackLocation(Supplies.ENERGY, 5019, 66.0, 9);
+        addPackLocation(Supplies.ENERGY, 5027, 68.0, 6);
+        addPackLocation(Supplies.ENERGY, 4957, 58.0, -4);
+        addPackLocation(Supplies.ENERGY, 4956, 74.0, -3);
 
         setWeather(WeatherType.DOWNFALL);
         setTime(18000);
 
         // Howl
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
             @Override
             public void onStart() {
-                GameTask.runTaskTimer(task -> {
-                    // Howl
-                    final Location location = BukkitUtils.defLocation(5001, 64, 17);
-                    final World world = location.getWorld();
+                GameTask.runTaskTimer(
+                        task -> {
+                            // Howl
+                            final Location location = BukkitUtils.defLocation(5001, 64, 17);
+                            final World world = location.getWorld();
 
-                    location.add(new Random().nextDouble(-howlRange, howlRange), 0.0d, new Random().nextDouble(-howlRange, howlRange));
+                            location.add(new Random().nextDouble(-howlRange, howlRange), 0.0d, new Random().nextDouble(-howlRange, howlRange));
 
-                    if (world == null) {
-                        return;
-                    }
+                            if (world == null) {
+                                return;
+                            }
 
-                    world.playSound(location, Sound.ENTITY_WOLF_HOWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
-                }, howlPeriod, howlPeriod);
+                            world.playSound(location, Sound.ENTITY_WOLF_GROWL, SoundCategory.RECORDS, 4.0f, new Random().nextFloat(0.0f, 1.0f));
+                        }, howlPeriod, howlPeriod
+                );
             }
         });
 
@@ -81,10 +100,10 @@ public class WineryMap extends GameMap {
         addFeature(new WinerySteamFeature());
 
         // Owl Spy Achievement
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
             @Override
             public void tick(int tick) {
-                if (tick % 5 != 0) {
+                if (true || tick % 5 != 0) { // FIXME (Mon, Feb 17 2025 @xanyjl): map is being rebuild again so replace the coordinates for owls
                     return;
                 }
 
@@ -94,7 +113,7 @@ public class WineryMap extends GameMap {
                 }
 
                 for (GamePlayer player : Collect.aliveGamePlayers()) {
-                    if (Achievements.OWL_SPY.hasCompletedAtLeastOnce(player)) {
+                    if (Registries.achievements().OWL_SPY.hasCompletedAtLeastOnce(player)) {
                         continue;
                     }
 
@@ -109,14 +128,14 @@ public class WineryMap extends GameMap {
                     }
 
                     if (owlCount == owls.length) {
-                        Achievements.OWL_SPY.complete(player);
+                        Registries.achievements().OWL_SPY.complete(player);
                     }
                 }
             }
         });
 
         // Lightning
-        addFeature(new HiddenMapFeature() {
+        addFeature(new HiddenLevelFeature() {
 
             private final double minHeight = 77;
 
@@ -139,7 +158,7 @@ public class WineryMap extends GameMap {
 
                     if (tick > 0 && tick % frequency == 0) {
                         player.getWorld().strikeLightningEffect(player.getEyeLocation());
-                        player.damageTick(2, EnumDamageCause.LIGHTNING, 1);
+                        player.damage(2, DamageCause.LIGHTNING);
                     }
                 });
             }
@@ -148,8 +167,8 @@ public class WineryMap extends GameMap {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         for (WineryOwl owl : owls) {
             owl.reset();

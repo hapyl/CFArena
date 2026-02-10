@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.talents.juju;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.juju.ArrowType;
-import me.hapyl.fight.game.heroes.juju.JuJu;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TricksOfTheJungle extends Talent implements Listener {
 
@@ -20,22 +21,22 @@ public class TricksOfTheJungle extends Talent implements Listener {
     @DisplayField public final double horizontalSpread = 1.55d;
     @DisplayField public final double damage = 5.0d;
 
-    public TricksOfTheJungle() {
-        super("Tricks of the Jungle");
+    public TricksOfTheJungle(@Nonnull Key key) {
+        super(key,"Tricks of the Jungle");
 
         setDurationSec(8);
         setCooldownSec(20);
 
         setType(TalentType.ENHANCE);
-        setItem(Material.OAK_SAPLING);
+        setMaterial(Material.OAK_SAPLING);
 
         // Have to keep the description last
         setDescription(ArrowType.ELUSIVE.getTalentDescription(this));
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        Heroes.JUJU.getHero(JuJu.class).setArrowType(player, ArrowType.ELUSIVE, getDuration());
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        HeroRegistry.JUJU.getPlayerData(player).arrowType(ArrowType.ELUSIVE, getDuration());
 
         return Response.OK;
     }

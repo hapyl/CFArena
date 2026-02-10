@@ -1,7 +1,7 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.ChatColor;

@@ -10,4 +10,8 @@ public interface Selectable {
 
     void select(@Nonnull Player player);
 
+    default boolean canBeSelected() {
+        return true;
+    }
+
 }

@@ -1,11 +1,10 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -36,12 +35,12 @@ public final class EnderPearlHandler implements Listener {
             return;
         }
 
-        if (!isSafeLocation(location)) {
-            enderPearl.remove();
-            ev.setCancelled(true);
+        enderPearl.remove();
+        ev.setCancelled(true);
 
-            Chat.sendMessage(player, "&cYou cannot travel there using Ender Pearls!");
-            PlayerLib.playSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
+        if (!isSafeLocation(location)) {
+            gamePlayer.sendMessage(Message.ERROR, "You cannot travel there using Ender Pearls!");
+            gamePlayer.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
             return;
         }
 
@@ -53,11 +52,11 @@ public final class EnderPearlHandler implements Listener {
 
         final EnderPearlTeleportEvent event = new EnderPearlTeleportEvent(gamePlayer, location);
 
-        if (event.callAndCheck()) {
+        if (event.callEvent()) {
             return;
         }
 
-        gamePlayer.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 20, true);
+        gamePlayer.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 20);
         gamePlayer.teleport(location);
         gamePlayer.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f);
     }

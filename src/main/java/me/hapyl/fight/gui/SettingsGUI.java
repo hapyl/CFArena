@@ -1,25 +1,25 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.setting.Category;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.Action;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SettingsGUI extends StyledGUI {
 
@@ -46,6 +46,8 @@ public class SettingsGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         fillRow(0, ItemStacks.BLACK_BAR);
 
         // Update category
@@ -77,10 +79,10 @@ public class SettingsGUI extends StyledGUI {
         component.apply(this, SlotPattern.DEFAULT, 0);
 
         // Update Settings
-        final List<Settings> settings = Settings.byCategory(selectedCategory);
+        final List<EnumSetting> settings = EnumSetting.byCategory(selectedCategory);
 
         for (int i = 0; i < settings.size(); i++) {
-            final Settings setting = settings.get(i);
+            final EnumSetting setting = settings.get(i);
             final boolean isEnabled = setting.isEnabled(player);
 
             if (i >= settingsSlots.length) {
@@ -90,7 +92,7 @@ public class SettingsGUI extends StyledGUI {
 
             final int slot = settingsSlots[i];
 
-            final Action clickAction = player -> {
+            final Consumer<Player> clickAction = player -> {
                 setting.setEnabled(player, !isEnabled);
                 PlayerLib.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 2.0f);
                 update();

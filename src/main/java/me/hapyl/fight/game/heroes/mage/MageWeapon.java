@@ -1,30 +1,29 @@
 package me.hapyl.fight.game.heroes.mage;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class MageWeapon extends Weapon implements HeroReference<Mage> {
+public class MageWeapon extends Weapon {
 
     private final Mage hero;
 
     public MageWeapon(Mage hero) {
-        super(Material.IRON_HOE);
+        super(Material.IRON_HOE, Key.ofString("soul_eater"));
 
         this.hero = hero;
 
@@ -33,15 +32,8 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
         setDescription("""
                 A weapon capable of absorbing soul fragments and convert them into fuel.
                 """);
-        setId("soul_eater");
 
         setAbility(AbilityType.RIGHT_CLICK, new SoulWhisper());
-    }
-
-    @Nonnull
-    @Override
-    public Mage getHero() {
-        return hero;
     }
 
     public class SoulWhisper extends Ability {
@@ -54,8 +46,7 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
-            final Mage hero = getHero();
+        public Response execute(@Nonnull GamePlayer player) {
             final int souls = hero.getSouls(player);
 
             if (souls <= 0) {
@@ -65,8 +56,9 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
 
             CFUtils.rayTraceLine(player, 50, 0.5, -1.0d, this::spawnParticles, entity -> hitEnemy(entity, player));
 
-            hero.addSouls(player, -1);
-            player.setCooldown(Material.IRON_HOE, 10);
+            HeroRegistry.MAGE.addSouls(player, -1);
+
+            player.setCooldownInternal(getMaterial(), 10);
             player.playSound(Sound.BLOCK_SOUL_SAND_BREAK, 0.75f);
 
             return Response.OK;
@@ -80,7 +72,6 @@ public class MageWeapon extends Weapon implements HeroReference<Mage> {
             final Location location = entity.getLocation();
 
             entity.addTag("LastDamage=Soul");
-            entity.damage(getDamage() / 2, player, EnumDamageCause.SOUL_WHISPER);
 
             // Fx
             entity.spawnWorldParticle(location, Particle.SOUL, 8, 0, 0, 0, 0.10f);

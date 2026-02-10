@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -55,8 +55,8 @@ public class TrialObjectiveHealth extends TrialObjective {
 
             return new TrialEntity(trial, husk) {
                 @Override
-                public void onDeath() {
-                    super.onDeath();
+                public void onRemove() {
+                    super.onRemove();
 
                     player.heal(player.getMaxHealth() * GamePlayer.HEALING_AT_KILL);
                 }

@@ -1,7 +1,7 @@
 package me.hapyl.fight.notifier;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.LazyEvent;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.LazyEvent;
 import org.bukkit.entity.Player;
 
 public class LinkNotify extends StringNotify {

@@ -1,136 +1,166 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.*;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
-import java.util.Random;
+import java.util.Objects;
 import java.util.Set;
 
-public class ShortyShotgun extends Talent {
-
-    @DisplayField(suffix = "blocks") private final double bleedThreshold = 1.0d;
-    @DisplayField private final int bleedDuration = 100;
+public class ShortyShotgun extends ChargedTalent {
+    
+    @DisplayField(suffix = " blocks") private final double bleedThreshold = 1.0;
+    @DisplayField private final int impairDuration = 100;
+    @DisplayField private final short bleedStacks = 6;
+    
     @DisplayField private final short pellets = 12;
-    @DisplayField private final double maxDamagePerPellet = 5.0d;
-    @DisplayField private final double spread = 0.5d;
-    @DisplayField(suffix = "blocks") private final double maxDistance = 3.0d;
-
-    private final Set<GamePlayer> hasShotFirst = Sets.newHashSet();
-
-    public ShortyShotgun() {
-        super("Shorty");
-
+    @DisplayField private final double maxDamagePerPellet = 5.0;
+    @DisplayField private final double minDamagePerPellet = 1.0;
+    @DisplayField private final double onHookMultiplier = 1.5;
+    
+    @DisplayField private final double horizontalSpread = 0.5;
+    @DisplayField private final double verticalSpread = 0.5;
+    
+    @DisplayField(suffix = " blocks") private final double maxDistance = 3;
+    
+    @DisplayField private final int reloadTime = 60;
+    
+    public ShortyShotgun(@Nonnull Key key) {
+        super(key, "Shorty", 2);
+        
         setDescription("""
-                Shoot you double barrel to deal &cdamage&7 that &nfalls&7 &noff&7 with &bdistance&7.
-                                
-                If hit &cenemy&7 is &bclose enough&7, they will &cBleed&7 and will be &bVulnerable&7 for &b{bleedDuration}&7.
-                &8;;Additionally, if used while on a Grapple Hook, the damage is increased.
-                               
-                &8;;This talent can be used twice consecutively before reloading.
-                """);
-
-        setItem(Material.CROSSBOW);
-        setStartAmount(2);
-        setCooldown(60);
+                       Shoot you double barrel to deal &cdamage&7 in small &cAoE&7 in front of you.
+                       &8&o;;If used while on Grapple Hook, the damage is increased.
+                       
+                       If you hit &cenemy&7 point-blank, apply %s and %s for &b{impairDuration}&7.
+                       
+                       &8&o;;This talent can be used %s consecutively before reloading.
+                       """.formatted(DotType.BLEED, EffectType.VULNERABLE, CFUtils.toWordCount(maxCharges()))
+        );
+        
+        setMaterial(Material.CROSSBOW);
+        setType(TalentType.DAMAGE);
+        
+        internalCooldown(2);
     }
-
+    
+    @Nonnull
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public Response execute(@Nonnull GamePlayer player, int charges) {
+        final Set<Set<PelletResult>> pelletResults = Sets.newHashSet();
+        
         for (int i = 0; i < pellets; i++) {
-            raycastPellet(player);
+            pelletResults.add(rayCastPellet(player));
         }
-
+        
+        // Process results
+        pelletResults.forEach(set -> set.forEach(result -> {
+            final LivingGameEntity entity = result.entity;
+            
+            entity.damage(result.damage, player, DamageCause.SHOTGUN);
+            
+            // Apply bleed
+            if (result.isPointBlank) {
+                entity.addDotStacks(DotType.BLEED, bleedStacks, player);
+                entity.addEffect(EffectType.VULNERABLE, impairDuration, player);
+            }
+            
+            // Knockback
+            entity.setVelocity(player.getDirection().normalize().multiply(1.2).setY(0.25));
+        }));
+        pelletResults.clear();
+        
         // Fx
         player.playWorldSound(Sound.ENTITY_GENERIC_EXPLODE, 1.75f);
-
-        // Fix amount
-        if (hasShotFirst.contains(player)) {
-            hasShotFirst.remove(player);
-            fixAmount(player);
-
-            return Response.OK;
-        }
-
-        hasShotFirst.add(player);
-        fixAmount(player);
-
-        startCd(player, 5); // internal cooldown
-
-        return Response.AWAIT;
+        
+        return Response.OK;
     }
-
-    private void fixAmount(GamePlayer player) {
-        final ItemStack shotgunItem = player.getItem(Heroes.BOUNTY_HUNTER.getHero().getTalentSlotByHandle(this));
-
-        if (shotgunItem == null || shotgunItem.getType() != getMaterial()) {
-            return;
-        }
-
-        if (hasShotFirst.contains(player)) {
-            shotgunItem.setAmount(1);
-        }
-        else {
-            shotgunItem.setAmount(2);
-        }
+    
+    @Override
+    public void onLastCharge(@Nonnull GamePlayer player) {
+        rechargeAll(player, reloadTime);
     }
-
-    private void raycastPellet(GamePlayer player) {
-        final Location playerEyeLocation = player.getEyeLocation().subtract(0.0d, 0.2d, 0.0d);
-        final Vector direction = playerEyeLocation.getDirection().normalize().add(getRandomVector());
-        final GrappleHookTalent hookTalent = Talents.GRAPPLE.getTalent(GrappleHookTalent.class);
-
-        for (double d = 0; d < maxDistance; d += 0.25) {
-            final Location location = playerEyeLocation.clone().add(direction.clone().multiply(d));
-            final LivingGameEntity entity = Collect.nearestEntity(location, 1.0d, player);
-
-            // Had to put fx here since breaking
-            player.spawnWorldParticle(location, Particle.BLOCK, 1, 0, 0, 0, Material.COAL_BLOCK.createBlockData());
-
-            if (entity != null) {
-                // Check for bleed
-                if (entity.getLocation().distance(player.getLocation()) <= bleedThreshold) {
-                    entity.setLastDamager(player);
-                    entity.addEffect(Effects.BLEED, bleedDuration, true);
-                    entity.addEffect(Effects.VULNERABLE, bleedDuration, true);
-                }
-
-                double damage = maxDamagePerPellet - d;
-
-                if (hookTalent.hasHook(player)) {
-                    damage *= hookTalent.onHookMultiplier;
-                }
-
-                entity.damage(damage, player, EnumDamageCause.SHOTGUN);
-
-                // Knock back entity
-                entity.setVelocity(location.getDirection().normalize().multiply(1.2d).setY(0.25d));
-                return;
+    
+    private Set<PelletResult> rayCastPellet(@Nonnull GamePlayer player) {
+        final Set<PelletResult> pelletResult = Sets.newHashSet();
+        
+        final Location location = player.getEyeLocation().subtract(0, 0.2, 0);
+        final Vector vector = location.getDirection().normalize().add(getRandomVector(player));
+        
+        for (double distance = 0; distance < maxDistance; distance += 0.25) {
+            final double x = vector.getX() * distance;
+            final double y = vector.getY() * distance;
+            final double z = vector.getZ() * distance;
+            
+            // Calculate damage
+            double damage = maxDamagePerPellet - ((maxDamagePerPellet - minDamagePerPellet) * (distance / maxDistance));
+            
+            // If on grapple, multiply the damage
+            if (HeroRegistry.BOUNTY_HUNTER.getPlayerData(player).hook != null) {
+                damage *= onHookMultiplier;
             }
+            
+            location.add(x, y, z);
+            
+            // Affect entities
+            for (LivingGameEntity entity : Collect.nearbyEntities(location, 1.0, player::isNotSelfOrTeammate)) {
+                pelletResult.add(new PelletResult(entity, damage, distance <= bleedThreshold));
+            }
+            
+            // Fx - Only render after 0.5 distance because you can't see shit
+            if (distance >= 0.5) {
+                player.spawnWorldParticle(
+                        location, Particle.DUST_COLOR_TRANSITION, 1, 0, 0, 0, 0f, new Particle.DustTransition(
+                                Color.fromRGB(0, 4, 10),
+                                Color.fromRGB(37, 38, 38),
+                                1
+                        )
+                );
+            }
+            
+            location.subtract(x, y, z);
         }
+        
+        return pelletResult;
     }
-
-    private Vector getRandomVector() {
+    
+    private Vector getRandomVector(GamePlayer player) {
         return new Vector(
-                new Random().nextDouble(-spread, spread),
-                new Random().nextDouble(-spread, spread),
-                new Random().nextDouble(-spread, spread)
+                player.random.nextDoubleBool(horizontalSpread),
+                player.random.nextDoubleBool(verticalSpread),
+                player.random.nextDoubleBool(horizontalSpread)
         );
     }
-
+    
+    private record PelletResult(@Nonnull LivingGameEntity entity, double damage, boolean isPointBlank) {
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            
+            final PelletResult that = (PelletResult) o;
+            return Objects.equals(this.entity, that.entity);
+        }
+        
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(this.entity);
+        }
+    }
+    
 }

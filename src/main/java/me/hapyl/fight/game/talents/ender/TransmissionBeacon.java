@@ -1,19 +1,21 @@
 package me.hapyl.fight.game.talents.ender;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.custom.EnderPearlTeleportEvent;
 import me.hapyl.fight.event.custom.PlayerClickAtEntityEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.LinkedKeyValMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -23,26 +25,32 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TransmissionBeacon extends Talent implements Listener {
 
-    private final LinkedKeyValMap<GamePlayer, Entity> beaconLocation = new LinkedKeyValMap<>();
+    private final PlayerMap<Entity> beaconLocation = PlayerMap.newMap();
+    
     @DisplayField private final int cooldownIfDestroyed = 600;
 
-    public TransmissionBeacon() {
-        super("Transmission Beacon", """
-                Place the beacon somewhere hidden from your opponents.
-                Use your &bultimate&7 to instantly teleport to its location and collect it.
-                                
-                &c&l;;The beacon can be destroyed!
-                """);
+    public TransmissionBeacon(@Nonnull Key key) {
+        super(key, "Transmission Beacon");
 
-        setItem(Material.BEACON);
+        setDescription("""
+                Place a transmission beacon somewhere hidden from your opponents.
+                
+                Use your &bultimate&7 to instantly &bteleport&7 to its location and collect it.
+                
+                &c&l;;The beacon can be destroyed!
+                """
+        );
+
+        setMaterial(Material.BEACON);
         setType(TalentType.MOVEMENT);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (hasBeacon(player)) {
             return Response.error("The beacon is already placed!");
         }
@@ -60,12 +68,12 @@ public class TransmissionBeacon extends Talent implements Listener {
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {
                 // Tick beacons
-                beaconLocation.forEach((owner, beacon) -> {
+                beaconLocation.forEach((player, beacon) -> {
                     final Location location = beacon.getLocation();
                     final World world = location.getWorld();
 
@@ -88,10 +96,10 @@ public class TransmissionBeacon extends Talent implements Listener {
                         world.playSound(location, Sound.BLOCK_BEACON_POWER_SELECT, 1, 0.0f);
                     }
 
-                    PlayerLib.spawnParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
-                    PlayerLib.spawnParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-                    PlayerLib.spawnParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
-                    PlayerLib.spawnParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f);
+                    player.spawnWorldParticle(location, Particle.WITCH, 1, 0.1d, 0.1d, 0.1d, 0.05f);
+                    player.spawnWorldParticle(location, Particle.PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+                    player.spawnWorldParticle(location, Particle.REVERSE_PORTAL, 1, 0.1d, 0.1d, 0.1d, 0.01f);
+                    player.spawnWorldParticle(location, Particle.DRAGON_BREATH, 1, 0.1d, 0.1d, 0.1d, 0.025f, 1.0f);
                 });
             }
         }.runTaskTimer(0, 1);
@@ -99,29 +107,37 @@ public class TransmissionBeacon extends Talent implements Listener {
 
     @EventHandler()
     public void handlePlayerClickAtEntityEvent(PlayerClickAtEntityEvent ev) {
-        final GamePlayer owner = beaconLocation.getKey(ev.getEntity());
-
-        if (owner == null || !ev.isLeftClick()) {
+        final GamePlayer player = ev.getPlayer();
+        final GamePlayer beaconOwner = beaconLocation.getByValue(ev.getEntity());
+        
+        if (beaconOwner == null) {
             return;
         }
-
-        final Entity beacon = beaconLocation.remove(owner);
-
+        
+        if (player.isSelfOrTeammate(beaconOwner)) {
+            player.sendMessage("&cCannot break allied %s!".formatted(getName()));
+            return;
+        }
+        
+        final Entity beacon = beaconLocation.remove(beaconOwner);
+        
         if (beacon == null) {
             return;
         }
-
+        
         ev.setCancelled(true);
-
+        
+        // Start cooldowns
         beacon.remove();
-        startCd(owner, cooldownIfDestroyed);
-
+        startCooldown(beaconOwner, cooldownIfDestroyed);
+        
         // Fx
-        ev.getPlayer().sendMessage("&aYou broke %s's %s!", owner.getName(), getName());
+        player.sendMessage("&aYou broke %s's %s!".formatted(beaconOwner.getName(), getName()));
+        
+        beaconOwner.sendSubtitle("&cBeacon Destroyed!", 10, 20, 10);
+        beaconOwner.playSound(Sound.BLOCK_GLASS_BREAK, 0.0f);
+        
         PlayerLib.playSound(beacon.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.0f);
-
-        owner.sendSubtitle("&cBeacon Destroyed!", 10, 20, 10);
-        owner.playSound(Sound.BLOCK_GLASS_BREAK, 0.0f);
     }
 
     public boolean hasBeacon(GamePlayer player) {
@@ -129,7 +145,7 @@ public class TransmissionBeacon extends Talent implements Listener {
     }
 
     public void teleportToBeacon(GamePlayer player) {
-        final Entity entity = beaconLocation.getValue(player);
+        final Entity entity = beaconLocation.get(player);
 
         if (player == null || entity == null) {
             return;
@@ -143,14 +159,14 @@ public class TransmissionBeacon extends Talent implements Listener {
         BukkitUtils.mergePitchYaw(player.getLocation(), location);
         player.teleport(location);
 
-        new EnderPearlTeleportEvent(player, location).call();
+        new EnderPearlTeleportEvent(player, location).callEvent();
 
-        player.addEffect(Effects.BLINDNESS, 1, 20);
+        player.addEffect(EffectType.BLINDNESS, 1, 20);
         player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.75f);
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         beaconLocation.values().forEach(Entity::remove);
         beaconLocation.clear();
     }
@@ -167,18 +183,20 @@ public class TransmissionBeacon extends Talent implements Listener {
             self.setInvulnerable(true);
             self.setVisible(false);
             self.setGravity(false);
-
-            if (self.getEquipment() != null) {
-                self.getEquipment().setHelmet(new ItemStack(Material.BEACON));
-            }
-
+            
+            self.getEquipment().setHelmet(new ItemStack(Material.BEACON));
+            
             CFUtils.lockArmorStand(self);
         }));
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        beaconLocation.useValueAndRemove(player, Entity::remove);
+        final Entity entity = beaconLocation.get(player);
+        
+        if (entity != null) {
+            entity.remove();
+        }
     }
 
     private boolean isSafeLocation(Block block) {

@@ -1,12 +1,17 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
@@ -15,7 +20,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -25,21 +29,21 @@ import javax.annotation.Nullable;
 
 public class DarkCover extends ShadowAssassinTalent {
 
-    @DisplayField private final int darkCoverDuration = Tick.fromSecond(6);
+    @DisplayField private final int darkCoverDuration = Tick.fromSeconds(6);
     @DisplayField private final short energyRegen = 10;
     @DisplayField private final double explosionRadius = 3.5d;
     @DisplayField private final double explosionDamage = 10.0d;
     @DisplayField(percentage = true) private final double attackIncrease = 0.25d;
-    @DisplayField private final int attackIncreaseDuration = Tick.fromSecond(3);
+    @DisplayField private final int attackIncreaseDuration = Tick.fromSeconds(3);
     @DisplayField private final double furyDamageMultiplier = 2.0d;
 
     private final PlayerMap<GameTask> darkCoverTask = PlayerMap.newMap();
 
-    public DarkCover() {
-        super("Dark Cover");
+    public DarkCover(@Nonnull Key key) {
+        super(key, "Dark Cover");
 
         setType(TalentType.DAMAGE);
-        setItem(Material.NETHERITE_BOOTS);
+        setMaterial(Material.NETHERITE_BOOTS);
 
         // Make sure setTalents is last
         setTalents(new Stealth(), new Fury(25));
@@ -55,7 +59,7 @@ public class DarkCover extends ShadowAssassinTalent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         darkCoverTask.values().forEach(GameTask::cancel);
         darkCoverTask.clear();
     }
@@ -84,7 +88,7 @@ public class DarkCover extends ShadowAssassinTalent {
                 return;
             }
 
-            entity.damage(damage, player, EnumDamageCause.DARK_ENERGY);
+            entity.damage(damage, player, DamageCause.DARK_ENERGY);
             if (regenerateEnergy) {
                 data.addEnergy(energyRegen);
             }
@@ -97,7 +101,7 @@ public class DarkCover extends ShadowAssassinTalent {
             final FireworkMeta meta = self.getFireworkMeta();
             final FireworkEffect.Builder builder = FireworkEffect.builder()
                     .with(FireworkEffect.Type.BALL)
-                    .withColor(Color.PURPLE_SHADOW.getBukkitColor())
+                    .withColor(org.bukkit.Color.fromRGB(Color.PURPLE_SHADOW.value))
                     .withFlicker();
 
             meta.addEffect(builder.build());
@@ -116,14 +120,14 @@ public class DarkCover extends ShadowAssassinTalent {
 
     public void setDarkCover(GamePlayer player, boolean flag) {
         if (flag) {
-            player.addEffect(Effects.INVISIBILITY, 999999, true);
+            player.addEffect(EffectType.INVISIBLE, 999999);
             playDarkCoverFx(player, true);
         }
 
         else {
             darkCoverTask.remove(player);
 
-            player.removeEffect(Effects.INVISIBILITY);
+            player.removeEffect(EffectType.INVISIBLE);
             playDarkCoverFx(player, false);
         }
     }
@@ -158,16 +162,18 @@ public class DarkCover extends ShadowAssassinTalent {
 
             setDescription("""
                     Cloak yourself in darkness and become &ainvisible&7 and &ainvulnerable&7 for a maximum of &b{darkCoverDuration}&7.
-                                        
+                    
                     Dealing damage clears this effect and deals &cAoE damage&7.
-                                        
+                    
                     Also regenerate %s{energyRegen} %s&7 per enemy hit.
-                    """, Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY);
+                    """.formatted(Named.SHADOW_ENERGY.getColor(), Named.SHADOW_ENERGY)
+            );
+
             setCooldownSec(12);
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             setDarkCover(player, true);
 
             final GameTask oldTask = darkCoverTask.remove(player);
@@ -184,22 +190,25 @@ public class DarkCover extends ShadowAssassinTalent {
 
     private class Fury extends FuryTalent {
 
+        private final ModifierSource modifierSource = new ModifierSource(Key.ofString("dark_cover"), true);
+        
         public Fury(int furyCost) {
             super(DarkCover.this, furyCost);
 
             setDescription("""
                     Instantly deal &cAoE damage&7 in front of you and gain %s boost.
-                                        
+                    
                     The damage dealt is &ax{furyDamageMultiplier}&7 of that in &9Stealth&7 mode.
-                    """, AttributeType.ATTACK);
+                    """.formatted(AttributeType.ATTACK)
+            );
             setCooldownSec(18);
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             executeAoEDamage(player.getLocationInFront(2.5d).add(0.0d, 1.0d, 0.0), player, explosionDamage * furyDamageMultiplier, false);
-
-            player.getAttributes().increaseTemporary(Temper.DARK_COVER, AttributeType.ATTACK, attackIncrease, attackIncreaseDuration);
+            
+            player.getAttributes().addModifier(modifierSource, attackIncreaseDuration, modifier -> modifier.of(AttributeType.ATTACK, ModifierType.MULTIPLICATIVE, attackIncrease));
 
             return Response.OK;
         }

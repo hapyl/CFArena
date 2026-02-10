@@ -1,5 +1,116 @@
 ###############################
 
+*TEST*
+[✔️] Rebuke way too strong
+[✔️] Taker bones should sync onStart not onReveal
+[✔️] Teammate glowing doesn't work
+[✔️] Add health above teammates
+[✔️] Hotbar creative
+[✔️] Swooper broken
+[✔️] Can click on UI items in game
+[✔️] Glowing reveals enemies healths
+[✔️] DoT not removed after death
+[✔️] Summon Whelp cd not reset?
+[✔️] Ezel starts with 1 stack
+[✔️] Rebuke CD
+[✔️] Demons can be killed?
+[✔️] BH bounty make only for players
+[✔️] Inferno damage
+[✔️] Inferno fire
+[✔️] Swooper circle wrong
+[✔️] Update Guess Who
+[✔️] Random can select disabled hero
+[✔️] SA speed
+[✔️] SA clone glow always make it
+[✔️] Deadeye damage
+
+- Bounty hook spams sound
+
+- Ronin dash
+- Archer mastery triple shot
+- Dylan ward
+- Remove mastery?
+- Ninja GOVNO
+- Tomato gadget
+
+- Slowness effect from dialog
+- Parkour leaderboard is broken?
+
+- Add option to only show unlocked cosmetic
+- Avalance win effect broken
+- Contrail doesn't work
+- A lot of double "ss" for tick formatting
+
+###############################
+
+- Scratch cards
+- Leaderboard
+- Poison Ivy spams the POP sound
+- Cant see contrail?
+- Stats should really be separate for PvP/PvE
+- Obtain coins is broken description
+
+- [!] Out of Charged item should have cooldown until next charge not total cooldown
+- Add manual reload and setting to swap DROP >< CTRL DROP
+
+======= IMPORTANT =======
+
+# Inferno first test changes:
+- Ultimate cost 100 >> 70
+- Repeat 3s >> 5s
+- Quazii decay 50% >> 25% for 5s >> 8s
+
+# Rogue Changes:
+
+- Second Wins healing 200% >> 150%
+- Attack knockback 70% >> 50%
+- Pipe Bomb (Ultimate)
+    - Cost 60 >> 70
+    - Instant Cast >> 0.75s Delay before throw
+    - Now damages self
+- Second Wind (Passive)
+    - Add fx
+
+# Bloodfiend Changes:
+
+- Spectral Form is not a talent instead of passive.
+- Spectral Form duration 2s >> 3s
+- Blood Chalice radius 6 >> 8
+- Candlebane Pillar radius 10 >> 12
+- Candlebane Pillar duration 60s >> 40s
+
+# Ronin Changes:
+
+- Weapon damage decreased 10 >> 8
+- Fixes a bug where dashing into a wall would result in soft lock
+
+###############################
+
+- Remove CLICK from null names
+- Vampire still too weak (how about perma legion, ult bakes it better or buff teammates? )
+
+###############################
+
+- [x] Aurora is AFK while using the ultimate
+- [x] Aurora add max distance
+
+- Vampire changes
+- [x] Overcharge percent is wrong
+- [x] Totem Prison breaks blocks
+
+###############################
+
+[x] Nyx droplet particles are wrong
+[???] Text display keeps shadow?
+[?] Droplets aren't removed
+[x] Bloodfiend cannot fly (did not call onStart >< onRespawned)
+[x] Portal does not remove on death
+[x] Glowing removes for swooper on ANY hit
+
+** Orc Changes:
+- Double axe
+- Spin changes
+
 ###############################
 
 ### Further Bow Changes:
@@ -23,11 +134,8 @@
 
 ###############################
 
-- Add funky sort for VIP?
+- Add funky sort for VIP?               // what fucking sort
 - Change head texture to be skin yes
-- Try to fix Swooper blink
-- Buff Techie
-- Add fight thingy so FIGHT
 
 ####################################################################
 

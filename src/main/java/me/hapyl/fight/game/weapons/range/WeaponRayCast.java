@@ -1,16 +1,17 @@
 package me.hapyl.fight.game.weapons.range;
 
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.annotate.OverridingMethodsMustImplementEvents;
 import me.hapyl.fight.event.PlayerHandler;
-import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
@@ -30,20 +31,29 @@ public class WeaponRayCast {
         this.player = player;
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onStop() {
     }
 
-    @Event
+    @EventLike
     public void onMove(@Nonnull Location location) {
     }
 
-    public boolean predicateBlock(@Nonnull Block block) {
-        return !block.getType().isOccluding();
+    /**
+     * Returns true if the given {@link Location} can pass through the bounding box of the {@link Block}.
+     *
+     * @param block  - Block.
+     * @param vector - Location.
+     * @return true if shot can pass through, false otherwise.
+     */
+    public boolean canPassThrough(@Nonnull Block block, @Nonnull Vector3 vector) {
+        final BoundingBox boundingBox = block.getBoundingBox();
+
+        return !boundingBox.contains(vector.x(), vector.y(), vector.z());
     }
 
     @OverridingMethodsMustImplementEvents()
@@ -64,7 +74,9 @@ public class WeaponRayCast {
             location.add(x, y, z);
 
             // Check for block predicate
-            if (!predicateBlock(location.getBlock())) {
+            final Block block = location.getBlock();
+
+            if (!canPassThrough(block, Vector3.of(location))) {
                 this.spawnParticleHit(location);
                 break;
             }
@@ -108,17 +120,17 @@ public class WeaponRayCast {
     }
 
     @Nonnull
-    public EnumDamageCause getDamageCause() {
-        return EnumDamageCause.RANGE_ATTACK;
+    public DamageCause getDamageCause() {
+        return DamageCause.RANGE_ATTACK;
     }
 
-    @Event
+    @EventLike
     @OverridingMethodsMustInvokeSuper
     public void onHit(@Nonnull LivingGameEntity entity, boolean isHeadShot) {
         entity.damage(getDamage(isHeadShot), player, getDamageCause());
     }
 
-    @Event
+    @EventLike
     public boolean predicateEntity(@Nonnull LivingGameEntity entity) {
         return true;
     }
@@ -140,19 +152,9 @@ public class WeaponRayCast {
             return false;
         }
 
-        // Deflect
-        if (!deflected && target instanceof GamePlayer playerTarget) {
-            if (playerTarget.isDeflecting()) {
-                this.player = playerTarget;
-                this.vector = playerTarget.getDirectionWithMovementError(weapon.movementError);
-                this.deflected = true;
-                return false;
-            }
-        }
-
         final boolean isHeadShot = isHeadShot(location, target);
 
-        target.modifyKnockback(PlayerHandler.RANGE_KNOCKBACK_RESISTANCE, then -> {
+        target.modifyKnockback(1 - PlayerHandler.RANGE_KNOCKBACK, then -> {
             onHit(then, isHeadShot);
         });
 

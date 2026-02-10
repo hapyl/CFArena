@@ -1,10 +1,12 @@
 package me.hapyl.fight.event;
 
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.EntityAttributes;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.attribute.SnapshotAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.damage.DamageFlag;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.util.MathBoldFont;
 import org.bukkit.event.Cancellable;
 
 import javax.annotation.Nonnull;
@@ -14,27 +16,35 @@ import javax.annotation.Nullable;
  * Represents an instance of the damage.
  */
 public class DamageInstance implements Cancellable {
-
-    public static final String DAMAGE_FORMAT = "&b&l%s";
-    public static final String DAMAGE_FORMAT_CRIT = "&e&l%s&c✷";
-
-    private final LivingGameEntity entity;
-    private final double initialDamage;
-
-    protected EnumDamageCause cause;
+    
+    public static final String DAMAGE_FORMAT = "&e&l%s";
+    
+    public static final String CRIT_CHAR = "&c✷";
+    public static final String DAMAGE_FORMAT_CRIT = "&6&l%s" + CRIT_CHAR;
+    
+    protected final SnapshotAttributes entity;
+    
+    @Nonnull protected DamageCause cause;
     protected double damage;
     protected boolean isCrit;
-
-    private LivingGameEntity damager;
+    
+    protected SnapshotAttributes damager;
+    
+    private double initialDamage;
+    private double critIncrease;
     private boolean cancel;
-    private double critIncrease = -1;
-
+    private boolean shielded;
+    @Nullable private String damageDisplaySuffix;
+    
+    // TODO @Jul 01, 2025 (xanyjl) -> Adds steps
+    
     public DamageInstance(@Nonnull LivingGameEntity entity, double damage) {
-        this.entity = entity;
+        this.entity = entity.getAttributes().snapshot();
         this.initialDamage = damage;
         this.damage = damage;
+        this.cause = DamageCause.ENTITY_ATTACK;
     }
-
+    
     /**
      * Returns true if the damage is critical.
      *
@@ -43,31 +53,36 @@ public class DamageInstance implements Cancellable {
     public boolean isCrit() {
         return isCrit;
     }
-
-    public void setCrit(boolean crit) {
-        if (damager == null) {
+    
+    public void setCritical(boolean critical) {
+        if (damager == null || critical == isCrit || !cause.hasFlag(DamageFlag.CAN_CRIT)) {
             return;
         }
-
-        final EntityAttributes attributes = damager.getAttributes();
-
-        if (crit && !isCrit) {
+        
+        if (critical) {
             isCrit = true;
-
-            critIncrease = damage * attributes.get(AttributeType.CRIT_DAMAGE);
-            damage += critIncrease;
+            critIncrease = 1 + damager.normalized(AttributeType.CRIT_DAMAGE);
+            
+            damage *= critIncrease;
         }
-        else if (!crit && isCrit) {
+        else {
+            damage /= critIncrease;
+            
             isCrit = false;
-
-            // Don't decrement crit if hasn't crit
-            if (critIncrease != -1) {
-                damage -= critIncrease;
-                critIncrease = -1;
-            }
+            critIncrease = 0.0;
         }
     }
-
+    
+    @Nonnull
+    public SnapshotAttributes entity() {
+        return entity;
+    }
+    
+    @Nullable
+    public SnapshotAttributes damager() {
+        return damager;
+    }
+    
     /**
      * Gets the entity who took the damage.
      *
@@ -75,9 +90,9 @@ public class DamageInstance implements Cancellable {
      */
     @Nonnull
     public LivingGameEntity getEntity() {
-        return entity;
+        return entity.entity();
     }
-
+    
     /**
      * Gets who damaged the entity.
      *
@@ -85,39 +100,28 @@ public class DamageInstance implements Cancellable {
      */
     @Nullable
     public LivingGameEntity getDamager() {
-        return damager != null ? damager : null;
+        return damager != null ? damager.entity() : null;
     }
-
+    
     /**
-     * Gets the {@link EnumDamageCause} of this damage.
+     * Gets the {@link DamageCause} of this damage.
      *
      * @return the cause of this damage.
      */
-    @Nullable
-    public EnumDamageCause getCause() {
+    @Nonnull
+    public DamageCause getCause() {
         return cause;
     }
-
+    
     /**
-     * Sets the {@link EnumDamageCause} of this damage.
+     * Sets the {@link DamageCause} of this damage.
      *
      * @param cause - New cause.
      */
-    public void setCause(@Nullable EnumDamageCause cause) {
+    public void setCause(@Nonnull DamageCause cause) {
         this.cause = cause;
     }
-
-    /**
-     * Gets the {@link EnumDamageCause} of this damage; or default value, if the cause is <code>null</code>.
-     *
-     * @param def - Default value.
-     * @return the cause.
-     */
-    @Nonnull
-    public EnumDamageCause getCauseOr(@Nonnull EnumDamageCause def) {
-        return this.cause != null ? this.cause : def;
-    }
-
+    
     /**
      * Gets the initial damage, before <b>any</b> calculations are made.
      *
@@ -126,7 +130,7 @@ public class DamageInstance implements Cancellable {
     public double getInitialDamage() {
         return initialDamage;
     }
-
+    
     /**
      * Gets the current damage.
      *
@@ -135,7 +139,7 @@ public class DamageInstance implements Cancellable {
     public double getDamage() {
         return damage;
     }
-
+    
     /**
      * Sets the damage of this instance.
      *
@@ -149,10 +153,10 @@ public class DamageInstance implements Cancellable {
      * @deprecated Deprecated so monkeys see it's strikethrough must be bad, not gonna use it.
      */
     @Deprecated
-    public void setDamage(double damage) {
+    public void overrideDamage(double damage) {
         this.damage = damage;
     }
-
+    
     /**
      * Multiply the current damage by the given multiplier.
      *
@@ -161,7 +165,7 @@ public class DamageInstance implements Cancellable {
     public void multiplyDamage(double multiplier) {
         this.damage *= multiplier;
     }
-
+    
     /**
      * Returns true if the damage was cancelled.
      *
@@ -171,7 +175,7 @@ public class DamageInstance implements Cancellable {
     public boolean isCancelled() {
         return cancel;
     }
-
+    
     /**
      * Sets the cancellation of the damage.
      * <p>
@@ -185,10 +189,10 @@ public class DamageInstance implements Cancellable {
         if (this.cancel) {
             return;
         }
-
+        
         this.cancel = cancel;
     }
-
+    
     /**
      * Gets the damager as a {@link GamePlayer}.
      *
@@ -197,14 +201,14 @@ public class DamageInstance implements Cancellable {
     @Nullable
     public GamePlayer getDamagerAsPlayer() {
         final LivingGameEntity damager = getDamager();
-
+        
         if (damager instanceof GamePlayer player) {
             return player;
         }
-
+        
         return null;
     }
-
+    
     /**
      * Gets the entity as a {@link GamePlayer}.
      *
@@ -214,82 +218,78 @@ public class DamageInstance implements Cancellable {
     @Nonnull
     public GamePlayer getEntityAsPlayer() throws IllegalArgumentException {
         final LivingGameEntity entity = getEntity();
-
+        
         if (entity instanceof GamePlayer player) {
             return player;
         }
-
+        
         throw new IllegalArgumentException("Entity is not a player!");
     }
-
-    /**
-     * Returns true if this cause is {@link EnumDamageCause#ENTITY_ATTACK} <code>or</code> {@link EnumDamageCause#ENTITY_ATTACK_NON_CRIT}.
-     *
-     * @return true if this cause is an entity attack.
-     */
-    public boolean isEntityAttack() {
-        return cause == EnumDamageCause.ENTITY_ATTACK || cause == EnumDamageCause.ENTITY_ATTACK_NON_CRIT;
+    
+    public boolean isDirectDamage() {
+        return cause.isDirectDamage();
     }
-
+    
     // Calculate damage
     public void calculateDamage() {
-        // True damage is, well, "true" damage.
-        if (cause != null && cause.isTrueDamage()) {
+        // Absolute damage ignores EVERYTHING
+        if (cause.hasFlag(DamageFlag.TRUE_DAMAGE)) {
             damage = initialDamage;
             return;
         }
-
+        
         if (damager != null) {
-            final EntityAttributes damagerAttributes = damager.getAttributes();
-
-            damage = damagerAttributes.calculateOutgoingDamage(initialDamage);
-
+            damage = damager.calculate().outgoingDamage(initialDamage, cause);
+            
             // Calculate crit
-            final boolean shouldCrit = (cause != null && cause.isCanCrit()) && damagerAttributes.isCritical();
-
-            if (shouldCrit) {
-                setCrit(true);
-            }
+            setCritical(damager.calculate().critical());
         }
-
-        damage = Math.max(0.0d, entity.getAttributes().calculateIncomingDamage(damage));
+        
+        damage = Math.max(0.0d, entity.calculate().incomingDamage(damage, cause));
     }
-
+    
     public double getDamageWithinLimit() {
-        return Math.min(damage, entity.getAttributes().getHealth() + 1);
+        return Math.min(damage, entity.getMaxHealth() + 1);
     }
-
+    
     @Nonnull
     public String getDamageFormatted() {
-        String stringDamage;
-
-        if (cause != null) {
-            stringDamage = cause.getDamageCause().getDamageFormat().format(this);
-        }
-        else {
-            stringDamage = "%.0f".formatted(damage);
-        }
-
-        return isCrit ? DAMAGE_FORMAT_CRIT.formatted(stringDamage) : DAMAGE_FORMAT.formatted(stringDamage);
+        final String damageString = MathBoldFont.format("%.0f".formatted(damage));
+        final String formatted = isCrit ? DAMAGE_FORMAT_CRIT.formatted(damageString) : DAMAGE_FORMAT.formatted(damageString);
+        
+        return damageDisplaySuffix != null ? formatted + " " + damageDisplaySuffix : formatted;
     }
-
-    /**
-     * Returns true if the damage would be lethal if dealt.
-     *
-     * @return true if the damage is lethal.
-     */
-    public boolean isDamageLethal() {
-        return entity.getHealth() - damage <= 0.0d;
+    
+    public boolean shielded() {
+        return shielded;
     }
-
+    
+    public void markShielded() {
+        this.shielded = true;
+    }
+    
+    @Nullable
+    public String damageDisplaySuffix() {
+        return damageDisplaySuffix;
+    }
+    
+    public void damageDisplaySuffix(@Nullable String damageDisplaySuffix) {
+        this.damageDisplaySuffix = damageDisplaySuffix;
+    }
+    
+    public void overrideInitialDamage(double newDamage) {
+        this.initialDamage = newDamage;
+        this.damage = newDamage;
+    }
+    
     protected void setLastDamager(@Nullable LivingGameEntity entity) {
         // Nullate
         if (entity == null) {
             damager = null;
             return;
         }
-
+        
         // Reassign
-        damager = entity;
+        damager = entity.getAttributes().snapshot();
     }
 }

@@ -1,20 +1,23 @@
 package me.hapyl.fight.game.heroes.hercules;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.archive.GroundPunchCosmetic;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.game.heroes.Gender;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroProfile;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -32,16 +35,17 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Hercules extends Hero implements Listener, PlayerElement, Disabled {
+public class Hercules extends Hero implements Listener, Disabled {
 
     private final int tridentCooldown = 300;
     private final Map<Player, Trident> fragileTrident = new HashMap<>();
 
-    public Hercules(@Nonnull Heroes handle) {
-        super(handle, "Hercules");
+    public Hercules(@Nonnull Key key) {
+        super(key, "Hercules");
 
-        setArchetype(Archetype.MOBILITY);
-        setGender(Gender.MALE);
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY);
+        profile.setGender(Gender.MALE);
 
         setDescription(
                 "The greatest warrior of all time - \"The Great Hercules\" descended from heaven to punish the infidels! Super-Duper strong punches give you a chance to win."
@@ -49,7 +53,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
 
         setItem("f210c961b9d787327c0d1646e65ae40c6d834514877824335d4b9b62b2365a24");
 
-        final Equipment equipment = getEquipment();
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(Color.WHITE);
         equipment.setBoots(Material.LEATHER_BOOTS);
 
@@ -58,7 +62,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         fragileTrident.values().forEach(Trident::remove);
         fragileTrident.clear();
     }
@@ -130,17 +134,17 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
 
     @Override
     public Talent getFirstTalent() {
-        return Talents.HERCULES_DASH.getTalent();
+        return TalentRegistry.HERCULES_DASH;
     }
 
     @Override
     public Talent getSecondTalent() {
-        return Talents.HERCULES_UPDRAFT.getTalent();
+        return TalentRegistry.HERCULES_UPDRAFT;
     }
 
     @Override
     public Talent getPassiveTalent() {
-        return Talents.PLUNGE.getTalent();
+        return TalentRegistry.PLUNGE;
     }
 
     private void giveTridentBack(Player player, boolean lessCooldown) {
@@ -152,7 +156,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
         trident.remove();
 
         player.setCooldown(Material.TRIDENT, lessCooldown ? tridentCooldown / 3 : tridentCooldown);
-        player.getInventory().setItem(0, this.getWeapon().getItem());
+        player.getInventory().setItem(0, this.getWeapon().createItem());
         player.updateInventory();
 
         fragileTrident.remove(player);
@@ -181,7 +185,6 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
         final double plungeDamage = 5.0d + (1.5d * distance);
 
         player.playWorldSound(Sound.ITEM_TRIDENT_RIPTIDE_2, 1.75f);
-        player.addEffect(Effects.JUMP_BOOST, 255, 80);
 
         player.setVelocity(new Vector(0.0d, -1.0d, 0.0d));
         player.addTag("plunging");
@@ -195,9 +198,8 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
                     this.cancel();
 
                     player.removeTag("plunging");
-                    player.removeEffect(Effects.JUMP_BOOST);
 
-                    Cosmetics.GROUND_PUNCH.getCosmetic(GroundPunchCosmetic.class).playAnimation(player.getLocation(), 2);
+                    Registries.cosmetics().GROUND_PUNCH.playAnimation(player.getLocation(), 2);
 
                     Collect.nearbyEntities(player.getLocation(), 4).forEach(target -> {
                         if (target.equals(player)) {
@@ -207,7 +209,7 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
                         target.damage(
                                 player.isUsingUltimate() ? plungeDamage * 2 : plungeDamage,
                                 player,
-                                EnumDamageCause.PLUNGE
+                                DamageCause.PLUNGE
                         );
                     });
                 }
@@ -226,42 +228,22 @@ public class Hercules extends Hero implements Listener, PlayerElement, Disabled 
 
     private class HerculesUltimate extends UltimateTalent {
         public HerculesUltimate() {
-            super("Crush the Ground", 50);
-
+            super(Hercules.this, "Crush the Ground", 50);
 
             setDescription("""
                     Call upon divine power to increase your &ejump height &7and &cplunging damage&7 for {duration}.
-                    """);
+                    """
+            );
 
-            setItem(Material.NETHERITE_HELMET);
+            setMaterial(Material.NETHERITE_HELMET);
             setDurationSec(12);
             setCooldownSec(30);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            // Fx
-            new GameTask() {
-                private int tick = 0;
-
-                @Override
-                public void run() {
-                    if (tick % 4 == 0) {
-                        if (tick <= 20) {
-                            player.addEffect(Effects.SLOW, tick / 4, 4);
-                            player.playSound(Sound.ENTITY_WITHER_SHOOT, (float) (0.5d + (0.1d * tick / 4)));
-                        }
-                        else {
-                            cancel();
-                            player.playSound(Sound.ENTITY_WITHER_HURT, 1.25f);
-                        }
-                    }
-                    ++tick;
-                }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
+            return null;
         }
     }
 }

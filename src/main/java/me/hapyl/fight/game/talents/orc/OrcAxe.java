@@ -1,18 +1,19 @@
 package me.hapyl.fight.game.talents.orc;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.damage.EnumDamageCause;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.InputTalent;
 import me.hapyl.fight.game.task.GeometryTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -26,10 +27,12 @@ import javax.annotation.Nonnull;
 
 public class OrcAxe extends InputTalent {
 
-    public OrcAxe() {
-        super("Axe");
+    public OrcAxe(@Nonnull Key key) {
+        super(key, "Axe");
 
-        setDescription("Equip and prepare your axe for action.");
+        setDescription("""
+                Equip and prepare your axe for action.
+                """);
 
         leftData.setAction("Spin")
                 .setDescription("""
@@ -44,13 +47,13 @@ public class OrcAxe extends InputTalent {
                         """)
                 .setCooldownSec(15);
 
-        setItem(Material.NETHERITE_AXE);
+        setMaterial(Material.NETHERITE_AXE);
     }
 
     @Nonnull
     @Override
     public Response onLeftClick(@Nonnull GamePlayer player) {
-        final ItemStack item = player.getItem(HotbarSlots.WEAPON);
+        final ItemStack item = player.getItem(HotBarSlot.WEAPON);
 
         // Don't allow spin if no axe
         if (item == null || item.getType() != Material.IRON_AXE) {
@@ -66,7 +69,7 @@ public class OrcAxe extends InputTalent {
                 equipment.setItemInMainHand(new ItemStack(Material.IRON_AXE));
             });
 
-            player.setItem(HotbarSlots.WEAPON, null);
+            player.setItem(HotBarSlot.WEAPON, null);
         });
 
         new GeometryTask() {
@@ -74,7 +77,7 @@ public class OrcAxe extends InputTalent {
             @Override
             public void onTaskStop() {
                 axe.remove();
-                Heroes.ORC.getHero().getWeapon().give(player);
+                HeroRegistry.ORC.getWeapon().give(player);
             }
 
             @Override
@@ -90,7 +93,7 @@ public class OrcAxe extends InputTalent {
                     // Damage and KB
                     Collect.nearbyEntities(location, 1.0d, entity -> !player.isSelfOrTeammate(entity))
                             .forEach(entity -> {
-                                entity.damage(15.0d, player, EnumDamageCause.CYCLING_AXE);
+                                entity.damage(15.0d, player, DamageCause.CYCLING_AXE);
 
                                 if (entity.hasEffectResistanceAndNotify(player)) {
                                     return;
@@ -159,7 +162,7 @@ public class OrcAxe extends InputTalent {
             }
 
             private void executeHit(@Nonnull Location location) {
-                CF.damageAoE(location, 2.5d, 10.0d, player, EnumDamageCause.ORC_DASH, living -> !living.equals(player));
+                CF.damageAoE(location, 2.5d, 10.0d, player, DamageCause.ORC_DASH, living -> !living.equals(player));
 
                 // Fx
                 player.spawnWorldParticle(location, Particle.SWEEP_ATTACK, 1, 0.1d, 0.1d, 0.1d, 10);

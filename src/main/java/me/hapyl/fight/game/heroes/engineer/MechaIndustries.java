@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.heroes.engineer;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.attribute.Attributes;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.attribute.BaseAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.EntityEffect;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -24,26 +25,33 @@ public class MechaIndustries extends TimedGameTask implements Removable {
 
         this.player = player;
         this.engineer = engineer;
-        this.golem = CF.createEntity(player.getLocation(), Entities.IRON_GOLEM, self -> {
-            self.setPlayerCreated(true);
-            self.setAI(false);
+        this.golem = CF.createEntity(
+                player.getLocation(), Entities.IRON_GOLEM, self -> {
+                    self.setPlayerCreated(true);
+                    self.setAI(false);
 
-            final Attributes attributes = new Attributes();
-            final Engineer.EngineerUltimate ultimate = engineer.getUltimate();
+                    final BaseAttributes attributes = new BaseAttributes();
+                    final Engineer.EngineerUltimate ultimate = engineer.getUltimate();
 
-            attributes.setHealth(ultimate.mechaHealth);
-            attributes.setDefense(ultimate.mechaDefense);
+                    attributes.setMaxHealth(ultimate.mechaHealth);
+                    attributes.setDefense(ultimate.mechaDefense);
+                    attributes.setHeight(150);
 
-            player.hideEntity(self);
+                    player.hideEntity(self);
+                    player.setInvulnerable(true);
 
-            final LivingGameEntity entity = new LivingGameEntity(self, attributes);
-            entity.setValidState(true);
+                    final LivingGameEntity entity = new LivingGameEntity(self, attributes);
+                    entity.setValidState(true);
+                    
+                    entity.setImmune(DamageCause.SUFFOCATION);
+                    entity.setInformImmune(false);
 
-            return entity;
-        });
+                    return entity;
+                }
+        );
 
         player.getTeam().addEntry(golem.getEntry());
-        player.addEffect(Effects.INVISIBILITY, 100000, true);
+        player.addEffect(EffectType.INVISIBLE, 100000);
 
         // Fx
         player.spawnWorldParticle(Particle.EXPLOSION_EMITTER, 1);
@@ -56,7 +64,9 @@ public class MechaIndustries extends TimedGameTask implements Removable {
         cancel();
 
         golem.remove();
-        player.removeEffect(Effects.INVISIBILITY);
+        
+        player.setInvulnerable(false);
+        player.removeEffect(EffectType.INVISIBLE);
 
         // Fx
         player.playWorldSound(Sound.ENTITY_IRON_GOLEM_DEATH, 0.75f);
@@ -70,10 +80,7 @@ public class MechaIndustries extends TimedGameTask implements Removable {
             return;
         }
 
-        final int noDamageTicks = golem.getNoDamageTicks();
-        final int maximumNoDamageTicks = golem.getMaximumNoDamageTicks();
-
-        if (noDamageTicks <= maximumNoDamageTicks / 2 && golem.isInWater()) {
+        if (modulo(10) && golem.isInWater()) {
             golem.damage(engineer.ultimateInWaterDamage);
         }
 
@@ -85,11 +92,10 @@ public class MechaIndustries extends TimedGameTask implements Removable {
 
     @Override
     public String toString() {
-        return "&f&l🤖 " + golem.getHealthFormatted() + " &b" + BukkitUtils.decimalFormat((maxTick - getTick()) / 20.0d) + "s";
+        return "&f&l🤖 %s &b%s".formatted(golem.getHealthFormatted(), CFUtils.formatTick(maxTick - getTick()));
     }
 
     public void swing() {
-        //Packets.Server.animation(golem.getNMSEntity(), NPCAnimation.SWING_MAIN_HAND);
-        golem.getEntity().playEffect(EntityEffect.IRON_GOLEN_ATTACK);
+        golem.getEntity().playEffect(EntityEffect.ENTITY_ATTACK);
     }
 }

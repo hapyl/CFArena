@@ -1,13 +1,15 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -27,19 +29,23 @@ public class TrapWire extends ChargedTalent implements Listener {
     private final Map<Player, Set<Tripwire>> trapMap = new HashMap<>();
     @DisplayField private final int pickupDelay = 8 * 20;
     @DisplayField private final int destroyedCd = 160;
-    @DisplayField(suffix = "blocks") private final short tripwireMaxLength = 10;
+    @DisplayField(suffix = " blocks") private final short tripwireMaxLength = 10;
     @DisplayField private final int windupTime = 40;
 
-    public TrapWire() {
-        super("Tripwire", """
-                Place a tripwire between two blocks. Activates upon contact with an opponent and applies &b&lCYber &b&lHack&7.
-                                
-                &e&lPUNCH &7the wire to pick it up.
-                                
-                &c;;This ability can be destroyed!
-                """, 3);
+    public TrapWire(@Nonnull Key key) {
+        super(key, "Tripwire", 3);
 
-        setItem(Material.STRING);
+        setDescription("""
+                Place a tripwire between two blocks. Activates upon contact with an opponent and applies &b&lCYber &b&lHack&7.
+                
+                &e&lPUNCH &7the wire to pick it up.
+                
+                &c;;This ability can be destroyed!
+                """
+        );
+
+
+        setMaterial(Material.STRING);
         setCooldownSec(3);
     }
 
@@ -48,8 +54,8 @@ public class TrapWire extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         trapMap.values().forEach(set -> {
             set.forEach(Tripwire::clearBlocks);
@@ -64,10 +70,27 @@ public class TrapWire extends ChargedTalent implements Listener {
         //getTraps(player).forEach(Tripwire::clearBlocks);
         //trapMap.remove(player);
     }
-
+    
+    @Nonnull
     @Override
-    public void onStart() {
-        super.onStart();
+    public Response execute(@Nonnull GamePlayer player, int charges) {
+        //final Set<Block> blocks = getTargetBlock(player);
+        //final Set<Tripwire> traps = getTraps(player);
+        //
+        //if (blocks == null) {
+        //    return Response.ERROR;
+        //}
+        //
+        //final Tripwire trap = new Tripwire(player, blocks);
+        //trap.setBlocks();
+        //traps.add(trap);
+        
+        return Response.OK;
+    }
+    
+    @Override
+    public void onStart(@Nonnull GameInstance instance) {
+        super.onStart(instance);
 
         new GameTask() {
             @Override
@@ -81,22 +104,6 @@ public class TrapWire extends ChargedTalent implements Listener {
                 }));
             }
         }.runTaskTimer(10, 10);
-    }
-
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        //final Set<Block> blocks = getTargetBlock(player);
-        //final Set<Tripwire> traps = getTraps(player);
-        //
-        //if (blocks == null) {
-        //    return Response.ERROR;
-        //}
-        //
-        //final Tripwire trap = new Tripwire(player, blocks);
-        //trap.setBlocks();
-        //traps.add(trap);
-
-        return Response.OK;
     }
 
     public Set<Tripwire> getTraps(Player player) {

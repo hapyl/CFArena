@@ -1,16 +1,15 @@
 package me.hapyl.fight.game.talents.techie;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.particle.ParticleBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.effect.Effects;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.effect.EffectType;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.particle.ParticleBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.glow.Glowing;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
@@ -62,17 +61,17 @@ public class CyberCage {
             Chat.sendTitle(player, "&aCage Triggered!", "&7You caught %s".formatted(victim.getName()), 10, 20, 10);
         }
 
-        final TrapCage talent = Talents.TRAP_CAGE.getTalent(TrapCage.class);
+        final TrapCage talent = TalentRegistry.TRAP_CAGE;
 
         CF.getEntityOptional(victim).ifPresent(gameEntity -> {
             gameEntity.damage(talent.cageDamage, player);
-            gameEntity.addEffect(Effects.VULNERABLE, talent.vulnerabilityDuration);
+            gameEntity.addEffect(EffectType.VULNERABLE, talent.vulnerabilityDuration);
         });
 
         victim.setVelocity(marker.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize());
 
         // Glowing
-        Glowing.glow(victim, ChatColor.RED, 40, player);
+        // Glowing.glow(victim, ChatColor.RED, 40, player);
 
         // Zoom Fx
         PlayerLib.addEffect(victim, PotionEffectType.SLOWNESS, 20, 300);
@@ -97,7 +96,7 @@ public class CyberCage {
         GameTask.runLater(() -> {
             windupEntity.remove();
             createEntity(fixedLocation.subtract(0.0d, 0.35d, 0.0d));
-        }, Talents.TRAP_CAGE.getTalent(TrapCage.class).windupTime);
+        }, TalentRegistry.TRAP_CAGE.windupTime);
 
         // Fx
         PlayerLib.playSound(player, Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 0.75f);

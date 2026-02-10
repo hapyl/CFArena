@@ -1,6 +1,9 @@
 package me.hapyl.fight.database;
 
+import com.google.common.collect.Lists;
 import com.mongodb.client.MongoCollection;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.Main;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -8,6 +11,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.List;
 
 public final class MongoUtils {
 
@@ -32,11 +37,11 @@ public final class MongoUtils {
     }
 
     /**
-     * Retrieves a value from a document using a string.
+     * Retrieves a value from a serialize using a string.
      * <p>
      * String may or may not have segments separated by a dot.
      *
-     * @param root - Root document
+     * @param root - Root serialize
      * @param path - Path to value
      * @param def  - Default value if not found.
      * @param <T>  - Type of value
@@ -63,11 +68,11 @@ public final class MongoUtils {
     }
 
     /**
-     * Sets a value in a document using a string.
+     * Sets a value in a serialize using a string.
      * <p>
      * String may or may doesn't have segments separated by a dot.
      *
-     * @param root  - Root document
+     * @param root  - Root serialize
      * @param path  - Path to value
      * @param value - Value to set
      * @param <T>   - Type of value
@@ -105,6 +110,32 @@ public final class MongoUtils {
                 collection.updateOne(filter, update);
             }
         }.runTaskAsynchronously(Main.getPlugin());
-
     }
+
+    @Nonnull
+    public static <E extends Keyed> List<String> getKeys(@Nonnull E[] values) {
+        final List<String> strings = Lists.newArrayList();
+
+        for (E value : values) {
+            strings.add(value.getKeyAsString());
+        }
+
+        return strings;
+    }
+
+    @Nonnull
+    public static <E extends Enum<E>> List<E> keysToEnum(@Nonnull Class<E> enumClass, @Nonnull Collection<String> strings) {
+        final List<E> enums = Lists.newArrayList();
+
+        for (String string : strings) {
+            final E anEnum = Enums.byName(enumClass, string);
+
+            if (anEnum != null) {
+                enums.add(anEnum);
+            }
+        }
+
+        return enums;
+    }
+
 }

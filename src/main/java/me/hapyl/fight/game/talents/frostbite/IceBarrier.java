@@ -1,39 +1,43 @@
 package me.hapyl.fight.game.talents.frostbite;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.Direction;
+
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Direction;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class IceBarrier extends Talent {
 
     @DisplayField protected final int buildDelay = 4;
-    @DisplayField(suffix = "blocks") protected final double radius = 3.5d;
+    @DisplayField(suffix = " blocks") protected final double radius = 3.5d;
     @DisplayField protected final double healingPerTick = 2.0d;
 
     public IceBarrier() {
-        super("Ice Barrier");
+        super(Key.empty(), "Ice Barrier");
 
         setDescription("""
                 Creates an ice wall at your &etarget&7 location that melts overtime.
-                                
+                
                 While active, the wall will periodically unleash freezing energy, healing yourself and slowing enemies down.
                 """);
 
-        setItem(Material.PACKED_ICE);
+        setMaterial(Material.PACKED_ICE);
         setCooldownSec(30);
-        setDuration(Tick.fromSecond(15));
+        setDuration(Tick.fromSeconds(15));
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         if (true) {
             return Response.OK;
         }
@@ -45,9 +49,9 @@ public class IceBarrier extends Talent {
         }
 
         final Direction direction = Direction.getDirection(player.getLocation());
-        final boolean isEastWest = direction.isEastOrWest();
+        final boolean isWestEast = direction.isWestOrEast();
 
-        final Location location = targetLocation.subtract((isEastWest ? 0 : 2), 0, (isEastWest ? 2 : 0));
+        final Location location = targetLocation.subtract((isWestEast ? 0 : 2), 0, (isWestEast ? 2 : 0));
 
         return Response.OK;
     }

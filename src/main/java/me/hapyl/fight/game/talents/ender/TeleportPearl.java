@@ -1,10 +1,12 @@
 package me.hapyl.fight.game.talents.ender;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EnderPearl;
@@ -17,6 +19,7 @@ import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,35 +27,35 @@ public class TeleportPearl extends Talent implements Listener {
 
     private final Set<EnderPearl> enderPearls = new HashSet<>();
 
-    public TeleportPearl() {
-        super(
-                "Rideable Pearl",
+    public TeleportPearl(@Nonnull Key key) {
+        super(key, "Rideable Pearl");
+
+        setDescription("""
+                Throw an &dender pearl&7 and &emount&7 to ride it all the way!
+                &8&o;;Sneak to throw normally.
                 """
-                        Throw an ender pearl and mount to ride it all the way!
-                        &6&lSNEAK &7to throw normally.
-                        """
         );
 
         setType(TalentType.MOVEMENT);
-        setItem(Material.ENDER_PEARL);
+        setMaterial(Material.ENDER_PEARL);
         setCooldown(160);
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         enderPearls.clear();
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final EnderPearl pearl = player.launchProjectile(EnderPearl.class);
 
         enderPearls.add(pearl);
-        pearl.setShooter(player.getPlayer());
+        pearl.setShooter(player.getEntity());
 
         if (!player.isSneaking()) {
             player.playSound(Sound.ENTITY_HORSE_SADDLE, 1.5f);
-            pearl.addPassenger(player.getPlayer());
+            pearl.addPassenger(player.getEntity());
         }
 
         return Response.OK;

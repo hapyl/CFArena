@@ -1,12 +1,17 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.fight.game.heroes.Archetype;
+import me.hapyl.fight.util.CFUtils;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class CFCommand extends SimplePlayerCommand {
 
@@ -23,6 +28,15 @@ public abstract class CFCommand extends SimplePlayerCommand {
         return rank;
     }
 
+    public <E extends Enum<E>> CFCommand enumCompleter(int index, @Nonnull Class<E> enumClass, @Nullable Archetype... ignore) {
+        final List<E> list = Arrays.asList(enumClass.getEnumConstants());
+
+        list.removeIf(e -> CFUtils.arrayContains(ignore, e));
+        addCompleterValues(index, list);
+
+        return this;
+    }
+
     protected abstract void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank);
 
     @Override
@@ -30,7 +44,7 @@ public abstract class CFCommand extends SimplePlayerCommand {
         final PlayerRank playerRank = PlayerRank.getRank(player);
 
         if (!playerRank.isOrHigher(rank)) {
-            Notifier.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
+            Message.Error.NOT_PERMISSIONS_NEED_RANK.send(player, rank.getPrefixWithFallback());
             return;
         }
 

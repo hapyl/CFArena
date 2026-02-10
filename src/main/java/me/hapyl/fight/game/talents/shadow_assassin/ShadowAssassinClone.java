@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.attribute.AttributeType;
@@ -12,22 +14,21 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ShadowAssassinClone extends ShadowAssassinTalent implements Listener {
 
     @DisplayField protected final double cloneDamage = 10.0d;
-    @DisplayField protected final double defenseReduction = 0.4d;
-    @DisplayField protected final int defenseReductionDuration = Tick.fromSecond(6);
+    @DisplayField protected final double defenseReduction = -0.4d;
+    @DisplayField protected final int defenseReductionDuration = Tick.fromSeconds(6);
     @DisplayField protected final short cloneLimit = 3;
     @DisplayField protected final short energyRegen = 25;
 
@@ -37,18 +38,13 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
 
     private final PlayerMap<PlayerCloneList> clones = PlayerMap.newMap();
 
-    public ShadowAssassinClone() {
-        super("Shadow Clone");
+    public ShadowAssassinClone(@Nonnull Key key) {
+        super(key, "Shadow Clone");
 
         setType(TalentType.IMPAIR);
-        setItem(Material.DRAGON_EGG);
+        setMaterial(Material.DRAGON_EGG);
 
         setTalents(new Stealth(), new Fury(50));
-    }
-
-    @EventHandler()
-    public void handleDamage(GameDamageEvent ev) {
-
     }
 
     @Nonnull
@@ -57,7 +53,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         clones.values().forEach(PlayerCloneList::disappearAll);
         clones.clear();
     }
@@ -78,9 +74,9 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
 
             setDescription("""
                     Summon a &8Shadow Clone&7 at your current location.
-                                        
+                    
                     The clone waits patiently for an &cenemy&7 to come close before &cattacking&7, reducing their %s and &cdisappearing&7.
-                                        
+                    
                     Before the clone disappears, you can &bteleport&7 to it, &nregenerating&7 %s{energyRegen} %s.
 
                     &8;;Up to {cloneLimit} clones can exist at the same time.
@@ -89,10 +85,10 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             final PlayerCloneList playerClones = getPlayerClones(player);
 
-            playerClones.createClone(player.getLocationAnchored()).startTicking();
+            playerClones.createClone(player.getLocationAnchored()).schedule();
             return Response.OK;
         }
     }
@@ -115,7 +111,7 @@ public class ShadowAssassinClone extends ShadowAssassinTalent implements Listene
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             final PlayerCloneList clones = getPlayerClones(player);
 
             final Location location = player.getLocation();

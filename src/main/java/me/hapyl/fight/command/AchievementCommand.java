@@ -1,12 +1,12 @@
 package me.hapyl.fight.command;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.entry.AchievementEntry;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -19,7 +19,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
         setUsage("achievement (player) (give|revoke|get) (achievement)");
         setAliases("ach");
 
-        registry = Main.getPlugin().getAchievementRegistry();
+        registry = Registries.achievements();
 
         addCompleterValues(2, "give", "revoke", "reset", "get");
         addCompleterValues(3, registry.listIds());
@@ -33,7 +33,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
         }
 
         final Player target = Bukkit.getPlayer(args[0]);
-        final Achievement achievement = registry.byId(args[2]);
+        final Achievement achievement = registry.get(args[2]);
 
         if (target == null) {
             Chat.sendMessage(player, "&cThis player is not online!");
@@ -45,7 +45,7 @@ public class AchievementCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final AchievementEntry database = PlayerDatabase.getDatabase(target).achievementEntry;
+        final AchievementEntry database = CF.getDatabase(target).achievementEntry;
 
         switch (args[1].toLowerCase()) {
             case "give" -> {

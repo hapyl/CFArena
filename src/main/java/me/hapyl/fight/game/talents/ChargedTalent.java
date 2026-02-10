@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.loadout.HotBarSlot;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -17,216 +16,153 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 /**
  * Represents a talent with multiple charges.
  */
-public class ChargedTalent extends Talent {
-
+public abstract class ChargedTalent extends Talent {
+    
+    public static final int DOES_NOT_RECHARGE_AUTOMATICALLY = -1;
+    public static final int DEFAULT_INTERNAL_COOLDOWN = 5;
+    
     private final int maxCharges;
-    private final PlayerMap<ChargedTalentData> data;
-    private int rechargeTime;
-    private Material noChargedMaterial;
-
-    public ChargedTalent(@Nonnull String name, int maxCharges) {
-        this(name, "", maxCharges);
-    }
-
-    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges) {
-        this(name, description, maxCharges, TalentType.DAMAGE);
-    }
-
-    public ChargedTalent(@Nonnull String name, @Nonnull String description, int maxCharges, @Nonnull TalentType type) {
-        super(name, description, type);
-
+    private final PlayerMap<ChargedTalentData> dataMap;
+    
+    private int internalCooldown;
+    
+    public ChargedTalent(@Nonnull Key key, @Nonnull String name, int maxCharges) {
+        super(key, name);
+        
         this.maxCharges = maxCharges;
-        this.data = PlayerMap.newMap();
-        this.rechargeTime = -1; // -1 = does not recharge (manual)
-        this.noChargedMaterial = Material.CHARCOAL;
+        this.internalCooldown = DEFAULT_INTERNAL_COOLDOWN;
+        this.dataMap = PlayerMap.newMap();
+        
+        // Cooldown acts as a recharge time
+        setCooldown(DOES_NOT_RECHARGE_AUTOMATICALLY);
     }
-
-    public ChargedTalentData getData(GamePlayer player) {
-        return data.computeIfAbsent(player, data -> new ChargedTalentData(player, this));
+    
+    public int internalCooldown() {
+        return internalCooldown;
     }
-
-    public Material getNoChargedMaterial() {
-        return noChargedMaterial;
+    
+    public void internalCooldown(int internalCooldown) {
+        this.internalCooldown = Math.max(1, internalCooldown);
     }
-
-    public void setNoChargedMaterial(Material noChargedMaterial) {
-        this.noChargedMaterial = noChargedMaterial;
+    
+    @Nonnull
+    @Override
+    public String cooldownString() {
+        return "Recharge Time";
     }
-
+    
+    @Nonnull
+    public ChargedTalentData getData(@Nonnull GamePlayer player) {
+        return dataMap.computeIfAbsent(player, data -> new ChargedTalentData(player, this));
+    }
+    
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
     }
-
+    
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void onStop() {
-        data.forEach((p, d) -> d.reset());
-        data.clear();
+    public void onStop(@Nonnull GameInstance instance) {
+        dataMap.values().forEach(ChargedTalentData::remove);
+        dataMap.clear();
     }
-
+    
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onDeath(@Nonnull GamePlayer player) {
-        getData(player).reset();
-        data.remove(player);
-    }
-
-    @Event
-    public void onLastCharge(@Nonnull GamePlayer player) {
-    }
-
-    public void setRechargeTimeSec(int i) {
-        setRechargeTime(i * 20);
-    }
-
-    /**
-     * @deprecated does not recharge by default
-     */
-    @Deprecated
-    public void setDoesNotRecharge() {
-        this.setRechargeTime(-1);
-    }
-
-    public int getLastKnownSlot(GamePlayer player) {
-        return getData(player).getLastKnownSlot();
-    }
-
-    public void setLastKnownSlot(GamePlayer player, int slot) {
-        if (getLastKnownSlot(player) == slot) {
-            return;
+        final ChargedTalentData data = dataMap.remove(player);
+        
+        if (data != null) {
+            data.remove();
         }
-
-        getData(player).setLastKnownSlot(slot);
     }
-
-    public int getMaxCharges() {
+    
+    public int maxCharges() {
         return maxCharges;
     }
-
-    public int getRechargeTime() {
-        return rechargeTime;
+    
+    public int chargesLeft(@Nonnull GamePlayer player) {
+        return getData(player).charges();
     }
-
-    protected void setRechargeTime(int i) {
-        this.rechargeTime = i;
+    
+    public void grantAllCharges(GamePlayer player) {
+        getData(player).recharge();
     }
-
-    public int getChargesAvailable(GamePlayer player) {
-        return getData(player).getChargesAvailable();
+    
+    @Nonnull
+    public abstract Response execute(@Nonnull GamePlayer player, int charges);
+    
+    public void onLastCharge(@Nonnull GamePlayer player) {
     }
-
-    public void removeChargeAndStartCooldown(GamePlayer player) {
-        final int slot = getLastKnownSlot(player);
-        final PlayerInventory inventory = player.getInventory();
-        final ItemStack item = inventory.getItem(slot);
-
-        getData(player).removeCharge();
-
-        if (item == null) {
-            return;
+    
+    @Override
+    public final Response execute(@Nonnull GamePlayer player) {
+        final ChargedTalentData data = getData(player);
+        
+        // This is called even IF the player has the cooldown because it's clearer
+        if (data.charges <= 0) {
+            player.playSound(Sound.BLOCK_WOODEN_DOOR_CLOSE, 0.75f);
+            return Response.error("Out of Charges! Next one in %s!".formatted(CFUtils.formatTick(getCooldownTimeLeft(player))));
         }
-
-        final int amount = item.getAmount();
-
-        if (amount == 1) {
-            inventory.setItem(slot, noChargesItem());
-            if (getRechargeTime() >= 0) {
-                player.setCooldown(noChargedMaterial, getRechargeTime());
-            }
-
+        
+        final Response response = execute(player, data.charges - 1);
+        
+        if (!response.isOk()) {
+            return response;
+        }
+        
+        // Decrement charge
+        data.decrementCharge();
+        
+        // Call onLastCharge if out of charges AFTER decrement
+        if (data.charges == 0) {
             onLastCharge(player);
         }
-        else {
-            item.setAmount(amount - 1);
-        }
-
-        // if recharge time is -1 = ability does not recharge
-        if (getRechargeTime() <= -1) {
-            return;
-        }
-
-        getData(player).workTask();
-    }
-
-    public void grantAllCharges(GamePlayer player, int delay) {
-        GameTask.runLater(() -> grantAllCharges(player), player.scaleCooldown(delay));
-    }
-
-    public void grantAllCharges(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        final int slot = getLastKnownSlot(player);
-
-        if (slot == -1) {
-            return;
-        }
-
-        final ItemStack item = inventory.getItem(slot);
-        if (item == null) {
-            return;
-        }
-
-        inventory.setItem(slot, this.getItem());
-        final ItemStack newItem = inventory.getItem(slot);
-
-        if (newItem != null) {
-            newItem.setAmount(maxCharges);
-        }
-
-        getData(player).maxCharge();
-
-        // Fx
-        player.playSound(Sound.ENTITY_CHICKEN_EGG, 1);
-    }
-
-    public void grantCharge(GamePlayer player, int delay) {
-        GameTask.runLater(() -> grantCharge(player), delay);
-    }
-
-    public void grantCharge(GamePlayer player) {
-        final PlayerInventory inventory = player.getInventory();
-        final int slot = getLastKnownSlot(player);
-
-        if (slot == -1) {
-            return;
-        }
-
-        final ItemStack item = inventory.getItem(slot);
-        if (item == null) {
-            return;
-        }
-
-        if (item.getType() == noChargedMaterial) {
-            inventory.setItem(slot, this.getItem());
-        }
-        else {
-            item.setAmount(item.getAmount() + 1);
-        }
-
-        getData(player).addCharge();
-
-        // Fx
-        player.playSound(Sound.ENTITY_CHICKEN_EGG, 1);
-    }
-
-    public void resetCooldown(GamePlayer player) {
-        getData(player).reset();
-    }
-
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
+        
+        // Always return await since there is no cooldown between charges anymore
         return Response.AWAIT;
     }
-
-    @Nonnull
-    public ItemStack noChargesItem() {
-        return ItemBuilder.of(noChargedMaterial, "&cOut of Charged!").build();
-    }
-
+    
     @Nonnull
     @Override
     public String getTalentClassType() {
         return "Charged Talent";
+    }
+    
+    @Override
+    public final boolean isOnCooldown(@Nonnull GamePlayer player) {
+        final ChargedTalentData data = getData(player);
+        
+        // Don't check for cooldown if no charts
+        return data.charges != 0 && super.isOnCooldown(player);
+    }
+    
+    @Override
+    public void giveItem(@Nonnull GamePlayer player, @Nonnull HotBarSlot slot) {
+        super.giveItem(player, slot);
+        
+        // Fix amount
+        getData(player).updateItem();
+    }
+    
+    public void rechargeAll(@Nonnull GamePlayer player, int cooldown) {
+        startCooldown(player, cooldown);
+        
+        // Give ALL charges after the cooldown
+        player.schedule(
+                () -> getData(player).recharge(), player.cooldownManager.scaleCooldown(cooldown, false)
+        );
+    }
+    
+    @Override
+    public void juice(@Nonnull ItemBuilder builder) {
+        builder.setAmount(maxCharges);
+    }
+    
+    @Override
+    public void juiceDetails(@Nonnull ItemBuilder builder) {
+        builder.addLore("Max Charges: &f&l%s".formatted(maxCharges));
     }
 }
 

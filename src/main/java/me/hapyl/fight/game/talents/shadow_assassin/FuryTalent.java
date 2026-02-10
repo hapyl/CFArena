@@ -2,8 +2,8 @@ package me.hapyl.fight.game.talents.shadow_assassin;
 
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
 import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassin;
+import me.hapyl.fight.game.heroes.shadow_assassin.ShadowAssassinData;
 import me.hapyl.fight.util.displayfield.DisplayField;
 
 public abstract class FuryTalent extends ShadowAssassinModeSpecificTalent {

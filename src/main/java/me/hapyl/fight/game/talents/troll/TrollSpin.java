@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.talents.troll;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -11,23 +12,27 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TrollSpin extends Talent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 30.0d;
+    @DisplayField(suffix = " blocks") private final double radius = 30.0d;
 
-    public TrollSpin() {
-        super("Spin", """
-                Rotates all nearby opponents head 180 degrees.
-                """);
+    public TrollSpin(@Nonnull Key key) {
+        super(key, "Spin");
+
+        setDescription("""
+                Rotates all nearby &cenemies&7 heads &b180&7 degrees.
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.NAUTILUS_SHELL);
+        setMaterial(Material.NAUTILUS_SHELL);
         setCooldown(300);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         Collect.nearbyEntities(player.getLocation(), radius).forEach(victim -> {
             if (player.isSelfOrTeammateOrHasEffectResistance(victim)) {
                 return;
@@ -38,6 +43,7 @@ public class TrollSpin extends Talent {
 
             victim.teleport(location);
             victim.playSound(Sound.ENTITY_BLAZE_HURT, 2.0f);
+            victim.triggerDebuff(player);
         });
 
         player.playSound(Sound.ENTITY_BLAZE_HURT, 0.75f);

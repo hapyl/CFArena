@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.parkour;
 
+import me.hapyl.eterna.Eterna;
+import me.hapyl.eterna.builtin.manager.ParkourManager;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.gui.ParkourLeaderboardGUI;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.Eterna;
-import me.hapyl.spigotutils.EternaPlugin;
-import me.hapyl.spigotutils.module.parkour.ParkourRegistry;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,10 +19,10 @@ public class CFParkourManager implements Listener {
 
     public CFParkourManager(Main main) {
         main.getServer().getPluginManager().registerEvents(this, main);
-        final ParkourRegistry parkourRegistry = Eterna.getRegistry().parkourRegistry;
+        final ParkourManager parkourManager = Eterna.getManagers().parkour;
 
         for (ParkourCourse value : ParkourCourse.values()) {
-            parkourRegistry.registerParkour(value.getParkour());
+            parkourManager.register(value.getParkour());
         }
     }
 
@@ -50,12 +50,20 @@ public class CFParkourManager implements Listener {
                 continue;
             }
 
-            if (CFUtils.distance(leaderboard.getLocation(), clickedBlock.getLocation()) < 5.0d) {
+            if (CFUtils.distance(leaderboard.getLocation(), clickedBlock.getLocation()) < 2.50d) {
                 new ParkourLeaderboardGUI(player, parkour);
                 return;
             }
         }
 
+    }
+
+    @EventHandler
+    public void handlePlayerJoinEvent(PlayerJoinEvent ev) {
+        // Update holograms
+        for (ParkourCourse parkour : ParkourCourse.values()) {
+            parkour.getParkour().reload();
+        }
     }
 
 }

@@ -1,8 +1,8 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class ScriptManager extends DependencyInjector<Main> {
     }
 
     public ScriptRunner run(@Nonnull Script script) {
-        final String id = script.getId();
+        final String id = script.getKeyAsString();
 
         if (runningScripts.containsKey(id)) {
             return runningScripts.get(id);
@@ -31,11 +31,11 @@ public class ScriptManager extends DependencyInjector<Main> {
     }
 
     public boolean free(@Nonnull Script script) {
-        return runningScripts.remove(script.getId()) != null;
+        return runningScripts.remove(script.getKeyAsString()) != null;
     }
 
     public boolean isRunning(@Nonnull Script script) {
-        return runningScripts.containsKey(script.getId());
+        return runningScripts.containsKey(script.getKeyAsString());
     }
 
 }

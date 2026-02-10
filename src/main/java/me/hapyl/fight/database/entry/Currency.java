@@ -1,27 +1,32 @@
 package me.hapyl.fight.database.entry;
 
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.crate.convert.Product;
-import me.hapyl.fight.game.profile.PlayerProfile;
+import me.hapyl.fight.game.crate.convert.Product;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.FormattedEnum;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
-public enum Currency implements FormattedEnum, Product<Long> {
+public enum Currency implements FormattedEnum, Product<Long>, KeyedEnum {
 
-    COINS(new Color("#FFD700"), "🪙", "Coins") {
+    COINS(Color.of("#FFD700"), "⛂", "Catcoins") {
         @Override
         public void onIncrease(Player player, long value) {
-            Achievements.GAIN_COINS.addProgress(player, (int) value);
+            Registries.achievements().GAIN_COINS.addCompleteCount(player, (int) value);
         }
     },
-    RUBIES(new Color("#9B111E"), "💎", "Rubies"),
-    CHEST_DUST(new Color("#964B00"), "📦", "Dust"),
-    ACHIEVEMENT_POINT(Color.ROYAL_BLUE, "\uD83C\uDF1F", "Achievement Points"),
+    RUBIES(Color.of("#9B111E"), "💎", "Rubies"),
+    /**
+     * @deprecated Crates are being discontinued
+     */
+    @Deprecated CHEST_DUST(Color.of("#964B00"), "📦", "Dust"),
+
+    EYE_TOKEN(Color.EYE, "&l👁", "The Eye Tokens"),
 
     ;
 
@@ -41,7 +46,7 @@ public enum Currency implements FormattedEnum, Product<Long> {
      * @param player - Player, who this currency is increased for.
      * @param value  - Value by which this currency is increased by.
      */
-    @Event
+    @EventLike
     public void onIncrease(Player player, long value) {
     }
 
@@ -51,7 +56,7 @@ public enum Currency implements FormattedEnum, Product<Long> {
      * @param player - Player, who this currency is decreased for.
      * @param value  - Value by which this currency is decreased by.
      */
-    @Event
+    @EventLike
     public void onDecrease(Player player, long value) {
     }
 
@@ -70,10 +75,6 @@ public enum Currency implements FormattedEnum, Product<Long> {
     @Override
     public String formatProduct(@Nonnull Long amount) {
         return getFormatted() + " %,d".formatted(amount);
-    }
-
-    public String getPath() {
-        return name().toLowerCase();
     }
 
     @Nonnull
@@ -101,14 +102,8 @@ public enum Currency implements FormattedEnum, Product<Long> {
     }
 
     @Nonnull
-    public String getFormatted(Player player) {
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            return "null";
-        }
-
-        final CurrencyEntry currency = profile.getDatabase().currencyEntry;
+    public String getFormatted(@Nonnull Player player) {
+        final CurrencyEntry currency = CF.getDatabase(player).currencyEntry;
         final String formatted = currency.getFormatted(this);
 
         return getPrefixColored() + " " + getColor() + formatted;

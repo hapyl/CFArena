@@ -1,9 +1,9 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.cosmetic.crate.CrateLocation;
-import me.hapyl.fight.game.cosmetic.crate.CrateLoot;
-import me.hapyl.fight.game.cosmetic.crate.Crates;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.crate.CrateLocation;
+import me.hapyl.fight.game.crate.CrateLoot;
+import me.hapyl.fight.game.crate.Crates;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,14 +37,14 @@ public class CrateConfirmGUI extends ConfirmGUI {
     }
 
     @Override
-    public void onConfirm(@Nonnull Player player) {
+    public void confirm(@Nonnull Player player) {
         final CrateLoot loot = new CrateLoot(player, crate);
 
         location.onOpen(loot);
     }
 
     @Override
-    public void onCancel(@Nonnull Player player) {
+    public void cancel(@Nonnull Player player) {
         new CrateGUI(player, location);
     }
 }

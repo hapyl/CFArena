@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.techie;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -27,7 +27,7 @@ public class Tripwire {
     }
 
     public boolean isActive() {
-        return (System.currentTimeMillis() - createdAt) >= (Talents.TRAP_WIRE.getTalent(TrapWire.class).getWindupTimeAsMillis());
+        return (System.currentTimeMillis() - createdAt) >= (TalentRegistry.TRAP_WIRE.getWindupTimeAsMillis());
     }
 
     public Player getPlayer() {

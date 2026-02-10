@@ -1,9 +1,6 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.database.entry.Currency;
-import me.hapyl.spigotutils.module.util.RomanNumber;
-import org.bukkit.entity.Player;
+import me.hapyl.eterna.module.util.RomanNumber;
 
 import javax.annotation.Nonnull;
 
@@ -27,10 +24,6 @@ public class Tier {
 
     public int getReward() {
         return this.data[2];
-    }
-
-    public void reward(Player player) {
-        PlayerDatabase.getDatabase(player).currencyEntry.add(Currency.ACHIEVEMENT_POINT, getReward());
     }
 
     @Nonnull

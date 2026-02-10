@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes.spark;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.weapons.PackedParticle;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
 public class SparkWeapon extends RangeWeapon {
 
     public SparkWeapon() {
-        super(Material.STICK, "fire_weapon");
+        super(Material.STICK, Key.ofString("fire_weapon"));
 
         setName("Fire Sprayer");
         setDescription("A long range weapon that can shoot fire lasers in front of you! How cool is that...");
@@ -42,8 +43,8 @@ public class SparkWeapon extends RangeWeapon {
 
             @Nonnull
             @Override
-            public EnumDamageCause getDamageCause() {
-                return EnumDamageCause.FIRE_SPRAY;
+            public DamageCause getDamageCause() {
+                return DamageCause.FIRE_SPRAY;
             }
         };
     }

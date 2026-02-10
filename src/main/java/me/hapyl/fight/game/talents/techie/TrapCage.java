@@ -1,6 +1,8 @@
 package me.hapyl.fight.game.talents.techie;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.ChargedTalent;
@@ -30,16 +32,19 @@ public class TrapCage extends ChargedTalent implements Listener {
 
     private final Map<Player, Set<CyberCage>> cageMap = new HashMap<>();
 
-    public TrapCage() {
-        super("CYber Cage", """
-                Toss a cage in front of you, masking itself upon landing as a block below it.
-                                
-                Activates upon opponents touch and explodes in small AoE applying &b&lCYber &b&lHack&7.
-                                
-                &e&lSNEAK &7near your cage to pick it up.
-                """, 3);
+    public TrapCage(@Nonnull Key key) {
+        super(key, "CYber Cage", 3);
 
-        setItem(Material.IRON_TRAPDOOR);
+        setDescription("""
+                Toss a cage in front of you, masking itself upon landing as a block below it.
+                
+                Activates upon opponents touch and explodes in small AoE applying &b&lCYber &b&lHack&7.
+                
+                &e&lSNEAK &7near your cage to pick it up.
+                """
+        );
+
+        setMaterial(Material.IRON_TRAPDOOR);
         setCooldownSec(2);
     }
 
@@ -49,22 +54,23 @@ public class TrapCage extends ChargedTalent implements Listener {
         //getCages(player).forEach(CyberCage::remove);
         //cageMap.remove(player);
     }
-
+    
+    @Nonnull
     @Override
-    public void onStop() {
-        super.onStop();
+    public Response execute(@Nonnull GamePlayer player, int charges) {
+        //getCages(player).add(new CyberCage(player));
+        return Response.OK;
+    }
+    
+    @Override
+    public void onStop(@Nonnull GameInstance instance) {
+        super.onStop(instance);
 
         cageMap.values().forEach(set -> {
             set.forEach(CyberCage::remove);
             set.clear();
         });
         cageMap.clear();
-    }
-
-    @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        //getCages(player).add(new CyberCage(player));
-        return Response.OK;
     }
 
     @EventHandler()
@@ -89,8 +95,8 @@ public class TrapCage extends ChargedTalent implements Listener {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onStart(@Nonnull GameInstance instance) {
+        super.onStart(instance);
 
         new GameTask() {
             @Override

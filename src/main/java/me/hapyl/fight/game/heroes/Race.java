@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
+import me.hapyl.eterna.module.util.Named;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.Named;
 
 import javax.annotation.Nonnull;
 
@@ -11,6 +11,9 @@ public enum Race implements Named {
     ALIEN("&a👽 &2Alien"),
     CYBERNETIC("&b🤖 &3Cybernetic"),
     VAMPIRE("&4🦇 &cVampire"),
+    SHARK("&b🦈 Shark"),
+    VOID_CREATURE("&b\uD83C\uDF00 Abyss Creature"),
+    DEMON("&4\uD83D\uDC7F Demon"),
 
     UNKNOWN("&8❓ Unknown"),
 

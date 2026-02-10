@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.delivery;
 
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.eterna.module.util.Validate;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

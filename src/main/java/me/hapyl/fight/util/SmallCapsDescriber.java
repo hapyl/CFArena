@@ -1,7 +1,7 @@
 package me.hapyl.fight.util;
 
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.util.SmallCaps;
 
 import javax.annotation.Nonnull;
 

@@ -2,15 +2,16 @@ package me.hapyl.fight.game.collectible.relic;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.nbt.NBT;
+import me.hapyl.eterna.module.util.DependencyInjector;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.annotate.Unique;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.reward.CurrencyReward;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.util.Range;
-import me.hapyl.spigotutils.module.nbt.NBT;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.fight.npc.StoreOwnerNPC;
+import me.hapyl.fight.npc.TheEyeNPC;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +25,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.profile.PlayerProfile;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,7 +40,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
     private final Map<Integer, Relic> byId;
     private final Map<Type, List<Relic>> byType;
-    private final Map<GameMaps, List<Relic>> byZone;
+    private final Map<EnumLevel, List<Relic>> byZone;
 
     private final Map<Integer, Reward> collectorRewards;
     private final Map<Integer, Reward> exchangeReward;
@@ -52,15 +54,15 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         collectorRewards = Maps.newHashMap();
         exchangeReward = Maps.newHashMap();
 
-        collectorRewards.put(1, new CurrencyReward().withCoins(1000).withExp(10));
-        collectorRewards.put(2, new CurrencyReward().withCoins(2500).withExp(25));
-        collectorRewards.put(3, new CurrencyReward().withCoins(5000).withExp(50).withRubies(1));
+        collectorRewards.put(1, Reward.ofRepeatableResource("Collector 1", 1000, 10));
+        collectorRewards.put(2, Reward.ofRepeatableResource("Collector 2", 2500, 25));
+        collectorRewards.put(3, Reward.ofRepeatableResource("Collector 3", 5000, 50, 1));
 
-        exchangeReward.put(1, new CurrencyReward().withCoins(500).withExp(5));
-        exchangeReward.put(2, new CurrencyReward().withCoins(1000).withExp(10));
-        exchangeReward.put(3, new CurrencyReward().withCoins(1500).withExp(15));
-        exchangeReward.put(4, new CurrencyReward().withCoins(2000).withExp(20));
-        exchangeReward.put(5, new CurrencyReward().withCoins(3000).withExp(30).withRubies(1));
+        exchangeReward.put(1, Reward.ofRepeatableResource("Exchange 1", 500, 5));
+        exchangeReward.put(2, Reward.ofRepeatableResource("Exchange 2", 1000, 10));
+        exchangeReward.put(3, Reward.ofRepeatableResource("Exchange 3", 1500, 15));
+        exchangeReward.put(4, Reward.ofRepeatableResource("Exchange 4", 2000, 20));
+        exchangeReward.put(5, Reward.ofRepeatableResource("Exchange 5", 3000, 30, 1));
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().runTaskTimer(plugin, new RelicRunnable(this), 0L, 20L);
@@ -78,12 +80,12 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     @Nullable
-    public Reward getCollectorReward(@Range(min = 1) int tier) {
+    public Reward getCollectorReward(@Range(from = 1, to = Byte.MAX_VALUE) int tier) {
         return collectorRewards.get(tier);
     }
 
     @Nonnull
-    public Reward getExchangeReward(@Range(min = 1) int tier) {
+    public Reward getExchangeReward(@Range(from = 1, to = Byte.MAX_VALUE) int tier) {
         Reward reward = exchangeReward.get(tier);
 
         if (reward == null) { // default to the last reward
@@ -107,32 +109,31 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         }
 
         final Relic relic = byBlock(block);
+
         if (relic == null) {
             return;
         }
 
-        if (!relic.hasFound(player)) {
-            relic.give(player);
-        }
+        relic.give(player);
     }
 
-    public int countIn(GameMaps map) {
+    public int countIn(EnumLevel map) {
         return byZone.getOrDefault(map, Lists.newArrayList()).size();
     }
 
-    public boolean anyIn(GameMaps map) {
+    public boolean anyIn(EnumLevel map) {
         return countIn(map) > 0;
     }
 
     /**
      * Gets relics in the given zone.
-     * Prefer {@link #countIn(GameMaps)} if you just need the count.
+     * Prefer {@link #countIn(EnumLevel)} if you just need the count.
      *
      * @param map - Zone.
      * @return list of relics in the given zone.
      */
     @Nonnull
-    public List<Relic> byZone(GameMaps map) {
+    public List<Relic> byZone(EnumLevel map) {
         return Lists.newArrayList(byZone.getOrDefault(map, Lists.newArrayList()));
     }
 
@@ -155,7 +156,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         return byId.values().stream().filter(relic -> relic.hasFound(player)).toList();
     }
 
-    public List<Relic> getFoundListIn(Player player, GameMaps zone) {
+    public List<Relic> getFoundListIn(Player player, EnumLevel zone) {
         return getFoundList(player).stream().filter(relic -> relic.getZone() == zone).toList();
     }
 
@@ -173,10 +174,10 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     @Nonnull
-    public List<GameMaps> getMapsWithRelics() {
-        final List<GameMaps> list = Lists.newArrayList();
+    public List<EnumLevel> getMapsWithRelics() {
+        final List<EnumLevel> list = Lists.newArrayList();
 
-        for (GameMaps map : GameMaps.values()) {
+        for (EnumLevel map : EnumLevel.values()) {
             if (!anyIn(map)) {
                 continue;
             }
@@ -188,7 +189,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
     }
 
     public boolean hasClaimedAll(Player player) {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase database = CF.getDatabase(player);
         final List<Integer> foundList = database.collectibleEntry.getFoundList();
 
         return byId.size() == foundList.size();
@@ -209,47 +210,52 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
         registerRelic(103, new Relic(Type.AMETHYST, 11, 67, -27));
         registerRelic(104, new Relic(Type.AMETHYST, 7, 66, 23));
         registerRelic(105, new Relic(Type.ROSE_QUARTZ, 0, 59, 39).setBlockFace(BlockFace.WEST_NORTH_WEST));
-        registerRelic(106, new Relic(Type.SAPPHIRE, -9, 61, 6));
+        registerRelic(TheEyeNPC.RELIC_ID, new Relic(Type.SAPPHIRE, -9, 61, 6));
+        registerRelic(StoreOwnerNPC.RELIC_ID, new Relic(Type.DIAMOND, 22, 66, 5).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(108, new Relic(Type.DIAMOND, 34, 66, -11).setBlockFace(BlockFace.SOUTH_WEST));
 
         // Arena
-        registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(GameMaps.ARENA));
-        registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(GameMaps.ARENA));
-        registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(GameMaps.ARENA));
-        registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(GameMaps.ARENA));
+        registerRelic(200, new Relic(Type.SAPPHIRE, 470, 70, 18).setZone(EnumLevel.ARENA));
+        registerRelic(201, new Relic(Type.EMERALD, 462, 80, 14).setZone(EnumLevel.ARENA));
+        registerRelic(202, new Relic(Type.EMERALD, 512, 68, -30).setZone(EnumLevel.ARENA));
+        registerRelic(203, new Relic(Type.EMERALD, 466, 78, -5).setZone(EnumLevel.ARENA));
+        registerRelic(204, new Relic(Type.EMERALD, 501, 83, -36).setBlockFace(BlockFace.NORTH_EAST).setZone(EnumLevel.ARENA));
 
         // Japan - Reversed Ids in 300-399 range
         // Skipping for now, since rebuilding -h
 
         // Greenhouse
-        registerRelic(400, new Relic(Type.EMERALD, 1503, 69, -2).setZone(GameMaps.GREENHOUSE));
-        registerRelic(401, new Relic(Type.EMERALD, 1501, 62, -20).setZone(GameMaps.GREENHOUSE));
+        registerRelic(400, new Relic(Type.EMERALD, 1503, 69, -2).setZone(EnumLevel.GREENHOUSE));
+        registerRelic(401, new Relic(Type.EMERALD, 1501, 62, -20).setZone(EnumLevel.GREENHOUSE));
 
         // Railway (Old)
-        registerRelic(500, new Relic(Type.SAPPHIRE, 2038, 63, 1).setZone(GameMaps.RAILWAY));
-        registerRelic(501, new Relic(Type.SAPPHIRE, 2036, 65, -23).setZone(GameMaps.RAILWAY));
-        registerRelic(502, new Relic(Type.EMERALD, 1991, 66, 17).setZone(GameMaps.RAILWAY));
+        registerRelic(500, new Relic(Type.SAPPHIRE, 2038, 63, 1).setZone(EnumLevel.RAILWAY));
+        registerRelic(501, new Relic(Type.SAPPHIRE, 2036, 65, -23).setZone(EnumLevel.RAILWAY));
+        registerRelic(502, new Relic(Type.EMERALD, 1991, 66, 17).setZone(EnumLevel.RAILWAY));
 
         // Winery
-        registerRelic(600, new Relic(Type.SAPPHIRE, 5031, 62, 16).setZone(GameMaps.WINERY));
-        registerRelic(601, new Relic(Type.DIAMOND, 5023, 62, -10).setZone(GameMaps.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
+        registerRelic(600, new Relic(Type.SAPPHIRE, 5031, 62, 16).setZone(EnumLevel.WINERY));
+        registerRelic(601, new Relic(Type.DIAMOND, 5023, 62, -10).setZone(EnumLevel.WINERY).setBlockFace(BlockFace.EAST_SOUTH_EAST));
 
         // Library
-        registerRelic(700, new Relic(Type.AMETHYST, 3979, 78, -19).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
-        registerRelic(701, new Relic(Type.DIAMOND, 4018, 72, -15).setZone(GameMaps.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
+        registerRelic(700, new Relic(Type.AMETHYST, 3979, 78, -19).setZone(EnumLevel.LIBRARY).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(701, new Relic(Type.DIAMOND, 4018, 72, -15).setZone(EnumLevel.LIBRARY).setBlockFace(BlockFace.NORTH_EAST));
 
         // Limbo
-        registerRelic(800, new Relic(Type.ROSE_QUARTZ, 6509, -1, 106).setZone(GameMaps.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
+        registerRelic(800, new Relic(Type.ROSE_QUARTZ, 6509, -1, 106).setZone(EnumLevel.LIMBO).setBlockFace(BlockFace.SOUTH_WEST));
     }
 
     private <K, V> void computeMapList(final Map<K, List<V>> map, K key, final Consumer<List<V>> consumer) {
-        map.compute(key, (ref, list) -> {
-            if (list == null) {
-                list = Lists.newArrayList();
-            }
+        map.compute(
+                key, (ref, list) -> {
+                    if (list == null) {
+                        list = Lists.newArrayList();
+                    }
 
-            consumer.accept(list);
-            return list;
-        });
+                    consumer.accept(list);
+                    return list;
+                }
+        );
     }
 
     private void createRelics() {
@@ -270,7 +276,7 @@ public class RelicHunt extends DependencyInjector<Main> implements Listener {
 
                     final PlayerProfile playerProfile = Bukkit.createPlayerProfile(UUID.randomUUID());
                     playerProfile.getTextures()
-                            .setSkin(new URL("http://textures.minecraft.net/texture/" + relic.getType().getTexture()));
+                                 .setSkin(new URL("http://textures.minecraft.net/texture/" + relic.getType().getTexture()));
 
                     skull.setOwnerProfile(playerProfile);
                     skull.update(true, false);

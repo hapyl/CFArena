@@ -1,16 +1,17 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.Manager;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.gamemode.Modes;
 import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
+import me.hapyl.fight.game.type.EnumGameType;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -23,34 +24,31 @@ public class GameManagementGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
+        
         final Manager manager = Manager.current();
-        final GameMaps currentMap = manager.getCurrentMap();
-        final Modes currentMode = manager.getCurrentMode();
+        final EnumLevel currentMap = manager.currentEnumLevel();
+        final EnumGameType currentMode = manager.currentEnumType();
         final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
         setHeader(LobbyItems.GAME_MANAGEMENT.getItem().getItemStack());
 
         // Map Select
-        setItem(
+        setItemRanked(
                 20,
-                StyledItem.ICON_MAP_SELECT.asIconWithLore(
-                        "",
-                        "Current Map: &a" + currentMap.getName(),
-                        "",
-                        Color.BUTTON + "Click to change that!"
-                ), MapSelectGUI::new
+                StyledTexture.ICON_MAP_SELECT.asBuilder()
+                                             .addLore()
+                                             .addLore("Current Map: &a" + currentMap.getName()),
+                PlayerRank.GAME_MANAGER, "Click to change that!", MapSelectGUI::new
         );
 
         // Mode Select
-        setItem(
+        setItemRanked(
                 22,
-                StyledItem.ICON_MODE_SELECT.asIconWithLore(
-                        "",
-                        "Current Mode: &a" + currentMode.getMode().getName(),
-                        "",
-                        Color.BUTTON + "Click to change that!"
-                ),
-                ModeSelectGUI::new
+                StyledTexture.ICON_MODE_SELECT.asBuilder()
+                                              .addLore()
+                                              .addLore("Current Mode: &a" + currentMode.getMode().getName()),
+                PlayerRank.GAME_MANAGER, "Click to change that!", ModeSelectGUI::new
         );
 
         // Team
@@ -63,6 +61,6 @@ public class GameManagementGUI extends StyledGUI {
                         .asIcon(),
                 TeamSelectGUI::new
         );
-
     }
+
 }

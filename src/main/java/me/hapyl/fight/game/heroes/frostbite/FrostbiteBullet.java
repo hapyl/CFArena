@@ -1,11 +1,9 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Contact;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -15,10 +13,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 
-public class FrostbiteBullet implements Removable, Contact<ArmorStand, LivingGameEntity> {
+public class FrostbiteBullet implements Removable {
 
     private static final double SHIFT = 0.2d;
     private static final double Y_OFFSET = 1.0d;
@@ -64,10 +61,6 @@ public class FrostbiteBullet implements Removable, Contact<ArmorStand, LivingGam
     @Override
     public void remove() {
         CFUtils.clearArray(armorStands);
-    }
-
-    @Override
-    public void onContact(@Nonnull ArmorStand armorStand, @Nonnull LivingGameEntity entity, @Nonnull Location location) {
     }
 
     private ArmorStand createStand(int index) {

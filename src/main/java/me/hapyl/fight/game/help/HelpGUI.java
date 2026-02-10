@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.help;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StaticStyledGUI;
@@ -29,7 +30,9 @@ public abstract class HelpGUI extends StyledGUI {
     @Override
     @OverridingMethodsMustInvokeSuper
     public void onUpdate() {
-        final ItemStack border = new ItemStack(getBorder());
+        super.onUpdate();
+        
+        final ItemStack border = new ItemBuilder(getBorder()).asIcon();
 
         fillRow(0, border);
         fillRow(4, border);

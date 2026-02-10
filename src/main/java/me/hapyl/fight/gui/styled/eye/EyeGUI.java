@@ -1,5 +1,10 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.DailyRewardEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
@@ -8,10 +13,6 @@ import me.hapyl.fight.game.reward.DailyReward;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -25,27 +26,29 @@ public class EyeGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final PlayerDatabase database = PlayerDatabase.getDatabase(getPlayer());
+        super.onUpdate();
+        
+        final PlayerDatabase database = CF.getDatabase(player);
         final PlayerRank playerRank = database.getRank();
 
         setHeader(StyledTexture.THE_EYE.asIcon());
 
         setItem(20, StyledTexture.RELIC_HUNT.asButton("view relics"), RelicHuntGUI::new);
         setItem(22, StyledTexture.DAILY.asButton("view bonds"), DailyGUI::new);
-        setItem(24, StyledTexture.QUESTION.asIcon());
+        setItem(24, StyledTexture.TOKEN_STORE.asIcon("", "&cCOMING SOON"));
 
         // Daily rewards
         final DailyRewardEntry rewardEntry = database.dailyRewardEntry;
 
         int slot = 30;
         for (DailyRewardEntry.Type type : DailyRewardEntry.Type.values()) {
-            final ItemBuilder builder = type.texture.toBuilder();
+            final ItemBuilder builder = type.texture.asBuilder();
             final DailyReward reward = type.reward;
             final PlayerRank rankRequired = type.rank;
 
             if (reward == null) {
-                Notifier.error(player, "Error loading rewards, try again before reporting this!");
-                closeInventory();
+                Message.error(player, "Error loading rewards, try again before reporting this!");
+                player.closeInventory();
                 return;
             }
 
@@ -58,7 +61,7 @@ public class EyeGUI extends StyledGUI {
 
             builder.addLore(canClaim ? "Today's Rewards:" : "Tomorrow's Rewards:");
 
-            reward.formatBuilder(player, builder);
+            reward.getDescription(player).forEach(builder::addLore);
 
             // Streak
             final int streak = rewardEntry.getStreak(type);
@@ -86,25 +89,29 @@ public class EyeGUI extends StyledGUI {
             setItem(slot, builder.asIcon());
 
             if (canClaim) {
-                setClick(slot, click -> {
-                    if (!playerRank.isOrHigher(rankRequired)) {
-                        Notifier.error(player, lowRankString);
-                        PlayerLib.villagerNo(player);
-                    }
-                    else {
-                        reward.grant(player);
-                    }
+                setAction(
+                        slot, click -> {
+                            if (!playerRank.isOrHigher(rankRequired)) {
+                                Message.error(player, lowRankString);
+                                PlayerLib.villagerNo(player);
+                            }
+                            else {
+                                reward.grant(player);
+                            }
 
-                    update();
-                });
+                            update();
+                        }
+                );
             }
             else {
-                setClick(slot, click -> {
-                    Chat.sendMessage(player, comeBackString);
-                    PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
+                setAction(
+                        slot, click -> {
+                            Chat.sendMessage(player, comeBackString);
+                            PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
 
-                    update();
-                });
+                            update();
+                        }
+                );
             }
 
             slot++;

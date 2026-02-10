@@ -1,21 +1,20 @@
 package me.hapyl.fight.game.talents.librarian;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.librarian.Librarian;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Numbers;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class LibrarianTalent extends Talent {
 
-    protected Response ERROR = new Response(null, Response.Type.ERROR);
-
-    public LibrarianTalent(String name) {
-        super(name);
+    public LibrarianTalent(@Nonnull Key key, @Nonnull String name) {
+        super(key, name);
 
         setAutoAdd(false);
         setAltUsage("You must use your grimoire to cast this spell!");
@@ -24,16 +23,16 @@ public abstract class LibrarianTalent extends Talent {
     public abstract Response executeGrimoire(@Nonnull GamePlayer player);
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
-        if (Heroes.LIBRARIAN.getHero(Librarian.class).hasICD(player)) {
-            return ERROR; // should never happen
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
+        if (HeroRegistry.LIBRARIAN.hasICD(player)) {
+            return Response.DEPRECATED; // should never happen
         }
 
         final Response response = executeGrimoire(player);
 
         if (response.isOk()) {
-            Heroes.LIBRARIAN.getHero(Librarian.class).removeSpellItems(player, this);
-            player.sendMessage("&aUsed %s!", this.getName());
+            HeroRegistry.LIBRARIAN.removeSpellItems(player, this);
+            player.sendMessage("&aUsed %s!".formatted(this.getName()));
         }
 
         return response;
@@ -69,6 +68,6 @@ public abstract class LibrarianTalent extends Talent {
     }
 
     public double getCurrentValue(GamePlayer player) {
-        return getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player));
+        return getCurrentValue(HeroRegistry.LIBRARIAN.getGrimoireLevel(player));
     }
 }

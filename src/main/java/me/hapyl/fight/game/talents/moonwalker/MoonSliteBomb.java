@@ -1,7 +1,9 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.talents.Talent;
@@ -9,7 +11,6 @@ import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Nulls;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,6 +23,7 @@ import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class MoonSliteBomb extends Talent implements Listener {
@@ -34,16 +36,17 @@ public class MoonSliteBomb extends Talent implements Listener {
     @DisplayField private final int explosionDuration = 600;
     @DisplayField private final int corrosionDuration = 35;
 
-    public MoonSliteBomb() {
-        super("Moonslite Bomb");
+    public MoonSliteBomb(@Nonnull Key key) {
+        super(key, "Moonslite Bomb");
 
         setDescription("""
                 Drop a proximity grenade at your current location that explodes on contact with enemy or after a set period, dealing damage and applying &6&lCorrosion &7for a short time.
-                                
+                
                 &6;;You can only have {bombLimit} bombs at the time.
-                """);
+                """
+        );
 
-        setItem(Material.END_STONE_BRICK_SLAB);
+        setMaterial(Material.END_STONE_BRICK_SLAB);
         setCooldownSec(10);
     }
 
@@ -62,19 +65,19 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         bombs.values().forEach(items -> items.forEach(Item::remove));
         bombs.clear();
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Set<Item> playerBombs = getBombs(player);
         if (playerBombs.size() >= bombLimit) {
             return Response.error("Limit reached!");
         }
 
-        final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem().getType()));
+        final Item item = player.getWorld().dropItem(player.getLocation(), new ItemStack(this.getItem(player).getType()));
         item.setPickupDelay(20);
         item.setTicksLived(6000 - explosionDuration);
         item.setOwner(player.getUUID());
@@ -139,7 +142,6 @@ public class MoonSliteBomb extends Talent implements Listener {
     }
 
     private void applyCorrosion(LivingGameEntity entity) {
-        entity.addEffect(Effects.CORROSION, corrosionDuration);
     }
 
     private boolean isBombItem(Item item) {

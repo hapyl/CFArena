@@ -4,8 +4,7 @@ import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseArrayEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.fastaccess.FastAccess;
-import me.hapyl.fight.registry.EnumId;
-import me.hapyl.fight.registry.Registry;
+import me.hapyl.fight.registry.Registries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,13 +33,13 @@ public class FastAccessEntry extends PlayerDatabaseArrayEntry<FastAccess> {
     @Nullable
     @Override
     public FastAccess fromString(@Nonnull String string) {
-        return !string.isEmpty() ? Registry.FAST_ACCESS.get(new EnumId(string)) : null;
+        return !string.isEmpty() ? Registries.fastAccess().get(string) : null;
     }
 
     @Nonnull
     @Override
     public String toString(@Nonnull FastAccess fastAccess) {
-        return fastAccess.getId();
+        return fastAccess.getKey().toString();
     }
 
     public static int getMaxLength(@Nonnull PlayerRank rank) {

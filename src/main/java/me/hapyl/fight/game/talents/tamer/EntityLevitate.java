@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.talents.tamer;
 
-import me.hapyl.fight.fx.Riptide;
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.fight.fx.RiptideFx;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
@@ -14,14 +14,14 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
 
     public final T entity;
     public final Location initialLocation;
-    public final Riptide riptide;
+    public final RiptideFx riptide;
 
     private final int duration;
 
     public EntityLevitate(T entity, int duration) {
         this.entity = entity;
         this.initialLocation = entity.getLocation().clone();
-        this.riptide = new Riptide(entity.getLocation());
+        this.riptide = new RiptideFx(entity.getLocation());
         this.duration = duration;
 
         onStart();
@@ -33,11 +33,11 @@ public class EntityLevitate<T extends LivingGameEntity> extends TickingGameTask 
         riptide.remove();
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onTick() {
     }
 

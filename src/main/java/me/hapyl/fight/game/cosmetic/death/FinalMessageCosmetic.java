@@ -1,0 +1,81 @@
+package me.hapyl.fight.game.cosmetic.death;
+
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.fight.game.Manager;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.game.cosmetic.Display;
+import me.hapyl.fight.game.cosmetic.Rarity;
+import me.hapyl.fight.game.cosmetic.Type;
+import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.type.GameType;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
+
+import javax.annotation.Nonnull;
+
+public class FinalMessageCosmetic extends Cosmetic {
+
+    private final String[] AVAILABLE_MESSAGES = new String[] {
+            "Shit.",
+            "I'm dead :(",
+            "I was lagging!",
+            "I'm not even mad.",
+            "Hacker.",
+            "You just got lucky.",
+            "Well, I tried..."
+    };
+
+    public FinalMessageCosmetic(@Nonnull Key key) {
+        super(key, "Final Message", Type.DEATH);
+
+        setDescription("""
+                Let them know your final words.
+                """
+        );
+
+        setRarity(Rarity.EPIC);
+        setIcon(Material.PAPER);
+    }
+
+    @Nonnull
+    @Override
+    public ItemBuilder createItem(Player player) {
+        final ItemBuilder builder = super.createItem(player);
+
+        builder.addLore("&7Available Messages:");
+
+        for (String message : AVAILABLE_MESSAGES) {
+            builder.addLore("- &b" + message);
+        }
+
+        return builder;
+    }
+
+    @Override
+    public void onDisplay(@Nonnull Display display) {
+        createArmorStand(display.getLocation().add(0.0d, 0.25d, 0.0d), "&e%s's final words:".formatted(display.getName()));
+        createArmorStand(display.getLocation(), "&b&l" + CollectionUtils.randomElement(AVAILABLE_MESSAGES, AVAILABLE_MESSAGES[0]));
+    }
+
+    private void createArmorStand(Location location, String message) {
+        final ArmorStand stand = Entities.ARMOR_STAND_MARKER.spawn(location, armorStand -> {
+            armorStand.setVisible(false);
+            armorStand.setSmall(true);
+            armorStand.setInvulnerable(true);
+            armorStand.setCustomName(Chat.format(message));
+            armorStand.setCustomNameVisible(true);
+        });
+
+        // Remove upon respawn in respawn allowed types.
+        final GameType currentMode = Manager.current().currentInstance().getMode();
+        if (currentMode.isAllowRespawn()) {
+            GameTask.runLater(stand::remove, currentMode.getRespawnTime());
+        }
+    }
+}

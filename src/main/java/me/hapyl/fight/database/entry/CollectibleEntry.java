@@ -1,7 +1,7 @@
 package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.Main;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
@@ -9,6 +9,8 @@ import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CollectibleEntry extends PlayerDatabaseEntry {
@@ -25,13 +27,12 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
      * },
      */
 
-    public CollectibleEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
-        setPath("collectibles");
+    public CollectibleEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "collectibles");
     }
 
-    public boolean hasClaimed(Type type, int tier) {
-        return getValue(getPath() + ".claimed.%s%s".formatted(type.name(), tier), false);
+    public boolean hasClaimed(@Nonnull Type type, int tier) {
+        return getValue("claimed.%s%s".formatted(type.getKeyAsString(), tier), false);
     }
 
     public boolean canClaimAnyTier() {
@@ -50,9 +51,9 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
         return false;
     }
 
-    public boolean canClaim(Type type, int index) {
-        final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
-        final Player player = getOnlinePlayer();
+    public boolean canClaim(@Nonnull Type type, int index) {
+        final RelicHunt relicHunt = CF.getPlugin().getRelicHunt();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return false;
@@ -71,13 +72,13 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
     }
 
     public boolean canLevelUpStabilizer() {
-        final Player player = getOnlinePlayer();
+        final Player player = player().orElse(null);
 
         if (player == null) {
             return false;
         }
 
-        final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
+        final RelicHunt relicHunt = CF.getPlugin().getRelicHunt();
         final List<Relic> foundList = relicHunt.getFoundList(player);
         final int totalExchanged = getPermanentExchangeCount();
         final int canExchange = foundList.size() - totalExchanged;
@@ -85,42 +86,41 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
         return canExchange >= PERMANENT_EXCHANGE_RATE;
     }
 
-    public void setClaimed(Type type, int tier, boolean flag) {
-        setValue(getPath() + ".claimed.%s%s".formatted(type.name(), tier), flag);
+    public void setClaimed(@Nonnull Type type, int tier, boolean flag) {
+        setValue("claimed.%s%s".formatted(type.getKeyAsString(), tier), flag);
     }
 
-    public boolean hasFound(Relic relic) {
+    public boolean hasFound(@Nonnull Relic relic) {
         return getFoundList().contains(relic.getId());
     }
 
-    public void addFound(Relic relic) {
-        final List<Integer> foundList = getFoundList();
-
-        if (foundList.contains(relic.getId())) {
-            return;
-        }
-
-        foundList.add(relic.getId());
-        setValue(getPath() + ".found", foundList);
+    public void addFound(@Nonnull Relic relic) {
+        fetchDocumentValue("found", new ArrayList<>(), list -> {
+            list.add(relic.getId());
+        });
     }
 
-    public void removeFound(Relic relic) {
-        final List<Integer> foundList = getFoundList();
-
-        foundList.remove(relic.getId());
-        setValue(getPath() + ".found", foundList);
+    public void removeFound(@Nonnull Relic relic) {
+        removeFound(relic.getId());
     }
 
+    public void removeFound(@Nonnull Integer relicId) { // Integer to enforce object remove() call instead of index
+        fetchDocumentValue("found", new ArrayList<>(), list -> {
+            list.remove(relicId);
+        });
+    }
+
+    @Nonnull
     public List<Integer> getFoundList() {
-        return getValue(getPath() + ".found", Lists.newArrayList());
+        return getValue("found", Lists.newArrayList());
     }
 
     public int getPermanentExchangeCount() {
-        return getValue(getPath() + ".exchange", 0);
+        return getValue("exchange", 0);
     }
 
     public void incrementPermanentExchangeCount(int value) {
-        setValue(getPath() + ".exchange", getPermanentExchangeCount() + value);
+        setValue("exchange", getPermanentExchangeCount() + value);
     }
 
     /**
@@ -138,7 +138,7 @@ public class CollectibleEntry extends PlayerDatabaseEntry {
      * @return true if the player has found all the relics; false otherwise.
      */
     public boolean hasFoundAll() {
-        final RelicHunt relicHunt = Main.getPlugin().getRelicHunt();
+        final RelicHunt relicHunt = CF.getPlugin().getRelicHunt();
         final int totalRelics = relicHunt.getTotalRelics();
         final int size = getFoundList().size();
 

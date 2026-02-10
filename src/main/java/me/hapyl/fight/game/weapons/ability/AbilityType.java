@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.weapons.ability;
 
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.event.block.Action;
 
 import javax.annotation.Nullable;

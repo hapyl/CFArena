@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.maps.features.library;
 
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.maps.features.VoidFeature;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.BlockLocation;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.event.EventHandler;
@@ -30,7 +30,7 @@ public class LibraryVoid extends VoidFeature implements Listener {
 
     @EventHandler()
     public void handleMovement(PlayerMoveEvent ev) {
-        if (!validateGameAndMap(GameMaps.LIBRARY)) {
+        if (!validateGameAndMap(EnumLevel.LIBRARY)) {
             return;
         }
 
@@ -51,7 +51,7 @@ public class LibraryVoid extends VoidFeature implements Listener {
     public void handlePortalEvent(GameEntityContactPortalEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
 
-        if (!validateCurrentMap(GameMaps.LIBRARY)) {
+        if (!validateCurrentMap(EnumLevel.LIBRARY)) {
             return;
         }
 

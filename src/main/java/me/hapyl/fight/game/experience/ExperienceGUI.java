@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.experience;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,7 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-// Not using PageGUI because it's a custom pattern
+// Not using PageGUI because it's a named pattern
 public class ExperienceGUI extends StyledGUI {
 
     private final int[][] slots;
@@ -46,10 +47,11 @@ public class ExperienceGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         final long playerLevel = experience.getLevel(player);
         final ExperienceLevel[] feed = experience.getLevelFeed(playerLevel);
 
-        setHeader(StyledItem.ICON_LEVELLING.asIcon());
+        setHeader(StyledTexture.ICON_LEVELLING.asIcon());
 
         Material material = Material.MAGENTA_STAINED_GLASS_PANE;
 
@@ -111,12 +113,12 @@ public class ExperienceGUI extends StyledGUI {
 
         // Display rewards
         if (experienceLevel.hasRewards()) {
-            builder.addLore("&7Rewards: " + (levelReached ? "&a✔" : "&c❌"));
+            builder.addLore("&7Rewards: " + BukkitUtils.checkmark(levelReached));
 
             final List<Reward> rewards = experienceLevel.getRewards();
 
             for (Reward reward : rewards) {
-                reward.formatBuilder(player, builder);
+                reward.getDescription(player).forEach(builder::addLore);
             }
 
         }

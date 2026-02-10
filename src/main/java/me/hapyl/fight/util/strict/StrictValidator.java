@@ -1,17 +1,21 @@
 package me.hapyl.fight.util.strict;
 
+import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.entity.Shield;
 import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.talents.Talent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
+import javax.annotation.Nonnull;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class StrictValidator {
 
-    public static void validateAll(Main caller) {
-        if (caller != Main.getPlugin()) {
+    public static void validateAll(@Nonnull Main caller) {
+        if (caller != CF.getPlugin()) {
             throw new IllegalArgumentException("Cannot validate outside the Main class!");
         }
 
@@ -21,6 +25,16 @@ public class StrictValidator {
     public static void validatePackages() {
         validatePackage(Talent.class);
         validatePackage(Hero.class);
+        validatePackage(Shield.class);
+    }
+
+    public static void validateClassName(@Nonnull Class<?> clazz, @Nonnull String stringPattern) {
+        final Pattern pattern = Pattern.compile(stringPattern);
+        final String className = clazz.getSimpleName();
+
+        if (!pattern.matcher(className).matches()) {
+            throw disablePlugin("Class name '%s' violates the pattern '%s'!".formatted(className, pattern));
+        }
     }
 
     private static void validatePackage(Class<?> clazz) {

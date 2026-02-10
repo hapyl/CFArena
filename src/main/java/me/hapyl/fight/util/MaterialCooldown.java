@@ -19,7 +19,7 @@ public interface MaterialCooldown {
     }
 
     default void startCooldown(@Nonnull GamePlayer player) {
-        startCooldown(player.getPlayer());
+        startCooldown(player.getEntity());
     }
 
     default boolean hasCooldown(@Nonnull Player player) {
@@ -27,7 +27,7 @@ public interface MaterialCooldown {
     }
 
     default boolean hasCooldown(@Nonnull GamePlayer player) {
-        return hasCooldown(player.getPlayer());
+        return hasCooldown(player.getEntity());
     }
 
     default int getCooldown(@Nonnull Player player) {
@@ -35,7 +35,7 @@ public interface MaterialCooldown {
     }
 
     default int getCooldown(@Nonnull GamePlayer player) {
-        return getCooldown(player.getPlayer());
+        return getCooldown(player.getEntity());
     }
 
     @Nonnull
@@ -45,7 +45,7 @@ public interface MaterialCooldown {
 
     @Nonnull
     default String getCooldownFormatted(@Nonnull GamePlayer player) {
-        return getCooldownFormatted(player.getPlayer());
+        return getCooldownFormatted(player.getEntity());
     }
 
     private Material getCooldownMaterial0() {

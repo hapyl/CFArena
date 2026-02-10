@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx.beam;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.entity.cooldown.Cooldown;
-import me.hapyl.fight.game.talents.Removable;
+import me.hapyl.fight.game.entity.cooldown.EntityCooldown;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Location;
@@ -15,6 +15,7 @@ import java.util.List;
 public abstract class Quadrant extends TickingGameTask implements Removable {
 
     private static final double PI_2 = Math.PI * 2;
+    private static final EntityCooldown COOLDOWN = EntityCooldown.of("bean_touch", 500L);
 
     private final Location location;
     private final List<QuadrantBeam> beams;
@@ -137,11 +138,11 @@ public abstract class Quadrant extends TickingGameTask implements Removable {
             return;
         }
 
-        if (entity.hasCooldown(Cooldown.BEAM_TOUCH)) {
+        if (entity.hasCooldown(COOLDOWN)) {
             return;
         }
 
         onTouch(entity);
-        entity.startCooldown(Cooldown.BEAM_TOUCH, cooldown);
+        entity.startCooldown(COOLDOWN, cooldown);
     }
 }

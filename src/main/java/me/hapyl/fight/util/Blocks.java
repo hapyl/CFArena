@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Compute;
 import me.hapyl.fight.CF;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -8,6 +9,8 @@ import org.bukkit.block.data.BlockData;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 // static util for blocks
 public final class Blocks {
@@ -98,7 +101,7 @@ public final class Blocks {
 
         CF.getPlayers().forEach(player -> {
             blocks.forEach(block -> {
-                player.getPlayer().sendBlockChange(block.getLocation(), data);
+                player.getEntity().sendBlockChange(block.getLocation(), data);
             });
         });
     }
@@ -119,4 +122,11 @@ public final class Blocks {
         }
     }
 
+    @Nonnull
+    public static Map<Material, Integer> count(@Nonnull Collection<Block> blocks) {
+        final Map<Material, Integer> count = new TreeMap<>();
+        blocks.forEach(block -> count.compute(block.getType(), Compute.intAdd()));
+
+        return count;
+    }
 }

@@ -1,14 +1,13 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.achievement.Achievements;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.game.cosmetic.Display;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.maps.LevelFeature;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.BoundingBoxCollector;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -18,11 +17,11 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TurbineFeature extends MapFeature {
+public class TurbineFeature extends LevelFeature {
 
     private final List<Turbine> turbines;
 
-    @Nonnull private final World world = Bukkit.getWorlds().get(0);
+    @Nonnull private final World world = Bukkit.getWorlds().getFirst();
 
     public TurbineFeature() {
         super(
@@ -51,12 +50,14 @@ public class TurbineFeature extends MapFeature {
 
             // Kill em all
             killTrigger.collect(world).forEach(entity -> {
-                entity.damage(entity.getHealth() + 100, EnumDamageCause.SHREDS_AND_PIECES);
-                Cosmetics.BLOOD.getCosmetic().onDisplay0(new Display(null, entity.getLocation()));
+                entity.damage(entity.getHealth() + 100, DamageCause.SHREDS_AND_PIECES);
+
+                // Fx
+                Registries.cosmetics().BLOOD.onDisplay0(new Display(null, entity.getLocation()));
 
                 // Trigger achievement
                 if (entity instanceof Player player) {
-                    Achievements.SHREDDING_TIME.complete(player);
+                    Registries.achievements().SHREDDING_TIME.complete(player);
                 }
             });
 

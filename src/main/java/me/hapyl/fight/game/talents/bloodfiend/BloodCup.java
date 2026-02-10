@@ -1,44 +1,45 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.fight.game.HeroReference;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.bloodfield.Bloodfiend;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.bloodfield.BloodfiendData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
+public class BloodCup extends Talent {
 
-
-    @DisplayField(scaleFactor = 100, suffix = "%", suffixSpace = false) public final double chance = 0.25d;
+    @DisplayField(scale = 100, suffix = "%") public final double chance = 0.25d;
     @DisplayField public final short maxBlood = 6;
     @DisplayField public final double healingPerBottle = 6.0d;
 
     private final String[] bloodTextures;
 
-    public BloodCup() {
-        super("Blood Cup");
+    public BloodCup(@Nonnull Key key) {
+        super(key, "Blood Cup");
 
         setDescription("""
                 Biting &cenemies&7 has a &b&l{chance}&7 to drain &cblood&7 from them.
-                                
+                
                 Drinking the &cblood&7 &aheals&7 you for &c{healingPerBottle} &c❤&7 per &cblood&7.
-                """);
+                """
+        );
 
         setType(TalentType.SUPPORT);
         setTexture("f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e");
         setCooldownSec(15);
 
         bloodTextures = new String[] {
+                "f2c251d42546cff35365efe378e79fca9c8d60ff588f5b2111c4ce35c8401a9e",
                 "e1a3dba81fdf89157c177693b7eb2240c53e52cc0db1959a9aace0a01d2f5c6",
                 "5cf7cfe1b2c5ce5e3c992e4634d98a480b8ed3a28686653f6a47d86a31f3ba71",
                 "b2f50a860e81b7c07ed46a8ab6fac9d837ef3985d093ebea0d2199bfa446fc1a",
@@ -51,7 +52,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
     public void updateTexture(BloodfiendData data) {
         final GamePlayer player = data.getPlayer();
         final int blood = data.getBlood();
-        final HotbarSlots slot = getHero().getTalentSlotByHandle(this);
+        final HotBarSlot slot = HeroRegistry.BLOODFIEND.getTalentSlotByHandle(this);
         final ItemStack item = player.getItem(slot);
 
         if (item == null) {
@@ -64,9 +65,8 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final Bloodfiend bloodfiend = getHero();
-        final BloodfiendData data = bloodfiend.getData(player);
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final BloodfiendData data = HeroRegistry.BLOODFIEND.getPlayerData(player);
         final int blood = data.getBlood();
 
         if (blood <= 0) {
@@ -76,7 +76,7 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         final double healing = healingPerBottle * blood;
 
         player.heal(healing);
-        player.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!", healing);
+        player.sendMessage("&4&l🩸 &aHealed for &c%s &c❤&a!".formatted(healing));
         player.playSound(Sound.BLOCK_BREWING_STAND_BREW, 0.0f);
 
         data.clearBlood();
@@ -85,14 +85,8 @@ public class BloodCup extends Talent implements HeroReference<Bloodfiend> {
         return Response.OK;
     }
 
-    @Nonnull
-    @Override
-    public Bloodfiend getHero() {
-        return Heroes.BLOODFIEND.getHero(Bloodfiend.class);
-    }
-
     private String getTexture(int blood) {
-        return blood == 0 ? getTexture64() : bloodTextures[blood - 1];
+        return bloodTextures[blood];
     }
 
 }

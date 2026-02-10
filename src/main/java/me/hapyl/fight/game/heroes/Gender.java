@@ -1,6 +1,7 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.util.Named;
+
+import me.hapyl.eterna.module.util.Named;
 
 import javax.annotation.Nonnull;
 
@@ -9,6 +10,7 @@ public enum Gender implements Named {
     MALE("&b♂ Male"),
     FEMALE("&d♀ Female"),
 
+    OTHER("&e❔ Other"),
     UNKNOWN("&8❓ Unknown"),
 
     ;

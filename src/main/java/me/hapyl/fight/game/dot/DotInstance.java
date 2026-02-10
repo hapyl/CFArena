@@ -1,55 +1,92 @@
 package me.hapyl.fight.game.dot;
 
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.fight.util.RuleTrigger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class DotInstance implements Ticking {
-
+public class DotInstance implements Removable {
+    
     private final LivingGameEntity entity;
-    private final LivingGameEntity applier;
-    private final long startedAt;
-
-    private int tick;
-
-    public DotInstance(@Nonnull LivingGameEntity entity, @Nullable LivingGameEntity applier, int tick) {
+    private final Dot dot;
+    private final RuleTrigger ruleTrigger;
+    
+    @Nullable private LivingGameEntity applier;
+    private int stacks;
+    
+    DotInstance(@Nonnull LivingGameEntity entity, @Nonnull Dot dot) {
         this.entity = entity;
-        this.applier = applier;
-        this.startedAt = System.currentTimeMillis();
-        this.tick = tick;
+        this.dot = dot;
+        this.ruleTrigger = new RuleTrigger(dot.cooldownRule()) {
+            @Override
+            public void trigger() {
+                if (applier != null) {
+                    entity.triggerDebuff(applier);
+                }
+            }
+        };
     }
-
+    
     @Nonnull
-    public LivingGameEntity getEntity() {
+    public LivingGameEntity entity() {
         return entity;
     }
-
+    
+    @Nonnull
+    public Dot dot() {
+        return dot;
+    }
+    
+    public int stacks() {
+        return stacks;
+    }
+    
     @Nullable
-    public LivingGameEntity getApplier() {
+    public LivingGameEntity applier() {
         return applier;
     }
-
-    public long getStartedAt() {
-        return startedAt;
+    
+    public void incrementStacks(int stacks, @Nullable LivingGameEntity applier) {
+        this.stacks = Math.min(this.stacks + stacks, dot.maxStacks());
+        
+        if (applier != null) {
+            this.applier = applier;
+        }
     }
-
+    
+    public void setStacksMax(int stacks, @Nullable LivingGameEntity applier) {
+        this.stacks = Math.clamp(stacks, this.stacks, dot.maxStacks());
+        
+        if (applier != null) {
+            this.applier = applier;
+        }
+    }
+    
     @Override
+    public void remove() {
+        // Call exhaust method
+        dot.exhaust(this);
+    }
+    
+    @Override
+    public boolean removeIfShould() {
+        return stacks <= 0;
+    }
+    
     public void tick() {
-        if (isDone()) {
+        dot.onTick(this);
+    }
+    
+    public void affect() { // This only ticks when aliveTicks % period == 0
+        if (entity.hasEffectResistanceAndNotify(applier)) {
             return;
         }
-
-        tick--;
+        
+        stacks--;
+        dot.affect(this);
+        
+        ruleTrigger.tryTrigger();
     }
-
-    public int getTicksLeft() {
-        return tick;
-    }
-
-    public boolean isDone() {
-        return tick <= 0 || entity.isDead();
-    }
-
 }

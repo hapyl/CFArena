@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.talents.vortex;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.reflect.glowing.GlowingColor;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Ticking;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 
@@ -17,6 +17,7 @@ public class AstralStarList implements Ticking {
 
     private final GamePlayer player;
     private final Set<AstralStar> stars;
+    
     private AstralStar targetStar;
 
     public AstralStarList(GamePlayer player) {
@@ -28,8 +29,8 @@ public class AstralStarList implements Ticking {
         return stars.size();
     }
 
-    public void summonStar(Location location, VortexStarTalent talent) {
-        stars.add(new AstralStar(player, location, talent));
+    public void summonStar(Location location, VortexStarTalent talent, double healthSacrifice) {
+        stars.add(new AstralStar(player, location, talent, healthSacrifice));
     }
 
     @Nullable
@@ -52,7 +53,7 @@ public class AstralStarList implements Ticking {
 
         for (AstralStar star : stars) {
             star.tick();
-            star.setColor(ChatColor.WHITE);
+            star.setColor(GlowingColor.WHITE);
 
             final StarState state = star.getState();
 
@@ -74,7 +75,7 @@ public class AstralStarList implements Ticking {
         }
 
         if (targetStar != null) {
-            targetStar.setColor(ChatColor.GREEN);
+            targetStar.setColor(GlowingColor.GREEN);
 
             if (previousTarget != targetStar) {
                 player.playSound(Sound.ITEM_FLINTANDSTEEL_USE, 0.5f);

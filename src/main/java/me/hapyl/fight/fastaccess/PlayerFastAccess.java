@@ -4,7 +4,7 @@ import me.hapyl.fight.database.entry.FastAccessEntry;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

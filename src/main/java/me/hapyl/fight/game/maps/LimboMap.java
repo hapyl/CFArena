@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.maps;
 
-import me.hapyl.fight.game.effect.Effect;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.Constants;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.maps.features.LimboFeature;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
-public class LimboMap extends GameMap {
+public class LimboMap extends Level {
 
-    protected LimboMap() {
-        super("Limbo");
+    protected LimboMap(@Nonnull EnumLevel handle) {
+        super(handle, "Limbo");
 
         setDescription("""
                 A lighthouse.
@@ -34,7 +34,7 @@ public class LimboMap extends GameMap {
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.NIGHT_VISION, 1, Effect.INFINITE_DURATION);
+        player.addEffect(EffectType.NIGHT_VISION, 1, Constants.INFINITE_DURATION);
     }
 
 }

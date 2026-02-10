@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx.beam;
 
+import me.hapyl.eterna.module.entity.packet.PacketEntity;
+import me.hapyl.eterna.module.entity.packet.PacketGuardian;
+import me.hapyl.eterna.module.entity.packet.PacketSquid;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.entity.packet.PacketEntity;
-import me.hapyl.spigotutils.module.entity.packet.PacketGuardian;
-import me.hapyl.spigotutils.module.entity.packet.PacketSquid;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
@@ -19,8 +19,8 @@ public class QuadrantBeam {
             final PacketSquid squid = new PacketSquid(location);
             final PacketGuardian guardian = new PacketGuardian(location);
 
-            squid.spawnGlobally();
-            guardian.spawnGlobally();
+            squid.showGlobally();
+            guardian.showGlobally();
 
             guardian.setMarker();
             squid.setMarker();

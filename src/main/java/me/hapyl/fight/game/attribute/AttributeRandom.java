@@ -4,29 +4,19 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 public class AttributeRandom extends Random {
-
-    private final Attributes attributes;
-
-    public AttributeRandom(Attributes attributes) {
+    
+    private final BaseAttributes attributes;
+    
+    AttributeRandom(@Nonnull BaseAttributes attributes) {
         this.attributes = attributes;
     }
-
+    
     public boolean checkBound(@Nonnull AttributeType type) {
-        final double value = type.get(attributes);
-
-        return checkBound(value);
+        return checkBound(attributes.normalized(type));
     }
-
-    public boolean checkBound(double bound) {
-        if (bound < 0.0d) {
-            return false;
-        }
-        else if (bound >= 1.0d) {
-            return true;
-        }
-
-        final double value = nextDouble(0.0d, 1.0d);
-        return value < bound;
+    
+    public boolean checkBound(double chance) {
+        return chance >= 1 || (chance > 0 && nextDouble() < chance);
     }
-
+    
 }

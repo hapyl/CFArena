@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
@@ -7,7 +9,6 @@ import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -17,18 +18,18 @@ import javax.annotation.Nonnull;
 
 public class HealingAura extends DarkMageTalent {
 
-    @DisplayField(suffix = "blocks") private final double radius = 2.5d;
+    @DisplayField(suffix = " blocks") private final double radius = 2.5d;
     @DisplayField private final double healing = 2.0d;
     @DisplayField private final double instantHealing = 10.0d;
     @DisplayField private final int healingPeriod = 15;
 
-    public HealingAura() {
-        super("Healing Aura", """
+    public HealingAura(@Nonnull Key key) {
+        super(key, "Healing Aura", """
                 Instantly heal for &c{instantHealing} ❤&7 and create a &ahealing&7 aura at your &ncurrent&7 &nlocation&7 that &aheals&7 &nall&7 nearby players.
                 """);
 
         setType(TalentType.SUPPORT);
-        setItem(Material.APPLE);
+        setMaterial(Material.APPLE);
         setDurationSec(6);
         setCooldownSec(30);
     }
@@ -69,8 +70,8 @@ public class HealingAura extends DarkMageTalent {
                 final double y = Math.sin(Math.toRadians(tick) * 16) * 0.4;
                 final double z = Math.cos(theta) * radius;
 
-                LocationHelper.modify(location, x, y, z, then -> {
-                    player.spawnWorldParticle(then, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
+                LocationHelper.offset(location, x, y, z, () -> {
+                    player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 2, 0.01, 0, 0.01, 0);
                 });
 
                 theta += Math.PI / 26;

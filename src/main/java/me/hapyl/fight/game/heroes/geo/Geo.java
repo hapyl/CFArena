@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.heroes.geo;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 
 public class Geo extends Hero implements Disabled {
-    public Geo(@Nonnull Heroes handle) {
-        super(handle, "Geo");
+    public Geo(@Nonnull Key key) {
+        super(key, "Geo");
     }
 
     @Override

@@ -1,7 +1,6 @@
 package me.hapyl.fight.script;
 
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.Debug;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.ShutdownAction;
 

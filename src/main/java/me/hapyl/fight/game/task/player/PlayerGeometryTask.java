@@ -9,9 +9,9 @@ import javax.annotation.Nullable;
 public abstract class PlayerGeometryTask extends GeometryTask implements IPlayerTask {
 
     private final GamePlayer player;
-    private final Enum<?> name;
+    private final Class<?> name;
 
-    public PlayerGeometryTask(@Nonnull GamePlayer player, @Nullable Enum<?> name) {
+    public PlayerGeometryTask(@Nonnull GamePlayer player, @Nullable Class<?> name) {
         this.player = player;
         this.name = name;
 
@@ -30,7 +30,7 @@ public abstract class PlayerGeometryTask extends GeometryTask implements IPlayer
 
     @Nullable
     @Override
-    public Enum<?> getEnum() {
+    public Class<?> getEnum() {
         return name;
     }
 }

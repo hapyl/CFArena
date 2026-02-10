@@ -1,92 +1,61 @@
 package me.hapyl.fight.fx;
 
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.Validate;
+import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
-import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public abstract class SwiftTeleportAnimation extends GameTask {
-
-    private final Location from;
-    private final Location to;
-    private Vector vector;
-
-    private double speed;
-    private double slope;
-    private double d;
-    private double distance;
-    private Location location;
-    private double step;
-
-    public SwiftTeleportAnimation(@Nonnull Location from, @Nonnull Location to) {
-        if (from.equals(to)) {
-            onAnimationStop();
-            throw new IllegalArgumentException("cannot teleport between exact same locations");
-        }
-
-        this.from = from;
-        this.to = to;
-        this.speed = 1.0d;
-        this.slope = Math.PI;
+public abstract class SwiftTeleportAnimation extends TickingGameTask {
+    
+    private final Location location;
+    private final double[] from;
+    private final double[] to;
+    private final int duration;
+    
+    private double height;
+    
+    public SwiftTeleportAnimation(@Nonnull Location from, @Nonnull Location to, final int duration) {
+        Validate.isTrue(from.getWorld().equals(to.getWorld()), "Cannot animate in different worlds!");
+        
+        this.location = new Location(from.getWorld(), 0, 0, 0);
+        this.from = LocationHelper.toCoordinates(from);
+        this.to = LocationHelper.toCoordinates(to);
+        this.duration = duration;
+        this.height = 1.5d;
     }
-
-    public double getSpeed() {
-        return speed;
+    
+    public double height() {
+        return height;
     }
-
-    public SwiftTeleportAnimation setSpeed(double speed) {
-        this.speed = speed;
-        return this;
+    
+    public void height(double height) {
+        this.height = height;
     }
-
-    public double getSlope() {
-        return slope;
+    
+    public abstract void onStep(@Nonnull Location location);
+    
+    public abstract void onStop(@Nonnull Location location);
+    
+    public void start(int delay) {
+        runTaskTimer(delay, 1);
     }
-
-    public SwiftTeleportAnimation setSlope(double slope) {
-        this.slope = slope;
-        return this;
-    }
-
-    public void onAnimationStop() {
-    }
-
-    public abstract void onAnimationStep(Location location);
-
+    
     @Override
-    public final void onTaskStop() {
-    }
-
-    @Override
-    public final void run() {
-        if (d > distance) {
-            onAnimationStop(); // have to call it here since cancel() throws a cnc error
+    public final void run(int tick) {
+        if (tick > duration) {
+            onStop(location);
             cancel();
             return;
         }
-
-        final double y = Math.sin(d / distance * Math.PI) * slope;
-
-        location.add(vector);
-        location.add(0, y, 0);
-
-        onAnimationStep(location);
-
-        location.subtract(0, y, 0);
-        d += step;
+        
+        final double progress = (double) tick / duration;
+        final double x = from[0] + (to[0] - from[0]) * progress;
+        final double y = from[1] + (to[1] - from[1]) * progress + Math.sin(progress * Math.PI) * height;
+        final double z = from[2] + (to[2] - from[2]) * progress;
+        
+        location.set(x, y, z);
+        onStep(location);
     }
-
-    public void start(int delay, int period) {
-        this.distance = Math.max(1, from.distance(to));
-        this.step = distance / 30 * speed;
-
-        final Vector vector = to.toVector().subtract(from.toVector());
-
-        this.vector = vector.isZero() ? vector : vector.normalize().multiply(step);
-        this.location = from.clone();
-
-        runTaskTimer(delay, period);
-    }
-
 }

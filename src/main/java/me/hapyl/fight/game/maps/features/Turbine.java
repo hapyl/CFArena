@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.eterna.module.util.Direction;
 import me.hapyl.fight.util.BoundingBoxCollector;
-import me.hapyl.fight.util.Direction;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
@@ -28,7 +28,11 @@ public class Turbine {
 
     public Vector getVector() {
         if (vector == null) {
-            vector = direction.createVector();
+            return new Vector(
+                    direction.getOffset(0, Turbine.MAGNITUDE),
+                    direction.getOffset(1, Turbine.MAGNITUDE),
+                    direction.getOffset(2, Turbine.MAGNITUDE)
+            );
         }
 
         return vector;

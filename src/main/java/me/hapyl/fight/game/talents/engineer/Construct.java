@@ -1,202 +1,210 @@
 package me.hapyl.fight.game.talents.engineer;
 
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.engineer.Engineer;
-import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.RomanNumber;
+import me.hapyl.fight.util.hitbox.Hitbox;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 
-public abstract class Construct extends TickingGameTask {
-
+public abstract class Construct implements Ticking, Removable {
+    
     public static final int MAX_LEVEL = 3;
-    public static final int MAX_DURATION_SEC = 5;
-
+    
+    public static final int HEALING_COST = 2;
+    public static final double HEALING = 0.2;
+    
     protected final GamePlayer player;
     protected final Location location;
+    
     @Nonnull
-    protected final ConstructEntity entity;
-    protected final EngineerTalent talent;
-    private final Engineer hero;
-    private int level;
-    private int cost;
-    private int upgradeCost;
-
-    public Construct(@Nonnull GamePlayer player, @Nonnull Location location, @Nonnull EngineerTalent talent) {
+    protected final ConstructEntity constructEntity;
+    protected final EngineerConstructTalent talent;
+    
+    protected int tick;
+    protected int level;
+    protected int charges;
+    
+    Construct(@Nonnull GamePlayer player, @Nonnull Location location, @Nonnull EngineerConstructTalent talent) {
         this.player = player;
         this.location = location;
         this.level = 0;
-        this.upgradeCost = talent.getUpgradeCost();
         this.talent = talent;
-        this.hero = Heroes.ENGINEER.getHero(Engineer.class);
-
-        this.entity = new ConstructEntity(player, this);
-
+        
+        this.constructEntity = Hitbox.create(
+                location,
+                healthScaled().get(0),
+                3.5,
+                (slime, scale) -> new ConstructEntity(slime, scale, player, this)
+        );
+        
+        this.charges = chargesScaled().get(0);
+        
         onCreate();
     }
-
+    
     @Nonnull
     public String getName() {
         return talent.getName();
     }
-
-    public int getDuration() {
-        return durationScaled().get(level, Construct.MAX_DURATION_SEC) * 20;
+    
+    @Nonnull
+    public String toString() {
+        return "&c&l%.0f &c❤ &6&l%s &6●".formatted(constructEntity.getHealth(), charges);
     }
-
+    
+    public int getDuration() {
+        return chargesScaled().get(level) * 20;
+    }
+    
     @Nonnull
     public Location getLocation() {
         return BukkitUtils.newLocation(location);
     }
-
+    
     @Override
-    public void run(int tick) {
-        final int duration = getDuration();
-
-        if (tick > duration || entity.isDead()) {
-            if (entity.isDead()) {
-                player.sendMessage("&6&l\uD83D\uDD27 &cYour %s was destroyed!", getName());
-            }
-
-            hero.removeConstruct(player);
-            return;
+    public final void tick() {
+        if (onTick()) {
+            charges--;
         }
-
-        entity.tick();
-        onTick();
+        
+        tick++;
     }
-
-    public int getUpgradeCost() {
-        return upgradeCost;
+    
+    @Override
+    public boolean shouldRemove() {
+        return charges == 0 || constructEntity.isDead();
     }
-
-    public void setUpgradeCost(int upgradeCost) {
-        this.upgradeCost = upgradeCost;
-    }
-
+    
     @Nonnull
-    public ImmutableArray<Integer> durationScaled() {
-        return ImmutableArray.empty();
-    }
-
+    public abstract ImmutableInt3Array chargesScaled();
+    
     @Nonnull
-    public ImmutableArray<Double> healthScaled() {
-        return ImmutableArray.empty();
-    }
-
+    public abstract ImmutableInt3Array healthScaled();
+    
     /**
      * Called once upon creating.
      */
+    @EventLike
     public abstract void onCreate();
-
+    
     /**
      * Called once upon destroyed, be it because the entity died, duration runs out or any other cause.
      */
+    @EventLike
     public abstract void onDestroy();
-
+    
     /**
      * Called every tick.
+     *
+     * @return {@code true} if a charge should be decremented, {@code false} otherwise.
      */
-    public abstract void onTick();
-
+    @EventLike
+    public abstract boolean onTick();
+    
     /**
      * Called every time the construct successfully levels up.
      */
+    @EventLike
     public void onLevelUp() {
     }
-
-    /**
-     * Removes this construct.
-     * <p>
-     * Note that this only removes the construct itself; To properly remove the construct, use {@link Engineer#removeConstruct(GamePlayer)}
-     */
+    
+    @Override
     public void remove() {
-        cancel();
         onDestroy();
-        entity.remove();
-
+        constructEntity.remove();
+        
         // Fx
         player.playWorldSound(location, Sound.ENTITY_ITEM_BREAK, 0.75f);
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_DAMAGE, 0.25f);
     }
-
-    public int getCost() {
-        return cost;
-    }
-
-    public Construct setCost(int ironCost) {
-        this.cost = ironCost;
-        return this;
-    }
-
-    public boolean levelUp() {
-        if (level >= (MAX_LEVEL - 1)) {
-            player.sendMessage("&6&l🔧 &cAlready at max level!");
+    
+    public void levelUp() {
+        if (isMaxLevel()) {
+            message("&cAlready at max level!");
             player.playSound(Sound.BLOCK_ANVIL_LAND, 1.0f);
-            return false;
+            return;
         }
-
+        
         level++;
-
+        
         // Update health
-        final double health = healthScaled().get(level, 10.0d);
-        final double halfHealth = health / 2;
-
-        final LivingGameEntity entity = this.entity.getEntity();
-
-        entity.getAttributes().setHealth(health);
-
-        // If health < than half of the new max health, heal to half.
-        if (entity.getHealth() < halfHealth) {
-            entity.setHealth(halfHealth);
-        }
-
-        // Update display entity
-        this.entity.setDisplayEntity(level);
-
+        final double healthPercentBeforeUpgrade = constructEntity.getHealthToMaxHealthPercent();
+        final double newHealth = healthScaled().get(level);
+        
+        constructEntity.getAttributes().setMaxHealth(newHealth);
+        constructEntity.setHealth(newHealth * Math.min(1, healthPercentBeforeUpgrade));
+        
+        // Update charges
+        final int previousCharge = chargesScaled().get(level - 1);
+        
+        this.charges = chargesScaled().get(level) - (previousCharge - charges);
+        
         onLevelUp();
-
+        
         // Fx
         player.playWorldSound(location, Sound.BLOCK_ANVIL_USE, 0.75f);
         player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
-
+        
         player.spawnWorldParticle(location, Particle.HAPPY_VILLAGER, 10, 0.25d, 0.25d, 0.25, 0f);
-
-        player.sendMessage("&6&l🔧 &eLevelled up %s to level &l%s&e!", getName(), getLevelRoman());
-        return true;
+        
+        message("Levelled up %s to level &l%s&e!".formatted(getName(), getLevelRoman()));
     }
-
+    
+    public void message(@Nonnull String message) {
+        player.sendMessage("&6&l🔧 &e" + message);
+    }
+    
     public int getLevel() {
         return level;
     }
-
+    
     @Nonnull
     public ConstructEntity getEntity() {
-        return entity;
+        return constructEntity;
     }
-
-    public boolean checkEntity(Entity entity) {
-        if (!(entity instanceof LivingEntity livingEntity)) {
-            return false;
-        }
-        return this.entity.getEntity().is(livingEntity);
-    }
-
+    
     @Nonnull
     public String getLevelRoman() {
         return RomanNumber.toRoman(level + 1);
     }
-
-    @Nonnull
-    public String getDurationLeft() {
-        return BukkitUtils.decimalFormat((getDuration() - getTick()) / 20.0d);
+    
+    @Override
+    public final boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        
+        final Construct that = (Construct) o;
+        return Objects.equals(this.talent, that.talent);
     }
+    
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(talent);
+    }
+    
+    public boolean isMaxLevel() {
+        return level + 1 >= MAX_LEVEL;
+    }
+    
+    public boolean isFullHealth() {
+        return constructEntity.isFullHealth();
+    }
+    
+    public void heal() {
+        constructEntity.healRelativeToMaxHealth(HEALING, player);
+        
+        // Fx
+        player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+        player.playWorldSound(location, Sound.ENTITY_ILLUSIONER_CAST_SPELL, 1.25f);
+    }
+    
 }

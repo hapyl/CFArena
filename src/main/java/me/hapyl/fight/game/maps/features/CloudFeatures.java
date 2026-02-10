@@ -1,16 +1,16 @@
 package me.hapyl.fight.game.maps.features;
 
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.LevelFeature;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-public class CloudFeatures extends MapFeature implements Listener {
+public class CloudFeatures extends LevelFeature implements Listener {
 
     public CloudFeatures() {
         super("Boosters", """
@@ -39,7 +39,7 @@ public class CloudFeatures extends MapFeature implements Listener {
 
     @EventHandler()
     public void handlePlayerMove(PlayerMoveEvent ev) {
-        if (!validateGameAndMap(GameMaps.CLOUDS)) {
+        if (!validateGameAndMap(EnumLevel.CLOUDS)) {
             return;
         }
 
@@ -54,7 +54,7 @@ public class CloudFeatures extends MapFeature implements Listener {
         if (location.getY() < 0) {
             if (player.isAlive()) {
                 player.die(true);
-                Achievements.BEYOND_CLOUDS.complete(player);
+                Registries.achievements().BEYOND_CLOUDS.complete(player);
             }
         }
     }

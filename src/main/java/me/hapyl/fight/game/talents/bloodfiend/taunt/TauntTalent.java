@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.talents.bloodfiend.taunt;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -18,11 +19,12 @@ public abstract class TauntTalent extends Talent {
 
     protected final PlayerMap<Taunt> playerTaunt;
 
-    @DisplayField(suffix = "blocks") private final double radius;
+    @DisplayField(suffix = " blocks") private final double radius;
     @DisplayField private final int period; // -1 means it's passive
+    @DisplayField protected int castingTime = 30;
 
-    public TauntTalent(@Nonnull String name, double radius, int period) {
-        super(name);
+    public TauntTalent(@Nonnull Key key, @Nonnull String name, double radius, int period) {
+        super(key, name);
 
         this.playerTaunt = PlayerMap.newConcurrentMap();
         this.radius = radius;
@@ -50,17 +52,17 @@ public abstract class TauntTalent extends Talent {
     }
 
     @Override
-    public final void setDescription(@Nonnull String description, Object... format) {
-        addDescription(description, format);
+    public final void setDescription(@Nonnull String description) {
+        addDescription(description);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Taunt taunt = playerTaunt.remove(player);
 
         if (taunt != null) {
             taunt.remove();
-            player.sendMessage("&eYour previous %s&e was removed!", taunt.getName());
+            player.sendMessage("&eYour previous %s&e was removed!".formatted(taunt.getName()));
         }
 
         final Location playerLocation = player.getLocation();
@@ -71,7 +73,7 @@ public abstract class TauntTalent extends Talent {
         }
 
         playerTaunt.put(player, createTaunt(player, location));
-        startCd(player, 100000);
+        startCooldown(player, 100000);
 
         return Response.AWAIT;
     }
@@ -110,7 +112,7 @@ public abstract class TauntTalent extends Talent {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         playerTaunt.values().forEach(Taunt::remove);
         playerTaunt.clear();
     }

@@ -1,36 +1,35 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMage;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMageData;
 import me.hapyl.fight.game.heroes.dark_mage.DarkMageSpell;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
 import me.hapyl.fight.game.heroes.witcher.WitherData;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class DarkMageTalent extends Talent {
 
-    public DarkMageTalent(String name, String description) {
-        this(name, description, Material.BEDROCK);
-    }
+    public DarkMageTalent(@Nonnull Key key, @Nonnull String name, @Nonnull String description) {
+        super(key, name);
 
-    public DarkMageTalent(String name, String description, Material material) {
-        super(name, description, material);
-
-        addDescription("""
-                                
+        setDescription("""
                 %s
-                                
+                %s
+                
                 &8;;You must use your wand to cast this spell!
-                """.formatted(getUsage()));
+                """.formatted(description, getUsage())
+        );
     }
 
     @Nonnull
@@ -58,19 +57,19 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     @Override
-    public void startCd(@Nonnull GamePlayer player) {
+    public void startCooldown(@Nonnull GamePlayer player) {
         if (!hasWither(player)) {
-            super.startCd(player);
+            super.startCooldown(player);
             return;
         }
 
         final DarkMage.DarkMageUltimate ultimate = getUltimate();
 
-        startCd(player, (int) (getCooldown() * ultimate.cooldownReduction));
+        startCooldown(player, (int) (getCooldown() * ultimate.cooldownReduction));
     }
 
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         player.sendTitle(getUsageRaw(), null, 5, 20, 5);
 
         player.playSound(Sound.ENTITY_GLOW_SQUID_DEATH, 0.75f);
@@ -80,20 +79,20 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     public final void executeDarkMage(@Nonnull GamePlayer player) {
-        if (hasCd(player)) {
-            player.sendSubtitle("&cSpell on cooldown for %ss!".formatted(BukkitUtils.roundTick(getCdTimeLeft(player))), 0, 20, 5);
+        if (isOnCooldown(player)) {
+            player.sendSubtitle("&cSpell on cooldown for %s!".formatted(Tick.round(getCooldownTimeLeft(player))), 0, 20, 5);
             return;
         }
 
         final Response response = Talent.precondition(player);
 
         if (!response.isOk()) {
-            player.sendTitle("&c" + response.getReason(), null, 0, 20, 5);
+            player.sendTitle("&c" + response.reason(), null, 0, 20, 5);
             return;
         }
 
         // Check for lock
-        final HotbarSlots slot = Heroes.DARK_MAGE.getHero().getTalentSlotByHandle(this);
+        final HotBarSlot slot = HeroRegistry.DARK_MAGE.getTalentSlotByHandle(this);
 
         if (player.getTalentLock().isLocked(slot)) {
             player.sendTitle("&cTalent is locked!", null, 0, 20, 5);
@@ -104,12 +103,12 @@ public abstract class DarkMageTalent extends Talent {
         final Response spellResponse = executeSpell(player);
 
         if (spellResponse.isError()) {
-            player.sendTitle("&c" + spellResponse.getReason(), null, 0, 20, 5);
+            player.sendTitle("&c" + spellResponse.reason(), null, 0, 20, 5);
             return;
         }
 
         if (!spellResponse.isAwait()) {
-            startCd(player);
+            startCooldown(player);
         }
 
         postProcessTalent(player);
@@ -122,18 +121,18 @@ public abstract class DarkMageTalent extends Talent {
     }
 
     protected DarkMage.DarkMageUltimate getUltimate() {
-        return (DarkMage.DarkMageUltimate) Heroes.DARK_MAGE.getHero(DarkMage.class).getUltimate();
+        return (DarkMage.DarkMageUltimate) HeroRegistry.DARK_MAGE.getUltimate();
     }
 
     protected boolean hasWither(@Nonnull GamePlayer player) {
-        final DarkMage darkMage = Heroes.DARK_MAGE.getHero(DarkMage.class);
+        final DarkMage darkMage = HeroRegistry.DARK_MAGE;
         final DarkMageData data = darkMage.getPlayerData(player);
 
         return data.getWitherData() != null;
     }
 
     protected WitherData getWither(GamePlayer player) {
-        return Heroes.DARK_MAGE.getHero(DarkMage.class).getPlayerData(player).getWitherData();
+        return HeroRegistry.DARK_MAGE.getPlayerData(player).getWitherData();
     }
 
     private String getUsageRaw() {

@@ -1,24 +1,24 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.Main;
-import me.hapyl.fight.database.PlayerDatabase;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.RomanNumber;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.entry.CollectibleEntry;
 import me.hapyl.fight.game.collectible.relic.Relic;
 import me.hapyl.fight.game.collectible.relic.RelicHunt;
 import me.hapyl.fight.game.collectible.relic.Type;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.reward.Reward;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
-import me.hapyl.fight.gui.styled.StyledItem;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import me.hapyl.fight.gui.styled.eye.RelicHuntGUI;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.RomanNumber;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -33,7 +33,8 @@ public class RelicRewardGUI extends StyledGUI {
 
     public RelicRewardGUI(Player player) {
         super(player, "Relic Rewards", Size.FIVE);
-        relicHunt = Main.getPlugin().getRelicHunt();
+
+        relicHunt = CF.getPlugin().getRelicHunt();
 
         openInventory();
     }
@@ -46,9 +47,10 @@ public class RelicRewardGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
-        final CollectibleEntry entry = PlayerDatabase.getDatabase(player).collectibleEntry;
+        super.onUpdate();
+        final CollectibleEntry entry = CF.getDatabase(player).collectibleEntry;
 
-        setHeader(StyledItem.ICON_RELIC_REWARDS.asIcon());
+        setHeader(StyledTexture.ICON_RELIC_REWARDS.asIcon());
 
         // Tiered
         int slot = 37;
@@ -77,7 +79,7 @@ public class RelicRewardGUI extends StyledGUI {
                     continue;
                 }
 
-                reward.formatBuilder(player, builder);
+                reward.getDescription(player).forEach(builder::addLore);
                 builder.addLore();
 
                 switch (index) {
@@ -106,7 +108,7 @@ public class RelicRewardGUI extends StyledGUI {
                             reward.grant(player);
                             entry.setClaimed(type, finalIndex, true);
 
-                            Notifier.success(player, "Claimed!");
+                            Message.success(player, "Claimed!");
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_LOCKED, 0.75f);
                             PlayerLib.playSound(player, Sound.BLOCK_CHEST_CLOSE, 1.25f);
 
@@ -116,7 +118,7 @@ public class RelicRewardGUI extends StyledGUI {
                     else {
                         builder.addLore(Color.ERROR + "Cannot claim yet!");
                         setItem(tierSlot, builder.asIcon(), click -> {
-                            Notifier.error(player, "Cannot claim yet!");
+                            Message.error(player, "Cannot claim yet!");
                             PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                         });
                     }
@@ -127,21 +129,21 @@ public class RelicRewardGUI extends StyledGUI {
         }
 
         // All relics
-        final Cosmetics cosmetic = Cosmetics.RELIC_HUNTER;
+        final Cosmetic cosmetic = Registries.cosmetics().RELIC_HUNTER;
         final ItemBuilder builder = new ItemBuilder(Material.DIAMOND);
 
         builder.setName("Exclusive Cosmetic");
         builder.addLore("&8One Time Exchange");
         builder.addLore();
         builder.addSmartLore("Collect every single relic to claim:", "&7&o");
-        builder.addLore(cosmetic.getCosmetic().getFormatted());
+        builder.addLore(cosmetic.getFormatted());
         builder.addLore();
 
         if (cosmetic.isUnlocked(player)) {
             builder.addLore(Color.SUCCESS + "Already claimed!");
 
             setItem(25, builder.asIcon(), click -> {
-                Notifier.error(player, "Already claimed!");
+                Message.error(player, "Already claimed!");
                 PlayerLib.villagerNo(player);
             });
         }
@@ -153,7 +155,7 @@ public class RelicRewardGUI extends StyledGUI {
                 setItem(25, builder.asIcon(), click -> {
                     cosmetic.setUnlocked(player, true);
 
-                    Notifier.success(player, "Claimed!");
+                    Message.success(player, "Claimed!");
                     PlayerLib.villagerYes(player);
                     PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.0f);
 
@@ -164,7 +166,7 @@ public class RelicRewardGUI extends StyledGUI {
                 builder.addLore(Color.ERROR + "Cannot claim yet!");
 
                 setItem(25, builder.asIcon(), click -> {
-                    Notifier.error(player, "Cannot claim yet!");
+                    Message.error(player, "Cannot claim yet!");
                     PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                 });
             }
@@ -186,7 +188,7 @@ public class RelicRewardGUI extends StyledGUI {
         exchangeBuilder.addLore();
         exchangeBuilder.addLore("Rewards:");
 
-        reward.formatBuilder(player, exchangeBuilder);
+        reward.getDescription(player).forEach(exchangeBuilder::addLore);
         exchangeBuilder.addLore();
 
         if (canExchange < CollectibleEntry.PERMANENT_EXCHANGE_RATE) {
@@ -195,7 +197,7 @@ public class RelicRewardGUI extends StyledGUI {
             );
 
             setItem(34, exchangeBuilder.asIcon(), click -> {
-                Notifier.error(player, "Cannot exchange!");
+                Message.error(player, "Cannot exchange!");
                 PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
             });
         }
@@ -206,7 +208,7 @@ public class RelicRewardGUI extends StyledGUI {
                 reward.grant(player);
                 entry.incrementPermanentExchangeCount(CollectibleEntry.PERMANENT_EXCHANGE_RATE);
 
-                Notifier.success(player, "Successfully exchanged!");
+                Message.success(player, "Successfully exchanged!");
                 PlayerLib.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 2.0f);
 
                 update();

@@ -1,11 +1,12 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -58,14 +59,12 @@ public class TeamSelectGUI extends GameManagementSubGUI<GameTeam> {
                 continue;
             }
 
-            final PlayerProfile profile = PlayerProfile.getProfile(lobbyPlayer);
+            // Realistically, the above check should handle profile check, but just in case
+            if (CF.hasProfile(lobbyPlayer)) {
+                final PlayerProfile profile = CF.getProfile(lobbyPlayer);
 
-            if (profile == null) {
-                builder.addLore("&8- &cInvalid Player (" + lobbyPlayer.getName() + ")");
-                continue;
+                builder.addLore("&8- " + profile.display());
             }
-
-            builder.addLore("&8- " + profile.getDisplay());
         }
 
         return builder;

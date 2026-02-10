@@ -1,16 +1,20 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimpleAdminCommand;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.attribute.HeroAttributes;
 import me.hapyl.fight.game.heroes.*;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
 import me.hapyl.fight.game.talents.*;
 import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.util.displayfield.DisplayFieldInstance;
 import me.hapyl.fight.util.displayfield.DisplayFieldSerializer;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimpleAdminCommand;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -19,7 +23,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -27,12 +30,12 @@ public class DumpHeroData extends SimpleAdminCommand {
     public DumpHeroData(String name) {
         super(name);
 
-        addCompleterValues(1, Heroes.values());
+        addCompleterValues(1, HeroRegistry.keys());
     }
 
     @Override
     protected void execute(CommandSender sender, String[] args) {
-        final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+        final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
 
         if (hero == null) {
             Chat.sendMessage(sender, "&cInvalid hero!");
@@ -77,17 +80,17 @@ public class DumpHeroData extends SimpleAdminCommand {
 
     private static class HeroDumper {
 
-        private final Heroes enumHero;
+        private final Hero hero;
         private final boolean stripColor;
         private final File path;
         private final File file;
 
-        public HeroDumper(Heroes enumHero, boolean stripColor) {
-            this.enumHero = enumHero;
+        public HeroDumper(Hero hero, boolean stripColor) {
+            this.hero = hero;
             this.stripColor = stripColor;
 
             path = new File(Main.getPlugin().getDataFolder() + "/hero_dumps/");
-            file = new File(path, enumHero.name() + ".md");
+            file = new File(path, hero.getKeyAsString() + ".md");
         }
 
         public File dump() {
@@ -96,11 +99,10 @@ public class DumpHeroData extends SimpleAdminCommand {
             }
 
             final LocalDate now = LocalDate.now();
+            final HeroProfile profile = hero.getProfile();
 
             try (MdFileWriter writer = new MdFileWriter(this)) {
-                final Hero hero = this.enumHero.getHero();
-
-                writer.comment("Shaman ; v%s ; %s".formatted(CF.getVersionNoSnapshot(), now.toString()));
+                writer.comment("%s ; v%s ; %s".formatted(hero.getKey(), CF.getVersionNoSnapshot(), now.toString()));
 
                 writer.header("Name:");
                 writer.append(hero.getName());
@@ -109,11 +111,11 @@ public class DumpHeroData extends SimpleAdminCommand {
                 writer.append(hero.getDescription());
 
                 writer.header("Archetype");
-                writer.append(hero.getArchetype().toString());
+                writer.append(profile.getArchetypes().toString());
 
-                final Affiliation affiliation = hero.getAffiliation();
-                final Race race = hero.getRace();
-                final Gender gender = hero.getGender();
+                final Affiliation affiliation = profile.getAffiliation();
+                final Race race = profile.getRace();
+                final Gender gender = profile.getGender();
 
                 if (affiliation != Affiliation.NOT_SET) {
                     writer.header("Affiliation");
@@ -135,10 +137,14 @@ public class DumpHeroData extends SimpleAdminCommand {
 
                 writer.nl();
                 writer.header("Attributes");
-
-                attributes.forEachMandatoryAndNonDefault((type, value) -> {
-                    writer.append(" %s: %s".formatted(type.getName(), type.getFormatted(attributes)));
-                });
+                
+                for (AttributeType attributeType : AttributeType.values()) {
+                    final double value = attributes.get(attributeType);
+                    
+                    if (attributeType.isMandatory() || value != attributeType.defaultValue()) {
+                        writer.append(" %s: %s".formatted(attributeType.getName(), attributeType.toString(value)));
+                    }
+                }
 
                 // Weapon
                 writer.nl();
@@ -162,7 +168,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                     writer.append(talent.getTypeFormattedWithClassType());
                     writer.nl();
 
-                    final String description = StaticFormat.formatTalent(talent.getDescription(), talent);
+                    final String description = StaticTalentFormat.format(talent.getDescription(), talent);
 
                     writer.append(description);
 
@@ -180,9 +186,9 @@ public class DumpHeroData extends SimpleAdminCommand {
                     final int cd = talent.getCooldown();
 
                     if (cd > 0) {
-                        writer.append("| Cooldown%s: %ss".formatted(
+                        writer.append("| Cooldown%s: %s".formatted(
                                 talent instanceof ChargedTalent ? " between charges" : "",
-                                BukkitUtils.roundTick(cd)
+                                Tick.round(cd)
                         ));
                     }
                     else if (cd <= -1) {
@@ -192,7 +198,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                     final int duration = talent.getDuration();
 
                     if (duration > 0) {
-                        writer.append("| Duration: %ss".formatted(BukkitUtils.roundTick(duration)));
+                        writer.append("| Duration: %s".formatted(Tick.round(duration)));
                     }
 
                     final int point = talent.getPoint();
@@ -201,7 +207,7 @@ public class DumpHeroData extends SimpleAdminCommand {
                         writer.append("| Point%s Generation: %s".formatted(point == 1 ? "" : "s", point));
                     }
 
-                    final List<String> fields = DisplayFieldSerializer.serialize(talent, DisplayFieldSerializer.DEFAULT_FORMATTER);
+                    final List<DisplayFieldInstance> fields = DisplayFieldSerializer.serialize(talent);
 
                     fields.forEach(field -> writer.append("| " + field));
 

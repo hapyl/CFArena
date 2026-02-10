@@ -1,211 +1,287 @@
 package me.hapyl.fight.game.heroes.bounty_hunter;
 
-import me.hapyl.fight.CF;
-import me.hapyl.fight.annotate.StrictTalentPlacement;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.GameDeathEvent;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
+import me.hapyl.fight.game.attribute.SnapshotAttributes;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.talents.bounty_hunter.BountyHunterPassive;
 import me.hapyl.fight.game.talents.bounty_hunter.GrappleHookTalent;
 import me.hapyl.fight.game.talents.bounty_hunter.ShortyShotgun;
-import me.hapyl.fight.game.talents.nightmare.ShadowShift;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.TimedGameTask;
-import me.hapyl.fight.game.weapons.Weapon;
+import me.hapyl.fight.game.talents.bounty_hunter.SmokeBombTalent;
 import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public class BountyHunter extends Hero implements DisplayFieldProvider {
-
-    private final double smokeRadius = 3.0d;
-    private final double smokeRadiusScaled = (smokeRadius * smokeRadius) / 8.0d;
-    private final int smokeDuration = Tick.fromSecond(5);
-
-    public final ItemStack smokeBomb = new ItemBuilder(Material.ENDERMAN_SPAWN_EGG, "bounty_hunter_smoke_bomb")
-            .setName("💣💣💣 " + Color.BUTTON + " (Right Click)")
-            .addClickEvent(player -> {
-                final GamePlayer gamePlayer = CF.getPlayer(player);
-
-                if (gamePlayer == null) {
-                    return;
-                }
-
-                useSmokeBomb(gamePlayer, gamePlayer.getLocation());
-            }).build();
-
-    @DisplayField private final double backstabMaxDistance = 15;
-    @DisplayField private final double backstabDamage = 30;
-
-    public BountyHunter(@Nonnull Heroes handle) {
-        super(handle, "Bounty Hunter");
-
-        setAffiliation(Affiliation.MERCENARY);
-        setArchetype(Archetype.MOBILITY);
-        setGender(Gender.FEMALE);
-
+public class BountyHunter extends Hero implements DisplayFieldProvider, PlayerDataHandler<BountyHunterData>, Listener {
+    
+    private final PlayerDataMap<BountyHunterData> playerMap = PlayerMap.newDataMap(player -> new BountyHunterData(this, player));
+    
+    public BountyHunter(@Nonnull Key key) {
+        super(key, "Bounty Hunter");
+        
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.MOBILITY, Archetype.DAMAGE, Archetype.TALENT_DAMAGE, Archetype.POWERFUL_ULTIMATE);
+        profile.setAffiliation(Affiliation.MERCENARY);
+        profile.setGender(Gender.FEMALE);
+        
         setDescription("""
-                She is a skilled bounty hunter.
-                                
-                &8&o;;`Jackpot! Everyone here's got a bounty on their head.`
-                """);
+                       She is a skilled bounty hunter.
+                       
+                       `Jackpot! Everyone here's got a bounty on their head.`
+                       """);
         setItem("cf4f866f1432f324e31b0a502e6e9ebccd7a66f474f1ca9cb0cfab879ea22ce0");
-
-        setWeapon(
-                new Weapon(Material.IRON_SWORD)
-                        .setName("Bloodweep")
-                        .setDescription("A handy sword that appeared in her dream.")
-                        .setDamage(6.0d)
-        );
-
-        final Equipment equipment = getEquipment();
+        
+        setWeapon(new BountyHunterWeapon());
+        
+        final HeroEquipment equipment = getEquipment();
         equipment.setChestPlate(50, 54, 57, TrimPattern.SILENCE, TrimMaterial.NETHERITE);
         equipment.setLeggings(80, 97, 68);
         equipment.setBoots(160, 101, 64, TrimPattern.SILENCE, TrimMaterial.IRON);
-
+        
         setUltimate(new BountyHunterUltimate());
-        copyDisplayFieldsTo(getUltimate());
+        
+        talkBehaviour.sound(Sound.ENTITY_VILLAGER_NO, 1.25f);
     }
-
+    
+    @Nonnull
+    @Override
+    public BountyHunterWeapon getWeapon() {
+        return (BountyHunterWeapon) super.getWeapon();
+    }
+    
+    @EventHandler
+    public void handleDamagePreProcessEvent(GameDamageEvent.PreProcess ev) {
+        final SnapshotAttributes damager = ev.damager();
+        
+        if (damager == null || !(damager.entity() instanceof GamePlayer player) || !validatePlayer(player)) {
+            return;
+        }
+        
+        final LivingGameEntity entity = ev.entity().entity();
+        final BountyHunterPassive passive = getPassiveTalent();
+        final BountyHunterWeapon weapon = getWeapon();
+        
+        // Bounty
+        final BountyHunterData data = getPlayerData(player);
+        double defenseIgnore = 0;
+        
+        if (data.bounty != null) {
+            final LivingGameEntity bountyEntity = data.bounty.entity();
+            
+            if (!entity.equals(bountyEntity)) {
+                player.sendMessage(Message.ERROR, "Cannot damage non-bounty enemy!");
+                player.playSound(Sound.ENTITY_GHAST_SCREAM, 1.0f);
+                
+                ev.setCancelled(true);
+                return;
+            }
+            
+            final int hits = data.bounty.incrementHit();
+            
+            // Ignore def%
+            ev.entity().multiply(AttributeType.DEFENSE, -weapon.defenseIgnore);
+            
+            // Apply bleeding & start cooldown
+            if (hits >= weapon.hitsForBleed) {
+                weapon.affect(player, bountyEntity);
+                
+                data.bounty.remove(BloodBounty.RemoveCause.BOUNTY_COMPLETE);
+                data.bounty = null;
+            }
+        }
+        
+        // Ultimate buff
+        final BountyHunterUltimate ultimate = getUltimate();
+        
+        if (player.getAttributes().hasModifier(ultimate.modifierSource)) {
+            ev.entity().multiply(AttributeType.DEFENSE, -ultimate.defenseIgnore);
+        }
+        
+        // Backstab
+        final Vector vector = player.getLocation().toVector().subtract(entity.getLocation().toVector()).setY(0).normalize();
+        final double dot = vector.dot(entity.getLocation().getDirection().setY(0).normalize());
+        
+        if (dot <= passive.backstabDotThreshold) {
+            damager.add(AttributeType.CRIT_CHANCE, passive.critChanceIncrease);
+            
+            ev.initialDamage(ev.initialDamage() * passive.backstabDamageMultiplier);
+        }
+    }
+    
     @Override
     public void processDamageAsVictim(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getEntityAsPlayer();
-        final double damage = instance.getDamage();
+        final SmokeBombTalent smokeBomb = getThirdTalent();
+        
         final double health = player.getHealth();
-
-        // FIXME (hapyl): 008, Mar 8: what the fuck
-        if (health > 50 && (health - damage <= (player.getMaxHealth() / 2.0d))) {
-            player.setItem(HotbarSlots.HERO_ITEM, smokeBomb);
-            player.sendTitle("&7💣", "&e&lSMOKE BOMB TRIGGERED", 5, 20, 5);
+        final double maxHealth = player.getMaxHealth();
+        final double threshold = maxHealth * smokeBomb.healthThreshold;
+        
+        if (health > threshold && health - instance.getDamage() <= threshold) {
+            smokeBomb.trigger(player);
         }
     }
-
+    
     @Override
-    @StrictTalentPlacement
     public ShortyShotgun getFirstTalent() {
-        return (ShortyShotgun) Talents.SHORTY.getTalent();
+        return TalentRegistry.SHORTY;
     }
-
+    
     @Override
     public GrappleHookTalent getSecondTalent() {
-        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
+        return TalentRegistry.GRAPPLE;
     }
-
+    
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.SMOKE_BOMB.getTalent();
+    public SmokeBombTalent getThirdTalent() {
+        return TalentRegistry.SMOKE_BOMB;
     }
-
-    private void spawnPoofParticle(Location location) {
-        PlayerLib.spawnParticle(location, Particle.LARGE_SMOKE, 20, 0.0d, 0.5d, 0.0d, 0.25f);
+    
+    @Override
+    public BountyHunterPassive getPassiveTalent() {
+        return TalentRegistry.BOUNTY_HUNTER_PASSIVE;
     }
-
-    private ShadowShift.TargetLocation getBackstabLocation(GamePlayer player) {
-        return ((ShadowShift) Talents.SHADOW_SHIFT.getTalent()).getLocationAndCheck0(player, backstabMaxDistance, 0.9d);
+    
+    @Nonnull
+    @Override
+    public PlayerDataMap<BountyHunterData> getDataMap() {
+        return playerMap;
     }
-
-    private void useSmokeBomb(GamePlayer player, Location location) {
-        player.setItem(HotbarSlots.HERO_ITEM, null);
-        player.addEffect(Effects.SPEED, 2, smokeDuration);
-
-        player.snapToWeapon();
-
-        new TimedGameTask(smokeDuration) {
-            @Override
-            public void run(int tick) {
-                Collect.nearbyPlayers(location, smokeRadius).forEach(inRange -> {
-                    inRange.addEffect(Effects.BLINDNESS, 1, 25);
-                    inRange.addEffect(Effects.INVISIBILITY, 25, true);
-                });
-
-                // Fx
-                player.spawnWorldParticle(
-                        location,
-                        Particle.LARGE_SMOKE,
-                        20,
-                        smokeRadiusScaled,
-                        smokeRadiusScaled,
-                        smokeRadiusScaled,
-                        0.01f
-                );
-                player.spawnWorldParticle(
-                        location,
-                        Particle.SMOKE,
-                        20,
-                        smokeRadiusScaled,
-                        smokeRadiusScaled,
-                        smokeRadiusScaled,
-                        0.01f
-                );
-            }
-        }.runTaskTimer(0, 1);
-
-        // Sfx
-        player.playWorldSound(Sound.BLOCK_FIRE_EXTINGUISH, 0.75f);
-    }
-
-    private class BountyHunterUltimate extends UltimateTalent {
-        public BountyHunterUltimate() {
-            super("Backstab", 70);
-
-            setDescription("""
-                    Instantly &bteleport&7 behind the &etarget&7 player, &cstabbing&7 them from behind.
-                    """);
-
-            setItem(Material.SHEARS);
-            setDurationSec(1);
-            defaultCdFromCost();
+    
+    @EventHandler
+    public void handleGameDeathEvent(GameDeathEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+        
+        // Bounty
+        playerMap.values()
+                 .stream()
+                 .filter(data -> data.bounty != null && data.bounty.entity().equals(entity))
+                 .forEach(data -> {
+                     data.bounty.remove(BloodBounty.RemoveCause.ENTITY_DIED);
+                     data.bounty = null;
+                 });
+        
+        // Ultimate buff
+        final GameEntity killer = ev.getKiller();
+        
+        if (!(killer instanceof GamePlayer player) || !validatePlayer(player) || ev.getCause() != DamageCause.BACKSTAB) {
+            return;
         }
-
+        
+        final BountyHunterUltimate ultimate = getUltimate();
+        
+        // Buff bounty hunter
+        player.getAttributes().addModifier(
+                ultimate.modifierSource, ultimate.buffDuration, modifier -> modifier
+                        .of(AttributeType.SPEED, ModifierType.FLAT, ultimate.speedIncrease)
+        );
+        
+        player.playSound(Sound.ENTITY_DONKEY_HURT, 0.0f);
+        player.playSound(Sound.ENTITY_BLAZE_HURT, 1.25f);
+    }
+    
+    @Nonnull
+    @Override
+    public BountyHunterUltimate getUltimate() {
+        return (BountyHunterUltimate) super.getUltimate();
+    }
+    
+    public class BountyHunterUltimate extends UltimateTalent {
+        
+        @DisplayField private final double damage = 35;
+        @DisplayField private final double maxDistance = 25;
+        
+        @DisplayField private final double speedIncrease = 30;
+        @DisplayField(percentage = true) private final double defenseIgnore = 0.25;
+        
+        @DisplayField private final int buffDuration = Tick.fromSeconds(15);
+        
+        private final ModifierSource modifierSource = new ModifierSource(Key.ofString("blood_bounty"));
+        
+        BountyHunterUltimate() {
+            super(BountyHunter.this, "Severance", 70);
+            
+            setDescription("""
+                           Instantly teleport behind the &etarget&7 &cenemy&7, stabbing them from behind.
+                           
+                           If you &4kill&7 the enemy you stabbed, gain the following &abuffs&7 for &b{buffDuration}&7:
+                            &8├&7 Increased %s.
+                            &8└&7 Your hits ignore &2%.0f%%&7 of victim's %s.
+                           """.formatted(AttributeType.SPEED, defenseIgnore * 100, AttributeType.DEFENSE));
+            
+            setType(TalentType.DAMAGE);
+            setMaterial(Material.FLOW_BANNER_PATTERN);
+            
+            setDurationSec(1);
+        }
+        
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            final ShadowShift.TargetLocation targetOutput = getBackstabLocation(player);
-
-            if (targetOutput.getError() != ShadowShift.ErrorCode.OK) {
-                return UltimateResponse.error(targetOutput.getError().getErrorMessage());
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
+            final LivingGameEntity target = Collect.targetEntityRayCast(player, maxDistance, 1.25, player::isNotSelfOrTeammate);
+            
+            if (target == null) {
+                return error("No valid target!");
             }
-
-            final Location playerLocation = player.getLocation();
-            final Location location = targetOutput.getLocation();
-            final LivingGameEntity target = targetOutput.getEntity();
-
-            player.teleport(location);
-            target.damage(backstabDamage, player, EnumDamageCause.BACKSTAB);
-
-            // Fx
-            player.sendMessage("&aBackstabbed &7%s&a!", target.getName());
-            target.sendMessage("&cYou were backstabbed by &7%s&c!", player.getName());
-
-            player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-            player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
-
-            player.swingMainHand();
-
-            spawnPoofParticle(playerLocation);
-            spawnPoofParticle(location);
-
-            return UltimateResponse.OK;
+            
+            final Location location = target.getLocation();
+            final Vector behind = location.getDirection().normalize().multiply(-1).setY(0);
+            
+            location.add(behind);
+            
+            final Block block = location.getBlock();
+            
+            if (!block.isPassable() || !block.getRelative(BlockFace.UP).isPassable()) {
+                return error("The target location is not safe!");
+            }
+            
+            return execute(() -> {
+                final Location playerLocation = player.getLocation();
+                
+                player.teleport(location);
+                target.damage(damage, player, DamageCause.BACKSTAB);
+                
+                player.swingMainHand();
+                
+                // Fx
+                player.playWorldSound(location, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
+                player.playWorldSound(location, Sound.ENTITY_IRON_GOLEM_REPAIR, 1.25f);
+                
+                player.spawnWorldParticle(playerLocation, Particle.LARGE_SMOKE, 20, 0.1, 0.5, 0.1, 0.25f);
+                player.spawnWorldParticle(location, Particle.LARGE_SMOKE, 20, 0.1, 0.5, 0.1, 0.25f);
+            });
         }
+        
     }
 }

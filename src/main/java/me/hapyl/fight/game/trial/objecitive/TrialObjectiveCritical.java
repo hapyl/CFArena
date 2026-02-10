@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.DamageInstance;
 import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
-import me.hapyl.fight.game.ui.display.AscendingDisplay;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
+import me.hapyl.fight.game.ui.display.StringDisplay;
 import org.bukkit.Material;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +43,7 @@ public class TrialObjectiveCritical extends TrialObjective {
                 For the &bTutorial&7, your %1$s has been increased!
                 """.formatted(AttributeType.CRIT_CHANCE));
 
-        player.getAttributes().add(AttributeType.CRIT_CHANCE, 0.4d);
+        player.getAttributes().set(AttributeType.CRIT_CHANCE, 75);
 
         // Spawn husk
         trial.spawnEntity(BukkitUtils.defLocation(-200.5, 66.0, 234.5, 90, 0), husk -> {
@@ -60,8 +60,8 @@ public class TrialObjectiveCritical extends TrialObjective {
                     if (!instance.isCrit()) {
                         instance.multiplyDamage(0.0d);
                         instance.setCancelled(true);
-
-                        new AscendingDisplay("&4Non-Crit", 20).display(getLocation());
+                        
+                        StringDisplay.ascend(getMidpointLocation(), "&4Non-Crit", 20);
                     }
                 }
             };

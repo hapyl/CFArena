@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.librarian;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.librarian.Librarian;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,14 +20,14 @@ public class BlackHole extends LibrarianTalent {
 
     // FIXME: 027, Mar 27, 2023 -> this works without grimoire
 
-    public BlackHole() {
-        super("Black Hole");
+    public BlackHole(@Nonnull Key key) {
+        super(key, "Black Hole");
 
         addDescription(
                 "Creates a black hole at your target block. Pulling enemies in and dealing <scaled> damage per b based on &cGrimoire &7level."
         );
 
-        setItem(Material.BLACK_CANDLE);
+        setMaterial(Material.BLACK_CANDLE);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class BlackHole extends LibrarianTalent {
                 entity.setVelocity(location.toVector().subtract(entityLocation.toVector()).multiply(0.2d));
 
                 if (tick % 20 == 0) {
-                    entity.damage(getCurrentValue(Heroes.LIBRARIAN.getHero(Librarian.class).getGrimoireLevel(player)));
+                    entity.damage(getCurrentValue(HeroRegistry.LIBRARIAN.getGrimoireLevel(player)));
                     entity.spawnWorldParticle(entityLocation, Particle.SWEEP_ATTACK, 1, 0, 0, 0, 0);
                     entity.playSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.25f);
                 }

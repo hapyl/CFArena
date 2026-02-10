@@ -1,15 +1,19 @@
 package me.hapyl.fight.game.heroes;
 
-import me.hapyl.fight.game.cosmetic.skin.Skin;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
+import me.hapyl.eterna.module.inventory.Equipment;
+import me.hapyl.eterna.module.npc.Npc;
+import me.hapyl.eterna.module.npc.NpcAnimation;
+import me.hapyl.eterna.module.npc.appearance.AppearanceBuilder;
+import me.hapyl.eterna.module.npc.appearance.AppearanceHumanoid;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerSkin;
+import me.hapyl.fight.Message;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
 import me.hapyl.fight.game.heroes.equipment.Slot;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
+import me.hapyl.fight.game.skin.Skin;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.player.PlayerSkin;
-import me.hapyl.spigotutils.module.reflect.npc.HumanNPC;
-import me.hapyl.spigotutils.module.reflect.npc.ItemSlot;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -26,21 +30,22 @@ public class PlayerSkinPreview extends TickingGameTask {
 
     public final Player player;
     public final Hero hero;
-    public final me.hapyl.spigotutils.module.player.PlayerSkin skin;
-    public final Equipment equipment;
+    public final me.hapyl.eterna.module.player.PlayerSkin skin;
+    public final HeroEquipment equipment;
 
-    protected HumanNPC npc;
+    protected Npc npc;
     private double rotation = 0;
 
-    public PlayerSkinPreview(@Nonnull Player player, Hero hero, Skin skin) {
+    public PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Skin skin) {
         this(
                 player,
-                skin == null ? hero : skin.getHero().getHero(),
-                skin == null ? (Settings.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player) ? null : hero.getEquipment()) : skin.getEquipment()
+                // Null skin means it's the hero's default skin
+                skin == null ? hero : skin.getHero(),
+                getProperEquipment(player, hero, skin)
         );
     }
 
-    PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable Equipment equipment) {
+    PlayerSkinPreview(@Nonnull Player player, @Nonnull Hero hero, @Nullable HeroEquipment equipment) {
         this.player = player;
         this.hero = hero;
 
@@ -56,30 +61,34 @@ public class PlayerSkinPreview extends TickingGameTask {
         location.add(0.0d, 0.05d, 0.0d);
 
         final Vector directionTowardsPlayer = player.getLocation()
-                .toVector()
-                .normalize()
-                .setY(0)
-                .subtract(location.toVector().normalize().setY(0));
+                                                    .toVector()
+                                                    .normalize()
+                                                    .setY(0)
+                                                    .subtract(location.toVector().normalize().setY(0));
         location.setDirection(directionTowardsPlayer);
 
         if (!location.getBlock().isEmpty()) {
-            Notifier.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
+            Message.error(player, "Could not preview skin because there is nowhere to put it! (Move away from blocks)");
             return;
         }
 
-        npc = new HumanNPC(location, null);
-        npc.setSkin(skin.getTexture(), skin.getSignature());
-
+        npc = new Npc(location, Component.empty(), AppearanceBuilder.ofMannequin(skin));
+        
+        final AppearanceHumanoid appearance = npc.getAppearance(AppearanceHumanoid.class);
+        final Equipment.Builder builder = Equipment.builder();
+        
         if (equipment != null) {
-            npc.setItem(ItemSlot.HEAD, equipment.getItem(Slot.HELMET));
-            npc.setItem(ItemSlot.CHEST, equipment.getItem(Slot.CHESTPLATE));
-            npc.setItem(ItemSlot.LEGS, equipment.getItem(Slot.LEGGINGS));
-            npc.setItem(ItemSlot.FEET, equipment.getItem(Slot.BOOTS));
+            builder.helmet(equipment.getItem(Slot.HELMET));
+            builder.chestPlate(equipment.getItem(Slot.CHESTPLATE));
+            builder.leggings(equipment.getItem(Slot.LEGGINGS));
+            builder.body(equipment.getItem(Slot.BOOTS));
         }
 
-        npc.setItem(ItemSlot.MAINHAND, hero.getWeapon().getItem());
+        builder.mainHand(hero.getWeapon().createItem());
+        
+        appearance.setEquipment(builder.build());
+        
         npc.show(player);
-
         runTaskTimer(1, 1);
     }
 
@@ -93,7 +102,7 @@ public class PlayerSkinPreview extends TickingGameTask {
         final Location location = npc.getLocation();
 
         if (rotation > FULL_CIRCLE_PLUS_A_LITTLE_BIT) {
-            npc.remove();
+            npc.destroy();
             cancel();
 
             // Fx
@@ -103,14 +112,26 @@ public class PlayerSkinPreview extends TickingGameTask {
 
         // Swing
         if (rotation > 0 && rotation % (100 / ROTATION_PER_TICK) == 0) {
-            npc.swingMainHand();
+            npc.playAnimation(NpcAnimation.SWING_MAIN_HAND);
             PlayerLib.playSound(player, location, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f);
         }
 
         location.setYaw((float) (location.getYaw() + ROTATION_PER_TICK));
-        npc.teleport(location);
+        npc.setLocation(location);
 
         rotation += ROTATION_PER_TICK;
+    }
+
+    private static HeroEquipment getProperEquipment(Player player, Hero hero, Skin skin) {
+        final boolean useSkinsInsteadOfArmorEnabled = EnumSetting.USE_SKINS_INSTEAD_OF_ARMOR.isEnabled(player);
+        final HeroEquipment equipment = skin != null ? skin.getEquipment() : hero.getEquipment();
+
+        // If the hero has a skin and setting enabled = return null
+        if (hero.getSkin() != null && useSkinsInsteadOfArmorEnabled) {
+            return null;
+        }
+
+        return equipment;
     }
 
 }

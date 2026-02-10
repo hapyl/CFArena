@@ -1,22 +1,23 @@
 package me.hapyl.fight.gui;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.entry.CrateEntry;
 import me.hapyl.fight.database.entry.Currency;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
-import me.hapyl.fight.game.cosmetic.crate.*;
-import me.hapyl.fight.game.cosmetic.crate.convert.CrateConvertGUI;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.game.crate.*;
+import me.hapyl.fight.game.crate.convert.CrateConvertGUI;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledPageGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -46,7 +47,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
     public CrateGUI(Player player, CrateLocation location) {
         super(player, "Crates", Size.FOUR);
 
-        this.database = PlayerDatabase.getDatabase(player);
+        this.database = CF.getDatabase(player);
         this.entry = database.crateEntry;
         this.location = location;
 
@@ -64,9 +65,9 @@ public class CrateGUI extends StyledPageGUI<Crates> {
 
     @Nonnull
     @Override
-    public ItemStack asItem(Player player, Crates enumCrate, int index, int page) {
+    public ItemStack asItem(@Nonnull Player player, Crates enumCrate, int index, int page) {
         final Crate crate = enumCrate.getCrate();
-        final RandomLootSchema<Cosmetics> schema = crate.getSchema();
+        final RandomLootSchema<Cosmetic> schema = crate.getSchema();
         final int crateCount = (int) entry.getCrates(enumCrate);
 
         final ItemBuilder builder = ItemBuilder.of(crate.getMaterial(), crate.getName(), crate.getDescription());
@@ -82,19 +83,19 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             builder.addLore(rarity + " &8" + schema.getDropChanceString(rarity));
 
             int count = 0;
-            for (Cosmetics cosmetics : items) {
+            for (Cosmetic enumCosmetic : items) {
                 if (count++ >= MAX_ITEMS_PREVIEW && items.size() > MAX_ITEMS_PREVIEW) {
                     builder.addLore(" &8...and %s more!".formatted(items.size() - MAX_ITEMS_PREVIEW));
                     break;
                 }
 
-                final boolean isUnlocked = cosmetics.isUnlocked(player);
-                final String cosmeticName = cosmetics.getCosmetic().getName();
+                final boolean isUnlocked = enumCosmetic.isUnlocked(player);
+                final String cosmeticName = enumCosmetic.getName();
 
                 if (isUnlocked) {
                     builder.addLore("&a✔ &7&m%s&b » %s".formatted(
                             cosmeticName,
-                            rarity.getCompensationString()
+                            rarity.getCompensation()
                     ));
                 }
                 else {
@@ -143,7 +144,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
             final long crateCount = enumCrate.getProduct(database);
 
             if (crateCount < CrateLocation.MIN_TO_OPEN_TEN) {
-                Notifier.error(player, "You don't have enough crates!");
+                Message.error(player, "You don't have enough crates!");
                 return;
             }
 
@@ -174,9 +175,9 @@ public class CrateGUI extends StyledPageGUI<Crates> {
         setCloseMenuItem(40);
         setPanelItem(
                 3,
-                StyledTexture.CRATE_CONVERT.toBuilder()
-                        .setName("Crate Conversion")
-                        .addTextBlockLore("""
+                StyledTexture.CRATE_CONVERT.asBuilder()
+                                           .setName("Crate Conversion")
+                                           .addTextBlockLore("""
                                 Duplicate cosmetics will be converted into %1$s&7 and %2$s&7.
                                                   
                                 Spend %2$s&7 to convert and craft crates!
@@ -186,15 +187,15 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                                         dust.getFormatted()
                                 )
                         )
-                        .addLore()
-                        .addLore("You have: %s".formatted(dust.format(
+                                           .addLore()
+                                           .addLore("You have: %s".formatted(dust.format(
                                 format -> {
                                     return format.getColor() + "%,d".formatted(database.currencyEntry.get(dust)) + format.getPrefixColored();
                                 }
                         )))
-                        .addLore()
-                        .addLore(Color.BUTTON + "Click to convert!")
-                        .asIcon(),
+                                           .addLore()
+                                           .addLore(Color.BUTTON + "Click to convert!")
+                                           .asIcon(),
                 fn -> new CrateConvertGUI(player, location)
         );
 
@@ -220,11 +221,11 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         .addLore("Requirements:")
                         .addLore(" &8-&7 &7At least &a%s&7 crates %s".formatted(
                                 CrateLocation.MIN_BULK_OPEN,
-                                CFUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)
+                                BukkitUtils.checkmark(totalCrates >= CrateLocation.MIN_BULK_OPEN)
                         ))
                         .addLore(" &8-&7 %s&7 or higher %s".formatted(
                                 rankToOpenAll.getFormat().prefix(),
-                                CFUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))
+                                BukkitUtils.checkmark(playerRank.isOrHigher(rankToOpenAll))
                         ))
                         .addLore()
                         .addLore(canOpenAll ? Color.BUTTON.color("Click to open %s crates!".formatted(totalCrates)) :
@@ -236,7 +237,7 @@ public class CrateGUI extends StyledPageGUI<Crates> {
                         return;
                     }
 
-                    Notifier.error(player, "Cannot open the crates!");
+                    Message.error(player, "Cannot open the crates!");
                 }
         );
 

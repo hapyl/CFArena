@@ -1,13 +1,11 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.chat.LazyEvent;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.Main;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.chat.LazyEvent;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;

@@ -1,6 +1,6 @@
 package me.hapyl.fight.fx.music;
 
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.eterna.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

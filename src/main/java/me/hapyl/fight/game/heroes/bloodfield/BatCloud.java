@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.heroes.bloodfield;
 
-import me.hapyl.fight.util.Ticking;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;

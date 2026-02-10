@@ -1,91 +1,100 @@
 package me.hapyl.fight.game.talents;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import org.bukkit.Material;
+import me.hapyl.fight.util.CFUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Function;
 
 /**
  * This talent requires a mouse input to be executed.
+ * fixme -> I don't like how this works
  */
 public abstract class InputTalent extends Talent {
-
+    
+    private static final String arrowChar = "⇄";
+    
     protected final InputTalentData leftData;
     protected final InputTalentData rightData;
-
-    public InputTalent(@Nonnull String name) {
-        this(name, Material.DIAMOND_SWORD);
-    }
-
-    public InputTalent(@Nonnull String name, @Nonnull Material material) {
-        this(name, material, TalentType.DAMAGE);
-    }
-
-    public InputTalent(@Nonnull String name, @Nonnull Material material, @Nonnull TalentType type) {
-        super(name, "null", type);
-        setItem(material);
-
+    
+    protected InputTalent(@Nonnull Key key, @Nonnull String name) {
+        super(key, name);
+        
         leftData = new InputTalentData(true);
         rightData = new InputTalentData(false);
     }
-
+    
     /**
      * @deprecated {@link InputTalentData#setType(TalentType)}
      */
     @Deprecated
     @Override
-    public Talent setType(@Nonnull TalentType type) {
-        return this;
+    public Talent setType(@Nonnull TalentType type) throws IllegalStateException {
+        throw new IllegalStateException("InputTalent uses separate types for left and right clicks!");
     }
-
+    
     @Nonnull
     @Override
     public String getTalentClassType() {
         return "Input Talent";
     }
-
+    
     @Nonnull
     @Override
     public String getTypeFormattedWithClassType() {
         return getTalentClassType();
     }
-
+    
     @Override
-    public void appendLore(@Nonnull ItemBuilder builder) {
+    public void juiceDescription(@Nonnull ItemBuilder builder) {
         builder.addTextBlockLore("""
-                                
-                &e&lLEFT CLICK&e to %s
-                &8%s
-                %s
-                &6&lRIGHT CLICK&6 to %s
-                &8%s
-                %s
-                """.formatted(
+                                 
+                                 &e&lʟᴇꜰᴛ ᴄʟɪᴄᴋ&e to %s
+                                 &8%s
+                                 %s
+                                 &6&lʀɪɢʜᴛ ᴄʟɪᴄᴋ&6 to %s
+                                 &8%s
+                                 %s
+                                 """.formatted(
                 // Left
                 leftData.getAction(),
                 leftData.getType().getName(),
                 format(leftData),
-
+                
                 // Right
                 rightData.getAction(),
                 rightData.getType().getName(),
                 format(rightData)
         ));
     }
-
+    
+    @Nonnull
+    @Override
+    public String getCooldownFormatted() {
+        return arrowSplit(data -> CFUtils.formatTick(data.getCooldown()));
+    }
+    
+    @Nonnull
+    @Override
+    public String getTypeAsString() {
+        return arrowSplit(data -> data.getType().getName());
+    }
+    
     @Nonnull
     public final InputTalentData getLeftData() {
         return leftData;
     }
-
+    
     @Nonnull
     public final InputTalentData getRightData() {
         return rightData;
     }
-
+    
     /**
      * Called whenever player left clicks after equipping the talent.
      *
@@ -93,7 +102,7 @@ public abstract class InputTalent extends Talent {
      */
     @Nonnull
     public abstract Response onLeftClick(@Nonnull GamePlayer player);
-
+    
     /**
      * Called whenever player right clicks after equipping the talent.
      *
@@ -101,7 +110,7 @@ public abstract class InputTalent extends Talent {
      */
     @Nonnull
     public abstract Response onRightClick(@Nonnull GamePlayer player);
-
+    
     /**
      * Called whenever player equips talent. Would be {@link Talent#execute(GamePlayer)} for normal talents.
      *
@@ -111,111 +120,110 @@ public abstract class InputTalent extends Talent {
     public Response onEquip(@Nonnull GamePlayer player) {
         return Response.OK;
     }
-
+    
     /**
      * Called whenever a player uses this talent, regardless if it was successful, left or right-clicked.
      *
      * @param player - Player, who used the talent.
      */
-    @Event
+    @EventLike
     public void onUse(@Nonnull GamePlayer player) {
     }
-
+    
     /**
      * Called whenever a player cancels the talent.
      */
-    @Event
+    @EventLike
     public void onCancel(@Nonnull GamePlayer player) {
     }
-
-    @Deprecated
+    
     @Override
     public final InputTalent setCooldown(int cd) {
         leftData.setCooldown(cd);
+        rightData.setCooldown(cd);
         return this;
     }
-
+    
+    @Override
+    public final Talent setCooldownSec(float cd) {
+        return setCooldown((int) (cd * 20));
+    }
+    
     @Deprecated
     @Override
-    public final Talent setCooldownSec(int cd) {
-        return setCooldown(cd * 20);
+    public final void startCooldown(@Nonnull GamePlayer player) {
     }
-
-    @Deprecated
-    @Override
-    public final void startCd(@Nonnull GamePlayer player) {
-    }
-
+    
     @Override
     public int getPoint() {
         return 0;
     }
-
+    
     @Deprecated
     @Override
     public void setPoint(int point) {
     }
-
+    
     public void startCdLeft(GamePlayer player) {
-        super.startCd(player, leftData.getCooldown());
+        super.startCooldown(player, leftData.getCooldown());
     }
-
+    
     public void startCdRight(GamePlayer player) {
-        super.startCd(player, rightData.getCooldown());
+        super.startCooldown(player, rightData.getCooldown());
     }
-
+    
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
         final Response response = onEquip(player);
-
-        player.sendTitle("&6&lL&e&lCLICK     &6&lR&e&lCLICK",
-                ("&ato " + trim(leftData.action) + "         &ato " + trim(rightData.action)),
+        
+        player.sendTitle(
+                "&6&lʟᴇꜰᴛ     &6&lʀɪɢʜᴛ",
+                "&ato %s         &ato %s".formatted(trim(leftData.action), trim(rightData.action)),
                 1, 10000, 1
         );
-
+        
         return response;
     }
-
-    public String trim(String name) {
-        if (name.length() > 20) {
-            return name.substring(0, 20);
-        }
-
-        return name;
-    }
-
+    
     public String getUsage(boolean isLeftClick) {
         if (isLeftClick) {
             return leftData.action;
         }
-
+        
         return rightData.action;
     }
-
+    
     public final void addPoint(GamePlayer player, boolean isLeftClick) {
         int point = isLeftClick ? leftData.pointGeneration : rightData.pointGeneration;
-
+        
         if (point > 0) {
-            player.addEnergy(point);
+            player.incrementEnergy(point);
         }
     }
-
-
+    
+    private String arrowSplit(Function<InputTalentData, String> fn) {
+        return "%s %s %s".formatted(fn.apply(leftData), arrowChar, fn.apply(rightData));
+    }
+    
     private String format(InputTalentData data) {
         String string = data.getDescription();
-
-        string = StaticFormat.NAME.format(string, this);
-        string = StaticFormat.DURATION.format(string, data);
-        string = StaticFormat.COOLDOWN.format(string, data);
-
+        
+        string = StaticTalentFormat.NAME.format(string, this);
+        string = StaticTalentFormat.DURATION.format0(string, data);
+        string = StaticTalentFormat.COOLDOWN.format0(string, data);
+        
         return string;
     }
-
-    private String format(@Nonnull String string, @Nonnull InputTalentData data) {
-        string = StaticFormat.NAME.format(string, this);
-        string = StaticFormat.DURATION.format(string, data);
-        string = StaticFormat.COOLDOWN.format(string, data);
-
-        return string;
+    
+    private static String trim(String name) {
+        if (name.length() > 20) {
+            return name.substring(0, 20);
+        }
+        
+        return name;
+    }
+    
+    private static IllegalStateException ise(String reason) {
+        return new IllegalStateException(reason);
     }
 }

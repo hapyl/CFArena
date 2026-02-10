@@ -1,180 +1,272 @@
 package me.hapyl.fight.game.heroes.shark;
 
-import me.hapyl.fight.CF;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.event.DamageInstance;
-import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperInstance;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.Disabled;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.Named;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.heroes.equipment.Equipment;
-import me.hapyl.fight.game.heroes.UltimateResponse;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.talents.UltimateTalent;
-import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.TalentRegistry;
+import me.hapyl.fight.game.talents.shark.SharkPassive;
+import me.hapyl.fight.game.talents.shark.SubmergeTalent;
+import me.hapyl.fight.game.talents.shark.Whirlpool;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.Weapon;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
+import me.hapyl.fight.terminology.EnumTerm;
+import me.hapyl.fight.util.Collect;
+import me.hapyl.fight.util.collection.player.PlayerDataMap;
+import me.hapyl.fight.util.collection.player.PlayerMap;
+import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EvokerFangs;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
 
-public class Shark extends Hero implements Listener {
+public class Shark extends Hero implements Listener, PlayerDataHandler<SharkData>, UIComponent, Disabled {
 
-    private final double CRITICAL_AMOUNT = 15.0d;
-    private final TemperInstance temperInstance = Temper.SHARK.newInstance("Oceanborn")
-            .increase(AttributeType.ATTACK, 1.2d)
-            .increase(AttributeType.DEFENSE, 0.5d);
+    private final PlayerDataMap<SharkData> playerData = PlayerMap.newDataMap(player -> new SharkData(this, player));
 
-    public Shark(@Nonnull Heroes handle) {
-        super(handle, "Shark");
+    private final int heartBeatSoundEffectDuration = 40;
+    private final double heartBeatHealthThreshold = 0.25d;
 
-        setArchetype(Archetype.DAMAGE);
-        setGender(Gender.FEMALE);
+    public Shark(@Nonnull Key key) {
+        super(key, "Shark");
+
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.DAMAGE, Archetype.MELEE, Archetype.SELF_BUFF, Archetype.HEXBANE);
+        profile.setGender(Gender.FEMALE);
+        profile.setRace(Race.SHARK);
 
         setDescription("""
-                Strong warrior from the &3Depth of Waters&8&o... not well versed in on-land fights but don't let it touch the water, or you'll regret it.
+                A strong warrior from the Depths of Waters.
                 """);
         setItem("3447e7e8271f573969f2da734c4125f93b2864fb51db69da5ecba7487cf882b0");
 
-        final Equipment equipment = getEquipment();
-        equipment.setChestPlate(116, 172, 204);
-        equipment.setLeggings(116, 172, 204);
-        equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(116, 172, 204))
+        final HeroEquipment equipment = getEquipment();
+        equipment.setChestPlate(157, 175, 194, TrimPattern.RIB, TrimMaterial.QUARTZ);
+        equipment.setLeggings(157, 175, 194, TrimPattern.RIB, TrimMaterial.QUARTZ);
+
+        equipment.setBoots(ItemBuilder.leatherBoots(Color.fromRGB(157, 175, 194))
+                .setArmorTrim(TrimPattern.RIB, TrimMaterial.QUARTZ)
                 .addEnchant(Enchantment.DEPTH_STRIDER, 5)
                 .cleanToItemSack());
 
-        setWeapon(new Weapon(Material.QUARTZ)
-                .setName("Claws")
-                .setDescription("Using one's claws is a better idea than using a stick, don't you think so?")
-                .setDamage(7.0d));
+        setWeapon(Weapon.builder(Material.QUARTZ, Key.ofString("claws"))
+                .name("Claws")
+                .description("Using one's claws is a better idea than using a stick, don't you think so?")
+                .damage(7.0d)
+        );
 
         setUltimate(new SharkUltimate());
     }
 
     @Override
-    public void onStart(@Nonnull GamePlayer player) {
-        player.addEffect(Effects.WATER_BREATHING, -1);
-    }
+    public void onStart(@Nonnull GameInstance instance) {
+        new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                final Set<GamePlayer> alivePlayers = getAlivePlayers();
 
-    @EventHandler()
-    public void handlePlayerMove(PlayerMoveEvent ev) {
-        final GamePlayer player = CF.getPlayer(ev.getPlayer());
+                alivePlayers.forEach(player -> {
+                    final SharkData data = getPlayerDataOrNull(player);
 
-        if (player == null || !validatePlayer(player) || player.isUsingUltimate()) {
-            return;
-        }
+                    if (data == null) {
+                        return;
+                    }
 
-        setState(player, player.isInWater(), 10);
-    }
+                    final short minStacksForHeartbeat = getPassiveTalent().minStacksForHeartbeat;
+                    final int stacks = data.getBloodThirstStacks();
 
-    public void setState(GamePlayer player, boolean state, int duration) {
-        if (state) {
-            player.setWalkSpeed(0.4f);
-            temperInstance.temper(player, duration);
-        }
-        else {
-            player.setWalkSpeed(0.2f);
-        }
+                    // Update attribute
+                    getPassiveTalent().temper(player, stacks);
+
+                    if (stacks < minStacksForHeartbeat) {
+                        return;
+                    }
+
+                    // Heartbeat
+                    Collect.nearbyEntities(player.getLocation(), 15, entity -> !player.isSelfOrTeammate(entity))
+                            .forEach(entity -> {
+                                final double health = entity.getHealth();
+                                final double maxHealth = entity.getMaxHealth();
+
+                                if (health / maxHealth > heartBeatHealthThreshold) {
+                                    return;
+                                }
+
+                                final Location entityLocation = entity.getMidpointLocation();
+
+                                if (modulo(minStacksForHeartbeat)) {
+                                    player.playSound(entityLocation, Sound.BLOCK_CONDUIT_AMBIENT, 2.0f);
+                                }
+
+                                player.spawnParticle(
+                                        entityLocation,
+                                        Particle.DUST_COLOR_TRANSITION,
+                                        20,
+                                        0.33d,
+                                        0.33d,
+                                        0.33d,
+                                        new Particle.DustTransition(Color.fromRGB(255, 77, 77), Color.fromRGB(139, 0, 0), 1)
+                                );
+                            });
+                });
+            }
+        }.runTaskTimer(0, 5);
     }
 
     @Override
     public void processDamageAsDamager(@Nonnull DamageInstance instance) {
         final GamePlayer player = instance.getDamagerAsPlayer();
-        final LivingGameEntity entity = instance.getEntity();
 
-        if (player == null || player.hasCooldown(getPassiveTalent().getMaterial()) || entity.equals(player)) {
+        if (player == null || !instance.isDirectDamage()) {
             return;
         }
 
-        if (instance.isCrit()) {
-            player.setCooldown(getPassiveTalent().getMaterial(), 20 * 5);
-            performCriticalHit(instance.getEntityAsPlayer(), entity);
-        }
+        final SharkData data = getPlayerData(player);
+        data.addBloodThirstStack();
     }
 
-    public void performCriticalHit(GamePlayer player, LivingGameEntity entity) {
-        final EvokerFangs fangs = Entities.EVOKER_FANGS.spawn(entity.getLocation());
-        fangs.setOwner(player.getPlayer());
-
-        // Sync for effect only
-        GameTask.runTaskTimerTimes(r -> fangs.teleport(entity.getLocation()), 0, 1, 30);
-
-        // Perform critical hit and heal the player
-        entity.damage(CRITICAL_AMOUNT, player, EnumDamageCause.FEET_ATTACK);
-        entity.addEffect(Effects.BLEED, 60, true);
-        player.heal(CRITICAL_AMOUNT);
+    @Nonnull
+    @Override
+    public PlayerDataMap<SharkData> getDataMap() {
+        return playerData;
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.SUBMERGE.getTalent();
+    public void onStart(@Nonnull GamePlayer player) {
+        player.addEffect(EffectType.WATER_BREATHING, -1);
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.WHIRLPOOL.getTalent();
+    public SubmergeTalent getFirstTalent() {
+        return TalentRegistry.SUBMERGE;
     }
 
     @Override
-    public Talent getPassiveTalent() {
-        return Talents.CLAW_CRITICAL.getTalent();
+    public Whirlpool getSecondTalent() {
+        return TalentRegistry.WHIRLPOOL;
+    }
+
+    @Override
+    public SharkPassive getPassiveTalent() {
+        return TalentRegistry.SHARK_PASSIVE;
+    }
+
+    @Nonnull
+    @Override
+    public String getString(@Nonnull GamePlayer player) {
+        final SharkData data = getPlayerData(player);
+        final int stacks = data.getBloodThirstStacks();
+
+        return "&4%s &c&l%s".formatted(Named.BLOOD_THIRST.getPrefix(), stacks);
     }
 
     private class SharkUltimate extends UltimateTalent {
+
+        @DisplayField private final short minBloodThirst = 4;
+        @DisplayField private final double damage = 50.0d;
+        @DisplayField private final double radius = 5.0d;
+
+        private final int maxDashTime = 100;
+
         public SharkUltimate() {
-            super("Ocean Madness", 70);
+            super(Shark.this, "Ocean Madness", 60);
 
             setDescription("""
-                    Creates a &bShark Aura &7that follow you for {duration} and imitates water.
-                    """);
+                    Gather the water within and leap high in the air.
+                    
+                    After a short casting time, ride the wave forward rapidly, dealing massive %s upon landing.
+                    
+                    &8;;If you posses at least {minBloodThirst}, your amazing eyesight will mark hurt enemies.
+                    """.formatted(EnumTerm.PIERCING_DAMAGE)
+            );
 
-            setItem(Material.WATER_BUCKET);
-            setSound(Sound.AMBIENT_UNDERWATER_ENTER, 0.0f);
-            setDurationSec(6);
-            setCooldownSec(60);
+            setMaterial(Material.WATER_BUCKET);
 
+            setDurationSec(3);
+            setCastDuration(20);
         }
+
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            setState(player, true, getUltimateDuration());
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
+            final SharkData data = getPlayerData(player);
+            final int stacks = data.getBloodThirstStacks();
+            final boolean strongAttack = stacks >= minBloodThirst;
 
-            new GameTask() {
-                private int tick = getUltimateDuration();
+            player.setAttributeValue(Attribute.GRAVITY, 0.0d);
+            player.setVelocity(player.getDirection().normalize().setY(0.75d));
+
+            return new UltimateInstance() {
+                private Vector vector;
 
                 @Override
-                public void run() {
-                    if (tick < 0) {
-                        setState(player, false, 0);
-                        this.cancel();
+                public void onCastEnd() {
+                    if (strongAttack) {
+                        Collect.nearbyEntities(player.getLocation(), 100, entity -> entity.getHealth() <= damage)
+                                .forEach(entity -> {
+                                    player.spawnParticle(entity.getEyeLocation(), Particle.FLASH, 1, 0, 0, 0, 0);
+                                });
+                    }
+                }
+
+                @Override
+                public void onExecute() {
+                    player.setAttributeValue(Attribute.GRAVITY, BukkitUtils.GRAVITY);
+                    player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 1000);
+                }
+
+                @Override
+                public void onTick(int tick) {
+                    if (player.isOnGround() || tick >= maxDashTime) {
+                        doLand();
                         return;
                     }
 
+                    player.setVelocity(getVector());
+                }
+
+                private Vector getVector() {
+                    if (vector == null) {
+                        final Vector direction = player.getDirection().normalize();
+
+                        vector = direction.multiply(2.5d);
+                        vector.setY(Math.min(vector.getY(), -0.5d));
+                    }
+
+                    return vector;
+                }
+
+                private void doLand() {
+                    forceEndUltimate(false);
+
                     final Location location = player.getLocation();
 
+                    Collect.nearbyEntities(location, radius, entity -> !player.isSelfOrTeammate(entity))
+                            .forEach(entity -> {
+                                entity.damage(damage, player, DamageCause.SHARK_BITE);
+                            });
+
                     // Fx
-                    Geometry.drawCircle(location, 3.5d, Quality.HIGH, new WorldParticle(Particle.DRIPPING_WATER));
-                    Geometry.drawCircle(location, 1.0d, Quality.VERY_HIGH, new WorldParticle(Particle.SPLASH));
-
-                    --tick;
                 }
-            }.runTaskTimer(0, 1);
-
-            return UltimateResponse.OK;
+            };
         }
     }
 }

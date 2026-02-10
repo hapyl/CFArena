@@ -1,12 +1,13 @@
 package me.hapyl.fight.chat;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.data.PlayerProfileData;
 import me.hapyl.fight.infraction.InfractionType;
 import me.hapyl.fight.infraction.PlayerInfraction;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,7 +19,7 @@ public class ChatHandler implements Listener {
     public void handleChat(AsyncPlayerChatEvent ev) {
         final Player player = ev.getPlayer();
         final String message = ev.getMessage();
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
+        final PlayerProfile profile = CF.getProfile(player);
 
         if (profile == null) {
             ev.setCancelled(true);
@@ -42,7 +43,7 @@ public class ChatHandler implements Listener {
         final PlayerProfileData playerData = profile.getPlayerData();
 
         if (!rank.isStaff() && playerData.isLastMessageSimilarTo(message)) {
-            Notifier.error(player, "You cannot say the same message twice!");
+            Message.error(player, "You cannot say the same message twice!");
             return;
         }
 

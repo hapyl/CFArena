@@ -1,17 +1,18 @@
 package me.hapyl.fight.game.heroes.dark_mage;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.PlayerData;
 import me.hapyl.fight.game.heroes.witcher.WitherData;
+import org.bukkit.Particle;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Iterator;
 import java.util.Set;
 
-public class DarkMageData extends PlayerData implements Iterable<LivingGameEntity> {
+public class DarkMageData extends PlayerData implements Ticking {
 
     private final DarkMageSpell darkMageSpell;
     private final Set<LivingGameEntity> witheredEntities;
@@ -67,12 +68,6 @@ public class DarkMageData extends PlayerData implements Iterable<LivingGameEntit
         darkMageSpell.cast(this);
     }
 
-    @Nonnull
-    @Override
-    public Iterator<LivingGameEntity> iterator() {
-        return witheredEntities.iterator();
-    }
-
     public int getWitheredCount() {
         return witheredEntities.size();
     }
@@ -82,5 +77,19 @@ public class DarkMageData extends PlayerData implements Iterable<LivingGameEntit
 
         // Fx
     }
-
+    
+    @Override
+    public void tick() {
+        witheredEntities.forEach(entity -> {
+            player.spawnParticle(
+                    entity.getLocation().add(0, 2.5, 0),
+                    Particle.SMOKE,
+                    5,
+                    0.1,
+                    0.1,
+                    0.1,
+                    0.01f
+            );
+        });
+    }
 }

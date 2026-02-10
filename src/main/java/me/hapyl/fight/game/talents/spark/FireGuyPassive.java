@@ -1,0 +1,20 @@
+package me.hapyl.fight.game.talents.spark;
+
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.talents.PassiveTalent;
+import org.bukkit.Material;
+
+import javax.annotation.Nonnull;
+
+public class FireGuyPassive extends PassiveTalent {
+    public FireGuyPassive(@Nonnull Key key) {
+        super(key, "Fire Guy");
+
+        setDescription("""
+                You're completely immune to &clava &7and &cfire &7damage.
+                """
+        );
+
+        setMaterial(Material.LAVA_BUCKET);
+    }
+}

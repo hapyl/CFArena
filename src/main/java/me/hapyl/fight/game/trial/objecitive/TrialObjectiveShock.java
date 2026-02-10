@@ -1,17 +1,17 @@
 package me.hapyl.fight.game.trial.objecitive;
 
-import me.hapyl.fight.game.entity.ConsumerFunction;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Husk;
 
 import javax.annotation.Nonnull;
+import java.util.function.Function;
 
 public class TrialObjectiveShock extends TrialObjective {
     public TrialObjectiveShock(Trial trial) {
@@ -25,7 +25,7 @@ public class TrialObjectiveShock extends TrialObjective {
         super.onStart();
 
         final PlayerProfile profile = trial.getProfile();
-        final HotbarLoadout loadout = profile.getHotbarLoadout();
+        final HotBarLoadout loadout = profile.getHotbarLoadout();
         final GamePlayer player = trial.getPlayer();
 
         player.sendTextBlockMessage("""
@@ -39,7 +39,7 @@ public class TrialObjectiveShock extends TrialObjective {
                 &aPress &l&n%s&a on the keyboard to use the talent!
                                 
                 &bGo electrocute some husks!
-                """.formatted(loadout.getInventorySlotBySlot(HotbarSlots.TALENT_2) + 1));
+                """.formatted(loadout.getInventorySlotBySlot(HotBarSlot.TALENT_2) + 1));
 
         // Normal husks
         spawnHusk(-235, 64, 232, -64, false);
@@ -52,7 +52,7 @@ public class TrialObjectiveShock extends TrialObjective {
         spawnHusk(-226, 69, 224, 25, true);
 
         // Give talent
-        player.giveTalentItem(HotbarSlots.TALENT_2);
+        player.giveTalentItem(HotBarSlot.TALENT_2);
     }
 
     @Nonnull
@@ -65,7 +65,7 @@ public class TrialObjectiveShock extends TrialObjective {
     }
 
     private void spawnHusk(int x, int y, int z, float yaw, boolean flipped) {
-        trial.spawnEntity(BukkitUtils.defLocation(x + 0.5, y, z + 0.5, yaw, 0), new ConsumerFunction<>() {
+        trial.spawnEntity(BukkitUtils.defLocation(x + 0.5, y, z + 0.5, yaw, 0), new Function<>() {
             @Nonnull
             @Override
             public TrialEntity apply(@Nonnull Husk husk) {
@@ -73,15 +73,13 @@ public class TrialObjectiveShock extends TrialObjective {
                     husk.setCustomName("Dinnerbone");
                     husk.setGravity(false);
                 }
-
+                
                 husk.setAI(false);
-
-                return new TrialEntity(trial, husk);
-            }
-
-            @Override
-            public void andThen(@Nonnull TrialEntity trialEntity) {
-                trialEntity.setValidState(true);
+                
+                final TrialEntity entity = new TrialEntity(trial, husk);
+                entity.setValidState(true);
+                
+                return entity;
             }
         });
     }

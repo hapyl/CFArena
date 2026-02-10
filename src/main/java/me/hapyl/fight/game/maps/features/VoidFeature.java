@@ -1,19 +1,20 @@
 package me.hapyl.fight.game.maps.features;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.alphabet.AlphabetImpl;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Sound;
 
 import javax.annotation.Nonnull;
 
-public class VoidFeature extends MapFeature {
+public class VoidFeature extends LevelFeature {
 
     private final PlayerMap<Integer> voidMap = PlayerMap.newMap();
-    private final char[] chars = { 'ᛈ', 'ᚢ', 'ᛋ', 'ᛏ', 'ᛟ', 'ᛏ', 'ᚨ' };
+    private final char[] chars = AlphabetImpl.FUTHARK.translateTo("pustota").toCharArray();
 
     public VoidFeature(String name, String description) {
         super(name, description);
@@ -30,7 +31,7 @@ public class VoidFeature extends MapFeature {
     }
 
     public void removeVoidValue(@Nonnull GamePlayer player) {
-        voidMap.computeIfPresent(player, (pl, a) -> Numbers.clamp(a - 1, 0, chars.length));
+        voidMap.computeIfPresent(player, (pl, a) -> Math.clamp(a - 1, 0, chars.length));
 
         displayVoidValues(player);
 
@@ -63,8 +64,8 @@ public class VoidFeature extends MapFeature {
             case 6 -> subtitle = "Vulnerable to Void";
             case 7 -> {
                 subtitle = "Void Consuming You";
-                player.damage(30, EnumDamageCause.LIBRARY_VOID);
-                player.addEffect(Effects.WITHER, 0, 20);
+                player.damage(30, DamageCause.LIBRARY_VOID);
+                player.addDotStacks(DotType.WITHER, 2);
             }
         }
 

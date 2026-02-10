@@ -1,37 +1,36 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PassiveTalent extends Talent {
 
-    public PassiveTalent(@Nonnull String name, @Nonnull Material material) {
-        this(name, "", material);
+    public PassiveTalent(@Nonnull Key key, @Nonnull String name) {
+        super(key, name);
+
+        setType(TalentType.ENHANCE); // Default passives to enhance because most of them are
+        setPoint(0);                 // Passive talents don't regen ultimate
     }
-
-    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material material) {
-        this(name, description, material, TalentType.ENHANCE);
-    }
-
-    public PassiveTalent(@Nonnull String name, @Nonnull String description, @Nonnull Material item, @Nonnull TalentType type) {
-        super(name, description, type);
-
-        setItem(item);
-        setPoint(0);
-    }
-
+    
     @Override
-    public final Response execute(@Nonnull GamePlayer player) {
-        player.sendMessage("do not execute passive talents");
+    public final double pointCooldownRatio() {
+        return 0;
+    }
+    
+    @Override
+    public final @Nullable Response execute(@Nonnull GamePlayer player) {
+        player.sendMessage(Message.ERROR, "Do not execute passive talents!");
         return Response.OK;
     }
 
     @Override
     public boolean isDisplayAttributes() {
-        return false;
+        return false; // This will remove the "Show Attributes" button for passive talents, because most of them don't need it.
     }
 
     @Nonnull

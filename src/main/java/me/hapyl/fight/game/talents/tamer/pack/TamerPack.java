@@ -1,21 +1,18 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
-import me.hapyl.fight.game.attribute.Attributes;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.fight.game.attribute.BaseAttributes;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.tamer.TamerTimed;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 
-/**
- * Represents a blueprint for a pack of entities.
- */
 public abstract class TamerPack implements Described, TamerTimed, DisplayFieldProvider {
 
-    protected final Attributes attributes;
+    protected final BaseAttributes attributes;
 
     private final String name;
     private final String description;
@@ -27,12 +24,12 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
         this.description = description;
         this.type = type;
         this.duration = 100;
-        this.attributes = new Attributes();
+        this.attributes = new BaseAttributes();
     }
 
     @Nonnull
     public String toString(ActiveTamerPack pack) {
-        final TamerEntity<?> firstEntity = pack.getFirstEntity();
+        final TamerEntity firstEntity = pack.getFirstEntity();
 
         return firstEntity != null ? firstEntity.getHealthFormatted() : "";
     }
@@ -43,7 +40,7 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
     }
 
     @Nonnull
-    public Attributes getAttributes() {
+    public BaseAttributes getAttributes() {
         return attributes;
     }
 
@@ -79,6 +76,6 @@ public abstract class TamerPack implements Described, TamerTimed, DisplayFieldPr
 
     @Nonnull
     public String getTypeString() {
-        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getHealth(), CFUtils.formatTick(duration));
+        return "&8%s  &c%.0f ❤  &e⌚ %s".formatted(type.getName(), attributes.getMaxHealth(), CFUtils.formatTick(duration));
     }
 }

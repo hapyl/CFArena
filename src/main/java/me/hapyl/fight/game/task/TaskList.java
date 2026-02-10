@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.task;
 
+import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.fight.util.Lifecycle;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TaskList extends DependencyInjector<Main> implements GameElement {
+public class TaskList extends DependencyInjector<Main> implements Lifecycle {
 
     public final ConcurrentHashMap<Integer, GameTask> byId;
 
@@ -21,7 +21,6 @@ public class TaskList extends DependencyInjector<Main> implements GameElement {
 
     @Override
     public void onStart() {
-
     }
 
     @Override

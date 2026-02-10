@@ -1,13 +1,12 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.util.Validate;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import org.bukkit.entity.Player;
 
 public class CastSpellCommand extends SimplePlayerAdminCommand {
@@ -17,9 +16,9 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
         setDescription("Allows casting a spell for debug purposes.");
         setUsage("/cast <spell> [-f]");
 
-        addCompleterValues(1, Talents.values());
+        addCompleterValues(1, TalentRegistry.keys());
         addCompleterHandler(1, (player, arg) -> {
-            final Talents talent = Validate.getEnumValue(Talents.class, arg);
+            final Talent talent = TalentRegistry.ofStringOrNull(arg);
 
             if (talent == null) {
                 return "&c&nInvalid spell: {}!";
@@ -54,7 +53,7 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final Talents talent = Validate.getEnumValue(Talents.class, args[0]);
+        final Talent talent = TalentRegistry.ofStringOrNull(args[0]);
         final boolean force = args.length > 1 && args[1].equalsIgnoreCase("-f");
 
         if (talent == null) {
@@ -62,11 +61,10 @@ public class CastSpellCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final Talent talentHandle = talent.getTalent();
-        final Response response = force ? talentHandle.execute(gamePlayer) : talentHandle.execute0(gamePlayer);
+        final Response response = force ? talent.execute(gamePlayer) : talent.execute0(gamePlayer);
 
         if (!response.isOk()) {
-            Chat.sendMessage(player, "&c" + response.getReason());
+            Chat.sendMessage(player, "&c" + response.reason());
         }
         else {
             Chat.sendMessage(player, "&aCasted spell!");

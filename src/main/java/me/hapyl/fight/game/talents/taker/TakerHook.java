@@ -1,225 +1,245 @@
 package me.hapyl.fight.game.talents.taker;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.effect.Effects;
+import io.papermc.paper.math.Rotation;
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.dot.DotType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.taker.Taker;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
+import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.EulerAngle;
+import org.bukkit.entity.Display;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 
-public class TakerHook {
-
-    private final int EXTEND_SPEED = 3;
-    private final int CONTRACT_SPEED = 2;
-
+public class TakerHook implements Removable {
+    
+    private static final DisplayData display = BDEngine.parse(
+            "{Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:chain\",Properties:{axis:\"x\"}},transformation:[0f,0f,1f,-0.5f,0f,1f,0f,-0.375f,-1f,0f,0f,0.5f,0f,0f,0f,1f]}]}"
+    );
+    
+    private static final ModifierSource modifierSource = new ModifierSource(Key.ofString("taker_hook"), true);
+    
+    private final DeathSwap talent;
     private final GamePlayer player;
-    private final LinkedList<ArmorStand> chains;
-    private final double HEIGHT = 1.5d;
-
-    private LivingGameEntity hooked;
+    private final LinkedList<Display> chains;
+    
     private GameTask taskExtend;
     private GameTask taskContract;
-
-    public TakerHook(GamePlayer player) {
+    
+    @Nullable private LivingGameEntity target;
+    
+    public TakerHook(@Nonnull DeathSwap talent, @Nonnull GamePlayer player) {
+        this.talent = talent;
         this.player = player;
         this.chains = Lists.newLinkedList();
-        this.hooked = null;
-
-        extend();
+        
+        extend(player.getMidpointLocation());
     }
-
-    public void extend() {
-        final Location location = player.getEyeLocation().subtract(0.0d, 0.5d, 0.0d);
-        final Vector vector = location.getDirection().normalize();
-
-        player.addEffect(Effects.SLOW, 10, 10000);
-        player.setCanMove(false);
-
-        taskExtend = new GameTask() {
-            private double step = 0.0d;
-
-            @Override
-            public void run() {
-                if (step >= talent().getMaxDistanceScaled()) {
-                    contract();
-                    return;
-                }
-
-                // Create multiple chains to make extending faster
-                for (int i = 0; i < EXTEND_SPEED; i++) {
-                    nextChain();
-                }
-            }
-
-            private void nextChain() {
-                if (hooked != null) {
-                    return; // don't create if hooked something
-                }
-
-                final double x = vector.getX() * step;
-                final double y = vector.getY() * step;
-                final double z = vector.getZ() * step;
-
-                location.add(x, y, z);
-
-                if (location.getBlock().getType().isOccluding()) {
-                    contract();
-                    return;
-                }
-
-                final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
-
-                if (nearest != null) {
-                    if (player.isSelfOrTeammateOrHasEffectResistance(nearest)) {
-                        contract();
-                        return;
-                    }
-
-                    hooked = nearest;
-                    double health = hooked.getHealth();
-
-                    nearest.sendMessage(
-                            "&4☠ &cOuch! %s hooked you, and you lost &e%s%%&c of your health!",
-                            player.getName(),
-                            talent().damagePercent
-                    );
-
-                    nearest.addEffect(Effects.SLOW, 1, 60);
-                    nearest.addEffect(Effects.WITHER, 1, 60);
-
-                    final double damage = Math.min(health * (talent().damagePercent / 100), 100.0d);
-                    nearest.damage(damage, player);
-
-                    // Reduce cooldown
-                    talent().reduceCooldown(player);
-
-                    contract();
-                    return;
-                }
-
-                createChain(location);
-                step += talent().shift;
-
-                location.subtract(x, y, z);
-            }
-        }.runTaskTimer(0, 1);
-    }
-
+    
+    @Override
     public void remove() {
-        Nulls.runIfNotNull(taskExtend, GameTask::cancel);
-        Nulls.runIfNotNull(taskContract, GameTask::cancel);
-
-        CFUtils.clearCollection(chains);
-
-        player.removeEffect(Effects.SLOW);
-        player.removeEffect(Effects.JUMP_BOOST);
-
-        player.setCanMove(true);
-    }
-
-    public void breakChains() {
-        if (chains.isEmpty()) {
-            return;
+        chains.forEach(Display::remove);
+        chains.clear();
+        
+        if (taskExtend != null) {
+            taskExtend.cancel();
         }
-
-        chains.forEach(stand -> {
-            final EulerAngle pose = stand.getHeadPose();
-
-            stand.setHeadPose(pose.add(player.random.nextDouble(), player.random.nextDouble(), player.random.nextDouble()));
-
-            PlayerLib.playSound(stand.getLocation(), Sound.BLOCK_CHAIN_BREAK, 0.0f);
-        });
-
-        player.sendSubtitle("&8\uD83D\uDD17 Broke Chains!", 0, 15, 0);
-
-        new GameTask() {
-            @Override
-            public void run() {
-                remove();
-            }
-        }.runTaskLater(5).runTaskAtCancel();
+        
+        if (taskContract != null) {
+            taskContract.cancel();
+        }
     }
-
-    private void contract() {
-        taskExtend.cancel();
-
-        taskContract = new GameTask() {
-
+    
+    protected void breakChains() {
+        final Location anchorLocation = getAnchorLocation();
+        
+        chains.forEach(display -> {
+            final Location location = display.getLocation();
+            final Vector vector = anchorLocation.toVector().subtract(location.toVector()).normalize();
+            
+            // Fx
+            player.playWorldSound(location, Sound.BLOCK_CHAIN_BREAK, 0.5f);
+            player.spawnWorldParticle(location, Particle.SMOKE, 0, vector.getX(), vector.getY(), vector.getZ(), 1.0f);
+        });
+        
+        remove();
+    }
+    
+    private void extend(Location location) {
+        final Rotation rotation = Rotation.rotation(location.getYaw(), location.getPitch());
+        final Vector vector = location.getDirection().normalize();
+        
+        this.taskExtend = new TickingGameTask() {
+            private double distance;
+            private boolean shouldContract;
+            
             @Override
-            public void run() {
-                if (chains.isEmpty()) {
-                    player.removeEffect(Effects.SLOW);
-                    player.setCanMove(true);
-
+            public void run(int tick) {
+                final double nextX = vector.getX() * distance;
+                final double nextY = vector.getY() * distance;
+                final double nextZ = vector.getZ() * distance;
+                
+                if (distance > talent.maxDistance || shouldContract) {
+                    contract(location.add(nextX, nextY, nextZ));
                     cancel();
                     return;
                 }
-
-                ArmorStand last = chains.peekLast();
-
-                for (int i = 0; i < CONTRACT_SPEED; i++) {
-                    final ArmorStand poll = chains.pollLast();
-
-                    if (poll == null) {
-                        break;
-                    }
-                    else {
-                        if (last != null) {
-                            last.remove();
+                
+                LocationHelper.offset(
+                        location, nextX, nextY, nextZ, () -> {
+                            // Block collision detection
+                            if (!location.getBlock().isPassable()) {
+                                shouldContract = true;
+                            }
+                            
+                            // Entity collision detection
+                            final LivingGameEntity closest = Collect.nearestEntity(location, 1.5, player::isNotSelfOrTeammateOrHasEffectResistance);
+                            
+                            if (closest != null) {
+                                target = closest;
+                                shouldContract = true;
+                                
+                                // Affect entity
+                                final double damage = target.getHealth() * talent.damagePercent;
+                                
+                                target.damage(damage, player, DamageCause.TAKER_HOOK);
+                                target.triggerDebuff(player);
+                                target.getAttributes().addModifier(
+                                        modifierSource, talent.impairDuration, player, modifier -> modifier.of(AttributeType.SPEED, ModifierType.FLAT, talent.speedReduction)
+                                );
+                                
+                                target.addDotStacks(DotType.WITHER, talent.witherStacks, player);
+                                
+                                target.sendMessage("&4☠ &cOuch! %s hooked you, and you lost &e%.0f%%&c of your health!".formatted(
+                                        player.getName(),
+                                        talent.damagePercent * 100
+                                ));
+                                target.playSound(Sound.ENTITY_WITHER_HURT, 1.25f);
+                                
+                                // Reduce cooldown
+                                talent.reduceCooldown(player);
+                            }
+                            
+                            // Draw from current location to end location
+                            drawChains(location, rotation);
                         }
-
-                        last = poll;
-                    }
-                }
-
-                final Location location = last.getLocation().add(0.0d, HEIGHT, 0.0d);
-
-                if (hooked != null) {
-                    final Location teleportLocation = location.clone();
-                    BukkitUtils.mergePitchYaw(hooked.getLocation(), teleportLocation);
-                    hooked.teleport(teleportLocation);
-                }
-
-                last.remove();
-
-                // Fx
-                player.playWorldSound(location, Sound.BLOCK_CHAIN_BREAK, 1.0f);
+                );
+                
+                distance += talent.step;
             }
         }.runTaskTimer(0, 1);
-
     }
-
-    private DeathSwap talent() {
-        return Heroes.TAKER.getHero(Taker.class).getSecondTalent();
+    
+    private void contract(Location location) {
+        this.taskContract = new TickingGameTask() {
+            @Override
+            public void run(int tick) {
+                final Location playerLocation = getAnchorLocation();
+                final Vector direction = playerLocation.toVector().subtract(location.toVector()).normalize().multiply(talent.step);
+                
+                location.add(direction);
+                
+                if (location.distanceSquared(playerLocation) < 1) {
+                    // This will "double cancel" the first task, but I don't care
+                    TakerHook.this.remove();
+                    return;
+                }
+                
+                drawChains(location, Rotation.rotation(location.getYaw(), location.getPitch()));
+                
+                // Also sync entity
+                if (target != null) {
+                    final Location teleportLocation = BukkitUtils.newLocation(location);
+                    teleportLocation.setYaw(location.getYaw() + 180);
+                    
+                    target.teleport(teleportLocation);
+                }
+            }
+        }.runTaskTimer(0, 1);
     }
-
-    private void createChain(Location location) {
-        chains.offerLast(Entities.ARMOR_STAND_MARKER.spawn(location.clone().subtract(0.0d, HEIGHT, 0.0d), self -> {
-            self.setVisible(false);
-            self.setSilent(true);
-
-            CFUtils.setEquipment(self, equipment -> {
-                equipment.setHelmet(new ItemStack(Material.CHAIN));
-                self.setHeadPose(new EulerAngle(Math.toRadians(location.getPitch() + 90.0d), 0.0d, 0.0d));
-            });
-        }));
-
-        player.playWorldSound(location, Sound.BLOCK_CHAIN_PLACE, 1.0f);
+    
+    private void drawChains(Location to, Rotation rotation) {
+        final Location location = getAnchorLocation();
+        location.setRotation(rotation);
+        
+        final double distance = to.distance(location);
+        
+        final double currentX = location.getX();
+        final double currentY = location.getY();
+        final double currentZ = location.getZ();
+        
+        final int chainSize = chains.size();
+        final int difference = (int) (distance - chainSize);
+        
+        // If there are fewer chains than distance, create them
+        if (difference > 0) {
+            for (int i = 0; i < difference; i++) {
+                chains.add(createChain(to));
+            }
+        }
+        // Else remove last chains
+        else {
+            for (int i = 0; difference < i; i--) {
+                final Display last = chains.pollLast();
+                
+                if (last != null) {
+                    last.remove();
+                }
+            }
+        }
+        
+        for (double d = 0.1; d < distance; d += 1) {
+            final double progress = d / distance;
+            
+            final double x = currentX + (to.getX() - currentX) * progress;
+            final double y = currentY + (to.getY() - currentY) * progress;
+            final double z = currentZ + (to.getZ() - currentZ) * progress;
+            
+            location.set(x, y, z);
+            
+            // Sync chains
+            int index = (int) d;
+            final Display chain = chainAt(index);
+            
+            if (chain != null) {
+                chain.teleport(location);
+            }
+        }
+        
+        // Fx
+        player.playWorldSound(location, Sound.BLOCK_CHAIN_BREAK, 1.0f);
     }
+    
+    @Nullable
+    private Display chainAt(int index) {
+        return index < 0 || index >= chains.size() ? null : chains.get(index);
+    }
+    
+    private Location getAnchorLocation() {
+        final Location location = player.getLocation().add(0, 0.5, 0);
+        
+        return location.add(location.getDirection().setY(0).multiply(1.0));
+    }
+    
+    private Display createChain(Location location) {
+        return display.spawnInterpolated(location);
+    }
+    
 }

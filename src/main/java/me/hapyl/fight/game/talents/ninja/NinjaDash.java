@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.ninja;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -9,20 +10,25 @@ import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class NinjaDash extends Talent {
 
     @DisplayField private final float magnitude = 1.5f;
 
-    public NinjaDash() {
-        super("Dashing Wind", "Instantly propel yourself into the direction you're looking.");
+    public NinjaDash(@Nonnull Key key) {
+        super(key, "Dashing Wind");
 
-        setItem(Material.FEATHER);
+        setDescription("""
+                Instantly propel yourself into the direction you're looking.
+                """);
+
+        setMaterial(Material.FEATHER);
         setCooldown(100);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection();
 
         player.setVelocity(new Vector(vector.getX(), 0, vector.getZ()).normalize().multiply(magnitude));

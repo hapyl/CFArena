@@ -1,9 +1,9 @@
 package me.hapyl.fight.game.talents.techie;
 
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -32,8 +32,6 @@ public interface DeviceHack {
 
         final Vector direction = player.getEyeLocation().toVector().subtract(location.toVector());
         location.setDirection(direction);
-
-        player.addEffect(Effects.MOVEMENT_CONTAINMENT, castingTime, true);
 
         final ArmorStand device = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {
             self.setSilent(true);
@@ -71,6 +69,9 @@ public interface DeviceHack {
                 device.setHeadPose(new EulerAngle(Math.toRadians(anglePerTick * tick), 0, 0));
 
                 onTick(player, tick);
+
+                // Disallow movement each tick to prevent abuse
+                player.addEffect(EffectType.MOVEMENT_CONTAINMENT, 5);
 
                 // Tick
                 tick++;

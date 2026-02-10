@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.talents.juju;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.entity.Entities;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Range;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Range;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -87,7 +87,7 @@ public abstract class Orbiting extends TickingGameTask implements Iterable<ItemD
         return this;
     }
 
-    public Orbiting setMatrix(@Range(min = 16, max = 16) float... matrix) {
+    public Orbiting setMatrix(@Range(from = 16, to = 16) float... matrix) {
         return setMatrix(CFUtils.parseMatrix(matrix));
     }
 

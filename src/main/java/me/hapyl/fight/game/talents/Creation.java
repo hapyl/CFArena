@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents;
 
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.annotate.SelfCallable;
 import me.hapyl.fight.game.entity.GamePlayer;
 import org.bukkit.Location;

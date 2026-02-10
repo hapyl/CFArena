@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.frostbite;
 
+import me.hapyl.eterna.module.util.Vector3;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.RaycastTask;
 import me.hapyl.fight.game.weapons.range.RangeWeapon;
@@ -40,7 +41,7 @@ public class ProjectileRayCast extends WeaponRayCast {
 
             @Override
             public boolean predicate(@Nonnull Location location) {
-                return predicateBlock(location.getBlock());
+                return canPassThrough(location.getBlock(), Vector3.of(location));
             }
 
             @Override

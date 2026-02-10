@@ -1,8 +1,8 @@
 package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.util.Described;
-import me.hapyl.fight.util.Range;
+import me.hapyl.eterna.module.util.Described;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,7 +61,7 @@ public enum PlayerRating implements Described {
     }
 
     @Nullable
-    public static PlayerRating fromInt(@Range(min = 1, max = 10) int i) {
+    public static PlayerRating fromInt(@Range(from = 1, to = 10) int i) {
         return byInt.get(i);
     }
 }

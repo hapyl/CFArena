@@ -1,18 +1,17 @@
 package me.hapyl.fight.game.weapons.ability;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
+import me.hapyl.eterna.module.util.Described;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.entity.SoundEffect;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
 import me.hapyl.fight.util.displayfield.DisplayFieldProvider;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,37 +26,36 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     private String description;
     private int cooldown;
     private int duration;
-    private Material cooldownMaterial;
+    private Key cooldownKey;
 
     public Ability(@Nonnull String name, @Nonnull String description) {
         this.name = name;
         this.description = description;
         this.cooldownMap = Maps.newHashMap();
-        this.cooldownMaterial = null;
+        this.cooldownKey = null;
     }
 
-    public Ability(@Nonnull String name, @Nonnull String description, @Nullable Object... format) {
-        this(name, description.formatted(format));
-    }
-
-    public void setCooldownMaterial(@Nullable Material cooldownMaterial) {
-        this.cooldownMaterial = cooldownMaterial;
+    public void setCooldownKey(@Nonnull Keyed keyed) {
+        this.cooldownKey = keyed.getKey();
     }
 
     @Nullable
-    public abstract Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item);
+    public abstract Response execute(@Nonnull GamePlayer player);
 
-    public final void execute0(GamePlayer player, ItemStack item) {
+    public final void execute0(@Nonnull GamePlayer player) {
         if (hasCooldown(player)) {
-            if (player.isSettingEnabled(Settings.SHOW_COOLDOWN_MESSAGE)) {
-                sendError(player, "&cThis ability is on cooldown for %s!", getCooldownTimeLeftFormatted(player));
+            if (player.isSettingEnabled(EnumSetting.SHOW_COOLDOWN_MESSAGE)) {
+                Response.error(player, "Ability on cooldown for %s!".formatted(getCooldownTimeLeftFormatted(player)));
+                player.playSound(SoundEffect.ERROR);
             }
+
             return;
         }
 
-        final Response response = execute(player, item);
+        final Response response = execute(player);
+        
         if (response != null && response.isError()) {
-            sendError(player, "Unable to use this! " + response.getReason());
+            response.sendError(player);
             return;
         }
 
@@ -95,8 +93,9 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public void startCooldown(GamePlayer player, int cooldown) {
         cooldownMap.put(player.getUUID(), new AbilityCooldown(System.currentTimeMillis(), cooldown * 50L));
-        if (cooldownMaterial != null) {
-            player.setCooldown(cooldownMaterial, cooldown);
+
+        if (cooldownKey != null) {
+            player.cooldownManager.setCooldown(cooldownKey, cooldown);
         }
     }
 
@@ -142,7 +141,12 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
     public String getName() {
         return name;
     }
-
+    
+    @Override
+    public String toString() {
+        return name;
+    }
+    
     @Nonnull
     @Override
     public String getDescription() {
@@ -155,11 +159,6 @@ public abstract class Ability implements Described, Timed, Cooldown, DisplayFiel
 
     public boolean isTypeApplicable(@Nonnull AbilityType type) {
         return true;
-    }
-
-    private void sendError(GamePlayer player, String error, Object... format) {
-        player.sendMessage(ChatColor.RED + error, format);
-        player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
     }
 
 }

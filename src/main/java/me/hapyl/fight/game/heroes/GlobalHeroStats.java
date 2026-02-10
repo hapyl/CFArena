@@ -2,9 +2,9 @@ package me.hapyl.fight.game.heroes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.spigotutils.module.util.Compute;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
@@ -19,8 +19,8 @@ public class GlobalHeroStats {
     public GlobalHeroStats() {
         this.values = Maps.newLinkedHashMap();
 
-        for (Heroes hero : Heroes.values()) {
-            final HeroStatsCollection stats = hero.getStats();
+        for (Hero hero : HeroRegistry.values()) {
+            final HeroStatsAsynchronousDocument stats = hero.getStats();
 
             for (StatType stat : StatType.values()) {
                 values.compute(stat, Compute.listAdd(new StatValue(hero, stat, stats.getStat(stat))));
@@ -42,7 +42,7 @@ public class GlobalHeroStats {
         }
 
         // Assign hero rating
-        final Map<Heroes, Integer> rating = Maps.newLinkedHashMap();
+        final Map<Hero, Integer> rating = Maps.newLinkedHashMap();
         for (List<StatValue> values : values.values()) {
 
             for (StatValue value : values) {
@@ -55,19 +55,19 @@ public class GlobalHeroStats {
         }
 
         int rank = 1;
-        for (Heroes heroes : rating.entrySet()
+        for (Hero hero : rating.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new))
                 .keySet()) {
 
-            heroes.getHero().setRank(rank++);
+            hero.setRank(rank++);
         }
 
         rating.clear();
     }
 
-    public int getRating(@Nonnull Heroes hero, @Nonnull StatType type) {
+    public int getRating(@Nonnull Hero hero, @Nonnull StatType type) {
         for (StatValue value : values.getOrDefault(type, Lists.newArrayList())) {
             if (value.hero == hero) {
                 return value.getRank();

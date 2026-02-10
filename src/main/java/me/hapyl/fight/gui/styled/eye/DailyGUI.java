@@ -1,5 +1,10 @@
 package me.hapyl.fight.gui.styled.eye;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.TimeFormat;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.challenge.Challenge;
 import me.hapyl.fight.game.challenge.ChallengeRarity;
 import me.hapyl.fight.game.challenge.PlayerChallenge;
@@ -7,15 +12,11 @@ import me.hapyl.fight.game.challenge.PlayerChallengeList;
 import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.RewardDisplay;
+import me.hapyl.fight.game.reward.RewardDescription;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.gui.styled.StyledTexture;
-import me.hapyl.fight.util.TimeFormat;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public class DailyGUI extends StyledGUI {
     public DailyGUI(Player player) {
         super(player, "Daily Bonds", Size.FIVE);
 
-        this.profile = PlayerProfile.getProfileOrThrow(player);
+        this.profile = CF.getProfile(player);
         this.challengeList = profile.getChallengeList();
 
         openInventory();
@@ -44,13 +45,14 @@ public class DailyGUI extends StyledGUI {
 
     @Override
     public void onUpdate() {
+        super.onUpdate();
         setHeader(StyledTexture.DAILY.asIcon());
 
         final PlayerChallenge[] challenges = challengeList.getChallenges();
 
         int slot = 20;
         for (PlayerChallenge playerChallenge : challenges) {
-            final Challenge challenge = playerChallenge.getType().get();
+            final Challenge challenge = playerChallenge.getType().getWrapped();
             final ChallengeRarity rarity = challenge.getRarity();
             final boolean complete = playerChallenge.isComplete();
             final boolean hasClaimedRewards = playerChallenge.hasClaimedRewards();
@@ -73,7 +75,7 @@ public class DailyGUI extends StyledGUI {
                     .addLore();
 
             final Reward reward = rarity.getReward();
-            final RewardDisplay display = reward.getDisplay(player);
+            final RewardDescription display = reward.getDescription(player);
             final int rewardsSlot = slot + 9;
 
             display.forEach(builder::addLore);
@@ -83,7 +85,7 @@ public class DailyGUI extends StyledGUI {
                 builder.addLore(Color.ERROR + "Already claimed!");
 
                 setItem(rewardsSlot, builder.asIcon(), player -> {
-                    Notifier.error(player, "Already claimed!");
+                    Message.error(player, "Already claimed!");
                     PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                 });
             }
@@ -92,7 +94,7 @@ public class DailyGUI extends StyledGUI {
                     builder.addLore(Color.ERROR + "Cannot claim yet!");
 
                     setItem(rewardsSlot, builder.asIcon(), player -> {
-                        Notifier.error(player, "You cannot claim this yet!");
+                        Message.error(player, "You cannot claim this yet!");
                         PlayerLib.playSound(player, Sound.BLOCK_ANVIL_LAND, 1.0f);
                     });
                 }
@@ -102,7 +104,7 @@ public class DailyGUI extends StyledGUI {
 
                     setItem(rewardsSlot, builder.asIcon(), player -> {
                         if (playerChallenge.hasClaimedRewards()) {
-                            Notifier.error(player, "You have already claimed this reward! If you haven't, report this!");
+                            Message.error(player, "You have already claimed this reward! If you haven't, report this!");
                             player.closeInventory();
                             return;
                         }
@@ -111,10 +113,12 @@ public class DailyGUI extends StyledGUI {
 
                         reward.grant(player);
 
-                        Notifier.success(player, "Claimed bond rewards:");
-                        display.sendMessage(player);
+                        final RewardDescription description = reward.getDescription(player);
 
-                        PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
+                        Message.success(player, "Claimed bond rewards:");
+                        description.forEach(player, Message::info);
+
+                        Message.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 2.0f);
 
                         update();
                     });
@@ -132,7 +136,7 @@ public class DailyGUI extends StyledGUI {
                 .addLore()
                 .addTextBlockLore("""
                         &7&o;;Not happy with today's bonds?
-                                                        
+                        
                         &7&o;;Well, for a small price, we can always change them!
                         """)
                 .addLore();
@@ -140,7 +144,7 @@ public class DailyGUI extends StyledGUI {
         if (hasResetToday) {
             setItem(52, builder.addLore(Color.ERROR + "You have already set today's bonds!").asIcon(),
                     player -> {
-                        Notifier.error(player, Color.ERROR + "You have already reset today's bonds!");
+                        Message.error(player, Color.ERROR + "You have already reset today's bonds!");
                         PlayerLib.villagerNo(player);
                     }
             );

@@ -1,19 +1,18 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Direction;
+import me.hapyl.eterna.module.util.Validate;
 import me.hapyl.fight.annotate.DoNotMutate;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
-import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -40,18 +39,18 @@ public class Geyser {
         this.location = location;
         this.direction = direction;
         this.range = 3.0d;
-        this.minDelay = Tick.fromSecond(new Random().nextInt(6, 24));
+        this.minDelay = Tick.fromSeconds(new Random().nextInt(6, 24));
         this.maxDelay = minDelay * 2 - 20;
-        this.duration = Tick.fromSecond(2);
+        this.duration = Tick.fromSeconds(2);
 
         // Calculate spawn location
         this.spawnLocation = BukkitUtils.newLocation(location);
 
         // offset location
-        final int[] oppositeValues = direction.getOpposite().getValues();
+        final int[] oppositeOffset = direction.getOpposite().getOffset();
 
         this.spawnLocation.subtract(0, 1.75d, 0);
-        this.spawnLocation.add(oppositeValues[0] * 0.5d, oppositeValues[1] * 0.75d, oppositeValues[2] * 0.5d);
+        this.spawnLocation.add(oppositeOffset[0] * 0.5d, oppositeOffset[1] * 0.75d, oppositeOffset[2] * 0.5d);
 
         // rotation up or down moves the head back and forth
         if (direction.isDown()) {

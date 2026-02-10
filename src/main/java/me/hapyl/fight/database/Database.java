@@ -1,18 +1,23 @@
 package me.hapyl.fight.database;
 
+import com.google.common.collect.Maps;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import me.hapyl.eterna.module.util.DependencyInjector;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.database.collection.GlobalConfigCollection;
-import me.hapyl.spigotutils.module.util.DependencyInjector;
+import me.hapyl.fight.config.CFConfig;
 import org.bson.Document;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * I really don't know how a database works or should work;
@@ -21,35 +26,26 @@ import java.util.logging.Logger;
  * Just using my knowledge of yml files, that's said,
  * I'm not sure if this is the best way to do it.
  * <p>
- * But to document:
+ * But to serialize:
  * {@link Database} is the main class that handles the connection to the database.
  * {@link PlayerDatabaseEntry} is an instance of database value, that handles specific fields.
  */
-public class Database extends DependencyInjector<Main> {
+public class Database extends DependencyInjector<@NotNull Main> {
 
-    private final FileConfiguration config;
-    private final NamedDatabase namedDatabase;
-    public MongoCollection<Document> friends;
-    protected MongoCollection<Document> players;
-    protected MongoCollection<Document> parkour;
-    protected MongoCollection<Document> heroStats;
-    protected MongoCollection<Document> global;
+    private static final Pattern CLINK_PATTERN = Pattern.compile("srv://(.*?):");
+    private static final String DATABASE_NAME = "classes_fight";
+
+    private final CFConfig config;
+    private final Map<NamedCollection, MongoCollection<Document>> collections;
+
     private MongoClient client;
     private MongoDatabase database;
-    private GlobalConfigCollection globalConfig;
 
-    public Database(Main main) {
+    public Database(@Nonnull Main main) {
         super(main);
-        this.config = main.getConfig();
-        this.namedDatabase = NamedDatabase.byName(config.getString("database.type"));
-    }
 
-    public NamedDatabase getNamedDatabase() {
-        return namedDatabase;
-    }
-
-    public boolean isDevelopment() {
-        return namedDatabase.isDevelopment();
+        this.config = main.config();
+        this.collections = Maps.newHashMap();
     }
 
     public void stopConnection() {
@@ -63,9 +59,9 @@ public class Database extends DependencyInjector<Main> {
 
     public void createConnection() {
         try {
-            final String connectionLink = config.getString("database.connection_link");
+            final String connectionLink = config.databaseConnectionLink();
 
-            if (connectionLink == null || connectionLink.equals("null")) {
+            if (connectionLink.equals("null")) {
                 breakConnectionAndDisablePlugin("Provide a valid connection link in config.yml!", null);
                 return;
             }
@@ -78,31 +74,28 @@ public class Database extends DependencyInjector<Main> {
             }
 
             // load database
-            database = client.getDatabase(namedDatabase.getName());
+            database = client.getDatabase(DATABASE_NAME);
 
             getPlugin().getLogger().info(getDatabaseString());
 
             // load collections
-            players = database.getCollection("players");
-            parkour = database.getCollection("parkour");
-            heroStats = database.getCollection("hero_stats");
-            friends = database.getCollection("friends");
-            global = database.getCollection("global");
-
-            // load async database
-            globalConfig = new GlobalConfigCollection(global);
+            for (NamedCollection collection : NamedCollection.values()) {
+                collections.put(collection, database.getCollection(collection.id()));
+            }
         } catch (RuntimeException e) {
             breakConnectionAndDisablePlugin("Failed to retrieve a database collection!", e);
         }
     }
 
-    public GlobalConfigCollection getGlobalConfig() {
-        return globalConfig;
-    }
-
     @Nonnull
     public String getDatabaseString() {
-        return "&a&lMONGO &fConnected Database: &6&l" + namedDatabase.name();
+        return "&a&lMONGOdb &f&oCurrently connected to '%s'.".formatted(connectionName());
+    }
+
+    private String connectionName() {
+        final Matcher matcher = CLINK_PATTERN.matcher(Objects.requireNonNull(config.databaseConnectionLink()));
+
+        return matcher.find() ? matcher.group(1) : "localhost";
     }
 
     @Nonnull
@@ -114,16 +107,9 @@ public class Database extends DependencyInjector<Main> {
         return database;
     }
 
-    public MongoCollection<Document> getPlayers() {
-        return players;
-    }
-
-    public MongoCollection<Document> getParkour() {
-        return parkour;
-    }
-
-    public MongoCollection<Document> getHeroStats() {
-        return heroStats;
+    @Nonnull
+    public MongoCollection<Document> collection(@Nonnull NamedCollection collection) {
+        return collections.get(collection);
     }
 
     private void breakConnectionAndDisablePlugin(String message, RuntimeException e) {

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.doctor;
 
 import me.hapyl.fight.game.talents.InsteadOfNull;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
@@ -36,7 +36,7 @@ public enum ElementType {
             return ElementType.NULL;
         }
 
-        // Player heads are card-coded for custom heads
+        // Player heads are card-coded for named heads
         if (material == Material.PLAYER_HEAD) {
             return STURDY;
         }

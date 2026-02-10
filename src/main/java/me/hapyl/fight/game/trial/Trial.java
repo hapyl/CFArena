@@ -2,23 +2,22 @@ package me.hapyl.fight.game.trial;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.scoreboard.Scoreboarder;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.GameElement;
-import me.hapyl.fight.game.entity.ConsumerFunction;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.lobby.LobbyItems;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.trial.objecitive.*;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.scoreboard.Scoreboarder;
+import me.hapyl.fight.util.Lifecycle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -30,14 +29,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
- * This is a repayable trial as a {@link me.hapyl.fight.game.heroes.Heroes#TUTORIAL_ARCHER}.
+ * This is a repayable trial as a {@link HeroRegistry#TUTORIAL_ARCHER}
  */
-public class Trial extends TickingGameTask implements GameElement {
+@Deprecated
+public class Trial extends TickingGameTask implements Lifecycle {
 
-    private static final Heroes enumTrialHero = Heroes.TUTORIAL_ARCHER;
-    private static final Hero trialHero = enumTrialHero.getHero();
+    private static final Hero trialHero = HeroRegistry.TUTORIAL_ARCHER;
     private static final ItemStack lockedTalent = new ItemBuilder(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
             .setName("&cLocked Talent")
             .setSmartLore("Progress the tutorial to unlock this talent!")
@@ -46,7 +46,7 @@ public class Trial extends TickingGameTask implements GameElement {
     protected final Set<TrialEntity> entities;
 
     private final PlayerProfile profile;
-    private final Heroes previousHero;
+    private final Hero previousHero;
     private final GamePlayer player;
     private final LinkedList<TrialObjective> objectives;
     private int stage;
@@ -56,7 +56,7 @@ public class Trial extends TickingGameTask implements GameElement {
         this.profile = profile;
         this.previousHero = profile.getHero();
 
-        profile.setSelectedHero(enumTrialHero, false);
+        profile.setSelectedHero(trialHero, false);
 
         this.player = profile.createGamePlayer();
 
@@ -87,16 +87,16 @@ public class Trial extends TickingGameTask implements GameElement {
 
     @Override
     public void onStart() {
-        player.teleport(GameMaps.TRAINING_GROUNDS.getMap().getLocation());
+        player.teleport(EnumLevel.TRAINING_GROUNDS.getLevel().getLocation());
 
         player.resetPlayer();
-        player.equipPlayer(trialHero);
+        player.prepare(trialHero);
 
         player.hide();
 
         // Remove talents because they will be explained one by one
-        player.setItem(HotbarSlots.TALENT_1, lockedTalent);
-        player.setItem(HotbarSlots.TALENT_2, lockedTalent);
+        player.setItem(HotBarSlot.TALENT_1, lockedTalent);
+        player.setItem(HotBarSlot.TALENT_2, lockedTalent);
 
         showObjective();
 
@@ -110,21 +110,21 @@ public class Trial extends TickingGameTask implements GameElement {
         profile.setSelectedHero(previousHero);
         profile.resetGamePlayer();
 
-        final Player bukkitPlayer = player.getPlayer();
+        final Player bukkitPlayer = player.getEntity();
 
         player.getInventory().clear();
-        player.teleport(GameMaps.SPAWN.getMap().getLocation());
+        player.teleport(EnumLevel.SPAWN.getLevel().getLocation());
 
         LobbyItems.giveAll(bukkitPlayer);
 
-        entities.forEach(LivingGameEntity::forceRemove);
+        entities.forEach(LivingGameEntity::remove);
         entities.clear();
 
         cancel();
     }
 
     @Nonnull
-    public TrialEntity spawnEntity(@Nonnull Location location, @Nonnull ConsumerFunction<Husk, TrialEntity> consumer) {
+    public TrialEntity spawnEntity(@Nonnull Location location, @Nonnull Function<Husk, TrialEntity> consumer) {
         final TrialEntity gameEntity = CF.createEntity(location, Entities.HUSK, entity -> {
             // The entity should only be visible to the player whose trial it is
             entity.setVisibleByDefault(false);
@@ -136,8 +136,6 @@ public class Trial extends TickingGameTask implements GameElement {
         });
 
         player.showEntity(gameEntity);
-
-        consumer.andThen(gameEntity);
         entities.add(gameEntity);
 
         husksThisStage++;

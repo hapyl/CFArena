@@ -1,15 +1,14 @@
 package me.hapyl.fight.script.action;
 
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.util.Builder;
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.script.Script;
 import me.hapyl.fight.util.BoundingBoxCollector;
-import me.hapyl.spigotutils.module.math.Cuboid;
-import me.hapyl.spigotutils.module.util.Builder;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

@@ -1,88 +1,129 @@
 package me.hapyl.fight.game.heroes.troll;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.block.display.BDEngine;
+import me.hapyl.eterna.module.block.display.DisplayData;
+import me.hapyl.eterna.module.block.display.DisplayEntity;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.attribute.ModifierSource;
+import me.hapyl.fight.game.attribute.ModifierType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.*;
+import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Collect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.util.BoundingBox;
 
-import java.util.Set;
+import javax.annotation.Nonnull;
+import java.util.Iterator;
+import java.util.Map;
 
-public class StickyCobweb extends GameTask {
-
+public class StickyCobweb extends TickingGameTask {
+    
+    private static final DisplayData DISPLAY = BDEngine.parse(
+            "/summon block_display ~-0.5 ~ ~-0.5 {Passengers:[{id:\"minecraft:block_display\",block_state:{Name:\"minecraft:cobweb\",Properties:{}},transformation:[1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,1f]}]}");
+    private static final ModifierSource modifierSource = new ModifierSource(Key.ofString("sticky"), true);
+    
+    private final TrollData data;
     private final GamePlayer player;
-    private final Set<Block> blocks;
-
-    public StickyCobweb(GamePlayer player) {
+    private final Map<Block, DisplayEntity> blocks;
+    
+    public StickyCobweb(@Nonnull TrollData data, @Nonnull GamePlayer player) {
+        this.data = data;
         this.player = player;
-        this.blocks = Sets.newHashSet();
-
+        this.blocks = Maps.newHashMap();
+        
         final Location location = player.getLocation().subtract(2, 0, 2);
-
+        
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 if ((i == 0 || i == 4) && (j == 0 || j == 4)) {
                     continue;
                 }
-
+                
                 location.add(i, 0, j);
-                if (!location.getBlock().getType().isSolid()) {
-                    blocks.add(location.getBlock());
+                
+                final Block block = location.getBlock();
+                
+                if (block.isEmpty()) {
+                    block.setType(Material.TRIPWIRE, false);
+                    blocks.put(block, DISPLAY.spawn(block.getLocation()));
                 }
+                
                 location.subtract(i, 0, j);
             }
         }
-
-        Bukkit.getOnlinePlayers().forEach(target -> {
-            if (player.is(target)) {
-                return;
-            }
-
-            for (Block block : blocks) {
-                target.sendBlockChange(block.getLocation(), Material.COBWEB.createBlockData());
-            }
-
-            Chat.sendMessage(target, "&aAh... Sticky! &e&lPUNCH &athe cobweb to remove it!");
-        });
-
-        runTaskTimer(0, 20);
+        
+        runTaskTimer(0, 1);
     }
-
+    
     @Override
-    public void run() {
-        blocks.forEach(block -> {
-            PlayerLib.spawnParticle(BukkitUtils.centerLocation(block.getLocation()), Particle.CLOUD, 1);
-        });
-    }
-
-    public void clear(GamePlayer player, Block block) {
-        if (player.equals(this.player)) {
+    public void run(int tick) {
+        if (blocks.isEmpty()) {
+            data.remove();
             return;
         }
-
-        final Location location = BukkitUtils.centerLocation(block.getLocation());
-
-        if (blocks.contains(block)) {
-            blocks.remove(block);
-            block.getState().update(true, false); // sync between players
-
-            // Fx
-            PlayerLib.spawnParticle(location, Particle.POOF, 3, 0.1, 0.1, 0.1, 0.02f);
-            PlayerLib.playSound(location, Sound.BLOCK_WOOL_PLACE, 0.0f);
-            PlayerLib.playSound(location, Sound.BLOCK_WOOL_BREAK, 0.0f);
-
-            if (blocks.isEmpty()) {
-                remove();
+        
+        final Iterator<Map.Entry<Block, DisplayEntity>> iterator = blocks.entrySet().iterator();
+        
+        while (iterator.hasNext()) {
+            final Map.Entry<Block, DisplayEntity> next = iterator.next();
+            final Block block = next.getKey();
+            final BoundingBox boundingBox = block.getBoundingBox().shift(0, 1, 0);
+            final DisplayEntity display = next.getValue();
+            
+            // Collision
+            final LivingGameEntity target = Collect.nearestEntity(
+                    block.getLocation(), 2.0d, entity -> {
+                        if (player.isSelfOrTeammate(entity)) {
+                            return false;
+                        }
+                        
+                        return !entity.getAttributes().hasModifier(modifierSource) && entity.boundingBox().overlaps(boundingBox);
+                    }
+            );
+            
+            // Affect
+            if (target != null) {
+                iterator.remove();
+                
+                block.setType(Material.AIR, false);
+                display.remove();
+                
+                target.getAttributes().addModifier(modifierSource, 60, player, modifier -> modifier.of(AttributeType.SPEED, ModifierType.FLAT, -30));
             }
         }
     }
-
+    
+    public void clear(@Nonnull Block block) {
+        final DisplayEntity display = blocks.remove(block);
+        
+        if (display == null) {
+            return;
+        }
+        
+        block.setType(Material.AIR, false);
+        display.remove();
+        
+        // Fx
+        final Location location = block.getLocation().add(0.5d, 0.5d, 0.5d);
+        
+        player.spawnWorldParticle(location, Particle.POOF, 5, 0.3d, 0.2d, 0.3d, 0.03f);
+        player.playWorldSound(location, Sound.BLOCK_WOOL_PLACE, 0.0f);
+    }
+    
     public void remove() {
-        CFUtils.clearCollection(blocks);
+        blocks.forEach((block, display) -> {
+            block.setType(Material.AIR, false);
+            display.remove();
+        });
+        
         cancel();
     }
 }
+

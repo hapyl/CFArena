@@ -1,16 +1,16 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.PlayerPageGUI;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.achievement.Achievement;
 import me.hapyl.fight.game.achievement.AchievementRegistry;
 import me.hapyl.fight.game.achievement.Category;
+import me.hapyl.fight.registry.Registries;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerPageGUI;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -31,59 +31,61 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
     public LegacyAchievementGUI(Player player, Category category) {
         super(player, "Achievements", 6);
 
-        registry = Main.getPlugin().getAchievementRegistry();
+        registry = Registries.achievements();
 
-        Notifier.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
+        Message.error(player, "&lKeep in mind this is a legacy GUI, and it will not be updated or/and fixed!");
 
         setCategory(category);
         openInventory(1);
     }
-
+    
     @Override
-    public void postProcessInventory(Player player, int page) {
+    public void onUpdate() {
+        super.onUpdate();
+        
         fillItem(0, 8, ItemStacks.BLACK_BAR);
         fillItem(45, 53, ItemStacks.BLACK_BAR);
-
+        
         setPreviousPageSlot(47);
         setNextPageSlot(51);
         setCloseMenuItem(49);
-
+        
         // Update header
         final SmartComponent component = newSmartComponent();
-
+        
         for (Category value : Category.values()) {
             final boolean currentCategory = value == category;
-
+            
             component.add(new ItemBuilder(Material.STONE).setName(value.getName())
-                    .addLore()
-                    .addSmartLore(value.getDescription())
-                    .predicate(currentCategory, ItemBuilder::glow)
-                    .addLore()
-                    .addLoreIf("&aCurrently selected!", currentCategory)
-                    .addLoreIf("&eClick to select!", !currentCategory)
-                    .asIcon(), click -> {
+                                                         .addLore()
+                                                         .addSmartLore(value.getDescription())
+                                                         .predicate(currentCategory, ItemBuilder::glow)
+                                                         .addLore()
+                                                         .addLoreIf("&aCurrently selected!", currentCategory)
+                                                         .addLoreIf("&eClick to select!", !currentCategory)
+                                                         .asIcon(), click -> {
                 if (currentCategory) {
                     return;
                 }
-
+                
                 setCategory(value);
                 openInventory(1);
-
+                
                 // Fx
                 PlayerLib.playSound(player, Sound.ITEM_BOOK_PAGE_TURN, 1.0f);
             });
         }
-
+        
         component.apply(this, SlotPattern.DEFAULT, 0);
     }
-
+    
     public void setCategory(Category category) {
         this.category = category;
         final LinkedList<Achievement> achievements = registry.byCategory(category);
-
+        
         // remove hidden non-complete achievement
         achievements.removeIf(achievement -> achievement.isHidden() && !achievement.hasCompletedAtLeastOnce(player));
-
+        
         achievements.sort((a, b) -> {
             if (a.hasCompletedAtLeastOnce(player) && !b.hasCompletedAtLeastOnce(player)) {
                 return -1;
@@ -93,10 +95,11 @@ public class LegacyAchievementGUI extends PlayerPageGUI<Achievement> {
             }
             return 0;
         });
-
+        
         // Update contents
         setContents(achievements);
     }
+    
 
     @Nonnull
     @Override

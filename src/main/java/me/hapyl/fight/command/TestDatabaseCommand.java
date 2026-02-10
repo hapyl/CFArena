@@ -1,9 +1,10 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.MongoUtils;
 import me.hapyl.fight.database.PlayerDatabase;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
 import org.bukkit.entity.Player;
 
 public class TestDatabaseCommand extends SimplePlayerAdminCommand {
@@ -20,7 +21,7 @@ public class TestDatabaseCommand extends SimplePlayerAdminCommand {
             return;
         }
 
-        final PlayerDatabase playerDatabase = PlayerDatabase.getDatabase(player);
+        final PlayerDatabase playerDatabase = CF.getDatabase(player);
         final String path = args[0];
 
         if (args.length == 1) {

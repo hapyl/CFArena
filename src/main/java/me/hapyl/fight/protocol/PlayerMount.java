@@ -2,7 +2,7 @@ package me.hapyl.fight.protocol;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.collection.player.PlayerMap;
-import me.hapyl.spigotutils.module.entity.Entities;
+import me.hapyl.eterna.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 
@@ -30,7 +30,7 @@ public class PlayerMount {
             self.setSmall(true);
             self.setSilent(true);
             self.setInvisible(true);
-            self.addPassenger(player.getPlayer());
+            self.addPassenger(player.getEntity());
         });
     }
 

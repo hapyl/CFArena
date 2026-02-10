@@ -1,28 +1,30 @@
 package me.hapyl.fight.game.effect;
 
-import me.hapyl.fight.game.entity.LivingGameEntity;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Constants;
+import me.hapyl.fight.game.color.Color;
 import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 
 public class VanillaEffect extends Effect {
-
+    
     private final PotionEffectType effect;
-
-    public VanillaEffect(String name, PotionEffectType effect, EffectType type) {
-        super(name, type);
-
+    
+    VanillaEffect(Key key, String prefix, String name, Color color, PotionEffectType effect, Type type) {
+        super(key, prefix, name, color, type);
+        
         this.effect = effect;
     }
-
+    
     @Override
-    public void onStart(@Nonnull LivingGameEntity entity, int amplifier, int duration) {
-        entity.getEntity().addPotionEffect(new org.bukkit.potion.PotionEffect(effect, INFINITE_DURATION, amplifier, false, false, false));
+    public void onStart(@Nonnull ActiveEffect effect) {
+        effect.entity().addPotionEffect(new org.bukkit.potion.PotionEffect(this.effect, Constants.INFINITE_DURATION, effect.amplifier(), false, false, false));
     }
-
+    
     @Override
-    public void onStop(@Nonnull LivingGameEntity entity, int amplifier) {
-        entity.getEntity().removePotionEffect(effect);
+    public void onStop(@Nonnull ActiveEffect effect) {
+        effect.entity().removePotionEffect(this.effect);
     }
-
+    
 }

@@ -1,30 +1,41 @@
 package me.hapyl.fight.game.talents.witcher;
 
+
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Aard extends Talent {
 
     @DisplayField private final double radius = 4.0d;
 
-    public Aard() {
-        super("Aard", "Creates a &nsmall explosion&7 in front of you that &bpushes &cenemies&7 away.");
+    public Aard(@Nonnull Key key) {
+        super(key, "Aard");
+
+        setDescription("""
+                Creates a &nsmall explosion&7 in front of you that &bpushes &cenemies&7 away.
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.HEART_OF_THE_SEA);
+        setMaterial(Material.HEART_OF_THE_SEA);
         setCooldownSec(5);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Vector vector = player.getLocation().getDirection().setY(0.125d).multiply(2.0d);
         final Location inFront = player.getLocation().add(vector);
 
@@ -34,6 +45,7 @@ public class Aard extends Talent {
             }
 
             entity.setVelocity(vector);
+            entity.triggerDebuff(player);
         });
 
         // Fx

@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.talents.librarian;
 
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -15,12 +16,12 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nonnull;
 
 public class EntityDarkness extends LibrarianTalent {
-    public EntityDarkness() {
-        super("Darkness Spell");
+    public EntityDarkness(@Nonnull Key key) {
+        super(key, "Darkness Spell");
 
         addDescription("Launches a sprite of darkness, dealing <scaled> damage and applying paranoia. This spell has 3 charges.");
         setCooldown(10);
-        setItem(Material.WITHER_ROSE);
+        setMaterial(Material.WITHER_ROSE);
     }
 
     @Override
@@ -45,8 +46,8 @@ public class EntityDarkness extends LibrarianTalent {
                     return;
                 }
 
-                victim.damage(getCurrentValue(player), player, EnumDamageCause.DARKNESS);
-                victim.addEffect(Effects.PARANOIA, 20);
+                victim.damage(getCurrentValue(player), player, DamageCause.DARKNESS);
+                victim.addEffect(EffectType.PARANOIA, 20);
 
                 // Fx
                 PlayerLib.playSound(location, Sound.BLOCK_STONE_STEP, 0.0f);

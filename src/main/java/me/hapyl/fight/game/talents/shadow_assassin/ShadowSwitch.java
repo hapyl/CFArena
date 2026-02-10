@@ -1,27 +1,31 @@
 package me.hapyl.fight.game.talents.shadow_assassin;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
+import me.hapyl.fight.game.attribute.AttributeType;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.shadow_assassin.AssassinMode;
 import me.hapyl.fight.game.talents.TalentType;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ShadowSwitch extends ShadowAssassinTalent {
 
-    public ShadowSwitch() {
-        super("Shadow Switch");
+    public ShadowSwitch(@Nonnull Key key) {
+        super(key, "Shadow Switch");
 
         setType(TalentType.ENHANCE);
-        setItem(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+        setMaterial(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
 
         // Make sure setTalents is last
         setTalents(new Stealth(), new Fury(1));
     }
 
     private boolean isInDarkCover(GamePlayer player) {
-        return getHero().getSecondTalent().isInDarkCover(player);
+        return HeroRegistry.SHADOW_ASSASSIN.getSecondTalent().isInDarkCover(player);
     }
 
     private class Stealth extends StealthTalent {
@@ -30,15 +34,13 @@ public class ShadowSwitch extends ShadowAssassinTalent {
             super(ShadowSwitch.this);
 
             setDescription("""
-                    Deal small &cAoE damage&7 and switch to &cFury&7 mode.
-                    
-                    &8;;Your damage capabilities are enhanced while in Fury mode!
-                    """);
+                    Deal small &cAoE damage&7 and switch to &cFury&7 mode, increasing your %s in exchange for %s.
+                    """.formatted(AttributeType.ATTACK, AttributeType.SPEED));
             setCooldownSec(2);
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             if (isInDarkCover(player)) {
                 return Response.error("Cannot switch while in Dark Cover!");
             }
@@ -54,13 +56,13 @@ public class ShadowSwitch extends ShadowAssassinTalent {
             super(ShadowSwitch.this, furyCost);
 
             setDescription("""
-                    Deal small &cAoE damage&7 and switch to &9Stealth&7 mode.
-                    """);
+                    Deal small &cAoE damage&7 and switch to &9Stealth&7 mode, increasing your %s in exchange for %s.
+                    """.formatted(AttributeType.SPEED, AttributeType.ATTACK));
             setCooldownSec(2);
         }
 
         @Override
-        public Response execute(@Nonnull GamePlayer player) {
+        public @Nullable Response execute(@Nonnull GamePlayer player) {
             if (isInDarkCover(player)) {
                 return Response.error("Cannot switch while in Dark Cover!");
             }

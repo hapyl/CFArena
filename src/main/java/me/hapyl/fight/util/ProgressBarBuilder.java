@@ -34,7 +34,7 @@ public class ProgressBarBuilder {
     }
 
     public final String build(int value, int max) {
-        final StringBuilder builder = new StringBuilder();
+        final StrBuilder builder = new StrBuilder();
         final int percent = (value * length) / max;
 
         for (int i = 0; i < length; i++) {

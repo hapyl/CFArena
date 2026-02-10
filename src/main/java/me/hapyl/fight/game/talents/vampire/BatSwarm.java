@@ -1,100 +1,158 @@
 package me.hapyl.fight.game.talents.vampire;
 
-import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
+import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Bat;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BatSwarm extends Talent {
-
+    
     @DisplayField private final short batCount = 15; // each hit removes 1 bat
-
-    public BatSwarm() {
-        super("Swarm", "Launch a swarm of bats at your enemies, rapidly dealing damage and blinding them for a short duration.");
-
-        setItem(Material.FLINT);
+    
+    @DisplayField private final double batSpeed = 0.6d;
+    @DisplayField private final double damage = 2.0d;
+    @DisplayField private final double hitboxSize = 1.5d;
+    
+    @DisplayField(percentage = true) private final double healthDecrease = -0.1;
+    @DisplayField private final int impairDuration = Tick.fromSeconds(8);
+    @DisplayField private final int affectPeriod = 2;
+    
+    public BatSwarm(@Nonnull Key key) {
+        super(key, "Swarm");
+        
+        setDescription("""
+                       Launch a swarm of &8bats&7 forward, that deals &erapid &cdamage&7, &8blinds&7, and &edecreases&7 %s.
+                       """.formatted(AttributeType.MAX_HEALTH)
+        );
+        
+        setMaterial(Material.FLINT);
+        setType(TalentType.IMPAIR);
+        
         setDurationSec(5);
         setCooldownSec(batCount);
     }
-
+    
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
-        final Set<Bat> bats = Sets.newConcurrentHashSet();
-
-        for (int i = 0; i < batCount; i++) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
+        final Set<Bat> bats = ConcurrentHashMap.newKeySet();
+        
+        // Create bats
+        for (int i = 0; i < batCount; ++i) {
             bats.add(createBat(player));
         }
-
-        new GameTask() {
-            private int duration = getDuration();
-
+        
+        new PlayerTickingGameTask(player) {
             @Override
-            public void run() {
-                if (bats.isEmpty() || duration <= 0) {
-                    this.cancel();
+            public void onTaskStop() {
+                CFUtils.clearCollection(bats);
+            }
+            
+            @Override
+            public void onTaskStopBecauseOfDeath() {
+                onTaskStop();
+            }
+            
+            @Override
+            public void run(int tick) {
+                if (bats.isEmpty() || tick >= getDuration()) {
+                    cancel();
                     return;
                 }
-
-                for (Bat bat : bats) {
-                    final Location location = bat.getLocation();
-                    bat.teleport(location.add(location.getDirection().multiply(0.5d)));
-
-                    if (bat.getLocation().getBlock().getType().isOccluding() || bat.isDead()) {
-                        bats.remove(bat);
-                        bat.remove();
-                        continue;
-                    }
-
-                    Collect.nearbyEntities(bat.getLocation(), 1.0d).forEach(entity -> {
-                        if (entity.equals(player) || entity instanceof Bat || entity.getNoDamageTicks() > 0) {
-                            return;
-                        }
-
-                        entity.damageTick(2.0d, player, EnumDamageCause.SWARM, 1);
-                        entity.addEffect(Effects.BLINDNESS, 1, 20);
-
-                        bats.remove(bat);
-                        bat.remove();
-                    });
+                
+                if (!modulo(affectPeriod)) {
+                    return;
                 }
-
-                duration--;
+                
+                bats.forEach(bat -> {
+                    
+                    // Entity collision
+                    Collect.nearbyEntities(bat.getLocation(), hitboxSize, player::isNotSelfOrTeammate).forEach(entity -> {
+                        
+                        entity.damage(damage, player, DamageCause.SWARM);
+                        entity.addEffect(EffectType.BLINDNESS, 1, 20);
+                        
+                        // Decrease health
+                        // entity.getAttributes().addModifier(modifierSource, impairDuration, player).of(AttributeType.MAX_HEALTH, ModifierType.ADDITIVE, healthDecrease);
+                        
+                        removeBat(bat);
+                    });
+                    
+                    // Block collision
+                    if (bat.getLocation().getBlock().getType().isOccluding() || bat.isDead()) {
+                        removeBat(bat);
+                        return;
+                    }
+                    
+                    // Move forward
+                    final Location location = bat.getLocation();
+                    final Vector direction = location.getDirection();
+                    
+                    bat.teleport(location.add(direction.multiply(batSpeed)));
+                });
+            }
+            
+            private void removeBat(Bat bat) {
+                final Location location = bat.getLocation();
+                
+                bats.remove(bat); // concurrent set, removing is fine
+                bat.remove();
+                
+                // Fx
+                player.spawnWorldParticle(location, Particle.SMOKE, 10, 0.25d, 0.1d, 0.25d, 0.0f);
             }
         }.runTaskTimer(0, 1);
-
+        
+        // Fx
+        final Location location = player.getLocation();
+        
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.75f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 1.25f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 1.75f);
+        player.playWorldSound(location, Sound.ENTITY_BAT_TAKEOFF, 0.25f);
+        
         return Response.OK;
     }
-
-    public Bat createBat(GamePlayer player) {
-        final Location location = player.getLocation().add(0.0d, 0.5d, 0.0d);
+    
+    public Bat createBat(@Nonnull GamePlayer player) {
+        final Location location = player.getLocation();
         location.add(location.getDirection().setY(0.0d).multiply(2.0d));
-
+        
         // Randomize location
-        final double randomX = ThreadRandom.nextDouble(-0.5d, 0.5d);
-        final double randomY = ThreadRandom.nextDouble(-0.5d, 0.5d);
-        final double randomZ = ThreadRandom.nextDouble(-0.5d, 0.5d);
-
+        final double randomX = player.random.nextDoubleBool(1d);
+        final double randomY = player.random.nextDoubleBool(1d);
+        final double randomZ = player.random.nextDoubleBool(1d);
+        
         location.add(randomX, randomY, randomZ);
-
-        return Entities.BAT.spawn(location, bat -> {
-            bat.setInvulnerable(true);
-            bat.setAI(false);
-            bat.setGravity(false);
-            bat.setAwake(true);
-            bat.setPersistent(true);
-        });
+        
+        return Entities.BAT.spawn(
+                location, bat -> {
+                    bat.setInvulnerable(true);
+                    bat.setAI(false);
+                    bat.setGravity(false);
+                    bat.setAwake(true);
+                    bat.setPersistent(true);
+                }
+        );
     }
 }

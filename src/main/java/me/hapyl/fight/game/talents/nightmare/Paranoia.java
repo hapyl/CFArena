@@ -1,14 +1,15 @@
 package me.hapyl.fight.game.talents.nightmare;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.heroes.nightmare.Nightmare;
-import me.hapyl.fight.game.talents.TalentType;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -16,39 +17,42 @@ import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class Paranoia extends Talent {
 
-    public Paranoia() {
-        super(
-                "Paranoia",
-                """
-                        Launch a cloud of darkness in front of you that travels forward, applying &cOmen&7 to whoever it touches for {duration}.
-                                                
-                        &4👻 &c&lOmen:
-                        Enemies take more damage and suffer &e&lParanoia&7.
-                        """
+    public Paranoia(@Nonnull Key key) {
+        super(key, "Paranoia");
+
+        setDescription("""
+                Launch a cloud of &8darkness&7 in front of you that travels forward, applying %s to whoever it touches for {duration}.
+                &8&o;;The cloud can travel through walls.
+                
+                &6%s
+                Enemies take more &cdamage&7 and suffer &eParanoia&7.
+                """.formatted(Named.OMEN, Named.OMEN.getName())
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.CHARCOAL);
+        setMaterial(Material.CHARCOAL);
         setDuration(100);
         setCooldown(360);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getLocation();
-        final Nightmare hero = Heroes.NIGHTMARE.getHero(Nightmare.class);
 
-        final ArmorStand stand = Entities.ARMOR_STAND.spawn(location.add(0.0d, 1.0d, 0.0d), self -> {
-            self.setInvulnerable(true);
-            self.setVisible(false);
-            self.setSmall(true);
-            self.setMarker(true);
-            self.getLocation().setYaw(location.getYaw());
-            self.getLocation().setPitch(location.getPitch());
-        });
+        final ArmorStand stand = Entities.ARMOR_STAND.spawn(
+                location.add(0.0d, 1.0d, 0.0d), self -> {
+                    self.setInvulnerable(true);
+                    self.setVisible(false);
+                    self.setSmall(true);
+                    self.setMarker(true);
+                    self.getLocation().setYaw(location.getYaw());
+                    self.getLocation().setPitch(location.getPitch());
+                }
+        );
 
         player.playWorldSound(Sound.AMBIENT_CAVE, 1.0f);
 
@@ -78,7 +82,7 @@ public class Paranoia extends Talent {
                         return;
                     }
 
-                    hero.getDebuff(player).setOmen(target, getDuration());
+                    HeroRegistry.NIGHTMARE.getPlayerData(player).affect(target, getDuration());
                 });
 
             }

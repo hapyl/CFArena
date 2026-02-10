@@ -1,122 +1,123 @@
 package me.hapyl.fight.database.entry;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
+import me.hapyl.fight.game.cosmetic.CosmeticRegistry;
 import me.hapyl.fight.game.cosmetic.Type;
-import me.hapyl.spigotutils.module.util.Validate;
-import org.bson.Document;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class CosmeticEntry extends PlayerDatabaseEntry {
 
     public CosmeticEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+        super(playerDatabase, "cosmetics");
     }
 
     @Nullable
-    public Cosmetics getSelected(Type type) {
-        final Document cosmetics = getDocument().get("cosmetics", new Document());
-        final Document selected = cosmetics.get("selected", new Document());
-
-        return Validate.getEnumValue(Cosmetics.class, selected.get(type.name(), ""));
-    }
-
-    public void unsetSelected(@Nonnull Cosmetics cosmetic) {
-        unsetSelected(cosmetic.getType());
-        final Player player = getOnlinePlayer();
-
-        if (player != null) {
-            cosmetic.getCosmetic().onUnequip(player);
-        }
+    public Cosmetic getSelected(@Nonnull Type type) {
+        return getRegistryValue(registry(), "selected.%s".formatted(type.getKeyAsString()));
     }
 
     public void unsetSelected(@Nonnull Type type) {
-        final Document cosmetics = getDocument().get("cosmetics", new Document());
-        final Document selected = cosmetics.get("selected", new Document());
+        final Cosmetic selected = getSelected(type);
+        final Player player = player().orElse(null);
 
-        selected.remove(type.name());
-        cosmetics.put("selected", selected);
+        setValue("selected.%s".formatted(type.getKeyAsString()), null);
 
-        getDocument().put("cosmetics", cosmetics);
+        if (selected != null && player != null) {
+            selected.onUnequip(player);
+        }
     }
 
-    public void setSelected(Type type, Cosmetics cosmetic) {
-        if (!cosmetic.canObtain(getPlayer())) {
-            sendMessage("&cYou cannot select this cosmetic!");
+    public void setSelected(@Nonnull Type type, @Nonnull Cosmetic cosmetic) {
+        final Player player = player().orElse(null);
+
+        if (player != null && !cosmetic.canObtain(player)) {
+            Message.error(player, "You cannot select this cosmetic!");
             return;
         }
 
-        final Document cosmetics = getDocument().get("cosmetics", new Document());
-        final Document selected = cosmetics.get("selected", new Document());
-
-        selected.put(type.name(), cosmetic.name());
-        cosmetics.put("selected", selected);
-
-        getDocument().put("cosmetics", cosmetics);
-
-        // Call event
-        final Player player = getOnlinePlayer();
+        setValue("selected.%s".formatted(type.getKeyAsString()), cosmetic.getKeyAsString());
 
         if (player != null) {
-            cosmetic.getCosmetic().onEquip(player);
+            cosmetic.onEquip(player);
         }
     }
 
-    public boolean hasCosmetic(Cosmetics cosmetic) {
+    public boolean isUnlocked(@Nonnull Cosmetic cosmetic) {
         return getOwnedCosmeticsAsCosmetic().contains(cosmetic);
     }
 
-    public void addOwned(Cosmetics cosmetic) {
-        if (hasCosmetic(cosmetic)) {
+    public void addOwned(@Nonnull Cosmetic cosmetic) {
+        if (isUnlocked(cosmetic)) {
             return;
         }
 
-        if (!cosmetic.canObtain(getPlayer())) {
-            sendMessage("&cYou cannot own this cosmetic!");
+        final Player player = player().orElse(null);
+
+        if (player != null && !cosmetic.canObtain(player)) {
+            Message.error(player, "You cannot own this cosmetic!");
             return;
         }
 
-        final Document cosmetics = getDocument().get("cosmetics", new Document());
-        final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
-        owned.add(cosmetic.name());
-
-        cosmetics.put("owned", owned);
-        getDocument().put("cosmetics", cosmetics);
+        fetchDocumentValue("owned", new ArrayList<>(), list -> {
+            list.add(cosmetic.getKeyAsString());
+        });
     }
 
-    public void removeOwned(Cosmetics cosmetic) {
-        final Document cosmetics = getDocument().get("cosmetics", new Document());
-        final ArrayList<Object> owned = cosmetics.get("owned", Lists.newArrayList());
-        owned.remove(cosmetic.name());
-
-        cosmetics.put("owned", owned);
-        getDocument().put("cosmetics", cosmetics);
+    public void removeOwned(@Nonnull Cosmetic cosmetic) {
+        fetchDocumentValue("owned", new ArrayList<>(), list -> {
+            list.remove(cosmetic.getKeyAsString());
+        });
     }
 
-    public List<Cosmetics> getOwnedCosmeticsAsCosmetic() {
-        final List<String> names = getOwnedCosmetics();
-        final List<Cosmetics> cosmetics = Lists.newArrayList();
+    @Nonnull
+    public Set<Cosmetic> getOwnedCosmeticsAsCosmetic() {
+        final Set<Cosmetic> cosmetics = Sets.newHashSet();
+        final List<String> ownedCosmetics = getOwnedCosmetics();
 
-        for (String name : names) {
-            if (name == null) {
-                throw new IllegalArgumentException("Null cosmetic read.");
-            }
-
-            cosmetics.add(Validate.getEnumValue(Cosmetics.class, name));
+        for (String stringKey : ownedCosmetics) {
+            cosmetics.add(registry().get(stringKey));
         }
 
         return cosmetics;
     }
 
+    public void setUnlocked(@Nonnull Cosmetic cosmetic, boolean unlocked) {
+        if (unlocked) {
+            addOwned(cosmetic);
+        }
+        else {
+            removeOwned(cosmetic);
+
+            final Type type = cosmetic.getType();
+
+            // Unset selected if was selected
+            final Cosmetic selected = getSelected(type);
+
+            if (selected != null && selected.equals(cosmetic)) {
+                unsetSelected(type);
+            }
+        }
+    }
+
+    private CosmeticRegistry registry() {
+        return Registries.cosmetics();
+    }
+
+    @Nonnull
     private List<String> getOwnedCosmetics() {
-        return getDocument().get("cosmetics", new Document()).get("owned", Lists.newArrayList());
+        return getValue("owned", Lists.newArrayList());
     }
 
 

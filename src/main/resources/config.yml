@@ -1,3 +1,2 @@
-database:
-  type: "PRODUCTION"
-  connection_link: "null"
+database_connection_link: "null"
+transfer_secret_sha256: ""

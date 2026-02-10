@@ -2,23 +2,20 @@ package me.hapyl.fight.database.entry;
 
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.Hero;
 import me.hapyl.fight.game.stats.StatContainer;
 import me.hapyl.fight.game.stats.StatType;
-import me.hapyl.fight.game.talents.Talents;
-import org.bson.Document;
+import me.hapyl.fight.game.talents.Talent;
+
+import javax.annotation.Nonnull;
 
 public class StatisticEntry extends PlayerDatabaseEntry {
 
-    private static final String PATH_ROOT = "statistic";
-    private static final String PATH_HERO_STATS = "hero_stats";
-    private static final String PATH_ABILITY_USAGE = "ability_usage";
-
-    public StatisticEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+    public StatisticEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "statistic");
     }
 
-    public void fromPlayerStatistic(Heroes hero, StatContainer stat) {
+    public void setFromPlayerStatistic(@Nonnull Hero hero, @Nonnull StatContainer stat) {
         stat.nonNegativeValuesMapped().forEach((statType, value) -> {
             addStat(statType, value);
             addHeroStat(hero, statType, value);
@@ -35,53 +32,40 @@ public class StatisticEntry extends PlayerDatabaseEntry {
         stat.getUsedAbilities().forEach((talent, value) -> addAbilityUsage(hero, talent, value));
     }
 
-    public long getAbilityUsage(Heroes hero, Talents talent) {
-        return getInDocument(PATH_ROOT)
-                .get(PATH_HERO_STATS, new Document())
-                .get(hero.name(), new Document())
-                .get(PATH_ABILITY_USAGE, new Document())
-                .get(talent.name(), 0L);
+    public long getAbilityUsage(@Nonnull Hero hero, @Nonnull Talent talent) {
+        return getValue("hero_stats.%s.ability_usage.%s".formatted(hero.getKeyAsString(), talent.getKeyAsString()), 0L);
     }
 
-    public void setAbilityUsage(Heroes hero, Talents talent, long value) {
-        setValue("statistic.hero_stats." + hero.name() + ".ability_usage." + talent.name(), value);
+    public void setAbilityUsage(@Nonnull Hero hero, @Nonnull Talent talent, long value) {
+        setValue("hero_stats.%s.ability_usage.%s".formatted(hero.getKeyAsString(), talent.getKeyAsString()), value);
     }
 
-    public void addAbilityUsage(Heroes hero, Talents talent, long value) {
+    public void addAbilityUsage(Hero hero, Talent talent, long value) {
         setAbilityUsage(hero, talent, getAbilityUsage(hero, talent) + value);
     }
 
-    public double getHeroStat(Heroes hero, StatType type) {
-        return getInDocument(PATH_ROOT)
-                .get(PATH_HERO_STATS, new Document())
-                .get(hero.name(), new Document())
-                .get(type.name(), 0.0d);
+    public double getHeroStat(@Nonnull Hero hero, @Nonnull StatType type) {
+        return getValue("hero_stats.%s.%s".formatted(hero.getKeyAsString(), type.getKeyAsString()), 0.0d);
     }
 
-    public void setHeroStat(Heroes heroes, StatType type, double value) {
-        final Document statistic = getInDocument(PATH_ROOT);
-        final Document heroStats = statistic.get(PATH_HERO_STATS, new Document());
-        final Document document = heroStats.get(heroes.name(), new Document());
-
-        document.put(type.name(), value);
-        heroStats.put(heroes.name(), document);
-        statistic.put(PATH_HERO_STATS, heroStats);
+    public void setHeroStat(@Nonnull Hero hero, @Nonnull StatType type, double value) {
+        setValue("hero_stats.%s.%s".formatted(hero.getKeyAsString(), type.getKeyAsString()), value);
     }
 
-    public void addHeroStat(Heroes heroes, StatType type, double value) {
+    public void addHeroStat(@Nonnull Hero heroes, StatType type, double value) {
         setHeroStat(heroes, type, getHeroStat(heroes, type) + value);
     }
 
-    public double getStat(StatType statisticType) {
-        return getInDocument(PATH_ROOT).get(statisticType.name(), 0.0d);
+    public double getStat(@Nonnull StatType type) {
+        return getValue(type.getKeyAsString(), 0.0d);
     }
 
-    public void setStat(StatType statisticType, double value) {
-        fetchDocument(PATH_ROOT, document -> document.put(statisticType.name(), value));
+    public void setStat(@Nonnull StatType type, double value) {
+        setValue(type.getKeyAsString(), value);
     }
 
-    public void addStat(StatType statisticType, double value) {
-        setStat(statisticType, getStat(statisticType) + value);
+    public void addStat(@Nonnull StatType type, double value) {
+        setStat(type, getStat(type) + value);
     }
 
 }

@@ -1,18 +1,19 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Maps;
-import me.hapyl.fight.database.collection.HeroStatsCollection;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.eterna.module.chat.CenterChat;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerCommand;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.Message;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.PlayerRating;
 import me.hapyl.fight.game.reward.Reward;
-import me.hapyl.fight.game.reward.Rewards;
-import me.hapyl.fight.game.setting.Settings;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.CenterChat;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerCommand;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.player.PlayerLib;
+import me.hapyl.fight.game.reward.StaticReward;
+import me.hapyl.fight.game.setting.EnumSetting;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -27,45 +28,45 @@ import java.util.UUID;
 
 public class RateHeroCommand extends SimplePlayerCommand {
 
-    private static final Map<Player, Heroes> canRate = Maps.newHashMap();
+    private static final Map<Player, Hero> canRate = Maps.newHashMap();
 
     public RateHeroCommand(String name) {
         super(name);
 
-        setCooldownTick(Tick.fromSecond(10));
+        setCooldownTick(Tick.fromSeconds(10));
     }
 
     @Override
     protected void execute(Player player, String[] args) {
-        final Heroes hero = getArgument(args, 0).toEnum(Heroes.class);
+        final Hero hero = HeroRegistry.ofStringOrNull(getArgument(args, 0).toString());
         final int rating = getArgument(args, 1).toInt();
 
         final PlayerRating playerRating = PlayerRating.fromInt(rating);
 
         if (hero == null) {
-            Notifier.error(player, "Invalid hero!");
+            Message.error(player, "Invalid hero!");
             return;
         }
 
         if (playerRating == null) {
-            Notifier.error(player, "Invalid rating!");
+            Message.error(player, "Invalid rating!");
             return;
         }
 
-        final HeroStatsCollection stats = hero.getStats();
+        final HeroStatsAsynchronousDocument stats = hero.getStats();
         final UUID uuid = player.getUniqueId();
         final boolean hasRated = stats.hasRated(uuid);
-        final Heroes canRateHero = RateHeroCommand.canRate.get(player);
+        final Hero canRateHero = RateHeroCommand.canRate.get(player);
 
         if (!hasRated) {
             if (canRateHero == null) {
-                Notifier.error(player, "You cannot rate this hero yet!");
+                Message.error(player, "You cannot rate this hero yet!");
                 return;
             }
         }
 
         if (hero != canRateHero) {
-            Notifier.error(player, "&cThis is not the hero you are allowed to rate!");
+            Message.error(player, "&cThis is not the hero you were allowed to rate!");
             return;
         }
 
@@ -73,31 +74,31 @@ public class RateHeroCommand extends SimplePlayerCommand {
         stats.setPlayerRating(uuid, playerRating);
 
         if (hasRated) {
-            Notifier.success(player, "Changed {} rating to {}!", hero.getName(), playerRating.getName());
+            Message.success(player, "Changed {%s} rating to {%s}!".formatted(hero.getName(), playerRating.getName()));
         }
         else {
-            Notifier.success(player, "Rated {} as {}!", hero.getName(), playerRating.getName());
-            Notifier.success(player, "Thank you for rating this hero, your feedback is appreciated!");
+            Message.success(player, "Rated {%s} as {%s}!".formatted(hero.getName(), playerRating.getName()));
+            Message.success(player, "Thank you for rating this hero, your feedback is appreciated!");
 
-            final Reward reward = Rewards.HERO_RATING_FIRST_TIME.getReward();
+            final Reward reward = StaticReward.HERO_RATING_FIRST_TIME;
 
             reward.grant(player);
-            reward.displayChat(player);
+            reward.sendRewardMessage(player);
 
-            PlayerLib.playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
+            Message.sound(player, Sound.ENTITY_PLAYER_LEVELUP, 1.75f);
         }
 
-        PlayerLib.playSound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
+        Message.sound(player, Sound.ENTITY_VILLAGER_YES, 1.75f);
     }
 
-    public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Heroes heroes) {
-        if (Settings.SEE_HERO_RATING_MESSAGE.isDisabled(player) || heroes.getStats().hasRated(player.getUniqueId())) {
+    public static void allowRatingHeroIfHasNotRatedAlready(@Nonnull Player player, @Nonnull Hero hero) {
+        if (EnumSetting.SEE_HERO_RATING_MESSAGE.isDisabled(player) || hero.getStats().hasRated(player.getUniqueId())) {
             return;
         }
 
-        canRate.put(player, heroes);
+        canRate.put(player, hero);
 
-        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!".formatted(heroes.getName()));
+        Chat.sendCenterMessage(player, "&aYou just played a game as &l%s&a!".formatted(hero.getName()));
         Chat.sendCenterMessage(player, "&7Would you like to rate your experience?");
 
         final ComponentBuilder builder = new ComponentBuilder("           ");
@@ -112,7 +113,7 @@ public class RateHeroCommand extends SimplePlayerCommand {
 
             component.setClickEvent(new ClickEvent(
                     ClickEvent.Action.RUN_COMMAND,
-                    "/ratehero %s %s".formatted(heroes.name(), rating.toInt())
+                    "/ratehero %s %s".formatted(hero.getKeyAsString(), rating.toInt())
             ));
 
             builder.append(component).append("  ");

@@ -8,9 +8,9 @@ import java.util.function.Predicate;
 public class PredicateLocation {
 
     private final Location location;
-    private final Predicate<GameMap> predicate;
+    private final Predicate<Level> predicate;
 
-    public PredicateLocation(Location location, Predicate<GameMap> predicate) {
+    public PredicateLocation(Location location, Predicate<Level> predicate) {
         this.location = location;
         this.predicate = predicate;
     }
@@ -24,7 +24,7 @@ public class PredicateLocation {
         return location;
     }
 
-    public boolean predicate(GameMap map) {
+    public boolean predicate(Level map) {
         return predicate.test(map);
     }
 

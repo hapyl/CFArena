@@ -1,7 +1,8 @@
 package me.hapyl.fight.game.achievement;
 
-import me.hapyl.fight.util.Range;
+import me.hapyl.eterna.module.registry.Key;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,18 +14,14 @@ public class TieredAchievement extends Achievement {
 
     private final Tier[] tiers;
 
-    public TieredAchievement(@Nullable String id, @Nonnull String name, @Nonnull String description) {
-        super(id, name, description);
+    public TieredAchievement(@Nonnull Key key, @Nonnull String name, @Nonnull String description) {
+        super(key, name, description);
 
         this.tiers = new Tier[5];
     }
 
-    public TieredAchievement(@Nonnull String name, @Nonnull String description, @Nonnull @Range(min = 5, max = 5) int... tiers) {
-        this(null, name, description, tiers);
-    }
-
-    public TieredAchievement(@Nullable String id, @Nonnull String name, @Nonnull String description, @Nonnull @Range(min = 5, max = 5) int... tiers) {
-        this(id == null ? null : id.toLowerCase(), name, description);
+    public TieredAchievement(@Nonnull Key key, @Nonnull String name, @Nonnull String description, @Nonnull @Range(from = 5, to = 5) int... tiers) {
+        this(key, name, description);
 
         if (tiers.length != 5) {
             throw new IllegalArgumentException("There must be 5 tiers!");
@@ -46,17 +43,6 @@ public class TieredAchievement extends Achievement {
     }
 
     @Override
-    public void awardPlayer(Player player) {
-        final Tier tier = getTier(getCompleteCount(player));
-
-        if (tier == null) {
-            return;
-        }
-
-        tier.reward(player);
-    }
-
-    @Override
     public void markComplete(Player player) {
         final int completeCount = getCompleteCount(player);
 
@@ -65,6 +51,19 @@ public class TieredAchievement extends Achievement {
         }
 
         super.markComplete(player);
+    }
+
+    @Override
+    public int getPointRewardForCompleting(int times) {
+        int point = 0;
+
+        for (Tier tier : tiers) {
+            if (times >= tier.getTier()) {
+                point += tier.getReward();
+            }
+        }
+
+        return point;
     }
 
     @Override

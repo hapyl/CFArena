@@ -2,19 +2,15 @@ package me.hapyl.fight.game.parkour.snake;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.Main;
-import me.hapyl.fight.util.Buffer;
+import me.hapyl.eterna.module.entity.packet.PacketBlockDisplay;
+import me.hapyl.eterna.module.entity.packet.PacketEntity;
+import me.hapyl.eterna.module.util.Buffer;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Direction;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.packet.PacketEntity;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.joml.Matrix4f;
@@ -22,20 +18,24 @@ import org.joml.Matrix4f;
 import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 public class Snake extends BukkitRunnable {
 
     public static final Matrix4f MATRIX = CFUtils.parseMatrix(
-            0.5000f, 0.0000f, 0.0000f, -0.2500f,
-            0.0000f, 0.5000f, 0.0000f, -0.2500f,
-            0.0000f, 0.0000f, 0.5000f, -0.2500f,
+            0.5000f, 0.0000f, 0.0000f, 0.2500f,
+            0.0000f, 0.5000f, 0.0000f, 0.2500f,
+            0.0000f, 0.0000f, 0.5000f, -0.7500f,
             0.0000f, 0.0000f, 0.0000f, 1.0000f
     );
 
-    private final LinkedList<Location> locations;
-    private final Set<BlockDisplay> entities;
+    protected final Set<PacketEntity<?>> entities;
+    protected final LinkedList<Location> locations;
+
     private Material material;
+    private BlockData blockData;
+
     private int period;
     private int length;
     private double radius;
@@ -49,28 +49,27 @@ public class Snake extends BukkitRunnable {
         this.period = 10;
         this.length = 5;
         this.material = Material.STONE;
+        this.blockData = Material.STONE.createBlockData();
     }
 
     public void deleteEntities() {
-        entities.forEach(Entity::remove);
+        entities.forEach(PacketEntity::destroy);
         entities.clear();
     }
 
     public void createEntities() {
-        if (true) {
-            return; // can't remove properly
-        }
-
+        deleteEntities();
         final BlockData blockData = material.createBlockData();
 
-        // FIXME (hapyl): 026, Feb 26: FIXFIXME
         for (Location location : locations) {
-            //final Location toSpawn = location.clone().subtract(0.0d, 1.0d, 0.0d);
-            entities.add(Entities.BLOCK_DISPLAY.spawn(location, self -> {
-                self.setBlock(blockData);
-                self.setTransformationMatrix(MATRIX);
-            }, false));
+            // Use packet entities
+            final PacketBlockDisplay entity = new PacketBlockDisplay(location);
+            entity.setBlockData(blockData);
+            entity.setTransformation(MATRIX);
+
+            this.entities.add(entity);
         }
+
     }
 
     @Nonnull
@@ -94,10 +93,13 @@ public class Snake extends BukkitRunnable {
             @Override
             public void unbuffered(@Nonnull Location location) {
                 location.getBlock().setType(Material.AIR, false);
+
+                // Fx
+                location.getWorld().spawnParticle(Particle.BLOCK, location, 3, blockData);
             }
         };
 
-        this.runTaskTimer(Main.getPlugin(), 0, period);
+        this.runTaskTimer(CF.getPlugin(), 0, period);
     }
 
     @Override
@@ -111,9 +113,12 @@ public class Snake extends BukkitRunnable {
             iterator = locations.iterator();
         }
 
-        final Location next = iterator.next();
-        next.getBlock().setType(material, false);
-        buffer.add(next);
+        final Location location = iterator.next();
+
+        location.getBlock().setType(material, false);
+        location.getWorld().playSound(location, Sound.ENTITY_SILVERFISH_STEP, 1.0f, 2.0f);
+
+        buffer.add(location);
     }
 
     public boolean isStarted() {
@@ -125,6 +130,11 @@ public class Snake extends BukkitRunnable {
         deleteEntities();
     }
 
+    @Nonnull
+    public List<Location> getLocations() {
+        return locations;
+    }
+
     private boolean anyPlayersNearby(double radius) {
         final Location startLocation = getStart();
         final World world = startLocation.getWorld();
@@ -133,7 +143,7 @@ public class Snake extends BukkitRunnable {
             return false;
         }
 
-        return world.getNearbyEntities(startLocation, radius, radius, radius, entity -> entity instanceof Player).size() > 0;
+        return !world.getNearbyEntities(startLocation, radius, radius, radius, entity -> entity instanceof Player).isEmpty();
     }
 
     public static Builder builder() {
@@ -154,6 +164,7 @@ public class Snake extends BukkitRunnable {
             }
 
             snake.material = material;
+            snake.blockData = material.createBlockData();
             return this;
         }
 
@@ -192,7 +203,7 @@ public class Snake extends BukkitRunnable {
                 throw new IllegalStateException("location not initiated");
             }
 
-            final int[] values = direction.getValues();
+            final int[] values = direction.getOffset();
             final Location nextLocation = BukkitUtils.newLocation(last).add(values[0], values[1], values[2]);
 
             snake.locations.add(nextLocation);

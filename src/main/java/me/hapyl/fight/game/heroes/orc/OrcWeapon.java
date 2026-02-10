@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.heroes.orc;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.heroes.HeroRegistry;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.weapons.Weapon;
 import me.hapyl.fight.game.weapons.ability.Ability;
 import me.hapyl.fight.game.weapons.ability.AbilityType;
@@ -16,7 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,14 +28,13 @@ public class OrcWeapon extends Weapon {
     @DisplayField private final double damage = 16;
 
     public OrcWeapon() {
-        super(Material.IRON_AXE);
+        super(Material.IRON_AXE, Key.ofString("orc_weapon"));
 
         thrownAxe = PlayerMap.newMap();
 
         setName("Poleaxe");
         setDescription("A sharp poleaxe.");
         setDamage(8.0d);
-        setId("orc_axe");
 
         setAbility(AbilityType.RIGHT_CLICK, new Throw());
     }
@@ -58,7 +57,7 @@ public class OrcWeapon extends Weapon {
         public Throw() {
             super("Throw", """
                     Throw your poleaxe at your enemies!
-                                    
+                    
                     Upon hitting an &cenemy&7, it drastically &3slows&7 them and deals &cdamage&7 before returning to you.
                                     
                     Upon hitting a &eblock&7, stay in a block for a while before returning to you.
@@ -69,23 +68,23 @@ public class OrcWeapon extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final Location location = player.getLocation();
-            final Weapon weapon = Heroes.ORC.getHero().getWeapon();
+            final Weapon weapon = HeroRegistry.ORC.getWeapon();
 
-            if (thrownAxe.containsKey(player) || player.hasCooldown(weapon.getMaterial())) {
+            if (thrownAxe.containsKey(player) || player.cooldownManager.hasCooldown(weapon)) {
                 return null;
             }
 
-            player.setItem(HotbarSlots.WEAPON, null);
+            player.setItem(HotBarSlot.WEAPON, null);
 
             final OrcWeaponEntity entity = new OrcWeaponEntity(player) {
 
                 @Override
                 public void onHit(@Nonnull LivingEntity entity) {
                     CF.getEntityOptional(entity).ifPresent(gameEntity -> {
-                        gameEntity.damage(damage, player, EnumDamageCause.ORC_WEAPON);
-                        gameEntity.addEffect(Effects.SLOW, 4, 100);
+                        gameEntity.damage(damage, player, DamageCause.ORC_WEAPON);
+                        gameEntity.addPotionEffect(PotionEffectType.SLOWNESS, 4, 100);
                         gameEntity.setFreezeTicks(100);
                     });
                 }
@@ -94,8 +93,8 @@ public class OrcWeapon extends Weapon {
                 public void onReturn(@Nonnull GamePlayer player) {
                     thrownAxe.remove(player);
 
-                    player.setCooldown(weapon.getMaterial(), getCooldown());
-                    player.setItem(HotbarSlots.WEAPON, weapon.getItem());
+                    player.cooldownManager.setCooldown(weapon, getCooldown());
+                    player.setItem(HotBarSlot.WEAPON, weapon.createItem());
                 }
 
             };

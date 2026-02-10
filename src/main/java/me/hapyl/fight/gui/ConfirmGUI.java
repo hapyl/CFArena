@@ -1,98 +1,147 @@
 package me.hapyl.fight.gui;
 
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.GUIEventListener;
+import me.hapyl.eterna.module.inventory.gui.PlayerGUI;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.util.Runnables;
 import me.hapyl.fight.util.ItemStacks;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.PlayerGUI;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Set;
 
-public abstract class ConfirmGUI extends PlayerGUI {
-
+public abstract class ConfirmGUI extends PlayerGUI implements GUIEventListener {
+    
     private static final Set<Integer> CONFIRM_SLOTS = Set.of(
             1, 2, 3,
             10, 11, 12,
             19, 20, 21
     );
-
+    
     private static final Set<Integer> CANCEL_SLOTS = Set.of(
             5, 6, 7,
             14, 15, 16,
             23, 24, 25
     );
-
-    private static final ItemStack CONFIRM_ITEM = ItemBuilder.of(Material.GREEN_WOOL, "&aConfirm", "&7I got it, proceed!").asIcon();
-    private static final ItemStack CANCEL_ITEM = ItemBuilder.of(Material.RED_WOOL, "&cCancel!", "&7I've changed my mind.").asIcon();
-
-    public ConfirmGUI(Player player, String name) {
+    
+    private static final ItemStack CONFIRM_ITEM = new ItemBuilder(Material.LIME_CONCRETE)
+            .setName("&a&lᴄᴏɴꜰɪʀᴍ")
+            .addLore("&7&oI get it, proceed!")
+            .asIcon();
+    
+    private static final ItemStack CANCEL_ITEM = new ItemBuilder(Material.RED_CONCRETE)
+            .setName("&c&lᴄᴀɴᴄᴇʟ")
+            .addLore("&7&oI've changed my mind...")
+            .asIcon();
+    
+    private final Boolean closeConfirms;
+    private boolean input;
+    
+    public ConfirmGUI(@Nonnull Player player, @Nonnull String name) {
+        this(player, name, true);
+    }
+    
+    public ConfirmGUI(@Nonnull Player player, @Nonnull String name, @Nullable Boolean closeConfirms) {
         super(player, name, 5);
-
-        setItem(40, quoteItem());
-        fillItem(27, 35, ItemStacks.BLACK_BAR);
-
+        
+        this.closeConfirms = closeConfirms;
+        
+        openInventory();
+    }
+    
+    @Override
+    public void onClick(int slot, @Nonnull InventoryClickEvent event) {
+        if (CONFIRM_SLOTS.contains(slot)) {
+            doClick(true);
+        }
+        else if (CANCEL_SLOTS.contains(slot)) {
+            doClick(false);
+        }
+    }
+    
+    @Override
+    public void onUpdate() {
+        // Prepare confirm/cancel buttons
         setConfirmItem(CONFIRM_ITEM);
         setCancelItem(CANCEL_ITEM);
-
-        setEventListener((player1, gui, event) -> {
-            final int clicked = event.getRawSlot();
-
-            if (CONFIRM_SLOTS.contains(clicked)) {
-                onConfirm(player);
-            }
-            else if (CANCEL_SLOTS.contains(clicked)) {
-                onCancel(player);
-            }
-            else {
-                onMissClick(player);
-            }
-        });
-
+        
+        setItem(40, quoteItem());
+        
+        // Fill row
+        fillRow(3, ItemStacks.BLACK_BAR);
+        
         // Fx
         PlayerLib.playSound(player, Sound.ENTITY_VILLAGER_TRADE, 0.75f);
     }
-
+    
+    @Override
+    public void onClose(@Nonnull InventoryCloseEvent event) {
+        if (closeConfirms == null) {
+            return;
+        }
+        
+        doClick(closeConfirms);
+    }
+    
     @Override
     public final void openInventory() {
-        // force player to close inventory before opening the GUI
-        // to force mouse to be at the quote item.
+        // Force player to close their inventory so their
+        // cursor is at the quote item
         player.closeInventory();
-        super.openInventory();
+        
+        // Delay the GUI opening by 1 tick... because...
+        Runnables.runLater(super::openInventory, 1);
     }
-
+    
     @Nonnull
     public abstract ItemStack quoteItem();
-
+    
     /**
-     * Player clicked confirm.
+     * The player clicked 'confirm' or closed the Confirmation GUI.
      */
-    public abstract void onConfirm(@Nonnull Player player);
-
+    @EventLike
+    public abstract void confirm(@Nonnull Player player);
+    
     /**
-     * Player clicked cancel.
+     * The player clicked 'cancel'
      */
-    public abstract void onCancel(@Nonnull Player player);
-
-    /**
-     * Player clicked any other slot than {@link #CONFIRM_SLOTS} or {@link #CANCEL_SLOTS}.
-     */
-    public void onMissClick(@Nonnull Player player) {
+    @EventLike
+    public abstract void cancel(@Nonnull Player player);
+    
+    private void doClick(boolean confirm) {
+        if (!input) {
+            input = true;
+            
+            // Close before calling events
+            player.closeInventory();
+            
+            if (confirm) {
+                confirm(player);
+            }
+            else {
+                cancel(player);
+            }
+        }
     }
-
+    
     private void setConfirmItem(ItemStack stack) {
         for (Integer confirmSlot : CONFIRM_SLOTS) {
             setItem(confirmSlot, stack);
         }
     }
-
+    
     private void setCancelItem(ItemStack stack) {
         for (Integer cancelSlot : CANCEL_SLOTS) {
             setItem(cancelSlot, stack);
         }
     }
-
+    
 }

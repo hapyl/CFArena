@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.maps.features;
 
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.player.PlayerLib;
 import me.hapyl.fight.event.custom.GameEntityContactPortalEvent;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.Level;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -28,9 +28,9 @@ public class LimboFeature extends VoidFeature implements Listener {
     @EventHandler()
     public void handlePortalEvent(GameEntityContactPortalEvent ev) {
         final LivingGameEntity entity = ev.getEntity();
-        final GameMap currentMap = Manager.current().getCurrentMap().getMap();
+        final Level currentMap = Manager.current().currentEnumLevel().getLevel();
 
-        if (!validateCurrentMap(GameMaps.LIMBO)) {
+        if (!validateCurrentMap(EnumLevel.LIMBO)) {
             return;
         }
 
@@ -64,7 +64,7 @@ public class LimboFeature extends VoidFeature implements Listener {
         entity.teleport(teleportLocation);
 
         // Fx
-        entity.addEffect(Effects.DARKNESS, 255, 40);
+        entity.addEffect(EffectType.DARKNESS, 255, 40);
         entity.playSound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.0f);
 
         Geometry.drawLine(location, teleportLocation, 0.5,

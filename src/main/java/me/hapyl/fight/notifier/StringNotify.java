@@ -1,7 +1,7 @@
 package me.hapyl.fight.notifier;
 
-import me.hapyl.spigotutils.module.chat.CenterChat;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.CenterChat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 public class StringNotify implements Notify {

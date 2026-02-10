@@ -1,35 +1,34 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.game.maps.GameMap;
-import me.hapyl.fight.game.maps.GameMaps;
-import me.hapyl.fight.game.maps.HiddenMapFeature;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.game.maps.EnumLevel;
+import me.hapyl.fight.game.maps.HiddenLevelFeature;
+import me.hapyl.fight.game.maps.Level;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.gui.styled.Size;
-import me.hapyl.fight.gui.styled.StyledItem;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
+import me.hapyl.fight.gui.styled.StyledTexture;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
+public class MapSelectGUI extends GameManagementSubGUI<EnumLevel> {
 
     public MapSelectGUI(Player player) {
-        super(player, "Map Selection", Size.FOUR, GameMaps.getPlayableMaps());
+        super(player, "Map Selection", Size.FOUR, EnumLevel.getPlayableMaps());
     }
 
     @Nonnull
     @Override
     public ItemStack getHeaderItem() {
-        return StyledItem.ICON_MAP_SELECT.asIcon();
+        return StyledTexture.ICON_MAP_SELECT.asIcon();
     }
 
     @Nonnull
     @Override
-    public ItemBuilder createItem(@Nonnull GameMaps enumMap, boolean isSelected) {
-        final GameMap map = enumMap.getMap();
+    public ItemBuilder createItem(@Nonnull EnumLevel enumMap, boolean isSelected) {
+        final Level map = enumMap.getLevel();
 
         final ItemBuilder builder = new ItemBuilder(map.getMaterial())
                 .setName(map.getName())
@@ -37,14 +36,14 @@ public class MapSelectGUI extends GameManagementSubGUI<GameMaps> {
                 .addLore()
                 .addTextBlockLore(map.getDescription());
 
-        final List<MapFeature> mapFeatures = map.getNonHiddenFeatures();
+        final List<LevelFeature> levelFeatures = map.getNonHiddenFeatures();
 
-        if (!mapFeatures.isEmpty()) {
+        if (!levelFeatures.isEmpty()) {
             builder.addLore();
-            builder.addLore(mapFeatures.size() == 1 ? "&6&lMap Feature:" : "&6&lMap Features:");
+            builder.addLore(levelFeatures.size() == 1 ? "&6&lMap Feature:" : "&6&lMap Features:");
 
-            for (MapFeature feature : mapFeatures) {
-                if (feature instanceof HiddenMapFeature) {
+            for (LevelFeature feature : levelFeatures) {
+                if (feature instanceof HiddenLevelFeature) {
                     continue;
                 }
 

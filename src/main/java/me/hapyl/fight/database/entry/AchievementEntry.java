@@ -3,11 +3,12 @@ package me.hapyl.fight.database.entry;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.achievement.Achievement;
+import me.hapyl.fight.registry.Registries;
 
 public class AchievementEntry extends PlayerDatabaseEntry {
 
     public AchievementEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+        super(playerDatabase, "achievement");
     }
 
     /**
@@ -17,7 +18,7 @@ public class AchievementEntry extends PlayerDatabaseEntry {
      * @return number of times completed
      */
     public int getCompleteCount(Achievement achievement) {
-        return getValue("achievement.%s.complete_count".formatted(achievement.getId()), 0);
+        return getValue("%s.complete_count".formatted(achievement.getKey()), 0);
     }
 
     /**
@@ -52,21 +53,35 @@ public class AchievementEntry extends PlayerDatabaseEntry {
         setCompleteCount(achievement, 0);
     }
 
+    // TODO (Thu, Aug 29 2024 @xanyjl):
+    public int getAchievementPoints() {
+        int points = 0;
+
+        for (Achievement achievement : Registries.achievements().values()) {
+            final int completeCount = getCompleteCount(achievement);
+
+            if (completeCount > 0) {
+                points += achievement.getPointRewardForCompleting(completeCount);
+            }
+        }
+
+        return points;
+    }
+
     public void setCompletedAt(Achievement achievement, long time) {
-        setValue("achievement.%s.completed_at".formatted(achievement.getId()), time);
+        setValue("%s.completed_at".formatted(achievement.getKey()), time);
     }
 
     public long getCompletedAt(Achievement achievement) {
-        return getValue("achievement.%s.completed_at".formatted(achievement.getId()), 0L);
+        return getValue("%s.completed_at".formatted(achievement.getKey()), 0L);
     }
 
     public void setCompleteCount(Achievement achievement, int count) {
         if (count <= 0) {
-            setValue("achievement.%s".formatted(achievement.getId()), null);
+            setValue("%s".formatted(achievement.getKey()), null);
             return;
         }
 
-        setValue("achievement.%s.complete_count".formatted(achievement.getId()), count);
+        setValue("%s.complete_count".formatted(achievement.getKey()), count);
     }
-
 }

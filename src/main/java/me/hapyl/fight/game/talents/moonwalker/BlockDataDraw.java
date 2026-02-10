@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.moonwalker;
 
-import me.hapyl.spigotutils.module.math.geometry.Draw;
+import me.hapyl.eterna.module.math.geometry.Draw;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;

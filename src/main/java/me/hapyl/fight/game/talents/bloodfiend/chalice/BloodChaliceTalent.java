@@ -1,16 +1,13 @@
 package me.hapyl.fight.game.talents.bloodfiend.chalice;
 
+
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.bloodfiend.taunt.TauntTalent;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 
 import javax.annotation.Nonnull;
 
@@ -18,11 +15,11 @@ public class BloodChaliceTalent extends TauntTalent {
 
     @DisplayField(percentage = true) public final double healingPercent = 0.6d;
 
-    public BloodChaliceTalent() {
-        super("Blood Chalice", 6, -1);
+    public BloodChaliceTalent(@Nonnull Key key) {
+        super(key, "Blood Chalice", 8, -1);
 
         setType(TalentType.SUPPORT);
-        setItem(Material.SKELETON_SKULL);
+        setMaterial(Material.SKELETON_SKULL);
         setDurationSec(15);
         setCooldownSec(15);
     }
@@ -31,7 +28,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @Override
     public String getDescription() {
         return """
-                The chalice will convert &c{healingPercent}&7 of damage dealt into healing.
+                The chalice will heal for &c{healingPercent}&7 of the damage dealt.
                 &8&o;;Only against taunted entities.
                 """;
     }
@@ -40,7 +37,7 @@ public class BloodChaliceTalent extends TauntTalent {
     @Override
     public String getHowToRemove() {
         return """
-                &4Unremovable.
+                Can only be removed by own &aTwin Claws&7.
                 """;
     }
 

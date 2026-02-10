@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.parkour;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.parkour.ParkourStatistics;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.rank.PlayerRank;
-import me.hapyl.spigotutils.module.parkour.Stats;
 
 import javax.annotation.Nonnull;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
@@ -15,11 +17,11 @@ public class LeaderboardData implements Comparator<Long> {
     private final PlayerDatabase database;
     private final UUID uuid;
     private final long completionTime;
-    private final Map<Stats.Type, Long> stats;
+    private final Map<ParkourStatistics.Type, Long> stats;
     private boolean dirty;
 
     public LeaderboardData(UUID uuid, long completionTime) {
-        this.database = PlayerDatabase.getDatabase(uuid);
+        this.database = CF.getDatabase(uuid);
         this.uuid = uuid;
         this.completionTime = completionTime;
         this.stats = Maps.newHashMap();
@@ -36,7 +38,7 @@ public class LeaderboardData implements Comparator<Long> {
 
     @Nonnull
     public String getName() {
-        return database.getName();
+        return database.playerNameWithFallback();
     }
 
     @Nonnull
@@ -51,11 +53,11 @@ public class LeaderboardData implements Comparator<Long> {
         return completionTime;
     }
 
-    public long getStat(Stats.Type type) {
+    public long getStat(ParkourStatistics.Type type) {
         return stats.getOrDefault(type, 0L);
     }
 
-    public void setStat(Stats.Type type, long value) {
+    public void setStat(ParkourStatistics.Type type, long value) {
         stats.put(type, value);
     }
 
@@ -70,5 +72,21 @@ public class LeaderboardData implements Comparator<Long> {
 
     public boolean isDirty() {
         return dirty;
+    }
+    
+    public String getTimeFormatted() {
+        final String formatted;
+        
+        if (completionTime >= 3.6e+6) {
+            formatted = new SimpleDateFormat("hh:mm:ss.SSS").format(completionTime);
+        }
+        else if (completionTime >= 60000) {
+            formatted = new SimpleDateFormat("mm:ss.SSS").format(completionTime);
+        }
+        else {
+            formatted = new SimpleDateFormat("ss.SSS").format(completionTime);
+        }
+        
+        return isDirty() ? "&m" + formatted : formatted;
     }
 }

@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Random;
 
 public class EntityRandom extends Random {
-
+    
     /**
      * Gets either a positive or negative pseudo random float value within the bound.
      *
@@ -20,9 +20,9 @@ public class EntityRandom extends Random {
      * @return positive or negative pseudo random float value within the bound.
      */
     public float nextFloatBool(float bound) {
-        return nextFloat(-bound + 1, bound);
+        return nextFloat(bound * -1, bound);
     }
-
+    
     /**
      * Gets either a positive or negative pseudo random double value within the bound.
      *
@@ -37,9 +37,9 @@ public class EntityRandom extends Random {
      * @return either a positive or negative pseudo random double value within the bound.
      */
     public double nextDoubleBool(double bound) {
-        return nextDouble(-bound + 1, bound);
+        return nextDouble(bound * -1, bound);
     }
-
+    
     /**
      * Gets a random value from the collection.
      *
@@ -50,17 +50,17 @@ public class EntityRandom extends Random {
     @Nonnull
     public <T> T choice(@Nonnull Collection<T> collection) {
         final int r = nextInt(collection.size());
-
+        
         int i = 0;
         for (T t : collection) {
             if (i++ == r) {
                 return t;
             }
         }
-
+        
         throw illegalArgument("empty collection");
     }
-
+    
     /**
      * Gets a random value from the array.
      *
@@ -74,18 +74,16 @@ public class EntityRandom extends Random {
         if (varargs.length == 0) {
             throw illegalArgument("empty array");
         }
-
+        
         return varargs[nextInt(varargs.length)];
     }
-
+    
     public boolean checkBound(double chance) {
-        final float v = nextFloat();
-
-        return v >= chance;
+        return nextFloat() < chance;
     }
-
+    
     private RuntimeException illegalArgument(String message) {
         return new IllegalArgumentException(message);
     }
-
+    
 }

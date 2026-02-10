@@ -1,7 +1,7 @@
 package me.hapyl.fight.infraction;
 
 import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public class PlayerInfraction {
             @Nonnull
             @Override
             public HexID getID() {
-                return HexID.NULL;
+                return HexID.empty();
             }
 
             @Override

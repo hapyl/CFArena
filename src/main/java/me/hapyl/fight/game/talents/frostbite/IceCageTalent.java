@@ -1,11 +1,13 @@
 package me.hapyl.fight.game.talents.frostbite;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,21 +18,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class IceCageTalent extends Talent implements Listener {
 
     protected final PlayerMap<IceCage> iceCageMap = PlayerMap.newMap();
     private final PlayerMap<Snowball> snowballMap = PlayerMap.newMap();
 
-    public IceCageTalent() {
-        super("Ice Cage", """
+    public IceCageTalent(@Nonnull Key key) {
+        super(key, "Ice Cage");
+
+        setDescription("""
                 Launch a &bsnowball&7 in front of you.
-                                     
+                
                 Upon hitting an entity, immobilize and cage them in ice.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.SNOWBALL);
+        setMaterial(Material.SNOWBALL);
         setDurationSec(6);
         setCooldownSec(20);
     }
@@ -70,16 +76,16 @@ public class IceCageTalent extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         iceCageMap.values().forEach(IceCage::remove);
         iceCageMap.clear();
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Snowball snowball = player.launchProjectile(Snowball.class);
 
-        snowball.setShooter(player.getPlayer());
+        snowball.setShooter(player.getEntity());
         snowballMap.put(player, snowball);
 
         player.playWorldSound(Sound.ENTITY_SNOWBALL_THROW, 1.0f);

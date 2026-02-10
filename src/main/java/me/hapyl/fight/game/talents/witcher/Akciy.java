@@ -1,15 +1,17 @@
 package me.hapyl.fight.game.talents.witcher;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.custom.GameDamageEvent;
-import me.hapyl.fight.event.custom.PlayerPreconditionEvent;
+import me.hapyl.fight.event.custom.TalentPreconditionEvent;
+import me.hapyl.fight.game.GameInstance;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -17,19 +19,23 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 public class Akciy extends Talent implements Listener {
 
     protected final Map<LivingGameEntity, AxiiData> axiiDatamap = Maps.newHashMap();
 
-    public Akciy() {
-        super("Axii", """
+    public Akciy(@Nonnull Key key) {
+        super(key, "Axii");
+
+        setDescription("""
                 Stun the &etarget&7 &cenemy for {duration} or until they &nget&7 hit.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.SLIME_BALL);
+        setMaterial(Material.SLIME_BALL);
         setDuration(100);
         setCooldownSec(40);
     }
@@ -44,13 +50,13 @@ public class Akciy extends Talent implements Listener {
     }
 
     @Override
-    public void onStop() {
+    public void onStop(@Nonnull GameInstance instance) {
         axiiDatamap.values().forEach(AxiiData::cancel);
         axiiDatamap.clear();
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final LivingGameEntity target = Collect.targetEntityDot(player, 50.0d, 0.8d, entity -> !player.isSelfOrTeammate(entity));
 
         if (target == null) {
@@ -62,15 +68,15 @@ public class Akciy extends Talent implements Listener {
             return Response.OK;
         }
 
-        stun(target, getDuration());
+        stun(target, player, getDuration());
 
-        target.sendMessage("&c%s stunned you!", player.getName());
-        player.sendMessage("&aStunned %s!", target.getName());
+        target.sendMessage("&c%s stunned you!".formatted(player.getName()));
+        player.sendMessage("&aStunned %s!".formatted(target.getName()));
         return Response.OK;
     }
 
     @EventHandler()
-    public void handleGameDamageEvent(GameDamageEvent ev) {
+    public void handleGameDamageEvent(GameDamageEvent.Process ev) {
         final LivingGameEntity entity = ev.getEntity();
         final GameEntity damager = ev.getDamager();
 
@@ -87,7 +93,7 @@ public class Akciy extends Talent implements Listener {
     }
 
     @EventHandler()
-    public void handleTalentUse(PlayerPreconditionEvent ev) {
+    public void handleTalentUse(TalentPreconditionEvent ev) {
         if (!axiiDatamap.containsKey(ev.getPlayer())) {
             return;
         }
@@ -114,9 +120,9 @@ public class Akciy extends Talent implements Listener {
         return axiiDatamap.containsKey(entity);
     }
 
-    public void stun(@Nonnull LivingGameEntity entity, int duration) {
+    public void stun(@Nonnull LivingGameEntity entity, @Nonnull GamePlayer stunner, int duration) {
         unStun(entity);
-        axiiDatamap.put(entity, new AxiiData(this, entity, duration));
+        axiiDatamap.put(entity, new AxiiData(this, entity, stunner, duration));
     }
 
     private void unStun(LivingGameEntity entity) {

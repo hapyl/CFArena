@@ -2,7 +2,7 @@ package me.hapyl.fight.game.attribute;
 
 import me.hapyl.fight.game.heroes.Hero;
 
-public class HeroAttributes extends Attributes {
+public class HeroAttributes extends BaseAttributes {
 
     private final Hero hero;
 
@@ -13,5 +13,5 @@ public class HeroAttributes extends Attributes {
     public Hero getHero() {
         return hero;
     }
-
+    
 }

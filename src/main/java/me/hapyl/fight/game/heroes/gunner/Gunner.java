@@ -1,15 +1,15 @@
 package me.hapyl.fight.game.heroes.gunner;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Disabled;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
 import me.hapyl.fight.game.talents.Talent;
 
 import javax.annotation.Nonnull;
 
 public class Gunner extends Hero implements Disabled {
-    public Gunner(@Nonnull Heroes handle) {
-        super(handle, "Gunner");
+    public Gunner(@Nonnull Key key) {
+        super(key, "Gunner");
 
         setDescription("""
                 """);

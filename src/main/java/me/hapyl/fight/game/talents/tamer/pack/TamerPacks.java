@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.talents.tamer.pack;
 
-import me.hapyl.spigotutils.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -10,9 +10,7 @@ public enum TamerPacks {
     DR_WITCH(new DrWitch()),
     THE_WOLF_PACK(new TheWolfPack()),
     PIGMAN_RUSHER(new PigmanRusher()),
-    LASER_ZOMBIE(new LaserZombie()),
-
-    ;
+    LASER_ZOMBIE(new LaserZombie());
 
     private final TamerPack pack;
 

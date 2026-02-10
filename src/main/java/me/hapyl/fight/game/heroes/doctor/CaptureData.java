@@ -2,7 +2,7 @@ package me.hapyl.fight.game.heroes.doctor;
 
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.task.TickingGameTask;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -15,7 +15,7 @@ public class CaptureData extends TickingGameTask {
     private final PhysGun physGun;
     private final GamePlayer player;
     private final LivingGameEntity entity;
-    private final boolean flight;
+    private final boolean flight; // fixme ->  Realistically allowFlight causes so much errors, just replace with ability
 
     public CaptureData(@Nonnull PhysGun physGun, @Nonnull GamePlayer player, @Nonnull LivingGameEntity entity) {
         this.physGun = physGun;
@@ -24,6 +24,8 @@ public class CaptureData extends TickingGameTask {
         this.flight = entity instanceof GamePlayer playerEntity && playerEntity.getAllowFlight();
 
         entity.setInvulnerable(true);
+        entity.asPlayer(playerEntity -> playerEntity.setAllowFlight(true));
+
         runTaskTimer(0, 1);
     }
 
@@ -50,7 +52,7 @@ public class CaptureData extends TickingGameTask {
 
     @Override
     public void run(int tick) {
-        if (player.isDeadOrRespawning() || entity.isDeadOrRespawning() || !player.isHeldSlot(HotbarSlots.HERO_ITEM)) {
+        if (player.isDeadOrRespawning() || entity.isDeadOrRespawning() || !player.isHeldSlot(HotBarSlot.HERO_ITEM)) {
             cancel();
             return;
         }

@@ -1,9 +1,9 @@
 package me.hapyl.fight.fx;
 
-import me.hapyl.fight.game.talents.Removable;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.util.Removable;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Giant;

@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.heroes.witcher;
 
-import me.hapyl.fight.game.achievement.Achievements;
 import me.hapyl.fight.game.entity.GamePlayer;
+import me.hapyl.fight.registry.Registries;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 
@@ -38,7 +38,7 @@ public class Combo {
 
 		// Achievement
 		if (combo >= 16) {
-			Achievements.COMBO.complete(player);
+			Registries.achievements().WITCHER_COMBO.complete(player);
 		}
 	}
 

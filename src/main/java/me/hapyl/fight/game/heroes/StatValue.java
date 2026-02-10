@@ -4,12 +4,12 @@ import me.hapyl.fight.game.stats.StatType;
 
 public class StatValue implements Rankable {
 
-    public final Heroes hero;
+    public final Hero hero;
     public final StatType type;
     public final double value;
     private int rank;
 
-    public StatValue(Heroes hero, StatType type, double value) {
+    public StatValue(Hero hero, StatType type, double value) {
         this.hero = hero;
         this.type = type;
         this.value = value;

@@ -1,36 +1,39 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
-import me.hapyl.fight.game.Event;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.game.GameInstance;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.garbage.CFGarbageCollector;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.Reflect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import me.hapyl.fight.garbage.SynchronizedGarbageEntityCollector;
+import net.kyori.adventure.text.Component;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 public class GameEntity {
-
+    
     public final UUID uuid;
     private final Set<String> tags;
     @Nonnull
@@ -43,93 +46,73 @@ public class GameEntity {
     //  FALSE forces entity to be invalid.
     //  NULL (default) will use a isValid() check.
     private Boolean validState;
-
+    
     public GameEntity(@Nonnull LivingEntity entity) {
         this.uuid = entity.getUniqueId();
         this.tags = Sets.newHashSet();
         this.entity = entity;
         this.validState = null;
     }
-
+    
     @Nonnull
     public LivingEntity getEntity() {
         return entity;
     }
-
+    
     @Nonnull
     public GameEntity getGameEntity() {
         return this;
     }
-
+    
     public void teleport(@Nonnull Location location) {
         entity.teleport(location);
     }
-
+    
     public void teleport(@Nonnull GameEntity entity) {
         teleport(entity.getLocation());
     }
-
+    
     @Nonnull
     public Location getLocation() {
         return entity.getLocation();
     }
-
-    public <T extends LivingEntity> boolean is(@Nonnull Class<T> clazz) {
-        return clazz.isInstance(entity);
-    }
-
-    public boolean is(@Nullable LivingEntity entity) {
-        return this.entity == entity;
-    }
-
-    public boolean isNot(@Nonnull LivingEntity entity) {
-        return this.entity != entity;
-    }
-
-    public <T extends LivingEntity> boolean isNot(@Nonnull Class<T> clazz) {
-        return !is(clazz);
-    }
-
+    
     public void addPassenger(@Nonnull GameEntity entity) {
         this.entity.addPassenger(entity.getEntity());
     }
-
+    
     public void addPassenger(@Nonnull Entity entity) {
         this.entity.addPassenger(entity);
     }
-
+    
     @Nonnull
     public String getName() {
         return entity.getName();
     }
-
-    @Nonnull
-    public final String getNameUnformatted() {
-        return CFUtils.stripColor(getName());
-    }
-
+    
     @Nonnull
     public Location getEyeLocation() {
         return entity.getEyeLocation();
     }
-
+    
+    @Deprecated // bad design
     public void asPlayer(Consumer<Player> consumer) {
         if (!(entity instanceof Player player)) {
             return;
         }
-
+        
         consumer.accept(player);
     }
-
+    
     public final UUID getUUID() {
         return uuid;
     }
-
+    
     @Nonnull
     public World getWorld() {
         return entity.getWorld();
     }
-
+    
     /**
      * Checks if this entity is valid for game validations, such as damage, etc.
      *
@@ -140,144 +123,158 @@ public class GameEntity {
         if (base) { // Base entities are never valid
             return false;
         }
-
+        
         // Check for state
         if (validState != null) {
             return validState;
         }
-
+        
         // null entities, self or armor stands are not valid
         if (equals(player) || entity instanceof ArmorStand) {
             return false;
         }
-
+        
         // dead entities are not valid
         if (entity.isDead()) { // entity.isInvisible()
             return false;
         }
-
+        
         // garbage entities are not valid
-        if (CFGarbageCollector.isGarbageEntity(entity)) {
+        if (SynchronizedGarbageEntityCollector.isGarbageEntity(entity)) {
             return false;
         }
-
+        
         // Teammate check
         if (player != null && GameTeam.isTeammate(Entry.of(this), Entry.of(player))) {
             return false;
         }
-
+        
         // players are only valid if they are alive and not on the same team
         if (entity instanceof Player targetPlayer) {
             // Only survival players are valid
             if (targetPlayer.getGameMode() != GameMode.SURVIVAL) {
                 return false;
             }
-
+            
             final GamePlayer gamePlayer = CF.getPlayer(targetPlayer);
-
+            
             if (gamePlayer == null || !gamePlayer.isAlive()) {
                 return false;
             }
-
-            if (gamePlayer.hasEffect(Effects.INVISIBILITY)) {
+            
+            if (gamePlayer.hasEffect(EffectType.INVISIBLE)) {
                 return gamePlayer.getHero().isValidIfInvisible(gamePlayer);
             }
-
+            
             return true;
         }
-
+        
         return entity.hasAI() && !entity.isInvulnerable();
     }
-
+    
     public boolean isValid() {
         return isValid(null);
     }
-
+    
     public boolean hasLineOfSight(@Nonnull GameEntity entity) {
         return this.entity.hasLineOfSight(entity.getEntity());
     }
-
+    
     public boolean hasLineOfSight(@Nonnull Entity entity) {
         return this.entity.hasLineOfSight(entity);
     }
-
+    
     public void addTag(@Nonnull String tag) {
         tags.add(tag);
     }
-
+    
     public boolean hasTag(@Nonnull String tag) {
         return tags.contains(tag);
     }
-
+    
     public void removeTag(@Nonnull String tag) {
         tags.remove(tag);
     }
-
+    
     public void setInvulnerable(boolean b) {
         entity.setInvulnerable(b);
     }
-
+    
     public double getEyeHeight() {
         return entity.getEyeHeight();
     }
-
+    
     public void setFreezeTicks(int tick) {
         entity.setFreezeTicks(tick);
     }
-
-    public int getNoDamageTicks() {
-        return entity.getNoDamageTicks();
-    }
-
+    
     public void setFireTicks(int tick) {
         entity.setFireTicks(tick);
     }
-
-    public void kill() {
-        entity.remove();
-    }
-
+    
     /**
-     * Calls entity removal without the death animation.
-     * Does <b>nothing</b> to players.
+     * Removes this entity from the world.
      */
-    public final void forceRemove() {
-        if (entity instanceof Player) {
-            return;
+    @OverridingMethodsMustInvokeSuper
+    public void remove() {
+        // Mobs die with animations
+        if (entity instanceof Mob) {
+            entity.setHealth(0.0d);
         }
-
-        entity.remove();
-        kill();
+        // Other entities don't
+        else {
+            entity.remove();
+        }
+        
+        onRemove();
     }
-
-    @Event
+    
+    @EventLike
     public void onStart(@Nonnull GameInstance instance) {
     }
-
-    @Event
+    
+    @EventLike
     public void onStop(@Nonnull GameInstance instance) {
-        forceRemove();
+        remove();
     }
-
-    @Event
-    public void onDeath() {
-        kill();
+    
+    /**
+     * Called whenever the entity health reached {@code 0} and it dies.
+     */
+    @EventLike
+    public void onRemove() {
     }
-
+    
     public <T extends Entity> void as(@Nonnull Class<T> clazz, @Nonnull Consumer<T> consumer) {
         if (clazz.isInstance(entity)) {
             consumer.accept(clazz.cast(entity));
         }
     }
-
-    public void sendWarning(String warning, int stay) {
-        asPlayer(player -> Chat.sendTitle(player, "&4&l⚠", warning, 0, stay, 5));
+    
+    public void sendMessage(@Nonnull String message) {
+        Chat.sendMessage(entity, message);
     }
-
-    public void sendMessage(String message, Object... objects) {
-        Chat.sendMessage(entity, message.formatted(objects));
+    
+    public void sendErrorMessage(@Nonnull String message) {
+        Message.error(entity, message);
     }
-
+    
+    public void sendSuccessMessage(@Nonnull String message) {
+        Message.success(entity, message);
+    }
+    
+    public void sendMessage(@Nonnull Component component) {
+        entity.sendMessage(component);
+    }
+    
+    public void sendRichMessage(@Nonnull String message) {
+        entity.sendRichMessage(message);
+    }
+    
+    public void sendMessage(@Nonnull Message.Channel sender, @Nonnull String message) {
+        asPlayer(player -> sender.send(player, message));
+    }
+    
     public void sendTitle(@Nullable String title, @Nullable String subtitle, int fadeIn, int stay, int fadeOut) {
         asPlayer(player -> {
             player.sendTitle(
@@ -289,44 +286,40 @@ public class GameEntity {
             );
         });
     }
-
+    
     public void sendSubtitle(String subtitle, int fadeIn, int stay, int fadeOut) {
         sendTitle("", subtitle, fadeIn, stay, fadeOut);
     }
-
-    public void sendActionbar(@Nonnull String text, @Nullable Object... objects) {
-        asPlayer(player -> Chat.sendActionbar(player, text.formatted(objects)));
-    }
-
+    
     public void playSound(@Nonnull Sound sound, float pitch) {
-        asPlayer(player -> PlayerLib.playSound(player, sound, Numbers.clamp(pitch, 0.0f, 2.0f)));
+        asPlayer(player -> PlayerLib.playSound(player, sound, Math.clamp(pitch, 0.0f, 2.0f)));
     }
-
+    
     public void playSound(@Nonnull Location location, @Nonnull Sound sound, float pitch) {
         asPlayer(player -> PlayerLib.playSound(player, location, sound, pitch));
     }
-
+    
     public void playSound(@Nonnull SoundEffect effect) {
-        if (!(this instanceof GamePlayer player)) {
+        if (!(this instanceof GamePlayer)) {
             return;
         }
-
-        effect.play(player);
+        
+        playSound(effect.sound(), effect.pitch());
     }
-
+    
     public void playWorldSound(Location location, Sound sound, float pitch) {
         PlayerLib.playSound(location, sound, pitch);
     }
-
+    
     public void playWorldSound(Sound sound, float pitch) {
         playWorldSound(getLocation(), sound, pitch);
     }
-
+    
     @Override
     public String toString() {
         return "GameEntity{" + uuid.toString() + "}";
     }
-
+    
     @Override
     public final boolean equals(Object o) {
         if (this == o) {
@@ -335,33 +328,45 @@ public class GameEntity {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
+        
         final GameEntity that = (GameEntity) o;
         return Objects.equals(uuid, that.uuid);
     }
-
+    
     @Override
     public final int hashCode() {
         return Objects.hash(uuid);
     }
-
+    
     public int getId() {
         return entity.getEntityId();
     }
-
+    
     public void setCustomNameVisible(boolean visible) {
         this.entity.setCustomNameVisible(visible);
     }
-
+    
     @Nullable
     public String getCustomName() {
         return this.entity.getCustomName();
     }
-
+    
     public void setCustomName(@Nullable String name) {
         this.entity.setCustomName(name);
     }
-
+    
+    @Nonnull
+    public String getNameWithTeamColor() {
+        final GameTeam team = getTeam();
+        
+        return (team != null ? team.getColor() : "") + getName();
+    }
+    
+    @Nullable
+    public GameTeam getTeam() {
+        return GameTeam.getEntryTeam(getEntry());
+    }
+    
     public void flip() {
         final String name = getCustomName();
         if (name == null || !name.equals("Dinnerbone")) {
@@ -371,103 +376,103 @@ public class GameEntity {
             setCustomName(null);
         }
     }
-
+    
     public void setAI(boolean b) {
         this.entity.setAI(false);
     }
-
+    
     public boolean isProjectile() {
         return entity instanceof Projectile;
     }
-
+    
     @Nonnull
     public Vector getVelocity() {
         return entity.getVelocity();
     }
-
+    
     public void setVelocity(Vector vector) {
         entity.setVelocity(vector);
     }
-
+    
     /**
      * Gets the absolute velocity.
      */
     @Nonnull
     public Vector getAbsoluteVelocity() {
         final Vector velocity = getVelocity();
-
+        
         return new Vector(Math.abs(velocity.getX()), Math.abs(velocity.getY()), Math.abs(velocity.getZ()));
     }
-
+    
     @Nonnull
     public Vector getVectorOffsetLeft(double multiply) {
         final Vector direction = getLocation().getDirection().normalize();
-
+        
         return new Vector(direction.getZ(), 0.0, -direction.getX()).normalize().multiply(multiply);
     }
-
+    
     @Nonnull
     public Vector getVectorOffsetRight(double multiply) {
         final Vector direction = getLocation().getDirection().normalize();
-
+        
         return new Vector(-direction.getZ(), 0.0, direction.getX()).normalize().multiply(multiply);
     }
-
+    
     @Nonnull
     public Location getLocationInFront(double multiply) {
         return LocationHelper.getInFront(getLocation(), multiply);
     }
-
+    
     @Nonnull
     public Location getLocationInFrontFromEyes(double offset) {
         return LocationHelper.getInFront(getEyeLocation(), offset);
     }
-
+    
     @Nonnull
     public Location getLocationBehind(double multiply) {
         return LocationHelper.getBehind(getLocation(), multiply);
     }
-
+    
     @Nonnull
     public Location getLocationBehindFromEyes(double offset) {
         return LocationHelper.getBehind(getEyeLocation(), offset);
     }
-
+    
     @Nonnull
     public Block getBlock() {
         return getLocation().getBlock();
     }
-
+    
     public int getBlockLight() {
         return getBlock().getLightLevel();
     }
-
+    
     public float getYaw() {
         return getLocation().getYaw();
     }
-
+    
     public float getPitch() {
         return getLocation().getPitch();
     }
-
+    
     public double getY() {
         return getLocation().getY();
     }
-
+    
     public int getBlockY() {
         return (int) getY();
     }
-
+    
     @Nonnull
     public Vector getDirection() {
         return getLocation().getDirection();
     }
-
+    
     @Nonnull
     public Vector getEyeDirection() {
         return getEyeLocation().getDirection();
     }
-
+    
     /**
      * Gets the throw direction from entity's {@link #getDirection()} multiplied by <code>normalized</code> {@link #getAbsoluteVelocity()}.
      *
@@ -477,43 +482,101 @@ public class GameEntity {
     public Vector getThrowDirection() {
         final Vector direction = getDirection();
         final Vector velocity = getAbsoluteVelocity().normalize();
-
+        
         return direction.multiply(velocity);
     }
-
+    
     public net.minecraft.world.entity.Entity getNMSEntity() {
-        return Reflect.getMinecraftEntity(entity);
+        return Reflect.getHandle(entity);
     }
-
+    
     public double dot(@Nonnull Location other) {
         final Vector vector = other.subtract(getEyeLocation()).toVector().normalize();
-
+        
         return getEyeLocation().getDirection().dot(vector);
     }
-
+    
     public void addToTeam(@Nonnull GameTeam team) {
         team.addEntry(Entry.of(this));
     }
-
+    
     public void setGravity(boolean b) {
         entity.setGravity(b);
     }
-
+    
     public boolean hasGravity() {
         return entity.hasGravity();
     }
-
+    
     @Nullable
     public Boolean getValidState() {
         return validState;
     }
-
+    
     public void setValidState(@Nullable Boolean newState) {
         validState = newState;
     }
-
+    
     @Nonnull
     public Entry getEntry() {
         return Entry.of(this);
+    }
+    
+    public boolean isOnGround() {
+        return entity.isOnGround();
+    }
+    
+    @Nonnull
+    public Location getLocationWithoutRotation() {
+        final Location location = getLocation();
+        location.setYaw(0.0f);
+        location.setPitch(0.0f);
+        
+        return location;
+    }
+    
+    public boolean isOnFire() {
+        return entity.getFireTicks() > 0;
+    }
+    
+    @Nonnull
+    public BoundingBox boundingBox() {
+        return entity.getBoundingBox();
+    }
+    
+    public void setEquipment(@Nonnull EntityEquipment equipment) {
+        final EntityEquipment entityEquipment = entity.getEquipment();
+        
+        if (entityEquipment != null) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                entityEquipment.setItem(slot, equipment.getItem(slot));
+            }
+        }
+    }
+    
+    public void setInvisible(boolean invisible) {
+        entity.setInvisible(invisible);
+    }
+    
+    /**
+     * Gets a collection of particle receivers containing all online players excluding this entity if it's a player.
+     *
+     * @return a collection of particle receivers containing all online players excluding this entity if it's a player.
+     * @see com.destroystokyo.paper.ParticleBuilder#receivers(Collection)
+     */
+    @Nonnull
+    public Collection<Player> particleReceivers() {
+        final Set<Player> receivers = Sets.newHashSet(Bukkit.getOnlinePlayers());
+        
+        if (entity instanceof Player player) {
+            receivers.remove(player);
+        }
+        
+        return receivers;
+    }
+    
+    @Nonnull
+    public EntityType getType() {
+        return entity.getType();
     }
 }

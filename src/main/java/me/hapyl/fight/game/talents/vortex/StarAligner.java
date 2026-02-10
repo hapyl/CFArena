@@ -1,12 +1,14 @@
 package me.hapyl.fight.game.talents.vortex;
 
+
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.heroes.vortex.Vortex;
 import me.hapyl.fight.game.talents.InputTalent;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
@@ -24,33 +26,37 @@ public class StarAligner extends InputTalent {
     @DisplayField private final int implodeDelay = 20;
     @DisplayField private final double damageHealthMultiplier = 2.0d;
 
-    public StarAligner() {
-        super("Astral Vision");
+    public StarAligner(@Nonnull Key key) {
+        super(key, "Astral Vision");
 
-        setDescription("Enter astral vision state.");
+        setDescription("""
+                Enter astral vision and focus an &eAstral Star&7.
+                """);
 
         leftData.setAction("Implode");
         leftData.setDescription("""
-                Implode the &a&ntarget&e Astral Star&7, dealing &cAoE damage&7 based on the stars current &chealth&7.
-                                
-                &c;;Imploding a star will &nnot&c return the sacrificed ❤!
-                """);
+                Implode the &a&ntarget&e Astral Star&7, dealing &cAoE damage&7 based on the stars current &a❤&7.
+                
+                &4&o;;Imploding a star will not return the sacrificed ❤!
+                """
+        );
         leftData.setType(TalentType.DAMAGE);
         leftData.setCooldownSec(6);
 
         rightData.setAction("Link");
         rightData.setDescription("""
                 Link with the &a&ntarget&7 &eAstral Star&7, launching yourself towards it.
-                                
+                
                 While &ntraveling&7, leave an &6Astral Trail&7 that rapidly deals damage.
-                &8;;If the star is destroyed while traveling, stop traveling.
-                                
+                &8&o;;If the star is destroyed while traveling, stop traveling.
+                
                 Upon reaching the &eAstral Star&7, collect it, regain the &4sacrificed&c ❤&7 and &aheal&7 for its &nremaining&7 health.
-                """);
+                """
+        );
         rightData.setType(TalentType.MOVEMENT);
         rightData.setCooldownSec(1);
 
-        setItem(Material.BEETROOT_SEEDS);
+        setMaterial(Material.BEETROOT_SEEDS);
     }
 
     @Nonnull
@@ -80,7 +86,7 @@ public class StarAligner extends InputTalent {
             return Response.error("Not targeting any astral stars!");
         }
 
-        final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
+        final Vortex hero = HeroRegistry.VORTEX;
         final AstralStarList stars = hero.getFirstTalent().getStars(player);
         final double damage = hero.calculateAstralDamage(player, targetStar.getHealth() * damageHealthMultiplier);
         final Location location = targetStar.getLocation();
@@ -97,7 +103,7 @@ public class StarAligner extends InputTalent {
                             return;
                         }
 
-                        entity.damageNoKnockback(damage, player, EnumDamageCause.SOTS);
+                        entity.damageNoKnockback(damage, player, DamageCause.SOTS);
                     });
 
                     // Fx
@@ -139,17 +145,17 @@ public class StarAligner extends InputTalent {
             return Response.error("Not targeting any astral stars!");
         }
 
-        final Vortex hero = Heroes.VORTEX.getHero(Vortex.class);
+        final Vortex hero = HeroRegistry.VORTEX;
 
         hero.performStarBlink(player, targetStar);
-        hero.addDreamStack(player);
+        hero.getPlayerData(player).incrementDream();
 
         player.playWorldSound(Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
         return Response.OK;
     }
 
     private AstralStar getTargetStar(GamePlayer player) {
-        final AstralStarList stars = Talents.VORTEX_STAR.getTalent(VortexStarTalent.class).getStars(player);
+        final AstralStarList stars = TalentRegistry.VORTEX_STAR.getStars(player);
 
         return stars.getTargetStar();
     }

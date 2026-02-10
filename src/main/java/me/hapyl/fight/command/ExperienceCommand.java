@@ -1,13 +1,13 @@
 package me.hapyl.fight.command;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.command.SimplePlayerAdminCommand;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.eterna.module.util.Enums;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.database.entry.ExperienceEntry;
 import me.hapyl.fight.game.experience.Experience;
 import me.hapyl.fight.game.experience.ExperienceDebugGUI;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.command.SimplePlayerAdminCommand;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -41,7 +41,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
 
             switch (arg) {
                 case "fix" -> {
-                    experience.fixRewards(target);
+                    experience.updatePlayerRewards(target);
                     Chat.sendMessage(player, "&aFixing rewards for %s...".formatted(target.getName()));
                 }
 
@@ -78,7 +78,7 @@ public class ExperienceCommand extends SimplePlayerAdminCommand {
         final ExperienceEntry database = experience.getDatabaseEntry(target);
 
         final String operation = args[1];
-        final ExperienceEntry.Type type = Validate.getEnumValue(ExperienceEntry.Type.class, args[2]);
+        final ExperienceEntry.Type type = Enums.byName(ExperienceEntry.Type.class, args[2]);
         final long value = Numbers.getLong(args[3], 0L);
 
         if (type == null) {

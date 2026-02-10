@@ -1,11 +1,12 @@
 package me.hapyl.fight.game.cosmetic;
 
-import me.hapyl.spigotutils.module.util.SmallCaps;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.SmallCaps;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;
 
-public enum Type {
+public enum Type implements KeyedEnum {
 
     KILL(Material.IRON_SWORD, "Kill Cosmetic", "Executes whenever you eliminate an opponent."),
     DEATH(Material.SKELETON_SKULL, "Death Cosmetic", "Executes whenever you die."),

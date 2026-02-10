@@ -1,13 +1,14 @@
 package me.hapyl.fight.command;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.command.DisabledCommand;
+import me.hapyl.eterna.module.util.ArgumentList;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.filter.ProfanityFilter;
-import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.PlayerDisplay;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.command.DisabledCommand;
-import me.hapyl.spigotutils.module.util.ArgumentList;
+import me.hapyl.fight.game.profile.PlayerProfile;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -19,8 +20,8 @@ public class NickCommand extends CFCommand implements DisabledCommand {
     private final Set<String> disallowedNames;
     private final Pattern namePattern = Pattern.compile("^[a-zA-Z0-9_]{3,16}[^_]$");
 
-    public NickCommand() {
-        super("nick", PlayerRank.PREMIUM);
+    public NickCommand(@Nonnull String name) {
+        super(name, PlayerRank.PREMIUM);
 
         disallowedNames = Sets.newHashSet();
         disallowedNames.add("hapyl");
@@ -31,48 +32,44 @@ public class NickCommand extends CFCommand implements DisabledCommand {
 
     @Override
     protected void execute(@Nonnull Player player, @Nonnull ArgumentList args, @Nonnull PlayerRank rank) {
+        if (true) {
+            Message.error(player, "This feature is currently disabled, sorry!");
+            return;
+        }
+
         if (!ProfanityFilter.isInstantiated()) {
-            Notifier.error(player, "This feature cannot be used yet, try again in a moment!");
+            Message.error(player, "This feature cannot be used yet, try again in a moment!");
             return;
         }
 
-        final PlayerProfile profile = PlayerProfile.getProfile(player);
-
-        if (profile == null) {
-            Notifier.error(player, "Bad profile!");
-            return;
-        }
-
-        final PlayerDisplay display = profile.getDisplay();
+        final PlayerProfile profile = CF.getProfile(player);
+        final PlayerDisplay display = profile.display();
         final String newNick = args.get(0).toString();
 
         if (newNick.isEmpty() || newNick.equalsIgnoreCase("reset")) {
-            display.resetNick();
-            Notifier.success(player, "Reset your nick!");
+            Message.success(player, "Reset your nick!");
             return;
         }
 
         if (!namePattern.matcher(newNick).matches()) {
-            Notifier.error(player, "Invalid nick!");
+            Message.error(player, "Invalid nick!");
             return;
         }
 
         if (disallowedNames.contains(newNick) && !rank.isOrHigher(PlayerRank.ADMIN)) {
-            Notifier.error(player, "This nick is disallowed!");
+            Message.error(player, "This nick is disallowed!");
             return;
         }
 
         if (ProfanityFilter.isProfane(newNick)) {
-            Notifier.error(player, "You cannot use that as a nick!");
+            Message.error(player, "You cannot use that as a nick!");
             return;
         }
 
-        display.setNick(newNick);
+        Message.success(player, "Set your nick to: {%s}!".formatted(newNick));
+        Message.error(player, "Keep in mind abusing the nick system is a bannable offense!");
 
-        Notifier.success(player, "Set your nick to: {}!", newNick);
-        Notifier.error(player, "Keep in mind abusing the nick system is a bannable offense!");
-
-        Notifier.broadcastStaff("{} changed their name to {}.", player.getName(), newNick);
+        Message.broadcastStaff("{%s} changed their name to {%s}.".formatted(player.getName(), newNick));
     }
 
 }

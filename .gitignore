@@ -3,3 +3,6 @@
 /.idea/
 /src/main/java/patch_notes/
 /target/
+/.gradle/
+/build/
+/run/

@@ -1,28 +1,29 @@
 package me.hapyl.fight.script;
 
 import com.google.common.collect.Lists;
-import me.hapyl.fight.game.Event;
-import me.hapyl.fight.registry.EnumId;
+import me.hapyl.eterna.module.annotate.EventLike;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.registry.Keyed;
 import me.hapyl.fight.script.action.ScriptActionBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 
-public class Script extends EnumId {
+public class Script implements Keyed {
 
+    private final Key key;
     protected final LinkedList<ScriptAction> actions;
 
-    public Script(@Nonnull String id) {
-        super(id);
-
+    public Script(@Nonnull Key key) {
+        this.key = key;
         this.actions = Lists.newLinkedList();
     }
 
-    @Event
+    @EventLike
     public void onStart() {
     }
 
-    @Event
+    @EventLike
     public void onEnd() {
     }
 
@@ -37,11 +38,16 @@ public class Script extends EnumId {
 
     @Override
     public final String toString() {
-        return getId();
+        return key.toString();
     }
 
     public void push(@Nonnull ScriptAction action) {
         actions.addLast(action);
     }
 
+    @Nonnull
+    @Override
+    public Key getKey() {
+        return key;
+    }
 }

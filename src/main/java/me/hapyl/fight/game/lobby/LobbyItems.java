@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.lobby;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Manager;
-import me.hapyl.fight.game.cosmetic.Cosmetics;
+import me.hapyl.fight.game.cosmetic.Cosmetic;
 import me.hapyl.fight.game.cosmetic.Type;
 import me.hapyl.fight.game.cosmetic.gadget.Gadget;
-import me.hapyl.fight.game.profile.PlayerProfile;
-import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.GameManagementGUI;
+import me.hapyl.fight.gui.HeroSelectGUI;
 import me.hapyl.fight.gui.styled.profile.PlayerProfileGUI;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -23,7 +23,7 @@ public enum LobbyItems {
         }
     }),
 
-    GAME_MANAGEMENT(new LobbyItem(Material.BOOK, 2, "Game Management", "Manage game settings such as selecting maps, modes etc.") {
+    GAME_MANAGEMENT(new LobbyItem(Material.BOOK, 2, "Game Management", "Manage game settings such as selecting maps, types etc.") {
         @Override
         public void onClick(Player player) {
             new GameManagementGUI(player);
@@ -45,16 +45,7 @@ public enum LobbyItems {
     START_GAME(new LobbyItem(Material.CLOCK, 7, "Start Vote", "Click to start a vote to start the game!") {
         @Override
         public void onClick(Player player) {
-            final Manager manager = Manager.current();
-            final StartCountdown countdown = manager.getStartCountdown();
-
-            if (countdown != null) {
-                countdown.cancelByPlayer(player);
-                manager.stopStartCountdown(player);
-                return;
-            }
-
-            manager.createStartCountdown();
+            Manager.current().doStartOrCancelCountdown(player);
         }
     }),
     ;
@@ -80,18 +71,13 @@ public enum LobbyItems {
         }
 
         // Give gadget
-        final Cosmetics selectedGadget = Cosmetics.getSelected(player, Type.GADGET);
+        final Cosmetic selectedGadget = CF.getDatabase(player).cosmeticEntry.getSelected(Type.GADGET);
 
-        if (selectedGadget != null) {
-            if (selectedGadget.getCosmetic() instanceof Gadget gadget) {
-                gadget.give(player);
-            }
+        if (selectedGadget instanceof Gadget gadget) {
+            gadget.give(player);
         }
 
         // Give fast access items
-        PlayerProfile.getProfileOptional(player).ifPresent(profile -> {
-            profile.getFastAccess().update();
-        });
-
+        CF.getProfile(player).getFastAccess().update();
     }
 }

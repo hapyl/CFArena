@@ -1,15 +1,17 @@
 package me.hapyl.fight.game.talents.spark;
 
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.damage.EnumDamageCause;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.damage.DamageCause;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -19,6 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class SparkFlash extends Talent {
 
@@ -27,23 +30,24 @@ public class SparkFlash extends Talent {
     @DisplayField private final int windupTime = 15;
     @DisplayField private final double fireDamage = 2;
 
-    public SparkFlash() {
-        super(
-                "Blinding Curve", """
-                        Throw an energy blast filled with blinding energy that curves up and explodes after a short delay, blinding anyone looking at it.
-                                                
-                        Enemies also receive small fire damage.
-                        &8;;You know, their eyes hurt!
-                        """
+    public SparkFlash(@Nonnull Key key) {
+        super(key, "Blinding Curve");
+
+        setDescription("""
+                Throw an energy blast filled with blinding energy that curves up and explodes after a short delay, blinding anyone looking at it.
+                
+                Enemies also receive small fire damage.
+                &8;;You know, their eyes hurt!
+                """
         );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.WHITE_DYE);
+        setMaterial(Material.WHITE_DYE);
         setCooldown(300);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location location = player.getEyeLocation();
 
         final Item item = player.getWorld().dropItem(location, new ItemStack(Material.WHITE_DYE), self -> {
@@ -58,10 +62,10 @@ public class SparkFlash extends Talent {
                 final Location itemLocation = item.getLocation();
 
                 // Fx
-                PlayerLib.spawnParticle(itemLocation, Particle.ELECTRIC_SPARK, 1, 0, 0, 0, 0);
+                player.spawnWorldParticle(itemLocation, Particle.ELECTRIC_SPARK, 1, 0, 0, 0, 0);
 
                 if (tick % 2 == 0) {
-                    PlayerLib.playSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
+                    player.playWorldSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 2.0f);
                 }
             }
 
@@ -72,22 +76,23 @@ public class SparkFlash extends Talent {
                 CF.getAlivePlayers().forEach(victim -> {
                     // Check for dot instead of line of sight
                     final Vector playerDirection = itemLocation.clone().subtract(victim.getLocation()).toVector().normalize();
-                    final Vector vector = victim.getPlayer().getLocation().getDirection().normalize();
+                    final Vector vector = victim.getEntity().getLocation().getDirection().normalize();
 
                     final double dotProduct = vector.dot(playerDirection);
                     final double distance = victim.getLocation().distance(itemLocation);
 
                     if ((dotProduct >= 0.4f && distance <= maxDistance) && victim.hasLineOfSight(item)) {
-                        victim.addEffect(Effects.BLINDNESS, 1, flashDuration);
+                        victim.addEffect(EffectType.BLINDNESS, 1, flashDuration);
                         victim.playSoundAndCut(Sound.ITEM_ELYTRA_FLYING, 2.0f, flashDuration);
-                        victim.damage(fireDamage, player, EnumDamageCause.FIRE_TICK);
+                        victim.damage(fireDamage, player, DamageCause.FIRE_TICK);
                         victim.setFireTicks(10);
+                        victim.triggerDebuff(player);
                     }
                 });
 
                 // Fx
-                PlayerLib.playSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
-                PlayerLib.spawnParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0);
+                player.playWorldSound(itemLocation, Sound.ENTITY_FIREWORK_ROCKET_BLAST, 0.0f);
+                player.spawnWorldParticle(itemLocation, Particle.FLASH, 2, 0, 0, 0, 0, Color.WHITE);
 
                 item.remove();
             }

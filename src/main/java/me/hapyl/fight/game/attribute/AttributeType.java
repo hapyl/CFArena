@@ -1,452 +1,495 @@
 package me.hapyl.fight.game.attribute;
 
 import com.google.common.collect.Lists;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.game.Constants;
+import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.util.CFUtils;
-import me.hapyl.fight.util.Described;
-import me.hapyl.spigotutils.module.math.Numbers;
-import org.bukkit.ChatColor;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
-public enum AttributeType implements Described {
-
+public enum AttributeType implements IAttribute {
+    
     MAX_HEALTH(
-            new Attribute("Health", "Maximum health of an entity.") {
+            new Attribute("Max Health", "Increases the maximum health.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
+                public void update(@Nonnull LivingGameEntity entity, double value) {
                     final double health = entity.getHealth();
-
+                    
                     if (health > value) {
                         entity.setHealth(value);
                     }
-                    else {
-                        if (!(entity instanceof GamePlayer player)) {
-                            return;
-                        }
-
+                    
+                    // Players also need to update their Vanilla hearts
+                    if (entity instanceof GamePlayer player) {
                         player.updateHealth();
                     }
                 }
-            }
-                    .setChar("❤")
-                    .setColor(ChatColor.RED)
-                    .setToString(AttributeType::doubleFormat),
-            100.0d
-    ) {
-        @Override
-        public double maxValue() {
-            return 1_000_000_000;
-        }
-
-        @Override
-        public double getScale() {
-            return 1;
-        }
-    },
-    ATTACK(
-            new Attribute("Attack", "The more attack you have, the more damage you deal.")
-                    .setChar("🗡")
-                    .setColor(ChatColor.DARK_RED)
-                    .setToString(AttributeType::doubleFormatScaled),
-            1.0d
-    ),
-    DEFENSE(
-            new Attribute("Defense", "The more defense you have, the less damage you take.")
-                    .setChar("🛡")
-                    .setColor(ChatColor.DARK_GREEN)
-                    .setToString(AttributeType::doubleFormatScaled),
-            1.0d
-    ),
-    SPEED(
-            new Attribute("Speed", "Movement speed of an entity.") {
-
+                
                 @Override
-                public void update(LivingGameEntity entity, double value) {
-                    if (entity.getWalkSpeed() == value) {
+                public double defaultValue() {
+                    return 100;
+                }
+                
+                @Override
+                public double minValue() {
+                    // Since the update method tempers with vanilla health, and we all know how bugged vanilla is,
+                    // the actual minimum value is 0.5, so the player's don't die and get stuck in "limbo" state.
+                    return 0.5;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 1_000_000_000;
+                }
+            }.character("❤")
+             .color(Color.RED)
+    ),
+    
+    ATTACK(
+            new Attribute("Attack", "Increases the outgoing damage.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 10_000;
+                }
+            }.character("🗡")
+             .color(Color.DARK_RED)
+    ),
+    
+    DEFENSE(
+            new Attribute("Defense", "Decreases the incoming damage.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+            }.character("🛡")
+             .color(Color.DARK_GREEN)
+    ),
+    
+    SPEED(
+            new Attribute("Speed", "Increases the movement speed.") {
+                
+                private static final double VANILLA_SCALE = 0.002;
+                
+                @Override
+                public void update(@Nonnull LivingGameEntity entity, double value) {
+                    final double vanillaValue = value * VANILLA_SCALE;
+                    
+                    if (entity.getWalkSpeed() == vanillaValue) {
                         return;
                     }
-
-                    entity.setWalkSpeed(Numbers.clamp1neg1((float) value));
+                    
+                    entity.setWalkSpeed(Numbers.clamp1neg1((float) vanillaValue));
                 }
-            }.setChar("🌊")
-                    .setColor(ChatColor.AQUA)
-                    .setToString((type, value) -> "%.0f%%".formatted(type.scaleUp(value))),
-            0.2d
-    ) {
-        @Override
-        public double maxValue() {
-            return 1.0d;
-        }
-
-        @Override
-        public double getScale() {
-            return 500;
-        }
-    },
+                
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+                
+                @Override
+                public double minValue() {
+                    // Minimum speed values make the player controls backwards, could be implemented for something funny.
+                    return -100;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 500;
+                }
+            }.character("🌊")
+             .color(Color.AQUA)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
     CRIT_CHANCE(
-            new Attribute("Crit Chance", "Chance for attack to deal critical hit.")
-                    .setChar("☣")
-                    .setColor(ChatColor.BLUE)
-                    .setToString(AttributeType::doubleFormatPercent),
-            0.1d
-    ) {
-        @Override
-        public double minValue() {
-            return -1;
-        }
-    },
+            new Attribute("Crit Chance", "Increases the change to score a critical hit.") {
+                @Override
+                public double defaultValue() {
+                    return 15;
+                }
+                
+                @Override
+                public double minValue() {
+                    return -100;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 200;
+                }
+            }.character("☣")
+             .color(Color.BLUE)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
     CRIT_DAMAGE(
-            new Attribute("Crit Damage", "The damage increase modifier for critical hit.")
-                    .setChar("☠")
-                    .setColor(ChatColor.BLUE)
-                    .setToString(AttributeType::doubleFormatPercent),
-            0.5d
+            new Attribute("Crit Damage", "Increases the damage of a critical hit.") {
+                @Override
+                public double defaultValue() {
+                    return 50;
+                }
+            }.character("☠")
+             .color(Color.BLUE)
+             .format(AttributeFormat.PERCENTAGE)
     ),
+    
     FEROCITY(
-            new Attribute("Ferocity", "The change to deal an extra strike.")
-                    .setChar("\uD83C\uDF00")
-                    .setColor(ChatColor.RED)
-                    .setToString(AttributeType::doubleFormatPercent),
-            0
-    ) {
-        @Override
-        public double maxValue() {
-            return 5; // 500% or 5 strikes
-        }
-    },
+            new Attribute("Ferocity", "Increases the chance to perform an additional attack.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+                
+                @Override
+                public double maxValue() {
+                    // Divide by 100 to get the maximum number of strikes.
+                    return 500;
+                }
+            }.character("\uD83C\uDF00")
+             .color(Color.RED)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
     MENDING(
-            new Attribute("Mending", "Outgoing healing multiplier.")
-                    .setChar("🌿")
-                    .setColor(ChatColor.GREEN)
-                    .setToString(AttributeType::doubleFormatPercent),
-            1.0d
+            new Attribute("Mending", "Increases outgoing healing.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+            }.character("🌿")
+             .color(Color.GREEN)
+             .format(AttributeFormat.PERCENTAGE)
     ),
+    
     VITALITY(
-            new Attribute("Vitality", "Incoming healing multiplier.")
-                    .setChar(ChatColor.BOLD + "\uD83E\uDE78" + ChatColor.DARK_RED)
-                    .setColor(ChatColor.DARK_RED)
-                    .setToString(AttributeType::doubleFormatPercent),
-            1.0d
+            new Attribute("Vitality", "Increases incoming healing.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+            }.character("&l\uD83E\uDE78")
+             .color(Color.DARK_RED)
+             .format(AttributeFormat.PERCENTAGE)
     ),
+    
     DODGE(
-            new Attribute("Dodge", "Chance to dodge and nullity an attack.")
-                    .setChar("\uD83D\uDC65")
-                    .setColor(ChatColor.GOLD)
-                    .setToString(AttributeType::doubleFormatPercent),
-            0.0d
-    ) {
-        @Override
-        public double maxValue() {
-            return 0.8d;
-        }
-    },
-
-    COOLDOWN_MODIFIER(
-            new Attribute("Cooldown Modifier", "The modifier of your cooldown talents.")
-                    .setChar("\uD83D\uDD02")
-                    .setColor(ChatColor.DARK_GREEN)
-                    .setToString(AttributeType::doubleFormatPercent),
-            1.0
-    ) {
-        @Override
-        public boolean relativity() {
-            return false;
-        }
-    },
-
-    ATTACK_SPEED(
-            new Attribute("Attack Speed", "How fast you attack.") {
-
+            new Attribute("Dodge", "Increases the chance to dodge the attack.") {
                 @Override
-                public void update(LivingGameEntity entity, double value) {
-                    final boolean isInfiniteSpeed = value == Attributes.INFINITE_ATTACK_SPEED;
-
-                    entity.setAttributeValue(
-                            org.bukkit.attribute.Attribute.GENERIC_ATTACK_SPEED,
-                            isInfiniteSpeed ? 100 : 1 + value
-                    );
+                public double defaultValue() {
+                    return 0;
                 }
-            }
-                    .setChar("⚔")
-                    .setColor(ChatColor.YELLOW)
-                    .setToString((type, value) -> {
-                        return value == Attributes.INFINITE_ATTACK_SPEED ? "∞" : AttributeType.doubleFormatPercent(type, value);
-                    }),
-            1.0d
-    ) {
-        @Override
-        public double maxValue() {
-            return 10;
-        }
-    },
-
-    KNOCKBACK_RESISTANCE(
-            new Attribute("Knockback Resistance", "Multiplier on how much knockback resistance you have.") {
+                
                 @Override
-                public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_KNOCKBACK_RESISTANCE, value);
+                public double maxValue() {
+                    return 80;
                 }
-            }
-                    .setChar("🦏")
-                    .setColor(ChatColor.DARK_AQUA),
-            0.0d
-    ) {
-        @Override
-        public double maxValue() {
-            return 1.0d;
-        }
-    },
-
-    EFFECT_RESISTANCE(
-            new Attribute("Effect Resistance", "The chance to resist negative effects.")
-                    .setChar("&5&l\uD83D\uDC1A&5")
-                    .setColor(ChatColor.DARK_PURPLE),
-            0.0
-    ) {
-        @Override
-        public double maxValue() {
-            return 1.0d;
-        }
-    },
-
-    HEIGHT(
-            new Attribute("Height", "Height doesn't matter. Or does it?") {
-                @Override
-                public void update(LivingGameEntity entity, double value) {
-                    entity.setAttributeValue(org.bukkit.attribute.Attribute.GENERIC_SCALE, value);
-                }
-            }
-                    .setChar("\uD83D\uDCCF")
-                    .setColor(ChatColor.GREEN), 1.0d
-    ) {
-        @Override
-        public double getScale() {
-            return 180; // Steve is 1.8 blocks tall so that's scale duh
-        }
-    },
-
-    ENERGY_RECHARGE(
-            new Attribute("Energy Recharge", "Multiplier on how fast you generate energy.")
-                    .setChar("♻")
-                    .setColor(ChatColor.DARK_AQUA),
-            1.0d
+            }.character("\uD83D\uDC65")
+             .color(Color.GOLD)
+             .format(AttributeFormat.PERCENTAGE)
     ),
-
+    
+    FATIGUE(
+            new Attribute("Fatigue", "Increases the cooldown of all talents and abilities, making them take longer to recharge.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+            }.character("\uD83D\uDCA4")
+             .color(Color.DARK_GREEN)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    ATTACK_SPEED(
+            new Attribute("Attack Speed", "Decreases the cooldown between your attacks.") {
+                
+                private static final NavigableMap<Double, PotionEffect> effectMap;
+                
+                static {
+                    effectMap = new TreeMap<>();
+                    
+                    effectMap.put(125d, makeEffect(PotionEffectType.HASTE, 0));
+                    effectMap.put(175d, makeEffect(PotionEffectType.HASTE, 1));
+                    effectMap.put(200d, makeEffect(PotionEffectType.HASTE, 2));
+                    effectMap.put(0d, makeEffect(PotionEffectType.MINING_FATIGUE, 8));
+                    effectMap.put(12.5d, makeEffect(PotionEffectType.MINING_FATIGUE, 7));
+                    effectMap.put(25d, makeEffect(PotionEffectType.MINING_FATIGUE, 6));
+                    effectMap.put(37.5d, makeEffect(PotionEffectType.MINING_FATIGUE, 5));
+                    effectMap.put(50d, makeEffect(PotionEffectType.MINING_FATIGUE, 4));
+                    effectMap.put(62.5d, makeEffect(PotionEffectType.MINING_FATIGUE, 3));
+                    effectMap.put(75d, makeEffect(PotionEffectType.MINING_FATIGUE, 2));
+                    effectMap.put(87.5d, makeEffect(PotionEffectType.MINING_FATIGUE, 1));
+                    effectMap.put(100d, makeEffect(PotionEffectType.MINING_FATIGUE, 0));
+                }
+                
+                @Override
+                @SuppressWarnings("deprecation")
+                public void update(@Nonnull LivingGameEntity entity, double value) {
+                    entity.removePotionEffect(PotionEffectType.HASTE);
+                    entity.removePotionEffect(PotionEffectType.MINING_FATIGUE);
+                    
+                    // Apply either haste or mining fatigue for effect only
+                    final Map.Entry<Double, PotionEffect> entry = effectMap.floorEntry(value);
+                    
+                    if (entry != null) {
+                        entity.addPotionEffect(entry.getValue());
+                    }
+                }
+                
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+                
+                @Override
+                public double minValue() {
+                    return 10;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 200;
+                }
+                
+                private static PotionEffect makeEffect(PotionEffectType type, int amplifier) {
+                    return new PotionEffect(type, Constants.INFINITE_DURATION, amplifier, false, false, false);
+                }
+            }.character("⚔")
+             .color(Color.YELLOW)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    KNOCKBACK_RESISTANCE(
+            new Attribute("Knockback Resistance", "Increases the resistance to knockback.") {
+                @Override
+                public void update(@Nonnull LivingGameEntity entity, double value) {
+                    // Fixme -> doesn't seem to work for some reason even though the attribute is 1.0 in game @ 1.21.4
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.KNOCKBACK_RESISTANCE, value / 100);
+                }
+                
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 100;
+                }
+            }.character("🦏")
+             .color(Color.DARK_AQUA)
+    ),
+    
+    EFFECT_RESISTANCE(
+            new Attribute("Effect Resistance", "Increases the chance to resist negative effects.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 100;
+                }
+            }.character("&l&5\uD83D\uDC1A")
+             .color(Color.DARK_PURPLE)
+    ),
+    HEIGHT(
+            new Attribute("Height", "Increases the height.") {
+                
+                private static final double VANILLA_SCALE = 180;
+                
+                @Override
+                public void update(@Nonnull LivingGameEntity entity, double value) {
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.SCALE, value / VANILLA_SCALE);
+                }
+                
+                @Override
+                public double defaultValue() {
+                    return 180;
+                }
+            }.character("\uD83D\uDCCF")
+             .color(Color.GREEN)
+             .format("%.0f cb"::formatted)
+    ),
+    
+    ENERGY_RECHARGE(
+            new Attribute("Energy Recharge", "Increases how fast your energy is generated.") {
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+            }.character("♻")
+             .color(Color.DARK_AQUA)
+    ),
+    
+    JUMP_STRENGTH(
+            new Attribute("Jump Strength", "Increases how high you can jump.") {
+                
+                private static final double VANILLA_SCALE = 0.0045;
+                
+                @Override
+                public void update(@Nonnull LivingGameEntity entity, double value) {
+                    entity.setAttributeValue(org.bukkit.attribute.Attribute.JUMP_STRENGTH, value * VANILLA_SCALE);
+                }
+                
+                @Override
+                public double defaultValue() {
+                    return 100;
+                }
+                
+            }.character("🐇")
+             .color(Color.AQUA)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    DIRECT_DAMAGE_BONUS(
+            new Attribute("Direct Damage Bonus", "Increases the damage of your direct attacks.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+            }.character("&l⋏")
+             .color(Color.WHITE)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    TALENT_DAMAGE_BONUS(
+            new Attribute("Talent Damage Bonus", "Increases the damage of your talents.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+            }.character("&l⋏")
+             .color(Color.YELLOW)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    ULTIMATE_DAMAGE_BONUS(
+            new Attribute("Ultimate Damage Bonus", "Increases the damage of your ultimate.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+            }.character("&l⋏")
+             .color(Color.AQUA)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
+    EFFECT_HIT_RATE(
+            new Attribute("Effect Hit Rate", "Increases the chance for negative effects or crowd control to land.") {
+                @Override
+                public double defaultValue() {
+                    return 0;
+                }
+                
+                @Override
+                public double maxValue() {
+                    return 1.0;
+                }
+            }.character("\uD83D\uDD78")
+             .color(Color.DIAMOND)
+             .format(AttributeFormat.PERCENTAGE)
+    ),
+    
     ;
-
+    
     private static final List<String> NAMES;
-
+    
     static {
         NAMES = Lists.newArrayList();
-
+        
         for (AttributeType value : values()) {
             NAMES.add(value.name());
         }
     }
-
+    
     public final Attribute attribute;
-    private final double defaultValue;
-
-    AttributeType(Attribute attribute, double defaultValue) {
+    
+    AttributeType(@Nonnull Attribute attribute) {
         this.attribute = attribute;
-        this.defaultValue = defaultValue;
     }
-
-    public boolean isMandatory() {
+    
+    public final boolean isMandatory() {
         return switch (this) {
             case MAX_HEALTH, ATTACK, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, ATTACK_SPEED -> true;
             default -> false;
         };
     }
-
-    /**
-     * Gets the minimum value that this attribute may be.
-     *
-     * @return the minimum value.
-     */
+    
+    @Override
+    public double defaultValue() {
+        return attribute.defaultValue();
+    }
+    
     public double minValue() {
-        return 0.0d;
+        return attribute.minValue();
     }
-
-    /**
-     * Gets the maximum value that this attribute may be.
-     *
-     * @return the maximum value.
-     */
+    
     public double maxValue() {
-        return 10.0d;
+        return attribute.maxValue();
     }
-
-    /**
-     * Gets the relativity of this attribute.
-     * <br>
-     * If <code>true</code>, relativity means `The higher, the better`.
-     * <br>
-     * If <code>false</code>, relativity means 'The lower, the better'.
-     *
-     * @return the relativity of this attribute.
-     */
-    public boolean relativity() {
-        return true;
-    }
-
-    /**
-     * Gets the name of this attribute.
-     *
-     * @return the name of this attribute.
-     */
+    
     @Nonnull
     @Override
     public String getName() {
         return attribute.getName();
     }
-
-    /**
-     * Gets the description of this attribute.
-     *
-     * @return the description of this attribute.
-     */
+    
     @Nonnull
     @Override
     public String getDescription() {
         return attribute.getDescription();
     }
-
-    /**
-     * Gets the default value of this attribute.
-     *
-     * @return the default value of this attribute.
-     */
-    public double getDefaultValue() {
-        return defaultValue;
-    }
-
-    public double getDefaultValueScaled() {
-        return scaleUp(defaultValue);
-    }
-
-    /**
-     * Gets the current value of this attribute from the given {@link Attributes}.
-     *
-     * @param attributes - Attributes.
-     * @return the current value of thia attribute from the given attributes.
-     */
-    public double get(@Nonnull Attributes attributes) {
-        return attributes.get(this);
-    }
-
-    @Override
-    public String toString() {
-        final ChatColor color = attribute.getColor();
-
-        return color + attribute.getCharacter() + " " + color + getName() + "&7";
-    }
-
-    @Nonnull
-    public String getDecimalFormatted(Attributes attributes) {
-        return CFUtils.decimalFormat(get(attributes) * 100.0d);
-    }
-
-    @Nonnull
-    public String getFormatted(Attributes attributes) {
-        final double value = get(attributes);
-
-        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(this, value));
-    }
-
-    public boolean getDisplayType(double newValue, double oldValue) {
-        return relativity() ? newValue > oldValue : newValue < oldValue;
-    }
-
-    /**
-     * Scales the value up, meaning multiplying the value by <code>scale</code>.
-     *
-     * @param value - Value to scale.
-     * @return scaled value.
-     * @see #getScale()
-     */
-    public double scaleUp(double value) {
-        return value * getScale();
-    }
-
-    /**
-     * Scales the value down, meaning dividing the value by <code>scale</code>.
-     *
-     * @param value - Value to scale.
-     * @return scaled value.
-     * @see #getScale()
-     */
-    public double scaleDown(double value) {
-        return value / getScale();
-    }
-
-    /**
-     * Gets the scale of this attribute.
-     * <p>
-     * Since most attribute values are normalized, scaling up or down is
-     * required to display or setting the value in more human way.
-     * <p>
-     * Examples:
-     * <pre>
-     *     // More clear that the crit is 10%
-     *     setCritChance(10);
-     *
-     *     // Less clear that the crit is 10%, moreover, some attributes scale differently, like speed.
-     *     setCritChance(0.1);
-     *
-     * </pre>
-     *
-     * <h2>The speed is the best example:</h2>
-     * <pre>
-     *     // Very clear that the speed is 25%
-     *     setSpeed(25);
-     *
-     *     // Not very clear it's 25%.
-     *     setSpeed(0.05d);
-     * </pre>
-     *
-     * @return the scale of this attribute.
-     */
-    public double getScale() {
-        return 100;
-    }
-
-    @Nonnull
-    public String toString(double value) {
-        return attribute.toString(this, value);
-    }
-
+    
     @Nonnull
     public String getCharacter() {
         return attribute.getCharacter();
     }
-
-    /**
-     * Gets a copy of attribute names as a new list.
-     *
-     * @return a copy of attribute names.
-     */
+    
+    @Nonnull
+    @Override
+    public Color getColor() {
+        return attribute.getColor();
+    }
+    
+    @Nonnull
+    @Override
+    public String toString() {
+        return attribute.toString();
+    }
+    
+    @Nonnull
+    public String toString(double value) {
+        return attribute.toString(value);
+    }
+    
+    @Nonnull
+    public String getFormatted(@Nonnull BaseAttributes attributes) {
+        return "%s%s %s".formatted(attribute.getColor(), attribute.getCharacter(), attribute.toString(attributes.get(this)));
+    }
+    
+    @Nonnull
+    public String getFormattedWithAttributeName(@Nonnull BaseAttributes attributes) {
+        return "%s &f%s".formatted(attribute.toString(), attribute.toString(attributes.get(this)));
+    }
+    
     @Nonnull
     public static List<String> listNames() {
         return Lists.newArrayList(NAMES);
     }
-
-    @Nonnull
-    public static String doubleFormat(@Nonnull AttributeType type, double value) {
-        return "%.0f".formatted(value);
-    }
-
-    public static String doubleFormatScaled(@Nonnull AttributeType type, double value) {
-        return doubleFormat(type, value * 100);
-    }
-
-    @Nonnull
-    public static String doubleFormatPercent(@Nonnull AttributeType type, double value) {
-        return doubleFormatScaled(type, value) + "%";
-    }
-
+    
 }
 

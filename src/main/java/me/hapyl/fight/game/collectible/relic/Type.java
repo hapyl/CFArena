@@ -1,12 +1,13 @@
 package me.hapyl.fight.game.collectible.relic;
 
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.eterna.module.util.Described;
+import me.hapyl.eterna.module.util.SmallCaps;
 import me.hapyl.fight.game.color.Color;
-import me.hapyl.fight.util.Described;
-import me.hapyl.spigotutils.module.util.SmallCaps;
 
 import javax.annotation.Nonnull;
 
-public enum Type implements Described {
+public enum Type implements Described, KeyedEnum {
 
     AMETHYST(Color.AMETHYST, "Amethysts are pretty.", "413600e6c4737192c3121f861487616b134423796d23bc396df521baddb31564"),
     EMERALD(Color.EMERALD, "Emeralds are pretty.", "228dd3d9b81cc9f96a4c11fe13b079494f27fc5b933c4f0833f6564472ee1609"),

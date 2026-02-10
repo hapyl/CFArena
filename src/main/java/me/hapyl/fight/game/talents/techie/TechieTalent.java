@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.talents.techie;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.talents.Talent;
@@ -11,8 +12,8 @@ public abstract class TechieTalent extends Talent implements DeviceHack {
 
     @DisplayField private int castingTime;
 
-    public TechieTalent(@Nonnull String name) {
-        super(name);
+    public TechieTalent(@Nonnull Key key, @Nonnull String name) {
+        super(key, name);
 
         setDescription("""
                 Equip a &bhacking device&7; after a short &3casting time&7, %s
@@ -30,6 +31,7 @@ public abstract class TechieTalent extends Talent implements DeviceHack {
     @Nonnull
     public abstract String getHackDescription();
 
+    @Nonnull
     @Override
     public final Response execute(@Nonnull GamePlayer player) {
         startDevice(player);

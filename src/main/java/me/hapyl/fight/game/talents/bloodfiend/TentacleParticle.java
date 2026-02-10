@@ -1,12 +1,12 @@
 package me.hapyl.fight.game.talents.bloodfiend;
 
-import me.hapyl.fight.game.task.TickingMultiGameTask;
+import me.hapyl.fight.game.task.TickingStepGameTask;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nonnull;
 
-public abstract class TentacleParticle extends TickingMultiGameTask {
+public abstract class TentacleParticle extends TickingStepGameTask {
 
     private final Location location;
     private final Vector vector;
@@ -35,7 +35,7 @@ public abstract class TentacleParticle extends TickingMultiGameTask {
     }
 
     @Override
-    public boolean tick(int tick) {
+    public boolean tick(int tick, int step) {
         if (d >= distance) {
             onDrawFinish(location);
             return true;
@@ -49,7 +49,7 @@ public abstract class TentacleParticle extends TickingMultiGameTask {
         draw(location);
 
         location.subtract(0, y, 0);
-        d += step;
+        d += this.step;
         return false;
     }
 

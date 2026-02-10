@@ -1,23 +1,34 @@
 package me.hapyl.fight.game.heroes.aurora;
 
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.registry.Key;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.CollectionUtils;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.event.DamageInstance;
+import me.hapyl.fight.event.custom.GameDamageEvent;
+import me.hapyl.fight.event.custom.GameDeathEvent;
 import me.hapyl.fight.event.custom.ProjectilePostLaunchEvent;
-import me.hapyl.fight.game.Disabled;
-import me.hapyl.fight.game.attribute.AttributeType;
+import me.hapyl.fight.game.Constants;
+import me.hapyl.fight.game.GameInstance;
+import me.hapyl.fight.game.Named;
 import me.hapyl.fight.game.attribute.HeroAttributes;
-import me.hapyl.fight.game.entity.EquipmentSlots;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.*;
-import me.hapyl.fight.game.talents.Talents;
+import me.hapyl.fight.game.heroes.equipment.HeroEquipment;
+import me.hapyl.fight.game.heroes.ultimate.UltimateInstance;
+import me.hapyl.fight.game.heroes.ultimate.UltimateTalent;
+import me.hapyl.fight.game.talents.TalentRegistry;
 import me.hapyl.fight.game.talents.TalentType;
-import me.hapyl.fight.game.talents.UltimateTalent;
 import me.hapyl.fight.game.talents.aurora.AuroraArrowTalent;
-import me.hapyl.fight.game.talents.aurora.DivineIntervention;
-import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.aurora.CelesteArrow;
+import me.hapyl.fight.game.talents.aurora.EtherealArrow;
+import me.hapyl.fight.game.talents.aurora.GuardianAngel;
 import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.game.task.player.PlayerTickingGameTask;
 import me.hapyl.fight.game.ui.UIComponent;
 import me.hapyl.fight.game.weapons.BowWeapon;
 import me.hapyl.fight.util.CFUtils;
@@ -25,11 +36,7 @@ import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.collection.player.PlayerDataMap;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -37,38 +44,105 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Listener, UIComponent, Disabled {
+public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Listener, UIComponent {
 
     private final PlayerDataMap<AuroraData> auroraDataMap = PlayerMap.newDataMap(AuroraData::new);
     private final Set<AuroraArrowData> arrowDataSet = Sets.newHashSet();
+    private final Particle.DustTransition dustTransition = new Particle.DustTransition(
+            Color.fromRGB(1, 126, 213), Color.fromRGB(141, 0, 196), 1
+    );
 
-    public Aurora(@Nonnull Heroes handle) {
-        super(handle, "Aurora");
+    public Aurora(@Nonnull Key key) {
+        super(key, "Aurora");
 
-        setArchetype(Archetype.SUPPORT);
-        setGender(Gender.FEMALE);
+        setDescription("""
+                An angel-like creature from above the skies.
+                """);
+
+        final HeroProfile profile = getProfile();
+        profile.setArchetypes(Archetype.SUPPORT, Archetype.HEALER, Archetype.POWERFUL_ULTIMATE);
+        profile.setGender(Gender.FEMALE);
+        profile.setRace(Race.UNKNOWN);
+
+        setItem("9babb9fbe50a84b31f68e749b438d4c8f7f58618aec3e769243aa660ce4440fb");
+
+        final HeroEquipment equipment = getEquipment();
+        equipment.setChestPlate(78, 252, 235, TrimPattern.RAISER, TrimMaterial.AMETHYST);
+        equipment.setLeggings(73, 161, 171, TrimPattern.SILENCE, TrimMaterial.AMETHYST);
+        equipment.setBoots(204, 110, 235, TrimPattern.SILENCE, TrimMaterial.AMETHYST);
 
         final HeroAttributes attributes = getAttributes();
+        attributes.setDefense(80);
+        attributes.setSpeed(110);
+        attributes.setCritChance(-100);
 
-        setWeapon(new BowWeapon("Celestial", """
-                A unique bow of celestial origins.
-                """, 2));
+        setWeapon(
+                BowWeapon.of(Key.ofString("celestial"), "Celestial", """
+                        A unique bow of celestial origins.
+                        """, 2)
+        );
 
         setUltimate(new AuroraUltimate());
+        
+        setEventHandler(new HeroEventHandler(this) {
+            @Override
+            public void handlePlayerSwapHandItemsEvent(@Nonnull GamePlayer player) {
+                final AuroraData data = getPlayerData(player);
+                
+                if (player.isUsingUltimate() && data.hasBond()) {
+                    data.breakBond("You broke the bond!");
+                    return;
+                }
+                
+                super.handlePlayerSwapHandItemsEvent(player);
+            }
+        });
+    }
+
+    @EventHandler
+    public void handleEntityDeath(GameDeathEvent ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        for (AuroraData data : getDataMap().values()) {
+            data.remove(entity);
+        }
+    }
+
+    @EventHandler
+    public void handleEntityDamage(GameDamageEvent.Process ev) {
+        final LivingGameEntity entity = ev.getEntity();
+
+        if (!(entity instanceof GamePlayer player)) {
+            return;
+        }
+
+        if (!validatePlayer(player)) {
+            return;
+        }
+
+        final AuroraData data = getPlayerData(player);
+
+        if (data.bond == null) {
+            return;
+        }
+
+        data.breakBond("You took damage!");
     }
 
     @Override
     public void onStart(@Nonnull GamePlayer player) {
-        player.setItem(EquipmentSlots.ARROW, new ItemStack(Material.ARROW));
+        player.setArrowItem();
     }
 
     @Override
-    public void onStart() {
+    public void onStart(@Nonnull GameInstance instance) {
         new TickingGameTask() {
             @Override
             public void run(int tick) {
@@ -78,12 +152,14 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
                 // Tick data
                 auroraDataMap.values().forEach(data -> {
-                    if (data.arrow == null) {
-                        return;
+                    // Tick arrow type
+                    if (data.arrow != null) {
+                        final String string = data.arrow.getString(data.arrowCount);
+                        data.player.sendSubtitle(string, 0, 5, 0);
                     }
 
-                    final String string = data.arrow.getString(data.arrowCount);
-                    data.player.sendSubtitle(string, 0, 5, 0);
+                    // Tick buff
+                    data.buffMap.values().forEach(EtherealSpirit::tick);
                 });
 
                 // Tick teleport
@@ -91,17 +167,12 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
                 if (modulo(5)) {
                     getAlivePlayers().forEach(player -> {
                         final AuroraData data = getPlayerData(player);
-                        final DivineIntervention passiveTalent = getPassiveTalent();
+                        final GuardianAngel passiveTalent = getPassiveTalent();
 
-                        if (passiveTalent.hasCd(player)) {
-                            data.target = null;
-                            return;
-                        }
-
-                        data.target = Collect.targetEntityDot(
+                        data.target = Collect.targetEntityRayCastIgnoreLoS(
                                 player,
                                 passiveTalent.maxDistance,
-                                0.95d,
+                                passiveTalent.lookupRadius,
                                 player::isTeammate
                         );
                     });
@@ -112,7 +183,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
 
     @Override
     public boolean processTeammateDamage(@Nonnull GamePlayer player, @Nonnull LivingGameEntity entity, DamageInstance instance) {
-        instance.setDamage(0.0);
+        instance.overrideDamage(0.0);
         instance.setCancelled(true);
 
         return false; // Don't cancel damage to not spam the "Cannot damage teammates."
@@ -122,29 +193,129 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     public void handleSneak(PlayerToggleSneakEvent ev) {
         final GamePlayer player = CF.getPlayer(ev);
 
-        if (player == null || !validatePlayer(player)) {
+        if (!validatePlayer(player)) {
             return;
         }
 
         final AuroraData data = getPlayerData(player);
+        final LivingGameEntity target = data.target;
 
-        if (data.target == null) {
+        if (target == null || data.hasBond()) {
             return;
         }
 
-        final DivineIntervention passiveTalent = getPassiveTalent();
+        final GuardianAngel talent = getPassiveTalent();
 
-        if (passiveTalent.hasCd(player)) {
+        if (talent.isOnCooldown(player)) {
             return;
         }
 
-        final Location location = getTeleportLocation(data.target.getLocation());
+        talent.startCdIndefinitely(player);
 
-        player.teleport(location);
-        passiveTalent.startCd(player);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 10, talent.teleportDelay);
 
-        // Fx
-        player.playWorldSound(location, Sound.ENTITY_ENDERMAN_TELEPORT, 1.75f);
+        new PlayerTickingGameTask(player) {
+
+            @Override
+            public void run(int tick) {
+                final LivingGameEntity newTarget = data.target;
+
+                if (newTarget == null) {
+                    cancelTeleport("Lost focus!");
+                    return;
+                }
+
+                if (target != newTarget) {
+                    cancelTeleport("The target has changed!");
+                    return;
+                }
+
+                if (target.isDeadOrRespawning()) {
+                    cancelTeleport("The target has died!");
+                    return;
+                }
+
+                // Teleport
+                if (tick > talent.teleportDelay) {
+                    final Location teleportLocation = getTeleportLocation(target.getLocation());
+                    final Location playerLocation = player.getLocation();
+
+                    teleportLocation.setYaw(playerLocation.getYaw());
+                    teleportLocation.setPitch(playerLocation.getPitch());
+
+                    player.teleport(teleportLocation);
+                    player.playWorldSound(teleportLocation, Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1.0f);
+
+                    // Heal
+                    Collect.nearbyEntities(teleportLocation, talent.healingRadius, player::isTeammate) // don't heal Aurora
+                            .forEach(entity -> entity.heal(talent.healing, player));
+
+                    // Fx
+                    spawnParticles(teleportLocation, 5, 0.3f, 0.3f, 0.3f);
+                    spawnParticles(playerLocation, 5, 0.3f, 0.3f, 0.3f);
+
+                    new TickingGameTask() {
+
+                        private double distance;
+
+                        @Override
+                        public void run(int tick) {
+                            if (distance >= talent.healingRadius) {
+                                cancel();
+                                return;
+                            }
+
+                            for (double d = 0; d < Math.PI * 2; d += Math.PI / (8 * (1 + distance / talent.healingRadius))) {
+                                final double x = Math.sin(d) * distance;
+                                final double y = Math.atan(Math.toRadians(tick) * 10) * 0.5d;
+                                final double z = Math.cos(d) * distance;
+
+                                LocationHelper.offset(teleportLocation, x, y, z, () -> {
+                                    spawnParticles(teleportLocation, 2, 0.1f, 0.1f, 0.1f);
+                                });
+                            }
+
+                            distance += Math.PI / 16;
+                        }
+                    }.runTaskTimer(0, 1);
+
+                    talent.startCooldown(player);
+
+                    cancel();
+                    return;
+                }
+
+                final float progress = (float) tick / talent.teleportDelay;
+                final int maxCrystals = 5;
+                final int crystalCount = (int) (maxCrystals * progress);
+
+                player.sendTitle("&6\uD83D\uDC7C",
+                        "&5❖".repeat(crystalCount) + "&b❖".repeat(maxCrystals - crystalCount),
+                        0, 5, 0
+                );
+
+                // Fx
+                if (modulo(2)) {
+                    final float pitch = 0.75f + progress;
+
+                    // Play the sound to both the Aurora and the target
+                    player.playSound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, pitch);
+                    target.playSound(Sound.BLOCK_AMETHYST_BLOCK_BREAK, pitch);
+                }
+            }
+
+            private void cancelTeleport(String reason) {
+                player.sendTitle("&6\uD83D\uDC7C", "&cCancelled! &4" + reason, 5, 10, 5);
+                player.playSound(Sound.ENTITY_ALLAY_HURT, 0.75f);
+
+                talent.startCooldown(player, talent.getCooldown() / 2);
+                cancel();
+            }
+        }.runTaskTimer(0, 1);
+    }
+
+    public void spawnParticles(@Nonnull Location location, int count, double x, double y, double z) {
+        location.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, location, count, x, y, z, 0, dustTransition);
     }
 
     @EventHandler()
@@ -198,18 +369,18 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     }
 
     @Override
-    public Talent getFirstTalent() {
-        return Talents.CELESTE_ARROW.getTalent();
+    public CelesteArrow getFirstTalent() {
+        return TalentRegistry.CELESTE_ARROW;
     }
 
     @Override
-    public Talent getSecondTalent() {
-        return Talents.ETHEREAL_ARROW.getTalent();
+    public EtherealArrow getSecondTalent() {
+        return TalentRegistry.ETHEREAL_ARROW;
     }
 
     @Override
-    public DivineIntervention getPassiveTalent() {
-        return (DivineIntervention) Talents.DIVINE_INTERVENTION.getTalent();
+    public GuardianAngel getPassiveTalent() {
+        return TalentRegistry.GUARDIAN_ANGEL;
     }
 
     @Nonnull
@@ -222,17 +393,24 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
     @Override
     public String getString(@Nonnull GamePlayer player) {
         final AuroraData data = getPlayerData(player);
-        final DivineIntervention passiveTalent = getPassiveTalent();
+        final GuardianAngel passiveTalent = getPassiveTalent();
         final LivingGameEntity target = data.target;
 
-        if (passiveTalent.hasCd(player)) {
-            return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCdTimeLeft(player));
+        if (passiveTalent.isOnCooldown(player)) {
+            return "&6\uD83D\uDC7C &f" + CFUtils.formatTick(passiveTalent.getCooldownTimeLeft(player));
         }
 
         return target != null ? "&6\uD83D\uDC7C &e%s".formatted(target.getName()) : "";
     }
 
-    private Location getTeleportLocation(Location location) {
+    @Nonnull
+    @Override
+    public AuroraUltimate getUltimate() {
+        return (AuroraUltimate) super.getUltimate();
+    }
+
+    private Location getTeleportLocation(Location initialLocation) {
+        final Location location = BukkitUtils.newLocation(initialLocation);
         location.add(1, 0, 1);
 
         for (int x = 0; x < 2; x++) {
@@ -247,7 +425,7 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             }
         }
 
-        return location;
+        return initialLocation;
     }
 
     private boolean checkLocation(Location location) {
@@ -261,44 +439,76 @@ public class Aurora extends Hero implements PlayerDataHandler<AuroraData>, Liste
             return false;
         }
 
-        return block.getRelative(BlockFace.UP).isPassable();
+        // Check for air block at the head instead of passable
+        return block.getRelative(BlockFace.UP).isEmpty();
     }
 
-    private class AuroraUltimate extends UltimateTalent {
+    public class AuroraUltimate extends UltimateTalent {
 
-        @DisplayField private final double shieldCapacity = 1000;
+        @DisplayField public final double healing = 0.01;
+        @DisplayField public final int cooldown = Tick.fromSeconds(25);
+        @DisplayField public final double maxStrayDistance = 250;
 
         public AuroraUltimate() {
-            super("Divine Arrow", 70);
+            super(Aurora.this, "Divine Intervention", 70);
 
             setDescription("""
-                    Shoot a &bdivine arrow&7 up in the sky.
-                                        
-                    After a &nshort&7 &ndelay&7, the arrow &asplits&7 and rushes towards all &ateammates&7.
-                                        
-                    Upon &ncontact&7, it explodes in small AoE, dealing &cdamage&7 to &4enemies&7 and applying &bDivine Protection Seal&7 to any nearby &ateammates&7.
-                                        
-                    &6Divine Protection Seal
-                    &8▷&7 Grants a &eshield&7 that &nconstantly&7 decreases its capacity.
-                    &8▷&7 Grants a %s and %s boost &nidentical&7 to that of %s.
-                                        
-                    &2Aurora&7 becomes &binvulnerable&7 for the whole duration unless she &ndeals&7 damage.
-                    &8;;Excluding teammate damage.
-                    """.formatted(AttributeType.CRIT_CHANCE, AttributeType.CRIT_DAMAGE, getSecondTalent()));
+                    Creates a &bCelestial Bond&7 with the &etarget&a teammate&7.
+                    
+                    &6Celestial Bond
+                    Rapidly &a&nheals&7 the bonded &ateammate&7 and constantly applies the &nmaximum&7 level %s.
+                    
+                    While the bond is &nactive&7, Aurora gains the ability to &ffloat&7, but &closes&7 the ability to use &btalents&7 or &4weapons&7.
+                    
+                    The bond lasts &nindefinitely&7, unless Aurora takes a single instance of &cdamage&7 or the &fline of sight&7 breaks.
+                    &8&o;;Aurora is immune to fall and suffocation damage while the bond is active.
+                    
+                    &7&o;;The bond can be manually broken by pressing the ultimate key.
+                    """.formatted(Named.ETHEREAL_SPIRIT)
+            );
 
             setType(TalentType.SUPPORT);
-            setItem(Material.TIPPED_ARROW, then -> {
-                then.setPotionColor(Color.AQUA);
-            });
-
-            setDurationSec(6);
-            setCooldownSec(50);
+            setMaterial(Material.PRISMARINE_CRYSTALS);
+            
+            setDuration(Constants.INFINITE_DURATION);
+            setSound(Sound.BLOCK_AMETHYST_BLOCK_STEP, 0.0f);
         }
 
         @Nonnull
         @Override
-        public UltimateResponse useUltimate(@Nonnull GamePlayer player) {
-            return UltimateResponse.OK;
+        public UltimateInstance newInstance(@Nonnull GamePlayer player, boolean isFullyCharged) {
+            final AuroraData data = getPlayerData(player);
+            final LivingGameEntity target = data.target;
+
+            if (target == null) {
+                return error("Not targeting a teammate!");
+            }
+
+            if (!player.hasLineOfSight(target)) {
+                return error("Not in light of sight!");
+            }
+
+            // Make sure the target isn't already bonded
+            for (AuroraData otherData : auroraDataMap.values()) {
+                final CelestialBond otherBond = otherData.bond;
+
+                if (otherBond != null && otherBond.getEntity().equals(target)) {
+                    return error("This teammate is already bonded with %s!".formatted(otherBond.getPlayer().getName()));
+                }
+            }
+
+            return execute(() -> {
+                // Reset arrow
+                data.setArrow(null);
+
+                // Reset all buffs
+                data.buffMap.clear(EtherealSpirit::remove);
+
+                // Create bond
+                data.bond = new CelestialBond(this, data, player, target);
+
+                player.setUsingUltimate(true);
+            });
         }
     }
 

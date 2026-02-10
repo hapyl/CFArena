@@ -2,9 +2,12 @@ package me.hapyl.fight.game.talents.doctor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.math.nn.DoubleDouble;
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.heroes.doctor.ElementType;
@@ -12,10 +15,6 @@ import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.math.Cuboid;
-import me.hapyl.spigotutils.module.math.nn.DoubleDouble;
-import me.hapyl.spigotutils.module.util.ThreadRandom;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -24,9 +23,15 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class HarvestBlocks extends Talent {
@@ -35,27 +40,26 @@ public class HarvestBlocks extends Talent {
 
     @DisplayField private final short maximumBlocks = 10;
     @DisplayField private final double maxDistance = 20.0d;
+    @DisplayField private final double distance = 3.0d;
     @DisplayField private final int collectDelay = 30;
 
-    public HarvestBlocks() {
-        super(
-                "Block Harvest",
+    public HarvestBlocks(@Nonnull Key key) {
+        super(key, "Block Harvest");
+
+        setDescription("""
+                Quickly gather resources from up to &e{maximumBlocks}&7 nearby blocks, then combine into one big pile before throwing it at your &cenemies&7.
+                
+                &8&o;;The damage is based on the number of blocks gathered.
                 """
-                        Quickly gather resources from up to &b{maximumBlocks}&7 nearby blocks.
-                                                
-                        Then combine them in one big pile before throwing it at your enemies.
-                                                
-                        &8;;The damage is based on the number of blocks gathered.
-                        """
         );
 
-        setItem(Material.IRON_PICKAXE);
+        setMaterial(Material.IRON_PICKAXE);
         setCooldownSec(30);
         setPoint(5);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final Location start = player.getLocation().add(3, 3, 3);
         final Location end = player.getLocation().subtract(3, 3, 3);
 
@@ -114,20 +118,21 @@ public class HarvestBlocks extends Talent {
                     double deltaZ = playerLocation.getZ() - entityLocation.getZ();
 
                     double distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-
+                    final ThreadLocalRandom random = ThreadLocalRandom.current();
+                    
                     if (distance > distancePerTick) {
                         double ratio = distancePerTick / distance;
-                        double x = (entityLocation.getX() + deltaX * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
-                        double y = (entityLocation.getY() + deltaY * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
-                        double z = (entityLocation.getZ() + deltaZ * ratio) + ThreadRandom.nextDouble(-0.1, 0.1);
+                        double x = (entityLocation.getX() + deltaX * ratio) + random.nextDouble(-0.1, 0.1);
+                        double y = (entityLocation.getY() + deltaY * ratio) + random.nextDouble(-0.1, 0.1);
+                        double z = (entityLocation.getZ() + deltaZ * ratio) + random.nextDouble(-0.1, 0.1);
                         entity.teleport(new Location(entity.getWorld(), x, y, z, entityLocation.getYaw(), entityLocation.getPitch()));
                     }
                     else {
                         entity.teleport(playerLocation.clone()
                                 .add(
-                                        ThreadRandom.nextDouble(-0.1, 0.1),
-                                        ThreadRandom.nextDouble(-0.1, 0.1),
-                                        ThreadRandom.nextDouble(-0.1, 0.1)
+                                        random.nextDouble(-0.1, 0.1),
+                                        random.nextDouble(-0.1, 0.1),
+                                        random.nextDouble(-0.1, 0.1)
                                 ));
                     }
 
@@ -153,7 +158,7 @@ public class HarvestBlocks extends Talent {
         }.runTaskTimer(0, 2);
 
         player.schedule(() -> launchProjectile(player, damage.get()), collectDelay);
-        player.addEffect(Effects.SLOW, 10, collectDelay);
+        player.addPotionEffect(PotionEffectType.SLOWNESS, 10, collectDelay);
 
         return Response.OK;
     }
@@ -194,12 +199,12 @@ public class HarvestBlocks extends Talent {
                 entity.remove();
                 cancel();
 
-                Collect.nearbyEntities(location, 3.0d).forEach(entity -> {
+                Collect.nearbyEntities(location, distance).forEach(entity -> {
                     if (player.isTeammate(entity)) { // Damage self but not teammates
                         return;
                     }
 
-                    entity.damage(damage, player, EnumDamageCause.GRAVITY_GUN);
+                    entity.damage(damage, player, DamageCause.GRAVITY_GUN);
                 });
 
                 player.spawnWorldParticle(location, Particle.EXPLOSION_EMITTER, 1);

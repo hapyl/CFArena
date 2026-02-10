@@ -1,17 +1,15 @@
 package me.hapyl.fight.game.help;
 
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
 import me.hapyl.fight.game.attribute.AttributeType;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 
 public class HelpHeroes extends HelpGUI {
-
-    private final int SPLIT_WIDTH = 40;
 
     public HelpHeroes(Player player) {
         super(player, "Heroes");
@@ -90,8 +88,7 @@ public class HelpHeroes extends HelpGUI {
     @Nonnull
     @Override
     public Material getBorder() {
-        return null;
+        return Material.BLUE_STAINED_GLASS_PANE;
     }
-
 
 }

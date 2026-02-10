@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.orc;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.locaiton.LocationHelper;
+import me.hapyl.eterna.module.math.Tick;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.util.CFUtils;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.locaiton.LocationHelper;
-import me.hapyl.spigotutils.module.math.Tick;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 
 public abstract class OrcWeaponEntity extends GameTask {
 
-    private static final int MAX_ALIVE_TICKS = Tick.fromSecond(10);
+    private static final int MAX_ALIVE_TICKS = Tick.fromSeconds(10);
     private final double FLIGHT_SPEED = 0.75d;
 
     private final BlockData[] BLOCK_DATA = {

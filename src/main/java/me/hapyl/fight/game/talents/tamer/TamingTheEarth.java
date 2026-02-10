@@ -1,10 +1,11 @@
 package me.hapyl.fight.game.talents.tamer;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.game.talents.Talent;
+import me.hapyl.fight.game.talents.TalentType;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.displayfield.DisplayField;
 import org.bukkit.Location;
@@ -14,26 +15,28 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TamingTheEarth extends Talent implements TamerTimed {
 
     @DisplayField private final double radius = 5.0d;
 
-    public TamingTheEarth() {
-        super("Taming the Earth");
+    public TamingTheEarth(@Nonnull Key key) {
+        super(key, "Taming the Earth");
 
         setDescription("""
                 Lower nearby enemies below the baseboard, &eimpairing&7 their movement.
-                """);
+                """
+        );
 
         setType(TalentType.IMPAIR);
-        setItem(Material.PISTON);
+        setMaterial(Material.PISTON);
         setDuration(30);
         setCooldownSec(20);
     }
 
     @Override
-    public Response execute(@Nonnull GamePlayer player) {
+    public @Nullable Response execute(@Nonnull GamePlayer player) {
         final int duration = getDuration(player);
 
         Collect.nearbyEntities(player.getLocation(), radius).forEach(entity -> {
@@ -49,7 +52,8 @@ public class TamingTheEarth extends Talent implements TamerTimed {
                 entity.teleport(locationBelow);
             }
 
-            entity.addEffect(Effects.MOVEMENT_CONTAINMENT, duration, true);
+            entity.addEffect(EffectType.MOVEMENT_CONTAINMENT, duration);
+            entity.triggerDebuff(player);
 
             // Fx
             entity.playWorldSound(Sound.BLOCK_PISTON_EXTEND, 0.0f);

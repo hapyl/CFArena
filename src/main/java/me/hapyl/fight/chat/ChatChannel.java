@@ -1,5 +1,9 @@
 package me.hapyl.fight.chat;
 
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.fight.CF;
+import me.hapyl.fight.Message;
 import me.hapyl.fight.database.rank.PlayerRank;
 import me.hapyl.fight.database.rank.RankFormatter;
 import me.hapyl.fight.emoji.Emojis;
@@ -9,12 +13,9 @@ import me.hapyl.fight.game.color.Color;
 import me.hapyl.fight.game.profile.PlayerProfile;
 import me.hapyl.fight.game.profile.relationship.PlayerRelationship;
 import me.hapyl.fight.game.profile.relationship.Relationship;
-import me.hapyl.fight.game.setting.Settings;
+import me.hapyl.fight.game.setting.EnumSetting;
 import me.hapyl.fight.game.team.Entry;
 import me.hapyl.fight.game.team.GameTeam;
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.player.PlayerLib;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -36,7 +37,7 @@ public enum ChatChannel {
             final GameTeam playerTeam = GameTeam.getEntryTeam(Entry.of(player));
 
             if (playerTeam == null) {
-                Notifier.error(player, "You are not in a team!");
+                Message.error(player, "You are not in a team!");
                 return;
             }
 
@@ -69,7 +70,7 @@ public enum ChatChannel {
 
         @Override
         public void processMessage(@Nonnull PlayerProfile profile, @Nonnull String message) {
-            Notifier.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
+            Message.broadcastStaff("&c%s: &f%s".formatted(profile.getPlayer().getName(), message));
         }
     };
 
@@ -92,12 +93,7 @@ public enum ChatChannel {
         final Player player = profile.getPlayer();
 
         Bukkit.getOnlinePlayers().forEach(online -> {
-            final PlayerProfile otherProfile = PlayerProfile.getProfile(online);
-
-            if (otherProfile == null) {
-                return;
-            }
-
+            final PlayerProfile otherProfile = CF.getProfile(online);
             final PlayerRelationship playerRelationship = otherProfile.getPlayerRelationship();
             final Relationship relationship = playerRelationship.getRelationship(player);
 
@@ -115,20 +111,15 @@ public enum ChatChannel {
     }
 
     private void formatAndSendMessage(Player sender, String message, Player receiver) {
-        final PlayerProfile profile = PlayerProfile.getProfile(sender);
-
-        if (profile == null) {
-            return;
-        }
-
-        final StringBuilder builder = new StringBuilder(profile.getDisplay().toString());
+        final PlayerProfile profile = CF.getProfile(sender);
+        final StringBuilder builder = new StringBuilder(profile.display().toStringChat());
 
         // Tag receiver
         final String atReceiverName = ("@" + receiver.getName()).toLowerCase(Locale.ROOT);
         final String lowerCaseName = message.toLowerCase();
 
-        if (lowerCaseName.contains(atReceiverName) && Settings.CHAT_PING.isEnabled(receiver)) {
-            message = message.replace(atReceiverName, (ChatColor.YELLOW + "%s" + ChatColor.RESET).formatted(atReceiverName));
+        if (lowerCaseName.contains(atReceiverName) && EnumSetting.CHAT_PING.isEnabled(receiver)) {
+            message = message.replace(atReceiverName, (ChatColor.YELLOW + atReceiverName + ChatColor.RESET));
             PlayerLib.playSound(receiver, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f);
         }
 
@@ -139,6 +130,7 @@ public enum ChatChannel {
             message = Chat.format(message);
         }
 
+        // FIXME (Tue, Aug 20 2024 @xanyjl): For some reason the @ does not work but it worked for me???
         builder.append(Color.WHITE).append(": ").append(format.textColor()).append(message);
         receiver.sendMessage(builder.toString());
         //Chat.sendMessage(receiver, builder.toString());
@@ -191,7 +183,7 @@ public enum ChatChannel {
                 message = matcher.replaceFirst(match -> {
                     final String group = match.group();
 
-                    return "&6" + group + profile.getRank().getFormat().textColor();
+                    return ChatColor.GOLD + group + profile.getRank().getFormat().textColor();
                 });
             }
         }

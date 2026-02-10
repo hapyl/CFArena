@@ -1,15 +1,14 @@
 package me.hapyl.fight.game.talents.knight;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.TalentReference;
-import me.hapyl.fight.game.attribute.temper.Temper;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.util.BukkitUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.TickingGameTask;
 import me.hapyl.fight.game.task.TimedGameTask;
 import me.hapyl.fight.util.CFUtils;
-import me.hapyl.spigotutils.module.entity.Entities;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
@@ -19,7 +18,7 @@ import org.bukkit.util.EulerAngle;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public class Castle extends TimedGameTask implements TalentReference<StoneCastle>, Removable {
+public class Castle extends TimedGameTask implements Removable {
 
     private final StoneCastle talent;
     private final GamePlayer player;
@@ -56,16 +55,10 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
     public void remove() {
         cancel0();
 
-        player.getAttributes().resetTemper(Temper.STONE_CASTLE);
+        player.getAttributes().removeModifier(talent.modifierSource);
 
         armorStands.forEach(ArmorStand::remove);
         armorStands.clear();
-    }
-
-    @Nonnull
-    @Override
-    public StoneCastle getTalent() {
-        return talent;
     }
 
     public boolean isEntityWithin(@Nonnull GameEntity player) {
@@ -94,7 +87,7 @@ public class Castle extends TimedGameTask implements TalentReference<StoneCastle
 
                 final Location location = Castle.this.location.clone();
 
-                CFUtils.anchorLocation(location.add(x, 0.0d, z));
+                BukkitUtils.anchorLocation(location.add(x, 0.0d, z));
                 location.subtract(0.0d, 1.5d, 0.0d);
 
                 final ArmorStand stand = Entities.ARMOR_STAND_MARKER.spawn(location, self -> {

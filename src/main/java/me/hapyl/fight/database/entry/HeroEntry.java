@@ -1,88 +1,73 @@
 package me.hapyl.fight.database.entry;
 
-import com.google.common.collect.Lists;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
-import me.hapyl.fight.game.cosmetic.skin.Skins;
-import me.hapyl.fight.game.heroes.Heroes;
-import me.hapyl.spigotutils.module.util.Validate;
-import org.bson.Document;
+import me.hapyl.fight.game.heroes.Hero;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class HeroEntry extends PlayerDatabaseEntry {
 
-    public HeroEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+    public HeroEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "heroes");
     }
 
-    public Heroes getSelectedHero() {
-        return Validate.getEnumValue(Heroes.class, getInDocument("heroes").get("selected", Heroes.ARCHER.name()), Heroes.ARCHER);
+    @Nonnull
+    public Hero getSelectedHero() {
+        return HeroRegistry.ofString(getValue("selected", ""));
     }
 
-    public boolean isPurchased(Heroes hero) {
-        return fetchFromDocument("heroes", document -> {
-            return document.get("purchased", Lists.newArrayList()).contains(hero.name());
+    public void setSelectedHero(@Nonnull Hero hero) {
+        setValue("selected", hero.getKeyAsString());
+    }
+
+    public boolean isPurchased(@Nonnull Hero hero) {
+        return getValue("purchased", new ArrayList<>()).contains(hero.getKeyAsString());
+    }
+
+    public void addPurchased(@Nonnull Hero hero) {
+        fetchDocumentValue("purchased", new ArrayList<>(), list -> {
+            list.add(hero.getKeyAsString());
         });
     }
 
-    public void addPurchased(Heroes hero) {
-        fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).add(hero.name());
+    public void removePurchased(@Nonnull Hero hero) {
+        fetchDocumentValue("purchased", new ArrayList<>(), list -> {
+            list.remove(hero.getKeyAsString());
         });
     }
 
-    public void removePurchased(Heroes hero) {
-        fetchDocument("heroes", document -> {
-            document.get("purchased", Lists.newArrayList()).remove(hero.getName());
+    public void setFavourite(@Nonnull Hero hero, boolean flag) {
+        fetchDocumentValue("favourite", new ArrayList<>(), list -> {
+            if (flag) {
+                list.add(hero.getKeyAsString());
+            }
+            else {
+                list.remove(hero.getKeyAsString());
+            }
         });
     }
 
-    public void setSelectedHero(Heroes hero) {
-        fetchDocument("heroes", heroes -> heroes.put("selected", hero.name()));
+    @Nonnull
+    public List<Hero> getFavouriteHeroes() {
+        return getFavouriteHeroesKeys()
+                .stream()
+                .map(HeroRegistry::ofStringOrNull)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    public Skins getSkin(Heroes heroes) {
-        final Document document = getInDocument("heroes");
-        final Document skins = document.get("skin", new Document());
-        final String selectedSkin = skins.get(heroes.name(), "");
-
-        return Validate.getEnumValue(Skins.class, selectedSkin);
+    @Nonnull
+    public List<String> getFavouriteHeroesKeys() {
+        return getValue("favourite", new ArrayList<>());
     }
 
-    public void setSkin(Skins skin) {
-        fetchDocument("heroes", heroes -> {
-            final Document skins = heroes.get("skin", new Document());
-            skins.put(skin.getSkin().getHero().name(), skin.name());
-            heroes.put("skin", skins);
-        });
-    }
-
-    public void setFavourite(Heroes hero, boolean flag) {
-        final List<String> favouriteHeroes = getFavouriteHeroesStrings();
-        if (flag) {
-            favouriteHeroes.add(hero.name());
-        }
-        else {
-            favouriteHeroes.remove(hero.name());
-        }
-
-        fetchDocument("heroes", heroes -> heroes.put("favourite", favouriteHeroes));
-    }
-
-    public List<Heroes> getFavouriteHeroes() {
-        final List<Heroes> heroesList = Lists.newArrayList();
-        for (String names : getFavouriteHeroesStrings()) {
-            heroesList.add(Validate.getEnumValue(Heroes.class, names));
-        }
-        return heroesList;
-    }
-
-    public List<String> getFavouriteHeroesStrings() {
-        return getInDocument("heroes").get("favourite", Lists.newArrayList());
-    }
-
-    public boolean isFavourite(Heroes heroes) {
+    public boolean isFavourite(Hero heroes) {
         return getFavouriteHeroes().contains(heroes);
     }
 

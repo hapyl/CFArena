@@ -1,16 +1,14 @@
 package me.hapyl.fight.game.entity;
 
 import com.google.common.collect.Maps;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.util.CollectionUtils;
+import me.hapyl.eterna.module.util.Compute;
+import me.hapyl.eterna.module.util.Ticking;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.loadout.HotbarLoadout;
-import me.hapyl.fight.game.loadout.HotbarSlots;
-import me.hapyl.fight.game.talents.ChargedTalent;
+import me.hapyl.fight.game.loadout.HotBarLoadout;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Talent;
-import me.hapyl.fight.util.Ticking;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.math.Numbers;
-import me.hapyl.spigotutils.module.util.CollectionUtils;
-import me.hapyl.spigotutils.module.util.Compute;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.inventory.ItemStack;
@@ -38,8 +36,8 @@ public class TalentLock implements Ticking {
 
     private final GamePlayer player;
     private final Hero hero;
-    private final Map<HotbarSlots, Integer> lock;
-    private final HotbarLoadout loadout;
+    private final Map<HotBarSlot, Integer> lock;
+    private final HotBarLoadout loadout;
 
     public TalentLock(GamePlayer player, Hero hero) {
         this.player = player;
@@ -48,7 +46,7 @@ public class TalentLock implements Ticking {
         this.loadout = player.getProfile().getHotbarLoadout();
 
         // Init talents since it should only apply to existing hero talents
-        for (HotbarSlots slot : HotbarSlots.TALENT_SLOTS) {
+        for (HotBarSlot slot : HotBarSlot.TALENT_SLOTS) {
             final Talent talent = hero.getTalent(slot);
 
             if (talent == null) {
@@ -63,20 +61,20 @@ public class TalentLock implements Ticking {
         lock.forEach((slot, tick) -> lock.put(slot, 0));
     }
 
-    public int getLock(@Nonnull HotbarSlots slot) {
+    public int getLock(@Nonnull HotBarSlot slot) {
         return lock.getOrDefault(slot, 0);
     }
 
-    public boolean isLocked(@Nonnull HotbarSlots slot) {
+    public boolean isLocked(@Nonnull HotBarSlot slot) {
         return getLock(slot) > 0;
     }
 
     @Nonnull
-    public Set<HotbarSlots> getAvailableSlots() {
+    public Set<HotBarSlot> getAvailableSlots() {
         return new HashSet<>(lock.keySet());
     }
 
-    public boolean setLock(@Nonnull HotbarSlots slot, int tick) {
+    public boolean setLock(@Nonnull HotBarSlot slot, int tick) {
         if (!lock.containsKey(slot)) {
             return false;
         }
@@ -92,14 +90,14 @@ public class TalentLock implements Ticking {
     }
 
     public void setLockAll(int duration) {
-        for (HotbarSlots slot : HotbarSlots.values()) {
+        for (HotBarSlot slot : HotBarSlot.values()) {
             setLock(slot, duration);
         }
     }
 
     @Nullable
-    public HotbarSlots setLockRandomly(int duration) {
-        final HotbarSlots slot = CollectionUtils.randomElement(lock.keySet());
+    public HotBarSlot setLockRandomly(int duration) {
+        final HotBarSlot slot = CollectionUtils.randomElement(lock.keySet());
 
         if (slot == null) {
             return null;
@@ -120,31 +118,18 @@ public class TalentLock implements Ticking {
 
             // Use the real texture
             if (newValue == 0) {
-                final Talent talent = hero.getTalent(slot);
                 player.giveTalentItem(slot);
 
                 // Fx here because charged talent thingy
                 player.playSound(Sound.ENTITY_ENDERMAN_HURT, 0.0f);
                 player.playSound(Sound.ENTITY_ENDER_DRAGON_FLAP, 0.0f);
-
-                if (talent instanceof ChargedTalent chargedTalent) {
-                    final int chargesAvailable = chargedTalent.getChargesAvailable(player);
-                    final ItemStack item = player.getItem(slot);
-
-                    if (item == null || chargesAvailable == 0) {
-                        player.setItem(slot, chargedTalent.noChargesItem());
-                        return;
-                    }
-
-                    item.setAmount(chargesAvailable);
-                }
                 return;
             }
 
             // Fx
             if (tick % 5 == 0) {
                 final ItemStack item = getRandomDyeItem();
-                item.setAmount(Numbers.clamp(tick / 20, 1, 64));
+                item.setAmount(Math.clamp(tick / 20, 1, 64));
 
                 player.setItem(slot, item);
             }

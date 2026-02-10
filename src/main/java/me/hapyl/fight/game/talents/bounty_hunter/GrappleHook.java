@@ -1,296 +1,262 @@
 package me.hapyl.fight.game.talents.bounty_hunter;
 
-import me.hapyl.fight.game.effect.Effects;
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.util.Removable;
+import me.hapyl.fight.game.effect.EffectType;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Talents;
-import me.hapyl.fight.game.task.GameTask;
+import me.hapyl.fight.game.heroes.bounty_hunter.BountyHunterData;
+import me.hapyl.fight.game.task.TickingGameTask;
+import me.hapyl.fight.util.Blocks;
 import me.hapyl.fight.util.Collect;
-import me.hapyl.fight.util.Nulls;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
+import org.bukkit.Input;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
-public class GrappleHook extends GameTask {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    public final GamePlayer player;
+public class GrappleHook extends TickingGameTask implements Removable {
+    
     private final GrappleHookTalent talent;
-    private final LivingEntity anchor;
-    private final LivingEntity hook;
-
-    protected LivingGameEntity hookedEntity;
-    protected int ropeCuts;
-
-    private Block hookedBlock;
-    private GameTask extendTask;
-    private GameTask retractTask;
-
-    public GrappleHook(GrappleHookTalent talent, GamePlayer player) {
+    private final BountyHunterData data;
+    private final GamePlayer player;
+    private final Vector direction;
+    
+    private final Slime hook;
+    
+    private Anchor anchor;
+    private int cuts;
+    private int airTicks;
+    
+    GrappleHook(@Nonnull GrappleHookTalent talent, @Nonnull BountyHunterData data) {
         this.talent = talent;
-        this.player = player;
-
-        this.anchor = createEntity();
+        this.data = data;
+        this.player = data.player;
+        this.direction = player.getEyeLocation().getDirection().normalize().multiply(talent.hookExtendSpeed);
+        
         this.hook = createEntity();
-
-        this.anchor.setLeashHolder(this.hook);
-
-        extendHook();
-
-        runTaskTimer(0, 1);
+        this.hook.setLeashHolder(player.getEntity());
+        
+        this.runTaskTimer(0, 1);
     }
-
+    
     @Override
-    public void run() {
-        anchor.teleport(player.getLocation());
-
-        if (hookedEntity != null) {
-            hook.teleport(hookedEntity.getLocation());
-            hook.getWorld().spawnParticle(Particle.ITEM, hook.getLocation(),
-                    5,
-                    0.125,
-                    0.125,
-                    0.125,
-                    0.05f,
-                    new ItemStack(Material.LEAD)
-            );
-
-            final String title = ropeCuts == 0
-                    ? "&6ʏᴏᴜ'ʀᴇ ʜᴏᴏᴋᴇᴅ"
-                    : "&a\uD83E\uDE9D".repeat(ropeCuts) + "&8\uD83E\uDE9D".repeat(talent.cutsToRemove - ropeCuts);
-
-            final int ticks = hookedEntity.aliveTicks() % 40;
-            final String subTitle = ticks == 0 || ticks > 20 ? "&e&lSNEAK&6 to cut the rope!" : "&6&lSNEAK&e to cut the rope!";
-
-            hookedEntity.sendTitle(title, subTitle, 0, 10, 0);
+    public void run(int tick) {
+        final Location playerLocation = player.getLocation();
+        
+        // If we have an anchor means the hook hit something, pull towards it
+        if (anchor != null) {
+            @Nullable final LivingGameEntity hookedEntity = anchor.entity();
+            
+            // If we're close enough, then get off the hook
+            if (playerLocation.distanceSquared(hook.getLocation()) <= 1.5) {
+                remove();
+                
+                // Add a little boost for blocks
+                if (hookedEntity == null) {
+                    player.setVelocity(playerLocation.getDirection().normalize().multiply(0.25).setY(0.5));
+                }
+                
+                return;
+            }
+            
+            final Input input = player.input();
+            final Location anchorLocation = anchor.location();
+            final Location location = player.getLocation();
+            
+            final Vector toAnchor = anchorLocation.toVector().subtract(location.toVector()).normalize();
+            
+            // Forward/strafe directions
+            final Vector look = location.getDirection().setY(0).normalize();
+            final Vector strafe = look.clone().crossProduct(new Vector(0, 1, 0)).normalize();
+            
+            // Weaken look
+            final Vector inputVector = new Vector(0, 0, 0);
+            
+            if (input.isLeft()) {
+                inputVector.subtract(strafe);
+            }
+            if (input.isRight()) {
+                inputVector.add(strafe);
+            }
+            
+            // Normalize input to prevent boosting speed too much
+            if (inputVector.lengthSquared() > 0) {
+                inputVector.normalize().multiply(talent.strafeStrength);
+            }
+            
+            // Final velocity is the anchor pull plus input influence
+            final Vector velocity = toAnchor.add(inputVector).normalize().multiply(talent.hookPullSpeed);
+            
+            final Vector smoothen = velocity.clone().multiply(1 - talent.strafeSmoothFactor).add(velocity.clone().multiply(talent.strafeSmoothFactor));
+            
+            player.setVelocity(smoothen);
+            
+            // Sync hook to anchor
+            hook.teleport(anchorLocation);
+            
+            // If an entity was hooked, notify them and show cut progress
+            if (hookedEntity != null) {
+                final String title = cuts == 0
+                                     ? "&6ʏᴏᴜ'ʀᴇ ʜᴏᴏᴋᴇᴅ!"
+                                     : "&6&l\uD83E\uDE9D".repeat(cuts) + "&8&l\uD83E\uDE9D".repeat(talent.cutsToRemove - cuts);
+                
+                final int ticks = hookedEntity.aliveTicks() % 40;
+                final String subTitle = ticks <= 20 ? "&e&lSNEAK&6 to escape!" : "&6&lSNEAK&e to escape!";
+                
+                hookedEntity.sendTitle(title, subTitle, 0, 10, 0);
+            }
+            
+            if (airTicks++ >= talent.maxAirTicks) {
+                remove();
+                
+                message("&cYour hook broke because it got too tired!");
+                player.playSound(Sound.ITEM_LEAD_BREAK, 0.0f);
+                return;
+            }
+            
+            // Play particle fx
+            player.spawnWorldParticle(anchorLocation, Particle.ITEM, 5, 0.1, 0.1, 0.1, 0.05f, talent.getItem(player));
+        }
+        // Else extend the hook
+        else {
+            final Location location = hook.getLocation();
+            
+            // Max distance flown
+            if (playerLocation.distance(location) >= talent.maxDistance) {
+                remove();
+                
+                message("&cYou didn't hook anything!");
+                return;
+            }
+            
+            location.add(direction);
+            
+            // Collision detection
+            final Block block = location.getBlock();
+            
+            if (isValidBlock(block)) {
+                anchor = new Anchor() {
+                    @Nonnull
+                    @Override
+                    public Location location() {
+                        return block.getLocation().add(0.5, 0.5, 0.5);
+                    }
+                };
+                return;
+            }
+            
+            final LivingGameEntity entity = Collect.nearestEntity(location, 1.5, player::isNotSelfOrTeammate);
+            
+            if (entity != null) {
+                // Separate check for cc because we need to break the hook
+                if (entity.hasEffectResistanceAndNotify(player)) {
+                    remove();
+                    
+                    message("&cYour hook broke!");
+                    player.playSound(Sound.ITEM_LEAD_BREAK, 0.0f);
+                    return;
+                }
+                
+                anchor = new Anchor() {
+                    @Nonnull
+                    @Override
+                    public LivingGameEntity entity() {
+                        return entity;
+                    }
+                    
+                    @Nonnull
+                    @Override
+                    public Location location() {
+                        return entity.getMidpointLocation();
+                    }
+                };
+                
+                return;
+            }
+            
+            // Sync hook
+            hook.teleport(location);
         }
     }
-
-    public boolean isHookBroken() {
-        return hook.isDead() || !anchor.isLeashed();
-    }
-
-    public void remove() {
-        cancel();
-
-        anchor.remove();
-        hook.remove();
-
-        Nulls.runIfNotNull(extendTask, GameTask::cancel);
-        Nulls.runIfNotNull(retractTask, GameTask::cancel);
-
-        talent.playerHooks.remove(player, this);
-    }
-
-    private boolean isHookToAnchorObstructed() {
-        final Location hookLocation = hook.getLocation();
-        final Location anchorLocation = anchor.getLocation().add(0.0d, player.getEyeHeight(), 0.0d); // ray-cast from player's eyes
-        double distance = anchorLocation.distance(hookLocation);
-
-        final double step = 0.5d;
-        final Vector vector = anchorLocation.toVector().subtract(hookLocation.toVector()).normalize().multiply(step);
-
-        for (double i = 0.0; i < distance; i += step) {
-            // Don't check the first and the last block
-            if (i == 0.0 || i >= (distance - step)) {
-                continue;
-            }
-
-            hookLocation.add(vector);
-
-            if (hookLocation.getBlock().getType().isOccluding()) {
-                return true;
-            }
+    
+    public void tryEscape(@Nonnull GamePlayer player) {
+        if (anchor == null) {
+            return;
         }
-
-        return false;
-    }
-
-    private void extendHook() {
-        final Location location = player.getEyeLocation();
-        final Vector vector = location.getDirection().normalize();
-
+        
+        if (!player.equals(anchor.entity())) {
+            return;
+        }
+        
+        cuts++;
+        
+        if (cuts >= talent.cutsToRemove) {
+            remove();
+            
+            // Notify
+            player.sendTitle("&aᴇꜱᴄᴀᴘᴇᴅ!", "&6&l\uD83E\uDE9D".repeat(talent.cutsToRemove), 5, 15, 5);
+            
+            this.player.sendTitle("&6&l\uD83E\uDE9D", "&c%s escaped!".formatted(player.getName()), 5, 15, 5);
+            this.player.playSound(Sound.ENTITY_SHEEP_SHEAR, 0.75f);
+            return;
+        }
+        
         // Fx
-        player.playSound(Sound.ENTITY_BAT_TAKEOFF, 1.0f);
-        player.playSound(Sound.ENTITY_LEASH_KNOT_PLACE, 0.0f);
-
-        this.extendTask = new GameTask() {
-            private final double speed = 0.075d;
-            private final int checksPerTick = 2;
-            private double distance = 0.0d;
-
-            @Override
-            public void run() {
-                if (isHookBroken()) {
-                    breakHook();
-                    return;
-                }
-
-                if (distance >= (talent().maxDistance * speed)) {
-                    remove();
-
-                    // Fx
-                    player.sendMessage("&6\uD83E\uDE9D &cYou didn't hook anything!");
-                    return;
-                }
-
-                for (int i = 0; i < checksPerTick; i++) {
-                    if (hookedBlock != null || hookedEntity != null) {
-                        return;
-                    }
-
-                    if (nextLocation()) {
-                        return;
-                    }
-                }
-
-            }
-
-            private boolean nextLocation() {
-                final double x = vector.getX() * distance;
-                final double y = vector.getY() * distance;
-                final double z = vector.getZ() * distance;
-
-                location.add(x, y, z);
-
-                // Hook detection
-                final Block block = location.getBlock();
-
-                if (!block.getType().isAir()) {
-                    if (!isValidBlock(block)) {
-                        remove();
-                        player.sendMessage("&6\uD83E\uDE9D &cYou can't hook to that!");
-                        return true;
-                    }
-
-                    hookedBlock = block;
-                    retractHook();
-                    return true;
-                }
-
-                final LivingGameEntity nearest = Collect.nearestEntity(location, 1.5d, player);
-
-                if (nearest != null) {
-                    if (nearest.hasEffectResistanceAndNotify(player)) {
-                        breakHook();
-                        return true;
-                    }
-
-                    hookedEntity = nearest;
-
-                    if (hook instanceof Slime slime) {
-                        slime.setSize(2);
-                        slime.setHealth(1);
-                        slime.setInvulnerable(false);
-                    }
-
-                    retractHook();
-
-                    // Fx
-                    player.sendMessage("&6\uD83E\uDE9D &aYou hooked &e%s&a!", hookedEntity.getName());
-                    return true;
-                }
-
-                hook.teleport(location);
-                distance += speed;
-                return false;
-            }
-        }.runTaskTimer(0, 1);
+        player.playSound(Sound.ENTITY_SHEEP_SHEAR, 0.5f + (0.25f * cuts));
     }
-
-    private void retractHook() {
-        extendTask.cancel();
-        player.playSound(Sound.ENTITY_LEASH_KNOT_PLACE, 0.0f);
-
-        retractTask = new GameTask() {
-            private final double step = 0.75d;
-
-            @Override
-            public void run() {
-                if (isHookBroken()) {
-                    breakHook();
-                    return;
-                }
-
-                if (isHookToAnchorObstructed()) {
-                    remove();
-                    player.sendMessage("&6\uD83E\uDE9D &cYour hook broke!");
-                    player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
-                    player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 2.0f);
-                    return;
-                }
-
-                final Location playerLocation = player.getLocation();
-                final Location location = hook.getLocation();
-                final Vector vector = location.toVector().subtract(playerLocation.toVector()).normalize().multiply(step);
-
-                playerLocation.add(vector);
-
-                // Finishes grappling
-                if (playerLocation.distanceSquared(location) <= 1d) {
-                    remove();
-                    player.addEffect(Effects.FALL_DAMAGE_RESISTANCE, 600, true);
-                }
-
-                if (isVectorFinite(vector)) {
-                    player.setVelocity(vector);
-                }
-            }
-        }.runTaskTimer(0, 1);
-    }
-
+    
     private boolean isValidBlock(Block block) {
-        final Material type = block.getType();
-
-        // Add more checks
-        if (type == Material.BARRIER) {
+        if (!block.isSolid()) {
             return false;
         }
-
-        if (!block.getType().isAir()) {
-            return true;
+        
+        return Blocks.isValid(block);
+    }
+    
+    @Override
+    public void remove() {
+        cancel();
+        hook.remove();
+        data.hook = null;
+        
+        // Always give fall damage resistance
+        player.addEffect(EffectType.FALL_DAMAGE_RESISTANCE, 100);
+    }
+    
+    private Slime createEntity() {
+        return Entities.SLIME.spawn(
+                player.getMidpointLocation(), self -> {
+                    self.setSize(1);
+                    self.setGravity(false);
+                    self.setInvulnerable(true);
+                    self.setInvisible(true);
+                    self.setSilent(true);
+                    self.setAI(false);
+                    
+                    EntityUtils.setCollision(self, EntityUtils.Collision.DENY);
+                }
+        );
+    }
+    
+    protected void message(String message) {
+        player.sendMessage("&6&l\uD83E\uDE9D &r" + message);
+    }
+    
+    private interface Anchor {
+        
+        @Nullable
+        default LivingGameEntity entity() {
+            return null;
         }
-
-        return true;
+        
+        @Nonnull
+        Location location();
     }
-
-    private void breakHook() {
-        remove();
-
-        // Fx
-        player.sendMessage("&6\uD83E\uDE9D &cYour hook broke!");
-        player.playSound(Sound.ENTITY_LEASH_KNOT_BREAK, 0.0f);
-    }
-
-    private boolean isVectorFinite(Vector vector) {
-        return NumberConversions.isFinite(vector.getX())
-                && NumberConversions.isFinite(vector.getY())
-                && NumberConversions.isFinite(vector.getZ());
-    }
-
-    private LivingEntity createEntity() {
-        return Entities.SLIME.spawn(player.getLocation(), self -> {
-            self.setSize(1);
-            self.setGravity(false);
-            self.setInvulnerable(true);
-            self.setInvisible(true);
-            self.setSilent(true);
-            self.setAI(false);
-
-            EntityUtils.setCollision(self, EntityUtils.Collision.DENY);
-        });
-    }
-
-    private GrappleHookTalent talent() {
-        return (GrappleHookTalent) Talents.GRAPPLE.getTalent();
-    }
-
 }

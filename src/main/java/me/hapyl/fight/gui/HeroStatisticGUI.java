@@ -1,22 +1,21 @@
 package me.hapyl.fight.gui;
 
-import me.hapyl.fight.database.collection.HeroStatsCollection;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.inventory.ItemBuilder;
+import me.hapyl.eterna.module.inventory.gui.SlotPattern;
+import me.hapyl.eterna.module.inventory.gui.SmartComponent;
+import me.hapyl.eterna.module.math.Numbers;
+import me.hapyl.fight.database.async.HeroStatsAsynchronousDocument;
 import me.hapyl.fight.game.heroes.GlobalHeroStats;
 import me.hapyl.fight.game.heroes.Hero;
-import me.hapyl.fight.game.heroes.Heroes;
+import me.hapyl.fight.game.heroes.HeroRegistry;
 import me.hapyl.fight.game.stats.StatType;
 import me.hapyl.fight.game.talents.PassiveTalent;
-import me.hapyl.fight.game.talents.Talents;
 import me.hapyl.fight.game.talents.Talent;
 import me.hapyl.fight.gui.styled.ReturnData;
 import me.hapyl.fight.gui.styled.Size;
 import me.hapyl.fight.gui.styled.StyledGUI;
 import me.hapyl.fight.util.Numeric;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.inventory.ItemBuilder;
-import me.hapyl.spigotutils.module.inventory.gui.SlotPattern;
-import me.hapyl.spigotutils.module.inventory.gui.SmartComponent;
-import me.hapyl.spigotutils.module.math.Numbers;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,17 +24,17 @@ import javax.annotation.Nullable;
 
 public class HeroStatisticGUI extends StyledGUI {
 
-    private final Heroes heroes;
+    private final Hero hero;
     private final int index;
-    private final HeroStatsCollection stats;
+    private final HeroStatsAsynchronousDocument stats;
     private final GlobalHeroStats globalStats;
 
-    public HeroStatisticGUI(Player player, Heroes heroes, int index) {
+    public HeroStatisticGUI(Player player, Hero heroes, int index) {
         super(player, heroes.getName() + " Statistics", Size.FIVE);
-        this.heroes = heroes;
+        this.hero = heroes;
         this.index = index;
         this.stats = heroes.getStats();
-        this.globalStats = Heroes.getGlobalStats();
+        this.globalStats = HeroRegistry.getGlobalStats();
 
         openInventory();
     }
@@ -43,77 +42,91 @@ public class HeroStatisticGUI extends StyledGUI {
     @Nullable
     @Override
     public ReturnData getReturnData() {
-        return ReturnData.of("Hero Preview - " + heroes.getName(), fn -> new HeroPreviewGUI(player, heroes, index));
+        return ReturnData.of("Hero Preview - " + hero.getName(), fn -> new HeroPreviewGUI(player, hero, index));
     }
 
     @Override
     public void onUpdate() {
-        final Hero hero = heroes.getHero();
-
+        super.onUpdate();
         setHeader(
-                new ItemBuilder(hero.getItem()).setName(heroes.getName())
-                        .addLore()
-                        .addLore("Archetype: " + hero.getArchetype())
-                        .addLore()
-                        .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
-                        .addLore()
-                        .addSmartLore("This hero is ranked &b#%s&7.".formatted(hero.getRank()))
-                        .addSmartLore(
-                                "Heroes are ranked by the average of the stats. This is not indicative of the hero's strength.",
-                                "&8&o"
-                        )
-                        .asIcon()
+                new ItemBuilder(hero.getItem()).setName(this.hero.getName())
+                                               .addLore()
+                                               .addLore("Archetypes: " + hero.getProfile().getSimpleArchetypesDisplay())
+                                               .addLore()
+                                               .addTextBlockLore(hero.getDescription(), "&8&o", ItemBuilder.DEFAULT_SMART_SPLIT_CHAR_LIMIT)
+                                               .addLore()
+                                               .addSmartLore("This hero is ranked &b#%s&7.".formatted(hero.getRank()))
+                                               .addSmartLore(
+                                                       "Heroes are ranked by the average of the stats. This is not indicative of the hero's strength.",
+                                                       "&8&o"
+                                               )
+                                               .asIcon()
         );
 
         final SmartComponent component = newSmartComponent();
 
         // Play time
-        setItem(12, create(
-                Material.CLOCK,
-                "Total Play Time",
-                "has been played a total of {} times.",
-                StatType.PLAYED
-        ));
+        setItem(
+                12, create(
+                        Material.CLOCK,
+                        "Total Play Time",
+                        "has been played a total of {} times.",
+                        StatType.PLAYED
+                )
+        );
 
         // Wins
-        setItem(14, create(
-                Material.FIREWORK_ROCKET,
-                "Total Wins",
-                "has won {} times.",
-                StatType.WINS
-        ));
+        setItem(
+                14, create(
+                        Material.FIREWORK_ROCKET,
+                        "Total Wins",
+                        "has won {} times.",
+                        StatType.WINS
+                )
+        );
+
+        // Kills
+        setItem(20, create(Material.DIAMOND_SWORD, "Total Kills", "has killed {} enemies.", StatType.KILLS));
 
         // Deaths
-        setItem(20, create(
-                Material.SKELETON_SKULL,
-                "Total Deaths",
-                "has died {} times.",
-                StatType.DEATHS
-        ));
+        setItem(
+                21, create(
+                        Material.SKELETON_SKULL,
+                        "Total Deaths",
+                        "has died {} times.",
+                        StatType.DEATHS
+                )
+        );
 
         // Ultimates
-        setItem(21, create(
-                Material.NETHER_STAR,
-                "Ultimate Used",
-                "has used ultimates {} times.",
-                StatType.ULTIMATE_USED
-        ));
+        setItem(
+                22, create(
+                        Material.NETHER_STAR,
+                        "Ultimate Used",
+                        "has used ultimates {} times.",
+                        StatType.ULTIMATE_USED
+                )
+        );
 
         // Damage dealt
-        setItem(23, create(
-                Material.IRON_SWORD,
-                "Damage Dealt",
-                "has dealt a total of {} damage.",
-                StatType.DAMAGE_DEALT
-        ));
+        setItem(
+                23, create(
+                        Material.IRON_SWORD,
+                        "Damage Dealt",
+                        "has dealt a total of {} damage.",
+                        StatType.DAMAGE_DEALT
+                )
+        );
 
         // Damage taken
-        setItem(24, create(
-                Material.IRON_CHESTPLATE,
-                "Damage Taken",
-                "has taken a total of {} damage.",
-                StatType.DAMAGE_TAKEN
-        ));
+        setItem(
+                24, create(
+                        Material.IRON_CHESTPLATE,
+                        "Damage Taken",
+                        "has taken a total of {} damage.",
+                        StatType.DAMAGE_TAKEN
+                )
+        );
 
         // Ability Stats
         for (Talent talent : hero.getTalents()) {
@@ -121,8 +134,7 @@ public class HeroStatisticGUI extends StyledGUI {
                 continue;
             }
 
-            final Talents enumTalent = talent.getHandle();
-            final long abilityUsage = stats.getAbilityUsage(enumTalent);
+            final long abilityUsage = stats.getAbilityUsage(talent);
 
             component.add(
                     new ItemBuilder(talent.getItem())
@@ -149,10 +161,10 @@ public class HeroStatisticGUI extends StyledGUI {
 
         builder.setAmount(Numbers.clamp(value.intValue(), 1, 64));
         builder.setName(name);
-        builder.addSmartLore(heroes.getName() + " " + lore.replace("{}", "&f&l" + value + "&7"));
+        builder.addSmartLore(hero.getName() + " " + lore.replace("{}", "&f&l" + value + "&7"));
         builder.addLore();
         builder.addSmartLore(
-                "This hero is #%s in %s.".formatted(globalStats.getRating(heroes, statType), Chat.capitalize(statType)),
+                "This hero is #%s in %s.".formatted(globalStats.getRating(hero, statType), Chat.capitalize(statType)),
                 "&8&o"
         );
 

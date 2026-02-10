@@ -1,295 +1,215 @@
 package me.hapyl.fight.game.attribute;
 
-import me.hapyl.fight.annotate.Trigger;
-import me.hapyl.fight.event.custom.AttributeChangeEvent;
-import me.hapyl.fight.event.custom.AttributeTemperEvent;
-import me.hapyl.fight.game.PlayerElement;
-import me.hapyl.fight.game.attribute.temper.AttributeTemperTable;
-import me.hapyl.fight.game.attribute.temper.Temper;
-import me.hapyl.fight.game.attribute.temper.TemperData;
+import com.google.common.collect.Maps;
+import me.hapyl.fight.event.custom.AttributeModifyEvent;
+import me.hapyl.fight.event.custom.AttributeUpdateEvent;
+import me.hapyl.fight.game.element.PlayerElementHandler;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.ui.display.BuffDisplay;
-import me.hapyl.fight.game.ui.display.DebuffDisplay;
+import me.hapyl.fight.game.talents.Timed;
 import me.hapyl.fight.game.ui.display.StringDisplay;
-import me.hapyl.fight.trigger.Triggers;
-import me.hapyl.fight.trigger.subscribe.AttributeChangeTrigger;
-import me.hapyl.fight.util.collection.NonnullTuple;
-import me.hapyl.fight.util.collection.Tuple;
-import me.hapyl.spigotutils.module.annotate.Super;
-import me.hapyl.spigotutils.module.math.Numbers;
+import me.hapyl.fight.util.MapView;
 import org.bukkit.Location;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.stream.Stream;
 
-/**
- * This class stores entity attributes that are changeable
- * during the game.
- * <p>
- * The stats itself defaults to 0, since they're considered
- * as additional stats and the getter returns the base value
- * plus additional.
- *
- * @see #get(AttributeType)
- */
-public class EntityAttributes extends Attributes implements PlayerElement {
-
-    protected final AttributeTemperTable tempers;
-
-    private final LivingGameEntity entity;
-    private final Attributes baseAttributes;
-
-    public EntityAttributes(LivingGameEntity entity, Attributes baseAttributes) {
+public class EntityAttributes extends BaseAttributes implements PlayerElementHandler {
+    
+    protected final LivingGameEntity entity;
+    protected final Map<ModifierSource, AttributeModifier> modifiers;
+    
+    public EntityAttributes(@Nonnull LivingGameEntity entity, @Nonnull BaseAttributes attributes) {
+        super(attributes); // Copy attributes
+    
         this.entity = entity;
-        this.baseAttributes = baseAttributes.weakCopy();
-        this.tempers = new AttributeTemperTable(this);
-
-        mapped.clear(); // default to 0
+        this.modifiers = Maps.newLinkedHashMap();
     }
-
+    
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        tempers.cancelAll();
+        modifiers.values().forEach(AttributeModifier::cancel);
+        modifiers.clear();
     }
-
-    /**
-     * Returns the base value plus the additional value.
-     *
-     * @param type - Type.
-     * @return the base value plus the additional value.
-     */
+    
     @Override
     public double get(@Nonnull AttributeType type) {
-        return Numbers.clamp(
-                getBase(type) + super.get(type) + tempers.get(type),
-                type.minValue(),
-                type.maxValue()
-        );
+        final double value = super.get(type);
+        final double additiveBonus = getAdditiveBonus(type);
+        final double multiplicativeBonus = getMultiplicativeBonus(type);
+        final double flatBonus = getFlatBonus(type);
+        
+        return type.clamp(value * (1 + additiveBonus) * (1 + multiplicativeBonus) + flatBonus);
     }
-
+    
     @Override
     public void set(@Nonnull AttributeType type, double value) {
-        super.set(type, value);
-
-        triggerUpdate(type);
-    }
-
-    @Trigger
-    public void triggerUpdate(@Nonnull AttributeType type) {
-        type.attribute.update(entity, get(type));
-    }
-
-    public final int getFerocityStrikes() {
-        double ferocity = get(AttributeType.FEROCITY);
-        int strikes = 0;
-
-        while (ferocity >= 1) {
-            strikes += 1;
-            ferocity -= 1;
-        }
-
-        if (ferocity > 0.0d) {
-            if (random.checkBound(ferocity)) {
-                strikes++;
-            }
-        }
-
-        return strikes;
-    }
-
-    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
-        increaseTemporary(temper, type, value, duration, false, null);
-    }
-
-    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
-        increaseTemporary(temper, type, value, duration, false, applier);
-    }
-
-    /**
-     * Increases an {@link AttributeType} temporary.
-     *
-     * @param temper   - Temper.
-     * @param type     - Attribute type.
-     * @param value    - Value.
-     * @param duration - Duration.
-     * @param silent   - Should be silent.
-     * @param applier  - Who increased the attribute.
-     *                 <b>This delegates to whoever applied the attribute, like a teammate who buffed or an enemy who debuffed!</b>
-     */
-    public void increaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, boolean silent, @Nullable LivingGameEntity applier) {
-        if (new AttributeTemperEvent(entity, temper, type, value, duration, silent).callAndCheck()) {
+        final double currentValue = super.get(type);
+        
+        if (new AttributeUpdateEvent(entity, type, currentValue, value).callEvent()) {
             return;
         }
-
-        final boolean newTemper = !tempers.has(temper, type);
-        final boolean isBuff = type.getDisplayType(value, -value);
-
-        tempers.add(temper, type, value, duration, isBuff, applier);
-
-        // do not spawn if player already has this temper
-        if (!silent && temper.isDisplay() && newTemper) {
-            display(type, isBuff);
+        
+        super.set(type, value);
+        type.attribute.update(entity, value);
+    }
+    
+    public void updateAttributes() {
+        attributes.keySet().forEach(type -> type.attribute.update(entity, get(type)));
+    }
+    
+    public void addModifier(@Nonnull ModifierSource source, int duration, @Nonnull AttributeModifierHandler handler) {
+        addModifier(source, duration, null, handler);
+    }
+    
+    public void addModifier(@Nonnull ModifierSource source, int duration, @Nullable LivingGameEntity applier, @Nonnull AttributeModifierHandler handler) {
+        final AttributeModifier modifier = new AttributeModifier(this, source, duration, applier);
+        
+        // We have to handle here because even
+        handler.handle(modifier);
+        
+        if (new AttributeModifyEvent(entity, modifier).callEvent()) {
+            modifier.cancel();
+            return;
         }
-
-        triggerUpdate(type);
-    }
-
-    /**
-     * Decreases an attribute <b>temporary</b>.
-     *
-     * @param temper   - Temper of the decrease.
-     * @param type     - Type of attribute to decrease.
-     * @param value    - Decrease amount.
-     * @param duration - Duration of decrease.
-     */
-    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration) {
-        increaseTemporary(temper, type, -value, duration);
-    }
-
-    public void decreaseTemporary(@Nonnull Temper temper, @Nonnull AttributeType type, double value, int duration, @Nullable LivingGameEntity applier) {
-        increaseTemporary(temper, type, -value, duration, applier);
-    }
-
-    /**
-     * Computes an addition to an attribute.
-     *
-     * @param type  - Type of attribute.
-     * @param value - Add amount.
-     * @return the new value.
-     */
-    public double add(@Nonnull AttributeType type, double value) {
-        final NonnullTuple<Double, Double> tuple = addSilent(type, value);
-        final double oldValue = tuple.getA();
-        final double newValue = tuple.getB();
-
-        display(type, type.getDisplayType(newValue, oldValue));
-        return oldValue;
-    }
-
-    /**
-     * Computes an addition to an attribute without displaying the change.
-     *
-     * @param type  - Type of attribute.
-     * @param value - Add amount.
-     * @return the new value.
-     */
-    @Super
-    public NonnullTuple<Double, Double> addSilent(@Nonnull AttributeType type, double value) {
-        final double oldBaseValue = get(type);
-        final double original = super.get(type);
-        final double newValue = original + value;
-
-        // Call event
-        if (new AttributeChangeEvent(entity, type, original, newValue).callAndCheck()) {
-            return Tuple.ofNonnull(0.d, 0.d);
+        
+        final boolean newModifier = !hasModifier(source);
+        
+        // Remove previous modifier
+        removeModifier(source);
+        
+        // Spawn display if first modifier and source isn't silent
+        if (newModifier && !source.silent()) {
+            modifier.forEach(this::display);
         }
-
-        mapped.put(type, newValue);
-
-        // Call trigger
-        final double newBaseValue = get(type);
-        Triggers.call(new AttributeChangeTrigger(entity, type, oldBaseValue, newBaseValue));
-
-        // Call update
-        triggerUpdate(type);
-
-        return Tuple.ofNonnull(original, newValue);
+        
+        modifiers.put(source, modifier);
+        updateAttributes();
     }
-
-    /**
-     * Computes a subtraction to an attribute.
-     *
-     * @param type  - Type of attribute.
-     * @param value - Subtract value.
-     * @return the new value.
-     */
-    public double subtract(@Nonnull AttributeType type, double value) {
-        return add(type, -value);
+    
+    public void addModifier(@Nonnull ModifierSource source, @Nonnull Timed timed, @Nonnull AttributeModifierHandler handler) {
+        addModifier(source, timed, null, handler);
     }
-
-    /**
-     * Computes a subtraction to an attribute without displaying the change.
-     *
-     * @param type  - Type of attribute.
-     * @param value - Subtract value.
-     * @return the new value.
-     */
-    public double subtractSilent(@Nonnull AttributeType type, double value) {
-        return addSilent(type, -value).b();
+    
+    public void addModifier(@Nonnull ModifierSource source, @Nonnull Timed timed, @Nullable LivingGameEntity applier, @Nonnull AttributeModifierHandler handler) {
+        addModifier(source, timed.getDuration(), applier, handler);
     }
-
-    /**
-     * Returns the <b>base</b> <code>(unmodified)</code> value of this type.
-     *
-     * @param type - Type.
-     * @return the base value of this type.
-     */
-    public double getBase(@Nonnull AttributeType type) {
-        return baseAttributes.get(type);
+    
+    public boolean removeModifier(@Nonnull ModifierSource source) {
+        final AttributeModifier modifier = modifiers.remove(source);
+        
+        if (modifier != null) {
+            modifier.cancel();
+            updateAttributes();
+            return true;
+        }
+        
+        return false;
     }
-
-    /**
-     * Gets the game player.
-     *
-     * @return the game player.
-     */
+    
+    public double getAdditiveBonus(@Nonnull AttributeType type) {
+        return getBonus(type, ModifierType.ADDITIVE)
+                .mapToDouble(AttributeModifierEntry::value)
+                .sum();
+    }
+    
+    public double getMultiplicativeBonus(@Nonnull AttributeType type) {
+        return getBonus(type, ModifierType.MULTIPLICATIVE)
+                .mapToDouble(modifier -> 1 + modifier.value())
+                .reduce(1, (a, b) -> a * b) - 1;
+    }
+    
+    public double getFlatBonus(@Nonnull AttributeType type) {
+        return getBonus(type, ModifierType.FLAT)
+                .mapToDouble(AttributeModifierEntry::value)
+                .sum();
+    }
+    
+    public boolean hasModifiers() {
+        return !modifiers.isEmpty();
+    }
+    
+    public boolean hasModifier(@Nonnull ModifierSource source) {
+        return modifiers.containsKey(source);
+    }
+    
+    public boolean hasModifier(@Nonnull ModifierSource source, @Nonnull AttributeType type) {
+        for (AttributeModifier modifier : modifiers.values()) {
+            if (modifier.source() != source) {
+                continue;
+            }
+            
+            for (AttributeModifierEntry entry : modifier.entries) {
+                if (entry.attributeType() == type) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
     @Nonnull
     public LivingGameEntity getEntity() {
         return entity;
     }
-
-    /**
-     * Gets the base attributes.
-     *
-     * @return the base attributes.
-     */
-    @Nonnull
-    public Attributes getBaseAttributes() {
-        return baseAttributes;
-    }
-
-    public boolean hasTemper(Temper temper) {
-        return tempers.has(temper);
-    }
-
-    @Deprecated
-    public double getRaw(AttributeType attributeType) {
-        return super.get(attributeType);
-    }
-
-    public void forEachTempers(@Nonnull Consumer<TemperData> consumer) {
-        tempers.forEach(consumer);
-    }
-
-    public boolean hasTempers() {
-        return !tempers.isEmpty();
-    }
-
-    public void resetTemper(@Nonnull Temper temper) {
-        tempers.cancel(temper);
-    }
-
-    @Nonnull
-    @Override
-    public WeakEntityAttributes weakCopy() {
-        return new WeakEntityAttributes(this);
-    }
-
-    private void display(AttributeType type, boolean isBuff) {
-        final Location location = entity.getMidpointLocation();
-
-        final StringDisplay display = isBuff
-                ? new BuffDisplay("&a&l▲ %s &a&l▲".formatted(type), 30)
-                : new DebuffDisplay("&c&l▼ %s &c&l▼".formatted(type), 30);
-
-        display.display(location);
-    }
-
-
+    
     @Override
     public String toString() {
         return entity.toString() + super.toString();
+    }
+    
+    private void display(AttributeModifierEntry entry) {
+        final Location location = entity.getMidpointLocation();
+        final AttributeType type = entry.attributeType();
+        final boolean isBuff = entry.value() > 0;
+        
+        if (isBuff) {
+            StringDisplay.buff(location, type);
+        }
+        else {
+            StringDisplay.debuff(location, type);
+        }
+    }
+    
+    @Nonnull
+    public SnapshotAttributes snapshot() {
+        final SnapshotAttributes snapshot = new SnapshotAttributes(entity);
+        
+        // Copy the "effective" values to "base" values of the copy, making them "snapshot"
+        // the current values, even if modifiers have expired in the original
+        for (AttributeType attributeType : attributes.keySet()) {
+            snapshot.set(attributeType, get(attributeType));
+        }
+        
+        return snapshot;
+    }
+    
+    @Nonnull
+    public MapView<ModifierSource, AttributeModifier> getModifiers() {
+        return MapView.of(modifiers);
+    }
+    
+    @Nonnull
+    @Override
+    public String toDebugString() {
+        return "EntityAttributes{" +
+                "attributes=" + attributes.entrySet().stream().map(entry -> "%s=%.1f".formatted(entry.getKey().name(), entry.getValue())).toList() +
+                ", modifiers=" + modifiers.entrySet().stream().map(entry -> "%s=%s".formatted(entry.getKey(), entry.getValue())).toList() +
+                ", entity=" + entity +
+                '}';
+    }
+    
+    public void removeModifiers() {
+        modifiers.values().forEach(AttributeModifier::cancel);
+        modifiers.clear();
+    }
+    
+    private Stream<AttributeModifierEntry> getBonus(AttributeType attributeType, ModifierType modifierType) {
+        return modifiers.values().stream()
+                        .flatMap(modifier -> modifier.entries.stream())
+                        .filter(entry -> entry.attributeType() == attributeType && entry.modifierType() == modifierType);
     }
 }

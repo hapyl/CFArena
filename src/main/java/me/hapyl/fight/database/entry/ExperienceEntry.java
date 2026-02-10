@@ -1,40 +1,34 @@
 package me.hapyl.fight.database.entry;
 
-import me.hapyl.fight.Main;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.registry.KeyedEnum;
+import me.hapyl.fight.CF;
 import me.hapyl.fight.database.PlayerDatabase;
 import me.hapyl.fight.database.PlayerDatabaseEntry;
 import me.hapyl.fight.game.experience.Experience;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Numbers;
-import org.bson.Document;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nonnull;
+
 public class ExperienceEntry extends PlayerDatabaseEntry {
-    public ExperienceEntry(PlayerDatabase playerDatabase) {
-        super(playerDatabase);
+    public ExperienceEntry(@Nonnull PlayerDatabase playerDatabase) {
+        super(playerDatabase, "experience");
     }
 
-    public void reset(Type type) {
-        this.set(type, type.getMinValue());
+    public void reset(@Nonnull Type type) {
+        set(type, type.getMinValue());
     }
 
-    public Document getExperience() {
-        return getDocument().get("experience", new Document());
+    public long get(@Nonnull Type type) {
+        return getValue(type.getKeyAsString(), type.getMinValue());
     }
 
-    public long get(Type type) {
-        return getExperience().get(type.name(), type.getMinValue());
-    }
-
-    public void set(Type type, long value) {
-        final Document document = getExperience();
-        document.put(type.name(), Numbers.clamp(value, type.getMinValue(), type.getMaxValue()));
-
-        getDocument().put("experience", document);
+    public void set(@Nonnull Type type, long value) {
+        setValue(type.getKeyAsString(), Math.clamp(value, type.getMinValue(), type.getMaxValue()));
 
         // Only update if exp changed
-        final Experience experience = Main.getPlugin().getExperience();
-        final Player player = getOnlinePlayer();
+        final Experience experience = CF.getPlugin().getExperience();
+        final Player player = player().orElse(null);
 
         if (player != null) {
             type.onSet(player, value);
@@ -45,34 +39,30 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         }
     }
 
-    public void remove(Type type, long value) {
+    public void remove(@Nonnull Type type, long value) {
         add(type, -value);
     }
 
-    public void add(Type type, long value) {
+    public void add(@Nonnull Type type, long value) {
         set(type, get(type) + value);
     }
 
     public void update() {
-        final Player player = getOnlinePlayer();
-
-        if (player != null) {
-            Main.getPlugin().getExperience().triggerUpdate(player);
-        }
+        player().ifPresent(player -> CF.getPlugin().getExperience().triggerUpdate(player));
     }
 
-    public enum Type {
+    public enum Type implements KeyedEnum {
 
         EXP("Total amount of experience.", 0),
         LEVEL("Current level.", 1, 50) {
             @Override
-            public void onSet(Player player, long value) {
-                final Experience experience = Main.getPlugin().getExperience();
+            public void onSet(@Nonnull Player player, long value) {
+                final Experience experience = CF.getPlugin().getExperience();
                 final long expRequired = experience.getExpRequired(value);
                 final long exp = experience.getExp(player);
 
                 if (exp < expRequired) {
-                    PlayerDatabase.getDatabase(player).experienceEntry.set(EXP, expRequired);
+                    CF.getDatabase(player).experienceEntry.set(EXP, expRequired);
                 }
             }
         },
@@ -82,13 +72,13 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
         private final long minValue;
         private final long maxValue;
 
-        Type(String name, long defaultValue, long maxValue) {
+        Type(@Nonnull String name, long defaultValue, long maxValue) {
             this.description = name;
             this.minValue = defaultValue;
             this.maxValue = maxValue;
         }
 
-        Type(String name, long defaultValue) {
+        Type(@Nonnull String name, long defaultValue) {
             this(name, defaultValue, Long.MAX_VALUE);
         }
 
@@ -96,10 +86,12 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
             return minValue;
         }
 
+        @Nonnull
         public String getDescription() {
             return description;
         }
 
+        @Nonnull
         public String getName() {
             return Chat.capitalize(this);
         }
@@ -108,7 +100,7 @@ public class ExperienceEntry extends PlayerDatabaseEntry {
             return maxValue;
         }
 
-        public void onSet(Player player, long value) {
+        public void onSet(@Nonnull Player player, long value) {
         }
 
     }

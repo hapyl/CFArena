@@ -1,6 +1,6 @@
 package me.hapyl.fight.game.task.player;
 
-import me.hapyl.fight.game.Event;
+import me.hapyl.eterna.module.annotate.EventLike;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
 
@@ -18,20 +18,20 @@ public interface IPlayerTask {
     GamePlayer getPlayer();
 
     /**
-     * Gets the enum associated with this task.
-     * Tasks with enums are considered named, and will replace the task with the same enum.
+     * Gets the class associated with this task.
+     * Tasks with class are considered named, and will replace the task with the same class.
      *
      * @return the enum associated with this task.
      */
     @Nullable
-    default Enum<?> getEnum() {
+    default Class<?> getEnum() {
         return null;
     }
 
     /**
      * Called upon player dying while the task is active.
      */
-    @Event
+    @EventLike
     default void onTaskStopBecauseOfDeath() {
     }
 

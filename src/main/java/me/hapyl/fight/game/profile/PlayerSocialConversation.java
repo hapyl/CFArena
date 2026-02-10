@@ -1,7 +1,7 @@
 package me.hapyl.fight.game.profile;
 
-import me.hapyl.fight.ux.Notifier;
-import me.hapyl.spigotutils.module.chat.Chat;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.fight.Message;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ public class PlayerSocialConversation {
 
         Chat.sendMessage(
                 profile.getPlayer(),
-                formatTo.formatted(to.getDisplay().getNamePrefixed(), message)
+                formatTo.formatted(to.display().toString(), message)
         );
     }
 
@@ -40,13 +40,13 @@ public class PlayerSocialConversation {
 
         Chat.sendMessage(
                 profile.getPlayer(),
-                formatFrom.formatted(from.getDisplay().getNamePrefixed(), message)
+                formatFrom.formatted(from.display().toString(), message)
         );
     }
 
     public static void talk(@Nonnull PlayerProfile sender, @Nonnull PlayerProfile receiver, @Nonnull String message) {
         if (message.isEmpty()) {
-            Notifier.error(sender.getPlayer(), "Cannot send empty message!");
+            Message.error(sender.getPlayer(), "Cannot send empty message!");
             return;
         }
 

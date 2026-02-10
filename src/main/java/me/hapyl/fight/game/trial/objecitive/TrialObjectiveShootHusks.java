@@ -1,10 +1,10 @@
 package me.hapyl.fight.game.trial.objecitive;
 
+import me.hapyl.eterna.module.util.BukkitUtils;
 import me.hapyl.fight.Main;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.trial.Trial;
 import me.hapyl.fight.game.trial.TrialEntity;
-import me.hapyl.spigotutils.module.util.BukkitUtils;
 import org.bukkit.Material;
 
 import javax.annotation.Nonnull;

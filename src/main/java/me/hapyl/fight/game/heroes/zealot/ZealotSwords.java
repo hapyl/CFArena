@@ -1,13 +1,13 @@
 package me.hapyl.fight.game.heroes.zealot;
 
+import me.hapyl.eterna.module.entity.Entities;
+import me.hapyl.eterna.module.entity.EntityUtils;
+import me.hapyl.eterna.module.util.Removable;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.talents.Removable;
 import me.hapyl.fight.game.task.player.PlayerGameTask;
 import me.hapyl.fight.util.Collect;
 import me.hapyl.fight.util.MaterialCooldown;
-import me.hapyl.spigotutils.module.entity.Entities;
-import me.hapyl.spigotutils.module.entity.EntityUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -22,13 +22,13 @@ import java.util.function.Consumer;
 public class ZealotSwords extends PlayerGameTask implements Removable, MaterialCooldown {
 
     private final GamePlayer player;
-    private final ZealotUltimate ultimate;
+    private final Zealot.ZealotUltimate ultimate;
     private final Giant[] giants;
 
     private int tick;
     private boolean swing;
 
-    public ZealotSwords(GamePlayer player, ZealotUltimate ultimate) {
+    public ZealotSwords(GamePlayer player, Zealot.ZealotUltimate ultimate) {
         super(player);
 
         this.player = player;

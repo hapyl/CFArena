@@ -6,34 +6,32 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import me.hapyl.eterna.module.chat.Chat;
+import me.hapyl.eterna.module.math.Cuboid;
+import me.hapyl.eterna.module.math.Geometry;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.math.geometry.Quality;
+import me.hapyl.eterna.module.math.geometry.WorldParticle;
+import me.hapyl.eterna.module.player.PlayerLib;
+import me.hapyl.eterna.module.reflect.Reflect;
 import me.hapyl.fight.CF;
 import me.hapyl.fight.Main;
-import me.hapyl.fight.annotate.ForceCloned;
+import me.hapyl.fight.annotate.ClonedBeforeMutation;
+import me.hapyl.fight.game.Constants;
 import me.hapyl.fight.game.Debug;
-import me.hapyl.fight.game.damage.EnumDamageCause;
+import me.hapyl.fight.game.color.Color;
+import me.hapyl.fight.game.damage.DamageCause;
 import me.hapyl.fight.game.entity.GameEntity;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
 import me.hapyl.fight.game.task.GameTask;
-import me.hapyl.spigotutils.module.annotate.TestedOn;
-import me.hapyl.spigotutils.module.annotate.Version;
-import me.hapyl.spigotutils.module.chat.Chat;
-import me.hapyl.spigotutils.module.math.Cuboid;
-import me.hapyl.spigotutils.module.math.Geometry;
-import me.hapyl.spigotutils.module.math.Tick;
-import me.hapyl.spigotutils.module.math.geometry.Quality;
-import me.hapyl.spigotutils.module.math.geometry.WorldParticle;
-import me.hapyl.spigotutils.module.player.EffectType;
-import me.hapyl.spigotutils.module.player.PlayerLib;
-import me.hapyl.spigotutils.module.reflect.Reflect;
-import net.minecraft.network.protocol.game.PacketPlayOutBlockAction;
-import net.minecraft.world.entity.boss.wither.EntityWither;
+import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.world.level.block.Blocks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -45,10 +43,12 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Range;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -56,6 +56,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -65,26 +66,18 @@ import java.util.regex.Pattern;
  * Utilities for the plugin
  */
 public class CFUtils {
-
+    
     public static final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + '&' + "[0-9A-FK-ORX]");
     public static final double ANGLE_IN_RAD = 6.283185307179586d;
-
+    
+    public static final String INF_CHAR = "∞";
+    public static final String RIGHT_CLICK = " &8(%sRight Click&8)".formatted(Color.BUTTON.bold());
+    
     private static final DecimalFormat TICK_FORMAT = new DecimalFormat("0.0");
     private static final Random RANDOM = new Random();
-    private static final double ANCHOR_COMPENSATION = 0.61d;
-
-    private static final Map<Tag<Material>, Double> anchorCompensationMap = Map.of(
-            Tag.SLABS, 0.5d,
-            Tag.WOOL_CARPETS, 0.075d // This does NOT include moss carpet because fuck you
-    );
-
-    private static final Set<Tag<Material>> softSolidTags = Set.of(
-            Tag.WOOL_CARPETS, Tag.ALL_SIGNS
-    );
-    private static final String tickTooLongMessage = "indefinitely";
+    
     private static String SERVER_IP;
-    private static List<EffectType> ALLOWED_EFFECTS;
-
+    
     /**
      * Strips the color from the given message.
      *
@@ -95,10 +88,10 @@ public class CFUtils {
     public static String stripColor(@Nonnull String message) {
         message = ChatColor.stripColor(message);
         message = STRIP_COLOR_PATTERN.matcher(message).replaceAll("");
-
+        
         return message;
     }
-
+    
     /**
      * Sets the {@link LivingEntity}'s equipment.
      * <p>
@@ -110,7 +103,7 @@ public class CFUtils {
     public static void setEquipment(@Nonnull LivingEntity entity, /*@IjSg("equipment")*/ @Nonnull Consumer<EntityEquipment> consumer) {
         Nulls.runIfNotNull(entity.getEquipment(), consumer);
     }
-
+    
     /**
      * Scales the particle offset to be a 1:1 block ratio.
      *
@@ -120,7 +113,7 @@ public class CFUtils {
     public static double scaleParticleOffset(double v) {
         return v * v / 8.0d;
     }
-
+    
     /**
      * Gets the {@link World} from the given {@link Location}, or throws {@link IllegalStateException} if the world is unloaded.
      *
@@ -130,14 +123,14 @@ public class CFUtils {
     @Nonnull
     public static World getWorld(@Nonnull Location location) {
         final World world = location.getWorld();
-
+        
         if (world == null) {
             throw new IllegalStateException("unloaded world");
         }
-
+        
         return world;
     }
-
+    
     /**
      * Gets the {@link Team} the given {@link Entity} belongs to in the main scoreboard; or null if there are none.
      *
@@ -147,14 +140,14 @@ public class CFUtils {
     @Nullable
     public static Team getEntityTeam(@Nonnull Entity entity) {
         final Scoreboard scoreboard = Bukkit.getScoreboardManager() == null ? null : Bukkit.getScoreboardManager().getMainScoreboard();
-
+        
         if (scoreboard == null) {
             return null;
         }
-
+        
         return getEntityTeam(entity, scoreboard);
     }
-
+    
     /**
      * Gets the {@link Team} the given {@link Entity} belongs to in the given scoreboard; or null if there are none.
      *
@@ -166,11 +159,11 @@ public class CFUtils {
     public static Team getEntityTeam(@Nonnull Entity entity, @Nonnull Scoreboard scoreboard) {
         return scoreboard.getEntryTeam(entity instanceof Player ? entity.getName() : entity.getUniqueId().toString());
     }
-
+    
     public static void playSoundAndCut(Location location, Sound sound, float pitch, int cutAt) {
         final Set<Player> playingTo = new HashSet<>();
         CF.getAlivePlayers().forEach(gp -> {
-            final Player player = gp.getPlayer();
+            final Player player = gp.getEntity();
             player.playSound(location, sound, SoundCategory.RECORDS, 20f, pitch);
             playingTo.add(player);
         });
@@ -184,7 +177,7 @@ public class CFUtils {
             }
         }.runTaskLater(cutAt);
     }
-
+    
     public static void playSoundAndCut(Player player, Sound sound, float pitch, int cutAt) {
         PlayerLib.playSound(player, sound, pitch);
         new GameTask() {
@@ -194,7 +187,7 @@ public class CFUtils {
             }
         }.runTaskLater(cutAt);
     }
-
+    
     /**
      * Compares 2 objects.
      *
@@ -217,115 +210,130 @@ public class CFUtils {
         if (a == null || b == null) {
             return false;
         }
-
+        
         return a.equals(b);
     }
-
+    
     public static <E> void clearCollectionAnd(Collection<E> collection, Consumer<E> action) {
         collection.forEach(action);
         collection.clear();
     }
-
+    
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
         final List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
         list.sort(Map.Entry.comparingByValue());
-
+        
         Map<K, V> result = new LinkedHashMap<>();
         for (Map.Entry<K, V> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
-
+        
         return result;
     }
-
+    
     public static void hidePlayer(@Nonnull GamePlayer player) {
         CF.getAlivePlayers().forEach(gamePlayer -> {
             if (gamePlayer.equals(player) || gamePlayer.isSpectator() || gamePlayer.isTeammate(player)) {
                 return;
             }
-
-            player.hide(gamePlayer.getPlayer());
+            
+            player.hide(gamePlayer.getEntity());
         });
     }
-
+    
     public static void showPlayer(@Nonnull GamePlayer player) {
         CF.getPlayers().forEach(gamePlayer -> {
             if (gamePlayer.equals(player)) {
                 return;
             }
-
-            player.show(gamePlayer.getPlayer());
+            
+            player.show(gamePlayer.getEntity());
         });
     }
-
-    public static void rayTracePath(@Nonnull Location start, @Nonnull Location end, double shift, double searchRange, @Nullable Consumer<LivingGameEntity> funcLiving, @Nullable Consumer<Location> funcLoc) {
+    
+    public static void rayTracePath(
+            @Nonnull Location start,
+            @Nonnull Location end,
+            double shift,
+            double searchRange,
+            @Nullable Consumer<LivingGameEntity> funcLiving,
+            @Nullable Consumer<Location> funcLoc
+    ) {
         final double maxDistance = start.distance(end);
         final Vector vector = end.toVector().subtract(start.toVector()).normalize().multiply(shift);
-
+        
         new GameTask() {
             private double tick = maxDistance;
-
+            
             @Override
             public void run() {
                 if (tick < 0) {
                     cancel();
                     return;
                 }
-
+                
                 start.add(vector);
-
+                
                 Nulls.runIfNotNull(funcLiving, f -> Collect.nearbyEntities(start, searchRange).forEach(f));
                 Nulls.runIfNotNull(funcLoc, f -> f.accept(start));
-
+                
                 tick -= shift;
             }
         }.runTaskTimer(0, 1);
-
+        
     }
-
-    public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable EnumDamageCause cause, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
+    
+    public static void rayTraceLine(
+            GamePlayer shooter,
+            double maxDistance,
+            double shift,
+            double damage,
+            @Nullable DamageCause cause,
+            @Nullable Consumer<Location> onMove,
+            @Nullable Consumer<LivingGameEntity> onHit
+    ) {
         final Location location = shooter.getLocation().add(0, 1.5, 0);
         final Vector vector = location.getDirection().normalize();
-
+        
         main:
         for (double i = 0; i < maxDistance; i += shift) {
-
+            
             double x = vector.getX() * i;
             double y = vector.getY() * i;
             double z = vector.getZ() * i;
             location.add(x, y, z);
-
+            
             // check for the hitting a block and an entity
             if (location.getBlock().getType().isOccluding()) {
                 break;
             }
-
+            
             for (final LivingGameEntity gameEntity : Collect.nearbyEntities(location, 1.0)) {
                 if (gameEntity.equals(shooter)) {
                     continue;
                 }
-
+                
                 if (onHit != null) {
                     onHit.accept(gameEntity);
                 }
-
+                
                 if (damage > 0.0d) {
                     gameEntity.damage(damage, shooter, cause);
                 }
-
+                
                 break main;
             }
-
+            
             if (i > 1.0) {
                 if (onMove != null) {
                     onMove.accept(location);
                 }
             }
             location.subtract(x, y, z);
-
+            
         }
     }
-
+    
     /**
      * Roots to the actual damager from projectile, owner etc.
      *
@@ -340,14 +348,14 @@ public class CFUtils {
         else if (entity instanceof Tameable tameable && tameable.getOwner() instanceof LivingEntity livingEntity) {
             return livingEntity;
         }
-
+        
         return entity;
     }
-
+    
     public static void rayTraceLine(GamePlayer shooter, double maxDistance, double shift, double damage, @Nullable Consumer<Location> onMove, @Nullable Consumer<LivingGameEntity> onHit) {
         rayTraceLine(shooter, maxDistance, shift, damage, null, onMove, onHit);
     }
-
+    
     /**
      * Performs a "smart" collection clear, with removing entities and updating block states.
      *
@@ -359,29 +367,24 @@ public class CFUtils {
         }
         collection.clear();
     }
-
+    
     public static <E> void clearArray(E[] array) {
         for (E t : array) {
             doClearEntry(t);
         }
     }
-
+    
     @Nonnull
     public static <K, V> V getElementOrThrowErrorIfNull(Map<K, V> map, K key, String errorMessage) {
         final V v = map.get(key);
-
+        
         if (v != null) {
             return v;
         }
-
+        
         throw new IllegalArgumentException(errorMessage);
     }
-
-    @TestedOn(version = Version.V1_20_2)
-    public static void setWitherInvul(Wither wither, int invul) {
-        ((EntityWither) Objects.requireNonNull(Reflect.getMinecraftEntity(wither))).s(invul);
-    }
-
+    
     /**
      * Forces entity to look at provided location.
      *
@@ -391,15 +394,15 @@ public class CFUtils {
     public static void lookAt(@Nonnull Entity entity, @Nonnull Location at) {
         final Vector dirBetweenLocations = at.toVector().subtract(entity.getLocation().toVector());
         final Location location = entity.getLocation();
-
+        
         location.setDirection(dirBetweenLocations);
         entity.teleport(location);
     }
-
+    
     public static boolean isEntityValid(Entity entity) {
         return isEntityValid(entity, null);
     }
-
+    
     /**
      * Performs an entity check to validate if the entity is considered "valid."
      *
@@ -411,30 +414,30 @@ public class CFUtils {
         if (!(entity instanceof LivingEntity livingEntity)) {
             return false;
         }
-
+        
         final LivingGameEntity gameEntity = CF.getEntity(livingEntity);
         if (gameEntity == null) {
             return false;
         }
-
+        
         return gameEntity.isValid(player);
     }
-
+    
     public static void createExplosion(Location location, double range, double damage, Consumer<LivingGameEntity> consumer) {
         createExplosion(location, range, damage, null, null, consumer);
     }
-
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause) {
+    
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable DamageCause cause) {
         createExplosion(location, range, damage, damager, cause, null);
     }
-
+    
     @Deprecated
-    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable EnumDamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
+    public static void createExplosion(Location location, double range, double damage, @Nullable LivingGameEntity damager, @Nullable DamageCause cause, @Nullable Consumer<LivingGameEntity> consumer) {
         final World world = location.getWorld();
         if (world == null) {
             return;
         }
-
+        
         Collect.nearbyEntities(location, range).forEach(entity -> {
             if (damage > 0.0d) {
                 entity.damage(damage, damager, cause);
@@ -443,18 +446,18 @@ public class CFUtils {
                 consumer.accept(entity);
             }
         });
-
+        
         // Fx
         Geometry.drawCircle(location, range, Quality.NORMAL, new WorldParticle(Particle.CRIT));
         Geometry.drawCircle(location, range + 0.5d, Quality.NORMAL, new WorldParticle(Particle.ENCHANT));
         PlayerLib.spawnParticle(location, Particle.EXPLOSION_EMITTER, 1, 1, 0, 1, 0);
         PlayerLib.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f);
     }
-
+    
     public static void createExplosion(Location location, double range, double damage) {
         createExplosion(location, range, damage, null);
     }
-
+    
     public static void lockArmorStand(ArmorStand stand) {
         for (final EquipmentSlot value : EquipmentSlot.values()) {
             for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
@@ -462,7 +465,7 @@ public class CFUtils {
             }
         }
     }
-
+    
     public static void unlockArmorStand(ArmorStand stand) {
         for (final EquipmentSlot value : EquipmentSlot.values()) {
             for (final ArmorStand.LockType lockType : ArmorStand.LockType.values()) {
@@ -470,72 +473,75 @@ public class CFUtils {
             }
         }
     }
-
+    
     public static <E> E fetchFirstFromLinkedMap(LinkedHashMap<?, E> map, E def) {
         for (E value : map.values()) {
             return value;
         }
-
+        
         return def;
     }
-
-    public static <E> List<String> collectionToStringList(Collection<E> e, java.util.function.Function<E, String> fn) {
+    
+    public static <E> List<String> collectionToStringList(Collection<E> e, Function<E, String> fn) {
         final List<String> list = new ArrayList<>();
         e.forEach(el -> list.add(fn.apply(el)));
         return list;
     }
-
+    
     @Nonnull
     public static String getServerIp() {
         if (SERVER_IP == null) {
             String ip = Bukkit.getIp();
             final int port = Bukkit.getPort();
-
+            
             if (ip.isEmpty() || ip.isBlank()) {
                 try {
                     ip = InetAddress.getLocalHost().getHostAddress();
-                } catch (Exception ignored0) {
+                }
+                catch (Exception ignored0) {
                     try {
                         ip = Inet4Address.getLocalHost().getHostAddress();
-                    } catch (Exception ignored1) {
+                    }
+                    catch (Exception ignored1) {
                         try {
                             ip = Inet6Address.getLocalHost().getHostAddress();
-                        } catch (Exception ignored2) {
+                        }
+                        catch (Exception ignored2) {
                             SERVER_IP = "Unavailable";
                             return SERVER_IP;
                         }
                     }
                 }
             }
-
+            
             SERVER_IP = ip + ":" + port;
         }
-
+        
         return SERVER_IP;
     }
-
+    
     public static void modifyKnockback(@Nonnull LivingEntity target, @Nonnull Function<Double, Double> fn, @Nonnull Consumer<LivingEntity> consumer) {
-        final AttributeInstance attribute = target.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
-
+        final AttributeInstance attribute = target.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+        
         if (attribute == null) {
             consumer.accept(target);
             Debug.warn("%s does not have GENERIC_KNOCKBACK_RESISTANCE");
             return;
         }
-
+        
         final double base = attribute.getBaseValue();
         final double newValue = fn.apply(base);
-
+        
         attribute.setBaseValue(newValue);
         consumer.accept(target);
         attribute.setBaseValue(base);
     }
-
-    public static Matrix4f parseMatrix(@Range(min = 16, max = 16) float... matrix) {
+    
+    public static Matrix4f parseMatrix(@Range(from = 16, to = 16) float... matrix) {
         if (matrix.length != 16) {
             throw new IllegalArgumentException("matrix length must be 16, not " + matrix.length);
         }
-
+        
         return new Matrix4f(
                 matrix[0], matrix[4], matrix[8], matrix[12],
                 matrix[1], matrix[5], matrix[9], matrix[13],
@@ -543,213 +549,88 @@ public class CFUtils {
                 matrix[3], matrix[7], matrix[11], matrix[15]
         );
     }
-
+    
     public static void playChestAnimation(Block block, boolean open) {
-        net.minecraft.world.level.block.Block nmsBlock = switch (block.getType()) {
-            case CHEST -> Blocks.cv;
-            case TRAPPED_CHEST -> Blocks.gV;
-            case ENDER_CHEST -> Blocks.fG;
-            default -> throw new IllegalArgumentException("invalid chest type: " + block.getType());
-        };
-
-        final PacketPlayOutBlockAction packet = new PacketPlayOutBlockAction(
+        final ClientboundBlockEventPacket packet = new ClientboundBlockEventPacket(
                 Reflect.getBlockPosition(block),
-                nmsBlock,
-                1,
+                switch (block.getType()) {
+                    case CHEST -> Blocks.CHEST;
+                    case TRAPPED_CHEST -> Blocks.TRAPPED_CHEST;
+                    case ENDER_CHEST -> Blocks.ENDER_CHEST;
+                    default -> throw new IllegalArgumentException("Invalid chest: " + block.getType());
+                },
+                1, // No fucking idea what this 1 means
                 open ? 1 : 0
         );
-
+        
         Bukkit.getOnlinePlayers().forEach(player -> Reflect.sendPacket(player, packet));
     }
-
+    
     @Nonnull
     public static String formatTick(int tick) {
-        return tick > 9999 ? tickTooLongMessage : Tick.round(tick) + "s";
+        return tick > Constants.MAX_COOLDOWN || tick == Constants.INFINITE_DURATION ? INF_CHAR : Tick.round(tick);
     }
-
+    
     @Nonnull
     public static String decimalFormatTick(int tick) {
-        return tick > 9999 ? tickTooLongMessage : decimalFormat(tick / 20d) + "s";
+        return tick > Constants.MAX_COOLDOWN ? INF_CHAR : decimalFormat(tick / 20d) + "s";
     }
-
+    
     @Nonnull
     public static String decimalFormat(double number) {
         return TICK_FORMAT.format(number);
     }
-
-    @Nonnull
-    public static Location findRandomLocationAround(@Nonnull Location around) {
-        final Location location = new Location(
-                around.getWorld(),
-                around.getBlockX(),
-                around.getBlockY(),
-                around.getBlockZ(),
-                around.getYaw(),
-                around.getPitch()
-        );
-        final World world = location.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("Cannot find location in an unloaded world.");
-        }
-
-        location.add(RANDOM.nextDouble(-3, 3), 0, RANDOM.nextDouble(-3, 3));
-
-        return anchorLocation(location);
-    }
-
-    /**
-     * <b>Attempts</b> to anchor the location, so it's directly on a block.
-     *
-     * @param originalLocation - Location.
-     * @return The same anchored location.
-     */
-    @Nonnull
-    public static Location anchorLocation(@Nonnull Location originalLocation) {
-        final Location location = new Location(
-                originalLocation.getWorld(),
-                originalLocation.getX(),
-                originalLocation.getBlockY() + 0.5d,
-                originalLocation.getZ(),
-                originalLocation.getYaw(),
-                originalLocation.getPitch()
-        );
-
-        final World world = location.getWorld();
-
-        if (world == null) {
-            throw new IllegalArgumentException("Cannot anchor location in an unloaded world.");
-        }
-
-        // in case in a half-block or a carpet
-        location.add(0, ANCHOR_COMPENSATION, 0);
-
-        // Up
-        while (true) {
-            final Block block = location.getBlock();
-
-            if (location.getY() >= world.getMaxHeight() || !block.getType().isSolid()) {
-                break;
-            }
-
-            location.add(0, 1, 0);
-        }
-
-        // Down
-        while (true) {
-            final Block block = location.getBlock();
-            final Block blockAbove = block.getRelative(BlockFace.UP);
-            final Block blockBelow = block.getRelative(BlockFace.DOWN);
-
-            if (location.getY() <= world.getMinHeight()) {
-                return originalLocation; // fail-safe to NOT fall out of the world
-            }
-
-            if (isAirOrSoftSolid(blockAbove) && isAirOrSoftSolid(block) && isSolid(blockBelow)) {
-                break;
-            }
-
-            location.subtract(0, 1, 0);
-        }
-
-        // Compensate
-        location.subtract(0, ANCHOR_COMPENSATION - 0.5d, 0);
-
-        // Compensate based on a block below
-        final Material blockType = location.getBlock().getType();
-        final Material blockBelowType = location.getBlock().getRelative(BlockFace.DOWN).getType();
-
-        anchorCompensationMap.forEach((tag, value) -> {
-            // If IN a block, compensate UP
-            if (tag.isTagged(blockType)) {
-                location.add(0, value, 0);
-            }
-            // If ABOVE a block, compensate DOWN
-            else if (tag.isTagged(blockBelowType)) {
-                location.subtract(0, value, 0);
-            }
-        });
-
-        return location;
-    }
-
-    public static boolean isAirOrSoftSolid(@Nonnull Block block) {
-        final Material type = block.getType();
-
-        if (type.isAir() || !type.isOccluding()) {
-            return true;
-        }
-
-
-        // Carpets
-        for (Tag<Material> tag : softSolidTags) {
-            if (tag.isTagged(type)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean isSolid(@Nonnull Block block) {
-        final Material type = block.getType();
-
-        return switch (type) {
-            case BARRIER -> false;
-            default -> type.isSolid();
-        };
-    }
-
+    
     public static void setGlowing(@Nonnull Player player, @Nonnull Entity entity, @Nonnull String teamName, @Nonnull ChatColor color) {
         final Scoreboard scoreboard = player.getScoreboard();
         Team team = scoreboard.getTeam(teamName);
-
+        
         if (team == null) {
             team = scoreboard.registerNewTeam(teamName);
         }
-
+        
         team.setColor(color);
         team.addEntry(entity instanceof Player playerEntity ? playerEntity.getName() : entity.getUniqueId().toString());
     }
-
+    
     public static <T> void forEach(T[] array, Consumer<T> consumer) {
         for (T t : array) {
             if (t == null) {
                 continue;
             }
-
+            
             consumer.accept(t);
         }
     }
-
+    
     public static void modifyAttribute(LivingEntity entity, Attribute attribute, Consumer<AttributeInstance> consumer) {
         final AttributeInstance instance = entity.getAttribute(attribute);
-
+        
         if (instance != null) {
             consumer.accept(instance);
         }
     }
-
+    
     public static double getAttributeValue(LivingEntity entity, Attribute attribute) {
         final AttributeInstance instance = entity.getAttribute(attribute);
-
+        
         if (instance == null) {
             return 0.0d;
         }
-
+        
         return instance.getBaseValue();
     }
-
+    
     public static void setAttributeValue(LivingEntity entity, Attribute attribute, double value) {
         final AttributeInstance instance = entity.getAttribute(attribute);
-
+        
         if (instance == null) {
             return;
         }
-
+        
         instance.setBaseValue(value);
     }
-
+    
     /**
      * Calculates a dot product between two {@link Location}.
      *
@@ -757,12 +638,12 @@ public class CFUtils {
      * @param end   - End.
      * @return the dot product between locations.
      */
-    public static double dot(@Nonnull Location start, @Nonnull @ForceCloned Location end) {
+    public static double dot(@Nonnull Location start, @Nonnull @ClonedBeforeMutation Location end) {
         final Vector vector = end.clone().subtract(start).toVector().normalize();
-
+        
         return start.getDirection().normalize().dot(vector);
     }
-
+    
     /**
      * Calculates a dot product between two {@link Location}.
      *
@@ -771,14 +652,14 @@ public class CFUtils {
      * @param distance - Distance to check.
      * @return the dot product if the distance between locations is <code><=</code> <code>distance</code>; -1 otherwise.
      */
-    public static double dot(@Nonnull Location start, @Nonnull @ForceCloned Location end, double distance) {
+    public static double dot(@Nonnull Location start, @Nonnull @ClonedBeforeMutation Location end, double distance) {
         if (start.distance(end) < distance) {
             return -1.0d;
         }
-
+        
         return dot(start, end);
     }
-
+    
     /**
      * Calculates a dot product between two {@link Location} and checks if it is greater or equals <code>>=</code> to the parameter.
      *
@@ -788,12 +669,12 @@ public class CFUtils {
      * @param distance - Distance to check.
      * @return true if the dot product is <code>>=</code> <code>dot</code> and <code>distance</code> is <code><=</code> between location.
      */
-    public static boolean dot(@Nonnull Location start, @Nonnull @ForceCloned Location end, float dot, double distance) {
+    public static boolean dot(@Nonnull Location start, @Nonnull @ClonedBeforeMutation Location end, float dot, double distance) {
         final double theDot = dot(start, end, distance);
-
+        
         return theDot >= dot;
     }
-
+    
     /**
      * Gets the {@link ItemStack} display name; or an empty string is there is no meta.
      * <p>
@@ -805,14 +686,14 @@ public class CFUtils {
     @Nonnull
     public static String getItemName(@Nonnull ItemStack item) {
         final ItemMeta itemMeta = item.getItemMeta();
-
+        
         if (itemMeta == null) {
             return "";
         }
-
+        
         return ChatColor.stripColor(itemMeta.getDisplayName());
     }
-
+    
     /**
      * Returns a random double between origin and bound, either positive or negavite.
      *
@@ -824,7 +705,7 @@ public class CFUtils {
         final double d = random(origin, bound);
         return RANDOM.nextBoolean() ? d : -d;
     }
-
+    
     /**
      * Gets a random double between origin and bound (exclusive).
      *
@@ -835,11 +716,11 @@ public class CFUtils {
     public static double random(double origin, double bound) {
         return RANDOM.nextDouble(origin, bound);
     }
-
+    
     public static float random(float origin, float bound) {
         return RANDOM.nextFloat(origin, bound);
     }
-
+    
     /**
      * Gets a random {@link EulerAngle}.
      *
@@ -849,24 +730,7 @@ public class CFUtils {
     public static EulerAngle randomEulerAngle() {
         return new EulerAngle(random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD), random(0.0d, ANGLE_IN_RAD));
     }
-
-    /**
-     * Returns a checkmark based on the condition.
-     * <p>
-     * If the condition is <code>true</code>, a <code>GREEN</code> ✔ is returned.
-     * <p>
-     * If the condition is <code>false</code>, a <code>RED</code> ❌ is returned.
-     * <p>
-     * If the condition is <code>null</code>, a blank string is returned.
-     *
-     * @param condition - Boolean condition.
-     * @return a checkmark, an X or a blank string.
-     */
-    @Nonnull
-    public static String checkmark(@Nullable Boolean condition) {
-        return condition == null ? "" : condition ? "&a✔" : "&c❌";
-    }
-
+    
     /**
      * Center the location based on its block coordinates.
      * This does not center the <code>Y</code> coordinate.
@@ -885,7 +749,7 @@ public class CFUtils {
                 location.getPitch()
         );
     }
-
+    
     /**
      * Creates an exact copy of the given list.
      *
@@ -896,7 +760,7 @@ public class CFUtils {
     public static <T> List<T> copyList(@Nonnull List<T> list) {
         return Lists.newArrayList(list);
     }
-
+    
     /**
      * Returns true is the material a slab.
      *
@@ -907,40 +771,36 @@ public class CFUtils {
         if (!material.isBlock()) {
             return false;
         }
-
+        
         return material.name().endsWith("_SLAB");
     }
-
+    
     /**
      * Performs an entry clear based in the entry type.
      *
      * @param e - Entry.
      */
     public static <E> void doClearEntry(@Nullable E e) {
-        if (e == null) {
-            return;
+        switch (e) {
+            case Entity entity -> entity.remove();
+            case GameEntity entity -> entity.remove();
+            case Block block -> block.getState().update(true, false);
+            case null, default -> {
+            }
         }
-
-        if (e instanceof Entity entity) {
-            entity.remove();
-        }
-        else if (e instanceof GameEntity entity) {
-            entity.kill();
-        }
-        else if (e instanceof Block block) {
-            block.getState().update(true, false);
-        }
+        
     }
-
+    
     @Nullable
     public static URL urlFromString(String url) {
         try {
             return new URL(url);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return null;
         }
     }
-
+    
     public static <T> Collection<T> computeCollection(@Nonnull Collection<T> collection, @Nonnull T t, boolean add) {
         if (add) {
             collection.add(t);
@@ -948,47 +808,33 @@ public class CFUtils {
         else {
             collection.remove(t);
         }
-
+        
         return collection;
     }
-
+    
     public static void validateVarArgs(Object[] objects) {
         if (objects == null || objects.length == 0) {
             throw new IllegalArgumentException("there must be at least one var arg!");
         }
     }
-
+    
     public static int divide(int a, int b) {
         return (int) ((double) (a / b));
     }
-
+    
     @Nonnull
     public static <K> Cache<K, Boolean> createCache(long expireAfter) {
         return CacheBuilder.newBuilder()
-                .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
-                .build(new CacheLoader<K, Boolean>() {
-                    @Nonnull
-                    @Override
-                    public Boolean load(@Nonnull K key) throws Exception {
-                        return true;
-                    }
-                });
+                           .expireAfterWrite(expireAfter, TimeUnit.MILLISECONDS)
+                           .build(new CacheLoader<K, Boolean>() {
+                               @Nonnull
+                               @Override
+                               public Boolean load(@Nonnull K key) throws Exception {
+                                   return true;
+                               }
+                           });
     }
-
-    @Nonnull
-    public static <E extends Enum<E>> Set<E> setOfEnum(Class<E> clazz, Function<E, Boolean> fn) {
-        Set<E> set = new HashSet<>();
-
-        final E[] enumConstants = clazz.getEnumConstants();
-        for (E enumConstant : enumConstants) {
-            if (fn.apply(enumConstant)) {
-                set.add(enumConstant);
-            }
-        }
-
-        return set;
-    }
-
+    
     /**
      * Gets a copy of a mapped list; or empty list.
      *
@@ -999,10 +845,15 @@ public class CFUtils {
     @Nonnull
     public static <K, V> List<V> copyMapList(@Nonnull Map<K, List<V>> hashMap, @Nonnull K key) {
         final List<V> list = hashMap.get(key);
-
+        
         return list != null ? new ArrayList<>(list) : new ArrayList<>();
     }
-
+    
+    @Nonnull
+    public static <K, V> List<V> immutableMapListCopy(@Nonnull Map<K, List<V>> hashMap, @Nonnull K key) {
+        return Collections.unmodifiableList(hashMap.getOrDefault(key, Lists.newArrayList()));
+    }
+    
     /**
      * Increments an integer if the <code>condition</code> is <code>true</code> or sets to <code>min</code> otherwise.
      *
@@ -1015,84 +866,85 @@ public class CFUtils {
     public static int incrementIntegerConditionallyAndClamp(int integer, boolean condition, int min, int max) {
         return condition ? Math.min(integer + 1, max) : min;
     }
-
+    
     public static <T> T[] requireVarArgs(@Nullable T[] varArgs) {
         if (varArgs == null || varArgs.length == 0) {
             throw new IllegalArgumentException("VarArgs must not be null nor empty!");
         }
-
+        
         return varArgs;
     }
-
-    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> predicate, @Nonnull Consumer<T> andThen) {
-        collection.removeIf(t -> {
-            final boolean shouldRemove = predicate.test(t);
-
-            if (shouldRemove) {
-                andThen.accept(t);
+    
+    public static <T> void removeIf(@Nonnull Collection<T> collection, @Nonnull Predicate<T> test, @Nonnull Consumer<T> accept) {
+        final Iterator<T> iterator = collection.iterator();
+        
+        while (iterator.hasNext()) {
+            final T next = iterator.next();
+            
+            if (test.test(next)) {
+                accept.accept(next);
+                iterator.remove();
             }
-
-            return shouldRemove;
-        });
+        }
     }
-
+    
     public static void later(@Nonnull Runnable runnable, int delay) {
         new BukkitRunnable() {
             @Override
             public void run() {
                 runnable.run();
             }
-        }.runTaskLater(Main.getPlugin(), delay);
+        }.runTaskLater(CF.getPlugin(), delay);
     }
-
+    
     public static void dumpStackTrace() {
         final RuntimeException exception = new RuntimeException();
         final StackTraceElement[] stackTrace = exception.getStackTrace();
         final Deque<String> deque = Queues.newArrayDeque();
         final String pluginName = Main.getPlugin().getDescription().getName();
-
+        
         for (int i = stackTrace.length - 1; i >= 0; i--) {
             final StackTraceElement trace = stackTrace[i];
             final String classLoaderName = trace.getClassLoaderName();
-
+            
             if (classLoaderName == null
-                    || !classLoaderName.contains(pluginName + ".jar")
+                || !classLoaderName.contains(pluginName + ".jar")
             ) {
                 continue;
             }
-
+            
             String fileName = trace.getFileName();
-
+            
             if (fileName != null) {
                 fileName = fileName.replace(".java", "");
             }
-
+            
             final String methodName = trace.getMethodName();
             deque.offer(fileName + "." + methodName + ":" + trace.getLineNumber());
         }
-
-        final StringBuilder builder = new StringBuilder();
-
+        
+        final StrBuilder builder = new StrBuilder();
+        
         int index = 0;
         for (String string : deque) {
             if (index != 0) {
                 builder.append("\n");
             }
-
+            
             builder.append(index % 2 == 0 ? ChatColor.BLUE : ChatColor.RED);
-
+            
             if (index != deque.size() - 1) {
                 builder.append("├─");
             }
             else {
                 builder.append("└─");
             }
-
+            
             builder.append(string);
-
+            
             index++;
         }
-
+        
         Bukkit.getOnlinePlayers().stream().filter(Player::isOp).forEach(player -> {
             Chat.sendHoverableMessage(
                     player,
@@ -1101,7 +953,7 @@ public class CFUtils {
             );
         });
     }
-
+    
     public static String cuboidToString(@Nonnull Cuboid cuboid) {
         return "[%s, %s, %s, %s, %s, %s]".formatted(
                 cuboid.getMinX(),
@@ -1112,7 +964,7 @@ public class CFUtils {
                 cuboid.getMaxZ()
         );
     }
-
+    
     public static String cuboidToString(@Nonnull BoundingBox cuboid) {
         return "[%s, %s, %s, %s, %s, %s]".formatted(
                 cuboid.getMinX(),
@@ -1123,75 +975,232 @@ public class CFUtils {
                 cuboid.getMaxZ()
         );
     }
-
-    @Nonnull
-    public static String intToStringLower(int i) {
-        return intToString(i).toLowerCase();
+    
+    public static double distance(@Nonnull Location a, @Nonnull Location b) {
+        return distance0(a, b, Location::distance);
     }
-
+    
+    public static double distanceSquared(@Nonnull Location a, @Nonnull Location b) {
+        return distance0(a, b, Location::distanceSquared);
+    }
+    
+    public static void globalBlockChange(@Nonnull Location location, @Nonnull BlockData data) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendBlockChange(location, data));
+    }
+    
+    public static boolean wasPreviousLowerThanValueAndCurrentIsHigherOrEqualsToValue(double previous, double current, double value) {
+        return previous < value && current >= value;
+    }
+    
     @Nonnull
-    public static String intToString(int i) {
+    public static String toWordCount(int i) {
         return switch (i) {
-            case 0 -> "Zero";
-            case 1 -> "One";
-            case 2 -> "Two";
-            case 3 -> "Three";
-            case 4 -> "Four";
-            case 5 -> "Five";
-            case 6 -> "Six";
-            case 7 -> "Seven";
-            case 8 -> "Eight";
-            case 9 -> "Nine";
-            case 10 -> "Ten";
-            default -> "" + i;
+            case 1 -> "once";
+            case 2 -> "twice";
+            case 3 -> "thrice";
+            case 4 -> "four times";
+            case 5 -> "five times";
+            case 6 -> "six times";
+            case 7 -> "seven times";
+            case 8 -> "eight times";
+            case 9 -> "nine times";
+            case 10 -> "ten times";
+            default -> i + " times";
         };
     }
-
-    public static double distance(@Nonnull Location a, @Nonnull Location b) {
+    
+    @Nonnull
+    public static String toWord(int i) {
+        return switch (i) {
+            case 1 -> "one";
+            case 2 -> "two";
+            case 3 -> "three";
+            case 4 -> "four";
+            case 5 -> "five";
+            case 6 -> "six";
+            case 7 -> "seven";
+            case 8 -> "eight";
+            case 9 -> "nine";
+            case 10 -> "ten";
+            default -> "unknown";
+        };
+    }
+    
+    public static boolean compareBlockLocation(@Nonnull Location a, @Nonnull Location b) {
+        final int aX = a.getBlockX();
+        final int aY = a.getBlockY();
+        final int aZ = a.getBlockZ();
+        
+        final int bX = b.getBlockX();
+        final int bY = b.getBlockY();
+        final int bZ = b.getBlockZ();
+        
+        return aX == bX && aY == bY && aZ == bZ;
+    }
+    
+    private static double distance0(Location a, Location b, BiFunction<Location, Location, Double> fn) {
         final World aWorld = a.getWorld();
         final World bWorld = b.getWorld();
-
+        
         if (!Objects.equals(aWorld, bWorld)) {
-            return Double.MAX_VALUE;
+            return 0.0;
         }
-
-        return a.distance(b);
+        
+        return fn.apply(a, b);
     }
-
+    
     @Nonnull
     public static <K, V, R> Set<R> fetchKeySet(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
         return Helper.fetchFromMap(hashMap, clazz, true);
     }
-
+    
     @Nonnull
     public static <K, V, R> Set<R> fetchValues(@Nonnull Map<K, V> hashMap, @Nonnull Class<R> clazz) {
         return Helper.fetchFromMap(hashMap, clazz, false);
     }
-
+    
     public static void offsetLocation(@Nonnull Location location, double x, double y, double z, @Nonnull Runnable then) {
         location.add(x, y, z);
         then.run();
         location.subtract(x, y, z);
     }
-
+    
     public static void offsetLocation(@Nonnull Location location, double y, @Nonnull Runnable runnable) {
         offsetLocation(location, 0, y, 0, runnable);
     }
-
+    
+    @Nonnull
+    public static <T> T returnOrThrow(@Nullable T t, @Nonnull String errorMessage) {
+        if (t != null) {
+            return t;
+        }
+        
+        throw new IllegalArgumentException(errorMessage);
+    }
+    
+    public static boolean arrayContains(Object[] array, Object containingElement) {
+        if (array == null) {
+            return false;
+        }
+        
+        for (Object e : array) {
+            if (Objects.equals(e, containingElement)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @SafeVarargs
+    @Nonnull
+    public static <E extends Enum<E>> List<E> enumSubList(@Nonnull Class<E> clazz, int startIndex, int maxSize, @Nullable E... ignore) {
+        if (startIndex < 0) {
+            throw new IllegalArgumentException("Start index cannot be negative.");
+        }
+        
+        final List<E> list = new ArrayList<>();
+        final E[] enumConstants = clazz.getEnumConstants();
+        
+        for (int i = 0; i < maxSize; i++) {
+            if (startIndex + i >= enumConstants.length) {
+                return list;
+            }
+            
+            final E e = enumConstants[startIndex + i];
+            
+            if (arrayContains(ignore, e)) {
+                continue;
+            }
+            
+            list.add(e);
+        }
+        
+        return list;
+    }
+    
+    @Nullable
+    public static <T> Method getMethod(@Nonnull Class<T> clazz, @Nonnull String methodName) {
+        try {
+            return clazz.getMethod(methodName);
+        }
+        catch (Exception e) {
+            try {
+                return clazz.getDeclaredMethod(methodName);
+            }
+            catch (Exception e2) {
+                return null;
+            }
+        }
+    }
+    
+    /**
+     * Combines all the given {@link ChatColor} and prepends them before the name.
+     *
+     * @param name   - Name.
+     * @param colors - Colors.
+     * @return colored string.
+     */
+    @Nonnull
+    public static String combineColors(@Nonnull String name, @Nonnull ChatColor... colors) {
+        if (colors.length == 0) {
+            throw new IllegalArgumentException("There must be at least one color!");
+        }
+        
+        final StrBuilder builder = new StrBuilder();
+        
+        for (ChatColor color : colors) {
+            builder.append(color);
+        }
+        
+        return builder + name;
+    }
+    
+    @Nonnull
+    public static <T> T castNullable(@Nullable Object object, @Nonnull Class<T> cast) throws IllegalArgumentException {
+        if (object == null) {
+            throw new IllegalArgumentException("Cannot cast null object.");
+        }
+        
+        return cast.cast(object);
+    }
+    
+    @Nullable
+    public static Entity getEntityById(int entityId) {
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (entity.getEntityId() == entityId) {
+                    return entity;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    public static void showEntity(@Nonnull LivingEntity entity) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.showEntity(CF.getPlugin(), entity));
+    }
+    
+    @Nonnull
+    public static String strikethroughText(@Nonnull ChatColor color) {
+        return (color + "&m ").repeat(78);
+    }
+    
     private static class Helper {
         private static <K, V, R> Set<R> fetchFromMap(Map<K, V> hashMap, Class<R> clazz, boolean b) {
             Collection<?> collection = b ? hashMap.keySet() : hashMap.values();
             Set<R> hashSet = Sets.newHashSet();
-
+            
             collection.forEach(obj -> {
                 if (clazz.isInstance(obj)) {
                     hashSet.add(clazz.cast(obj));
                 }
             });
-
+            
             return hashSet;
         }
     }
-
-
+    
+    
 }

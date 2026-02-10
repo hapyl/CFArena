@@ -1,5 +1,6 @@
 package me.hapyl.fight.game.heroes.doctor;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.task.GameTask;
@@ -9,7 +10,6 @@ import me.hapyl.fight.game.weapons.ability.AbilityType;
 import me.hapyl.fight.util.collection.player.PlayerMap;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,10 +19,9 @@ public class GravityGun extends Weapon {
     private final PlayerMap<ActiveElement> elements = PlayerMap.newMap();
 
     public GravityGun() {
-        super(Material.IRON_HORSE_ARMOR);
+        super(Material.IRON_HORSE_ARMOR, Key.ofString("dr_ed_gun"));
 
         setDamage(1.0d);
-        setId("dr_ed_gun");
         setName("Dr. Ed's Gravity Energy Capacitor Mk. 3");
         setDescription("A tool that is capable of absorbing block elements.");
 
@@ -66,16 +65,16 @@ public class GravityGun extends Weapon {
         public BlockHarvest() {
             super("Block Harvest", """
                     Right-click on a block to harvest an element from it.
-                                    
+                    
                     Right-click again with an element equipped to launch it forward, damaging up to &bone &7opponents on its way.
-                                    
+                    
                     &8;;The damage and cooldown are based on the element.
                     """);
         }
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final Block targetBlock = player.getTargetBlockExact(7);
 
             // Throw

@@ -1,9 +1,10 @@
 package me.hapyl.fight.game.heroes.doctor;
 
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.entity.LivingGameEntity;
-import me.hapyl.fight.game.loadout.HotbarSlots;
+import me.hapyl.fight.game.loadout.HotBarSlot;
 import me.hapyl.fight.game.talents.Cooldown;
 import me.hapyl.fight.game.task.GameTask;
 import me.hapyl.fight.game.weapons.Weapon;
@@ -15,7 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,11 +25,12 @@ public class PhysGun extends Weapon {
     public final double maxDistance = 2.5d;
     public final double shift = 0.1d;
     public final double throwMagnitude = 2.0d;
+
     protected final PlayerMap<CaptureData> capturedEntity = PlayerMap.newMap();
 
     public PhysGun() {
-        super(Material.GOLDEN_HORSE_ARMOR);
-        setId("dr_ed_gun_2");
+        super(Material.GOLDEN_HORSE_ARMOR, Key.ofString("dr_ed_gun_2"));
+
         setName("Upgraded Dr. Ed's Gravity Energy Capacitor Mk. 4");
 
         setAbility(AbilityType.RIGHT_CLICK, new Harvest());
@@ -38,7 +39,7 @@ public class PhysGun extends Weapon {
     public void stop(@Nonnull GamePlayer player) {
         final CaptureData data = capturedEntity.remove(player);
 
-        player.setItem(HotbarSlots.HERO_ITEM, null);
+        player.setItem(HotBarSlot.HERO_ITEM, null);
         player.setUsingUltimate(false);
         player.snapToWeapon();
 
@@ -60,7 +61,7 @@ public class PhysGun extends Weapon {
 
         @Nullable
         @Override
-        public Response execute(@Nonnull GamePlayer player, @Nonnull ItemStack item) {
+        public Response execute(@Nonnull GamePlayer player) {
             final CaptureData data = capturedEntity.remove(player);
 
             // Throw
@@ -91,7 +92,7 @@ public class PhysGun extends Weapon {
         }
 
         @Override
-        public Cooldown setCooldownSec(int cooldownSec) {
+        public Cooldown setCooldownSec(float cooldownSec) {
             return super.setCooldownSec(cooldownSec);
         }
     }

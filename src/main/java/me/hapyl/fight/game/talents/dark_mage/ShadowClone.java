@@ -1,5 +1,7 @@
 package me.hapyl.fight.game.talents.dark_mage;
 
+
+import me.hapyl.eterna.module.registry.Key;
 import me.hapyl.fight.game.Response;
 import me.hapyl.fight.game.entity.GamePlayer;
 import me.hapyl.fight.game.heroes.dark_mage.SpellButton;
@@ -14,33 +16,34 @@ public class ShadowClone extends DarkMageTalent {
 
     protected final PlayerMap<ShadowCloneNPC> clones = PlayerMap.newMap();
 
-    public ShadowClone() {
-        super("Shadow Clone", """
+    public ShadowClone(@Nonnull Key key) {
+        super(key, "Shadow Clone", """
                 Create a &breflection&7 of &nyourself&7 at your &ncurrent&7 &nlocation&7 for a maximum of {duration}.
-                                
+                
                 The clone &ninherits&7 your &cHealth&7, &bEnergy&7, and &acooldowns&7.
-                                
+                
                 Cast this spell again to &bteleport&7 to the &8clone&7, &arestoring&7 yourself to the &3reflected&7 version of yourself.
-                        
+                
                 &cThe clone is very fragile!
-        
+                
                 &8;;Using your ultimate will remove the clone.
-                """);
+                """
+        );
 
-        setType(TalentType.IMPAIR);
-        setItem(Material.NETHERITE_SCRAP);
+        setType(TalentType.SUPPORT);
+        setMaterial(Material.NETHERITE_SCRAP);
         setDurationSec(15);
         setCooldownSec(20);
     }
 
     @Override
     public void onDeath(@Nonnull GamePlayer player) {
-        clones.removeAnd(player, ShadowCloneNPC::remove);
+        clones.removeAnd(player, ShadowCloneNPC::destroy);
     }
 
     @Override
     public void onStop(@Nonnull GamePlayer player) {
-        clones.forEachAndClear(ShadowCloneNPC::remove);
+        clones.forEachAndClear(ShadowCloneNPC::destroy);
     }
 
     @Override
@@ -55,7 +58,7 @@ public class ShadowClone extends DarkMageTalent {
         clones.put(player, new ShadowCloneNPC(this, player));
 
         // Fx
-        startCd(player, 5);
+        startCooldown(player, 5);
 
         return Response.AWAIT;
     }
@@ -81,7 +84,7 @@ public class ShadowClone extends DarkMageTalent {
         final ShadowCloneNPC clone = clones.remove(player);
 
         if (clone != null) {
-            clone.remove();
+            clone.destroy();
         }
     }
 

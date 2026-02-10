@@ -1,14 +1,14 @@
 package me.hapyl.fight.game.maps.features;
 
 import com.google.common.collect.Sets;
-import me.hapyl.fight.game.maps.MapFeature;
+import me.hapyl.eterna.module.math.Tick;
+import me.hapyl.eterna.module.util.Direction;
+import me.hapyl.fight.game.maps.LevelFeature;
 import me.hapyl.fight.game.maps.winery.Steam;
-import me.hapyl.fight.util.Direction;
-import me.hapyl.spigotutils.module.math.Tick;
 
 import java.util.Set;
 
-public class WinerySteamFeature extends MapFeature {
+public class WinerySteamFeature extends LevelFeature {
 
     private final Set<Steam> geysers;
 
@@ -20,15 +20,15 @@ public class WinerySteamFeature extends MapFeature {
         geysers = Sets.newHashSet();
 
         createGeyser(4982, 67, 14, Direction.NORTH)
-                .setMinDelay(Tick.fromSecond(8))
-                .setMaxDelay(Tick.fromSecond(16))
-                .setDuration(Tick.fromSecond(2))
+                .setMinDelay(Tick.fromSeconds(8))
+                .setMaxDelay(Tick.fromSeconds(16))
+                .setDuration(Tick.fromSeconds(2))
                 .setRange(6);
 
         createGeyser(4983, 67, 21, Direction.EAST)
-                .setMinDelay(Tick.fromSecond(8))
-                .setMaxDelay(Tick.fromSecond(16))
-                .setDuration(Tick.fromSecond(2))
+                .setMinDelay(Tick.fromSeconds(8))
+                .setMaxDelay(Tick.fromSeconds(16))
+                .setDuration(Tick.fromSeconds(2))
                 .setRange(4);
 
         createGeyser(4986, 62, 27, Direction.DOWN);

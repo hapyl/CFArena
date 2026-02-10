@@ -1,5 +1,6 @@
 package me.hapyl.fight.util;
 
+import me.hapyl.eterna.module.util.Described;
 import org.bukkit.ChatColor;
 
 import javax.annotation.Nonnull;
@@ -13,7 +14,7 @@ import java.util.function.Function;
 public interface EnumWrapper<E> {
 
     @Nonnull
-    E get();
+    E getWrapped();
 
     @Nonnull
     default String getName() {
@@ -31,7 +32,7 @@ public interface EnumWrapper<E> {
     }
 
     private <T, R> R cast(Class<T> clazz, Function<T, R> function, R def) {
-        final E e = get();
+        final E e = getWrapped();
 
         if (clazz.isInstance(e)) {
             return function.apply(clazz.cast(e));
